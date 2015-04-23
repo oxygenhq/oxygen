@@ -136,6 +136,11 @@ namespace CloudBeat.Selenium.JSEngine
             Exec(locator, variableName);
         }
         [JSVisible]
+        public void storeAttribute(string attributeLocator)
+        {
+            Exec(attributeLocator, null);
+        }
+        [JSVisible]
         public void storeValue(string locator, string variableName)
         {
             Exec(locator, variableName);
