@@ -249,12 +249,13 @@ namespace CloudBeat.Selenium.JSEngine
             {
                 cmdProc.ExecuteCommand(cmd, screenShotErrors, out screenShot);
 
-                if (fetchStats)
+                if (CommandExecuted != null)
                 {
-                    if (CommandExecuted != null)
+                    int domContentLoaded = 0;
+                    int load = 0;
+
+                    if (fetchStats)
                     {
-                        int domContentLoaded = 0;
-                        int load = 0;
                         long navigationStart = 0;
 
                         if (cmd.IsAction())
@@ -264,27 +265,22 @@ namespace CloudBeat.Selenium.JSEngine
                                 // if navigateStart equals to the one we got from previous attempt
                                 // it means we are still on the same page and don't need to record load/domContentLoaded times
                                 if (prevNavigationStart == navigationStart)
-                                {
-                                    domContentLoaded = 0;
-                                    load = 0;
-                                }
+                                    load = domContentLoaded = 0;
                                 else
-                                {
                                     prevNavigationStart = navigationStart;
-                                }
                             }
                         }
-
-                        CommandExecuted(cmd, domContentLoaded, load);
                     }
+
+                    CommandExecuted(cmd, domContentLoaded, load);
                 }
             }
             catch (Exception e)
             {
                 if (CommandException != null)
                     CommandException(cmd, screenShot, e);
-
-                return;
+                else
+                    throw;
             }
         }
 	}

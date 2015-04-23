@@ -20,7 +20,8 @@ namespace CloudBeat.Selenium.JSEngine
         [JSVisible]
         public void init(string connString)
         {
-            _CommandExecuting();
+            if (CommandExecuting != null)
+                CommandExecuting();
             this.connString = connString;
         }
 
@@ -28,7 +29,9 @@ namespace CloudBeat.Selenium.JSEngine
         public object getScalar(string query)
         {
             var cmdFormatted = string.Format("getScalar(\"{0}\")", query);
-            _CommandExecuting();
+            if (CommandExecuting != null)
+                CommandExecuting();
+
             try
             {
                 var conn = Connect(cmdFormatted);
@@ -41,6 +44,8 @@ namespace CloudBeat.Selenium.JSEngine
             {
                 if (CommandException != null)
                     CommandException(e, cmdFormatted, CheckResultStatus.DB);
+                else
+                    throw e;
             }
             return null;
         }
@@ -49,7 +54,9 @@ namespace CloudBeat.Selenium.JSEngine
         public void executeNonQuery(string query)
         {
             var cmdFormatted = string.Format("executeNonQuery(\"{0}\")", query);
-            _CommandExecuting();
+            if (CommandExecuting != null)
+                CommandExecuting();
+
             try
             {
                 var conn = Connect(cmdFormatted);
@@ -61,6 +68,8 @@ namespace CloudBeat.Selenium.JSEngine
             {
                 if (CommandException != null)
                     CommandException(e, cmdFormatted, CheckResultStatus.DB);
+                else
+                    throw e;
             }
         }
 
@@ -76,14 +85,10 @@ namespace CloudBeat.Selenium.JSEngine
             {
                 if (CommandException != null)
                     CommandException(e, cmd, CheckResultStatus.DB);
+                else
+                    throw e;
             }
             return null;
-        }
-
-        private void _CommandExecuting()
-        {
-            if (CommandExecuting != null)
-                CommandExecuting();
         }
 	}
 }

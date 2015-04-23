@@ -21,6 +21,8 @@ namespace CloudBeat.Selenium.JSEngine
             if (a != b)
                 if (CommandException != null)
                     CommandException(new Exception(message), string.Format("assert.equal(\"{0}\", \"{1}\")", a, b), CheckResultStatus.ASSERT);
+                else
+                    throw new Exception(message);
         }
 
         [JSVisible]
@@ -30,6 +32,8 @@ namespace CloudBeat.Selenium.JSEngine
             if (a == b)
                 if (CommandException != null)
                     CommandException(new Exception(message), string.Format("assert.notEqual(\"{0}\", \"{1}\")", a, b), CheckResultStatus.ASSERT);
+                else
+                    throw new Exception(message);
         }
 
         [JSVisible]
@@ -38,6 +42,8 @@ namespace CloudBeat.Selenium.JSEngine
             _CommandExecuting();
             if (CommandException != null)
                 CommandException(new Exception(message), "assert.throw()", CheckResultStatus.ASSERT);
+            else
+                throw new Exception(message);
         }
 
         private void _CommandExecuting()

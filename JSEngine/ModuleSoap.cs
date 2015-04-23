@@ -129,6 +129,9 @@ namespace CloudBeat.Selenium.JSEngine
 
                         if (CommandException != null)
                             CommandException(new Exception("Compile Error: " + string.Join(":", errorTexts)), command, CheckResultStatus.SOAP);
+                        else 
+                            throw new Exception("SOAP: Compile Error: " + string.Join(":", errorTexts));
+
                         return null;
                     }
 
@@ -141,6 +144,9 @@ namespace CloudBeat.Selenium.JSEngine
                 {
                     if (CommandException != null)
                         CommandException(new Exception("Import Error"), command, CheckResultStatus.SOAP);
+                    else 
+                        throw new Exception("SOAP: Import Error");
+
                     return null;
                 }
             }
@@ -148,6 +154,8 @@ namespace CloudBeat.Selenium.JSEngine
             {
                 if (CommandException != null)
                     CommandException(e, command, CheckResultStatus.SOAP);
+                else
+                    throw;
             }
 
             return null;
