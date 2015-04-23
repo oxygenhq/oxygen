@@ -61,9 +61,9 @@ namespace CloudBeat.Selenium.JSEngine
             }
         }
         [JSVisible]
-        public void setTimeout(string timeout)
+        public void setTimeout(int timeout)
         {
-            Exec(timeout, null);
+            Exec(timeout.ToString(), null);
         }
         [JSVisible]
         public void open(string url)
