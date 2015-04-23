@@ -7,6 +7,7 @@ namespace CloudBeat.Selenium.JSEngine
 {
     public class Engine
 	{
+        private SeleniumDriver selDriver;
         private ModuleWeb modWeb;
         private ModuleDB modDB;
         private ModuleSoap modSoap;
@@ -18,18 +19,38 @@ namespace CloudBeat.Selenium.JSEngine
             modDB = new ModuleDB();
             modSoap = new ModuleSoap();
             modAssert = new ModuleAssert();
-
-            DesiredCapabilities dc = DCFactory.Get("chrome");
-            var cmdProc = new SeleniumDriver(new Uri("http://localhost:4444/wd/hub"), dc, null);
-            modWeb.SetCmdProcessor(cmdProc);
         }
+
+        private void Initialize(string browser, string seleniumUrl)
+        {
+            DesiredCapabilities dc = DCFactory.Get(browser);
+            selDriver = new SeleniumDriver(new Uri(seleniumUrl), dc, null);
+            modWeb.SetCmdProcessor(selDriver);
+        }
+
 
         public Task<object> Invoke(dynamic input)
         {
+            string mod = (string)input.module;
             string cmd = (string)input.cmd;
-            object[] p = (object[])input.prm;
+            object[] args = (object[])input.args;
+
+            if (mod == "utils")
+            {
+                if (cmd == "close")
+                {
+                    selDriver.Close();
+                    return Task.FromResult<object>(null);
+                }
+                if (cmd == "initialize")
+                {
+                    Initialize((string)args[0], (string)args[1]);
+                    return Task.FromResult<object>(null);
+                }
+            }
+
             object module;
-            switch ((string)input.module) 
+            switch (mod) 
             {
                 case "web": module = modWeb; break;
                 case "db": module = modDB; break;
@@ -41,12 +62,12 @@ namespace CloudBeat.Selenium.JSEngine
 
             Type modType = module.GetType();
 
-            Type[] paramTypes = new Type[p.Length];
-            for (int i = 0; i < p.Length; i++) 
-                paramTypes[i] = p[i].GetType();
+            Type[] paramTypes = new Type[args.Length];
+            for (int i = 0; i < args.Length; i++)
+                paramTypes[i] = args[i].GetType();
 
             MethodInfo cmdMethod = modType.GetMethod(cmd, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
-            var result = cmdMethod.Invoke(module, p);
+            var result = cmdMethod.Invoke(module, args);
             return Task.FromResult(result);
         }
 	}
