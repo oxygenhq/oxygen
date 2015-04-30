@@ -51,6 +51,8 @@ namespace CloudBeat.Selenium
 
         public string BaseURL { get; set; }
 
+		PageObjectManager pageObjectManager;
+
         private Action<string> newHarPageCallback;
 
         #region variables dictionary
@@ -161,6 +163,7 @@ namespace CloudBeat.Selenium
 				commandName = cmd.CommandName.Remove(cmd.CommandName.Length-"AndWait".Length);
 
             var target = SubstituteVariable(cmd.Target);
+			target = SubstituteLocator(target);
             var value = SubstituteVariable(cmd.Value);
 
 			MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX+commandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
@@ -186,6 +189,19 @@ namespace CloudBeat.Selenium
 
                 throw tie.InnerException;
             }
+			finally
+			{
+				// prevent another exception
+				try
+				{
+					var currentUrl = this.GetCurrentURL();
+					var currentTitle = this.GetCurrentTitle();
+					// identify if navigation occured and we are on a new page
+					if (currentTitle != pageObjectManager.CurrentPageTitle || currentUrl != pageObjectManager.CurrentPageUrl)
+						pageObjectManager.IdentifyCurrentPage(currentTitle, currentUrl, false);
+				}
+				catch (Exception e) { }
+			}
 
             screenShot = null;
         }
@@ -193,6 +209,11 @@ namespace CloudBeat.Selenium
         public void AddParameter(string name, string value)
         {
             variables.Add(name, value);
+        }
+
+        public void SetPageObjectManager(PageObjectManager manager)
+        {
+            this.pageObjectManager = manager;
         }
 
         private string SubstituteVariable(string str) 
@@ -219,6 +240,22 @@ namespace CloudBeat.Selenium
                 }
             }
         }
+		private string SubstituteLocator(string target)
+		{
+			if (pageObjectManager == null)
+				return target;
+			if (string.IsNullOrEmpty(target))
+				return target;
+			if (target.StartsWith("@{") && target.EndsWith("}"))
+			{
+				// extract the value enclosed in @{...}
+				var objectName = target.Substring(2, target.Length - 3);
+				var locator = pageObjectManager.GetLocator(objectName);
+				// TODO handle situation when locator is not found, perhaps throw an error
+				return locator;
+			}
+			return target;
+		}
 
 		public string TakeScreenshot()
 		{
@@ -251,6 +288,25 @@ namespace CloudBeat.Selenium
 			});
 
 			return currentUrl;
+		}
+		public string GetCurrentTitle()
+		{
+			string currentTitle = null;
+
+			new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_FETCH_URL)).Until((d) =>
+			{
+				try
+				{
+					currentTitle = this.Title;
+					return true;
+				}
+				catch (InvalidOperationException)
+				{
+					return false;
+				}
+			});
+
+			return currentTitle;
 		}
 
 

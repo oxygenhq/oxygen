@@ -72,6 +72,8 @@
     <Compile Include="JSEngine\ModuleWeb.cs" />
     <Compile Include="JSEngine\SeMethodAttribute.cs" />
     <Compile Include="Models\ParameterizationCSVModel.cs" />
+    <Compile Include="Models\TestCaseConfig.cs" />
+    <Compile Include="PageObjects\PageObjectManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeleniumDriver\SeCommand.cs" />
     <Compile Include="SeleniumDriver\Accessors.cs" />
