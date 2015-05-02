@@ -177,8 +177,13 @@ namespace CloudBeat.Selenium
                 {
                     var el = this.FindElement(locator);
 
-                    if (el.Displayed)
+                    if (el.Displayed) 
+                    {
                         el.SendKeys(value);
+                        // FIXME: sometimes only part of the value is sent (reproducible in IDE, yes script) 
+                        //        and this awfull hack seems to fix it.
+                        Thread.Sleep(800);
+                    }
                     else
                         (this as IJavaScriptExecutor).ExecuteScript("arguments[0].value='" + value + "'", el); // it's ok to just set the value since 'type' not supposed to send keys anyway
 
