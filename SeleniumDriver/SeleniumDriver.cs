@@ -251,7 +251,8 @@ namespace CloudBeat.Selenium
 				// extract the value enclosed in @{...}
 				var objectName = target.Substring(2, target.Length - 3);
 				var locator = pageObjectManager.GetLocator(objectName);
-				// TODO handle situation when locator is not found, perhaps throw an error
+				if (locator == null)
+					throw new SeException("Locator '" + objectName + "' is not found.");
 				return locator;
 			}
 			return target;

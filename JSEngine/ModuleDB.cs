@@ -7,7 +7,7 @@ namespace CloudBeat.Selenium.JSEngine
 	{
         private string connString;
 
-        public delegate void ExceptionEventHandler(Exception e, string cmd, CheckResultStatus status);
+        public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
         public event ExceptionEventHandler CommandException;
 
         public delegate void ExecutingEventHandler();
@@ -28,6 +28,8 @@ namespace CloudBeat.Selenium.JSEngine
         [JSVisible]
         public object getScalar(string query)
         {
+			DateTime cmdStartTime = DateTime.UtcNow;
+
             var cmdFormatted = string.Format("getScalar(\"{0}\")", query);
             if (CommandExecuting != null)
                 CommandExecuting();
@@ -43,7 +45,7 @@ namespace CloudBeat.Selenium.JSEngine
             catch (Exception e)
             {
                 if (CommandException != null)
-                    CommandException(e, cmdFormatted, CheckResultStatus.DB);
+					CommandException(e, cmdFormatted, cmdStartTime, CheckResultStatus.DB);
                 else
                     throw e;
             }
@@ -53,6 +55,8 @@ namespace CloudBeat.Selenium.JSEngine
         [JSVisible]
         public void executeNonQuery(string query)
         {
+			DateTime cmdStartTime = DateTime.UtcNow;
+
             var cmdFormatted = string.Format("executeNonQuery(\"{0}\")", query);
             if (CommandExecuting != null)
                 CommandExecuting();
@@ -67,7 +71,7 @@ namespace CloudBeat.Selenium.JSEngine
             catch (Exception e)
             {
                 if (CommandException != null)
-                    CommandException(e, cmdFormatted, CheckResultStatus.DB);
+                    CommandException(e, cmdFormatted, cmdStartTime, CheckResultStatus.DB);
                 else
                     throw e;
             }
@@ -75,6 +79,8 @@ namespace CloudBeat.Selenium.JSEngine
 
         private OdbcConnection Connect(string cmd)
         {
+			DateTime cmdStartTime = DateTime.UtcNow;
+
             try
             {
                 OdbcConnection conn = new OdbcConnection(connString);
@@ -84,7 +90,7 @@ namespace CloudBeat.Selenium.JSEngine
             catch (Exception e)
             {
                 if (CommandException != null)
-                    CommandException(e, cmd, CheckResultStatus.DB);
+					CommandException(e, cmd, cmdStartTime, CheckResultStatus.DB);
                 else
                     throw e;
             }

@@ -14,7 +14,7 @@ namespace CloudBeat.Selenium.JSEngine
 {
     public class ModuleSoap
 	{
-        public delegate void ExceptionEventHandler(Exception e, string cmd, CheckResultStatus status);
+        public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
         public event ExceptionEventHandler CommandException;
 
         public delegate void ExecutingEventHandler();
@@ -128,7 +128,7 @@ namespace CloudBeat.Selenium.JSEngine
                             errorTexts.Add(oops.ErrorText);
 
                         if (CommandException != null)
-                            CommandException(new Exception("Compile Error: " + string.Join(":", errorTexts)), command, CheckResultStatus.SOAP);
+                            CommandException(new Exception("Compile Error: " + string.Join(":", errorTexts)), command, DateTime.UtcNow, CheckResultStatus.SOAP);
                         else 
                             throw new Exception("SOAP: Compile Error: " + string.Join(":", errorTexts));
 
@@ -143,7 +143,7 @@ namespace CloudBeat.Selenium.JSEngine
                 else
                 {
                     if (CommandException != null)
-                        CommandException(new Exception("Import Error"), command, CheckResultStatus.SOAP);
+						CommandException(new Exception("Import Error"), command, DateTime.UtcNow, CheckResultStatus.SOAP);
                     else 
                         throw new Exception("SOAP: Import Error");
 
@@ -153,7 +153,7 @@ namespace CloudBeat.Selenium.JSEngine
             catch (Exception e)
             {
                 if (CommandException != null)
-                    CommandException(e, command, CheckResultStatus.SOAP);
+					CommandException(e, command, DateTime.UtcNow, CheckResultStatus.SOAP);
                 else
                     throw;
             }

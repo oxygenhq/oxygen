@@ -4,7 +4,7 @@ namespace CloudBeat.Selenium.JSEngine
 {
     public class ModuleAssert
 	{
-        public delegate void ExceptionEventHandler(Exception e, string cmd, CheckResultStatus status);
+        public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
         public event ExceptionEventHandler CommandException;
 
         public delegate void ExecutingEventHandler();
@@ -20,7 +20,7 @@ namespace CloudBeat.Selenium.JSEngine
             _CommandExecuting();
             if (a != b)
                 if (CommandException != null)
-                    CommandException(new Exception(message), string.Format("assert.equal(\"{0}\", \"{1}\")", a, b), CheckResultStatus.ASSERT);
+					CommandException(new Exception(message), string.Format("assert.equal(\"{0}\", \"{1}\")", a, b), DateTime.UtcNow, CheckResultStatus.ASSERT);
                 else
                     throw new Exception(message);
         }
@@ -31,7 +31,7 @@ namespace CloudBeat.Selenium.JSEngine
             _CommandExecuting();
             if (a == b)
                 if (CommandException != null)
-                    CommandException(new Exception(message), string.Format("assert.notEqual(\"{0}\", \"{1}\")", a, b), CheckResultStatus.ASSERT);
+					CommandException(new Exception(message), string.Format("assert.notEqual(\"{0}\", \"{1}\")", a, b), DateTime.UtcNow, CheckResultStatus.ASSERT);
                 else
                     throw new Exception(message);
         }
@@ -41,7 +41,7 @@ namespace CloudBeat.Selenium.JSEngine
         {
             _CommandExecuting();
             if (CommandException != null)
-                CommandException(new Exception(message), "assert.throw()", CheckResultStatus.ASSERT);
+				CommandException(new Exception(message), "assert.throw()", DateTime.UtcNow, CheckResultStatus.ASSERT);
             else
                 throw new Exception(message);
         }
