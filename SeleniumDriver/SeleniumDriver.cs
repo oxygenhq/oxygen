@@ -7,6 +7,8 @@ using OpenQA.Selenium.Support.UI;
 using System.Linq;
 using log4net;
 using System.Text.RegularExpressions;
+using Selenium.Parameters;
+using CloudBeat.Selenium.Models;
 
 namespace CloudBeat.Selenium
 {
@@ -52,6 +54,7 @@ namespace CloudBeat.Selenium
         public string BaseURL { get; set; }
 
 		PageObjectManager pageObjectManager;
+		ParameterManager paramManager;
 
         private Action<string> newHarPageCallback;
 
@@ -141,6 +144,9 @@ namespace CloudBeat.Selenium
             this.newHarPageCallback = newHarPageCallback;
 			base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
             base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
+
+			paramManager = new ParameterManager();
+			pageObjectManager = new PageObjectManager();
         }
 
         public void StartNewTransaction(string name)
@@ -205,16 +211,26 @@ namespace CloudBeat.Selenium
 
             screenShot = null;
         }
+		public ParameterManager ParameterManager { get { return paramManager; } }
 
         public void AddParameter(string name, string value)
         {
             variables.Add(name, value);
         }
 
-        public void SetPageObjectManager(PageObjectManager manager)
+        public void AddPageObjects(PageObjects pageObjects)
         {
-            this.pageObjectManager = manager;
+            pageObjectManager.AddObjects(pageObjects);
         }
+		public void AddParameters(IParameterReader reader)
+		{
+			paramManager.AddParameters(reader);
+		}
+		public void AddParameters(ParameterSourceSettings settings)
+		{
+			var reader = ParameterReaderFactory.Create(settings);
+			paramManager.AddParameters(reader);
+		}
 
         private string SubstituteVariable(string str) 
         {
@@ -234,9 +250,18 @@ namespace CloudBeat.Selenium
                 {
                     str = str.Substring(0, varIndexStart) + variables[variableName.ToUpper()] + str.Substring(varIndexEnd + 1);
                 }
+
                 else
                 {
-                    throw new SeException("Variable '" + variableName + "' is not defined.");
+					try
+					{
+						var value = paramManager.GetValue(variableName);
+						str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
+					}
+					catch (Exception)
+					{
+						throw new SeException("Variable '" + variableName + "' is not defined.");
+					}
                 }
             }
         }

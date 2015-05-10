@@ -74,6 +74,14 @@
     <Compile Include="Models\ParameterizationCSVModel.cs" />
     <Compile Include="Models\TestCaseConfig.cs" />
     <Compile Include="PageObjects\PageObjectManager.cs" />
+    <Compile Include="Parameters\IParameterReader.cs" />
+    <Compile Include="Parameters\ParameterNotFoundException.cs" />
+    <Compile Include="Parameters\ParameterSourceSettings.cs" />
+    <Compile Include="Parameters\ParameterReaderFactory.cs" />
+    <Compile Include="Parameters\Readers\CsvParameterReader.cs" />
+    <Compile Include="Parameters\TestParameter.cs" />
+    <Compile Include="Parameters\ParameterManager.cs" />
+    <Compile Include="Parameters\TestParameterGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeleniumDriver\SeCommand.cs" />
     <Compile Include="SeleniumDriver\Accessors.cs" />
