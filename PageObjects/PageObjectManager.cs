@@ -39,6 +39,19 @@ namespace CloudBeat.Selenium
 			globalObjects.Add(obj);
 			
 		}
+		public void AddObjects(PageObjects pageObjects)
+		{
+			if (pageObjects == null)
+				throw new ArgumentNullException("pageObjects");
+			if (pageObjects.Pages == null)
+				return;
+			foreach (var page in pageObjects.Pages)
+			{
+				this.pageHash.Add(page.Name, page);
+				this.pages.Add(page);
+			}
+				
+		}
 		public void AddPage(Page page)
 		{
 			this.pages.Add(page);
