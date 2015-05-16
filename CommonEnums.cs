@@ -11,6 +11,7 @@ namespace CloudBeat.Selenium
         ELEMENT_NOT_VISIBLE,
         STALE_ELEMENT,
         SOAP,
-        DB
+        DB,
+        JS_EVALUATE_ERROR
     }
 }
