@@ -161,9 +161,9 @@ namespace CloudBeat.Selenium.JSEngine
             Exec(selectLocator, optionLocator);
         }
         [JSVisible]
-        public void pause(string waitTime)
+        public void pause(int waitTime)
         {
-            Exec(waitTime, null);
+            Exec(waitTime.ToString(), null);
         }
         [JSVisible]
         public void waitForPopUp(string windowID, string timeout)
