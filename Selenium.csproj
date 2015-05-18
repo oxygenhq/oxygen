@@ -63,6 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommonEnums.cs" />
+    <Compile Include="ConfigLoader\TestCaseConfigLoader.cs" />
     <Compile Include="JSEngine\Exceptions.cs" />
     <Compile Include="JSEngine\ModuleAssert.cs" />
     <Compile Include="JSEngine\Engine.cs" />

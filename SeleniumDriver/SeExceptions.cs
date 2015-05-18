@@ -18,6 +18,24 @@ namespace CloudBeat.Selenium
         {
         }
     }
+	public class SeConnectionException : SeException
+	{
+		public SeConnectionException(string seleniumUrl)
+			: base("Can't connect to selenium server: " + seleniumUrl)
+        {
+			
+        }
+	}
+
+	public class SeSetWindowSizeException : SeException
+	{
+		public SeSetWindowSizeException()
+			: base ("SetWindowSize funcion failed")
+        {
+        }
+
+	}
+
 
     public class SeAssertionException : SeException
     {
