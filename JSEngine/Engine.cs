@@ -23,27 +23,35 @@ namespace CloudBeat.Selenium.JSEngine
             modAssert = new ModuleAssert();
         }
 
-        private void Initialize(string browser, string seleniumUrl)
-        {
+        private const string TESTCASE_NAME = "testcase1";
+
+		private void Initialize(string browser, string seleniumUrl, string configFile, string paramFile, string paramNextVal)
+		{
             DesiredCapabilities dc = DCFactory.Get(browser);
             selDriver = new SeleniumDriver(new Uri(seleniumUrl), dc, null);
             modWeb.SetCmdProcessor(selDriver);
-        }
-		private void Initialize(string browser, string seleniumUrl, int iterations, string configFile, string paramFile, string paramNextVal)
-		{
-			var testCaseConfig = TestCaseConfigLoader.LoadFromFile(configFile);
-			// creaate ParameterSourceSettings object
-			ParameterSourceSettings paramSettings = new ParameterSourceSettings();
-			paramSettings.FilePath = paramFile;
-			if (paramNextVal == "random")
-				paramSettings.NextValue = ParameterSourceSettings.NextValueMode.Random;
-			else
-				paramSettings.NextValue = ParameterSourceSettings.NextValueMode.Sequential;
-			// basic initialization
-			Initialize(browser, seleniumUrl);
-			selDriver.AddParameters(paramSettings);
-			if (testCaseConfig.PageObjects != null)
-				selDriver.AddPageObjects(testCaseConfig.PageObjects);
+
+            if (paramFile != null)
+            {
+                ParameterSourceSettings paramSettings = new ParameterSourceSettings();
+                paramSettings.FilePath = paramFile;
+                paramSettings.Format = ParameterSourceSettings.FormatType.CSV;
+                paramSettings.TestCaseName = TESTCASE_NAME;
+                if (paramNextVal == "random")
+                    paramSettings.NextValue = ParameterSourceSettings.NextValueMode.Random;
+                else
+                    paramSettings.NextValue = ParameterSourceSettings.NextValueMode.Sequential;
+
+                selDriver.AddParameters(paramSettings);
+                selDriver.ParameterManager.TestCaseName = TESTCASE_NAME;
+            }
+
+            if (configFile != null)
+            {
+                var testCaseConfig = TestCaseConfigLoader.LoadFromFile(configFile);
+                if (testCaseConfig.PageObjects != null)
+                    selDriver.AddPageObjects(testCaseConfig.PageObjects);
+            }
 		}
 
         public Task<object> Invoke(dynamic input)
@@ -59,9 +67,14 @@ namespace CloudBeat.Selenium.JSEngine
                     selDriver.Close();
                     return Task.FromResult<object>(null);
                 }
-                if (cmd == "initialize")
+                else if (cmd == "initialize")
                 {
-                    Initialize((string)args[0], (string)args[1]);
+                    Initialize((string)args[0], (string)args[1], args[3] as string, args[2] as string, args[4] as string);
+                    return Task.FromResult<object>(null);
+                }
+                else if (cmd == "next_iteration") 
+                {
+                    selDriver.ParameterManager.NextIteration(TESTCASE_NAME);
                     return Task.FromResult<object>(null);
                 }
             }
