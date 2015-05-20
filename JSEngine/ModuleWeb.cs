@@ -113,11 +113,6 @@ namespace CloudBeat.Selenium.JSEngine
         [JSVisible]
         public void store(string expression, string variableName)
         {
-            storeExpression(expression, variableName);
-        }
-        [JSVisible]
-        public void storeExpression(string expression, string variableName)
-        {
             Exec(expression, variableName);
         }
         [JSVisible]
