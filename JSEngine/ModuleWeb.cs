@@ -68,11 +68,6 @@ namespace CloudBeat.Selenium.JSEngine
         [JSVisible]
         public void open(string url)
         {
-            openAndWait(url);
-        }
-        [JSVisible]
-        public void openAndWait(string url)
-        {
             Exec(url, null);
         }
         [JSVisible]
@@ -83,15 +78,10 @@ namespace CloudBeat.Selenium.JSEngine
         [JSVisible]
 		public void click(string locator)
 		{
-            clickAndWait(locator);
+            Exec(locator, null);
 		}
         [JSVisible]
         public void clickHidden(string locator)
-        {
-            Exec(locator, null);
-        }
-        [JSVisible]
-        public void clickAndWait(string locator)
         {
             Exec(locator, null);
         }
