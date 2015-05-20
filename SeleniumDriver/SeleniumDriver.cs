@@ -53,8 +53,8 @@ namespace CloudBeat.Selenium
 
         public string BaseURL { get; set; }
 
-		PageObjectManager pageObjectManager;
-		ParameterManager paramManager;
+		private PageObjectManager pageObjectManager;
+		private ParameterManager paramManager;
 
         private Action<string> newHarPageCallback;
 
@@ -229,6 +229,7 @@ namespace CloudBeat.Selenium
 		public void AddParameters(ParameterSourceSettings settings)
 		{
 			var reader = ParameterReaderFactory.Create(settings);
+            paramManager.TestCaseName = settings.TestCaseName;
 			paramManager.AddParameters(reader);
 		}
 
@@ -255,12 +256,12 @@ namespace CloudBeat.Selenium
                 {
 					try
 					{
-						var value = paramManager.GetValue(variableName);
+                        var value = paramManager.GetValue(variableName);
 						str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
 					}
 					catch (Exception)
 					{
-						throw new SeException("Variable '" + variableName + "' is not defined.");
+                        throw new SeVariableUndefined(variableName);
 					}
                 }
             }
@@ -277,7 +278,7 @@ namespace CloudBeat.Selenium
 				var objectName = target.Substring(2, target.Length - 3);
 				var locator = pageObjectManager.GetLocator(objectName);
 				if (locator == null)
-					throw new SeException("Locator '" + objectName + "' is not found.");
+                    throw new SeLocatorUndefined(objectName);
 				return locator;
 			}
 			return target;

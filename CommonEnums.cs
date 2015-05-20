@@ -12,6 +12,8 @@ namespace CloudBeat.Selenium
         STALE_ELEMENT,
         SOAP,
         DB,
-        JS_EVALUATE_ERROR
+        JS_EVALUATE_ERROR,
+        VARIABLE_NOT_DEFINED,
+        UNKNOWN_OBJECT
     }
 }

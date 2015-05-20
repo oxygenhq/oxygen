@@ -18,12 +18,12 @@ namespace CloudBeat.Selenium
         {
         }
     }
+
 	public class SeConnectionException : SeException
 	{
 		public SeConnectionException(string seleniumUrl)
 			: base("Can't connect to selenium server: " + seleniumUrl)
         {
-			
         }
 	}
 
@@ -33,9 +33,23 @@ namespace CloudBeat.Selenium
 			: base ("SetWindowSize funcion failed")
         {
         }
-
 	}
 
+    public class SeVariableUndefined : SeException
+    {
+        public SeVariableUndefined(string variableName)
+            : base("Variable '" + variableName + "' is not defined.")
+        {
+        }
+    }
+
+    public class SeLocatorUndefined : SeException
+    {
+        public SeLocatorUndefined(string objectName)
+            : base("Locator '" + objectName + "' is not found.")
+        {
+        }
+    }
 
     public class SeAssertionException : SeException
     {
