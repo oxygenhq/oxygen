@@ -215,11 +215,6 @@ namespace CloudBeat.Selenium.JSEngine
         {
             Exec(pattern, null);
         }
-        [JSVisible]
-        public void waitForPageToLoad(string timeout)
-        {
-            Exec(timeout, null);
-        }
 
         private void Exec(string target, string value)
         {
