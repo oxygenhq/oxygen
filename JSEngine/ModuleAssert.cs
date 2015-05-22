@@ -37,11 +37,12 @@ namespace CloudBeat.Selenium.JSEngine
         }
 
         [JSVisible]
-        public void @throw(string message)
+        public void fail(string message)
         {
+
             _CommandExecuting();
             if (CommandException != null)
-				CommandException(new Exception(message), "assert.throw()", DateTime.UtcNow, CheckResultStatus.ASSERT);
+				CommandException(new Exception(message), "assert.fail()", DateTime.UtcNow, CheckResultStatus.ASSERT);
             else
                 throw new Exception(message);
         }
