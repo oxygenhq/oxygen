@@ -155,7 +155,7 @@ namespace CloudBeat.Selenium
                 newHarPageCallback(name);
         }
 
-        public void ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
+        public object ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
         {
             Type thisType = this.GetType();
 
@@ -176,9 +176,10 @@ namespace CloudBeat.Selenium
             if (cmdMethod == null)
                 throw new SeCommandNotImplementedException();
 
+            screenShot = null;
             try
             {
-                cmdMethod.Invoke(this, new object[] { target, value });
+                return cmdMethod.Invoke(this, new object[] { target, value });
             }
             catch (TargetInvocationException tie)
             {
@@ -208,9 +209,8 @@ namespace CloudBeat.Selenium
 				}
 				catch (Exception e) { }
 			}
-
-            screenShot = null;
         }
+
 		public ParameterManager ParameterManager { get { return paramManager; } }
 
         public void AddParameter(string name, string value)
