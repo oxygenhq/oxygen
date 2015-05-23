@@ -293,6 +293,12 @@ namespace CloudBeat.Selenium
             {
                 throw new SeCommandNotImplementedException("'dom=' locator in SelectFrame is not supported");
             }
+            else if (target.StartsWith("//"))   // non Selenium RC compliant
+            {
+                SwitchTo().DefaultContent();
+                var el = this.FindElement(By.XPath(target));
+                SwitchTo().Frame(el);
+            }
             else
             {
                 SwitchTo().Frame(target);
