@@ -151,11 +151,6 @@ namespace CloudBeat.Selenium.JSEngine
             Exec(locator, null);
         }
         [JSVisible]
-        public void sendKeys(string locator, string value)
-        {
-            Exec(locator, value);
-        }
-        [JSVisible]
         public void select(string selectLocator, string optionLocator)
         {
             Exec(selectLocator, optionLocator);
