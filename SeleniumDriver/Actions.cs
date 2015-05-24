@@ -179,6 +179,7 @@ namespace CloudBeat.Selenium
 
                     if (el.Displayed) 
                     {
+                        el.Clear();
                         el.SendKeys(value);
                         // FIXME: sometimes only part of the value is sent (reproducible in IDE, yes script) 
                         //        and this awfull hack seems to fix it.
