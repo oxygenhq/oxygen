@@ -157,6 +157,8 @@ namespace CloudBeat.Selenium
 
         public void ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
         {
+			screenShot = null;
+
             Type thisType = this.GetType();
 
 			// While Selenese commands with *AndWait suffix imply that the command will block until the page has been loaded
@@ -209,7 +211,6 @@ namespace CloudBeat.Selenium
 				catch (Exception e) { }
 			}
 
-            screenShot = null;
         }
 		public ParameterManager ParameterManager { get { return paramManager; } }
 

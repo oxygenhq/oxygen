@@ -70,7 +70,10 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
-                    this.FindElement(ResolveLocator(target)).Click();
+					// make sure that the element present first
+                    this.SeCmdWaitForElementPresent(target, value);
+
+					this.FindElement(ResolveLocator(target)).Click();
                     success = true;
                     break;
                 }
@@ -123,6 +126,9 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+					// make sure that the element present first
+					this.SeCmdWaitForElementPresent(target, value);
+
                     var el = this.FindElement(ResolveLocator(target));
 
                     Actions actionProvider = new Actions(this);
@@ -147,6 +153,9 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+					// make sure that the element present first
+					this.SeCmdWaitForElementPresent(target, value);
+
                     this.FindElement(locator).SendKeys(value);
                     return;
                 }
@@ -175,6 +184,9 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+					// make sure that the element present first
+					this.SeCmdWaitForElementPresent(target, value);
+
                     var el = this.FindElement(locator);
 
                     if (el.Displayed) 
@@ -199,6 +211,9 @@ namespace CloudBeat.Selenium
         {
             string selArg;
             string selectorMethod = ParseSelector(value, out selArg);
+			// make sure that the element present first
+			this.SeCmdWaitForElementPresent(target, value);
+
             SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(target)));
             Type type = typeof(SelectElement);
             MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);

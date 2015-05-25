@@ -82,32 +82,27 @@ namespace CloudBeat.Selenium
 
         public void SeCmdWaitForElementPresent(string target, string value)
         {
-            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            try
             {
-                try
+                new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
                 {
-                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
+                    try
                     {
-                        try
-                        {
-                            var el = this.FindElement(ResolveLocator(target));
-                            return el != null;
-                        }
-                        catch (NoSuchElementException) { }
+                        var el = this.FindElement(ResolveLocator(target));
+                        return el != null;
+                    }
+                    catch (NoSuchElementException) { }
 
-                        return false;
-                    });
+                    return false;
+                });
 
-                    return;
-                }
-                catch (StaleElementReferenceException) { }
-                catch (WebDriverTimeoutException)
-                {
-                    throw new SeWaitForException();
-                }
+                return;
             }
-
-            throw new StaleElementReferenceException();
+            catch (StaleElementReferenceException) { }
+            catch (WebDriverTimeoutException)
+            {
+                throw new SeWaitForException();
+            }
         }
 
         public void SeCmdWaitForText(string target, string value)
