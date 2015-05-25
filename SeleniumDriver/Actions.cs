@@ -42,6 +42,7 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+                    this.SeCmdWaitForElementPresent(target, value);
                     Actions actions = new Actions(this);
                     actions.MoveToElement(this.FindElement(ResolveLocator(target))).Perform();
                     success = true;
@@ -100,6 +101,7 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+                    this.SeCmdWaitForElementPresent(target, value);
                     var el = this.FindElement(ResolveLocator(target));
                     (this as IJavaScriptExecutor).ExecuteScript("var clck_ev = document.createEvent('MouseEvent');clck_ev.initEvent('click', true, true);arguments[0].dispatchEvent(clck_ev)", el);
                     success = true;
@@ -170,6 +172,7 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+                    this.SeCmdWaitForElementPresent(target, value);
                     this.FindElement(locator).Clear();
                     return;
                 }

@@ -98,7 +98,6 @@ namespace CloudBeat.Selenium
 
                 return;
             }
-            catch (StaleElementReferenceException) { }
             catch (WebDriverTimeoutException)
             {
                 throw new SeWaitForException();
