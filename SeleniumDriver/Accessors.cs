@@ -81,5 +81,67 @@ namespace CloudBeat.Selenium
                 catch (StaleElementReferenceException) { }
             }
         }
+
+        public string SeCmdGetAttribute(string target, string value)
+        {
+            string attributeName;
+            var locator = ResolveAttributeLocator(target, out attributeName);
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    return this.FindElement(locator).GetAttribute(attributeName);
+                }
+                catch (StaleElementReferenceException) { }
+            }
+            return null;
+        }
+
+        public string SeCmdGetText(string target, string value)
+        {
+            var locator = ResolveLocator(target);
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    return this.FindElement(locator).Text;
+                }
+                catch (StaleElementReferenceException) { }
+            }
+            return null;
+        }
+
+        public string SeCmdGetValue(string target, string value)
+        {
+            var locator = ResolveLocator(target);
+
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    var el = this.FindElement(locator);
+
+                    var type = el.GetAttribute("type");
+                    if (type == null)
+                        throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+
+                    type = type.Trim().ToLower();
+
+                    if (type == "radio" || type == "checkbox")
+                    {
+                        return el.Selected ? "on" : "off";
+                    }
+                    else
+                    {
+                        var elValue = el.GetAttribute("value");
+                        if (elValue == null)
+                            throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+                        return elValue;
+                    }
+                }
+                catch (StaleElementReferenceException) { }
+            }
+            return null;
+        }
     }
 }

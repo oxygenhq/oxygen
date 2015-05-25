@@ -131,14 +131,24 @@ namespace CloudBeat.Selenium.JSEngine
             Exec(locator, variableName);
         }
         [JSVisible]
+        public string getText(string locator)
+        {
+            return Exec(locator, null) as string;
+        }
+        [JSVisible]
+        public string getAttribute(string attributeLocator)
+        {
+            return Exec(attributeLocator, null) as string;
+        }
+        [JSVisible]
+        public string getValue(string locator)
+        {
+            return Exec(locator, null) as string;
+        }
+        [JSVisible]
         public void doubleClick(string locator)
         {
             Exec(locator, null);
-        }
-        [JSVisible]
-        public void sendKeys(string locator, string value)
-        {
-            Exec(locator, value);
         }
         [JSVisible]
         public void select(string selectLocator, string optionLocator)
@@ -216,7 +226,7 @@ namespace CloudBeat.Selenium.JSEngine
             Exec(pattern, null);
         }
 
-        private void Exec(string target, string value)
+        private object Exec(string target, string value)
         {
             if (CommandExecuting != null)
                 CommandExecuting();
@@ -232,7 +242,7 @@ namespace CloudBeat.Selenium.JSEngine
 
             try
             {
-                cmdProc.ExecuteCommand(cmd, screenShotErrors, out screenShot);
+                var retVal = cmdProc.ExecuteCommand(cmd, screenShotErrors, out screenShot);
 
                 if (CommandExecuted != null)
                 {
@@ -259,6 +269,8 @@ namespace CloudBeat.Selenium.JSEngine
 
                     CommandExecuted(cmd, domContentLoaded, load);
                 }
+
+                return retVal;
             }
             catch (Exception e)
             {
@@ -267,6 +279,8 @@ namespace CloudBeat.Selenium.JSEngine
                 else
                     throw;
             }
+
+            return null;
         }
 	}
 }

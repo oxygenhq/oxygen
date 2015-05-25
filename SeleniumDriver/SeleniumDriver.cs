@@ -155,10 +155,8 @@ namespace CloudBeat.Selenium
                 newHarPageCallback(name);
         }
 
-        public void ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
+        public object ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
         {
-			screenShot = null;
-
             Type thisType = this.GetType();
 
 			// While Selenese commands with *AndWait suffix imply that the command will block until the page has been loaded
@@ -178,9 +176,10 @@ namespace CloudBeat.Selenium
             if (cmdMethod == null)
                 throw new SeCommandNotImplementedException();
 
+            screenShot = null;
             try
             {
-                cmdMethod.Invoke(this, new object[] { target, value });
+                return cmdMethod.Invoke(this, new object[] { target, value });
             }
             catch (TargetInvocationException tie)
             {
@@ -210,8 +209,8 @@ namespace CloudBeat.Selenium
 				}
 				catch (Exception e) { }
 			}
-
         }
+
 		public ParameterManager ParameterManager { get { return paramManager; } }
 
         public void AddParameter(string name, string value)

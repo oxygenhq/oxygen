@@ -191,6 +191,7 @@ namespace CloudBeat.Selenium
 
                     if (el.Displayed) 
                     {
+                        el.Clear();
                         el.SendKeys(value);
                         // FIXME: sometimes only part of the value is sent (reproducible in IDE, yes script) 
                         //        and this awfull hack seems to fix it.
@@ -307,6 +308,12 @@ namespace CloudBeat.Selenium
             else if (target.StartsWith("dom="))
             {
                 throw new SeCommandNotImplementedException("'dom=' locator in SelectFrame is not supported");
+            }
+            else if (target.StartsWith("//"))   // non Selenium RC compliant
+            {
+                SwitchTo().DefaultContent();
+                var el = this.FindElement(By.XPath(target));
+                SwitchTo().Frame(el);
             }
             else
             {
