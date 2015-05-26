@@ -170,6 +170,7 @@ namespace CloudBeat.Selenium
 
         public void SeCmdAssertValue(string target, string value)
         {
+            this.SeCmdWaitForVisible(target, value);
             // assertValue asserts the value of an input field (or anything else with a value parameter). 
             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
             // hence we need to take two different approaches when comparing depending if the element is radio/checkbox or something else
@@ -355,6 +356,8 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
+                    this.SeCmdWaitForVisible(target, value);
+
                     var el = this.FindElement(ResolveLocator(target));
 
                     new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_ASSERT)).Until((d) =>
@@ -392,6 +395,7 @@ namespace CloudBeat.Selenium
 
         public void SeCmdAssertElementPresent(string target, string value)
         {
+            this.SeCmdWaitForElementPresent(target, value);
             if (!IsElementPresent(ResolveLocator(target)))
                 throw new SeAssertionException();
         }

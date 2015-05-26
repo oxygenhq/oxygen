@@ -42,7 +42,7 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
-                    this.SeCmdWaitForElementPresent(target, value);
+                    this.SeCmdWaitForVisible(target, value);
                     Actions actions = new Actions(this);
                     actions.MoveToElement(this.FindElement(ResolveLocator(target))).Perform();
                     success = true;
@@ -72,7 +72,7 @@ namespace CloudBeat.Selenium
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForElementPresent(target, value);
+                    this.SeCmdWaitForVisible(target, value);
 
 					this.FindElement(ResolveLocator(target)).Click();
                     success = true;
@@ -129,7 +129,7 @@ namespace CloudBeat.Selenium
                 try
                 {
 					// make sure that the element present first
-					this.SeCmdWaitForElementPresent(target, value);
+                    this.SeCmdWaitForVisible(target, value);
 
                     var el = this.FindElement(ResolveLocator(target));
 
@@ -156,7 +156,7 @@ namespace CloudBeat.Selenium
                 try
                 {
 					// make sure that the element present first
-					this.SeCmdWaitForElementPresent(target, value);
+                    this.SeCmdWaitForVisible(target, value);
 
                     this.FindElement(locator).SendKeys(value);
                     return;
@@ -172,7 +172,7 @@ namespace CloudBeat.Selenium
             {
                 try
                 {
-                    this.SeCmdWaitForElementPresent(target, value);
+                    this.SeCmdWaitForVisible(target, value);
                     this.FindElement(locator).Clear();
                     return;
                 }
@@ -188,7 +188,7 @@ namespace CloudBeat.Selenium
                 try
                 {
 					// make sure that the element present first
-					this.SeCmdWaitForElementPresent(target, value);
+                    this.SeCmdWaitForVisible(target, value);
 
                     var el = this.FindElement(locator);
 
@@ -216,7 +216,7 @@ namespace CloudBeat.Selenium
             string selArg;
             string selectorMethod = ParseSelector(value, out selArg);
 			// make sure that the element present first
-			this.SeCmdWaitForElementPresent(target, value);
+            this.SeCmdWaitForVisible(target, value);
 
             SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(target)));
             Type type = typeof(SelectElement);
