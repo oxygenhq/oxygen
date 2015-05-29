@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 
 
-namespace Selenium.Parameters
+namespace CloudBeat.Oxygen.Parameters
 {
 	public interface IParameterReader
 	{

@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CloudBeat.Selenium.Models
+namespace CloudBeat.Oxygen.Models
 {
     public class ParameterizationCSVModel
 	{

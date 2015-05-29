@@ -1,5 +1,5 @@
-﻿using CloudBeat.Selenium;
-using CloudBeat.Selenium.Models;
+﻿using CloudBeat.Oxygen;
+using CloudBeat.Oxygen.Models;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Selenium.Parameters.Readers
+namespace CloudBeat.Oxygen.Parameters.Readers
 {
 	public class CsvParameterReader : IParameterReader
 	{

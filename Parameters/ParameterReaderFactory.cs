@@ -1,11 +1,11 @@
-﻿using Selenium.Parameters.Readers;
+﻿using CloudBeat.Oxygen.Parameters.Readers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Selenium.Parameters
+namespace CloudBeat.Oxygen.Parameters
 {
 	public static class ParameterReaderFactory
 	{

@@ -10,7 +10,7 @@ using System.Web.Services.Description;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     public class ModuleSoap
 	{

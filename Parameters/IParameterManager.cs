@@ -6,9 +6,10 @@ using System.Threading.Tasks;
 
 namespace CloudBeat.Oxygen.Parameters
 {
-	public class TestParameterGroup
+	public interface IParameterManager
 	{
-		public string GroupName { get; set; }
-		public IList<TestParameter> Parameters { get; set; }
+		bool ContainsParameter(string name);
+		string GetValue(string name);
+		void ReadNextValues();
 	}
 }

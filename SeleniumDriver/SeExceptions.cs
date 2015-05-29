@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public class SeException : Exception
     {
@@ -25,6 +25,13 @@ namespace CloudBeat.Selenium
 			: base("Can't connect to selenium server: " + seleniumUrl)
         {
         }
+	}
+	public class SeProxyException : SeException
+	{
+		public SeProxyException(string proxyUrl)
+			: base("Can't initialize or connect to proxy server: " + proxyUrl)
+		{
+		}
 	}
 
 	public class SeSetWindowSizeException : SeException

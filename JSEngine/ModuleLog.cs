@@ -1,6 +1,6 @@
 ﻿using log4net.Core;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     public class ModuleLog
 	{

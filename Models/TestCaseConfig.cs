@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
 
-namespace CloudBeat.Selenium.Models
+namespace CloudBeat.Oxygen.Models
 {
 	[Serializable()]
 	[XmlRoot("test-case-config", Namespace = "", IsNullable = false)]

@@ -1,7 +1,7 @@
 ﻿using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Remote;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public class DCChrome : IDCBrowser
     {

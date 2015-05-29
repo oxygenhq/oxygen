@@ -1,11 +1,12 @@
-﻿using CloudBeat.Selenium.ConfigLoader;
+﻿using CloudBeat.Oxygen.ConfigLoader;
 using OpenQA.Selenium.Remote;
-using Selenium.Parameters;
+using CloudBeat.Oxygen;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
+using CloudBeat.Oxygen.Parameters;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     public class Engine
 	{
@@ -28,8 +29,9 @@ namespace CloudBeat.Selenium.JSEngine
 		private void Initialize(string browser, string seleniumUrl, string configFile, string paramFile, string paramNextVal)
 		{
             DesiredCapabilities dc = DCFactory.Get(browser);
-            selDriver = new SeleniumDriver(new Uri(seleniumUrl), dc, null);
-            modWeb.SetCmdProcessor(selDriver);
+			ExecutionContext context = new ExecutionContext();
+			selDriver = new SeleniumDriver(new Uri(seleniumUrl), dc, null, context);
+            modWeb.SetDriver(selDriver);
 
             if (paramFile != null)
             {
@@ -42,15 +44,24 @@ namespace CloudBeat.Selenium.JSEngine
                 else
                     paramSettings.NextValue = ParameterSourceSettings.NextValueMode.Sequential;
 
-                selDriver.AddParameters(paramSettings);
-                selDriver.ParameterManager.TestCaseName = TESTCASE_NAME;
+				// initialize parameter manager
+				var paramManager = new ParameterManager();
+				context.ParameterManager = paramManager;
+				// read from parameter file
+				var reader = ParameterReaderFactory.Create(paramSettings);
+				paramManager.AddParameters(reader.ReadAll()[0]);
             }
 
             if (configFile != null)
             {
                 var testCaseConfig = TestCaseConfigLoader.LoadFromFile(configFile);
                 if (testCaseConfig.PageObjects != null)
-                    selDriver.AddPageObjects(testCaseConfig.PageObjects);
+				{
+					var pom = new PageObjectManager();
+					pom.AddObjects(testCaseConfig.PageObjects);
+					context.PageObjectManager = pom;
+				}
+                    
             }
 		}
 
@@ -74,7 +85,7 @@ namespace CloudBeat.Selenium.JSEngine
                 }
                 else if (cmd == "next_iteration") 
                 {
-                    selDriver.ParameterManager.NextIteration(TESTCASE_NAME);
+                    selDriver.ExecutionContext.ParameterManager.ReadNextValues();
                     return Task.FromResult<object>(null);
                 }
             }

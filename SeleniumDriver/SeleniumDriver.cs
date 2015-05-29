@@ -7,10 +7,11 @@ using OpenQA.Selenium.Support.UI;
 using System.Linq;
 using log4net;
 using System.Text.RegularExpressions;
-using Selenium.Parameters;
-using CloudBeat.Selenium.Models;
+using CloudBeat.Oxygen;
+using CloudBeat.Oxygen.Models;
+using CloudBeat;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
 	// http://release.seleniumhq.org/selenium-core/1.0.1/reference.html
     public partial class SeleniumDriver : RemoteWebDriver
@@ -53,8 +54,7 @@ namespace CloudBeat.Selenium
 
         public string BaseURL { get; set; }
 
-		private PageObjectManager pageObjectManager;
-		private ParameterManager paramManager;
+		private ExecutionContext context;
 
         private Action<string> newHarPageCallback;
 
@@ -138,17 +138,27 @@ namespace CloudBeat.Selenium
         };
         #endregion
 
-        public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback)
+        public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback) : this(remoteAddress, desiredCapabilities, newHarPageCallback, null)
+		{
+
+		}
+		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback, ExecutionContext context)
             : base(remoteAddress, desiredCapabilities, TimeSpan.FromSeconds(TIMEOUT_COMMAND))
         {
             this.newHarPageCallback = newHarPageCallback;
 			base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
             base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
 
-			paramManager = new ParameterManager();
-			pageObjectManager = new PageObjectManager();
+			this.context = context;
+			if (context == null)
+				this.context = new ExecutionContext();
         }
+		public bool IsUsingProxy 
+		{
+			get { return this.newHarPageCallback != null; }
+		}
 
+		public ExecutionContext ExecutionContext { get { return context; } }
         public void StartNewTransaction(string name)
         {
             if (newHarPageCallback != null)
@@ -203,14 +213,22 @@ namespace CloudBeat.Selenium
 				{
 					var currentUrl = this.GetCurrentURL();
 					var currentTitle = this.GetCurrentTitle();
-					// identify if navigation occured and we are on a new page
-					if (currentTitle != pageObjectManager.CurrentPageTitle || currentUrl != pageObjectManager.CurrentPageUrl)
-						pageObjectManager.IdentifyCurrentPage(currentTitle, currentUrl, false);
+					// identify a new page if navigation occured (.e.g if URL or page title have changed)
+					
+					// look up for a page in local POM first
+					var pom = context.PageObjectManager;
+					if (pom != null)
+					{
+						if (currentTitle != pom.CurrentPageTitle || currentUrl != pom.CurrentPageUrl)
+							pom.IdentifyCurrentPage(currentTitle, currentUrl, false);
+					}
+					
 				}
 				catch (Exception e) { }
 			}
         }
 
+		/*
 		public ParameterManager ParameterManager { get { return paramManager; } }
 
         public void AddParameter(string name, string value)
@@ -231,7 +249,7 @@ namespace CloudBeat.Selenium
 			var reader = ParameterReaderFactory.Create(settings);
             paramManager.TestCaseName = settings.TestCaseName;
 			paramManager.AddParameters(reader);
-		}
+		}*/
 
         private string SubstituteVariable(string str) 
         {
@@ -254,21 +272,17 @@ namespace CloudBeat.Selenium
 
                 else
                 {
-					try
-					{
-                        var value = paramManager.GetValue(variableName);
-						str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
-					}
-					catch (Exception)
-					{
-                        throw new SeVariableUndefined(variableName);
-					}
+					var pm = context.ParameterManager;
+					if (pm == null || !pm.ContainsParameter(variableName))
+						throw new SeVariableUndefined(variableName);
+					var value = pm.GetValue(variableName);
+					str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
                 }
             }
         }
 		private string SubstituteLocator(string target)
 		{
-			if (pageObjectManager == null)
+			if (context.PageObjectManager == null)
 				return target;
 			if (string.IsNullOrEmpty(target))
 				return target;
@@ -276,7 +290,7 @@ namespace CloudBeat.Selenium
 			{
 				// extract the value enclosed in @{...}
 				var objectName = target.Substring(2, target.Length - 3);
-				var locator = pageObjectManager.GetLocator(objectName);
+				var locator = context.PageObjectManager.GetLocator(objectName);
 				if (locator == null)
                     throw new SeLocatorUndefined(objectName);
 				return locator;

@@ -7,7 +7,7 @@ using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {

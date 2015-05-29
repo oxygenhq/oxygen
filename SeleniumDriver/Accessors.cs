@@ -1,6 +1,6 @@
 ﻿using OpenQA.Selenium;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {

@@ -8,9 +8,9 @@ using System.Xml.Linq;
 using System.Xml;
 using Microsoft.VisualBasic.FileIO;
 using System.Reflection;
-using CloudBeat.Selenium.Models;
+using CloudBeat.Oxygen.Models;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public class SeParser
     {

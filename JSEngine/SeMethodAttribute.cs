@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     [AttributeUsage(AttributeTargets.Method, AllowMultiple = false)]
     public class JSVisibleAttribute : Attribute

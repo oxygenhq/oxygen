@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Data.Odbc;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     public class ModuleDB
 	{

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     public class ModuleAssert
 	{

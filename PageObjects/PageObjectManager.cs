@@ -1,13 +1,13 @@
-﻿using CloudBeat.Selenium.Models;
+﻿using CloudBeat.Oxygen.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
-	public class PageObjectManager
+	public class PageObjectManager : IPageObjectManager
 	{
 		private IList<PageObject> globalObjects;
 		private IList<Page> pages;
@@ -76,10 +76,10 @@ namespace CloudBeat.Selenium
 			// then try to locate object at the global scope
 			return FindGlobalPageObjectLocator(objectName);
 		}
-		public void IdentifyCurrentPage(string title, string url, bool strict)
+		public bool IdentifyCurrentPage(string title, string url, bool strict)
 		{
 			if (pages == null)
-				return;
+				return false;
 			foreach (var page in pages)
 			{
 				if (string.IsNullOrEmpty(page.Title) && string.IsNullOrEmpty(page.Url))
@@ -97,13 +97,14 @@ namespace CloudBeat.Selenium
 					currentPageName = page.Name;
 					currentPageTitle = title;
 					currentPageUrl = url;
-					return;
+					return true;
 				}
 			}
 			// not found
 			currentPageName = null;
 			currentPageTitle = null;
 			currentPageUrl = null;
+			return false;
 		}
 
 		private static bool MatchPageUrl(string pattern, string current, bool strict)

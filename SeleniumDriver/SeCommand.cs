@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public class SeCommand
     {

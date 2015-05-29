@@ -1,5 +1,5 @@
 ﻿
-namespace CloudBeat.Selenium
+namespace CloudBeat.Oxygen
 {
     public enum CheckResultStatus
     {

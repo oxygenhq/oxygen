@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Selenium.Parameters
+namespace CloudBeat.Oxygen.Parameters
 {
 	public class ParameterSourceSettings
 	{

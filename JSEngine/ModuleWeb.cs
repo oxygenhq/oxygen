@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Diagnostics;
 
-namespace CloudBeat.Selenium.JSEngine
+namespace CloudBeat.Oxygen.JSEngine
 {
     public class ModuleWeb
 	{
-        private SeleniumDriver cmdProc;
+        private SeleniumDriver driver;
 
         public delegate void TransactionEventHandler(string transaction);
         public event TransactionEventHandler TransactionUpdate;
@@ -29,17 +29,17 @@ namespace CloudBeat.Selenium.JSEngine
             this.fetchStats = fetchStats;
         }
 
-        public void SetCmdProcessor(SeleniumDriver cmdProc)
+        public void SetDriver(SeleniumDriver driver)
         {
-            this.cmdProc = cmdProc;
+			this.driver = driver;
         }
 
-        public void DisposeCmdProcessor()
+        public void DisposeDriver()
         {
             try
             {
-                if (cmdProc != null)
-                    cmdProc.Close();
+                if (driver != null)
+                    driver.Close();
             }
             catch (Exception) { } // ignore exceptions
         }
@@ -49,14 +49,14 @@ namespace CloudBeat.Selenium.JSEngine
         {
             if (CommandExecuting != null)
                 CommandExecuting();
-            cmdProc.BaseURL = url;
+            driver.BaseURL = url;
         }
         [JSVisible]
         public void transaction(string name)
         {
             if (TransactionUpdate != null)
             {
-                cmdProc.StartNewTransaction(name);
+                driver.StartNewTransaction(name);
                 TransactionUpdate(name);
             }
         }
@@ -242,7 +242,7 @@ namespace CloudBeat.Selenium.JSEngine
 
             try
             {
-                var retVal = cmdProc.ExecuteCommand(cmd, screenShotErrors, out screenShot);
+                var retVal = driver.ExecuteCommand(cmd, screenShotErrors, out screenShot);
 
                 if (CommandExecuted != null)
                 {
@@ -255,7 +255,7 @@ namespace CloudBeat.Selenium.JSEngine
 
                         if (cmd.IsAction())
                         {
-                            if (cmdProc.GetPerformanceTimings(out domContentLoaded, out load, out navigationStart))
+                            if (driver.GetPerformanceTimings(out domContentLoaded, out load, out navigationStart))
                             {
                                 // if navigateStart equals to the one we got from previous attempt
                                 // it means we are still on the same page and don't need to record load/domContentLoaded times
