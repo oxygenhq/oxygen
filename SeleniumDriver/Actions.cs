@@ -231,9 +231,11 @@ namespace CloudBeat.Oxygen
                 Thread.Sleep(time);
         }
 
+        // Not Selenium RC compliant!
         public void SeCmdWaitForPopUp(string target, string value)
         {
-            if (string.IsNullOrWhiteSpace(target))
+
+            if (string.IsNullOrWhiteSpace(target))  // wait for any new window
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(long.Parse(value))).Until((d) =>
                 {
@@ -246,50 +248,64 @@ namespace CloudBeat.Oxygen
                     return false;
                 });
             }
-            else
+            else if (target.StartsWith("title="))   // wait for a window with the specified Title
             {
                 var curWinHandle = base.CurrentWindowHandle;
+                string title = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
 
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(long.Parse(value))).Until((d) =>
                 {
                     try
                     {
-                        SwitchTo().Window(target);
-                        SwitchTo().Window(curWinHandle);
-                        return true;
+                        foreach (string handle in base.WindowHandles)
+                        {
+                            var t = base.SwitchTo().Window(handle).Title;
+                            if (base.SwitchTo().Window(handle).Title.Equals(title, StringComparison.InvariantCultureIgnoreCase))
+                            {
+                                base.SwitchTo().Window(curWinHandle);
+                                return true;
+                            }
+
+                            base.SwitchTo().Window(curWinHandle);
+                        }
+                        return false;
                     }
-                    catch (NoSuchWindowException) { }
-
-                    return false;
-                });
-            }
-        }
-
-        public void SeCmdSelectWindow(string target, string value)
-        {
-            if (target.StartsWith("title="))
-            {
-                string title = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
-                bool success = false;
-                foreach (string handle in base.WindowHandles)
-                {
-                    if (base.SwitchTo().Window(handle).Title.Equals(title, StringComparison.InvariantCultureIgnoreCase))
+                    catch (NoSuchWindowException) 
                     {
-                        success = true;
-                        break;
+                        return false;
                     }
-                }
-
-                if (!success)
-                    throw new Exception("selectWindow cannot find window using locator '" + target + "'");
-            }
-            else if (target.StartsWith("name="))
-            {
-                SwitchTo().Window(target.Substring("name=".Length));
+                });
             }
             else
             {
-                throw new SeCommandNotImplementedException("Unsuported locator in SelectWindow - " + target);
+                throw new SeCommandNotImplementedException("Unsuported locator in WaitForPopUp - " + target);
+            }
+        }
+
+        // Not Selenium RC compliant!
+        public string SeCmdSelectWindow(string target, string value)
+        {
+            var curWinHandle = base.CurrentWindowHandle;
+            if (string.IsNullOrWhiteSpace(target))  // switch to the last opened window
+            {
+                base.SwitchTo().Window(base.WindowHandles.Last());
+                return curWinHandle;
+            }
+            else if (target.StartsWith("title="))   // switch to the first window with a matching title
+            {
+                string title = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
+                foreach (string handle in base.WindowHandles)
+                {
+                    if (base.SwitchTo().Window(handle).Title.Equals(title, StringComparison.InvariantCultureIgnoreCase))
+                        return curWinHandle;
+                }
+
+                throw new Exception("selectWindow cannot find window using locator '" + target + "'");
+            }
+            else                                    // switch to the first window with a matching title
+            {
+                base.SwitchTo().Window(target);
+                return curWinHandle;
             }
         }
 
