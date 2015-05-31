@@ -106,9 +106,9 @@ namespace CloudBeat.Oxygen.JSEngine
             Exec(locator, pattern);
         }
         [JSVisible]
-        public void selectWindow(string windowID)
+        public string selectWindow(string windowLocator)
         {
-            Exec(windowID, null);
+            return Exec(windowLocator, null) as string;
         }
         [JSVisible]
         public void store(string expression, string variableName)
@@ -161,9 +161,9 @@ namespace CloudBeat.Oxygen.JSEngine
             Exec(waitTime.ToString(), null);
         }
         [JSVisible]
-        public void waitForPopUp(string windowID, string timeout)
+        public void waitForPopUp(string windowID, int timeout)
         {
-            Exec(windowID, timeout);
+            Exec(windowID, timeout.ToString());
         }
         [JSVisible]
         public void selectFrame(string locator)
