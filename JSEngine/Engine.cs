@@ -1,6 +1,5 @@
 ﻿using CloudBeat.Oxygen.ConfigLoader;
 using OpenQA.Selenium.Remote;
-using CloudBeat.Oxygen;
 using System;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -85,7 +84,8 @@ namespace CloudBeat.Oxygen.JSEngine
                 }
                 else if (cmd == "next_iteration") 
                 {
-                    selDriver.ExecutionContext.ParameterManager.ReadNextValues();
+                    if (selDriver.ExecutionContext.ParameterManager != null)
+                        selDriver.ExecutionContext.ParameterManager.ReadNextValues();
                     return Task.FromResult<object>(null);
                 }
             }
