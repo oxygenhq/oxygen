@@ -111,26 +111,6 @@ namespace CloudBeat.Oxygen.JSEngine
             return Exec(windowLocator, null) as string;
         }
         [JSVisible]
-        public void store(string expression, string variableName)
-        {
-            Exec(expression, variableName);
-        }
-        [JSVisible]
-        public void storeText(string locator, string variableName)
-        {
-            Exec(locator, variableName);
-        }
-        [JSVisible]
-        public void storeAttribute(string attributeLocator)
-        {
-            Exec(attributeLocator, null);
-        }
-        [JSVisible]
-        public void storeValue(string locator, string variableName)
-        {
-            Exec(locator, variableName);
-        }
-        [JSVisible]
         public string getText(string locator)
         {
             return Exec(locator, null) as string;
