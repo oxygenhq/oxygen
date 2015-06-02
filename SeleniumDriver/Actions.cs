@@ -234,7 +234,6 @@ namespace CloudBeat.Oxygen
         // Not Selenium RC compliant!
         public void SeCmdWaitForPopUp(string target, string value)
         {
-
             if (string.IsNullOrWhiteSpace(target))  // wait for any new window
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(long.Parse(value))).Until((d) =>
@@ -259,7 +258,6 @@ namespace CloudBeat.Oxygen
                     {
                         foreach (string handle in base.WindowHandles)
                         {
-                            var t = base.SwitchTo().Window(handle).Title;
                             if (base.SwitchTo().Window(handle).Title.Equals(title, StringComparison.InvariantCultureIgnoreCase))
                             {
                                 base.SwitchTo().Window(curWinHandle);
