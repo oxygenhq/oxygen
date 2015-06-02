@@ -84,13 +84,12 @@ namespace CloudBeat.Oxygen
 
         public string SeCmdGetAttribute(string target, string value)
         {
-            string attributeName;
-            var locator = ResolveAttributeLocator(target, out attributeName);
+            var locator = ResolveLocator(target);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    return this.FindElement(locator).GetAttribute(attributeName);
+                    return this.FindElement(locator).GetAttribute(value);
                 }
                 catch (StaleElementReferenceException) { }
             }

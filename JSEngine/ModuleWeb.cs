@@ -116,9 +116,9 @@ namespace CloudBeat.Oxygen.JSEngine
             return Exec(locator, null) as string;
         }
         [JSVisible]
-        public string getAttribute(string attributeLocator)
+        public string getAttribute(string locator, string attributeName)
         {
-            return Exec(attributeLocator, null) as string;
+            return Exec(locator, attributeName) as string;
         }
         [JSVisible]
         public string getValue(string locator)
