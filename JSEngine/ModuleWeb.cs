@@ -76,6 +76,11 @@ namespace CloudBeat.Oxygen.JSEngine
             Exec(locator, null);
         }
         [JSVisible]
+        public void scrollToElement(string locator, int yOffset)
+        {
+            Exec(locator, yOffset.ToString());
+        }
+        [JSVisible]
 		public void click(string locator)
 		{
             Exec(locator, null);

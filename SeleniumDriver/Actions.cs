@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Drawing;
 
 namespace CloudBeat.Oxygen
 {
@@ -56,6 +57,27 @@ namespace CloudBeat.Oxygen
 
             if (!success)
                 throw new StaleElementReferenceException();
+        }
+
+        public void SeCmdScrollToElement(string target, string value)
+        {
+            int yOffset;
+            if (!int.TryParse(value, out yOffset))
+                yOffset = 0;
+                
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    var el = this.FindElement(ResolveLocator(target));
+                    (this as IJavaScriptExecutor).ExecuteScript("window.scrollTo(" + el.Location.X + "," + (el.Location.Y - yOffset) + ");");
+                    break;
+                }
+                catch (StaleElementReferenceException)
+                {
+                    Thread.Sleep(500);
+                }
+            }
         }
 
         private int windowsCount;
