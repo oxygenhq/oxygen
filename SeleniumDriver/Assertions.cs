@@ -16,6 +16,8 @@ namespace CloudBeat.Oxygen
 
         public void SeCmdWaitForVisible(string target, string value)
         {
+            bool elementPresent = false;
+
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
@@ -25,10 +27,14 @@ namespace CloudBeat.Oxygen
                         try
                         {
                             var el = this.FindElement(ResolveLocator(target));
+                            elementPresent = true;
                             if (el.Displayed)
                                 return true;
                         }
-                        catch (NoSuchElementException) { }
+                        catch (NoSuchElementException)
+                        {
+                            elementPresent = false;
+                        }
 
                         return false;
                     });
@@ -38,7 +44,10 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (WebDriverTimeoutException)
                 {
-                    throw new SeWaitForException();
+                    if (elementPresent)
+                        throw new SeElementNotVisibleException("Element not visible.");
+                    else
+                        throw new SeElementNotFoundException("Element not found.");
                 }
             }
 
@@ -100,13 +109,14 @@ namespace CloudBeat.Oxygen
             }
             catch (WebDriverTimeoutException)
             {
-                throw new SeWaitForException();
+                throw new SeElementNotFoundException("Element not found.");
             }
         }
 
         public void SeCmdWaitForText(string target, string value)
         {
             string valCleaned = CollapseWhitespace(value);
+            bool elementPresent = false;
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -117,9 +127,13 @@ namespace CloudBeat.Oxygen
                         try
                         {
                             var el = this.FindElement(ResolveLocator(target));
+                            elementPresent = true;
                             return MatchPattern(el.Text, valCleaned);
                         }
-                        catch (NoSuchElementException) { }
+                        catch (NoSuchElementException) 
+                        {
+                            elementPresent = false;
+                        }
 
                         return false;
                     });
@@ -129,7 +143,10 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (WebDriverTimeoutException)
                 {
-                    throw new SeWaitForException();
+                    if (elementPresent) 
+                        throw new SeWaitForException("Element's text doesn't match.");
+                    else
+                        throw new SeElementNotFoundException("Element not found.");
                 }
             }
 
@@ -139,6 +156,7 @@ namespace CloudBeat.Oxygen
         public void SeCmdWaitForNotText(string target, string value)
         {
             string valCleaned = CollapseWhitespace(value);
+            bool elementPresent = false;
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -149,10 +167,13 @@ namespace CloudBeat.Oxygen
                         try
                         {
                             var el = this.FindElement(ResolveLocator(target));
+                            elementPresent = true;
                             return !MatchPattern(el.Text, valCleaned);
                         }
-                        catch (NoSuchElementException) { }
-
+                        catch (NoSuchElementException)
+                        {
+                            elementPresent = false;
+                        }
                         return false;
                     });
 
@@ -161,7 +182,10 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (WebDriverTimeoutException)
                 {
-                    throw new SeWaitForException();
+                    if (elementPresent)
+                        throw new SeWaitForException("Element's text does not not match.");
+                    else
+                        throw new SeElementNotFoundException("Element not found.");
                 }
             }
 

@@ -88,11 +88,50 @@ namespace CloudBeat.Oxygen
 		{
 		}
 
+        public SeWaitForException(string message)
+            : base(message)
+        {
+        }
+
 		public SeWaitForException(string message, Exception innerException)
 			: base(message, innerException)
 		{
 		}
 	}
+
+    public class SeElementNotVisibleException : SeException
+    {
+        public SeElementNotVisibleException()
+        {
+        }
+
+        public SeElementNotVisibleException(string message)
+            : base(message)
+        {
+        }
+
+        public SeElementNotVisibleException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
+
+    public class SeElementNotFoundException : SeException
+    {
+        public SeElementNotFoundException()
+        {
+        }
+
+        public SeElementNotFoundException(string message)
+            : base(message)
+        {
+        }
+
+        public SeElementNotFoundException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
 
     public class SeCommandNotImplementedException : SeException
 	{
