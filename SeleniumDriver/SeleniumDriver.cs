@@ -199,7 +199,9 @@ namespace CloudBeat.Oxygen
 					tie.InnerException is NoSuchElementException || 
 					tie.InnerException is SeWaitForException ||
 					tie.InnerException is WebDriverException ||
-					tie.InnerException is WebDriverTimeoutException))
+					tie.InnerException is WebDriverTimeoutException || 
+                    tie.InnerException is SeElementNotFoundException ||
+                    tie.InnerException is SeElementNotVisibleException))
                 {
 					screenShot = TakeScreenshot();
                 }
