@@ -351,6 +351,7 @@ namespace CloudBeat.Oxygen
             else if (target.StartsWith("//"))   // non Selenium RC compliant
             {
                 SwitchTo().DefaultContent();
+                this.SeCmdWaitForElementPresent(target, value);
                 var el = this.FindElement(By.XPath(target));
                 SwitchTo().Frame(el);
             }
