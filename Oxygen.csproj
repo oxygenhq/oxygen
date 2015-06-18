@@ -104,11 +104,45 @@
     <Compile Include="SeParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
+  <UsingTask TaskName="AddVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+   <ParameterGroup>
+    <VersionFile ParameterType="System.String" Required="true" />
+    <AssemblyInfoFile ParameterType="System.String" Required="true" />
+   </ParameterGroup>
+   <Task>
+    <Reference Include="System.Core" />
+    <Using Namespace="System" />
+    <Using Namespace="System.IO" />
+    <Code Type="Fragment" Language="cs">
+     <![CDATA[
+        using (StreamWriter sw = File.AppendText(AssemblyInfoFile)) 
+        {
+            var ver = File.ReadAllText(VersionFile);
+            ver = ver.Substring(0, ver.Length - 1);
+            sw.WriteLine("[assembly: AssemblyInformationalVersion(\"" + ver + "\")]");
+            //sw.Write("[assembly: AssemblyFileVersion(\"" + ver + "\")]");
+        }	
+       ]]>
+    </Code>
+   </Task>
+  </UsingTask>
+  <Target Name="log4netTransform" Condition="Exists('Log4Net.$(Configuration).config')">
+    <TransformXml Source="Log4Net.config" Transform="Log4Net.$(Configuration).config" Destination="$(TargetDir)Log4Net.config" />
+  </Target>
+  <Target Name="appTransform" Condition="Exists('App.$(Configuration).config')">
+    <TransformXml Source="App.config" Transform="App.$(Configuration).config" Destination="$(TargetDir)$(TargetFileName).config" />
+  </Target>
   <Target Name="BeforeBuild">
+    <CallTarget Targets="log4netTransform" />
+    <CallTarget Targets="appTransform" />
+    <Exec Command='git describe --tags --long > "$(ProjectDir)VERSION"' Outputs="$(ProjectDir)VERSION" WorkingDirectory="$(ProjectDir)" IgnoreExitCode="true">
+        <Output TaskParameter="ExitCode" PropertyName="ExitCode" />
+    </Exec>
+    <Message Importance="high" Text="git failed with exit code $(ExitCode)" Condition="'$(ExitCode)'!='0'" />
+    <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
+    <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" />
   </Target>
   <Target Name="AfterBuild">
+    <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
   </Target>
-  -->
 </Project>
