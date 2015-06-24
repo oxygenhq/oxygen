@@ -461,7 +461,7 @@ namespace CloudBeat.Oxygen
         public bool SeCmdIsElementPresent(string target, string value)
         {
             int timeout;
-            if (!int.TryParse(target, out timeout))
+            if (!int.TryParse(value, out timeout))
                 timeout = waitForTimeout;
 
             try
