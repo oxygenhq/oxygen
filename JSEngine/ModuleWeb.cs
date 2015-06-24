@@ -171,6 +171,11 @@ namespace CloudBeat.Oxygen.JSEngine
             Exec(locator, null);
         }
         [JSVisible]
+        public bool isElementPresent(string locator, int timeout)
+        {
+            return (bool)Exec(locator, timeout.ToString());
+        }
+        [JSVisible]
         public void waitForText(string locator, string pattern)
         {
             Exec(locator, pattern);
