@@ -223,9 +223,16 @@ namespace CloudBeat.Oxygen.JSEngine
 
             // execute the command
             string screenShot = null;
+
+            var name = new StackTrace().GetFrame(1).GetMethod().Name;
+            // when used from within the Jurassic wrapper with optimization turned on 
+            // the name will be "binder_for_CloudBeat.Oxygen.JSEngine.ModuleWebJurassic.CMD"
+            if (name.StartsWith("binder_for"))
+                name = name.Substring(name.LastIndexOf('.') + 1);
+
             var cmd = new SeCommand
             {
-                CommandName = new StackTrace().GetFrame(1).GetMethod().Name,
+                CommandName = name,
                 Target = target,
                 Value = value
             };
