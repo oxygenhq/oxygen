@@ -479,7 +479,7 @@ namespace CloudBeat.Oxygen
         {
             new KeyValuePair<string, string>("css=", "CssSelector"),
             new KeyValuePair<string, string>("id=", "Id"),
-            new KeyValuePair<string, string>("//", "XPath"),
+            new KeyValuePair<string, string>("/", "XPath"),
             new KeyValuePair<string, string>("xpath=", "XPath"),
             new KeyValuePair<string, string>("name=", "Name"),
             new KeyValuePair<string, string>("link=", "LinkText")
@@ -490,8 +490,8 @@ namespace CloudBeat.Oxygen
             {
                 if (locator.StartsWith(locType.Key))
                 {
-                    // need special handling for XPath specified with just "//"
-                    if (locType.Key == "//")
+                    // need special handling for XPath specified with just "/"
+                    if (locType.Key == "/")
                         locArg = locator;
                     else
                         locArg = locator.Substring(locType.Key.Length);
