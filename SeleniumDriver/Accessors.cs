@@ -59,7 +59,7 @@ namespace CloudBeat.Oxygen
 
                     var type = el.GetAttribute("type");
                     if (type == null)
-                        throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+                        throw new SeElementHasNoValueException(target);
                     
                     type = type.Trim().ToLower();
 
@@ -71,7 +71,7 @@ namespace CloudBeat.Oxygen
                     {
                         var elValue = el.GetAttribute("value");
                         if (elValue == null)
-                            throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+                            throw new SeElementHasNoValueException(target);
 
                         variables.Add(value.Trim(), elValue);
                     }
@@ -122,7 +122,7 @@ namespace CloudBeat.Oxygen
 
                     var type = el.GetAttribute("type");
                     if (type == null)
-                        throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+                        throw new SeElementHasNoValueException(target);
 
                     type = type.Trim().ToLower();
 
@@ -134,7 +134,7 @@ namespace CloudBeat.Oxygen
                     {
                         var elValue = el.GetAttribute("value");
                         if (elValue == null)
-                            throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+                            throw new SeElementHasNoValueException(target);
                         return elValue;
                     }
                 }

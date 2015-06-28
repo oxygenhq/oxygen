@@ -7,9 +7,6 @@ using OpenQA.Selenium.Support.UI;
 using System.Linq;
 using log4net;
 using System.Text.RegularExpressions;
-using CloudBeat.Oxygen;
-using CloudBeat.Oxygen.Models;
-using CloudBeat;
 
 namespace CloudBeat.Oxygen
 {
@@ -196,10 +193,7 @@ namespace CloudBeat.Oxygen
 				if (screenShotErrors && tie.InnerException != null && 
 					(tie.InnerException is SeAssertionException || 
                     tie.InnerException is SeVerificationException ||
-					tie.InnerException is NoSuchElementException || 
 					tie.InnerException is SeWaitForException ||
-					tie.InnerException is WebDriverException ||
-					tie.InnerException is WebDriverTimeoutException || 
                     tie.InnerException is SeElementNotFoundException ||
                     tie.InnerException is SeElementNotVisibleException ||
                     tie.InnerException is SeInvalidOperationException))

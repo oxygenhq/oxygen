@@ -63,21 +63,11 @@ namespace CloudBeat.Oxygen
         public SeAssertionException()
         {
         }
-
-        public SeAssertionException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
     }
 
     public class SeVerificationException : SeException
     {
         public SeVerificationException()
-        {
-        }
-
-        public SeVerificationException(string message, Exception innerException)
-            : base(message, innerException)
         {
         }
     }
@@ -92,26 +82,12 @@ namespace CloudBeat.Oxygen
             : base(message)
         {
         }
-
-		public SeWaitForException(string message, Exception innerException)
-			: base(message, innerException)
-		{
-		}
 	}
 
     public class SeElementNotVisibleException : SeException
     {
         public SeElementNotVisibleException()
-        {
-        }
-
-        public SeElementNotVisibleException(string message)
-            : base(message)
-        {
-        }
-
-        public SeElementNotVisibleException(string message, Exception innerException)
-            : base(message, innerException)
+            : base("Element not visible.")
         {
         }
     }
@@ -119,16 +95,7 @@ namespace CloudBeat.Oxygen
     public class SeElementNotFoundException : SeException
     {
         public SeElementNotFoundException()
-        {
-        }
-
-        public SeElementNotFoundException(string message)
-            : base(message)
-        {
-        }
-
-        public SeElementNotFoundException(string message, Exception innerException)
-            : base(message, innerException)
+            : base("Element not found.")
         {
         }
     }
@@ -136,11 +103,6 @@ namespace CloudBeat.Oxygen
     public class SeCommandNotImplementedException : SeException
 	{
 		public SeCommandNotImplementedException()
-		{
-		}
-
-		public SeCommandNotImplementedException(string message, Exception innerException)
-			: base(message, innerException)
 		{
 		}
 
@@ -152,10 +114,6 @@ namespace CloudBeat.Oxygen
 
     public class SeInvalidOperationException : SeException
     {
-        public SeInvalidOperationException()
-        {
-        }
-
         public SeInvalidOperationException(string message, Exception innerException) 
             : base(BeautifyMessage(message), innerException)
         {
@@ -171,15 +129,6 @@ namespace CloudBeat.Oxygen
 
     public class SeInvalidCommandArgumentException : SeException
     {
-        public SeInvalidCommandArgumentException()
-        {
-        }
-
-        public SeInvalidCommandArgumentException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
         public SeInvalidCommandArgumentException(string message)
             : base(message)
         {
@@ -188,32 +137,14 @@ namespace CloudBeat.Oxygen
 
     public class SeElementHasNoValueException : SeException
     {
-        public SeElementHasNoValueException()
-        {
-        }
-
-        public SeElementHasNoValueException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        public SeElementHasNoValueException(string message)
-            : base(message)
+        public SeElementHasNoValueException(string target)
+            : base("Element '" + target + "' has no type; is it really an input?")
         {
         }
     }
 
     public class SeParameterizationCSVException : Exception
     {
-        public SeParameterizationCSVException()
-        {
-        }
-
-        public SeParameterizationCSVException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
         public SeParameterizationCSVException(string message)
             : base(message)
         {

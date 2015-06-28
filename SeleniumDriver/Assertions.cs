@@ -45,9 +45,9 @@ namespace CloudBeat.Oxygen
                 catch (WebDriverTimeoutException)
                 {
                     if (elementPresent)
-                        throw new SeElementNotVisibleException("Element not visible.");
+                        throw new SeElementNotVisibleException();
                     else
-                        throw new SeElementNotFoundException("Element not found.");
+                        throw new SeElementNotFoundException();
                 }
             }
 
@@ -109,7 +109,7 @@ namespace CloudBeat.Oxygen
             }
             catch (WebDriverTimeoutException)
             {
-                throw new SeElementNotFoundException("Element not found.");
+                throw new SeElementNotFoundException();
             }
         }
 
@@ -146,7 +146,7 @@ namespace CloudBeat.Oxygen
                     if (elementPresent) 
                         throw new SeWaitForException("Element's text doesn't match.");
                     else
-                        throw new SeElementNotFoundException("Element not found.");
+                        throw new SeElementNotFoundException();
                 }
             }
 
@@ -185,7 +185,7 @@ namespace CloudBeat.Oxygen
                     if (elementPresent)
                         throw new SeWaitForException("Element's text does not not match.");
                     else
-                        throw new SeElementNotFoundException("Element not found.");
+                        throw new SeElementNotFoundException();
                 }
             }
 
@@ -203,7 +203,7 @@ namespace CloudBeat.Oxygen
 
             var type = el.GetAttribute("type");
             if (type == null)
-                throw new SeElementHasNoValueException("Element '" + target + "' has no type; is it really an input?");
+                throw new SeElementHasNoValueException(target);
 
             type = type.Trim().ToLower();
 
@@ -216,7 +216,7 @@ namespace CloudBeat.Oxygen
             {
                 var elValue = el.GetAttribute("value");
                 if (elValue == null)
-                    throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really a form field?");
+                    throw new SeElementHasNoValueException(target);
 
                 if (!MatchPattern(elValue, value))
                     throw new SeAssertionException();
@@ -236,12 +236,12 @@ namespace CloudBeat.Oxygen
                             var el = this.FindElement(ResolveLocator(target));
                             var type = el.GetAttribute("type");
                             if (type == null)
-                                throw new SeElementHasNoValueException("Element '" + target + "' has no type; is it really an input?");
+                                throw new SeElementHasNoValueException(target);
                             type = type.Trim().ToLower();
 
                             var elValue = el.GetAttribute("value");
                             if (elValue == null)
-                                throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really an input?");
+                                throw new SeElementHasNoValueException(target);
 
                             // waitForValue wait for a value of an input field (or anything else with a value parameter) to become equal to the provided value. 
                             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
@@ -280,12 +280,12 @@ namespace CloudBeat.Oxygen
                             var el = this.FindElement(ResolveLocator(target));
                             var type = el.GetAttribute("type");
                             if (type == null)
-                                throw new SeElementHasNoValueException("Element '" + target + "' has no type; is it really an input?");
+                                throw new SeElementHasNoValueException(target);
                             type = type.Trim().ToLower();
 
                             var elValue = el.GetAttribute("value");
                             if (elValue == null)
-                                throw new SeElementHasNoValueException("Element '" + target + "' has no value; is it really an input?");
+                                throw new SeElementHasNoValueException(target);
 
                             // waitForValue wait for a value of an input field (or anything else with a value parameter) to become equal to the provided value. 
                             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
