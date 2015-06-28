@@ -488,5 +488,33 @@ namespace CloudBeat.Oxygen
                 return false;
             }
         }
+
+        public bool SeCmdIsElementVisible(string target, string value)
+        {
+            int timeout;
+            if (!int.TryParse(value, out timeout))
+                timeout = waitForTimeout;
+
+            try
+            {
+                new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
+                {
+                    try
+                    {
+                        var el = this.FindElement(ResolveLocator(target));
+                        return el.Displayed;
+                    }
+                    catch (NoSuchElementException) { }
+
+                    return false;
+                });
+
+                return true;
+            }
+            catch (WebDriverTimeoutException)
+            {
+                return false;
+            }
+        }
     }
 }
