@@ -17,6 +17,8 @@ namespace CloudBeat.Oxygen
         VARIABLE_NOT_DEFINED,
         UNKNOWN_OBJECT,
 		UNKNOWN_ERROR,
-		COMMAND_NOT_IMPLEMENTED
+		COMMAND_NOT_IMPLEMENTED,
+        // misc InvalidOperationExceptions such as "Element is not clickable at point (x, y). Other element would receive the click"
+        INVALID_OPERATION
     }
 }

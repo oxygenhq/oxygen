@@ -104,7 +104,10 @@ namespace CloudBeat.Oxygen
                 {
                     Thread.Sleep(500);              // FIXME: should find a better way to delay retries
                 }
-                catch (InvalidOperationException) { }
+                catch (InvalidOperationException ioe) 
+                {
+                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                }
             }
 
             if (!success)
@@ -133,7 +136,10 @@ namespace CloudBeat.Oxygen
                 {
                     Thread.Sleep(500);              // FIXME: should find a better way to delay retries
                 }
-                catch (InvalidOperationException) { }
+                catch (InvalidOperationException ioe)
+                {
+                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                }
             }
 
             if (!success)
@@ -163,7 +169,10 @@ namespace CloudBeat.Oxygen
                     break;
                 }
                 catch (StaleElementReferenceException) { }
-                catch (InvalidOperationException) { }
+                catch (InvalidOperationException ioe)
+                {
+                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                }
             }
 
             if (!success)

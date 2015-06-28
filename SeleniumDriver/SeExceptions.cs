@@ -150,6 +150,25 @@ namespace CloudBeat.Oxygen
         }
 	}
 
+    public class SeInvalidOperationException : SeException
+    {
+        public SeInvalidOperationException()
+        {
+        }
+
+        public SeInvalidOperationException(string message, Exception innerException) 
+            : base(BeautifyMessage(message), innerException)
+        {
+        }
+
+        private static string BeautifyMessage(string message)
+        {
+            // strip session info
+            int i = message.IndexOf("(Session info:");
+            return i > 0 ? message.Substring(0, i) : message;
+        }
+    }
+
     public class SeInvalidCommandArgumentException : SeException
     {
         public SeInvalidCommandArgumentException()

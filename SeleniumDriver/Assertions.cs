@@ -395,7 +395,10 @@ namespace CloudBeat.Oxygen
                     break;
                 }
                 catch (StaleElementReferenceException) { }
-                catch (InvalidOperationException) { }
+                catch (InvalidOperationException ioe)
+                {
+                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                }
                 catch (WebDriverTimeoutException)
                 {
                     throw new SeAssertionException();
