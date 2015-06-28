@@ -236,8 +236,21 @@ namespace CloudBeat.Oxygen
         public void SeCmdSelect(string target, string value)
         {
             string selArg;
-            string selectorMethod = ParseSelector(value, out selArg);
+            string selectorMethod = "Select" + ParseSelector(value, out selArg);
 			// make sure that the element present first
+            this.SeCmdWaitForVisible(target, value);
+
+            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(target)));
+            Type type = typeof(SelectElement);
+            MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+            cmdMethod.Invoke(sel, new object[] { selArg });
+        }
+
+        public void SeCmdDeselect(string target, string value)
+        {
+            string selArg;
+            string selectorMethod = "Deselect" + ParseSelector(value, out selArg);
+            // make sure that the element present first
             this.SeCmdWaitForVisible(target, value);
 
             SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(target)));

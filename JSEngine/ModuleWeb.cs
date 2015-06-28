@@ -141,6 +141,11 @@ namespace CloudBeat.Oxygen.JSEngine
             Exec(selectLocator, optionLocator);
         }
         [JSVisible]
+        public void deselect(string selectLocator, string optionLocator)
+        {
+            Exec(selectLocator, optionLocator);
+        }
+        [JSVisible]
         public void pause(int waitTime)
         {
             Exec(waitTime.ToString(), null);

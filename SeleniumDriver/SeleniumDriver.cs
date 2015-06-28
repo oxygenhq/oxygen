@@ -448,9 +448,9 @@ namespace CloudBeat.Oxygen
 
         private IList<KeyValuePair<string, string>> selectors = new List<KeyValuePair<string, string>>() 
         {
-            new KeyValuePair<string, string>("value=", "SelectByValue"),
-            new KeyValuePair<string, string>("index=", "SelectByIndex"),
-            new KeyValuePair<string, string>("label=", "SelectByText")
+            new KeyValuePair<string, string>("value=", "ByValue"),
+            new KeyValuePair<string, string>("index=", "ByIndex"),
+            new KeyValuePair<string, string>("label=", "ByText")
         };
         private string ParseSelector(string selector, out string selArg)
         {
@@ -472,7 +472,7 @@ namespace CloudBeat.Oxygen
 
             // if no prefix - select by text
             selArg = selector;
-            return "SelectByText";
+            return "ByText";
         }
 
         private IList<KeyValuePair<string, string>> locators = new List<KeyValuePair<string, string>>() 
