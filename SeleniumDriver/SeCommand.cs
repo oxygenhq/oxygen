@@ -14,7 +14,9 @@ namespace CloudBeat.Oxygen
 
         public override string ToString()
         {
-            if (string.IsNullOrWhiteSpace(Value))
+            if (string.IsNullOrWhiteSpace(Target))
+                return string.Format("{0}()", CommandName);
+            else if (string.IsNullOrWhiteSpace(Value))
                 return string.Format("{0}(\"{1}\")", CommandName, Target.Replace("\"", "&quot;"));
             else
                 return string.Format("{0}(\"{1}\", \"{2}\")", CommandName, Target.Replace("\"", "&quot;"), Value.Replace("\"", "&quot;"));
