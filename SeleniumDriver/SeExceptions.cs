@@ -150,4 +150,20 @@ namespace CloudBeat.Oxygen
         {
         }
     }
+
+    public class SeXMLExtractException : SeException
+    {
+        public SeXMLExtractException(string message)
+            : base(message)
+        {
+        }
+    }
+
+    public class SeXMLtoJSONConvertException : SeException
+    {
+        public SeXMLtoJSONConvertException(string message)
+            : base(message)
+        {
+        }
+    }
 }

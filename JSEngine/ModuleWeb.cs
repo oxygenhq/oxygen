@@ -225,6 +225,21 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             Exec(pattern, null);
         }
+        [JSVisible]
+        public string getPageSource()
+        {
+            return Exec(null, null) as string;
+        }
+        [JSVisible]
+        public string getXMLPageSource()
+        {
+            return Exec(null, null) as string;
+        }
+        [JSVisible]
+        public string getXMLPageSourceAsJSON()
+        {
+            return Exec(null, null) as string;
+        }
 
         private object Exec(string target, string value)
         {

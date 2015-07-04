@@ -1,4 +1,8 @@
-﻿using OpenQA.Selenium;
+﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
+using System;
+using System.Text.RegularExpressions;
+using System.Xml;
 
 namespace CloudBeat.Oxygen
 {
@@ -141,6 +145,51 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
             }
             return null;
+        }
+
+        public string SeCmdGetPageSource(string target, string value)
+        {
+            return this.PageSource;
+        }
+
+        public string SeCmdGetXMLPageSource(string target, string value)
+        {
+            switch (this.Capabilities.BrowserName)
+            {
+                case "chrome":
+                    try
+                    {
+                        return this.ExecuteScript("return document.getElementById(\"webkit-xml-viewer-source-xml\").innerHTML;") as string;
+                    }
+                    catch (Exception)
+                    {
+                        throw new SeXMLExtractException("Unable to extract XML from: " + this.PageSource);
+                    }
+                case "internet explorer":
+                    // TODO: optimize
+                    var src = Regex.Replace(this.PageSource, @"<a\s*.*?>&lt;.*?<\/a>", "", RegexOptions.Multiline);
+                    src = Regex.Replace(src, @"<style\s*.*?>.*?<\/style>", "", RegexOptions.Multiline);
+                    src = Regex.Replace(src, @"<div\s*.*?>.*?<\/div>", "", RegexOptions.Multiline);
+                    return Regex.Replace(src, @"<span\s*.*?>.*?<span\s*.*?>.*?<\/span>.*?<\/span>", "", RegexOptions.Multiline);
+                case "firefox":
+                default:
+                    throw new SeXMLExtractException("This command is not supported on " + this.Capabilities.BrowserName + " yet.");
+            }
+        }
+
+        public string SeCmdGetXMLPageSourceAsJSON(string target, string value)
+        {
+            var src = SeCmdGetXMLPageSource(null, null);
+            try 
+            {
+                XmlDocument doc = new XmlDocument();
+                doc.LoadXml(src);
+                return JsonConvert.SerializeXmlNode(doc);
+            }
+            catch (Exception)
+            {
+                throw new SeXMLtoJSONConvertException("Unable to convert XML to JSON: " + this.PageSource);
+            }
         }
     }
 }
