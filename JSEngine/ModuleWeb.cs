@@ -240,6 +240,11 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             return Exec(null, null) as string;
         }
+        [JSVisible]
+        public string getWindowHandles()
+        {
+            return Exec(null, null) as string;
+        }
 
         private object Exec(string target, string value)
         {

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using OpenQA.Selenium;
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using System.Xml;
 
@@ -190,6 +191,26 @@ namespace CloudBeat.Oxygen
             {
                 throw new SeXMLtoJSONConvertException("Unable to convert XML to JSON: " + this.PageSource);
             }
+        }
+
+        public string SeCmdGetWindowHandles(string target, string value)
+        {
+            var originalWin = this.CurrentWindowHandle;
+
+            IList<object> windows = new List<object>();
+            foreach (var handle in this.WindowHandles)
+            {
+                this.SwitchTo().Window(handle);
+                windows.Add(new
+                {
+                    handle = handle,
+                    title = this.Title,
+                    url = this.Url
+                });
+            }
+            this.SwitchTo().Window(originalWin);
+
+            return JsonConvert.SerializeObject(windows);
         }
     }
 }
