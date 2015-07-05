@@ -210,18 +210,18 @@ namespace CloudBeat.Oxygen
 				{
 					var currentUrl = this.GetCurrentURL();
 					var currentTitle = this.GetCurrentTitle();
+
 					// identify a new page if navigation occured (.e.g if URL or page title have changed)
-					
 					// look up for a page in local POM first
 					var pom = context.PageObjectManager;
-					if (pom != null)
+                    if (pom != null && currentUrl != null && currentTitle != null)
 					{
 						if (currentTitle != pom.CurrentPageTitle || currentUrl != pom.CurrentPageUrl)
 							pom.IdentifyCurrentPage(currentTitle, currentUrl, false);
 					}
 					
 				}
-				catch (Exception e) { }
+				catch (Exception) { }
 			}
         }
 
@@ -323,6 +323,10 @@ namespace CloudBeat.Oxygen
 				{
 					return false;
 				}
+                catch (NoSuchWindowException)
+                {
+                    return true;    // exit the wait if window was closed
+                }
 			});
 
 			return currentUrl;
@@ -342,6 +346,10 @@ namespace CloudBeat.Oxygen
 				{
 					return false;
 				}
+                catch (NoSuchWindowException)
+                {
+                    return true;    // exit the wait if window was closed
+                }
 			});
 
 			return currentTitle;
@@ -404,6 +412,10 @@ namespace CloudBeat.Oxygen
 
 						return domContentLoadedEventStart > 0 && loadEventStart > 0;
 					}
+                    catch (NoSuchWindowException)
+                    {
+                        return true;    // exit the wait if window was closed
+                    }
 					catch (Exception)
 					{
 						return false;

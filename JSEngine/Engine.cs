@@ -74,7 +74,7 @@ namespace CloudBeat.Oxygen.JSEngine
             {
                 if (cmd == "close")
                 {
-                    selDriver.Close();
+                    selDriver.Quit();
                     return Task.FromResult<object>(null);
                 }
                 else if (cmd == "initialize")
