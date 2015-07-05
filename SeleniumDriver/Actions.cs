@@ -382,5 +382,10 @@ namespace CloudBeat.Oxygen
                 SwitchTo().Frame(target);
             }
         }
+
+        public void SeCmdCloseWindow()
+        {
+            this.Close();
+        }
     }
 }

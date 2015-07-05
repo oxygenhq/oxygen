@@ -245,6 +245,11 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             return Exec(null, null) as string;
         }
+        [JSVisible]
+        public void closeWindow()
+        {
+            Exec(null, null);
+        }
 
         private object Exec(string target, string value)
         {
