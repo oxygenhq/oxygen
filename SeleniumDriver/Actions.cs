@@ -383,7 +383,7 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public void SeCmdCloseWindow()
+        public void SeCmdCloseWindow(string target, string value)
         {
             this.Close();
         }
