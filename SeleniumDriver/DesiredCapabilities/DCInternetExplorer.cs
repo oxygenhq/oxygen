@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Remote;
+﻿using OpenQA.Selenium.IE;
+using OpenQA.Selenium.Remote;
 
 namespace CloudBeat.Oxygen
 {
@@ -6,7 +7,9 @@ namespace CloudBeat.Oxygen
     {
         public DesiredCapabilities Create() 
         {
-            return DesiredCapabilities.InternetExplorer();
+            InternetExplorerOptions options = new InternetExplorerOptions();
+            options.EnablePersistentHover = false;
+            return (DesiredCapabilities)options.ToCapabilities();
         }
     }
 }
