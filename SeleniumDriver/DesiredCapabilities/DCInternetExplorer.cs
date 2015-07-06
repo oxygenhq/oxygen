@@ -9,6 +9,7 @@ namespace CloudBeat.Oxygen
         {
             InternetExplorerOptions options = new InternetExplorerOptions();
             options.EnablePersistentHover = false;
+            options.UnexpectedAlertBehavior = InternetExplorerUnexpectedAlertBehavior.Ignore;
             return (DesiredCapabilities)options.ToCapabilities();
         }
     }
