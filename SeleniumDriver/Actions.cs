@@ -345,10 +345,33 @@ namespace CloudBeat.Oxygen
             else if (target.StartsWith("title="))   // switch to the first window with a matching title
             {
                 string title = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
+
                 foreach (string handle in base.WindowHandles)
                 {
-                    if (base.SwitchTo().Window(handle).Title.Equals(title, StringComparison.InvariantCultureIgnoreCase))
-                        return curWinHandle;
+                    var curWinTitle = base.SwitchTo().Window(handle).Title;
+
+                    if (title.StartsWith("exact:"))
+                    {
+                        if (curWinTitle.Equals(title.Substring("exact:".Length), StringComparison.InvariantCultureIgnoreCase))
+                            return curWinHandle;
+                    }
+                    // glob:pattern: Match a string against a "glob" (aka "wildmat") pattern. 
+                    // "Glob" is a kind of limited regular-expression syntax typically used in command-line shells. 
+                    // In a glob pattern, "*" represents any sequence of characters, and "?" represents any single character. 
+                    // Glob patterns match against the entire string.
+                    else if (title.StartsWith("glob:"))
+                    {
+                        var p = Regex.Escape(title.Substring("glob:".Length)).Replace(@"\*", ".*").Replace(@"\?", ".");
+                        if (Regex.Match(curWinTitle, p).Success)
+                            return curWinHandle;
+                    }
+                    // no prefix same as Glob matching
+                    else
+                    {
+                        var p = Regex.Escape(title).Replace(@"\*", ".*").Replace(@"\?", ".");
+                        if (Regex.Match(curWinTitle, p).Success)
+                            return curWinHandle;
+                    }
                 }
 
                 throw new Exception("selectWindow cannot find window using locator '" + target + "'");
