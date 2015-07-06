@@ -404,10 +404,16 @@ namespace CloudBeat.Oxygen
             }
             else if (target.StartsWith("//"))   // non Selenium RC compliant
             {
+                var frames = target.Split(new[] {";;"}, StringSplitOptions.RemoveEmptyEntries);
+                // switch to parent window
                 SwitchTo().DefaultContent();
-                this.SeCmdWaitForElementPresent(target, value);
-                var el = this.FindElement(By.XPath(target));
-                SwitchTo().Frame(el);
+                // descend into frames
+                foreach (var frame in frames) 
+                {
+                    this.SeCmdWaitForElementPresent(frame, value);
+                    var el = this.FindElement(By.XPath(frame));
+                    SwitchTo().Frame(el);
+                }
             }
             else
             {
