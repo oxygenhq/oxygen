@@ -7,6 +7,7 @@ using OpenQA.Selenium.Support.UI;
 using System.Linq;
 using log4net;
 using System.Text.RegularExpressions;
+using System.Drawing;
 
 namespace CloudBeat.Oxygen
 {
@@ -199,6 +200,27 @@ namespace CloudBeat.Oxygen
                     tie.InnerException is SeInvalidOperationException))
                 {
 					screenShot = TakeScreenshot();
+                }
+                else if (tie.InnerException is UnhandledAlertException)
+                {
+                    // can't take screenshots when alert is showing. so capture whole screen
+                    // this works only localy
+                    // TODO: linux
+                    if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
+                    {
+                        Rectangle bounds = System.Windows.Forms.Screen.GetBounds(Point.Empty);
+                        using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+                        {
+                            using (Graphics g = Graphics.FromImage(bitmap))
+                            {
+                                g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                            }
+
+                            ImageConverter converter = new ImageConverter();
+                            var sb = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
+                            screenShot = Convert.ToBase64String(sb);
+                        }
+                    }
                 }
 
                 throw tie.InnerException;
