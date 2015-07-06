@@ -17,6 +17,7 @@ namespace CloudBeat.Oxygen
         public void SeCmdWaitForVisible(string target, string value)
         {
             bool elementPresent = false;
+            UnhandledAlertException alert = null;
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -35,10 +36,16 @@ namespace CloudBeat.Oxygen
                         {
                             elementPresent = false;
                         }
-
+                        catch (UnhandledAlertException uae)
+                        {
+                            alert = uae;
+                            return true;
+                        }
                         return false;
                     });
 
+                    if (alert != null)
+                        throw alert;
                     return;
                 }
                 catch (StaleElementReferenceException) { }
@@ -91,6 +98,7 @@ namespace CloudBeat.Oxygen
 
         public void SeCmdWaitForElementPresent(string target, string value)
         {
+            UnhandledAlertException alert = null;
             try
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
@@ -100,11 +108,21 @@ namespace CloudBeat.Oxygen
                         var el = this.FindElement(ResolveLocator(target));
                         return el != null;
                     }
-                    catch (NoSuchElementException) { }
+                    catch (NoSuchElementException)
+                    {
+
+                    }
+                    catch (UnhandledAlertException uae)
+                    {
+                        alert = uae;
+                        return true;
+                    }
 
                     return false;
                 });
 
+                if (alert != null)
+                    throw alert;
                 return;
             }
             catch (WebDriverTimeoutException)
@@ -117,6 +135,7 @@ namespace CloudBeat.Oxygen
         {
             string valCleaned = CollapseWhitespace(value);
             bool elementPresent = false;
+            UnhandledAlertException alert = null;
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -134,10 +153,17 @@ namespace CloudBeat.Oxygen
                         {
                             elementPresent = false;
                         }
+                        catch (UnhandledAlertException uae)
+                        {
+                            alert = uae;
+                            return true;
+                        }
 
                         return false;
                     });
 
+                    if (alert != null)
+                        throw alert;
                     return;
                 }
                 catch (StaleElementReferenceException) { }
@@ -157,6 +183,7 @@ namespace CloudBeat.Oxygen
         {
             string valCleaned = CollapseWhitespace(value);
             bool elementPresent = false;
+            UnhandledAlertException alert = null;
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -174,9 +201,16 @@ namespace CloudBeat.Oxygen
                         {
                             elementPresent = false;
                         }
+                        catch (UnhandledAlertException uae)
+                        {
+                            alert = uae;
+                            return true;
+                        }
                         return false;
                     });
 
+                    if (alert != null)
+                        throw alert;
                     return;
                 }
                 catch (StaleElementReferenceException) { }

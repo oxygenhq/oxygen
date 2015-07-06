@@ -311,7 +311,7 @@ namespace CloudBeat.Oxygen
 		public string GetCurrentURL()
 		{
 			string currentUrl = null;
-
+            UnhandledAlertException alert = null;
 			new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_FETCH_URL)).Until((d) =>
 			{
 				try
@@ -327,14 +327,20 @@ namespace CloudBeat.Oxygen
                 {
                     return true;    // exit the wait if window was closed
                 }
+                catch (UnhandledAlertException uae)
+                {
+                    alert = uae;
+                    return true;    // exit the wait if alert is showing
+                }
 			});
-
+            if (alert != null)
+                throw alert;
 			return currentUrl;
 		}
 		public string GetCurrentTitle()
 		{
 			string currentTitle = null;
-
+            UnhandledAlertException alert = null;
 			new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_FETCH_URL)).Until((d) =>
 			{
 				try
@@ -350,8 +356,14 @@ namespace CloudBeat.Oxygen
                 {
                     return true;    // exit the wait if window was closed
                 }
+                catch (UnhandledAlertException uae)
+                {
+                    alert = uae;
+                    return true;    // exit the wait if alert is showing
+                }
 			});
-
+            if (alert != null)
+                throw alert;
 			return currentTitle;
 		}
 
@@ -415,6 +427,10 @@ namespace CloudBeat.Oxygen
                     catch (NoSuchWindowException)
                     {
                         return true;    // exit the wait if window was closed
+                    }
+                    catch (UnhandledAlertException)
+                    {
+                        return true;    // exit the wait if alert is showing
                     }
 					catch (Exception)
 					{
