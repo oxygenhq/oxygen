@@ -327,7 +327,16 @@ namespace CloudBeat.Oxygen
         // Not Selenium RC compliant!
         public string SeCmdSelectWindow(string target, string value)
         {
-            var curWinHandle = base.CurrentWindowHandle;
+            string curWinHandle = null;
+            try
+            {
+                curWinHandle = base.CurrentWindowHandle;
+            }
+            catch (NoSuchWindowException)
+            {
+                // window was closed. return null in such case.
+            }
+
             if (string.IsNullOrWhiteSpace(target))  // switch to the last opened window
             {
                 base.SwitchTo().Window(base.WindowHandles.Last());
