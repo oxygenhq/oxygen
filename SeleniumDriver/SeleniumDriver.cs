@@ -239,7 +239,7 @@ namespace CloudBeat.Oxygen
                     if (pom != null && currentUrl != null && currentTitle != null)
 					{
 						if (currentTitle != pom.CurrentPageTitle || currentUrl != pom.CurrentPageUrl)
-							pom.IdentifyCurrentPage(currentTitle, currentUrl, false);
+							pom.IdentifyCurrentPage(currentTitle, currentUrl);
 					}
 					
 				}

@@ -2,8 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace CloudBeat.Oxygen
 {
@@ -76,7 +75,8 @@ namespace CloudBeat.Oxygen
 			// then try to locate object at the global scope
 			return FindGlobalPageObjectLocator(objectName);
 		}
-		public bool IdentifyCurrentPage(string title, string url, bool strict)
+
+		public bool IdentifyCurrentPage(string title, string url)
 		{
 			if (pages == null)
 				return false;
@@ -86,11 +86,11 @@ namespace CloudBeat.Oxygen
 					continue; // ignore pages that do not have at least a value for either url or title
 				bool hasMatch = false;
 				if (string.IsNullOrEmpty(page.Title))
-					hasMatch = MatchPageUrl(page.Url, url, strict);
+					hasMatch = MatchPageUrl(page.Url, url);
 				else if (string.IsNullOrEmpty(page.Url))
-					hasMatch = MatchPageTitle(page.Title, title, strict);
+					hasMatch = MatchPageTitle(page.Title, title);
 				else // match both
-					hasMatch = MatchPageTitle(page.Title, title, strict) && MatchPageUrl(page.Url, url, strict);
+					hasMatch = MatchPageTitle(page.Title, title) && MatchPageUrl(page.Url, url);
 
 				if (hasMatch)
 				{
@@ -107,19 +107,58 @@ namespace CloudBeat.Oxygen
 			return false;
 		}
 
-		private static bool MatchPageUrl(string pattern, string current, bool strict)
+		private static bool MatchPageUrl(string pattern, string current)
 		{
-			if (strict)
-				return pattern == current;
-			return current.EndsWith(pattern);
-			// TODO add * and regex support
+            if (pattern.StartsWith("exact:"))
+            {
+                return current.Equals(pattern.Substring("exact:".Length), StringComparison.InvariantCultureIgnoreCase);
+            }
+            else if (pattern.StartsWith("glob:"))
+            {
+                // match a string against a "glob" (aka "wildmat") pattern. 
+                // in a glob pattern, "*" represents any sequence of characters, and "?" represents any single character.
+                var p = Regex.Escape(pattern.Substring("glob:".Length).TrimStart()).Replace(@"\*", ".*").Replace(@"\?", ".");
+                return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
+            }
+            else if (pattern.StartsWith("regex:"))
+            {
+                var p = pattern.Substring("regex:".Length).TrimStart();
+                return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
+            }
+            else
+            {
+                // no prefix same as glob matching
+                var p = Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".");
+                return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
+            }
 		}
 
-		private static bool MatchPageTitle(string pattern, string current, bool strict)
+		private static bool MatchPageTitle(string pattern, string current)
 		{
-			return pattern == current;
-			// TODO add * and regex support
+            if (pattern.StartsWith("exact:"))
+            {
+                return current.Equals(pattern.Substring("exact:".Length), StringComparison.InvariantCultureIgnoreCase);
+            }
+            else if (pattern.StartsWith("glob:"))
+            {
+                // match a string against a "glob" (aka "wildmat") pattern. 
+                // in a glob pattern, "*" represents any sequence of characters, and "?" represents any single character.
+                var p = Regex.Escape(pattern.Substring("glob:".Length).TrimStart()).Replace(@"\*", ".*").Replace(@"\?", ".");
+                return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
+            }
+            else if (pattern.StartsWith("regex:"))
+            {
+                var p = pattern.Substring("regex:".Length).TrimStart();
+                return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
+            }
+            else
+            {
+                // no prefix same as glob matching
+                var p = Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".");
+                return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
+            }
 		}
+
 		public void SetCurrentPage(string pageName)
 		{
 			this.currentPageName = pageName;
