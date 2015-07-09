@@ -57,6 +57,8 @@ namespace CloudBeat.Oxygen
         private Action<string> newHarPageCallback;
 
         #region variables dictionary
+        // not all of those are listed in the apidocs.
+        // TODO: we don't need multiple names for same key code and should remove duplicates.
         private IDictionary<string, string> variables = new Dictionary<string, string>() 
         {
             {"KEY_BACKSPACE", Keys.Backspace },
@@ -597,36 +599,34 @@ namespace CloudBeat.Oxygen
 			{
 				return true;
 			}
-			// regexp:regexp: Match a string using a regular-expression. The full power of JavaScript regular-expressions is available.
-			else if (pattern.StartsWith("regexp:"))
+			// match using a regular-expression
+			else if (pattern.StartsWith("regex:"))
 			{
-				// this will require a tricky implimentation since the pattern is specified in JavaScript regex and we would need to translate to .NET regex
-				throw new NotImplementedException();
+                var p = pattern.Substring("regex:".Length).TrimStart();
+                return Regex.Match(exp, p).Success;
 			}
-			// regexpi:regexpi: Match a string using a case-insensitive regular-expression.
-			else if (pattern.StartsWith("regexpi:"))
+			// match using a case-insensitive regular-expression
+			else if (pattern.StartsWith("regexi:"))
 			{
-				throw new NotImplementedException();
+                var p = pattern.Substring("regexi:".Length).TrimStart();
+                return Regex.Match(exp, p, RegexOptions.IgnoreCase).Success;
 			}
-			// exact:string: Match a string exactly, verbatim, without any of that fancy wildcard stuff.
+			// match a string exactly, verbatim
 			else if (pattern.StartsWith("exact:"))
 			{
                 return pattern.Substring("exact:".Length).Equals(exp);
 			}
-			// glob:pattern: Match a string against a "glob" (aka "wildmat") pattern. 
-			// "Glob" is a kind of limited regular-expression syntax typically used in command-line shells. 
-			// In a glob pattern, "*" represents any sequence of characters, and "?" represents any single character. 
-			// Glob patterns match against the entire string.
+			// match against a case-insensitive "glob" pattern
 			else if (pattern.StartsWith("glob:"))
 			{
 				var p = Regex.Escape(pattern.Substring("glob:".Length)).Replace(@"\*", ".*").Replace(@"\?", ".");
-				return Regex.Match(exp, p).Success;
+                return Regex.Match(exp, p, RegexOptions.IgnoreCase).Success;
 			}
-			// no prefix same as Glob matching
+			// no prefix same as glob matching
 			else
 			{
 				var p = Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".");
-                return Regex.Match(exp, p).Success;
+                return Regex.Match(exp, p, RegexOptions.IgnoreCase).Success;
 			}
 		}
     }

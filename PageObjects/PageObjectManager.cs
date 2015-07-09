@@ -115,8 +115,8 @@ namespace CloudBeat.Oxygen
             }
             else if (pattern.StartsWith("glob:"))
             {
-                // match a string against a "glob" (aka "wildmat") pattern. 
-                // in a glob pattern, "*" represents any sequence of characters, and "?" represents any single character.
+                // match against a glob pattern. 
+                // '*' represents any sequence of characters, and '?' represents any single character.
                 var p = Regex.Escape(pattern.Substring("glob:".Length).TrimStart()).Replace(@"\*", ".*").Replace(@"\?", ".");
                 return Regex.Match(current, p, RegexOptions.IgnoreCase).Success;
             }
