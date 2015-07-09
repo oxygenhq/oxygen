@@ -36,12 +36,12 @@ namespace CloudBeat.Oxygen
 		// Defines the timeout (in milliseconds) for the Navigate().GoToUrl command. The aforementioned method will return within 
         // the given timeout disregarding whether the page has finished loading or not. See also TIMEOUT_COMMAND for a bug with DOMComplete/laod events.
 		// This value, or rather thee underlying pageLoadTimeout, can be overriden from a script using Selenese SetTimeout command.
-		private const int DEFAULT_PAGE_LOAD_TIMEOUT = 180*1000;
+		private const int DEFAULT_PAGE_LOAD_TIMEOUT = 60 * 1000;
 		// Defines the timeout (in milliseconds) for WaitFor* commands.
 		// This value, or rather the underlying waitForTimeout, can be overriden from a script using Selenese SetTimeout command.
-        private const int DEFAULT_WAIT_FOR_TIMEOUT = 60000;
-        // Defines the timeout for asynchronous scripts execution.
-        private const int DEFAULT_ASYNC_SCRIPT_TIMEOUT = 60 * 3;
+        private const int DEFAULT_WAIT_FOR_TIMEOUT = 60 * 1000;
+        // Defines the timeout (in milliseconds) for asynchronous scripts execution.
+        private const int DEFAULT_ASYNC_SCRIPT_TIMEOUT = 60 * 1000;
 		#endregion
 
 		private int pageLoadTimeout = DEFAULT_PAGE_LOAD_TIMEOUT;
