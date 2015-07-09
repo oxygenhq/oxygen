@@ -70,7 +70,7 @@ namespace CloudBeat.Oxygen
                 try
                 {
                     var el = this.FindElement(ResolveLocator(target));
-                    (this as IJavaScriptExecutor).ExecuteScript("window.scrollTo(" + el.Location.X + "," + (el.Location.Y - yOffset) + ");");
+                    (this as IJavaScriptExecutor).ExecuteScript("window.scrollTo(" + el.Location.X + "," + (el.Location.Y + yOffset) + ");");
                     break;
                 }
                 catch (StaleElementReferenceException)
