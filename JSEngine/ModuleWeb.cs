@@ -166,11 +166,6 @@ namespace CloudBeat.Oxygen.JSEngine
             Exec(locator, null);
         }
         [JSVisible]
-        public void waitForAllLinks(string pattern)
-        {
-            Exec(pattern, null);
-        }
-        [JSVisible]
         public void waitForElementPresent(string locator)
         {
             Exec(locator, null);
