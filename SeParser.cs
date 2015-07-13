@@ -127,7 +127,7 @@ namespace CloudBeat.Oxygen
             return cmds;
         }
 
-        public static IList<ParameterizationCSVModel> ParseParameterizationCSV(string csv)
+        public static IList<ParameterizationCSVModel> ParseParameterizationCSV(string csv, int minRows = 0)
         {
             IList<ParameterizationCSVModel> paramList = new List<ParameterizationCSVModel>();
 
@@ -145,7 +145,7 @@ namespace CloudBeat.Oxygen
                 int paramCount = fields.Count();
                 foreach (var name in fields)
                 {
-                    paramList.Add(new ParameterizationCSVModel { Name = name.Trim(' ', '\0').ToUpper(), Parameters = new List<string>() });
+                    paramList.Add(new ParameterizationCSVModel { Name = name.Trim(' ', '\t').ToUpper(), Parameters = new List<string>() });
                 }
 
                 if (parser.EndOfData)
@@ -160,9 +160,23 @@ namespace CloudBeat.Oxygen
 
                     int listIndex = 0;
                     foreach (string param in fields)
-                        paramList[listIndex++].Parameters.Add(param);
+                    {
+                        paramList[listIndex++].Parameters.Add(param.Trim(' ', '\t'));
+                    }
                 }
                 parser.Close();
+
+                // padd with empty rows if needed
+                var paramsCount = paramList[0].Parameters.Count;
+                if (minRows > 0 && paramsCount < minRows)
+                {
+
+                    foreach (var param in paramList)
+                    {
+                        for (int i = 0; i < minRows - paramsCount; i++)
+                            param.Parameters.Add("");
+                    }
+                }
             }
 
             return paramList;
