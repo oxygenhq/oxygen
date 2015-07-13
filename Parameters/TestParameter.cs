@@ -20,6 +20,8 @@ namespace CloudBeat.Oxygen.Parameters
 			this.currentValue = null;
 			this.testCaseName = settings.TestCaseName;
 			this.settings = settings;
+            if (settings.Line != null)
+                currentValIndex = settings.Line.Value;
 			isSingleValueParameter = false;
 		}
 		public TestParameter(string name, string value, string testCaseName)

@@ -30,5 +30,6 @@ namespace CloudBeat.Oxygen.Parameters
 		public FormatType Format {  get; set; }
 		public NextValueMode NextValue { get; set; }
 		public OutOfValuesMode OutOfValue { get; set; }
+        public int? Line { get; set; }
 	}
 }
