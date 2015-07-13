@@ -56,7 +56,7 @@ namespace CloudBeat.Oxygen.Parameters
 				}
 			}
 			else
-				currentValIndex = (new Random()).Next(0, values.Count - 1);
+				currentValIndex = (new Random()).Next(0, values.Count);
 			currentValue = values[currentValIndex];
 
 			return true;
