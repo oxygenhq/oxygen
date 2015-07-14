@@ -620,12 +620,16 @@ namespace CloudBeat.Oxygen
 			else if (pattern.StartsWith("glob:"))
 			{
 				var p = Regex.Escape(pattern.Substring("glob:".Length)).Replace(@"\*", ".*").Replace(@"\?", ".");
+                if (p == "")    // otherwise empty string will match everything
+                    return exp == p;
                 return Regex.Match(exp, p, RegexOptions.IgnoreCase).Success;
 			}
 			// no prefix same as glob matching
 			else
 			{
 				var p = Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".");
+                if (p == "")
+                    return exp == p;
                 return Regex.Match(exp, p, RegexOptions.IgnoreCase).Success;
 			}
 		}
