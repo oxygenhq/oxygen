@@ -404,5 +404,15 @@ namespace CloudBeat.Oxygen
         {
             this.Close();
         }
+
+        public void SeCmdAlertAccept(string target, string value)
+        {
+            base.SwitchTo().Alert().Accept();
+        }
+
+        public void SeCmdAlertDismiss(string target, string value)
+        {
+            base.SwitchTo().Alert().Dismiss();
+        }
     }
 }

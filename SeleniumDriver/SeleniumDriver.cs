@@ -199,7 +199,8 @@ namespace CloudBeat.Oxygen
 					tie.InnerException is SeWaitForException ||
                     tie.InnerException is SeElementNotFoundException ||
                     tie.InnerException is SeElementNotVisibleException ||
-                    tie.InnerException is SeInvalidOperationException))
+                    tie.InnerException is SeInvalidOperationException ||
+                    tie.InnerException is NoAlertPresentException))
                 {
 					screenShot = TakeScreenshot();
                 }

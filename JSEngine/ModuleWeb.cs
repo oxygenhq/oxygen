@@ -245,6 +245,21 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             Exec(null, null);
         }
+        [JSVisible]
+        public bool isAlertPresent(string text, int timeout)
+        {
+            return (bool)Exec(text, timeout.ToString());
+        }
+        [JSVisible]
+        public void alertAccept()
+        {
+            Exec(null, null);
+        }
+        [JSVisible]
+        public void alertDismiss()
+        {
+            Exec(null, null);
+        }
 
         private object Exec(string target, string value)
         {

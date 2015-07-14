@@ -550,5 +550,34 @@ namespace CloudBeat.Oxygen
                 return false;
             }
         }
+
+        public bool SeCmdIsAlertPresent(string target, string value)
+        {
+            int timeout;
+            if (!int.TryParse(value, out timeout))
+                timeout = waitForTimeout;
+
+            try
+            {
+                new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
+                {
+                    try
+                    {
+                        var alert = base.SwitchTo().Alert();
+                        return MatchPattern(alert.Text, target);
+                    }
+                    catch (NoAlertPresentException)
+                    {
+                        return false;
+                    }
+                });
+
+                return true;
+            }
+            catch (WebDriverTimeoutException)
+            {
+                return false;
+            }
+        }
     }
 }
