@@ -293,7 +293,16 @@ namespace CloudBeat.Oxygen
             }
             else if (target.StartsWith("title="))   // wait for a window with the specified Title
             {
-                var curWinHandle = base.CurrentWindowHandle;
+                string curWinHandle = null;
+                try
+                {
+                    curWinHandle = base.CurrentWindowHandle;
+                }
+                catch (NoSuchWindowException)
+                {
+                    // if window was closed there is no current handle
+                }
+
                 string title = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
 
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(long.Parse(value))).Until((d) =>
@@ -305,11 +314,13 @@ namespace CloudBeat.Oxygen
                             var curWinTitle = base.SwitchTo().Window(handle).Title;
                             if (MatchPattern(curWinTitle, title))
                             {
-                                base.SwitchTo().Window(curWinHandle);
+                                if (curWinHandle != null)
+                                    base.SwitchTo().Window(curWinHandle);
                                 return true;
                             }
                         }
-                        base.SwitchTo().Window(curWinHandle);
+                        if (curWinHandle != null)
+                            base.SwitchTo().Window(curWinHandle);
                         return false;
                     }
                     catch (NoSuchWindowException) 
