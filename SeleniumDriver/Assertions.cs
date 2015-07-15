@@ -566,5 +566,67 @@ namespace CloudBeat.Oxygen
                 return false;
             }
         }
+
+        public void SeCmdAssertSelectedLabel(string target, string value)
+        {
+            string text = null;
+
+            bool success = false;
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    this.SeCmdWaitForVisible(target, value);
+
+                    var el = new SelectElement(this.FindElement(ResolveLocator(target)));
+                    text = el.SelectedOption.Text;
+
+                    success = true;
+                    break;
+                }
+                catch (StaleElementReferenceException) { }
+                catch (InvalidOperationException ioe)
+                {
+                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                }
+            }
+
+            if (!success)
+                throw new StaleElementReferenceException();
+
+            if (!MatchPattern(text, value))
+                throw new SeAssertionException();
+        }
+
+        public void SeCmdAssertSelectedValue(string target, string value)
+        {
+            string text = null;
+
+            bool success = false;
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    this.SeCmdWaitForVisible(target, value);
+
+                    var el = new SelectElement(this.FindElement(ResolveLocator(target)));
+                    text = el.SelectedOption.GetAttribute("value");
+
+                    success = true;
+                    break;
+                }
+                catch (StaleElementReferenceException) { }
+                catch (InvalidOperationException ioe)
+                {
+                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                }
+            }
+
+            if (!success)
+                throw new StaleElementReferenceException();
+
+            if (!MatchPattern(text, value))
+                throw new SeAssertionException();
+        }
     }
 }

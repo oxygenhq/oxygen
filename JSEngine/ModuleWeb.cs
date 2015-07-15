@@ -260,6 +260,16 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             Exec(null, null);
         }
+        [JSVisible]
+        public void assertSelectedLabel(string locator, string text)
+        {
+            Exec(locator, text);
+        }
+        [JSVisible]
+        public void assertSelectedValue(string locator, string value)
+        {
+            Exec(locator, value);
+        }
 
         private object Exec(string target, string value)
         {
