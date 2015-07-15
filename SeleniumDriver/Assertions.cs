@@ -415,16 +415,7 @@ namespace CloudBeat.Oxygen
                 try
                 {
                     this.SeCmdWaitForVisible(target, value);
-
-                    var el = this.FindElement(ResolveLocator(target));
-
-                    new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_ASSERT)).Until((d) =>
-                    {
-                        return el.Displayed;
-                    });
-
-                    text = el.Text;
-
+                    text = this.FindElement(ResolveLocator(target)).Text;
                     success = true;
                     break;
                 }
@@ -432,10 +423,6 @@ namespace CloudBeat.Oxygen
                 catch (InvalidOperationException ioe)
                 {
                     throw new SeInvalidOperationException(ioe.Message, ioe);
-                }
-                catch (WebDriverTimeoutException)
-                {
-                    throw new SeAssertionException();
                 }
             }
 
