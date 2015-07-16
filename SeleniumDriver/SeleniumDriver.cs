@@ -209,7 +209,7 @@ namespace CloudBeat.Oxygen
                     // can't take screenshots when alert is showing. so capture whole screen
                     // this works only localy
                     // TODO: linux
-                    if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
+                    /*if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
                     {
                         Rectangle bounds = System.Windows.Forms.Screen.GetBounds(Point.Empty);
                         using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
@@ -223,7 +223,7 @@ namespace CloudBeat.Oxygen
                             var sb = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
                             screenShot = Convert.ToBase64String(sb);
                         }
-                    }
+                    }*/
                 }
 
                 throw tie.InnerException;
