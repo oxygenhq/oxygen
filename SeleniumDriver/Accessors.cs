@@ -212,5 +212,10 @@ namespace CloudBeat.Oxygen
 
             return JsonConvert.SerializeObject(windows);
         }
+
+        public string SeCmdGetAlertText(string target, string value)
+        {
+            return base.SwitchTo().Alert().Text;
+        }
     }
 }

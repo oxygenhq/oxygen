@@ -270,6 +270,11 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             Exec(locator, value);
         }
+        [JSVisible]
+        public string getAlertText()
+        {
+            return Exec(null, null) as string;
+        }
 
         private object Exec(string target, string value)
         {
