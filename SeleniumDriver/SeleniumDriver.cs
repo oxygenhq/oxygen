@@ -21,8 +21,6 @@ namespace CloudBeat.Oxygen
         // Due to a bug(?) with PageLoadTimeout not being actualy used by Navigate.GoToUrl for DOMComplete/load events
         // (https://code.google.com/p/chromedriver/issues/detail?id=907) this will also define the timeout for SeOpen command.
         private const int TIMEOUT_COMMAND = 60 * 3;
-		// Defines the timeout (in seconds) for miscellaneous assertion actions - TextAssert, TitleAssert, AssertAlert, etc.
-        private const int TIMEOUT_ASSERT = 10;
 		// Defines the timeout (in seconds) for fetching the performance timings (domContentLoadedEvent and loadEvent)
         private const int TIMEOUT_TIMINGS = 90;
 		// Defines the interval (in milliseconds) for sleeping between the attempts to fetch performance timings.
@@ -37,7 +35,7 @@ namespace CloudBeat.Oxygen
         // the given timeout disregarding whether the page has finished loading or not. See also TIMEOUT_COMMAND for a bug with DOMComplete/laod events.
 		// This value, or rather thee underlying pageLoadTimeout, can be overriden from a script using Selenese SetTimeout command.
 		private const int DEFAULT_PAGE_LOAD_TIMEOUT = 60 * 1000;
-		// Defines the timeout (in milliseconds) for WaitFor* commands.
+		// Defines the timeout (in milliseconds) for WaitFor* commands and some assert* commands.
 		// This value, or rather the underlying waitForTimeout, can be overriden from a script using Selenese SetTimeout command.
         private const int DEFAULT_WAIT_FOR_TIMEOUT = 60 * 1000;
         // Defines the timeout (in milliseconds) for asynchronous scripts execution.

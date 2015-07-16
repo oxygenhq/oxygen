@@ -450,14 +450,13 @@ namespace CloudBeat.Oxygen
 
         public void SeCmdAssertAlert(string target, string value)
         {
-            new WebDriverWait(this, TimeSpan.FromMilliseconds(TIMEOUT_ASSERT)).Until((d) =>
+            new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
             {
                 try
                 {
                     var alert = base.SwitchTo().Alert();
                     if (!MatchPattern(alert.Text, target))
                         throw new SeAssertionException();
-
                     alert.Accept();
                     return true;
                 }
@@ -471,7 +470,7 @@ namespace CloudBeat.Oxygen
         {
             try
             {
-                new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_ASSERT)).Until((d) =>
+                new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
                 {
                     return MatchPattern(d.Title, target);
                 });
