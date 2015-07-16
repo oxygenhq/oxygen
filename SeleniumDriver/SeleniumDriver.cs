@@ -621,7 +621,7 @@ namespace CloudBeat.Oxygen
 				var p = Regex.Escape(pattern.Substring("glob:".Length)).Replace(@"\*", ".*").Replace(@"\?", ".");
                 if (p == "")    // otherwise empty string will match everything
                     return exp == p;
-                return Regex.Match(exp, @"\A[\s]*" + p + @"[\s]*\Z", RegexOptions.IgnoreCase).Success;
+                return Regex.Match(exp, @"\A[\s]*" + p + @"[\s]*\Z", RegexOptions.IgnoreCase | RegexOptions.Singleline).Success;
 			}
 			// no prefix same as glob matching
 			else
@@ -629,7 +629,7 @@ namespace CloudBeat.Oxygen
 				var p = Regex.Escape(pattern).Replace(@"\*", ".*").Replace(@"\?", ".");
                 if (p == "")
                     return exp == p;
-                return Regex.Match(exp, @"\A[\s]*" + p + @"[\s]*\Z", RegexOptions.IgnoreCase).Success;
+                return Regex.Match(exp, @"\A[\s]*" + p + @"[\s]*\Z", RegexOptions.IgnoreCase | RegexOptions.Singleline).Success;
 			}
 		}
     }
