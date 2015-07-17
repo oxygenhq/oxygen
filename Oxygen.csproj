@@ -105,7 +105,7 @@
     <Compile Include="SeParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <UsingTask TaskName="AddVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll">
+  <UsingTask TaskName="AddVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" Condition="'$(OS)' == 'Windows_NT'">
     <ParameterGroup>
       <VersionFile ParameterType="System.String" Required="true" />
       <AssemblyInfoFile ParameterType="System.String" Required="true" />
@@ -139,7 +139,7 @@
     </Exec>
     <Message Importance="high" Text="git failed with exit code $(ExitCode)" Condition="'$(ExitCode)'!='0'" />
     <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
-    <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" />
+    <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" Condition="'$(OS)' == 'Windows_NT'" />
   </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
