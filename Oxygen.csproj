@@ -140,6 +140,8 @@
     <Message Importance="high" Text="git failed with exit code $(ExitCode)" Condition="'$(ExitCode)'!='0'" />
     <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
     <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" Condition="'$(OS)' == 'Windows_NT'" />
+    <!-- xbuild doesn't support inline tasks so we use bash script -->
+    <Exec Command="./version.sh" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' == 'Unix'" />
   </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
