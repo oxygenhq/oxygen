@@ -6,46 +6,45 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Drawing;
 
 namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {
-        public void SeCmdSetTimeout(string target, string value)
+        public void SeCmdSetTimeout(int timeout)
         {
-            pageLoadTimeout = waitForTimeout = asynScriptTimeout = int.Parse(target);
+            pageLoadTimeout = waitForTimeout = asynScriptTimeout = timeout;
             base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
             base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
         }
 
         // implicit *AndWait assumed
-        public void SeCmdOpen(string target, string value)
+        public void SeCmdOpen(string url)
         {
-            string url;
+            string urlFinal;
 
             if (BaseURL == null)
-                url = target;
-            else if (BaseURL.EndsWith("/") && target == "/")
-                url = BaseURL;
-            else if (target.StartsWith("http:") || target.StartsWith("https:"))
-                url = target;
+                urlFinal = url;
+            else if (BaseURL.EndsWith("/") && url == "/")
+                urlFinal = BaseURL;
+            else if (url.StartsWith("http:") || url.StartsWith("https:"))
+                urlFinal = url;
             else
-                url = BaseURL + target;
+                urlFinal = BaseURL + url;
 
-            this.Navigate().GoToUrl(url);
+            this.Navigate().GoToUrl(urlFinal);
         }
 
-        public void SeCmdPoint(string target, string value)
+        public void SeCmdPoint(string locator)
         {
             bool success = false;
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
                     Actions actions = new Actions(this);
-                    actions.MoveToElement(this.FindElement(ResolveLocator(target))).Perform();
+                    actions.MoveToElement(this.FindElement(ResolveLocator(locator))).Perform();
                     success = true;
                     break;
                 }
@@ -59,17 +58,13 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdScrollToElement(string target, string value)
+        public void SeCmdScrollToElement(string locator, int yOffset = 0)
         {
-            int yOffset;
-            if (!int.TryParse(value, out yOffset))
-                yOffset = 0;
-                
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    var el = this.FindElement(ResolveLocator(target));
+                    var el = this.FindElement(ResolveLocator(locator));
                     (this as IJavaScriptExecutor).ExecuteScript("window.scrollTo(" + el.Location.X + "," + (el.Location.Y + yOffset) + ");");
                     break;
                 }
@@ -81,7 +76,7 @@ namespace CloudBeat.Oxygen
         }
 
         private int windowsCount;
-        public void SeCmdClick(string target, string value)
+        public void SeCmdClick(string locator)
         {
             windowsCount = base.WindowHandles.Count();
 
@@ -94,9 +89,9 @@ namespace CloudBeat.Oxygen
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
 
-					this.FindElement(ResolveLocator(target)).Click();
+					this.FindElement(ResolveLocator(locator)).Click();
                     success = true;
                     break;
                 }
@@ -114,7 +109,7 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdClickHidden(string target, string value)
+        public void SeCmdClickHidden(string locator)
         {
             windowsCount = base.WindowHandles.Count();
 
@@ -126,8 +121,8 @@ namespace CloudBeat.Oxygen
             {
                 try
                 {
-                    this.SeCmdWaitForElementPresent(target, value);
-                    var el = this.FindElement(ResolveLocator(target));
+                    this.SeCmdWaitForElementPresent(locator);
+                    var el = this.FindElement(ResolveLocator(locator));
                     (this as IJavaScriptExecutor).ExecuteScript("var clck_ev = document.createEvent('MouseEvent');clck_ev.initEvent('click', true, true);arguments[0].dispatchEvent(clck_ev)", el);
                     success = true;
                     break;
@@ -146,7 +141,7 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdDoubleClick(string target, string value)
+        public void SeCmdDoubleClick(string locator)
         {
             bool success = false;
             // since FindElement.Displayed is not an atomic operation, there could be a race condition when we get the element but some javascript changes it before Display.Get
@@ -157,9 +152,9 @@ namespace CloudBeat.Oxygen
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
 
-                    var el = this.FindElement(ResolveLocator(target));
+                    var el = this.FindElement(ResolveLocator(locator));
 
                     Actions actionProvider = new Actions(this);
                     IAction dblClick = actionProvider.DoubleClick(el).Build();
@@ -179,49 +174,50 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdSendKeys(string target, string value)
+        // not exposed through web module
+        public void SeCmdSendKeys(string locator, string value)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
 
-                    this.FindElement(locator).SendKeys(value);
+                    this.FindElement(loc).SendKeys(value);
                     return;
                 }
                 catch (StaleElementReferenceException) { }
             }
         }
 
-        public void SeCmdClear(string target, string value)
+        public void SeCmdClear(string locator)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(target, value);
-                    this.FindElement(locator).Clear();
+                    this.SeCmdWaitForVisible(locator);
+                    this.FindElement(loc).Clear();
                     return;
                 }
                 catch (StaleElementReferenceException) { }
             }
         }
 
-        public void SeCmdType(string target, string value)
+        public void SeCmdType(string locator, string value)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
 
-                    var el = this.FindElement(locator);
+                    var el = this.FindElement(loc);
 
                     if (el.Displayed) 
                     {
@@ -240,47 +236,43 @@ namespace CloudBeat.Oxygen
             }
         }
 
-
         // NOTE: doesn't support pattern matching for label= and value= locators and does exact match instead.
-        public void SeCmdSelect(string target, string value)
+        public void SeCmdSelect(string selectLocator, string optionLocator)
         {
             string selArg;
-            string selectorMethod = "Select" + ParseSelector(value, out selArg);
+            string selectorMethod = "Select" + ParseSelector(optionLocator, out selArg);
 			// make sure that the element present first
-            this.SeCmdWaitForVisible(target, value);
+            this.SeCmdWaitForVisible(selectLocator);
 
-            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(target)));
+            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(selectLocator)));
             Type type = typeof(SelectElement);
             MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
             cmdMethod.Invoke(sel, new object[] { selArg });
         }
 
-        public void SeCmdDeselect(string target, string value)
+        public void SeCmdDeselect(string selectLocator, string optionLocator)
         {
             string selArg;
-            string selectorMethod = "Deselect" + ParseSelector(value, out selArg);
+            string selectorMethod = "Deselect" + ParseSelector(optionLocator, out selArg);
             // make sure that the element present first
-            this.SeCmdWaitForVisible(target, value);
+            this.SeCmdWaitForVisible(selectLocator);
 
-            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(target)));
+            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(selectLocator)));
             Type type = typeof(SelectElement);
             MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
             cmdMethod.Invoke(sel, new object[] { selArg });
         }
 
-        public void SeCmdPause(string target, string value)
+        public void SeCmdPause(int waitTime)
         {
-            int time;
-            if (int.TryParse(target, out time))
-                Thread.Sleep(time);
+            Thread.Sleep(waitTime);
         }
 
-        // Not Selenium RC compliant!
-        public void SeCmdWaitForPopUp(string target, string value)
+        public void SeCmdWaitForPopUp(string windowLocator, int timeout)
         {
-            if (string.IsNullOrWhiteSpace(target))  // wait for any new window
+            if (string.IsNullOrWhiteSpace(windowLocator))  // wait for any new window
             {
-                new WebDriverWait(this, TimeSpan.FromMilliseconds(long.Parse(value))).Until((d) =>
+                new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
                 {
                     try
                     {
@@ -291,7 +283,7 @@ namespace CloudBeat.Oxygen
                     return false;
                 });
             }
-            else if (target.StartsWith("title="))   // wait for a window with the specified Title
+            else if (windowLocator.StartsWith("title="))   // wait for a window with the specified Title
             {
                 string curWinHandle = null;
                 try
@@ -303,9 +295,9 @@ namespace CloudBeat.Oxygen
                     // if window was closed there is no current handle
                 }
 
-                string title = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
+                string title = Regex.Replace(windowLocator.Substring("title=".Length).Trim(), @"\s+", " ");
 
-                new WebDriverWait(this, TimeSpan.FromMilliseconds(long.Parse(value))).Until((d) =>
+                new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
                 {
                     try
                     {
@@ -331,12 +323,11 @@ namespace CloudBeat.Oxygen
             }
             else
             {
-                throw new SeCommandNotImplementedException("Unsuported locator in WaitForPopUp - " + target);
+                throw new SeCommandNotImplementedException("Unsuported locator in WaitForPopUp - " + windowLocator);
             }
         }
 
-        // Not Selenium RC compliant!
-        public string SeCmdSelectWindow(string target, string value)
+        public string SeCmdSelectWindow(string windowLocator)
         {
             string curWinHandle = null;
             try
@@ -348,14 +339,14 @@ namespace CloudBeat.Oxygen
                 // window was closed. return null in such case.
             }
 
-            if (string.IsNullOrWhiteSpace(target))  // switch to the last opened window
+            if (string.IsNullOrWhiteSpace(windowLocator))  // switch to the last opened window
             {
                 base.SwitchTo().Window(base.WindowHandles.Last());
                 return curWinHandle;
             }
-            else if (target.StartsWith("title="))   // switch to the first window with a matching title
+            else if (windowLocator.StartsWith("title="))   // switch to the first window with a matching title
             {
-                string pattern = Regex.Replace(target.Substring("title=".Length).Trim(), @"\s+", " ");
+                string pattern = Regex.Replace(windowLocator.Substring("title=".Length).Trim(), @"\s+", " ");
 
                 foreach (string handle in base.WindowHandles)
                 {
@@ -364,64 +355,64 @@ namespace CloudBeat.Oxygen
                         return curWinHandle;
                 }
 
-                throw new Exception("selectWindow cannot find window using locator '" + target + "'");
+                throw new Exception("selectWindow cannot find window using locator '" + windowLocator + "'");
             }
             else                                    // switch to the first window with a matching title
             {
-                base.SwitchTo().Window(target);
+                base.SwitchTo().Window(windowLocator);
                 return curWinHandle;
             }
         }
 
-        public void SeCmdSelectFrame(string target, string value)
+        public void SeCmdSelectFrame(string frameLocator)
         {
-            if (target.StartsWith("index="))
+            if (frameLocator.StartsWith("index="))
             {
-                int index = int.Parse(target.Substring("index=".Length));
+                int index = int.Parse(frameLocator.Substring("index=".Length));
                 SwitchTo().Frame(index);
             }
-            else if (target == "relative=parent" || target == "relative=up")
+            else if (frameLocator == "relative=parent" || frameLocator == "relative=up")
             {
                 SwitchTo().ParentFrame();
             }
-            else if (target == "relative=top")
+            else if (frameLocator == "relative=top")
             {
                 SwitchTo().DefaultContent();
             }
-            else if (target.StartsWith("dom="))
+            else if (frameLocator.StartsWith("dom="))
             {
                 throw new SeCommandNotImplementedException("'dom=' locator in SelectFrame is not supported");
             }
-            else if (target.StartsWith("//"))   // non Selenium RC compliant
+            else if (frameLocator.StartsWith("//"))   // non Selenium RC compliant
             {
-                var frames = target.Split(new[] {";;"}, StringSplitOptions.RemoveEmptyEntries);
+                var frames = frameLocator.Split(new[] {";;"}, StringSplitOptions.RemoveEmptyEntries);
                 // switch to parent window
                 SwitchTo().DefaultContent();
                 // descend into frames
                 foreach (var frame in frames) 
                 {
-                    this.SeCmdWaitForElementPresent(frame, value);
+                    this.SeCmdWaitForElementPresent(frame);
                     var el = this.FindElement(By.XPath(frame));
                     SwitchTo().Frame(el);
                 }
             }
             else
             {
-                SwitchTo().Frame(target);
+                SwitchTo().Frame(frameLocator);
             }
         }
 
-        public void SeCmdCloseWindow(string target, string value)
+        public void SeCmdCloseWindow()
         {
             this.Close();
         }
 
-        public void SeCmdAlertAccept(string target, string value)
+        public void SeCmdAlertAccept()
         {
             base.SwitchTo().Alert().Accept();
         }
 
-        public void SeCmdAlertDismiss(string target, string value)
+        public void SeCmdAlertDismiss()
         {
             base.SwitchTo().Alert().Dismiss();
         }

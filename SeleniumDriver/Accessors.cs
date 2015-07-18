@@ -9,76 +9,81 @@ namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {
-        public void SeCmdStore(string target, string value)
+        // not exposed in throught web module
+        public void SeCmdStore(string expression, string variableName)
         {
-            SeCmdStoreExpression(target, value);
+            SeCmdStoreExpression(variableName.Trim(), expression);
         }
 
-        public void SeCmdStoreExpression(string target, string value)
+        // not exposed in throught web module
+        public void SeCmdStoreExpression(string expression, string variableName)
         {
-            variables.Add(value.Trim(), target);
+            variables.Add(variableName.Trim(), expression);
         }
 
-        public void SeCmdStoreAttribute(string target, string value)
+        // not exposed in throught web module
+        public void SeCmdStoreAttribute(string locator, string variableName)
         {
             string attributeName;
-            var locator = ResolveAttributeLocator(target, out attributeName);
+            var loc = ResolveAttributeLocator(locator, out attributeName);
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    var attribute = this.FindElement(locator).GetAttribute(attributeName);
-                    variables.Add(value.Trim(), attribute);
+                    var attribute = this.FindElement(loc).GetAttribute(attributeName);
+                    variables.Add(variableName.Trim(), attribute);
                     return;
                 }
                 catch (StaleElementReferenceException) { }
             }
         }
 
-        public void SeCmdStoreText(string target, string value)
+        // not exposed in throught web module
+        public void SeCmdStoreText(string locator, string variableName)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    var text = this.FindElement(locator).Text;
-                    variables.Add(value.Trim(), text);
+                    var text = this.FindElement(loc).Text;
+                    variables.Add(variableName.Trim(), text);
                     return;
                 }
                 catch (StaleElementReferenceException) { }
             }
         }
 
-        public void SeCmdStoreValue(string target, string value)
+        // not exposed in throught web module
+        public void SeCmdStoreValue(string locator, string variableName)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    var el = this.FindElement(locator);
+                    var el = this.FindElement(loc);
 
                     var type = el.GetAttribute("type");
                     if (type == null)
-                        throw new SeElementHasNoValueException(target);
+                        throw new SeElementHasNoValueException(locator);
                     
                     type = type.Trim().ToLower();
 
                     if (type == "radio" || type == "checkbox")
                     {
-                        variables.Add(value.Trim(), el.Selected ? "on" : "off");
+                        variables.Add(variableName.Trim(), el.Selected ? "on" : "off");
                     }
                     else
                     {
                         var elValue = el.GetAttribute("value");
                         if (elValue == null)
-                            throw new SeElementHasNoValueException(target);
+                            throw new SeElementHasNoValueException(locator);
 
-                        variables.Add(value.Trim(), elValue);
+                        variables.Add(variableName.Trim(), elValue);
                     }
 
                     return;
@@ -87,47 +92,47 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public string SeCmdGetAttribute(string target, string value)
+        public string SeCmdGetAttribute(string locator, string attributeName)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    return this.FindElement(locator).GetAttribute(value);
+                    return this.FindElement(loc).GetAttribute(attributeName);
                 }
                 catch (StaleElementReferenceException) { }
             }
             return null;
         }
 
-        public string SeCmdGetText(string target, string value)
+        public string SeCmdGetText(string locator)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    return this.FindElement(locator).Text;
+                    return this.FindElement(loc).Text;
                 }
                 catch (StaleElementReferenceException) { }
             }
             return null;
         }
 
-        public string SeCmdGetValue(string target, string value)
+        public string SeCmdGetValue(string locator)
         {
-            var locator = ResolveLocator(target);
+            var loc = ResolveLocator(locator);
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    var el = this.FindElement(locator);
+                    var el = this.FindElement(loc);
 
                     var type = el.GetAttribute("type");
                     if (type == null)
-                        throw new SeElementHasNoValueException(target);
+                        throw new SeElementHasNoValueException(locator);
 
                     type = type.Trim().ToLower();
 
@@ -139,7 +144,7 @@ namespace CloudBeat.Oxygen
                     {
                         var elValue = el.GetAttribute("value");
                         if (elValue == null)
-                            throw new SeElementHasNoValueException(target);
+                            throw new SeElementHasNoValueException(locator);
                         return elValue;
                     }
                 }
@@ -148,12 +153,12 @@ namespace CloudBeat.Oxygen
             return null;
         }
 
-        public string SeCmdGetPageSource(string target, string value)
+        public string SeCmdGetPageSource()
         {
             return this.PageSource;
         }
 
-        public string SeCmdGetXMLPageSource(string target, string value)
+        public string SeCmdGetXMLPageSource()
         {
             switch (this.Capabilities.BrowserName)
             {
@@ -178,9 +183,9 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public string SeCmdGetXMLPageSourceAsJSON(string target, string value)
+        public string SeCmdGetXMLPageSourceAsJSON()
         {
-            var src = SeCmdGetXMLPageSource(null, null);
+            var src = SeCmdGetXMLPageSource();
             try 
             {
                 XmlDocument doc = new XmlDocument();
@@ -193,7 +198,7 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public string SeCmdGetWindowHandles(string target, string value)
+        public string SeCmdGetWindowHandles()
         {
             var originalWin = this.CurrentWindowHandle;
 
@@ -213,7 +218,7 @@ namespace CloudBeat.Oxygen
             return JsonConvert.SerializeObject(windows);
         }
 
-        public string SeCmdGetAlertText(string target, string value)
+        public string SeCmdGetAlertText()
         {
             return base.SwitchTo().Alert().Text;
         }

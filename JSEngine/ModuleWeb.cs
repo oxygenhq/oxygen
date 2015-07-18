@@ -63,17 +63,17 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public void setTimeout(int timeout)
         {
-            Exec(timeout.ToString(), null);
+            Exec(timeout);
         }
         [JSVisible]
         public void open(string url)
         {
-            Exec(url, null);
+            Exec(url);
         }
         [JSVisible]
         public void point(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void scrollToElement(string locator, int yOffset)
@@ -83,17 +83,17 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
 		public void click(string locator)
 		{
-            Exec(locator, null);
+            Exec(locator);
 		}
         [JSVisible]
         public void clickHidden(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void assertTitle(string pattern)
         {
-            Exec(pattern, null);
+            Exec(pattern);
         }
         [JSVisible]
         public void type(string locator, string value)
@@ -103,7 +103,7 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public void clear(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void assertText(string locator, string pattern)
@@ -113,12 +113,12 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public string selectWindow(string windowLocator)
         {
-            return Exec(windowLocator, null) as string;
+            return Exec(windowLocator) as string;
         }
         [JSVisible]
         public string getText(string locator)
         {
-            return Exec(locator, null) as string;
+            return Exec(locator) as string;
         }
         [JSVisible]
         public string getAttribute(string locator, string attributeName)
@@ -128,12 +128,12 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public string getValue(string locator)
         {
-            return Exec(locator, null) as string;
+            return Exec(locator) as string;
         }
         [JSVisible]
         public void doubleClick(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void select(string selectLocator, string optionLocator)
@@ -148,37 +148,37 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public void pause(int waitTime)
         {
-            Exec(waitTime.ToString(), null);
+            Exec(waitTime);
         }
         [JSVisible]
         public void waitForPopUp(string windowID, int timeout)
         {
-            Exec(windowID, timeout.ToString());
+            Exec(windowID, timeout);
         }
         [JSVisible]
         public void selectFrame(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void waitForVisible(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void waitForElementPresent(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public bool isElementPresent(string locator, int timeout)
         {
-            return (bool)Exec(locator, timeout.ToString());
+            return (bool)Exec(locator, timeout);
         }
         [JSVisible]
         public bool isElementVisible(string locator, int timeout)
         {
-            return (bool)Exec(locator, timeout.ToString());
+            return (bool)Exec(locator, timeout);
         }
         [JSVisible]
         public void waitForText(string locator, string pattern)
@@ -208,57 +208,57 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public void assertTextPresent(string pattern)
         {
-            Exec(pattern, null);
+            Exec(pattern);
         }
         [JSVisible]
         public void assertElementPresent(string locator)
         {
-            Exec(locator, null);
+            Exec(locator);
         }
         [JSVisible]
         public void assertAlert(string pattern)
         {
-            Exec(pattern, null);
+            Exec(pattern);
         }
         [JSVisible]
         public string getPageSource()
         {
-            return Exec(null, null) as string;
+            return Exec() as string;
         }
         [JSVisible]
         public string getXMLPageSource()
         {
-            return Exec(null, null) as string;
+            return Exec() as string;
         }
         [JSVisible]
         public string getXMLPageSourceAsJSON()
         {
-            return Exec(null, null) as string;
+            return Exec() as string;
         }
         [JSVisible]
         public string getWindowHandles()
         {
-            return Exec(null, null) as string;
+            return Exec() as string;
         }
         [JSVisible]
         public void closeWindow()
         {
-            Exec(null, null);
+            Exec();
         }
         [JSVisible]
         public bool isAlertPresent(string text, int timeout)
         {
-            return (bool)Exec(text, timeout.ToString());
+            return (bool)Exec(text, timeout);
         }
         [JSVisible]
         public void alertAccept()
         {
-            Exec(null, null);
+            Exec();
         }
         [JSVisible]
         public void alertDismiss()
         {
-            Exec(null, null);
+            Exec();
         }
         [JSVisible]
         public void assertSelectedLabel(string locator, string text)
@@ -273,10 +273,10 @@ namespace CloudBeat.Oxygen.JSEngine
         [JSVisible]
         public string getAlertText()
         {
-            return Exec(null, null) as string;
+            return Exec() as string;
         }
 
-        private object Exec(string target, string value)
+        private object Exec(params object[] args)
         {
             if (CommandExecuting != null)
                 CommandExecuting();
@@ -293,8 +293,7 @@ namespace CloudBeat.Oxygen.JSEngine
             var cmd = new SeCommand
             {
                 CommandName = name,
-                Target = target,
-                Value = value
+                Arguments = args
             };
 
             try

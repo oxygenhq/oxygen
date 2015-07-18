@@ -7,14 +7,7 @@ namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {
-        // Selenese non-compliant, custom, assertion
-        public void SeCmdAssertEqual(string target, string value)
-        {
-            if (target != value)
-                throw new SeAssertionException();
-        }
-
-        public void SeCmdWaitForVisible(string target, string value)
+        public void SeCmdWaitForVisible(string locator)
         {
             bool elementPresent = false;
             UnhandledAlertException alert = null;
@@ -27,7 +20,7 @@ namespace CloudBeat.Oxygen
                     {
                         try
                         {
-                            var el = this.FindElement(ResolveLocator(target));
+                            var el = this.FindElement(ResolveLocator(locator));
                             elementPresent = true;
                             if (el.Displayed)
                                 return true;
@@ -61,7 +54,8 @@ namespace CloudBeat.Oxygen
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForAllLinks(string target, string value)
+        // not exposed through web module
+        public void SeCmdWaitForAllLinks(string pattern)
         {
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -81,7 +75,7 @@ namespace CloudBeat.Oxygen
                         if (ids.Length > 1)
                             ids = ids.TrimEnd(',');
 
-                        return MatchPattern(ids, target);
+                        return MatchPattern(ids, pattern);
                     });
 
                     return;
@@ -96,7 +90,7 @@ namespace CloudBeat.Oxygen
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForElementPresent(string target, string value)
+        public void SeCmdWaitForElementPresent(string locator)
         {
             UnhandledAlertException alert = null;
             try
@@ -105,7 +99,7 @@ namespace CloudBeat.Oxygen
                 {
                     try
                     {
-                        var el = this.FindElement(ResolveLocator(target));
+                        var el = this.FindElement(ResolveLocator(locator));
                         return el != null;
                     }
                     catch (NoSuchElementException)
@@ -131,9 +125,9 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public void SeCmdWaitForText(string target, string value)
+        public void SeCmdWaitForText(string locator, string pattern)
         {
-            string valCleaned = CollapseWhitespace(value);
+            string valCleaned = CollapseWhitespace(pattern);
             bool elementPresent = false;
             UnhandledAlertException alert = null;
 
@@ -145,7 +139,7 @@ namespace CloudBeat.Oxygen
                     {
                         try
                         {
-                            var el = this.FindElement(ResolveLocator(target));
+                            var el = this.FindElement(ResolveLocator(locator));
                             elementPresent = true;
                             return MatchPattern(el.Text, valCleaned);
                         }
@@ -179,9 +173,9 @@ namespace CloudBeat.Oxygen
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForNotText(string target, string value)
+        public void SeCmdWaitForNotText(string locator, string pattern)
         {
-            string valCleaned = CollapseWhitespace(value);
+            string valCleaned = CollapseWhitespace(pattern);
             bool elementPresent = false;
             UnhandledAlertException alert = null;
 
@@ -193,7 +187,7 @@ namespace CloudBeat.Oxygen
                     {
                         try
                         {
-                            var el = this.FindElement(ResolveLocator(target));
+                            var el = this.FindElement(ResolveLocator(locator));
                             elementPresent = true;
                             return !MatchPattern(el.Text, valCleaned);
                         }
@@ -226,38 +220,38 @@ namespace CloudBeat.Oxygen
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdAssertValue(string target, string value)
+        public void SeCmdAssertValue(string locator, string pattern)
         {
-            this.SeCmdWaitForVisible(target, value);
+            this.SeCmdWaitForVisible(locator);
             // assertValue asserts the value of an input field (or anything else with a value parameter). 
             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
             // hence we need to take two different approaches when comparing depending if the element is radio/checkbox or something else
 
-            var el = this.FindElement(ResolveLocator(target));
+            var el = this.FindElement(ResolveLocator(locator));
 
             var type = el.GetAttribute("type");
             if (type == null)
-                throw new SeElementHasNoValueException(target);
+                throw new SeElementHasNoValueException(locator);
 
             type = type.Trim().ToLower();
 
             if (type == "radio" || type == "checkbox")
             {
-                if (el.Selected && value == "off" || !el.Selected && value == "on")
+                if (el.Selected && pattern == "off" || !el.Selected && pattern == "on")
                     throw new SeAssertionException();
             }
             else
             {
                 var elValue = el.GetAttribute("value");
                 if (elValue == null)
-                    throw new SeElementHasNoValueException(target);
+                    throw new SeElementHasNoValueException(locator);
 
-                if (!MatchPattern(elValue, value))
+                if (!MatchPattern(elValue, pattern))
                     throw new SeAssertionException();
             }
         }
 
-        public void SeCmdWaitForValue(string target, string value)
+        public void SeCmdWaitForValue(string locator, string pattern)
         {
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -267,23 +261,23 @@ namespace CloudBeat.Oxygen
                     {
                         try
                         {
-                            var el = this.FindElement(ResolveLocator(target));
+                            var el = this.FindElement(ResolveLocator(locator));
                             var type = el.GetAttribute("type");
                             if (type == null)
-                                throw new SeElementHasNoValueException(target);
+                                throw new SeElementHasNoValueException(locator);
                             type = type.Trim().ToLower();
 
                             var elValue = el.GetAttribute("value");
                             if (elValue == null)
-                                throw new SeElementHasNoValueException(target);
+                                throw new SeElementHasNoValueException(locator);
 
                             // waitForValue wait for a value of an input field (or anything else with a value parameter) to become equal to the provided value. 
                             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
                             // hence we need to take two different approaches when comparing depending if the element is radio/checkbox or something else
                             if (type == "radio" || type == "checkbox")
-                                return (el.Selected && value == "off" || !el.Selected && value == "on");
+                                return (el.Selected && pattern == "off" || !el.Selected && pattern == "on");
                             else
-                                return MatchPattern(value, CollapseWhitespace(elValue));
+                                return MatchPattern(pattern, CollapseWhitespace(elValue));
                         }
                         catch (NoSuchElementException) { }
 
@@ -301,7 +295,7 @@ namespace CloudBeat.Oxygen
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForNotValue(string target, string value)
+        public void SeCmdWaitForNotValue(string locator, string pattern)
         {
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -311,23 +305,23 @@ namespace CloudBeat.Oxygen
                     {
                         try
                         {
-                            var el = this.FindElement(ResolveLocator(target));
+                            var el = this.FindElement(ResolveLocator(locator));
                             var type = el.GetAttribute("type");
                             if (type == null)
-                                throw new SeElementHasNoValueException(target);
+                                throw new SeElementHasNoValueException(locator);
                             type = type.Trim().ToLower();
 
                             var elValue = el.GetAttribute("value");
                             if (elValue == null)
-                                throw new SeElementHasNoValueException(target);
+                                throw new SeElementHasNoValueException(locator);
 
                             // waitForValue wait for a value of an input field (or anything else with a value parameter) to become equal to the provided value. 
                             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
                             // hence we need to take two different approaches when comparing depending if the element is radio/checkbox or something else
                             if (type == "radio" || type == "checkbox")
-                                return !(el.Selected && value == "off" || !el.Selected && value == "on");
+                                return !(el.Selected && pattern == "off" || !el.Selected && pattern == "on");
                             else
-                                return !MatchPattern(value, CollapseWhitespace(elValue));
+                                return !MatchPattern(pattern, CollapseWhitespace(elValue));
                         }
                         catch (NoSuchElementException) { }
 
@@ -345,11 +339,11 @@ namespace CloudBeat.Oxygen
             throw new StaleElementReferenceException();
         }
 
-        private void SeCmdVerifyValue(string target, string value)
+        private void SeCmdVerifyValue(string locator, string pattern)
         {
             try
             {
-                SeCmdAssertValue(target, value);
+                SeCmdAssertValue(locator, pattern);
             }
             catch (SeAssertionException)
             {
@@ -357,11 +351,12 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        private void SeCmdVerifyTextPresent(string target, string value)
+        // not exposed through web module
+        private void SeCmdVerifyTextPresent(string text)
         {
             try
             {
-                SeCmdAssertTextPresent(target, value);
+                SeCmdAssertTextPresent(text);
             }
             catch (SeAssertionException)
             {
@@ -369,11 +364,12 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        private void SeCmdVerifyElementPresent(string target, string value)
+        // not exposed through web module
+        private void SeCmdVerifyElementPresent(string locator)
         {
             try
             {
-                SeCmdAssertElementPresent(target, value);
+                SeCmdAssertElementPresent(locator);
             }
             catch (SeAssertionException)
             {
@@ -381,11 +377,12 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public void SeCmdVerifyTitle(string target, string value)
+        // not exposed through web module
+        public void SeCmdVerifyTitle(string pattern)
         {
             try
             {
-                SeCmdAssertTitle(target, value);
+                SeCmdAssertTitle(pattern);
             }
             catch (SeAssertionException)
             {
@@ -393,11 +390,12 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        private void SeCmdVerifyText(string target, string value)
+        // not exposed through web module
+        private void SeCmdVerifyText(string locator, string pattern)
         {
             try
             {
-                SeCmdAssertText(target, value);
+                SeCmdAssertText(locator, pattern);
             }
             catch (SeAssertionException)
             {
@@ -405,7 +403,7 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public void SeCmdAssertText(string target, string value)
+        public void SeCmdAssertText(string locator, string pattern)
         {
             string text = null;
 
@@ -414,8 +412,8 @@ namespace CloudBeat.Oxygen
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(target, value);
-                    text = this.FindElement(ResolveLocator(target)).Text;
+                    this.SeCmdWaitForVisible(locator);
+                    text = this.FindElement(ResolveLocator(locator)).Text;
                     success = true;
                     break;
                 }
@@ -429,33 +427,32 @@ namespace CloudBeat.Oxygen
             if (!success)
                 throw new StaleElementReferenceException();
 
-            if (!MatchPattern(text, value))
+            if (!MatchPattern(text, pattern))
                 throw new SeAssertionException();
         }
 
-        public void SeCmdAssertTextPresent(string target, string value)
+        public void SeCmdAssertTextPresent(string text)
         {
-            var els = this.FindElements(By.XPath("//*[contains(text(),'" + target + "')]"));
-
+            var els = this.FindElements(By.XPath("//*[contains(text(),'" + text + "')]"));
             if (els.Count() == 0)
                 throw new SeAssertionException();
         }
 
-        public void SeCmdAssertElementPresent(string target, string value)
+        public void SeCmdAssertElementPresent(string locator)
         {
-            this.SeCmdWaitForElementPresent(target, value);
-            if (!IsElementPresent(ResolveLocator(target)))
+            this.SeCmdWaitForElementPresent(locator);
+            if (!IsElementPresent(ResolveLocator(locator)))
                 throw new SeAssertionException();
         }
 
-        public void SeCmdAssertAlert(string target, string value)
+        public void SeCmdAssertAlert(string pattern)
         {
             new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
             {
                 try
                 {
                     var alert = base.SwitchTo().Alert();
-                    if (!MatchPattern(alert.Text, target))
+                    if (!MatchPattern(alert.Text, pattern))
                         throw new SeAssertionException();
                     alert.Accept();
                     return true;
@@ -466,13 +463,13 @@ namespace CloudBeat.Oxygen
             });
         }
 
-        public void SeCmdAssertTitle(string target, string value)
+        public void SeCmdAssertTitle(string pattern)
         {
             try
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
                 {
-                    return MatchPattern(d.Title, target);
+                    return MatchPattern(d.Title, pattern);
                 });
             }
             catch (WebDriverTimeoutException)
@@ -481,19 +478,15 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public bool SeCmdIsElementPresent(string target, string value)
+        public bool SeCmdIsElementPresent(string locator, int timeout)
         {
-            int timeout;
-            if (!int.TryParse(value, out timeout))
-                timeout = waitForTimeout;
-
             try
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
                 {
                     try
                     {
-                        var el = this.FindElement(ResolveLocator(target));
+                        var el = this.FindElement(ResolveLocator(locator));
                         return el != null;
                     }
                     catch (NoSuchElementException) { }
@@ -509,19 +502,15 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public bool SeCmdIsElementVisible(string target, string value)
+        public bool SeCmdIsElementVisible(string locator, int timeout)
         {
-            int timeout;
-            if (!int.TryParse(value, out timeout))
-                timeout = waitForTimeout;
-
             try
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
                 {
                     try
                     {
-                        var el = this.FindElement(ResolveLocator(target));
+                        var el = this.FindElement(ResolveLocator(locator));
                         return el.Displayed;
                     }
                     catch (NoSuchElementException) { }
@@ -537,12 +526,8 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public bool SeCmdIsAlertPresent(string target, string value)
+        public bool SeCmdIsAlertPresent(string text, int timeout)
         {
-            int timeout;
-            if (!int.TryParse(value, out timeout))
-                timeout = waitForTimeout;
-
             try
             {
                 new WebDriverWait(this, TimeSpan.FromMilliseconds(timeout)).Until((d) =>
@@ -550,7 +535,7 @@ namespace CloudBeat.Oxygen
                     try
                     {
                         var alert = base.SwitchTo().Alert();
-                        return MatchPattern(alert.Text, target);
+                        return MatchPattern(alert.Text, text);
                     }
                     catch (NoAlertPresentException)
                     {
@@ -566,7 +551,7 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        public void SeCmdAssertSelectedLabel(string target, string value)
+        public void SeCmdAssertSelectedLabel(string locator, string pattern)
         {
             string text = null;
 
@@ -575,9 +560,9 @@ namespace CloudBeat.Oxygen
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
 
-                    var el = new SelectElement(this.FindElement(ResolveLocator(target)));
+                    var el = new SelectElement(this.FindElement(ResolveLocator(locator)));
                     text = el.SelectedOption.Text;
 
                     success = true;
@@ -593,11 +578,11 @@ namespace CloudBeat.Oxygen
             if (!success)
                 throw new StaleElementReferenceException();
 
-            if (!MatchPattern(text, value))
+            if (!MatchPattern(text, pattern))
                 throw new SeAssertionException();
         }
 
-        public void SeCmdAssertSelectedValue(string target, string value)
+        public void SeCmdAssertSelectedValue(string locator, string pattern)
         {
             string text = null;
 
@@ -606,9 +591,9 @@ namespace CloudBeat.Oxygen
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(target, value);
+                    this.SeCmdWaitForVisible(locator);
 
-                    var el = new SelectElement(this.FindElement(ResolveLocator(target)));
+                    var el = new SelectElement(this.FindElement(ResolveLocator(locator)));
                     text = el.SelectedOption.GetAttribute("value");
 
                     success = true;
@@ -624,7 +609,7 @@ namespace CloudBeat.Oxygen
             if (!success)
                 throw new StaleElementReferenceException();
 
-            if (!MatchPattern(text, value))
+            if (!MatchPattern(text, pattern))
                 throw new SeAssertionException();
         }
     }

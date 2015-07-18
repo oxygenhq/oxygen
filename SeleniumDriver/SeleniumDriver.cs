@@ -176,9 +176,24 @@ namespace CloudBeat.Oxygen
 			if (cmd.CommandName.EndsWith("AndWait", StringComparison.InvariantCultureIgnoreCase))
 				commandName = cmd.CommandName.Remove(cmd.CommandName.Length-"AndWait".Length);
 
-            var target = SubstituteVariable(cmd.Target);
-			target = SubstituteLocator(target);
-            var value = SubstituteVariable(cmd.Value);
+            object[] argsProcessed = null;
+            if (cmd.Arguments != null)
+            {
+                argsProcessed = new object[cmd.Arguments.Length];
+                for (int i = 0; i < cmd.Arguments.Length; i++)
+                {
+                    var arg = cmd.Arguments[i];
+                    if (arg.GetType() == typeof(string))
+                    {
+                        var argStr = SubstituteVariable(arg.ToString());
+                        argsProcessed[i] = SubstituteLocator(argStr);
+                    }
+                    else
+                    {
+                        argsProcessed[i] = arg;
+                    }
+                }
+            }
 
 			MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX+commandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
             if (cmdMethod == null)
@@ -187,7 +202,7 @@ namespace CloudBeat.Oxygen
             screenShot = null;
             try
             {
-                return cmdMethod.Invoke(this, new object[] { target, value });
+                return cmdMethod.Invoke(this, argsProcessed);
             }
             catch (TargetInvocationException tie)
             {

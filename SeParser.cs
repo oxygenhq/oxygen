@@ -83,12 +83,17 @@ namespace CloudBeat.Oxygen
 
                     var cmdName = SeParser.Format(columnValues.First().ToList());
 
+                    IList<object> args = new List<object>(2);
+                    args.Add(SeParser.Format(columnValues.Skip(1).First().ToList()));
+                    var val = SeParser.Format(columnValues.Skip(2).First().ToList()).Trim(' ', '\t');
+                    if (val != "")
+                        args.Add(val);
+
                     result.Add(new SeCommand
                     {
                         Line = scriptLine++,
                         CommandName = cmdName,
-                        Target = SeParser.Format(columnValues.Skip(1).First().ToList()),
-                        Value = SeParser.Format(columnValues.Skip(2).First().ToList()),
+                        Arguments = args.ToArray(),
                         TransactionName = currentTransactionName
                     });
                 }
@@ -188,17 +193,20 @@ namespace CloudBeat.Oxygen
 
             foreach (var cmd in cmds)
             {
-                var str = cmd.Target + cmd.Value;
-                while (true)
+                if (cmd.Arguments != null)
                 {
-                    var varIndexStart = str.IndexOf("${", StringComparison.InvariantCultureIgnoreCase);
-                    if (varIndexStart == -1)
-                        break;
+                    var str = string.Join("", cmd.Arguments);
+                    while (true)
+                    {
+                        var varIndexStart = str.IndexOf("${", StringComparison.InvariantCultureIgnoreCase);
+                        if (varIndexStart == -1)
+                            break;
 
-                    var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
-                    var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-                    paramList.Add(variableName);
-                    str = str.Substring(varIndexEnd + 1);
+                        var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
+                        var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
+                        paramList.Add(variableName);
+                        str = str.Substring(varIndexEnd + 1);
+                    }
                 }
             }
 
