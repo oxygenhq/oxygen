@@ -36,7 +36,8 @@ namespace CloudBeat.Oxygen
             for (int i = 0; i < Arguments.Length; i++)
             {
                 var arg = Arguments[i];
-                argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + arg.ToString() + "'" : arg.ToString();
+                var argEscaped = arg.ToString().Replace("'", @"\'").Replace(@"\\'", @"\'");
+                argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + argEscaped + "'" : argEscaped;
             }
             return string.Format("web.{0}({1});", CommandName, string.Join(", ", argsQuoted));
         }
