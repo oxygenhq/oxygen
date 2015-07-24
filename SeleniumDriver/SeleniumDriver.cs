@@ -198,7 +198,13 @@ namespace CloudBeat.Oxygen
                     }*/
                 }
 
-                throw tie.InnerException;
+                // wrap Selenium exceptions. generaly SeCmds throw Oxygen exceptions, however in certain 
+                // cases like with ElementNotVisibleException it's simplier to just wrap it out here so we don't need to do it
+                // for each FindElement().doSomething
+                if (tie.InnerException is ElementNotVisibleException)
+                    throw new SeElementNotVisibleException();
+                else
+                    throw tie.InnerException;
             }
 			finally
 			{
