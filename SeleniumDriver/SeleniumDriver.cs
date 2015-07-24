@@ -155,7 +155,7 @@ namespace CloudBeat.Oxygen
             Type thisType = this.GetType();
             MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
             if (cmdMethod == null)
-                throw new SeCommandNotImplementedException();
+                throw new OxCommandNotImplementedException();
 
             screenShot = null;
             try
@@ -165,12 +165,12 @@ namespace CloudBeat.Oxygen
             catch (TargetInvocationException tie)
             {
 				if (screenShotErrors && tie.InnerException != null && 
-					(tie.InnerException is SeAssertionException || 
-                    tie.InnerException is SeVerificationException ||
-					tie.InnerException is SeWaitForException ||
-                    tie.InnerException is SeElementNotFoundException ||
-                    tie.InnerException is SeElementNotVisibleException ||
-                    tie.InnerException is SeInvalidOperationException ||
+					(tie.InnerException is OxAssertionException || 
+                    tie.InnerException is OxVerificationException ||
+					tie.InnerException is OxWaitForException ||
+                    tie.InnerException is OxElementNotFoundException ||
+                    tie.InnerException is OxElementNotVisibleException ||
+                    tie.InnerException is OxOperationException ||
                     tie.InnerException is NoAlertPresentException ||
                     tie.InnerException is WebDriverTimeoutException))
                 {
@@ -202,7 +202,7 @@ namespace CloudBeat.Oxygen
                 // cases like with ElementNotVisibleException it's simplier to just wrap it out here so we don't need to do it
                 // for each FindElement().doSomething
                 if (tie.InnerException is ElementNotVisibleException)
-                    throw new SeElementNotVisibleException();
+                    throw new OxElementNotVisibleException();
                 else
                     throw tie.InnerException;
             }
@@ -250,7 +250,7 @@ namespace CloudBeat.Oxygen
                 {
 					var pm = context.ParameterManager;
 					if (pm == null || !pm.ContainsParameter(variableName))
-						throw new SeVariableUndefined(variableName);
+						throw new OxVariableUndefined(variableName);
 					var value = pm.GetValue(variableName);
 					str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
                 }
@@ -269,7 +269,7 @@ namespace CloudBeat.Oxygen
 				var objectName = target.Substring(2, target.Length - 3);
 				var locator = context.PageObjectManager.GetLocator(objectName);
 				if (locator == null)
-                    throw new SeLocatorUndefined(objectName);
+                    throw new OxLocatorUndefined(objectName);
 				return locator;
 			}
 			return target;
@@ -438,7 +438,7 @@ namespace CloudBeat.Oxygen
             // extract the attribute name
             int attIndex = target.LastIndexOf('@');
             if (attIndex <= 0 && attIndex + 1 == target.Length) 
-                throw new SeInvalidCommandArgumentException("Cannot extract attribute name from attributeLocator.");
+                throw new OxInvalidCommandArgumentException("Cannot extract attribute name from attributeLocator.");
             attributeName = target.Substring(attIndex + 1);
             return ResolveLocator(target.Substring(0, attIndex));
         }

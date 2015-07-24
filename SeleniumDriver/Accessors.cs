@@ -69,7 +69,7 @@ namespace CloudBeat.Oxygen
 
                     var type = el.GetAttribute("type");
                     if (type == null)
-                        throw new SeElementHasNoValueException(locator);
+                        throw new OxElementHasNoValueException(locator);
                     
                     type = type.Trim().ToLower();
 
@@ -81,7 +81,7 @@ namespace CloudBeat.Oxygen
                     {
                         var elValue = el.GetAttribute("value");
                         if (elValue == null)
-                            throw new SeElementHasNoValueException(locator);
+                            throw new OxElementHasNoValueException(locator);
 
                         variables.Add(variableName.Trim(), elValue);
                     }
@@ -132,7 +132,7 @@ namespace CloudBeat.Oxygen
 
                     var type = el.GetAttribute("type");
                     if (type == null)
-                        throw new SeElementHasNoValueException(locator);
+                        throw new OxElementHasNoValueException(locator);
 
                     type = type.Trim().ToLower();
 
@@ -144,7 +144,7 @@ namespace CloudBeat.Oxygen
                     {
                         var elValue = el.GetAttribute("value");
                         if (elValue == null)
-                            throw new SeElementHasNoValueException(locator);
+                            throw new OxElementHasNoValueException(locator);
                         return elValue;
                     }
                 }
@@ -169,7 +169,7 @@ namespace CloudBeat.Oxygen
                     }
                     catch (Exception)
                     {
-                        throw new SeXMLExtractException("Unable to extract XML from: " + this.PageSource);
+                        throw new OxXMLExtractException("Unable to extract XML from: " + this.PageSource);
                     }
                 case "internet explorer":
                     // TODO: optimize
@@ -179,7 +179,7 @@ namespace CloudBeat.Oxygen
                     return Regex.Replace(src, @"<span\s*.*?>.*?<span\s*.*?>.*?<\/span>.*?<\/span>", "", RegexOptions.Multiline);
                 case "firefox":
                 default:
-                    throw new SeXMLExtractException("This command is not supported on " + this.Capabilities.BrowserName + " yet.");
+                    throw new OxXMLExtractException("This command is not supported on " + this.Capabilities.BrowserName + " yet.");
             }
         }
 
@@ -194,7 +194,7 @@ namespace CloudBeat.Oxygen
             }
             catch (Exception)
             {
-                throw new SeXMLtoJSONConvertException("Unable to convert XML to JSON: " + this.PageSource);
+                throw new OxXMLtoJSONConvertException("Unable to convert XML to JSON: " + this.PageSource);
             }
         }
 

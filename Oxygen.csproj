@@ -100,7 +100,7 @@
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCFactory.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCFirefox.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCInternetExplorer.cs" />
-    <Compile Include="SeleniumDriver\SeExceptions.cs" />
+    <Compile Include="SeleniumDriver\Exceptions.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\IDCBrowser.cs" />
     <Compile Include="SeParser.cs" />
   </ItemGroup>

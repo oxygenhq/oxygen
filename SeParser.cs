@@ -143,7 +143,7 @@ namespace CloudBeat.Oxygen
                 parser.SetDelimiters(",");
 
                 if (parser.EndOfData)
-                    throw new SeParameterizationCSVException("Invalid CSV file. The file appears to be empty.");
+                    throw new OxParameterizationCSVException("Invalid CSV file. The file appears to be empty.");
 
                 // process header
                 string[] fields = parser.ReadFields();
@@ -154,14 +154,14 @@ namespace CloudBeat.Oxygen
                 }
 
                 if (parser.EndOfData)
-                    throw new SeParameterizationCSVException("Invalid CSV file. Found only the header.");
+                    throw new OxParameterizationCSVException("Invalid CSV file. Found only the header.");
 
                 // process params
                 while (!parser.EndOfData)
                 {
                     fields = parser.ReadFields();
                     if (fields.Length != paramCount)
-                        throw new SeParameterizationCSVException("Invalid CSV file. Invalid parameters count.");
+                        throw new OxParameterizationCSVException("Invalid CSV file. Invalid parameters count.");
 
                     int listIndex = 0;
                     foreach (string param in fields)

@@ -45,9 +45,9 @@ namespace CloudBeat.Oxygen
                 catch (WebDriverTimeoutException)
                 {
                     if (elementPresent)
-                        throw new SeElementNotVisibleException();
+                        throw new OxElementNotVisibleException();
                     else
-                        throw new SeElementNotFoundException();
+                        throw new OxElementNotFoundException();
                 }
             }
 
@@ -83,7 +83,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (WebDriverTimeoutException)
                 {
-                    throw new SeWaitForException();
+                    throw new OxWaitForException();
                 }
             }
 
@@ -121,7 +121,7 @@ namespace CloudBeat.Oxygen
             }
             catch (WebDriverTimeoutException)
             {
-                throw new SeElementNotFoundException();
+                throw new OxElementNotFoundException();
             }
         }
 
@@ -164,9 +164,9 @@ namespace CloudBeat.Oxygen
                 catch (WebDriverTimeoutException)
                 {
                     if (elementPresent) 
-                        throw new SeWaitForException("Element's text doesn't match.");
+                        throw new OxWaitForException("Element's text doesn't match.");
                     else
-                        throw new SeElementNotFoundException();
+                        throw new OxElementNotFoundException();
                 }
             }
 
@@ -211,9 +211,9 @@ namespace CloudBeat.Oxygen
                 catch (WebDriverTimeoutException)
                 {
                     if (elementPresent)
-                        throw new SeWaitForException("Element's text does not not match.");
+                        throw new OxWaitForException("Element's text does not not match.");
                     else
-                        throw new SeElementNotFoundException();
+                        throw new OxElementNotFoundException();
                 }
             }
 
@@ -231,23 +231,23 @@ namespace CloudBeat.Oxygen
 
             var type = el.GetAttribute("type");
             if (type == null)
-                throw new SeElementHasNoValueException(locator);
+                throw new OxElementHasNoValueException(locator);
 
             type = type.Trim().ToLower();
 
             if (type == "radio" || type == "checkbox")
             {
                 if (el.Selected && pattern == "off" || !el.Selected && pattern == "on")
-                    throw new SeAssertionException();
+                    throw new OxAssertionException();
             }
             else
             {
                 var elValue = el.GetAttribute("value");
                 if (elValue == null)
-                    throw new SeElementHasNoValueException(locator);
+                    throw new OxElementHasNoValueException(locator);
 
                 if (!MatchPattern(elValue, pattern))
-                    throw new SeAssertionException();
+                    throw new OxAssertionException();
             }
         }
 
@@ -264,12 +264,12 @@ namespace CloudBeat.Oxygen
                             var el = this.FindElement(ResolveLocator(locator));
                             var type = el.GetAttribute("type");
                             if (type == null)
-                                throw new SeElementHasNoValueException(locator);
+                                throw new OxElementHasNoValueException(locator);
                             type = type.Trim().ToLower();
 
                             var elValue = el.GetAttribute("value");
                             if (elValue == null)
-                                throw new SeElementHasNoValueException(locator);
+                                throw new OxElementHasNoValueException(locator);
 
                             // waitForValue wait for a value of an input field (or anything else with a value parameter) to become equal to the provided value. 
                             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
@@ -289,7 +289,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (WebDriverTimeoutException)
                 {
-                    throw new SeWaitForException();
+                    throw new OxWaitForException();
                 }
             }
             throw new StaleElementReferenceException();
@@ -308,12 +308,12 @@ namespace CloudBeat.Oxygen
                             var el = this.FindElement(ResolveLocator(locator));
                             var type = el.GetAttribute("type");
                             if (type == null)
-                                throw new SeElementHasNoValueException(locator);
+                                throw new OxElementHasNoValueException(locator);
                             type = type.Trim().ToLower();
 
                             var elValue = el.GetAttribute("value");
                             if (elValue == null)
-                                throw new SeElementHasNoValueException(locator);
+                                throw new OxElementHasNoValueException(locator);
 
                             // waitForValue wait for a value of an input field (or anything else with a value parameter) to become equal to the provided value. 
                             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
@@ -333,7 +333,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (WebDriverTimeoutException)
                 {
-                    throw new SeWaitForException();
+                    throw new OxWaitForException();
                 }
             }
             throw new StaleElementReferenceException();
@@ -345,9 +345,9 @@ namespace CloudBeat.Oxygen
             {
                 SeCmdAssertValue(locator, pattern);
             }
-            catch (SeAssertionException)
+            catch (OxAssertionException)
             {
-                throw new SeVerificationException();
+                throw new OxVerificationException();
             }
         }
 
@@ -358,9 +358,9 @@ namespace CloudBeat.Oxygen
             {
                 SeCmdAssertTextPresent(text);
             }
-            catch (SeAssertionException)
+            catch (OxAssertionException)
             {
-                throw new SeVerificationException();
+                throw new OxVerificationException();
             }
         }
 
@@ -371,9 +371,9 @@ namespace CloudBeat.Oxygen
             {
                 SeCmdAssertElementPresent(locator);
             }
-            catch (SeAssertionException)
+            catch (OxAssertionException)
             {
-                throw new SeVerificationException();
+                throw new OxVerificationException();
             }
         }
 
@@ -384,9 +384,9 @@ namespace CloudBeat.Oxygen
             {
                 SeCmdAssertTitle(pattern);
             }
-            catch (SeAssertionException)
+            catch (OxAssertionException)
             {
-                throw new SeVerificationException();
+                throw new OxVerificationException();
             }
         }
 
@@ -397,9 +397,9 @@ namespace CloudBeat.Oxygen
             {
                 SeCmdAssertText(locator, pattern);
             }
-            catch (SeAssertionException)
+            catch (OxAssertionException)
             {
-                throw new SeVerificationException();
+                throw new OxVerificationException();
             }
         }
 
@@ -420,7 +420,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (InvalidOperationException ioe)
                 {
-                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                    throw new OxOperationException(ioe.Message, ioe);
                 }
             }
 
@@ -428,14 +428,14 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
 
             if (!MatchPattern(text, pattern))
-                throw new SeAssertionException();
+                throw new OxAssertionException();
         }
 
         public void SeCmdAssertTextPresent(string text)
         {
             var els = this.FindElements(By.XPath("//*[contains(text(),'" + text + "')]"));
             if (els.Count() == 0)
-                throw new SeAssertionException();
+                throw new OxAssertionException();
         }
 
         public void SeCmdAssertElementPresent(string locator)
@@ -444,9 +444,9 @@ namespace CloudBeat.Oxygen
             {
                 this.SeCmdWaitForElementPresent(locator);
             }
-            catch (SeElementNotFoundException)
+            catch (OxElementNotFoundException)
             {
-                throw new SeAssertionException();
+                throw new OxAssertionException();
             }
         }
 
@@ -458,7 +458,7 @@ namespace CloudBeat.Oxygen
                 {
                     var alert = base.SwitchTo().Alert();
                     if (!MatchPattern(alert.Text, pattern))
-                        throw new SeAssertionException();
+                        throw new OxAssertionException();
                     alert.Accept();
                     return true;
                 }
@@ -479,7 +479,7 @@ namespace CloudBeat.Oxygen
             }
             catch (WebDriverTimeoutException)
             {
-                throw new SeAssertionException();
+                throw new OxAssertionException();
             }
         }
 
@@ -576,7 +576,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (InvalidOperationException ioe)
                 {
-                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                    throw new OxOperationException(ioe.Message, ioe);
                 }
             }
 
@@ -584,7 +584,7 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
 
             if (!MatchPattern(text, pattern))
-                throw new SeAssertionException();
+                throw new OxAssertionException();
         }
 
         public void SeCmdAssertSelectedValue(string locator, string pattern)
@@ -607,7 +607,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (InvalidOperationException ioe)
                 {
-                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                    throw new OxOperationException(ioe.Message, ioe);
                 }
             }
 
@@ -615,7 +615,7 @@ namespace CloudBeat.Oxygen
                 throw new StaleElementReferenceException();
 
             if (!MatchPattern(text, pattern))
-                throw new SeAssertionException();
+                throw new OxAssertionException();
         }
 
         public void SeCmdWaitForPageToLoad(string target, string value)

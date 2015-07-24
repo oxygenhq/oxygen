@@ -101,7 +101,7 @@ namespace CloudBeat.Oxygen
                 }
                 catch (InvalidOperationException ioe) 
                 {
-                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                    throw new OxOperationException(ioe.Message, ioe);
                 }
             }
 
@@ -133,7 +133,7 @@ namespace CloudBeat.Oxygen
                 }
                 catch (InvalidOperationException ioe)
                 {
-                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                    throw new OxOperationException(ioe.Message, ioe);
                 }
             }
 
@@ -166,7 +166,7 @@ namespace CloudBeat.Oxygen
                 catch (StaleElementReferenceException) { }
                 catch (InvalidOperationException ioe)
                 {
-                    throw new SeInvalidOperationException(ioe.Message, ioe);
+                    throw new OxOperationException(ioe.Message, ioe);
                 }
             }
 
@@ -323,7 +323,7 @@ namespace CloudBeat.Oxygen
             }
             else
             {
-                throw new SeCommandNotImplementedException("Unsuported locator in WaitForPopUp - " + windowLocator);
+                throw new OxCommandNotImplementedException("Unsuported locator in WaitForPopUp - " + windowLocator);
             }
         }
 
@@ -381,7 +381,7 @@ namespace CloudBeat.Oxygen
             }
             else if (frameLocator.StartsWith("dom="))
             {
-                throw new SeCommandNotImplementedException("'dom=' locator in SelectFrame is not supported");
+                throw new OxCommandNotImplementedException("'dom=' locator in SelectFrame is not supported");
             }
             else if (frameLocator.StartsWith("//"))   // non Selenium RC compliant
             {
