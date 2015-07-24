@@ -9,19 +9,19 @@ namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {
-        // not exposed in throught web module
+        // not exposed through web module
         public void SeCmdStore(string expression, string variableName)
         {
             SeCmdStoreExpression(variableName.Trim(), expression);
         }
 
-        // not exposed in throught web module
+        // not exposed through web module
         public void SeCmdStoreExpression(string expression, string variableName)
         {
             variables.Add(variableName.Trim(), expression);
         }
 
-        // not exposed in throught web module
+        // not exposed through web module
         public void SeCmdStoreAttribute(string locator, string variableName)
         {
             string attributeName;
@@ -39,7 +39,7 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        // not exposed in throught web module
+        // not exposed through web module
         public void SeCmdStoreText(string locator, string variableName)
         {
             var loc = ResolveLocator(locator);
@@ -56,7 +56,7 @@ namespace CloudBeat.Oxygen
             }
         }
 
-        // not exposed in throught web module
+        // not exposed through web module
         public void SeCmdStoreValue(string locator, string variableName)
         {
             var loc = ResolveLocator(locator);

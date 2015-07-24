@@ -440,9 +440,14 @@ namespace CloudBeat.Oxygen
 
         public void SeCmdAssertElementPresent(string locator)
         {
-            this.SeCmdWaitForElementPresent(locator);
-            if (!IsElementPresent(ResolveLocator(locator)))
+            try
+            {
+                this.SeCmdWaitForElementPresent(locator);
+            }
+            catch (SeElementNotFoundException)
+            {
                 throw new SeAssertionException();
+            }
         }
 
         public void SeCmdAssertAlert(string pattern)
@@ -611,6 +616,11 @@ namespace CloudBeat.Oxygen
 
             if (!MatchPattern(text, pattern))
                 throw new SeAssertionException();
+        }
+
+        public void SeCmdWaitForPageToLoad(string target, string value)
+        {
+            // this method does nothing as the preceding open/click/clickandwait/etc will do the actual waiting anyway
         }
     }
 }

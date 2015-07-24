@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System.Reflection;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
-using System.Linq;
 using log4net;
 using System.Text.RegularExpressions;
-using System.Drawing;
 
 namespace CloudBeat.Oxygen
 {
@@ -55,26 +53,19 @@ namespace CloudBeat.Oxygen
         private Action<string> newHarPageCallback;
 
         #region variables dictionary
-        // not all of those are listed in the apidocs.
-        // TODO: we don't need multiple names for same key code and should remove duplicates.
         private IDictionary<string, string> variables = new Dictionary<string, string>() 
         {
             {"KEY_BACKSPACE", Keys.Backspace },
-            {"KEY_BKSP",Keys.Backspace},
             {"KEY_TAB",Keys.Tab},
             {"KEY_ENTER",Keys.Enter},
             {"KEY_SHIFT",Keys.Shift},
-            {"KEY_CONTROL",Keys.Control},
             {"KEY_CTRL",Keys.Control},
             {"KEY_ALT",Keys.Alt},
             {"KEY_PAUSE",Keys.Pause},
             {"KEY_ESC",Keys.Escape},
-            {"KEY_ESCAPE",Keys.Escape},
             {"KEY_SPACE",Keys.Space},
             {"KEY_PAGE_UP",Keys.PageUp},
-            {"KEY_PGUP",Keys.PageUp},
             {"KEY_PAGE_DOWN",Keys.PageDown},
-            {"KEY_PGDN",Keys.PageDown},
             {"KEY_END",Keys.End},
             {"KEY_HOME",Keys.Home},
             {"KEY_LEFT",Keys.Left},
@@ -82,43 +73,26 @@ namespace CloudBeat.Oxygen
             {"KEY_RIGHT",Keys.Right},
             {"KEY_DOWN",Keys.Down},
             {"KEY_INSERT",Keys.Insert},
-            {"KEY_INS",Keys.Insert},
             {"KEY_DELETE",Keys.Delete},
-            {"KEY_DEL",Keys.Delete},
             {"KEY_SEMICOLON",Keys.Semicolon},
             {"KEY_EQUALS",Keys.Equal},
-            {"KEY_NUMPAD0",Keys.NumberPad0},
             {"KEY_N0",Keys.NumberPad0},
-            {"KEY_NUMPAD1",Keys.NumberPad1},
             {"KEY_N1",Keys.NumberPad1},
-            {"KEY_NUMPAD2",Keys.NumberPad2},
             {"KEY_N2",Keys.NumberPad2},
-            {"KEY_NUMPAD3",Keys.NumberPad3},
             {"KEY_N3",Keys.NumberPad3},
-            {"KEY_NUMPAD4",Keys.NumberPad4},
             {"KEY_N4",Keys.NumberPad4},
-            {"KEY_NUMPAD5",Keys.NumberPad5},
             {"KEY_N5",Keys.NumberPad5},
-            {"KEY_NUMPAD6",Keys.NumberPad6},
             {"KEY_N6",Keys.NumberPad6},
-            {"KEY_NUMPAD7",Keys.NumberPad7},
             {"KEY_N7",Keys.NumberPad7},
-            {"KEY_NUMPAD8",Keys.NumberPad8},
             {"KEY_N8",Keys.NumberPad8},
-            {"KEY_NUMPAD9",Keys.NumberPad9},
             {"KEY_N9",Keys.NumberPad9},
             {"KEY_MULTIPLY",Keys.Multiply},
-            {"KEY_MUL",Keys.Multiply},
             {"KEY_ADD",Keys.Add},
-            {"KEY_PLUS",Keys.Add},
             {"KEY_SEPARATOR",Keys.Separator},
-            {"KEY_SEP",Keys.Separator},
             {"KEY_SUBTRACT",Keys.Subtract},
             {"KEY_MINUS",Keys.Subtract},
             {"KEY_DECIMAL",Keys.Decimal},
-            /*{"KEY_PERIOD",Keys.},*/ 
             {"KEY_DIVIDE",Keys.Divide},
-            {"KEY_DIV",Keys.Divide},
             {"KEY_F1",Keys.F1},
             {"KEY_F2",Keys.F2},
             {"KEY_F3",Keys.F3},
@@ -136,10 +110,6 @@ namespace CloudBeat.Oxygen
         };
         #endregion
 
-        public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback) : this(remoteAddress, desiredCapabilities, newHarPageCallback, null)
-		{
-
-		}
 		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback, ExecutionContext context)
             : base(remoteAddress, desiredCapabilities, TimeSpan.FromSeconds(TIMEOUT_COMMAND))
         {
@@ -151,12 +121,9 @@ namespace CloudBeat.Oxygen
 			if (context == null)
 				this.context = new ExecutionContext();
         }
-		public bool IsUsingProxy 
-		{
-			get { return this.newHarPageCallback != null; }
-		}
 
 		public ExecutionContext ExecutionContext { get { return context; } }
+
         public void StartNewTransaction(string name)
         {
             if (newHarPageCallback != null)
@@ -165,17 +132,7 @@ namespace CloudBeat.Oxygen
 
         public object ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
         {
-            Type thisType = this.GetType();
-
-			// While Selenese commands with *AndWait suffix imply that the command will block until the page has been loaded
-			// On the WebDriver's level we don't have such distinction since Click() (among others) will AUTOMATICALLY try 
-			// to block if it recognizes page transition.
-			// Therefore on WebDriver's level, commands with and without *AndWait suffix act the same.
-			// NOTE: this doesn't allways seem to be the case: https://code.google.com/p/selenium/wiki/FrequentlyAskedQuestions#Q%3a_WebDriver_fails_to_find_elements_/_Does_not_block_on_page_loa
-			string commandName = cmd.CommandName;
-			if (cmd.CommandName.EndsWith("AndWait", StringComparison.InvariantCultureIgnoreCase))
-				commandName = cmd.CommandName.Remove(cmd.CommandName.Length-"AndWait".Length);
-
+            // substitute arguments and object repo locators
             object[] argsProcessed = null;
             if (cmd.Arguments != null)
             {
@@ -195,7 +152,8 @@ namespace CloudBeat.Oxygen
                 }
             }
 
-			MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX+commandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+            Type thisType = this.GetType();
+            MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
             if (cmdMethod == null)
                 throw new SeCommandNotImplementedException();
 
@@ -263,29 +221,6 @@ namespace CloudBeat.Oxygen
 			}
         }
 
-		/*
-		public ParameterManager ParameterManager { get { return paramManager; } }
-
-        public void AddParameter(string name, string value)
-        {
-            variables.Add(name, value);
-        }
-
-        public void AddPageObjects(PageObjects pageObjects)
-        {
-            pageObjectManager.AddObjects(pageObjects);
-        }
-		public void AddParameters(IParameterReader reader)
-		{
-			paramManager.AddParameters(reader);
-		}
-		public void AddParameters(ParameterSourceSettings settings)
-		{
-			var reader = ParameterReaderFactory.Create(settings);
-            paramManager.TestCaseName = settings.TestCaseName;
-			paramManager.AddParameters(reader);
-		}*/
-
         private string SubstituteVariable(string str) 
         {
             if (str == null)
@@ -304,7 +239,6 @@ namespace CloudBeat.Oxygen
                 {
                     str = str.Substring(0, varIndexStart) + variables[variableName.ToUpper()] + str.Substring(varIndexEnd + 1);
                 }
-
                 else
                 {
 					var pm = context.ParameterManager;
@@ -315,6 +249,7 @@ namespace CloudBeat.Oxygen
                 }
             }
         }
+
 		private string SubstituteLocator(string target)
 		{
 			if (context.PageObjectManager == null)
@@ -333,20 +268,13 @@ namespace CloudBeat.Oxygen
 			return target;
 		}
 
-		public string TakeScreenshot()
+		private string TakeScreenshot()
 		{
 			Response screenshotResponse = this.Execute(DriverCommand.Screenshot, null);
 			return screenshotResponse.Value.ToString();
 		}
 
-        public static IList<string> GetSupportedCommands() 
-        {
-            Type myType = typeof(SeleniumDriver);
-            MethodInfo[] cmdMethods = myType.GetMethods(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-            return cmdMethods.Where(x => x.Name.StartsWith(SE_CMD_METHOD_PREFIX)).Select(x => x.Name.Substring(SE_CMD_METHOD_PREFIX.Length)).ToList();
-        }
-
-		public string GetCurrentURL()
+		private string GetCurrentURL()
 		{
 			string currentUrl = null;
             UnhandledAlertException alert = null;
@@ -375,7 +303,8 @@ namespace CloudBeat.Oxygen
                 throw alert;
 			return currentUrl;
 		}
-		public string GetCurrentTitle()
+
+		private string GetCurrentTitle()
 		{
 			string currentTitle = null;
             UnhandledAlertException alert = null;
@@ -515,13 +444,6 @@ namespace CloudBeat.Oxygen
         };
         private string ParseSelector(string selector, out string selArg)
         {
-            // id selector is not supported in the webdriver
-            if (selector.StartsWith("id="))
-            {
-                // FIXME: see http://release.seleniumhq.org/selenium-core/1.0.1/reference.html
-                // bad things...
-            }
-            
             foreach (var selType in selectors)
             {
                 if (selector.StartsWith(selType.Key))
@@ -561,44 +483,9 @@ namespace CloudBeat.Oxygen
                 }
             }
 
-            // Without an explicit locator prefix, Selenium uses the following default strategies:
-            //  - dom, for locators starting with "document."
-            //  - xpath, for locators starting with "//"
-            //  - no identifier, select the element with the specified @id attribute. If no match is found, 
-            //    select the first element with the specified @name attribute.
-            if (locator.StartsWith("document."))
-            {
-                throw new NotImplementedException("'document.' locator prefix is not implemented yet!");
-            }
-            else
-            {
-                // for now we just try resolving by @id. TODO: @name
-                locArg = locator;
-                return "Id";
-            }
-        }
-
-        private bool IsElementPresent(By by)
-        {
-            try
-            {
-                this.FindElement(by);
-                return true;
-            }
-            catch (NoSuchElementException)
-            {
-                return false;
-            }
-        }
-
-		public bool IsElementPresent(string target)
-		{
-			return IsElementPresent(ResolveLocator(target));
-		}
-
-        public void SeCmdWaitForPageToLoad(string target, string value)
-        {
-            // this method does nothing as the preceding open/click/clickandwait/etc will do the actual waiting anyway
+            // no prefix = resolve by id
+            locArg = locator;
+            return "Id";
         }
 
         private string CollapseWhitespace(string str)
