@@ -171,7 +171,8 @@ namespace CloudBeat.Oxygen
                     tie.InnerException is SeElementNotFoundException ||
                     tie.InnerException is SeElementNotVisibleException ||
                     tie.InnerException is SeInvalidOperationException ||
-                    tie.InnerException is NoAlertPresentException))
+                    tie.InnerException is NoAlertPresentException ||
+                    tie.InnerException is WebDriverTimeoutException))
                 {
 					screenShot = TakeScreenshot();
                 }
