@@ -203,6 +203,8 @@ namespace CloudBeat.Oxygen
                 // for each FindElement().doSomething
                 if (tie.InnerException is ElementNotVisibleException)
                     throw new OxElementNotVisibleException();
+                else if (tie.InnerException is WebDriverTimeoutException)
+                    throw new OxTimeoutException();
                 else
                     throw tie.InnerException;
             }

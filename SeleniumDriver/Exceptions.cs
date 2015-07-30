@@ -84,6 +84,18 @@ namespace CloudBeat.Oxygen
         }
 	}
 
+    public class OxTimeoutException : OxException
+    {
+        public OxTimeoutException()
+        {
+        }
+
+        public OxTimeoutException(string message)
+            : base(message)
+        {
+        }
+    }
+
     public class OxElementNotVisibleException : OxException
     {
         public OxElementNotVisibleException()
