@@ -21,6 +21,7 @@ namespace CloudBeat.Oxygen
         // misc InvalidOperationExceptions such as "Element is not clickable at point (x, y). Other element would receive the click"
         INVALID_OPERATION,
         XML_ERROR,
-        NO_ALERT_PRESENT
+        NO_ALERT_PRESENT,
+        BROWSER_JS_EXECUTE_ERROR
     }
 }

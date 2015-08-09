@@ -1,7 +1,9 @@
-﻿using OpenQA.Selenium;
+﻿using Newtonsoft.Json;
+using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
 using OpenQA.Selenium.Support.UI;
 using System;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
@@ -415,6 +417,26 @@ namespace CloudBeat.Oxygen
         public void SeCmdAlertDismiss()
         {
             base.SwitchTo().Alert().Dismiss();
+        }
+
+        public string SeCmdExecuteScript(string script)
+        {
+            object result;
+
+            try
+            {
+                result = this.ExecuteScript(script);
+            }
+            catch (InvalidOperationException ioe)
+            {
+                throw new OxBrowserJSExecutionException(ioe.Message, ioe);
+            }
+
+            // IWebElement instances can't be serialized so we return null instead
+            if (result is IWebElement || result is ReadOnlyCollection<IWebElement>)
+                return null;
+
+            return JsonConvert.SerializeObject(result);
         }
     }
 }

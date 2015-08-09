@@ -275,6 +275,11 @@ namespace CloudBeat.Oxygen.JSEngine
         {
             return Exec() as string;
         }
+        [JSVisible]
+        public string executeScript(string script)
+        {
+            return Exec(script) as string;
+        }
 
         private object Exec(params object[] args)
         {
