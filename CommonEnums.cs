@@ -22,6 +22,7 @@ namespace CloudBeat.Oxygen
         INVALID_OPERATION,
         XML_ERROR,
         NO_ALERT_PRESENT,
-        BROWSER_JS_EXECUTE_ERROR
+        BROWSER_JS_EXECUTE_ERROR,
+        DUPLICATE_TRANSACTION
     }
 }

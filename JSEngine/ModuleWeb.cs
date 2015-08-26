@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 
 namespace CloudBeat.Oxygen.JSEngine
@@ -51,9 +52,24 @@ namespace CloudBeat.Oxygen.JSEngine
                 CommandExecuting();
             driver.BaseURL = url;
         }
+
+        private HashSet<string> transactions = new HashSet<string>();
         [JSVisible]
         public void transaction(string name)
         {
+            // throw in case we hit a duplicate transaction
+            if (transactions.Contains(name))
+            {
+                var e = new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
+                if (CommandException != null)
+                    CommandException(new SeCommand { 
+                        CommandName = "transaction", 
+                        Arguments = new object[] { name }
+                    }, 
+                    null, e);
+            }
+            transactions.Add(name);
+
             if (TransactionUpdate != null)
             {
                 driver.StartNewTransaction(name);

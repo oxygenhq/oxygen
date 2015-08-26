@@ -193,4 +193,16 @@ namespace CloudBeat.Oxygen
             return i > 0 ? message.Substring(0, i) : message;
         }
     }
+
+    public class OxDuplicateTransactionException : OxException
+    {
+        public OxDuplicateTransactionException()
+        {
+        }
+
+        public OxDuplicateTransactionException(string message)
+            : base(message)
+        {
+        }
+    }
 }
