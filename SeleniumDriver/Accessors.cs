@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -95,62 +96,117 @@ namespace CloudBeat.Oxygen
         public string SeCmdGetAttribute(string locator, string attributeName)
         {
             var loc = ResolveLocator(locator);
+            string attr = null;
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    return this.FindElement(loc).GetAttribute(attributeName);
+                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
+                    {
+                        try
+                        {
+                            var el = this.FindElement(loc);
+                            attr = el.GetAttribute(attributeName);
+                            return true;
+                        }
+                        catch (NoSuchElementException)
+                        {
+                        }
+                        return false;
+                    });
                 }
-                catch (StaleElementReferenceException) { }
+                catch (StaleElementReferenceException) 
+                { 
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    throw new OxElementNotFoundException();
+                }
             }
-            return null;
+            return attr;
         }
 
         public string SeCmdGetText(string locator)
         {
             var loc = ResolveLocator(locator);
+            string text = null;
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    return this.FindElement(loc).Text;
+                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
+                    {
+                        try
+                        {
+                            var el = this.FindElement(loc);
+                            text = el.Text;
+                            return true;
+                        }
+                        catch (NoSuchElementException)
+                        {
+                        }
+                        return false;
+                    });
                 }
-                catch (StaleElementReferenceException) { }
+                catch (StaleElementReferenceException)
+                {
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    throw new OxElementNotFoundException();
+                }
             }
-            return null;
+            return text;
         }
 
         public string SeCmdGetValue(string locator)
         {
             var loc = ResolveLocator(locator);
-
+            string val = null;
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    var el = this.FindElement(loc);
-
-                    var type = el.GetAttribute("type");
-                    if (type == null)
-                        throw new OxElementHasNoValueException(locator);
-
-                    type = type.Trim().ToLower();
-
-                    if (type == "radio" || type == "checkbox")
+                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
                     {
-                        return el.Selected ? "on" : "off";
-                    }
-                    else
-                    {
-                        var elValue = el.GetAttribute("value");
-                        if (elValue == null)
-                            throw new OxElementHasNoValueException(locator);
-                        return elValue;
-                    }
+                        try
+                        {
+                            var el = this.FindElement(loc);
+
+                            var type = el.GetAttribute("type");
+                            if (type == null)
+                                throw new OxElementHasNoValueException(locator);
+
+                            type = type.Trim().ToLower();
+
+                            if (type == "radio" || type == "checkbox")
+                            {
+                                val = el.Selected ? "on" : "off";
+                            }
+                            else
+                            {
+                                var elValue = el.GetAttribute("value");
+                                if (elValue == null)
+                                    throw new OxElementHasNoValueException(locator);
+                                val = elValue;
+                            }
+                            return true;
+                        }
+                        catch (NoSuchElementException)
+                        {
+                        }
+                        return false;
+                    });
                 }
-                catch (StaleElementReferenceException) { }
+                catch (StaleElementReferenceException)
+                {
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    throw new OxElementNotFoundException();
+                }
             }
-            return null;
+            return val;
         }
 
         public string SeCmdGetPageSource()
