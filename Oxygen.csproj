@@ -68,17 +68,24 @@
     <Compile Include="ConfigLoader\TestSuiteConfigLoader.cs" />
     <Compile Include="ConfigLoader\TestCaseConfigLoader.cs" />
     <Compile Include="ExecutionContext.cs" />
+    <Compile Include="CurrentIterationContext.cs" />
     <Compile Include="JSEngine\Exceptions.cs" />
     <Compile Include="JSEngine\ModuleAssert.cs" />
-    <Compile Include="JSEngine\Engine.cs" />
     <Compile Include="JSEngine\ModuleSoap.cs" />
     <Compile Include="JSEngine\ModuleDB.cs" />
     <Compile Include="JSEngine\ModuleLog.cs" />
     <Compile Include="JSEngine\ModuleWeb.cs" />
     <Compile Include="JSEngine\SeMethodAttribute.cs" />
     <Compile Include="Models\ParameterizationCSVModel.cs" />
+    <Compile Include="Models\StepResult.cs" />
+    <Compile Include="Models\TestCase.cs" />
+    <Compile Include="Models\TestResult.cs" />
     <Compile Include="Models\TestSuiteConfig.cs" />
     <Compile Include="Models\TestCaseConfig.cs" />
+    <Compile Include="Modules\Dispatcher.cs" />
+    <Compile Include="Modules\IModule.cs" />
+    <Compile Include="Modules\InvokeResult.cs" />
+    <Compile Include="Modules\ModuleWeb.cs" />
     <Compile Include="PageObjects\IPageObjectManager.cs" />
     <Compile Include="PageObjects\PageObjectManager.cs" />
     <Compile Include="Parameters\IParameterManager.cs" />
@@ -91,6 +98,10 @@
     <Compile Include="Parameters\ParameterManager.cs" />
     <Compile Include="Parameters\TestParameterGroup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\BMPClient.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\HarOptions.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\LimitOptions.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\TimeoutOptions.cs" />
     <Compile Include="SeleniumDriver\SeCommand.cs" />
     <Compile Include="SeleniumDriver\Accessors.cs" />
     <Compile Include="SeleniumDriver\Actions.cs" />
@@ -100,7 +111,7 @@
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCFactory.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCFirefox.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCInternetExplorer.cs" />
-    <Compile Include="SeleniumDriver\Exceptions.cs" />
+    <Compile Include="Exceptions.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\IDCBrowser.cs" />
     <Compile Include="SeParser.cs" />
   </ItemGroup>

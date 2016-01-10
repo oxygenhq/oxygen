@@ -6,6 +6,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using log4net;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace CloudBeat.Oxygen
 {
@@ -53,7 +54,7 @@ namespace CloudBeat.Oxygen
         private Action<string> newHarPageCallback;
 
         #region variables dictionary
-        private IDictionary<string, string> variables = new Dictionary<string, string>() 
+		private ReadOnlyDictionary<string, string> constantVariables = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>() 
         {
             {"KEY_BACKSPACE", Keys.Backspace },
             {"KEY_TAB",Keys.Tab},
@@ -107,7 +108,7 @@ namespace CloudBeat.Oxygen
             {"KEY_F12",Keys.F12},
             {"KEY_META",Keys.Meta},
             {"KEY_COMMAND",Keys.Command}
-        };
+        });
         #endregion
 
 		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback, ExecutionContext context)
@@ -243,19 +244,21 @@ namespace CloudBeat.Oxygen
 
                 var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
                 var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-
-                if (variables.ContainsKey(variableName.ToUpper()))
-                {
-                    str = str.Substring(0, varIndexStart) + variables[variableName.ToUpper()] + str.Substring(varIndexEnd + 1);
-                }
-                else
-                {
-					var pm = context.ParameterManager;
-					if (pm == null || !pm.ContainsParameter(variableName))
-						throw new OxVariableUndefined(variableName);
-					var value = pm.GetValue(variableName);
-					str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
-                }
+				string variableValue = null;
+				// check if this is a constant variable, such as ENTER key, etc.
+                if (constantVariables.ContainsKey(variableName.ToUpper()))
+					variableValue = constantVariables[variableName.ToUpper()];
+                else if (context.Variables.ContainsKey(variableName))
+					variableValue = context.Variables[variableName];
+				else if (context.Parameters.ContainsKey(variableName))
+					variableValue = context.Parameters[variableName];
+				else if (context.Environment.ContainsKey(variableName))
+					variableValue = context.Environment[variableName];
+                
+				if (variableValue != null)
+					str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
+				else
+					throw new OxVariableUndefined(variableName);
             }
         }
 

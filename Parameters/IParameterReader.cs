@@ -6,6 +6,6 @@ namespace CloudBeat.Oxygen.Parameters
 {
 	public interface IParameterReader
 	{
-		IList<TestParameterGroup> ReadAll();
+		IList<TestParameter> ReadAll();
 	}
 }

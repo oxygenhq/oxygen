@@ -7,41 +7,56 @@ namespace CloudBeat.Oxygen.Parameters
 {
 	public class ParameterManager : IParameterManager
 	{
-		Dictionary<string, TestParameter> parameters;
+		Dictionary<string, TestParameter> paramHash;
 
 		public ParameterManager()
 		{
-			parameters = new Dictionary<string,TestParameter>();
+			paramHash = new Dictionary<string, TestParameter>();
+		}
+		public ParameterManager(IParameterReader reader)
+		{
+			AddParametersToHash(reader.ReadAll());
+		}
+		private void AddParametersToHash(IList<TestParameter> paramList)
+		{
+			if (paramList == null)
+				return;
+			paramHash = new Dictionary<string, TestParameter>();
+			foreach (var param in paramList)
+				paramHash.Add(param.Name, param);
 		}
 		/*
 		 * Currently executed test case name or id
 		 */ 
-		public string TestCaseName { get; set; }
 		public void AddParameter(TestParameter param)
 		{
-			parameters.Add(param.Name, param);
-		}
-		public void AddParameters(TestParameterGroup group)
-		{
-			foreach (var param in group.Parameters)
-				AddParameter(param);
+			paramHash.Add(param.Name, param);
 		}
 		public bool ContainsParameter(string name)
 		{
-			return parameters.ContainsKey(name.ToUpper());
+			return paramHash.ContainsKey(name.ToUpper());
 		}
 		public string GetValue(string paramName)
 		{
 			if (!ContainsParameter(paramName))
 				throw new ParameterNotFoundException(paramName);
-			return parameters[paramName.ToUpper()].GetValue();
+			return paramHash[paramName.ToUpper()].GetValue();
 		}
 		public void ReadNextValues()
 		{
-			foreach (var param in parameters.Values)
+			foreach (var param in paramHash.Values)
 			{
 				param.ReadNextValue();
 			}
+		}
+		public Dictionary<string, string> GetCurrentParameterValues()
+		{
+			Dictionary<string, string> paramValues = new Dictionary<string, string>();
+			foreach (var param in paramHash.Values)
+			{
+				paramValues.Add(param.Name, param.GetValue());
+			}
+			return paramValues;
 		}
 	}
 }

@@ -18,6 +18,19 @@ namespace CloudBeat.Oxygen
         {
         }
     }
+	public class OxModuleInitializationException : Exception
+	{
+		public OxModuleInitializationException(string reason)
+			: base(reason)
+		{
+
+		}
+		public OxModuleInitializationException(string reason, Exception e)
+			: base(reason, e)
+		{
+
+		}
+	}
 
 	public class OxConnectionException : OxException
 	{
