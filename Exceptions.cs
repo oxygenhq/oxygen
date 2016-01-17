@@ -123,6 +123,11 @@ namespace CloudBeat.Oxygen
             : base("Element not found.")
         {
         }
+
+        public OxElementNotFoundException(string message)
+            : base(message)
+        {
+        }
     }
 
     public class OxCommandNotImplementedException : OxException

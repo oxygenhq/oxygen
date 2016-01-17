@@ -246,10 +246,23 @@ namespace CloudBeat.Oxygen
 			// make sure that the element present first
             this.SeCmdWaitForVisible(selectLocator);
 
-            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(selectLocator)));
-            Type type = typeof(SelectElement);
-            MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
-            cmdMethod.Invoke(sel, new object[] { selArg });
+            try
+            {
+                SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(selectLocator)));
+                Type type = typeof(SelectElement);
+                MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                cmdMethod.Invoke(sel, new object[] { selArg });
+            }
+            catch (TargetInvocationException tie)
+            {
+                Exception e = tie.InnerException;
+                if (e != null)
+                {
+                    if (e is NoSuchElementException)
+                        throw new OxElementNotFoundException(e.Message);
+                }
+                throw tie;
+            }
         }
 
         public void SeCmdDeselect(string selectLocator, string optionLocator)
@@ -259,10 +272,23 @@ namespace CloudBeat.Oxygen
             // make sure that the element present first
             this.SeCmdWaitForVisible(selectLocator);
 
-            SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(selectLocator)));
-            Type type = typeof(SelectElement);
-            MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
-            cmdMethod.Invoke(sel, new object[] { selArg });
+            try
+            {
+                SelectElement sel = new SelectElement(this.FindElement(ResolveLocator(selectLocator)));
+                Type type = typeof(SelectElement);
+                MethodInfo cmdMethod = type.GetMethod(selectorMethod, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                cmdMethod.Invoke(sel, new object[] { selArg });
+            }
+            catch (TargetInvocationException tie)
+            {
+                Exception e = tie.InnerException;
+                if (e != null)
+                {
+                    if (e is NoSuchElementException)
+                        throw new OxElementNotFoundException(e.Message);
+                }
+                throw tie;
+            }
         }
 
         public void SeCmdPause(int waitTime)
