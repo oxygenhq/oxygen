@@ -331,6 +331,9 @@ namespace CloudBeat.Oxygen
 
         public string SeCmdSelectWindow(string windowLocator)
         {
+            // FIXME: should use timeout provided as argument once support for optional paramteres is implemented
+            SeCmdWaitForPopUp(windowLocator, waitForTimeout);
+
             string curWinHandle = null;
             try
             {
