@@ -186,48 +186,6 @@ namespace CloudBeat.Oxygen
 
             return paramList;
         }
-
-        public static IList<string> GetParameters(IList<SeCommand> cmds)
-        {
-            var paramList = new List<string>();
-
-            foreach (var cmd in cmds)
-            {
-                if (cmd.Arguments != null)
-                {
-                    var str = string.Join("", cmd.Arguments);
-                    while (true)
-                    {
-                        var varIndexStart = str.IndexOf("${", StringComparison.InvariantCultureIgnoreCase);
-                        if (varIndexStart == -1)
-                            break;
-
-                        var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
-                        var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-                        paramList.Add(variableName);
-                        str = str.Substring(varIndexEnd + 1);
-                    }
-                }
-            }
-
-            return paramList;
-        }
-        public static IList<string> GetParameters(string script)
-        {
-            var paramList = new List<string>();
-            while (true)
-            {
-                var varIndexStart = script.IndexOf("${", StringComparison.InvariantCultureIgnoreCase);
-                if (varIndexStart == -1)
-                    break;
-
-                var varIndexEnd = script.IndexOf('}', varIndexStart + 2);
-                var variableName = script.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-                paramList.Add(variableName);
-                script = script.Substring(varIndexEnd + 1);
-            }
-            return paramList;
-        }
     }
 
     public class SeParseException : Exception
