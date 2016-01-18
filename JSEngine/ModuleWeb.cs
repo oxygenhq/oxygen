@@ -257,6 +257,11 @@ namespace CloudBeat.Oxygen.JSEngine
             return Exec() as string;
         }
         [JSVisible]
+        public int getElementCount(string xpath)
+        {
+            return (int)Exec(xpath);
+        }
+        [JSVisible]
         public void closeWindow()
         {
             Exec();
