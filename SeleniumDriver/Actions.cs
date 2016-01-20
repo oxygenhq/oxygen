@@ -82,33 +82,50 @@ namespace CloudBeat.Oxygen
         {
             windowsCount = base.WindowHandles.Count();
 
-            bool success = false;
-            // since FindElement and Click is not an atomic operation, there could be a race condition when we get the element but some javascript changes it before Display.Get
-            // in which case a StaleElementReference exception is thrown.
-            // we try to resolve this by refetching the element up to STALE_ELEMENT_ATTEMPTS times 
+            this.SeCmdWaitForVisible(locator);
+
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
+                Exception lastException = null;
                 try
                 {
-					// make sure that the element present first
-                    this.SeCmdWaitForVisible(locator);
-
-					this.FindElement(ResolveLocator(locator)).Click();
-                    success = true;
-                    break;
+                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
+                    {
+                        try
+                        {
+                            this.FindElement(ResolveLocator(locator)).Click();
+                            return true;
+                        }
+                        catch (NoSuchElementException nsee)
+                        {
+                            lastException = nsee;
+                        }
+                        catch (InvalidOperationException ioe)
+                        {
+                            lastException = ioe;
+                            if (ioe.Message == null || !ioe.Message.Contains("Element is not clickable at point"))
+                                throw new OxOperationException(ioe.Message, ioe);
+                        }
+                        return false;
+                    });
                 }
-                catch (StaleElementReferenceException)
+                catch (StaleElementReferenceException) 
                 {
                     Thread.Sleep(500);              // FIXME: should find a better way to delay retries
+                    continue;
                 }
-                catch (InvalidOperationException ioe) 
+                catch (WebDriverTimeoutException)
                 {
-                    throw new OxOperationException(ioe.Message, ioe);
+                    if (lastException is NoSuchElementException)
+                        throw new OxElementNotFoundException();
+                    else // not clickable
+                        throw new OxOperationException(lastException.Message, lastException);
                 }
+
+                return;
             }
 
-            if (!success)
-                throw new StaleElementReferenceException();
+            throw new StaleElementReferenceException();
         }
 
         public void SeCmdClickHidden(string locator)
