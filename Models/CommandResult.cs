@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace CloudBeat.Oxygen.Models
 {
-	public class StepResult
+	public class CommandResult
 	{
 		public string CommandName { get; set; }
 		public int? CommandOrder { get; set; }
@@ -21,7 +21,9 @@ namespace CloudBeat.Oxygen.Models
 		public int LoadEvent { get; set; }
 		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
+		public double Duration { get; set; }
 		public object ReturnValue { get; set; }
+		public string ErrorType { get; set; }
 		public string ErrorMessage { get; set; }
 		public string ErrorDetails { get; set; }
 	}

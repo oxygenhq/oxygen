@@ -13,5 +13,6 @@ namespace CloudBeat.Oxygen.Modules
 		bool IsInitialized { get; }
 		void IterationStarted();
 		void IterationEnded();
+		string Name { get; }
 	}
 }

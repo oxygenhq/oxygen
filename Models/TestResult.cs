@@ -50,8 +50,8 @@ namespace CloudBeat.Oxygen.Models
 			public string FailureDetails { get; set; }
 			public int Retries { get; set; }
 			[XmlArray("Steps")]
-			[XmlArrayItem(ElementName = "Step", Type = typeof(StepResult))]
-			public List<StepResult> Steps = new List<StepResult>();
+			[XmlArrayItem(ElementName = "Step", Type = typeof(CommandResult))]
+			public List<CommandResult> Steps = new List<CommandResult>();
             public string Har { get; set; }
 		}
 	}

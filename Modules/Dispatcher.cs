@@ -19,9 +19,12 @@ namespace CloudBeat.Oxygen.Modules
 			// add standard modules
 			modules = new Dictionary<string, IModule>();
 			modules.Add("web", new ModuleWeb());
+			modules.Add("soap", new ModuleSoap());
+			modules.Add("db", new ModuleDB());
+
 			ctx = new ExecutionContext();
 
-			Thread.Sleep(10000);
+			//Thread.Sleep(10000);
 		}
 		public Task<object> Invoke(dynamic input)
 		{
@@ -71,14 +74,22 @@ namespace CloudBeat.Oxygen.Modules
 				paramTypes[i] = args[i].GetType();
 
 			MethodInfo cmdMethod = modType.GetMethod(method, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
-			var retval = cmdMethod.Invoke(module, args);
-			if (retval != null && retval.GetType() == typeof(StepResult))
+			object retval = null;
+			try
 			{
-				var sr = retval as StepResult;
-				return Task.FromResult<object>(GetInvokeResult(module, method, sr.ReturnValue, sr));
+				retval = cmdMethod.Invoke(module, args);
+			}
+			catch (TargetInvocationException e)
+			{
+				return Task.FromResult<object>(GetInvokeResult(module, method, retval, null, e.InnerException));
+			}
+			if (retval != null && retval.GetType() == typeof(CommandResult))
+			{
+				var cr = retval as CommandResult;
+				return Task.FromResult<object>(GetInvokeResult(module, method, cr.ReturnValue, cr, null));
 			}
 				
-			return Task.FromResult<object>(GetInvokeResult(module, method, retval, null));
+			return Task.FromResult<object>(GetInvokeResult(module, method, retval, null, null));
 		}
 		private void UpdateExecutionContext(dynamic inputCtx)
 		{
@@ -92,13 +103,18 @@ namespace CloudBeat.Oxygen.Modules
 			ctx.Variables = inVars != null ? ConvertExpandoObjectToDictionary(inVars) : ctx.Variables;
 
 		}
-		private InvokeResult GetInvokeResult(IModule module, string method, object retval, StepResult stepResult)
+		private InvokeResult GetInvokeResult(IModule module, string method, object retval, CommandResult cmdResult, Exception e)
 		{
 			return new InvokeResult()
 			{
+				Module = module.Name,
+				Method = method,
 				ReturnValue = retval,
+				ErrorType = e != null ? e.GetType().Name : null,
+				ErrorMessage = e != null ? e.Message : null,
+				ErrorDetails = e != null ? e.StackTrace : null,
 				Variables = ConvertDictionaryToKeyValueList(ctx.Variables),
-				StepResult = stepResult
+				CommandResult = cmdResult
 			};
 			
 		}

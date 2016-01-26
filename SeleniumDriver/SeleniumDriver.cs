@@ -246,13 +246,13 @@ namespace CloudBeat.Oxygen
                 var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
 				string variableValue = null;
 				// check if this is a constant variable, such as ENTER key, etc.
-                if (constantVariables.ContainsKey(variableName.ToUpper()))
+				if (constantVariables != null && constantVariables.ContainsKey(variableName.ToUpper()))
 					variableValue = constantVariables[variableName.ToUpper()];
-                else if (context.Variables.ContainsKey(variableName))
+				else if (context.Variables != null && context.Variables.ContainsKey(variableName))
 					variableValue = context.Variables[variableName];
-				else if (context.Parameters.ContainsKey(variableName))
+				else if (context.Parameters != null && context.Parameters.ContainsKey(variableName))
 					variableValue = context.Parameters[variableName];
-				else if (context.Environment.ContainsKey(variableName))
+				else if (context.Environment != null && context.Environment.ContainsKey(variableName))
 					variableValue = context.Environment[variableName];
                 
 				if (variableValue != null)

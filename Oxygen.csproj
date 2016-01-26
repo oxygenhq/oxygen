@@ -77,7 +77,7 @@
     <Compile Include="JSEngine\ModuleWeb.cs" />
     <Compile Include="JSEngine\SeMethodAttribute.cs" />
     <Compile Include="Models\ParameterizationCSVModel.cs" />
-    <Compile Include="Models\StepResult.cs" />
+    <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\TestCase.cs" />
     <Compile Include="Models\TestResult.cs" />
     <Compile Include="Models\TestSuiteConfig.cs" />
@@ -85,6 +85,8 @@
     <Compile Include="Modules\Dispatcher.cs" />
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\InvokeResult.cs" />
+    <Compile Include="Modules\ModuleDB.cs" />
+    <Compile Include="Modules\ModuleSoap.cs" />
     <Compile Include="Modules\ModuleWeb.cs" />
     <Compile Include="PageObjects\IPageObjectManager.cs" />
     <Compile Include="PageObjects\PageObjectManager.cs" />
