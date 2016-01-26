@@ -1,0 +1,19 @@
+{
+  "name": "oxygen-server",
+  "version": "0.0.1",
+  "description": "Oxygen is an open source framework to run JavaScript based Selenium scripts",
+  "private": true,
+  "dependencies": {
+    "bluebird": "^3.1.1",
+    "contextify": "^0.1.15",
+    "csv-load-sync": "0.0.3",
+    "edge": "^4.0.0",
+    "fast-csv": "^1.0.0",
+    "globule": "^0.2.0",
+    "minimist": "^1.2.0",
+    "moment": "^2.11.1",
+    "when": "^3.7.3",
+    "xml2js": "^0.4.15",
+    "xml2json": "^0.9.0"
+  }
+}
