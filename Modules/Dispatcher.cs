@@ -24,7 +24,7 @@ namespace CloudBeat.Oxygen.Modules
 
 			ctx = new ExecutionContext();
 
-			//Thread.Sleep(10000);
+			//Thread.Sleep(20000);
 		}
 		public Task<object> Invoke(dynamic input)
 		{
@@ -133,8 +133,16 @@ namespace CloudBeat.Oxygen.Modules
 			if (obj == null)
 				return args;
 			foreach (var item in obj)
+			{
 				if (item.Value != null && item.Value.GetType() == typeof(string))
 					args.Add(item.Key, item.Value.ToString());
+				else if (item.Value != null && item.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
+				{
+					var subdic = ConvertExpandoObjectToDictionary(item.Value as System.Dynamic.ExpandoObject);
+					foreach (var subkey in subdic.Keys)
+						args.Add(item.Key + "." + subkey, subdic[subkey]);
+				}
+			}
 			return args;
 		}
 	}

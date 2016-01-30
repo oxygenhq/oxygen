@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Net;
+using System.Reflection;
 using System.Threading;
 
 namespace CloudBeat.Oxygen.Modules
@@ -87,7 +88,7 @@ namespace CloudBeat.Oxygen.Modules
 		public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
 		{
 			this.ctx = ctx;
-
+			
 			if (args.ContainsKey(ARG_PROXY_URL))
 				proxyUrl = args[ARG_PROXY_URL];
 			if (args.ContainsKey(ARG_SELENIUM_URL) && !string.IsNullOrEmpty(args[ARG_SELENIUM_URL]))
@@ -98,6 +99,17 @@ namespace CloudBeat.Oxygen.Modules
 			// initialize DesiredCapabilities with provided browser
 			if (args.ContainsKey(ARG_BROWSER_NAME))
 				capabilities = DCFactory.Get(args[ARG_BROWSER_NAME]);
+			// add other capabilities if specified in arguments
+			foreach (var key in args.Keys)
+			{
+				if (!key.StartsWith("web@cap:"))
+					continue;
+				if (capabilities == null)
+					capabilities = new DesiredCapabilities();
+				var capName = key.Replace("web@cap:", "");
+				var capVal = args[key];
+				capabilities.SetCapability(capName, capVal);
+			}
 			if (initDriver)
 				InitializeSeleniumDriver();
 			initialized = true;
@@ -190,15 +202,20 @@ namespace CloudBeat.Oxygen.Modules
 							connectAttempt++;
 							if (connectAttempt >= SELENIUM_CONN_RETRY_COUNT)
 							{
-								log.Fatal("Giving up on SeCommandProcessor initialization", e);
+								log.Fatal("Unable to connect to Selenium server", e);
 								throw;
 							}
 							Thread.Sleep(1000);	// in case the failure was due to resources overload - wait a bit...
 							continue;
 						}
+						else if (e.Message.Contains("Unable to connect to the remote server"))
+						{
+							log.Fatal("Unable to connect to Selenium server", e);
+							throw new Exception("Unable to connect to Selenium server: " + seleniumUrl);
+						}
 					}
-
-					log.Fatal("Error initializing SeCommandProcessor", e);
+						
+					log.Fatal("SeleniumDriver initializing failed", e);
 					throw;
 				}
 			}
@@ -238,7 +255,7 @@ namespace CloudBeat.Oxygen.Modules
             try
             {
                 if (driver != null)
-                    driver.Close();
+					driver.Quit();
             }
             catch (Exception) { } // ignore exceptions
 			return true;
@@ -288,6 +305,16 @@ namespace CloudBeat.Oxygen.Modules
 			
 			capabilities = DCFactory.Get(browserName);
 			InitializeSeleniumDriver();
+		}
+		public string GetSessionId()
+		{
+			if (driver == null)
+				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
+			var sessionIdProperty = typeof(RemoteWebDriver).GetProperty("SessionId", BindingFlags.Instance | BindingFlags.NonPublic);
+			SessionId sessionId = sessionIdProperty.GetValue(driver, null) as SessionId;
+			if (sessionId != null)
+				return sessionId.ToString();
+			return null;
 		}
 		public CommandResult SetTimeout(int timeout)
         {
