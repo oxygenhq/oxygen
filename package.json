@@ -23,7 +23,7 @@
     "email": "info@oxygenhq.org",
     "url": "http://oxygenhq.org"
   },
-  "license": "BSD-2-Clause",
+  "license": "GPL-3.0",
   "bugs": {
     "url": "https://github.com/cloudbeat/oxygen/issues"
   },

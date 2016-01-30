@@ -9,14 +9,18 @@ function DotNetError(type, message, dotnetStack) {
 	DotNetError.super_.call(this);
     this.innerError = null;
 	this._type = type;
-	this.message = message;
-	this.dotnetStack = dotnetStack;
-	//this.stacktrace = this.stack;
+	this._message = message;
+	this._dotnetStack = dotnetStack;
 	var self = this;
 	
 	this.__defineGetter__('dotnetstack', function(){
-		return self.dotnetStack;
-	})
+		return self._dotnetStack;
+	});
+    this.__defineGetter__('toString', function(){
+        if (this._type)
+            return this._type + ': ' + this._message;
+        return this._message;
+    });
 }
 
 module.exports = DotNetError;

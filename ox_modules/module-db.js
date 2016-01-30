@@ -1,6 +1,7 @@
 /**
  * Provides methods for working with Data Bases through ODBC.
  */
+var DotNetError = require('../errors/dotnet');
 module.exports = function(argv, context, rs, dispatcher) {
     var module = {};
     var moment = require('moment');
@@ -64,7 +65,7 @@ module.exports = function(argv, context, rs, dispatcher) {
             step.failure.$.message = res.ErrorMessage;
             step.failure.$.details = res.ErrorDetails;
             
-            throw new Error(res.ErrorMessage + res.ErrorDetails);
+            throw new DotNetError(res.ErrorType, res.ErrorMessage, res.ErrorDetails);
         }
         
         return res.ReturnValue;

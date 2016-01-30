@@ -8,7 +8,7 @@ function OxygenError(type, message, innerError) {
 	OxygenError.super_.call(this);
     this.innerError = innerError || null;
 	this._type = type || null;
-	this.message = message || null;
+	this._message = message || null;
 	//Error.captureStackTrace(this);
 	
 	var orig = Error.prepareStackTrace;
@@ -25,6 +25,9 @@ function OxygenError(type, message, innerError) {
 	})
 	this.__defineGetter__('type', function(){
 		return self._type;
+	})
+    this.__defineGetter__('message', function(){
+		return self._message;
 	})
 }
 

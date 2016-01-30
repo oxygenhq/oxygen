@@ -41,7 +41,7 @@ module.exports = function (argv, context, rs, dispatcher) {
     var transactionName = null;
 	
 	// call ModuleInit
-	//dispatcher.execute('web', 'moduleInit', argv); //Array.prototype.slice.call(
+	dispatcher.execute('web', 'moduleInit', argv); //Array.prototype.slice.call(
 
     /**
      * @summary Initialize test settings and start correspondent Selenium server and browser.
@@ -52,6 +52,10 @@ module.exports = function (argv, context, rs, dispatcher) {
     module.init = function ()
     {
     	return handleStepResult(dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments)));
+    };
+    module.dispose = function ()
+    {
+    	return dispatcher.execute('web', 'moduleDispose', Array.prototype.slice.call(arguments));
     };
     module._iterationStart = function(vars)
     {
