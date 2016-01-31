@@ -30,7 +30,8 @@
   "devDependencies": {
     "grunt": "~0.4.5",
     "grunt-cli": "~0.1.13",
-    "grunt-msbuild": "~0.3.4"
+    "grunt-msbuild": "~0.3.4",
+    "grunt-sync": "~0.2.3"
   },
   "dependencies": {
     "bluebird": "^3.1.1",
@@ -46,6 +47,6 @@
     "oxygen": "git+https://github.com/oxygenhq/oxygen.git#ae66dfad2661f3581388ddf646a8de592b7e3f52"
   },
   "scripts": {
-    "postinstall": "node_modules/.bin/grunt"
+    "prepublish": "node_modules/.bin/grunt"
   }
 }
