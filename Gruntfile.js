@@ -17,7 +17,7 @@ module.exports = function(grunt) {
                     { 
                         expand: true, 
                         cwd: 'node_modules/oxygen/bin/Debug', src: ['**'], 
-                        dest: 'Oxygen' 
+                        dest: 'dotnet' 
                     }
                 ], 
                 verbose: true
