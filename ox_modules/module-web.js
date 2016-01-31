@@ -295,7 +295,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      *                  specified title. TITLE can be any of the supported <a href="#patterns">
      *                  string matching patterns</a>.
      *              </li>
-     *              <li>An empty string - Wait for any new window to appear./li>
+     *              <li>An empty string - Wait for any new window to appear.</li>
      *              </ul>
      * @function waitForPopUp
      * @param {String} windowLocator - A window locator.
