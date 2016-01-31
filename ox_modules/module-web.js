@@ -504,7 +504,14 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @return {String} The return value serialized as a JSON string.
      */
     module.executeScript = function () { return handleStepResult(dispatcher.execute('web', 'executeScript', Array.prototype.slice.call(arguments))); };
-
+    /**
+     * @summary Retrieves the count of elements matching the given XPath expression.
+     * @function getElementCount
+     * @param {String} xpath - XPath locator.
+     * @return {Integer} Element count or 0 if no elements were found.
+     */
+    module.getElementCount = function() { return execMethod('web', 'getElementCount', Array.prototype.slice.call(arguments)); };
+    
     function handleStepResult(res)
     {
     	//console.log(JSON.stringify(res));
