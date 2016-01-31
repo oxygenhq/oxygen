@@ -148,14 +148,15 @@
   <Target Name="BeforeBuild">
     <CallTarget Targets="log4netTransform" />
     <CallTarget Targets="appTransform" />
-    <Exec Command="git describe --tags --long &gt; &quot;$(ProjectDir)VERSION&quot;" Outputs="$(ProjectDir)VERSION" WorkingDirectory="$(ProjectDir)" IgnoreExitCode="true">
+    <!--  tags long should be prefixed with double dash -->
+   <!-- <Exec Command="git describe tags long &gt; &quot;$(ProjectDir)VERSION&quot;" Outputs="$(ProjectDir)VERSION" WorkingDirectory="$(ProjectDir)" IgnoreExitCode="true">
       <Output TaskParameter="ExitCode" PropertyName="ExitCode" />
     </Exec>
     <Message Importance="high" Text="git failed with exit code $(ExitCode)" Condition="'$(ExitCode)'!='0'" />
     <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
-    <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" Condition="'$(OS)' == 'Windows_NT'" />
+    <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" Condition="'$(OS)' == 'Windows_NT'" /> -->
     <!-- xbuild doesn't support inline tasks so we use bash script -->
-    <Exec Command="./version.sh" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' == 'Unix'" />
+   <!--  <Exec Command="./version.sh" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' == 'Unix'" /> -->
   </Target>
   <Target Name="AfterBuild">
     <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
