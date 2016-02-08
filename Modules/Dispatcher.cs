@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Dynamic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -24,7 +25,7 @@ namespace CloudBeat.Oxygen.Modules
 
 			ctx = new ExecutionContext();
 
-			//Thread.Sleep(20000);
+			//Thread.Sleep(15000);
 		}
 		public Task<object> Invoke(dynamic input)
 		{
@@ -71,7 +72,13 @@ namespace CloudBeat.Oxygen.Modules
 
 			Type[] paramTypes = new Type[args.Length];
 			for (int i = 0; i < args.Length; i++)
+			{
+				// convert ExpandoObject to Dictionary
+				if (args[i].GetType() == typeof(ExpandoObject))
+					args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
 				paramTypes[i] = args[i].GetType();
+			}
+				
 
 			MethodInfo cmdMethod = modType.GetMethod(method, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
 			object retval = null;

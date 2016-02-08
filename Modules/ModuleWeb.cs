@@ -115,6 +115,10 @@ namespace CloudBeat.Oxygen.Modules
 			initialized = true;
 			return true;
 		}
+		public void Quit()
+		{
+			Dispose();
+		}
 		protected void InitializeSeleniumDriver()
 		{
 			BMPClient proxyClient = null;
@@ -258,6 +262,7 @@ namespace CloudBeat.Oxygen.Modules
 					driver.Quit();
             }
             catch (Exception) { } // ignore exceptions
+			driver = null;
 			return true;
         }
 
@@ -298,12 +303,20 @@ namespace CloudBeat.Oxygen.Modules
 
 		#region Selenium Standard Commands Implementation
 
-		public void Init(string browserName)
+		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetPrevCaps = true)//string browserName)
 		{
 			if (driver != null)
 				throw new Exception("Selenium driver has been already initialized");
-			
-			capabilities = DCFactory.Get(browserName);
+			// override current selenium url if new is passed in this function
+			if (!string.IsNullOrEmpty(seleniumUrl))
+				this.seleniumUrl = seleniumUrl;
+			if (resetPrevCaps || this.capabilities == null)
+				this.capabilities = new DesiredCapabilities();
+			if (caps != null)
+			{
+				foreach (var cap in caps)
+					this.capabilities.SetCapability(cap.Key, cap.Value);
+			}
 			InitializeSeleniumDriver();
 		}
 		public string GetSessionId()
