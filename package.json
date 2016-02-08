@@ -6,7 +6,7 @@
   "main": "./lib/oxygen.js",
   "preferGlobal": "true",
   "bin": {
-    "oxygen-server" : "lib/oxygen-server.js"
+    "oxygen-server": "lib/oxygen-server.js"
   },
   "repository": {
     "type": "git",
@@ -35,16 +35,21 @@
   },
   "dependencies": {
     "bluebird": "^3.1.1",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^5.2.0",
     "contextify": "^0.1.15",
     "csv-load-sync": "0.0.3",
     "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git",
     "fast-csv": "^1.0.0",
+    "fibers": "^1.0.8",
     "globule": "^0.2.0",
     "minimist": "^1.2.0",
     "moment": "^2.11.1",
+    "oxygen": "git+https://github.com/oxygenhq/oxygen.git#ae66dfad2661f3581388ddf646a8de592b7e3f52",
+    "sync": "^0.2.5",
+    "wd-sync": "^1.2.5",
     "when": "^3.7.3",
-    "xml2js": "git+https://github.com/oxygenhq/node-xml2js.git",
-    "oxygen": "git+https://github.com/oxygenhq/oxygen.git#ae66dfad2661f3581388ddf646a8de592b7e3f52"
+    "xml2js": "git+https://github.com/oxygenhq/node-xml2js.git"
   },
   "scripts": {
     "prepublish": "node_modules/.bin/grunt"

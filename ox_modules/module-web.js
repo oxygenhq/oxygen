@@ -447,6 +447,11 @@ module.exports = function (argv, context, rs, dispatcher) {
      */
     module.closeWindow = function() { return handleStepResult(dispatcher.execute('web', 'closeWindow', Array.prototype.slice.call(arguments))); };
     /**
+     * @summary Closes the current session
+     * @function quit
+     */
+    module.quit = function() { return handleStepResult(dispatcher.execute('web', 'quit', Array.prototype.slice.call(arguments))); };
+    /**
      * @summary Checks if alert box is present.
      * @function isAlertPresent
      * @param {String} text - Alert's text.
