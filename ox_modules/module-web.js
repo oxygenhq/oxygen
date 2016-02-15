@@ -55,6 +55,7 @@ module.exports = function (argv, context, rs, dispatcher) {
     };
     module.dispose = function ()
     {
+		console.log('disposing module web');
     	return dispatcher.execute('web', 'moduleDispose', Array.prototype.slice.call(arguments));
     };
     module._iterationStart = function(vars)
@@ -527,6 +528,7 @@ module.exports = function (argv, context, rs, dispatcher) {
             step.$.name = res.CommandResult.CommandName ? res.CommandResult.CommandName : res.Module.toLowerCase() + '.' + res.Method.toLowerCase();
             step.$.status = res.CommandResult.IsSuccess == true ? 'passed' : 'failed';
             step.$.duration = res.CommandResult.Duration;
+            step.$.action = res.CommandResult.IsAction;
             step.$.transation = transactionName;
             rs.steps.push(step);
             // check if the command has returned error

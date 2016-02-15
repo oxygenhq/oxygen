@@ -16,6 +16,9 @@ module.exports = function(argv, context, rs, dispatcher) {
     var driver = client.browser;
     var sync = client.sync;
 	
+	// initialization indicator
+	var isInitialized = false;
+	
     module.syncFunc = sync;
 	/*chai.use(chaiAsPromised);
 	chai.should();
@@ -31,6 +34,7 @@ module.exports = function(argv, context, rs, dispatcher) {
 	module.init = function(caps, url) {
         try {
 		  driver.init(caps);
+		  isInitialized = true;
         }
         catch (e) {
             throw new AppiumError(e, caps, null);
@@ -38,10 +42,10 @@ module.exports = function(argv, context, rs, dispatcher) {
 	};
 	
 	module.dispose = function() {
-		if (driver) {
+		if (driver && isInitialized) {
             //console.log(wdSync.current());
 			var retval = driver.quit();
-			driver = null;
+			isInitialized = false;
 			return retval;
 		}
 	}
