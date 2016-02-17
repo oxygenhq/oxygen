@@ -25,9 +25,9 @@ namespace CloudBeat.Oxygen.JSEngine
 
         private const string TESTCASE_NAME = "testcase1";
 
-		private void Initialize(string browser, string seleniumUrl, string configFile, string paramFile, string paramNextVal)
+		private void Initialize(string browser, string seleniumUrl, string configFile, string paramFile, string paramNextVal, string chromeBinary)
 		{
-            DesiredCapabilities dc = DCFactory.Get(browser);
+            DesiredCapabilities dc = DCFactory.Get(browser, chromeBinary);
 			ExecutionContext context = new ExecutionContext();
 			selDriver = new SeleniumDriver(new Uri(seleniumUrl), dc, null, context);
             modWeb.SetDriver(selDriver);
@@ -79,7 +79,7 @@ namespace CloudBeat.Oxygen.JSEngine
                 }
                 else if (cmd == "initialize")
                 {
-                    Initialize((string)args[0], (string)args[1], args[3] as string, args[2] as string, args[4] as string);
+                    Initialize((string)args[0], (string)args[1], args[3] as string, args[2] as string, args[4] as string, args[5] as string);
                     return Task.FromResult<object>(null);
                 }
                 else if (cmd == "next_iteration") 

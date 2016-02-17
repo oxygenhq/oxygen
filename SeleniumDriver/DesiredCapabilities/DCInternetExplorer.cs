@@ -5,7 +5,7 @@ namespace CloudBeat.Oxygen
 {
 	public class DCInternetExplorer : IDCBrowser
     {
-        public DesiredCapabilities Create() 
+        public DesiredCapabilities Create(Capabilities caps) 
         {
             InternetExplorerOptions options = new InternetExplorerOptions();
             options.EnablePersistentHover = false;

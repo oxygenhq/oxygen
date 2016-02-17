@@ -4,6 +4,6 @@ namespace CloudBeat.Oxygen
 {
     interface IDCBrowser
     {
-         DesiredCapabilities Create();
+        DesiredCapabilities Create(Capabilities caps);
     }
 }

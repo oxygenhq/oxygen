@@ -4,7 +4,7 @@ namespace CloudBeat.Oxygen
 {
     public class DCFirefox : IDCBrowser
     {
-        public DesiredCapabilities Create() 
+        public DesiredCapabilities Create(Capabilities caps) 
         {
             return DesiredCapabilities.Firefox();
         }
