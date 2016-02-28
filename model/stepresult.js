@@ -7,8 +7,7 @@ module.exports = function () {
             name: null,
             status: null,
             duration: null,
-            action: null,
-            transation: null,
+            transaction: null,
             harFile: null,
             screenshotFile: null
         },

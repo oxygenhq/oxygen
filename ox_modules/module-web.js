@@ -529,7 +529,7 @@ module.exports = function (argv, context, rs, dispatcher) {
             step.$.status = res.CommandResult.IsSuccess == true ? 'passed' : 'failed';
             step.$.duration = res.CommandResult.Duration;
             step.$.action = res.CommandResult.IsAction;
-            step.$.transation = transactionName;
+            step.$.transaction = transactionName;
             rs.steps.push(step);
             // check if the command has returned error
             if (res.CommandResult.ErrorMessage && res.CommandResult.ErrorMessage.length > 0)
