@@ -31,6 +31,7 @@ namespace CloudBeat.Oxygen.JSEngine
 			ExecutionContext context = new ExecutionContext();
 			selDriver = new SeleniumDriver(new Uri(seleniumUrl), dc, null, context);
             modWeb.SetDriver(selDriver);
+            selDriver.Manage().Window.Maximize();
 
             if (paramFile != null)
             {
