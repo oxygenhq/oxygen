@@ -25,14 +25,14 @@ namespace CloudBeat.Oxygen.Modules
 
 			ctx = new ExecutionContext();
 
-			//Thread.Sleep(15000);
+			Thread.Sleep(15000);
 		}
 		public Task<object> Invoke(dynamic input)
 		{
 			string name = (string)input.module;
 			string method = (string)input.method;
 
-			if (string.IsNullOrEmpty(name) && method == "TestInit")
+			/*if (string.IsNullOrEmpty(name) && method == "TestInit")
 			{
 				ctx.Environment = ConvertExpandoObjectToDictionary(input.env);
 				return Task.FromResult<object>(null);
@@ -43,9 +43,9 @@ namespace CloudBeat.Oxygen.Modules
 				// call each module's IterationStarted method
 				foreach (var m in modules.Values) m.IterationStarted();
 				return Task.FromResult<object>(null);
-			}
-			if (!modules.ContainsKey(name))
-				throw new ArgumentException("module not found", name);
+			}*/
+			if (string.IsNullOrEmpty(name) || !modules.ContainsKey(name))
+				throw new ArgumentException("Module not found", name);
 			if (string.IsNullOrEmpty(method))
 				throw new ArgumentNullException("method");
 			// uppercase method's first letter
@@ -63,10 +63,14 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			else if (method == "ModuleDispose")
 				return Task.FromResult<object>(module.Dispose());
+			else if (method == "IterationStart")
+				return Task.FromResult<object>(module.IterationStarted());
+			else if (method == "IterationEnd")
+				return Task.FromResult<object>(module.IterationEnded());
 
 			object[] args = input.args as object[];
-			if (((IDictionary<String, object>)input).ContainsKey("vars"))
-				ctx.Variables = ConvertExpandoObjectToDictionary(input.vars);
+			/*if (((IDictionary<String, object>)input).ContainsKey("vars"))
+				ctx.Variables = ConvertExpandoObjectToDictionary(input.vars);*/
 
 			Type modType = module.GetType();
 

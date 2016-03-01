@@ -11,8 +11,8 @@ namespace CloudBeat.Oxygen.Modules
 		bool Initialize(Dictionary<string, string> args, ExecutionContext ctx);
 		bool Dispose();
 		bool IsInitialized { get; }
-		void IterationStarted();
-		void IterationEnded();
+		object IterationStarted();
+		object IterationEnded();
 		string Name { get; }
 	}
 }

@@ -182,14 +182,14 @@ namespace CloudBeat.Oxygen.Modules
 			get { return true; }
 		}
 
-		public void IterationStarted()
+		public object IterationStarted()
 		{
-			
+			return null;
 		}
 
-		public void IterationEnded()
+		public object IterationEnded()
 		{
-			
+			return null;
 		}
 
 		public string Name

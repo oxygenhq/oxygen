@@ -18,6 +18,7 @@ namespace CloudBeat.Oxygen.Modules
 		private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private SeleniumDriver driver;
+		private BMPClient proxyClient = null;
 
         public delegate void TransactionEventHandler(string transaction);
         public event TransactionEventHandler TransactionUpdate;
@@ -77,13 +78,18 @@ namespace CloudBeat.Oxygen.Modules
         {
 			this.driver = driver;
         }
-		public void IterationStarted()
+		public object IterationStarted()
 		{
-
+			if (proxyClient != null)
+				proxyClient.NewHar(true);
+			return null;
 		}
-		public void IterationEnded()
+		public object IterationEnded()
 		{
-
+			if (proxyClient != null)
+				return proxyClient.GetHarJson();
+				
+			return null;
 		}
 		public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
 		{
@@ -121,7 +127,7 @@ namespace CloudBeat.Oxygen.Modules
 		}
 		protected void InitializeSeleniumDriver()
 		{
-			BMPClient proxyClient = null;
+			//BMPClient proxyClient = null;
 			if (!string.IsNullOrEmpty(proxyUrl))
 				proxyClient = ConnectToProxy(proxyUrl);
 			if (capabilities == null)
@@ -170,7 +176,7 @@ namespace CloudBeat.Oxygen.Modules
 
 			try
 			{
-				client.NewHar(true);
+				//client.NewHar(true); // now called in IterationStarted
 				client.SetTimeouts(new TimeoutOptions { ReadTimeout = BMP_READ_TIMEOUT, ConnectionTimeout = BMP_CON_TIMEOUT });
 			}
 			catch (Exception e)
