@@ -5,7 +5,7 @@
 module.exports = function(argv, context, rs, dispatcher) {
     var module = {};
 	
-    var wd = require('wd');
+    //var wd = require('wd');
     var wdSync = require('wd-sync');
     var AppiumError = require('../errors/appium');
 
