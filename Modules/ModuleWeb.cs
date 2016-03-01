@@ -265,7 +265,7 @@ namespace CloudBeat.Oxygen.Modules
 				{
 					try
 					{
-						cmdProc.Manage().Window.Size = new System.Drawing.Size(BROWSER_W, BROWSER_H);
+                        cmdProc.Manage().Window.Maximize();// Size = new System.Drawing.Size(BROWSER_W, BROWSER_H);
 						return true;
 					}
 					catch (Exception)
