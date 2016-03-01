@@ -18,7 +18,8 @@ namespace CloudBeat.Oxygen.Modules
 		private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private SeleniumDriver driver;
-		private BMPClient proxyClient = null;
+        private BMPClient proxyClient = null;
+        private const string PROXY_LOCAL_ADDR = "127.0.0.1";
 
         public delegate void TransactionEventHandler(string transaction);
         public event TransactionEventHandler TransactionUpdate;
@@ -132,6 +133,18 @@ namespace CloudBeat.Oxygen.Modules
 				proxyClient = ConnectToProxy(proxyUrl);
 			if (capabilities == null)
 				capabilities = DCFactory.Get(DEFAULT_BROWSER_NAME);
+
+            if (proxyClient != null)
+            {
+                var proxyPort = proxyClient.SeleniumProxy.Substring(proxyClient.SeleniumProxy.IndexOf(':'));
+                OpenQA.Selenium.Proxy proxy = new OpenQA.Selenium.Proxy
+                {
+                    HttpProxy = PROXY_LOCAL_ADDR + proxyPort,
+                    SslProxy = PROXY_LOCAL_ADDR + proxyPort
+                };
+                capabilities.SetCapability(CapabilityType.Proxy, proxy);
+            }
+
 			try
 			{
 				driver = ConnectToSelenium(capabilities, proxyClient, seleniumUrl, ctx);
