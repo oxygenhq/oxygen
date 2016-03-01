@@ -42,6 +42,8 @@ namespace CloudBeat.Oxygen.Modules
 		private DesiredCapabilities capabilities;
 		private ExecutionContext ctx;
 
+        private HashSet<string> transactions = new HashSet<string>();
+
 		#region Defauts
 		private const string DEFAULT_BROWSER_NAME = "internetexplorer";
 		private const int TIMEOUT_WINDOW_SIZE = 60; // in seconds
@@ -296,30 +298,6 @@ namespace CloudBeat.Oxygen.Modules
 
 		#endregion
 
-		private HashSet<string> transactions = new HashSet<string>();
-
-        public void Transaction(string name)
-        {
-            // throw in case we hit a duplicate transaction
-            if (transactions.Contains(name))
-            {
-                var e = new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
-                if (CommandException != null)
-                    CommandException(new SeCommand { 
-                        CommandName = "transaction", 
-                        Arguments = new object[] { name }
-                    }, 
-                    null, e);
-            }
-            transactions.Add(name);
-
-            if (TransactionUpdate != null)
-            {
-                driver.StartNewTransaction(name);
-                TransactionUpdate(name);
-            }
-        }
-
 		#region Selenium Standard Commands Implementation
 
 		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetPrevCaps = true)//string browserName)
@@ -338,16 +316,39 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			InitializeSeleniumDriver();
 		}
-		public string GetSessionId()
-		{
-			if (driver == null)
-				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
-			var sessionIdProperty = typeof(RemoteWebDriver).GetProperty("SessionId", BindingFlags.Instance | BindingFlags.NonPublic);
-			SessionId sessionId = sessionIdProperty.GetValue(driver, null) as SessionId;
-			if (sessionId != null)
-				return sessionId.ToString();
-			return null;
-		}
+        public string GetSessionId()
+        {
+            if (driver == null)
+                throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
+            var sessionIdProperty = typeof(RemoteWebDriver).GetProperty("SessionId", BindingFlags.Instance | BindingFlags.NonPublic);
+            SessionId sessionId = sessionIdProperty.GetValue(driver, null) as SessionId;
+            if (sessionId != null)
+                return sessionId.ToString();
+            return null;
+        }
+
+        public void transaction(string name)
+        {
+            // throw in case we hit a duplicate transaction
+            if (transactions.Contains(name))
+            {
+                var e = new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
+                if (CommandException != null)
+                    CommandException(new SeCommand
+                    {
+                        CommandName = "transaction",
+                        Arguments = new object[] { name }
+                    },
+                    null, e);
+            }
+            transactions.Add(name);
+
+            if (TransactionUpdate != null)
+            {
+                driver.StartNewTransaction(name);
+                TransactionUpdate(name);
+            }
+        }
 		public CommandResult SetTimeout(int timeout)
         {
             return ExecuteSeleniumCommand(timeout);
