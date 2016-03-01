@@ -45,7 +45,7 @@
     "globule": "^0.2.0",
     "minimist": "^1.2.0",
     "moment": "^2.11.1",
-    "oxygen": "git+https://github.com/oxygenhq/oxygen.git#ae66dfad2661f3581388ddf646a8de592b7e3f52",
+    "oxygen": "git+https://github.com/oxygenhq/oxygen.git#432b52b91fd2533391f620b1b3d22209de4bd4b3",
     "sync": "^0.2.5",
     "wd-sync": "^1.2.5",
     "when": "^3.7.3",
