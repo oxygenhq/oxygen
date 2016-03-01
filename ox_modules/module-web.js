@@ -60,7 +60,13 @@ module.exports = function (argv, context, rs, dispatcher) {
     };
     module._iterationStart = function(vars)
     {
-    	dispatcher.execute(null, 'iterationStart', { vars: ctx.vars });
+    	dispatcher.execute('web', 'iterationStart', { vars: ctx.vars });
+    };
+	module._iterationEnd = function(vars)
+    {
+    	var har = dispatcher.execute('web', 'iterationEnd', {});
+		console.log('Har received: ' + har);
+		rs.har = har;
     };
     /**
      * @summary Sets base URL which can be used for relative navigation using the <code>open</code> 
@@ -76,7 +82,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @function transaction
      * @param {String} transactionName - The transaction name.
      */
-    module.transaction = function (name) { transactionName = name; return null; };
+    module.transaction = function (name) { transactionName = name; dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
      * @description This includes the <code>open</code> command, <code>waitFor*</code> commands, and
