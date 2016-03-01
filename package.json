@@ -52,6 +52,6 @@
     "xml2js": "git+https://github.com/oxygenhq/node-xml2js.git"
   },
   "scripts": {
-    "prepublish": "node_modules/.bin/grunt"
+    "postinstall": "node_modules/.bin/grunt"
   }
 }
