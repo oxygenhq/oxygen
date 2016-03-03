@@ -5,6 +5,7 @@ namespace CloudBeat.Oxygen
     {
         NO_ELEMENT,
         ASSERT,
+		VERIFICATION,
         SCRIPT_TIMEOUT,
         PERFORMANCE_TIMINGS_ERROR,
         UNHANDLED_ALERT,

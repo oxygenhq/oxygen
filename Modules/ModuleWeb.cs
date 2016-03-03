@@ -603,10 +603,121 @@ namespace CloudBeat.Oxygen.Modules
 				result.ErrorType = e.GetType().ToString();
 				result.ErrorMessage = e.Message;
 				result.ErrorDetails = e.StackTrace;
+				string statusData = null;
+				var status = GetStatusByException(e, out statusData);
+				result.StatusText = status.ToString();
+				result.StatusData = statusData;
+				if (status == CheckResultStatus.UNKNOWN_ERROR)
+				{
+					e.Data.Add("Cmd: ", cmd.ToString());
+					log.Error("Unknown WebDriverException. Needs checking!!!", e);
+				}
             }
 
             return result;
         }
+
+		private CheckResultStatus GetStatusByException(Exception e, out string moreInfo)
+		{
+			var type = e.GetType();
+			moreInfo = null;
+
+			if (type == typeof(OxAssertionException))
+				return CheckResultStatus.ASSERT;
+			else if (type == typeof(OxVerificationException))
+				return CheckResultStatus.VERIFICATION;
+			else if (type == typeof(NoSuchElementException))
+				return CheckResultStatus.NO_ELEMENT;
+			else if (type == typeof(OxElementNotFoundException))
+				return CheckResultStatus.NO_ELEMENT;
+			else if (type == typeof(OxElementNotVisibleException))
+				return CheckResultStatus.ELEMENT_NOT_VISIBLE;
+			else if (type == typeof(NoSuchFrameException))
+				return CheckResultStatus.FRAME_NOT_FOUND;
+			else if (type == typeof(StaleElementReferenceException))
+				return CheckResultStatus.STALE_ELEMENT;
+			else if (type == typeof(UnhandledAlertException))
+			{
+				moreInfo = "Alert text: " + driver.SeCmdGetAlertText();
+				return CheckResultStatus.UNHANDLED_ALERT;
+			}
+			else if (type == typeof(OxWaitForException))
+				// This is thrown by any WaitFor* commands (e.g. SeCmdWaitForVisible)
+				// and essentially implies a script level timeout.
+				// By default the timeout is set to SeCommandProcessor.DEFAULT_WAIT_FOR_TIMEOUT but
+				// can be overriden in the script using SetTimeout command.
+				return CheckResultStatus.SCRIPT_TIMEOUT;
+			else if (type == typeof(OxTimeoutException))
+				// This is thrown by any commands which rely on PageLoadTimeout (Open, ClickAndWait, etc.)
+				// and essentially implies a script level timeout.
+				// By default the timeout is set to SeCommandProcessor.DEFAULT_PAGE_LOAD_TIMEOUT but
+				// can be overriden in the script using SetTimeout command.
+				return CheckResultStatus.SCRIPT_TIMEOUT;
+			else if (type == typeof(WebDriverException))
+			{
+				var wde = e as WebDriverException;
+
+				// This is thrown when WebDriver does not respond within the command timeout period defined by SeCommandProcessor.TIMEOUT_COMMAND
+				// and may occur due to multiple reasons: network errors, webdriver locking due to browser/internal bugs, etc.
+				if (wde.InnerException != null && wde.InnerException is WebException)
+				{
+					var wex = wde.InnerException as WebException;
+					if (wex.Status == WebExceptionStatus.Timeout)
+						// there seems to be chromedriver bug where open/clickandwait will end in command timeout if 'load' event did not fire.
+						return CheckResultStatus.SCRIPT_TIMEOUT;
+				}
+				log.Error("Unknown WebDriverException. Needs checking!!!", wde);
+				return CheckResultStatus.UNKNOWN_ERROR;
+			}
+			else if (type == typeof(OxVariableUndefined))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.VARIABLE_NOT_DEFINED;
+			}
+			else if (type == typeof(OxLocatorUndefined))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.UNKNOWN_PAGE_OBJECT;
+			}
+			else if (type == typeof(OxCommandNotImplementedException))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.COMMAND_NOT_IMPLEMENTED;
+			}
+			else if (type == typeof(OxOperationException))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.INVALID_OPERATION;
+			}
+			else if (type == typeof(OxXMLExtractException))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.XML_ERROR;
+			}
+			else if (type == typeof(OxXMLtoJSONConvertException))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.XML_ERROR;
+			}
+			else if (type == typeof(NoAlertPresentException))
+				return CheckResultStatus.NO_ALERT_PRESENT;
+			else if (type == typeof(OxBrowserJSExecutionException))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.BROWSER_JS_EXECUTE_ERROR;
+			}
+			else if (type == typeof(OxDuplicateTransactionException))
+			{
+				moreInfo = e.Message;
+				return CheckResultStatus.DUPLICATE_TRANSACTION;
+			}
+			else
+			{
+				log.Error("Unknown exception. Needs checking!!!", e);
+				moreInfo = e.Message;
+				return CheckResultStatus.UNKNOWN_ERROR;
+			}
+		}
 
 		#endregion
 
