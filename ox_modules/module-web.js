@@ -73,7 +73,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @function setBaseUrl
      * @param {String} url - The base URL.
      */
-    module.setBaseUrl = function () { return handleStepResult(dispatcher.execute('web', 'setBaseUrl', Array.prototype.slice.call(arguments))); };
+    module.setBaseUrl = function () { return dispatcher.execute('web', 'setBaseUrl', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Opens new transaction.
      * @description The transaction will persist till a new one is opened. Transaction names must be
@@ -93,7 +93,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @function setTimeout
      * @param {Integer} timeout - A time-out in milliseconds.
      */
-    module.setTimeout = function () { return handleStepResult(dispatcher.execute('web', 'setTimeout', Array.prototype.slice.call(arguments))); };
+    module.setTimeout = function () { return dispatcher.execute('web', 'setTimeout', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Opens an URL.
      * @description The <code>open</code> command waits for the page to load before proceeding.
@@ -109,13 +109,13 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @param {String} locator - An element locator.
      * @param {String} yOffset - Y offset from the element.
      */
-    module.scrollToElement = function () { return dispatcher.execute('web', 'scrollToElement', Array.prototype.slice.call(arguments)); };
+    module.scrollToElement = function () { return handleStepResult(dispatcher.execute('web', 'scrollToElement', Array.prototype.slice.call(arguments))); };
     /**
      * @summary Points the mouse cursor over the specified element.
      * @function point
      * @param {String} locator - An element locator.
      */
-    module.point = function () { return dispatcher.execute('web', 'point', Array.prototype.slice.call(arguments)); };
+    module.point = function () { return handleStepResult(dispatcher.execute('web', 'point', Array.prototype.slice.call(arguments))); };
     /**
      * @summary Clicks on a link, button, checkbox, or radio button. 
      * @description If the click causes new page to load, the command waits for page to load before 
@@ -538,14 +538,33 @@ module.exports = function (argv, context, rs, dispatcher) {
 			step.screenshot = res.CommandResult.Screenshot;
             rs.steps.push(step);
             // check if the command has returned error
-            if (res.CommandResult.ErrorMessage && res.CommandResult.ErrorMessage.length > 0)
-            {
+            if (res.CommandResult.StatusText != null)
+			{
+				var Failure = require('../model/stepfailure');
+				step.failure = new Failure();
+				var message = res.CommandResult.StatusText;
+				var throwError = true;
+				if (res.CommandResult.StatusData)
+					message += ': ' + res.CommandResult.StatusData;
 				
-                var message = step.failure.$.message = res.CommandResult.ErrorMessage;
-                var stacktrace = step.failure.$.details = res.CommandResult.ErrorDetails;
-                step.failure.$.type = res.CommandResult.ErrorType;
-                throw new Error(message + stacktrace);
-            }
+				if (res.CommandResult.StatusText !== 'UNKNOWN_ERROR') {
+					if (res.CommandResult.StatusText === 'VARIFICATION') 		// ignore verifyXXX commands failure
+						throwError = false;
+					step.failure.$.type = res.CommandResult.StatusText;
+					step.failure.$.details = res.CommandResult.StatusData;
+				}
+				else if (res.CommandResult.ErrorMessage && res.CommandResult.ErrorMessage.length > 0)
+				{
+					
+					var message = step.failure.$.message = res.CommandResult.ErrorMessage;
+					var stacktrace = step.failure.$.details = res.CommandResult.ErrorDetails;
+					step.failure.$.type = res.CommandResult.ErrorType;
+					if (stacktrace) message += stacktrace;
+				}
+				
+				if (throwError)
+					throw new Error(message);
+			}
         }
     	return res.ReturnValue;
     }

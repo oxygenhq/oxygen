@@ -10,13 +10,7 @@ module.exports = function () {
             transaction: null,
             screenshotFile: null
         },
-		failure: {
-            $: {
-                type: null,
-                message: null,
-                details: null
-            }
-        },
-		screenshot: { _: null }
+		failure: null,	// type of stepfailure.js
+		screenshot: null //{ _: null }
 	};
 }
