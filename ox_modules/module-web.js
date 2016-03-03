@@ -65,7 +65,6 @@ module.exports = function (argv, context, rs, dispatcher) {
 	module._iterationEnd = function(vars)
     {
     	var har = dispatcher.execute('web', 'iterationEnd', {});
-		console.log('Har received: ' + har);
 		rs.har = har;
     };
     /**

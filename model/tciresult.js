@@ -8,5 +8,6 @@ module.exports = function () {
             status: ''
         },
 		steps: null,  // type of stepresult.js
+		har: null
 	};
 }

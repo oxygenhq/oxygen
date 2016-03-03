@@ -8,7 +8,6 @@ module.exports = function () {
             status: null,
             duration: null,
             transaction: null,
-            harFile: null,
             screenshotFile: null
         },
 		failure: {
@@ -18,8 +17,6 @@ module.exports = function () {
                 details: null
             }
         },
-		
-		har: { _: null },
 		screenshot: { _: null }
 	};
 }
