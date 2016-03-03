@@ -342,12 +342,9 @@ namespace CloudBeat.Oxygen.Modules
                     null, e);
             }
             transactions.Add(name);
-
-            if (TransactionUpdate != null)
-            {
-                driver.StartNewTransaction(name);
+			driver.StartNewTransaction(name);
+            if (TransactionUpdate != null)   
                 TransactionUpdate(name);
-            }
         }
 		public CommandResult SetTimeout(int timeout)
         {
