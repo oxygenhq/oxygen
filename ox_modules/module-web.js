@@ -131,7 +131,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @function clickHidden
      * @param {String} locator - An element locator.
      */
-    module.clickHidden = function() { return dispatcher.execute('web', 'clickHidden', Array.prototype.slice.call(arguments)); };
+    module.clickHidden = function() { return handleStepResult(dispatcher.execute('web', 'clickHidden', Array.prototype.slice.call(arguments))); };
     /**
      * @summary Asserts the page title.
      * @description Assertion pattern can be any of the supported <a href="#patterns">
@@ -139,7 +139,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @function assertTitle
      * @param {String} pattern - The assertion pattern.
      */
-    module.assertTitle = function() { return dispatcher.execute('web', 'assertTitle', Array.prototype.slice.call(arguments)); };
+    module.assertTitle = function() { return handleStepResult(dispatcher.execute('web', 'assertTitle', Array.prototype.slice.call(arguments))); };
     /**
      * @summary Simulates keystroke events on the specified element, as though you typed the value 
      *          key-by-key. Previous value if any will be cleared.
@@ -372,7 +372,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @param {String} locator - An element locator.
      * @param {String} pattern - Text pattern.
      */
-    module.waitForNotText = function() { return dispatcher.execute('web', 'waitForNotText', Array.prototype.slice.call(arguments)); };
+    module.waitForNotText = function() { return handleStepResult(dispatcher.execute('web', 'waitForNotText', Array.prototype.slice.call(arguments))); };
     /**
      * @summary Waits for input element's value to match the specified pattern.
      * @description Value pattern can be any of the supported <a href="#patterns">
@@ -521,7 +521,7 @@ module.exports = function (argv, context, rs, dispatcher) {
      * @param {String} xpath - XPath locator.
      * @return {Integer} Element count or 0 if no elements were found.
      */
-    module.getElementCount = function() { return execMethod('web', 'getElementCount', Array.prototype.slice.call(arguments)); };
+    module.getElementCount = function() { return handleStepResult(execMethod('web', 'getElementCount', Array.prototype.slice.call(arguments))); };
     
     function handleStepResult(res)
     {
@@ -535,10 +535,12 @@ module.exports = function (argv, context, rs, dispatcher) {
             step.$.duration = res.CommandResult.Duration;
             step.$.action = res.CommandResult.IsAction;
             step.$.transaction = transactionName;
+			step.screenshot = res.CommandResult.Screenshot;
             rs.steps.push(step);
             // check if the command has returned error
             if (res.CommandResult.ErrorMessage && res.CommandResult.ErrorMessage.length > 0)
             {
+				
                 var message = step.failure.$.message = res.CommandResult.ErrorMessage;
                 var stacktrace = step.failure.$.details = res.CommandResult.ErrorDetails;
                 step.failure.$.type = res.CommandResult.ErrorType;
