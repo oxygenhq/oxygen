@@ -33,7 +33,7 @@ namespace CloudBeat.Oxygen.Modules
         public delegate void ExecutedEventHandler(SeCommand cmd, int domContentLoaded, int load);
         public event ExecutedEventHandler CommandExecuted;
 
-        private bool screenShotErrors;
+        private bool screenShotErrors = true;
         private bool fetchStats;
         private long prevNavigationStart = long.MinValue;
 		private bool initialized = false;
@@ -599,6 +599,7 @@ namespace CloudBeat.Oxygen.Modules
 				result.EndTime = DateTime.UtcNow;
 				result.IsAction = cmd.IsAction();
 				result.IsSuccess = false;
+				result.Screenshot = screenShot;
 				result.ErrorType = e.GetType().ToString();
 				result.ErrorMessage = e.Message;
 				result.ErrorDetails = e.StackTrace;

@@ -25,7 +25,7 @@ namespace CloudBeat.Oxygen.Modules
 
 			ctx = new ExecutionContext();
 
-			Thread.Sleep(15000);
+			//Thread.Sleep(15000);
 		}
 		public Task<object> Invoke(dynamic input)
 		{
