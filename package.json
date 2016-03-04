@@ -37,19 +37,22 @@
     "bluebird": "^3.1.1",
     "chai": "^3.5.0",
     "chai-as-promised": "^5.2.0",
+    "config": "^1.19.0",
     "contextify": "^0.1.15",
-    "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git",
     "csv-load-sync": "~1.0.0",
+    "easyxml": "^2.0.1",
+    "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git",
     "fast-csv": "^1.0.0",
     "fibers": "^1.0.8",
     "globule": "^0.2.0",
     "minimist": "^1.2.0",
     "moment": "^2.11.1",
+    "npmlog": "^2.0.2",
     "oxygen": "git+https://github.com/oxygenhq/oxygen.git#250d0c5938a139ac9a48dc545e3e9e006489e65a",
+    "oxygen-logger": "git+https://github.com/oxygenhq/oxygen-logger.git",
     "sync": "^0.2.5",
     "wd-sync": "^1.2.5",
-    "when": "^3.7.3",
-    "xml2js": "git+https://github.com/oxygenhq/node-xml2js.git"
+    "when": "^3.7.3"
   },
   "scripts": {
     "prepublish": "node_modules/.bin/grunt"
