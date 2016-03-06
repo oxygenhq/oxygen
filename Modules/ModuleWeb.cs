@@ -97,7 +97,7 @@ namespace CloudBeat.Oxygen.Modules
 		public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
 		{
 			this.ctx = ctx;
-			
+
 			if (args.ContainsKey(ARG_PROXY_URL))
 				proxyUrl = args[ARG_PROXY_URL];
 			if (args.ContainsKey(ARG_SELENIUM_URL) && !string.IsNullOrEmpty(args[ARG_SELENIUM_URL]))
@@ -168,6 +168,7 @@ namespace CloudBeat.Oxygen.Modules
 			// All other exceptions mean proxy is down or network problems.
 			int connectAttempt = 0;
 			BMPClient client = null;
+			Exception orgException = null;
 			do
 			{
 				try
@@ -179,6 +180,7 @@ namespace CloudBeat.Oxygen.Modules
 					var we = e as WebException;
 					if (we != null && we.Response != null && we.Response is HttpWebResponse && ((HttpWebResponse)we.Response).StatusDescription == "550")
 					{
+						orgException = we;
 						connectAttempt++;
 						continue;
 					}
@@ -188,7 +190,12 @@ namespace CloudBeat.Oxygen.Modules
 				}
 				break;
 			} while (connectAttempt < PROXY_CONN_RETRY_COUNT);
-
+			if (client == null)
+			{
+				if (orgException != null)
+					throw new Exception("Can't initialize proxy, connection attempts failed: " + orgException.Message);
+				throw new Exception("Can't initialize proxy, connection attempts failed");
+			}
 			try
 			{
 				//client.NewHar(true); // now called in IterationStarted
