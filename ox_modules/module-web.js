@@ -32,7 +32,7 @@
  *  </ul>
  * </div>
  */
-module.exports = function (argv, context, rs, dispatcher) {
+module.exports = function (argv, context, rs, logger, dispatcher) {
 	var module = {};
 
 	var ctx = context;
@@ -536,6 +536,10 @@ module.exports = function (argv, context, rs, dispatcher) {
             step.$.action = res.CommandResult.IsAction;
             step.$.transaction = transactionName;
 			step.screenshot = res.CommandResult.Screenshot;
+			if (res.CommandResult.LoadEvent)
+				step.stats.LoadEvent = res.CommandResult.LoadEvent;
+			if (res.CommandResult.DomContentLoadedEvent)
+				step.stats.DomContentLoadedEvent = res.CommandResult.DomContentLoadedEvent;
             rs.steps.push(step);
             // check if the command has returned error
             if (res.CommandResult.StatusText != null)

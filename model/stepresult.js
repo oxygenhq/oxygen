@@ -11,6 +11,7 @@ module.exports = function () {
             screenshotFile: null
         },
 		failure: null,	// type of stepfailure.js
-		screenshot: null //{ _: null }
+		screenshot: null, //{ _: null }
+		stats: {}		// navigation timings or other statistics
 	};
 }

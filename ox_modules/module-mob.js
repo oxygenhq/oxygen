@@ -2,7 +2,7 @@
 /**
  * Provides methods for mobile automation. 
  */
-module.exports = function(argv, context, rs, dispatcher) {
+module.exports = function(argv, context, rs, logger, dispatcher) {
     var module = {};
 	
     //var wd = require('wd');

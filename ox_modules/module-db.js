@@ -2,7 +2,7 @@
  * Provides methods for working with Data Bases through ODBC.
  */
 var DotNetError = require('../errors/dotnet');
-module.exports = function(argv, context, rs, dispatcher) {
+module.exports = function(argv, context, rs, logger, dispatcher) {
     var module = {};
     var moment = require('moment');
     
