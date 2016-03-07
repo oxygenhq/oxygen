@@ -33,8 +33,8 @@ namespace CloudBeat.Oxygen.Modules
         public delegate void ExecutedEventHandler(SeCommand cmd, int domContentLoaded, int load);
         public event ExecutedEventHandler CommandExecuted;
 
-        private bool screenShotErrors = true;
-        private bool fetchStats;
+        private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
+        private bool fetchStats = true;
         private long prevNavigationStart = long.MinValue;
 		private bool initialized = false;
 		private string seleniumUrl;
@@ -68,9 +68,9 @@ namespace CloudBeat.Oxygen.Modules
 		{
 
 		}
-		public ModuleWeb(bool fetchStats, bool screenShotErrors)
+		public ModuleWeb(bool fetchStats, ScreenshotMode screenshotMode)
         {
-            this.screenShotErrors = screenShotErrors;
+			this.screenshotMode = screenshotMode;
             this.fetchStats = fetchStats;
         }
 
@@ -566,15 +566,26 @@ namespace CloudBeat.Oxygen.Modules
             try
             {
 				result.StartTime = DateTime.UtcNow;
-                
-				var retVal = driver.ExecuteCommand(cmd, screenShotErrors, out screenShot);
+				// expected exceptions won't be thrown but rather returned by 'exception' output parameter
+				Exception exception = null;
+				var retVal = driver.ExecuteCommand(cmd, screenshotMode, out screenShot, out exception);
 				
 				result.EndTime = DateTime.UtcNow;
 				result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
 				result.IsAction = cmd.IsAction();
 				result.Screenshot = screenShot;
 				result.ReturnValue = retVal;
-				result.IsSuccess = true;
+				result.IsSuccess = exception == null;
+				if (exception != null)
+				{
+					result.ErrorType = exception.GetType().ToString();
+					result.ErrorMessage = exception.Message;
+					result.ErrorDetails = exception.StackTrace;
+					string statusData = null;
+					var status = GetStatusByException(exception, out statusData);
+					result.StatusText = status.ToString();
+					result.StatusData = statusData;
+				}
 
                 int domContentLoaded = 0;
                 int load = 0;
