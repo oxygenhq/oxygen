@@ -288,9 +288,12 @@ namespace CloudBeat.Oxygen.Modules
             {
                 if (driver != null)
 					driver.Quit();
+				if (proxyClient != null)
+					proxyClient.Close();
             }
             catch (Exception) { } // ignore exceptions
 			driver = null;
+			proxyClient = null;
 			return true;
         }
 
@@ -362,7 +365,7 @@ namespace CloudBeat.Oxygen.Modules
             return ExecuteSeleniumCommand(url);
         }
 
-		public CommandResult Point(string locator)
+		public CommandResult iterPoint(string locator)
         {
             return ExecuteSeleniumCommand(locator);
         }
