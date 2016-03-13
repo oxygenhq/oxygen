@@ -1,5 +1,5 @@
 {
-	"useFiber": true,
+	"useFiber": false,
     "logger": {
         "log": "log.txt",
         "loglevel": "error"
