@@ -365,7 +365,7 @@ namespace CloudBeat.Oxygen.Modules
             return ExecuteSeleniumCommand(url);
         }
 
-		public CommandResult iterPoint(string locator)
+		public CommandResult Point(string locator)
         {
             return ExecuteSeleniumCommand(locator);
         }
