@@ -3,19 +3,31 @@
  * This is a wrapper error class that allows to determine the line and the original error in the script which caused the failure
  */ 
 var OxError = require('./oxerror');
-inherits(ScriptError, OxError);
+var util = require('util');
+util.inherits(ScriptError, OxError);
 
-function ScriptError(message, innerError) {
-    this.innerError = innerError;
-	this.type = innerError ? innerError.type : null;
+function ScriptError(err) {
+	ScriptError.super_.call(this);
+	/*this.type = err.type;
 	this.message = message;
-	this.line = null;
-	this.stacktrace = this.stack;
+	this.stack = err.stack;*/
 	var self = this;
 	
-	this.__defineGetter__('line', function(){
+	if (err.stack == null) {
+		this.caputeStackTrace();
+		/*var orig = Error.prepareStackTrace;
+		Error.prepareStackTrace = function (_, stack) { return stack; };
+		Error.captureStackTrace(err, arguments.callee.caller);*/
+	}
+	else
+		this._stacktrace = err.stack;
+	this._type = err.type || 'SCRIPT_ERROR';
+	this._message = err.message;
+	//Error.prepareStackTrace = orig;
+	
+	/*this.__defineGetter__('line', function(){
 		return self.line;
-	})
+	})*/
 }
 
-module.exports = OxygenError;
+module.exports = ScriptError;

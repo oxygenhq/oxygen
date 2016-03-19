@@ -2,7 +2,7 @@
 /**
  * Provides methods for mobile automation. 
  */
-module.exports = function(argv, context, rs, logger, dispatcher) {
+module.exports = function(argv, context, rs, D, dispatcher) {
     var module = {};
 	
     //var wd = require('wd');
@@ -33,6 +33,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      */
 	module.init = function(caps, url) {
         try {
+			//logger.info(arguments.callee);
 		  driver.init(caps);
 		  isInitialized = true;
         }
@@ -41,12 +42,27 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
         }
 	};
 	
+	module.setWebViewContext = function() {
+		try {
+			var contexts = driver.contexts();
+			for (var i=0; i<contexts.length; i++) {
+				var context = contexts[i];
+				console.log(context);
+			}
+			driver.context('WEBVIEW');
+		}
+        catch (e) {
+			//console.dir(e);
+            throw new AppiumError(e, null, null);
+        }
+	}
+	
 	module.dispose = function() {
 		if (driver && isInitialized) {
             //console.log(wdSync.current());
 			var retval = driver.quit();
 			isInitialized = false;
-			return retval;
+			//return retval;
 		}
 	}
     /**
@@ -67,6 +83,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      * @param {Integer} pollrate - Time in seconds between polling intervals.
      */
     module.click = function(locator) { 
+		//console.dir(arguments.callee);
 		getSeleniumLocator(locator).click();
 	};
         /**
@@ -76,13 +93,17 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      * @param {Integer} wait - Time in seconds to wait for the widget.
      * @param {Integer} pollrate - Time in seconds between polling intervals.
      */
-    module.wait = function() { return execMethod('mobile', 'wait', Array.prototype.slice.call(arguments)); };
+    module.wait = function(ms) { 
+		
+	};
 	    /**
      * @summary Pauses test execution for given amount of seconds.
      * @function pause
      * @param {Float} seconds - seconds to pause the execution.
      */
-    module.pause = function() { return execMethod('mobile', 'pause', Array.prototype.slice.call(arguments)); };
+    module.pause = function(ms) { 
+		driver.sleep(ms);
+	};
 	
 	function getSeleniumLocator(locator) {
 		if (!locator) throw new Error('locator is empty or not specified');

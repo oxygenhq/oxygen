@@ -10,16 +10,27 @@ function OxygenError(type, message, innerError) {
 	this._type = type || null;
 	this._message = message || null;
 	//Error.captureStackTrace(this);
-	
-	var orig = Error.prepareStackTrace;
-	Error.prepareStackTrace = function (_, stack) { return stack; };
-	var err = new Error();
-	Error.captureStackTrace(err, arguments.callee.caller);
-	this._stacktrace = err.stack;
-	Error.prepareStackTrace = orig;
+
+	// don't generate stacktrace if the OxygenError is used indirectly through inheritance
+	if (type || message || innerError) {
+		var orig = Error.prepareStackTrace;
+		Error.prepareStackTrace = function (_, stack) { return stack; };
+		var err = new Error();
+		Error.captureStackTrace(err, arguments.callee.caller);
+		this._stacktrace = err.stack;
+		Error.prepareStackTrace = orig;
+	}
 	
 	var self = this;
 	
+	this.caputeStackTrace = function() {
+		var orig = Error.prepareStackTrace;
+		Error.prepareStackTrace = function (_, stack) { return stack; };
+		var err = new Error();
+		Error.captureStackTrace(err, arguments.callee.caller);
+		this._stacktrace = err.stack;
+		Error.prepareStackTrace = orig;
+	}
 	this.__defineGetter__('stacktrace', function(){
 		return self._stacktrace;
 	})
