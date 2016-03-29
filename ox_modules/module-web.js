@@ -55,7 +55,6 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
     };
     module.dispose = function ()
     {
-		console.log('disposing module web');
     	return dispatcher.execute('web', 'moduleDispose', Array.prototype.slice.call(arguments));
     };
     module._iterationStart = function(vars)
@@ -530,11 +529,11 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
         {
             var StepResult = require('../model/stepresult');
             var step = new StepResult();
-            step.$.name = res.CommandResult.CommandName ? res.CommandResult.CommandName : res.Module.toLowerCase() + '.' + res.Method.toLowerCase();
-            step.$.status = res.CommandResult.IsSuccess == true ? 'passed' : 'failed';
-            step.$.duration = res.CommandResult.Duration;
-            step.$.action = res.CommandResult.IsAction;
-            step.$.transaction = transactionName;
+            step._name = res.CommandResult.CommandName ? res.CommandResult.CommandName : res.Module.toLowerCase() + '.' + res.Method.toLowerCase();
+            step._status = res.CommandResult.IsSuccess == true ? 'passed' : 'failed';
+            step._duration = res.CommandResult.Duration;
+            step._action = res.CommandResult.IsAction;
+            step._transaction = transactionName;
 			step.screenshot = res.CommandResult.Screenshot;
 			if (res.CommandResult.LoadEvent)
 				step.stats.LoadEvent = res.CommandResult.LoadEvent;
@@ -554,15 +553,15 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 				if (res.CommandResult.StatusText !== 'UNKNOWN_ERROR') {
 					if (res.CommandResult.StatusText === 'VARIFICATION') 		// ignore verifyXXX commands failure
 						throwError = false;
-					step.failure.$.type = res.CommandResult.StatusText;
-					step.failure.$.details = res.CommandResult.StatusData;
+					step.failure._type = res.CommandResult.StatusText;
+					step.failure._details = res.CommandResult.StatusData;
 				}
 				else if (res.CommandResult.ErrorMessage && res.CommandResult.ErrorMessage.length > 0)
 				{
 					
-					var message = step.failure.$.message = res.CommandResult.ErrorMessage;
-					var stacktrace = step.failure.$.details = res.CommandResult.ErrorDetails;
-					step.failure.$.type = res.CommandResult.ErrorType;
+					var message = step.failure._message = res.CommandResult.ErrorMessage;
+					var stacktrace = step.failure._details = res.CommandResult.ErrorDetails;
+					step.failure._type = res.CommandResult.ErrorType;
 					if (stacktrace) message += stacktrace;
 				}
 				
