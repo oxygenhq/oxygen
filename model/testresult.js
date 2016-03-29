@@ -3,12 +3,12 @@
  */
 module.exports = function () {
 	return {
-        $: {
-            name: null,
-            status: '',
-            startTime: '',
-            endTime: '',
-            duration: ''
+        summary: {
+            _name: null,
+            _status: null,
+            _startTime: null,
+            _endTime: null,
+            _duration: null
         },
 		iterations: []    // type of tsiresult.js
 	};

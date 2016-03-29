@@ -3,10 +3,8 @@
  */
 module.exports = function () {
 	return {
-        $: {
-			type: null,
-            message: null,
-            details: null
-        }
+		_type: null,
+        _message: null,
+        _details: null
 	};
 }
