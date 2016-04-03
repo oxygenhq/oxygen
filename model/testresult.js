@@ -12,4 +12,4 @@ module.exports = function () {
         },
 		iterations: []    // type of tsiresult.js
 	};
-}
+};

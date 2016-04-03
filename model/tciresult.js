@@ -10,4 +10,4 @@ module.exports = function () {
 		steps: null,  // type of stepresult.js
 		har: null
 	};
-}
+};

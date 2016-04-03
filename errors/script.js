@@ -13,7 +13,7 @@ function ScriptError(err) {
 	this.stack = err.stack;*/
 	var self = this;
 	
-	if (err.stack == null) {
+	if (err.stack === null) {
 		this.caputeStackTrace();
 		/*var orig = Error.prepareStackTrace;
 		Error.prepareStackTrace = function (_, stack) { return stack; };

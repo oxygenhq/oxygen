@@ -7,4 +7,4 @@ module.exports = function () {
         _message: null,
         _details: null
 	};
-}
+};

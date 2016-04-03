@@ -9,4 +9,4 @@ module.exports = function () {
         },
 		testcases: [],    // type of tcresult.js
 	};
-}
+};

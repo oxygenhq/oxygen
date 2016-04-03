@@ -10,4 +10,4 @@ module.exports = function () {
 		status: null,
 		iterations: []    // type of tciresult.js
 	};
-}
+};

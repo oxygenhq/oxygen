@@ -7,4 +7,4 @@ module.exports = function () {
 		paramManager: null,
 		poManager: null
 	};
-}
+};

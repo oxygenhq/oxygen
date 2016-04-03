@@ -14,4 +14,4 @@ module.exports = function () {
 		screenshot: null, //{ _: null }
 		stats: {}		// navigation timings or other statistics
 	};
-}
+};

@@ -30,16 +30,16 @@ function OxygenError(type, message, innerError) {
 		Error.captureStackTrace(err, arguments.callee.caller);
 		this._stacktrace = err.stack;
 		Error.prepareStackTrace = orig;
-	}
+	};
 	this.__defineGetter__('stacktrace', function(){
 		return self._stacktrace;
-	})
+	});
 	this.__defineGetter__('type', function(){
 		return self._type;
-	})
+	});
     this.__defineGetter__('message', function(){
 		return self._message;
-	})
+	});
 }
 
 module.exports = OxygenError;
