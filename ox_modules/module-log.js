@@ -36,5 +36,5 @@ module.exports = {
 
 function _log(level, msg) {
     process.send({ event: 'line-update', line: __line });
-    process.send({ event: 'log-add', level: level, msg: msg });
+    process.send({ event: 'ui-log-add', level: level, msg: msg });
 }
