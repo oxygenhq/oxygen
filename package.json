@@ -32,7 +32,8 @@
     "grunt-cli": "~0.1.13",
     "grunt-msbuild": "~0.3.4",
     "grunt-sync": "~0.2.3",
-    "grunt-contrib-jshint": "~0.11.0"
+    "grunt-contrib-jshint": "~0.11.0",
+    "doctrine": "0.6.4"
   },
   "dependencies": {
     "bluebird": "^3.1.1",

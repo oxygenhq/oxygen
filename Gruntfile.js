@@ -4,6 +4,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sync');
     grunt.loadNpmTasks('grunt-msbuild');
     grunt.loadNpmTasks('grunt-contrib-jshint');
+    
+    grunt.loadTasks('./tools/grunt-tasks');
 
     var defaultTasks = [];
     defaultTasks.push('jshint');
