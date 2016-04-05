@@ -532,7 +532,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
             step._name = res.CommandResult.CommandName ? res.CommandResult.CommandName : res.Module.toLowerCase() + '.' + res.Method.toLowerCase();
             step._status = res.CommandResult.IsSuccess == true ? 'passed' : 'failed';
             step._duration = res.CommandResult.Duration;
-            step._action = res.CommandResult.IsAction;
+            // should be string. otherwise XML serialization fails.
+            step._action = res.CommandResult.IsAction + "";
             step._transaction = transactionName;
 			step.screenshot = res.CommandResult.Screenshot;
 			if (res.CommandResult.LoadEvent)
