@@ -38,7 +38,6 @@
   "dependencies": {
     "bluebird": "^3.1.1",
     "config": "^1.19.0",
-    "contextify": "^0.1.15",
     "csv-load-sync": "~1.0.0",
     "easyxml": "^2.0.1",
     "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git",
