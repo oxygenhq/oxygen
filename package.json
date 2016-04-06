@@ -36,12 +36,10 @@
     "doctrine": "0.6.4"
   },
   "dependencies": {
-    "bluebird": "^3.1.1",
     "config": "^1.19.0",
     "csv-load-sync": "~1.0.0",
     "easyxml": "^2.0.1",
     "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git",
-    "fast-csv": "^1.0.0",
     "fibers": "git+https://github.com/oxygenhq/node-fibers.git#73ab11eb2e27665210e33a2b2e77c23ad301342e",
     "globule": "^0.2.0",
     "minimist": "^1.2.0",
