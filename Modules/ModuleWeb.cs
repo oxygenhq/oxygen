@@ -305,7 +305,8 @@ namespace CloudBeat.Oxygen.Modules
         {
             if (CommandExecuting != null)
                 CommandExecuting();
-            driver.BaseURL = url;
+            //driver.BaseURL = url;
+			ExecuteSeleniumCommand(url);
         }
 
 		#endregion
