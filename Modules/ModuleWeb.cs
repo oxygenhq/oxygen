@@ -150,6 +150,8 @@ namespace CloudBeat.Oxygen.Modules
 			try
 			{
 				driver = ConnectToSelenium(capabilities, proxyClient, seleniumUrl, ctx);
+                if (!SetWindowSize(driver))
+                    throw new OxSetWindowSizeException();
 			}
 			catch (Exception e)
 			{
