@@ -503,6 +503,10 @@ namespace CloudBeat.Oxygen.Modules
         {
             return ExecuteSeleniumCommand();
         }
+        public CommandResult getElementCount(string xpath)
+        {
+            return ExecuteSeleniumCommand(xpath);
+        }
 		public CommandResult CloseWindow()
         {
             return ExecuteSeleniumCommand();

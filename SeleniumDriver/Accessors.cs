@@ -254,6 +254,33 @@ namespace CloudBeat.Oxygen
             }
         }
 
+        public int SeCmdGetElementCount(string xpath)
+        {
+            int count = 0;
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
+                    {
+                        var els = this.FindElementsByXPath(xpath);
+                        if (els == null || els.Count == 0)
+                            return false;
+                        count = els.Count;
+                        return true;
+                    });
+                }
+                catch (StaleElementReferenceException)
+                {
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    return 0;
+                }
+            }
+            return count;
+        }
+
         public string SeCmdGetWindowHandles()
         {
             var originalWin = this.CurrentWindowHandle;
