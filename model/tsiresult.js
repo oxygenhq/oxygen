@@ -3,10 +3,8 @@
  */
 module.exports = function () {
 	return {
-        $: {
-            iterationNum: null,
-            status: ''
-        },
-		testcases: [],    // type of tcresult.js
+        _iterationNum: null,
+        _status: '',
+		testcases: []    // type of tcresult.js
 	};
 };
