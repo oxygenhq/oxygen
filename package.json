@@ -1,6 +1,6 @@
 {
   "name": "oxygen",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Oxygen is an open source framework to run JavaScript based Selenium tests",
   "private": true,
   "main": "./lib/oxygen.js",
