@@ -10,9 +10,6 @@ namespace CloudBeat.Oxygen.Modules
         public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
         public event ExceptionEventHandler CommandException;
 
-        public delegate void ExecutingEventHandler();
-        public event ExecutingEventHandler CommandExecuting;
-
 		ExecutionContext ctx;
 		bool isInitialized = false;
 
@@ -27,8 +24,6 @@ namespace CloudBeat.Oxygen.Modules
         
         public void init(string connString)
         {
-            if (CommandExecuting != null)
-                CommandExecuting();
             this.connString = connString;
         }
 
@@ -37,8 +32,6 @@ namespace CloudBeat.Oxygen.Modules
 			DateTime cmdStartTime = DateTime.UtcNow;
 
             var cmdFormatted = string.Format("getScalar(\"{0}\")", query);
-            if (CommandExecuting != null)
-                CommandExecuting();
 
             try
             {
@@ -63,8 +56,6 @@ namespace CloudBeat.Oxygen.Modules
 			DateTime cmdStartTime = DateTime.UtcNow;
 
             var cmdFormatted = string.Format("executeNonQuery(\"{0}\")", query);
-            if (CommandExecuting != null)
-                CommandExecuting();
 
             try
             {

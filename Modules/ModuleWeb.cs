@@ -24,15 +24,6 @@ namespace CloudBeat.Oxygen.Modules
         public delegate void TransactionEventHandler(string transaction);
         public event TransactionEventHandler TransactionUpdate;
 
-        public delegate void ExceptionEventHandler(SeCommand cmd, string screenShot, Exception e);
-        public event ExceptionEventHandler CommandException;
-
-        public delegate void ExecutingEventHandler();
-        public event ExecutingEventHandler CommandExecuting;
-
-        public delegate void ExecutedEventHandler(SeCommand cmd, int domContentLoaded, int load);
-        public event ExecutedEventHandler CommandExecuted;
-
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
         private bool fetchStats = true;
         private long prevNavigationStart = long.MinValue;
@@ -303,9 +294,6 @@ namespace CloudBeat.Oxygen.Modules
 
         public void SetBaseUrl(string url)
         {
-            if (CommandExecuting != null)
-                CommandExecuting();
-            //driver.BaseURL = url;
 			ExecuteSeleniumCommand(url);
         }
 
@@ -346,13 +334,7 @@ namespace CloudBeat.Oxygen.Modules
             if (transactions.Contains(name))
             {
                 var e = new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
-                if (CommandException != null)
-                    CommandException(new SeCommand
-                    {
-                        CommandName = "transaction",
-                        Arguments = new object[] { name }
-                    },
-                    null, e);
+                // TODO: thwo on duplicate trnsactions
             }
             transactions.Add(name);
 			driver.StartNewTransaction(name);
@@ -580,8 +562,6 @@ namespace CloudBeat.Oxygen.Modules
 				Exception exception = null;
 				var retVal = driver.ExecuteCommand(cmd, screenshotMode, out screenShot, out exception);
 				
-				result.EndTime = DateTime.UtcNow;
-				result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
 				result.IsAction = cmd.IsAction();
 				result.Screenshot = screenShot;
 				result.ReturnValue = retVal;
@@ -620,11 +600,15 @@ namespace CloudBeat.Oxygen.Modules
                     }
                 }
 
+                result.EndTime = DateTime.UtcNow;
+                result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
+
                 return result;
             }
             catch (Exception e)
             {
 				result.EndTime = DateTime.UtcNow;
+                result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
 				result.IsAction = cmd.IsAction();
 				result.IsSuccess = false;
 				result.Screenshot = screenShot;

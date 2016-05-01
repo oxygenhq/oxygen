@@ -22,7 +22,7 @@ namespace CloudBeat.Oxygen.Modules
 			modules.Add("web", new ModuleWeb());
 			modules.Add("soap", new ModuleSoap());
 			modules.Add("db", new ModuleDB());
-
+            modules.Add("assert", new ModuleAssert());
 			ctx = new ExecutionContext();
 
 			//Thread.Sleep(15000);
