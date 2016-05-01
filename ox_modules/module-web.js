@@ -80,7 +80,10 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      * @function transaction
      * @param {String} transactionName - The transaction name.
      */
-    module.transaction = function (name) { transactionName = name; dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments)); };
+    module.transaction = function (name) { 
+        transactionName = name; 
+        dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments)); 
+    };
     /**
      * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
      * @description This includes the <code>open</code> command, <code>waitFor*</code> commands, and
@@ -552,7 +555,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 					message += ': ' + res.CommandResult.StatusData;
 				
 				if (res.CommandResult.StatusText !== 'UNKNOWN_ERROR') {
-					if (res.CommandResult.StatusText === 'VARIFICATION') 		// ignore verifyXXX commands failure
+					if (res.CommandResult.StatusText === 'VERIFICATION') 		// ignore verifyXXX commands failure
 						throwError = false;
 					step.failure._type = res.CommandResult.StatusText;
 					step.failure._details = res.CommandResult.StatusData;
