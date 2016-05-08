@@ -7,7 +7,6 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
 	var ctx = context;
 	var dispatcher = dispatcher;
     var rs = rs; // results store
-    var transactionName = null;
 
     /**
      * @summary Asserts that two values are equal.
@@ -43,7 +42,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
             step._duration = res.CommandResult.Duration;
             // should be string. otherwise XML serialization fails.
             step._action = res.CommandResult.IsAction + "";
-            step._transaction = transactionName;
+            step._transaction = ctx._lastTransactionName;
 			step.screenshot = res.CommandResult.Screenshot;
 			if (res.CommandResult.LoadEvent)
 				step.stats.LoadEvent = res.CommandResult.LoadEvent;

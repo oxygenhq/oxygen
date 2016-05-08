@@ -38,8 +38,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	var ctx = context;
 	var dispatcher = dispatcher;
     var rs = rs; // results store
-    var transactionName = null;
-	
+
 	// call ModuleInit
 	dispatcher.execute('web', 'moduleInit', argv); //Array.prototype.slice.call(
 
@@ -78,10 +77,10 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      * @description The transaction will persist till a new one is opened. Transaction names must be
      *              unique.
      * @function transaction
-     * @param {String} transactionName - The transaction name.
+     * @param {String} name - The transaction name.
      */
     module.transaction = function (name) { 
-        transactionName = name; 
+        ctx._lastTransactionName = name;
         dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments)); 
     };
     /**
@@ -537,7 +536,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
             step._duration = res.CommandResult.Duration;
             // should be string. otherwise XML serialization fails.
             step._action = res.CommandResult.IsAction + "";
-            step._transaction = transactionName;
+            step._transaction = ctx._lastTransactionName;
 			step.screenshot = res.CommandResult.Screenshot;
 			if (res.CommandResult.LoadEvent)
 				step.stats.LoadEvent = res.CommandResult.LoadEvent;
