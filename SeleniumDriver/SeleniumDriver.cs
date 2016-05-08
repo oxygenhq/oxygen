@@ -259,7 +259,7 @@ namespace CloudBeat.Oxygen
 					variableValue = constantVariables[variableName.ToUpper()];
 				else if (context.Variables != null && context.Variables.ContainsKey(variableName))
 					variableValue = context.Variables[variableName];
-				else if (context.Parameters != null && context.Parameters.ContainsKey(variableName))
+                else if (context.Parameters != null && context.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(context.Parameters[variableName]))
 					variableValue = context.Parameters[variableName];
 				else if (context.Environment != null && context.Environment.ContainsKey(variableName))
 					variableValue = context.Environment[variableName];
