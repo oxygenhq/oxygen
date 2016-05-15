@@ -5,6 +5,7 @@ namespace CloudBeat.Oxygen
     {
         NO_ELEMENT,
         ASSERT,
+		VERIFICATION,
         SCRIPT_TIMEOUT,
         PERFORMANCE_TIMINGS_ERROR,
         UNHANDLED_ALERT,
@@ -25,4 +26,11 @@ namespace CloudBeat.Oxygen
         BROWSER_JS_EXECUTE_ERROR,
         DUPLICATE_TRANSACTION
     }
+	public enum ScreenshotMode
+	{
+		Never,
+		OnError,
+		OnAction,	// if step is action or error occured
+		Always
+	}
 }

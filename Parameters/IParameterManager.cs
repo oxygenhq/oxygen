@@ -11,5 +11,6 @@ namespace CloudBeat.Oxygen.Parameters
 		bool ContainsParameter(string name);
 		string GetValue(string name);
 		void ReadNextValues();
+		Dictionary<string, string> GetCurrentParameterValues();
 	}
 }

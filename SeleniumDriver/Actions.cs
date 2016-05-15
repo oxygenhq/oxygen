@@ -19,6 +19,10 @@ namespace CloudBeat.Oxygen
             base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
             base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
         }
+		public void SeCmdSetBaseUrl(string url)
+		{
+			this.BaseURL = url;
+		}
 
         // implicit *AndWait assumed
         public void SeCmdOpen(string url)

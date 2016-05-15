@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CloudBeat.Oxygen.Models;
+using Newtonsoft.Json;
 using System;
 using System.CodeDom;
 using System.CodeDom.Compiler;
@@ -10,55 +11,69 @@ using System.Web.Services.Description;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 
-namespace CloudBeat.Oxygen.JSEngine
+namespace CloudBeat.Oxygen.Modules
 {
-    public class ModuleSoap
+	public class ModuleSoap : IModule
 	{
-        public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
-        public event ExceptionEventHandler CommandException;
-
-        public delegate void ExecutingEventHandler();
-        public event ExecutingEventHandler CommandExecuting;
-
-        private string command;
+        private bool initialized = false;
+        private ExecutionContext ctx;
 
         public ModuleSoap()
         {
         }
 
-        [JSVisible]
-        public string get(string wsdlUrl, string serviceName, string methodName)
+        public string Name { get { return "Soap"; } }
+
+        public object IterationStarted()
         {
-            command = GenerateCmd("soap.get", wsdlUrl, serviceName, methodName);
-            return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap");
+            return null;
         }
 
-        [JSVisible]
-        public string get12(string wsdlUrl, string serviceName, string methodName)
+        public object IterationEnded()
         {
-            command = GenerateCmd("soap.get12", wsdlUrl, serviceName, methodName);
-            return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap12");
+            return null;
         }
 
-        [JSVisible]
-        public string get(string wsdlUrl, string serviceName, string methodName, object[] args)
+        public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
         {
-            command = GenerateCmd("soap.get", wsdlUrl, serviceName, methodName, args);
-            return get(wsdlUrl, serviceName, methodName, args, "Soap");
+            this.ctx = ctx;
+            initialized = true;
+            return true;
         }
 
-        [JSVisible]
-        public string get12(string wsdlUrl, string serviceName, string methodName, object[] args)
+        public bool Dispose()
         {
-            command = GenerateCmd("soap.get12", wsdlUrl, serviceName, methodName, args);
-            return get(wsdlUrl, serviceName, methodName, args, "Soap12");
+            return true;
         }
-        
-        private string get(string wsdlUrl, string serviceName, string methodName, object[] args, string soap)
-        {
-            if (CommandExecuting != null)
-                CommandExecuting();
 
+        public bool IsInitialized { get { return initialized; } }
+
+        public CommandResult get(string wsdlUrl, string serviceName, string methodName)
+        {
+            var result = new CommandResult(new SeCommand("get", wsdlUrl, serviceName, methodName).ToJSCommand());
+            return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap", result);
+        }
+
+        public CommandResult get12(string wsdlUrl, string serviceName, string methodName)
+        {
+            var result = new CommandResult(new SeCommand("get12", wsdlUrl, serviceName, methodName).ToJSCommand());
+            return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap12", result);
+        }
+
+        public CommandResult get(string wsdlUrl, string serviceName, string methodName, object[] args)
+        {
+            var result = new CommandResult(new SeCommand("get", wsdlUrl, serviceName, methodName, args).ToJSCommand());
+            return get(wsdlUrl, serviceName, methodName, args, "Soap", result);
+        }
+
+        public CommandResult get12(string wsdlUrl, string serviceName, string methodName, object[] args)
+        {
+            var result = new CommandResult(new SeCommand("get12", wsdlUrl, serviceName, methodName, args).ToJSCommand());
+            return get(wsdlUrl, serviceName, methodName, args, "Soap12", result);
+        }
+
+        private CommandResult get(string wsdlUrl, string serviceName, string methodName, object[] args, string soap, CommandResult result)
+        {
             try
             {
                 // read the WSDL file describing a service
@@ -126,49 +141,25 @@ namespace CloudBeat.Oxygen.JSEngine
                         IList<string> errorTexts = new List<string>();
                         foreach (CompilerError oops in results.Errors)
                             errorTexts.Add(oops.ErrorText);
-
-                        if (CommandException != null)
-                            CommandException(new Exception("Compile Error: " + string.Join(":", errorTexts)), command, DateTime.UtcNow, CheckResultStatus.SOAP);
-                        else 
-                            throw new Exception("SOAP: Compile Error: " + string.Join(":", errorTexts));
-
-                        return null;
+                        return result.ErrorBase(CheckResultStatus.SOAP, "Compile Error: " + string.Join(":", errorTexts));
                     }
 
                     object wsvcClass = results.CompiledAssembly.CreateInstance(serviceName);
                     MethodInfo mi = wsvcClass.GetType().GetMethod(methodName);
-                    var result = mi.Invoke(wsvcClass, args);
-                    return JsonConvert.SerializeObject(result);
+                    var reqResult = mi.Invoke(wsvcClass, args);
+                    var cmdRes = result.SuccessBase();
+                    cmdRes.ReturnValue = JsonConvert.SerializeObject(reqResult);
+                    return cmdRes;
                 }
                 else
                 {
-                    if (CommandException != null)
-						CommandException(new Exception("Import Error"), command, DateTime.UtcNow, CheckResultStatus.SOAP);
-                    else 
-                        throw new Exception("SOAP: Import Error");
-
-                    return null;
+                    return result.ErrorBase(CheckResultStatus.SOAP, "Import Error");
                 }
             }
             catch (Exception e)
             {
-                if (CommandException != null)
-					CommandException(e, command, DateTime.UtcNow, CheckResultStatus.SOAP);
-                else
-                    throw;
+                return result.ErrorBase(CheckResultStatus.SOAP, e.Message);
             }
-
-            return null;
-        }
-
-        private string GenerateCmd(string name, params object[] prms)
-        {
-            string prmsString = "";
-            for (int i = 0; i < prms.Length; i++) 
-                prmsString += "\"" + prms[i] + "\", ";
-            prmsString = prmsString.Substring(0, prmsString.Length-2);
-
-            return name + "(" + prmsString + ")";
         }
 	}
 }

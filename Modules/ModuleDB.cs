@@ -1,38 +1,37 @@
 ﻿using System;
 using System.Data.Odbc;
 
-namespace CloudBeat.Oxygen.JSEngine
+namespace CloudBeat.Oxygen.Modules
 {
-    public class ModuleDB
+	public class ModuleDB : IModule
 	{
         private string connString;
 
         public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
         public event ExceptionEventHandler CommandException;
 
-        public delegate void ExecutingEventHandler();
-        public event ExecutingEventHandler CommandExecuting;
+		ExecutionContext ctx;
+		bool isInitialized = false;
+
+		#region Argument Names
+		const string ARG_CONN_STR = "db@connString";
+		#endregion
 
         public ModuleDB()
         {
         }
 
-        [JSVisible]
+        
         public void init(string connString)
         {
-            if (CommandExecuting != null)
-                CommandExecuting();
             this.connString = connString;
         }
 
-        [JSVisible]
         public object getScalar(string query)
         {
 			DateTime cmdStartTime = DateTime.UtcNow;
 
             var cmdFormatted = string.Format("getScalar(\"{0}\")", query);
-            if (CommandExecuting != null)
-                CommandExecuting();
 
             try
             {
@@ -52,14 +51,11 @@ namespace CloudBeat.Oxygen.JSEngine
             return null;
         }
 
-        [JSVisible]
         public void executeNonQuery(string query)
         {
 			DateTime cmdStartTime = DateTime.UtcNow;
 
             var cmdFormatted = string.Format("executeNonQuery(\"{0}\")", query);
-            if (CommandExecuting != null)
-                CommandExecuting();
 
             try
             {
@@ -96,5 +92,42 @@ namespace CloudBeat.Oxygen.JSEngine
             }
             return null;
         }
+
+		public bool Initialize(System.Collections.Generic.Dictionary<string, string> args, ExecutionContext ctx)
+		{
+			this.ctx = ctx;
+
+			if (args.ContainsKey(ARG_CONN_STR))
+				connString = args[ARG_CONN_STR];
+
+			isInitialized = true;
+
+			return true;
+		}
+
+		public bool Dispose()
+		{
+			return true;
+		}
+
+		public bool IsInitialized
+		{
+			get { return isInitialized; }
+		}
+
+		public object IterationStarted()
+		{
+			return null;
+		}
+
+		public object IterationEnded()
+		{
+			return null;
+		}
+
+		public string Name
+		{
+			get { return "DB"; }
+		}
 	}
 }

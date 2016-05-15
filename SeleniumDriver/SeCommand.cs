@@ -10,6 +10,16 @@ namespace CloudBeat.Oxygen
         public string TransactionName { get; set; }
         public bool IsSupported { get; set; }
 
+        public SeCommand()
+        {
+        }
+
+        public SeCommand(string name, params object[] args)
+        {
+            CommandName = name;
+            Arguments = args;
+        }
+
         public override string ToString()
         {
             if (Arguments == null)

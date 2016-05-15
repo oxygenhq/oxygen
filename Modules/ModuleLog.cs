@@ -1,8 +1,9 @@
 ﻿using log4net.Core;
+using System.Collections.Generic;
 
-namespace CloudBeat.Oxygen.JSEngine
+namespace CloudBeat.Oxygen.Modules
 {
-    public class ModuleLog
+    public class ModuleLog : IModule
 	{
         public delegate void ExecutedEventHandler(string msg, Level level);
         public event ExecutedEventHandler CommandExecuted;
@@ -10,11 +11,39 @@ namespace CloudBeat.Oxygen.JSEngine
         public delegate void ExecutingEventHandler();
         public event ExecutingEventHandler CommandExecuting;
 
+        private bool initialized = false;
+        private ExecutionContext ctx;
+
         public ModuleLog()
         {
         }
 
-        [JSVisible]
+        public string Name { get { return "Assert"; } }
+
+        public object IterationStarted()
+        {
+            return null;
+        }
+
+        public object IterationEnded()
+        {
+            return null;
+        }
+
+        public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
+        {
+            this.ctx = ctx;
+            initialized = true;
+            return true;
+        }
+
+        public bool Dispose()
+        {
+            return true;
+        }
+
+        public bool IsInitialized { get { return initialized; } }
+
         public void info(string msg)
         {
             _CommandExecuting();
@@ -22,7 +51,6 @@ namespace CloudBeat.Oxygen.JSEngine
                 CommandExecuted(msg, Level.Info);
         }
 
-        [JSVisible]
         public void error(string msg)
         {
             _CommandExecuting();
@@ -30,7 +58,6 @@ namespace CloudBeat.Oxygen.JSEngine
                 CommandExecuted(msg, Level.Error);
         }
 
-        [JSVisible]
         public void debug(string msg)
         {
             _CommandExecuting();
@@ -38,7 +65,6 @@ namespace CloudBeat.Oxygen.JSEngine
                 CommandExecuted(msg, Level.Debug);
         }
 
-        [JSVisible]
         public void warn(string msg)
         {
             _CommandExecuting();
@@ -46,7 +72,6 @@ namespace CloudBeat.Oxygen.JSEngine
                 CommandExecuted(msg, Level.Warn);
         }
 
-        [JSVisible]
         public void fatal(string msg)
         {
             _CommandExecuting();

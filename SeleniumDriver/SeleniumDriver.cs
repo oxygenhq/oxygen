@@ -6,6 +6,7 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
 using log4net;
 using System.Text.RegularExpressions;
+using System.Collections.ObjectModel;
 
 namespace CloudBeat.Oxygen
 {
@@ -53,7 +54,7 @@ namespace CloudBeat.Oxygen
         private Action<string> newHarPageCallback;
 
         #region variables dictionary
-        private IDictionary<string, string> variables = new Dictionary<string, string>() 
+		private ReadOnlyDictionary<string, string> constantVariables = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>() 
         {
             {"KEY_BACKSPACE", Keys.Backspace },
             {"KEY_TAB",Keys.Tab},
@@ -107,7 +108,7 @@ namespace CloudBeat.Oxygen
             {"KEY_F12",Keys.F12},
             {"KEY_META",Keys.Meta},
             {"KEY_COMMAND",Keys.Command}
-        };
+        });
         #endregion
 
 		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback, ExecutionContext context)
@@ -130,7 +131,7 @@ namespace CloudBeat.Oxygen
                 newHarPageCallback(name);
         }
 
-        public object ExecuteCommand(SeCommand cmd,  bool screenShotErrors, out string screenShot)
+        public object ExecuteCommand(SeCommand cmd,  ScreenshotMode screenshotMode, out string screenShot, out Exception exception)
         {
             // substitute arguments and object repo locators
             object[] argsProcessed = null;
@@ -157,56 +158,64 @@ namespace CloudBeat.Oxygen
             if (cmdMethod == null)
                 throw new OxCommandNotImplementedException();
 
+			exception = null;
             screenShot = null;
             try
             {
-                return cmdMethod.Invoke(this, argsProcessed);
+                var retval = cmdMethod.Invoke(this, argsProcessed);
+				if ((screenshotMode == ScreenshotMode.OnAction && cmd.IsAction() == true)
+					|| screenshotMode == ScreenshotMode.Always)
+					screenShot = TakeScreenshot();
+				return retval;
             }
             catch (TargetInvocationException tie)
             {
-				if (screenShotErrors && tie.InnerException != null && 
-					(tie.InnerException is OxAssertionException || 
-                    tie.InnerException is OxVerificationException ||
-					tie.InnerException is OxWaitForException ||
-                    tie.InnerException is OxElementNotFoundException ||
-                    tie.InnerException is OxElementNotVisibleException ||
-                    tie.InnerException is OxOperationException ||
-                    tie.InnerException is NoAlertPresentException ||
-                    tie.InnerException is WebDriverTimeoutException))
-                {
-					screenShot = TakeScreenshot();
-                }
-                else if (tie.InnerException is UnhandledAlertException)
-                {
-                    // can't take screenshots when alert is showing. so capture whole screen
-                    // this works only localy
-                    // TODO: linux
-                    /*if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
-                    {
-                        Rectangle bounds = System.Windows.Forms.Screen.GetBounds(Point.Empty);
-                        using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
-                        {
-                            using (Graphics g = Graphics.FromImage(bitmap))
-                            {
-                                g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
-                            }
+				if (screenshotMode != ScreenshotMode.Never)
+				{
+					if (tie.InnerException != null && 
+						(tie.InnerException is OxAssertionException || 
+						tie.InnerException is OxVerificationException ||
+						tie.InnerException is OxWaitForException ||
+						tie.InnerException is OxElementNotFoundException ||
+						tie.InnerException is OxElementNotVisibleException ||
+						tie.InnerException is OxOperationException ||
+						tie.InnerException is NoAlertPresentException ||
+						tie.InnerException is WebDriverTimeoutException))
+					{
+						screenShot = TakeScreenshot();
+					}
+					else if (tie.InnerException != null && tie.InnerException is UnhandledAlertException)
+					{
+						// can't take screenshots when alert is showing. so capture whole screen
+						// this works only localy
+						// TODO: linux
+						/*if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
+						{
+							Rectangle bounds = System.Windows.Forms.Screen.GetBounds(Point.Empty);
+							using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+							{
+								using (Graphics g = Graphics.FromImage(bitmap))
+								{
+									g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+								}
 
-                            ImageConverter converter = new ImageConverter();
-                            var sb = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
-                            screenShot = Convert.ToBase64String(sb);
-                        }
-                    }*/
-                }
+								ImageConverter converter = new ImageConverter();
+								var sb = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
+								screenShot = Convert.ToBase64String(sb);
+							}
+						}*/
+					}
+				}
 
                 // wrap Selenium exceptions. generaly SeCmds throw Oxygen exceptions, however in certain 
                 // cases like with ElementNotVisibleException it's simplier to just wrap it out here so we don't need to do it
                 // for each FindElement().doSomething
                 if (tie.InnerException is ElementNotVisibleException)
-                    throw new OxElementNotVisibleException();
+                    exception = new OxElementNotVisibleException();
                 else if (tie.InnerException is WebDriverTimeoutException)
-                    throw new OxTimeoutException();
+                    exception = new OxTimeoutException();
                 else
-                    throw tie.InnerException;
+                    exception = tie.InnerException;
             }
 			finally
 			{
@@ -228,6 +237,7 @@ namespace CloudBeat.Oxygen
 				}
 				catch (Exception) { }
 			}
+			return null;
         }
 
         private string SubstituteVariable(string str) 
@@ -243,19 +253,21 @@ namespace CloudBeat.Oxygen
 
                 var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
                 var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-
-                if (variables.ContainsKey(variableName.ToUpper()))
-                {
-                    str = str.Substring(0, varIndexStart) + variables[variableName.ToUpper()] + str.Substring(varIndexEnd + 1);
-                }
-                else
-                {
-					var pm = context.ParameterManager;
-					if (pm == null || !pm.ContainsParameter(variableName))
-						throw new OxVariableUndefined(variableName);
-					var value = pm.GetValue(variableName);
-					str = str.Substring(0, varIndexStart) + value + str.Substring(varIndexEnd + 1);
-                }
+				string variableValue = null;
+				// check if this is a constant variable, such as ENTER key, etc.
+				if (constantVariables != null && constantVariables.ContainsKey(variableName.ToUpper()))
+					variableValue = constantVariables[variableName.ToUpper()];
+				else if (context.Variables != null && context.Variables.ContainsKey(variableName))
+					variableValue = context.Variables[variableName];
+                else if (context.Parameters != null && context.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(context.Parameters[variableName]))
+					variableValue = context.Parameters[variableName];
+				else if (context.Environment != null && context.Environment.ContainsKey(variableName))
+					variableValue = context.Environment[variableName];
+                
+				if (variableValue != null)
+					str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
+				else
+					throw new OxVariableUndefined(variableName);
             }
         }
 

@@ -19,7 +19,7 @@ namespace CloudBeat.Oxygen
         // not exposed through web module
         public void SeCmdStoreExpression(string expression, string variableName)
         {
-            variables.Add(variableName.Trim(), expression);
+            context.Variables.Add(variableName.Trim(), expression);
         }
 
         // not exposed through web module
@@ -33,7 +33,7 @@ namespace CloudBeat.Oxygen
                 try
                 {
                     var attribute = this.FindElement(loc).GetAttribute(attributeName);
-                    variables.Add(variableName.Trim(), attribute);
+                    context.Variables.Add(variableName.Trim(), attribute);
                     return;
                 }
                 catch (StaleElementReferenceException) { }
@@ -50,7 +50,7 @@ namespace CloudBeat.Oxygen
                 try
                 {
                     var text = this.FindElement(loc).Text;
-                    variables.Add(variableName.Trim(), text);
+                    context.Variables.Add(variableName.Trim(), text);
                     return;
                 }
                 catch (StaleElementReferenceException) { }
@@ -76,7 +76,7 @@ namespace CloudBeat.Oxygen
 
                     if (type == "radio" || type == "checkbox")
                     {
-                        variables.Add(variableName.Trim(), el.Selected ? "on" : "off");
+                        context.Variables.Add(variableName.Trim(), el.Selected ? "on" : "off");
                     }
                     else
                     {
@@ -84,7 +84,7 @@ namespace CloudBeat.Oxygen
                         if (elValue == null)
                             throw new OxElementHasNoValueException(locator);
 
-                        variables.Add(variableName.Trim(), elValue);
+						context.Variables.Add(variableName.Trim(), elValue);
                     }
 
                     return;

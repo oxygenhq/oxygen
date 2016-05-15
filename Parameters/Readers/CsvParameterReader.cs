@@ -16,7 +16,7 @@ namespace CloudBeat.Oxygen.Parameters.Readers
 		{
 			this.settings = settings;
 		}
-		public IList<TestParameterGroup> ReadAll()
+		public IList<TestParameter> ReadAll()
 		{
 			if (settings.Format != ParameterSourceSettings.FormatType.CSV)
 				throw new NotSupportedException("Unsupported source format: " + settings.Format.ToString());
@@ -36,14 +36,8 @@ namespace CloudBeat.Oxygen.Parameters.Readers
 				var testParam = new TestParameter(csvParam.Name, csvParam.Parameters, settings);
 				testParamList.Add(testParam);
 			}
-			// in case of CSV file grouping is not relevant as CSV is a flat format so a default group shall be created
-			List<TestParameterGroup> groupList = new List<TestParameterGroup>();
-			TestParameterGroup group;
-			groupList.Add(group = new TestParameterGroup());
-			group.GroupName = settings.TestCaseName;
-			group.Parameters = testParamList;
 
-			return groupList;
+			return testParamList;
 		}
 	}
 }
