@@ -108,7 +108,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      *              to. It can be either a positive or a negative value.
      * @function scrollToElement
      * @param {String} locator - An element locator.
-     * @param {String} yOffset - Y offset from the element.
+     * @param {Integer} yOffset - Y offset from the element.
      */
     module.scrollToElement = function () { return handleStepResult(dispatcher.execute('web', 'scrollToElement', Array.prototype.slice.call(arguments))); };
     /**
