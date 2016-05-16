@@ -82,6 +82,7 @@
     <Compile Include="Modules\ModuleAssert.cs" />
     <Compile Include="Modules\ModuleDB.cs" />
     <Compile Include="Modules\ModuleLog.cs" />
+    <Compile Include="Modules\ModuleMobile.cs" />
     <Compile Include="Modules\ModuleSoap.cs" />
     <Compile Include="Modules\ModuleWeb.cs" />
     <Compile Include="PageObjects\IPageObjectManager.cs" />
