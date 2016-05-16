@@ -20,8 +20,8 @@ module.exports = function(grunt) {
                 files: [
                     { 
                         expand: true, 
-                        cwd: 'node_modules/oxygen/bin/Debug', src: ['**'], 
-                        dest: 'dotnet' 
+                        cwd: 'dotnet/bin/Debug', src: ['**', '!**/*.xml'], 
+                        dest: 'lib/native' 
                     }
                 ], 
                 verbose: true
@@ -38,7 +38,7 @@ module.exports = function(grunt) {
         },
         msbuild: {
             oxygen: {
-                src: ['node_modules/oxygen/Oxygen.csproj'],
+                src: ['dotnet/Oxygen.csproj'],
                 options: {
                     projectConfiguration: 'Debug',
                     targets: ['Rebuild'],

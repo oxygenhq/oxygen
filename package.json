@@ -45,7 +45,6 @@
     "minimist": "^1.2.0",
     "moment": "^2.11.1",
     "npmlog": "^2.0.2",
-    "oxygen": "git+https://github.com/oxygenhq/oxygen.git#b81956658919dc30f9af4cf76be1ebf410ac7d09",
     "oxygen-logger": "git+https://github.com/oxygenhq/oxygen-logger.git",
     "sync": "^0.2.5",
     "wd-sync": "^1.2.5",
