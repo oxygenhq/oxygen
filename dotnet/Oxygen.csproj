@@ -43,7 +43,6 @@
     <Reference Include="log4net">
       <HintPath>libs\log4net\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="Microsoft.VisualBasic" />
     <Reference Include="Newtonsoft.Json">
       <HintPath>libs\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -104,7 +103,6 @@
     <Compile Include="SeleniumDriver\DesiredCapabilities\DCInternetExplorer.cs" />
     <Compile Include="Exceptions.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\IDCBrowser.cs" />
-    <Compile Include="SeParser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="AddVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" Condition="'$(OS)' == 'Windows_NT'">
