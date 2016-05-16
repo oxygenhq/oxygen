@@ -1,0 +1,161 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{613C5890-E049-4760-B12D-25487F35B96B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>CloudBeat.Oxygen</RootNamespace>
+    <AssemblyName>Oxygen</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Staging|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Production|AnyCPU'">
+    <OutputPath>bin\Production\</OutputPath>
+    <DefineConstants>TRACE;PRODUCTION</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="log4net">
+      <HintPath>libs\log4net\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualBasic" />
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>libs\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="WebDriver">
+      <HintPath>libs\Selenium\WebDriver.dll</HintPath>
+    </Reference>
+    <Reference Include="WebDriver.Support">
+      <HintPath>libs\Selenium\WebDriver.Support.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CommonEnums.cs" />
+    <Compile Include="ConfigLoader\TestSuiteConfigLoader.cs" />
+    <Compile Include="ConfigLoader\TestCaseConfigLoader.cs" />
+    <Compile Include="ExecutionContext.cs" />
+    <Compile Include="CurrentIterationContext.cs" />
+    <Compile Include="Models\ParameterizationCSVModel.cs" />
+    <Compile Include="Models\CommandResult.cs" />
+    <Compile Include="Models\TestCase.cs" />
+    <Compile Include="Models\TestResult.cs" />
+    <Compile Include="Models\TestSuiteConfig.cs" />
+    <Compile Include="Models\TestCaseConfig.cs" />
+    <Compile Include="Modules\Dispatcher.cs" />
+    <Compile Include="Modules\IModule.cs" />
+    <Compile Include="Modules\InvokeResult.cs" />
+    <Compile Include="Modules\ModuleAssert.cs" />
+    <Compile Include="Modules\ModuleDB.cs" />
+    <Compile Include="Modules\ModuleLog.cs" />
+    <Compile Include="Modules\ModuleMobile.cs" />
+    <Compile Include="Modules\ModuleSoap.cs" />
+    <Compile Include="Modules\ModuleWeb.cs" />
+    <Compile Include="PageObjects\IPageObjectManager.cs" />
+    <Compile Include="PageObjects\PageObjectManager.cs" />
+    <Compile Include="Parameters\IParameterManager.cs" />
+    <Compile Include="Parameters\IParameterReader.cs" />
+    <Compile Include="Parameters\ParameterNotFoundException.cs" />
+    <Compile Include="Parameters\ParameterSourceSettings.cs" />
+    <Compile Include="Parameters\ParameterReaderFactory.cs" />
+    <Compile Include="Parameters\Readers\CsvParameterReader.cs" />
+    <Compile Include="Parameters\TestParameter.cs" />
+    <Compile Include="Parameters\ParameterManager.cs" />
+    <Compile Include="Parameters\TestParameterGroup.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SeleniumDriver\DesiredCapabilities\Capabilities.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\BMPClient.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\HarOptions.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\LimitOptions.cs" />
+    <Compile Include="SeleniumDriver\ProxyClient\TimeoutOptions.cs" />
+    <Compile Include="SeleniumDriver\SeCommand.cs" />
+    <Compile Include="SeleniumDriver\Accessors.cs" />
+    <Compile Include="SeleniumDriver\Actions.cs" />
+    <Compile Include="SeleniumDriver\Assertions.cs" />
+    <Compile Include="SeleniumDriver\SeleniumDriver.cs" />
+    <Compile Include="SeleniumDriver\DesiredCapabilities\DCChrome.cs" />
+    <Compile Include="SeleniumDriver\DesiredCapabilities\DCFactory.cs" />
+    <Compile Include="SeleniumDriver\DesiredCapabilities\DCFirefox.cs" />
+    <Compile Include="SeleniumDriver\DesiredCapabilities\DCInternetExplorer.cs" />
+    <Compile Include="Exceptions.cs" />
+    <Compile Include="SeleniumDriver\DesiredCapabilities\IDCBrowser.cs" />
+    <Compile Include="SeParser.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <UsingTask TaskName="AddVersion" TaskFactory="CodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.v4.0.dll" Condition="'$(OS)' == 'Windows_NT'">
+    <ParameterGroup>
+      <VersionFile ParameterType="System.String" Required="true" />
+      <AssemblyInfoFile ParameterType="System.String" Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Reference Include="System.Core" />
+      <Using Namespace="System" />
+      <Using Namespace="System.IO" />
+      <Code Type="Fragment" Language="cs"><![CDATA[
+        using (StreamWriter sw = File.AppendText(AssemblyInfoFile)) 
+        {
+            var ver = File.ReadAllText(VersionFile);
+            ver = ver.Substring(0, ver.Length - 1);
+            sw.WriteLine("[assembly: AssemblyInformationalVersion(\"" + ver + "\")]");
+            //sw.Write("[assembly: AssemblyFileVersion(\"" + ver + "\")]");
+        }	
+       ]]></Code>
+    </Task>
+  </UsingTask>
+  <Target Name="log4netTransform" Condition="Exists('Log4Net.$(Configuration).config')">
+    <TransformXml Source="Log4Net.config" Transform="Log4Net.$(Configuration).config" Destination="$(TargetDir)Log4Net.config" />
+  </Target>
+  <Target Name="appTransform" Condition="Exists('App.$(Configuration).config')">
+    <TransformXml Source="App.config" Transform="App.$(Configuration).config" Destination="$(TargetDir)$(TargetFileName).config" />
+  </Target>
+  <Target Name="BeforeBuild">
+    <CallTarget Targets="log4netTransform" />
+    <CallTarget Targets="appTransform" />
+    <!--  tags long should be prefixed with double dash -->
+    <!-- <Exec Command="git describe tags long &gt; &quot;$(ProjectDir)VERSION&quot;" Outputs="$(ProjectDir)VERSION" WorkingDirectory="$(ProjectDir)" IgnoreExitCode="true">
+      <Output TaskParameter="ExitCode" PropertyName="ExitCode" />
+    </Exec>
+    <Message Importance="high" Text="git failed with exit code $(ExitCode)" Condition="'$(ExitCode)'!='0'" />
+    <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
+    <AddVersion VersionFile="$(ProjectDir)VERSION" AssemblyInfoFile="$(ProjectDir)Properties\AssemblyInfo.cs" Condition="'$(OS)' == 'Windows_NT'" /> -->
+    <!-- xbuild doesn't support inline tasks so we use bash script -->
+    <!--  <Exec Command="./version.sh" WorkingDirectory="$(ProjectDir)" Condition="'$(OS)' == 'Unix'" /> -->
+  </Target>
+  <Target Name="AfterBuild">
+    <Copy SourceFiles="$(ProjectDir)Properties\AssemblyInfo.noversion" DestinationFiles="$(ProjectDir)Properties\AssemblyInfo.cs" />
+  </Target>
+</Project>
