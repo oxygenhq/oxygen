@@ -26,8 +26,10 @@ namespace CloudBeat.Oxygen.Modules
 
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
         private bool fetchStats = true;
+		private bool reopenBrowserOnIteration = false;
         private long prevNavigationStart = long.MinValue;
 		private bool initialized = false;
+		private bool autoInitDriver = false;
 		private string seleniumUrl;
 		private string proxyUrl;
 		private DesiredCapabilities capabilities;
@@ -53,6 +55,7 @@ namespace CloudBeat.Oxygen.Modules
 		const string ARG_SELENIUM_URL = "web@seleniumUrl";
 		const string ARG_INIT_DRIVER = "web@initDriver";
 		const string ARG_BROWSER_NAME = "web@browserName";
+		const string ARG_REOPEN_BROWSER = "web@reopenBrowser";
 		#endregion
 
 		public ModuleWeb()
@@ -74,6 +77,9 @@ namespace CloudBeat.Oxygen.Modules
         }
 		public object IterationStarted()
 		{
+			// initialize selenium driver if auto init option is on and the driver is not initialized already
+			if (!initialized && autoInitDriver)
+				InitializeSeleniumDriver();
 			if (proxyClient != null)
 				proxyClient.NewHar(true);
 			return null;
@@ -82,7 +88,8 @@ namespace CloudBeat.Oxygen.Modules
 		{
 			if (proxyClient != null)
 				return proxyClient.GetHarJson();
-				
+			if (reopenBrowserOnIteration)
+				Dispose();		
 			return null;
 		}
 		public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
@@ -95,7 +102,8 @@ namespace CloudBeat.Oxygen.Modules
 				seleniumUrl = args[ARG_SELENIUM_URL];
 			//else
 				//throw new ArgumentNullException(ARG_SELENIUM_URL);
-			bool initDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER] == "true";
+			autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER] == "true";
+			reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER] == "true";
 			// initialize DesiredCapabilities with provided browser
 			if (args.ContainsKey(ARG_BROWSER_NAME))
 				capabilities = DCFactory.Get(args[ARG_BROWSER_NAME]);
@@ -110,7 +118,7 @@ namespace CloudBeat.Oxygen.Modules
 				var capVal = args[key];
 				capabilities.SetCapability(capName, capVal);
 			}
-			if (initDriver)
+			if (autoInitDriver)
 				InitializeSeleniumDriver();
 			initialized = true;
 			return true;
@@ -287,6 +295,7 @@ namespace CloudBeat.Oxygen.Modules
             catch (Exception) { } // ignore exceptions
 			driver = null;
 			proxyClient = null;
+			initialized = false;
 			return true;
         }
 
