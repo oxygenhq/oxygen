@@ -110,6 +110,10 @@ namespace CloudBeat.Oxygen
                             if (ioe.Message == null || !ioe.Message.Contains("Element is not clickable at point"))
                                 throw new OxOperationException(ioe.Message, ioe);
                         }
+                        catch (Exception e)
+                        {
+                            lastException = e;
+                        }
                         return false;
                     });
                 }
@@ -122,8 +126,12 @@ namespace CloudBeat.Oxygen
                 {
                     if (lastException is NoSuchElementException)
                         throw new OxElementNotFoundException();
-                    else // not clickable
+                    else if (lastException is OxOperationException) // not clickable
                         throw new OxOperationException(lastException.Message, lastException);
+                    else if (lastException != null)
+                        throw new OxUnknownException(lastException.Message, lastException);
+                    else
+                        throw new OxUnknownException();
                 }
 
                 return;

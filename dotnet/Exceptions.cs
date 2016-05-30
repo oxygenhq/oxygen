@@ -223,4 +223,16 @@ namespace CloudBeat.Oxygen
         {
         }
     }
+
+    public class OxUnknownException : OxException
+    {
+        public OxUnknownException()
+        {
+        }
+
+        public OxUnknownException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+    }
 }
