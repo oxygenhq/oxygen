@@ -8,8 +8,9 @@ module.exports = function () {
         _duration: null,
         _transaction: null,
 		_action: null, 	// true / false
+		_screenshotFile: null,
 		failure: null,	// type of stepfailure.js
 		screenshot: null, //{ _: null }
-		stats: {}		// navigation timings or other statistics
+		stats: null		// navigation timings or other performance statistics
 	};
 };

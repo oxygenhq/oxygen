@@ -5,6 +5,7 @@ module.exports = function () {
 	return {
 		_type: null,
         _message: null,
-        _details: null
+        _details: null,
+		data: null
 	};
 };

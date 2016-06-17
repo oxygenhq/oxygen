@@ -47,6 +47,7 @@
     "npmlog": "^2.0.2",
     "oxygen-logger": "git+https://github.com/oxygenhq/oxygen-logger.git",
     "sync": "^0.2.5",
+    "underscore": "^1.8.3",
     "wd-sync": "^1.2.5",
     "when": "^3.7.3"
   },

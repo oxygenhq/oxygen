@@ -32,6 +32,8 @@
  *  </ul>
  * </div>
  */
+const STATUS = require('../model/status.js');
+
 module.exports = function (argv, context, rs, logger, dispatcher) {
 	var module = {};
 
@@ -532,12 +534,13 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
             var StepResult = require('../model/stepresult');
             var step = new StepResult();
             step._name = res.CommandResult.CommandName ? res.CommandResult.CommandName : res.Module.toLowerCase() + '.' + res.Method.toLowerCase();
-            step._status = res.CommandResult.IsSuccess == true ? 'passed' : 'failed';
+            step._status = res.CommandResult.IsSuccess == true ? STATUS.PASSED : STATUS.FAILED;
             step._duration = res.CommandResult.Duration;
             // should be string. otherwise XML serialization fails.
             step._action = res.CommandResult.IsAction + "";
             step._transaction = ctx._lastTransactionName;
 			step.screenshot = res.CommandResult.Screenshot;
+			step.stats = {};
 			if (res.CommandResult.LoadEvent)
 				step.stats.LoadEvent = res.CommandResult.LoadEvent;
 			if (res.CommandResult.DomContentLoadedEvent)
