@@ -21,7 +21,7 @@ namespace CloudBeat.Oxygen.ProxyClient
 
             _url = url;
             _baseUrlProxy = String.Format("{0}/proxy", _url);
-            using (var response = MakeRequest(_baseUrlProxy, "POST"))
+            using (var response = MakeRequest(_baseUrlProxy, "POST", "trustAllServers=true"))
             {
                 var responseStream = response.GetResponseStream();
                 if (responseStream == null)
