@@ -533,6 +533,10 @@ namespace CloudBeat.Oxygen.Modules
         {
             return ExecuteSeleniumCommand(script);
         }
+        public CommandResult FileBrowse(string filepath)
+        {
+            return ExecuteSeleniumCommand(filepath);
+        }
 		#endregion
 
 		#region Internal Methods Implementation

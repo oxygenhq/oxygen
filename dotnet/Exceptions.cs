@@ -230,6 +230,11 @@ namespace CloudBeat.Oxygen
         {
         }
 
+        public OxUnknownException(string message)
+            : base(message)
+        {
+        }
+
         public OxUnknownException(string message, Exception innerException)
             : base(message, innerException)
         {

@@ -526,6 +526,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      */
     module.getElementCount = function() { return handleStepResult(execMethod('web', 'getElementCount', Array.prototype.slice.call(arguments))); };
     
+    module.fileBrowse = function() { return handleStepResult(execMethod('web', 'fileBrowse', Array.prototype.slice.call(arguments))); };
+    
     function handleStepResult(res)
     {
     	//console.log(JSON.stringify(res));
