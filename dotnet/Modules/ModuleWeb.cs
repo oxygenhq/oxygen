@@ -310,14 +310,14 @@ namespace CloudBeat.Oxygen.Modules
 
 		#region Selenium Standard Commands Implementation
 
-		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetPrevCaps = true)//string browserName)
+		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetDefaultCaps = true)
 		{
 			if (driver != null)
 				throw new Exception("Selenium driver has been already initialized");
 			// override current selenium url if new is passed in this function
 			if (!string.IsNullOrEmpty(seleniumUrl))
 				this.seleniumUrl = seleniumUrl;
-			if (resetPrevCaps || this.capabilities == null)
+			if (resetDefaultCaps || this.capabilities == null)
 				this.capabilities = new DesiredCapabilities();
 			if (caps != null)
 			{
@@ -326,6 +326,7 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			InitializeSeleniumDriver();
 		}
+
         public string GetSessionId()
         {
             if (driver == null)
