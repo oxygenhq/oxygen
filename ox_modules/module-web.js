@@ -49,8 +49,10 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
     /**
      * @summary Initialize test settings and start correspondent Selenium server and browser.
      * @function init
-     * @param {String} browser - Browser name: ie, chrome or firefox.
-	 * @param {String} seleniumUrl - Selenium server url.
+     * @param {String} seleniumUrl - Selenium server url.
+     * @param {Object} caps - Selenium capabilities.
+     * @param {Boolean} resetDefaultCaps - If true default capabilities will be cleared, otherwise 
+     *                                     custom capabilities will be merged with the default ones.
      */
     module.init = function ()
     {
