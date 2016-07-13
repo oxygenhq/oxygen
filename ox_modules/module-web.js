@@ -40,9 +40,11 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	var ctx = context;
 	var dispatcher = dispatcher;
     var rs = rs; // results store
+    
+    var _lastTransactionName;
 
 	// call ModuleInit
-	dispatcher.execute('web', 'moduleInit', argv); //Array.prototype.slice.call(
+	dispatcher.execute('web', 'moduleInit', argv);
 
     /**
      * @summary Initialize test settings and start correspondent Selenium server and browser.
@@ -82,7 +84,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      * @param {String} name - The transaction name.
      */
     module.transaction = function (name) { 
-        ctx._lastTransactionName = name;
+        _lastTransactionName = name;
         dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments)); 
     };
     /**
@@ -540,7 +542,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
             step._duration = res.CommandResult.Duration;
             // should be string. otherwise XML serialization fails.
             step._action = res.CommandResult.IsAction + "";
-            step._transaction = ctx._lastTransactionName;
+            step._transaction = _lastTransactionName;
 			step.screenshot = res.CommandResult.Screenshot;
 			step.stats = {};
 			if (res.CommandResult.LoadEvent)
