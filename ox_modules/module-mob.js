@@ -15,7 +15,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	var Failure = require('../model/stepfailure');
 
     var client = wdSync.remote("localhost", 4723);
-    var driver = client.browser;
+    var driver = module.driver = client.browser;
     var sync = client.sync;
 	
 	// initialization indicator
@@ -26,8 +26,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	var ctx = context;
 	// save driver capabilities for later use when error occures
 	var caps = null;
-	
-	const DEFAULT_WAIT_TIMEOUT = 10000; 
+		
+	const DEFAULT_WAIT_TIMEOUT = 60000; 
 	const POOLING_INTERVAL = 5000; 
 	
 	const noScreenshotCommands = [
@@ -41,6 +41,10 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	];
 	
     module.syncFunc = sync;
+	// auto pause in waitFor
+	module.autoPause = false;
+	// auto wait for actions
+	module.autoWait = false;
 
 	/**
      * @summary Pauses test execution for given amount of seconds.
@@ -67,6 +71,14 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	module.setContext = function(context) {
 		driver.context(context);
 	};
+
+	module.getSource = function() {
+		return driver.source();
+	}
+
+	module.execute = function(js, elm) {
+		return driver.execute(js, elm);
+	}
 	
 	module.setWebViewContext = function() {
 		try {
@@ -74,8 +86,9 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			// select first available WEBVIEW context
 			for (var i=0; i<contexts.length; i++) {
 				var context = contexts[i];
-				if (context && context.indexOf('WEBVIEW') > -1) {
-					setContext(context);
+				if (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf("CHROMIUM") > -1)) {
+					logger.debug('Setting context: ' + context);
+					driver.context(context);
 					break;
 				}
 			}
@@ -125,7 +138,9 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	};
 	
 	module.tap = function (locator, x, y, count) {
-		return invokeDriverCommandComplete("tap", locator, Array.prototype.slice.call(arguments));
+		var elm = module.findElement(locator);
+		elm.tap();
+		//return invokeDriverCommandComplete("tap", locator, Array.prototype.slice.call(arguments));
 	};
 	
 	module.getLocation = function (locator) {
@@ -154,6 +169,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	};
 	
 	module.waitForElement = function(locator, timeout) {
+		var actualTimeout = timeout || DEFAULT_WAIT_TIMEOUT;
 		var StepResult = require('../model/stepresult');
         var step = new StepResult();
 		rs.steps.push(step);
@@ -161,17 +177,20 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 		step._status = STATUS.PASSED;
 		step._action = false.toString();
 		
+		logger.debug("waitForElement: " + locator);
 		var startTime = moment.utc();
 		var elapsed = 0;
 		var err = null;
 		
-		while (elapsed < DEFAULT_WAIT_TIMEOUT) {
+		while (elapsed < actualTimeout) {
+			console.log('trying to wait for the element');
 			try {
 				err = null;
-				module.findElement(locator);
+				_waitForElement(locator);
 			}
 			catch (e) {
 				err = e;
+				console.log('Element not found');
 			}
 			var endTime = moment.utc();
 			elapsed = endTime - startTime;
@@ -186,7 +205,29 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 				step.screenshot = module.takeScreenshot();
 			throw err;
 		}
+		else if (module.autoPause) {
+			console.log('autoPause');
+			driver.sleep(500);
+		}
 	};
+
+	function _waitForElement(locator, timeout) {
+		if (!locator) throw new Error('locator is empty or not specified');
+		if (locator.indexOf('name=') == 0)
+			return driver.waitForElementByName(locator.substr('name='.length));
+		if (locator.indexOf('id=') == 0)
+			return driver.waitForElementById(locator.substr('id='.length));
+		if (locator.indexOf('xpath=') == 0)
+			return driver.waitForElementByXPath(locator.substr('xpath='.length));
+		if (locator.indexOf('text=') == 0)
+			return driver.waitForElementByAccessibilityId(locator.substr('text='.length));
+		//if (locator.indexOf('//') == 0)
+		//	return driver.elementByXPath(locator);
+		if (locator.indexOf('/') == 0)
+			return driver.waitForElementByXPath(locator);
+		
+		throw new Error('Not a valid locator: ' + locator);
+	}
 		
 	module.isDisplayed = function(locator) {
 		return invokeDriverCommandComplete("isDisplayed", locator, Array.prototype.slice.call(arguments));
@@ -202,10 +243,11 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			return driver.elementByXPath(locator.substr('xpath='.length));
 		if (locator.indexOf('text=') == 0)
 			return driver.elementByAccessibilityId(locator.substr('text='.length));
+		//if (locator.indexOf('//') == 0)
+		//	return driver.elementByXPath(locator);
 		if (locator.indexOf('/') == 0)
-			return driver.elementByXPath(locator.substr('/'.length));
-		if (locator.indexOf('//') == 0)
-			return driver.elementByXPath(locator.substr('//'.length));
+			return driver.elementByXPath(locator);
+		
 		throw new Error('Not a valid locator: ' + locator);
 	}
 	module.findElements = function(locator) {
