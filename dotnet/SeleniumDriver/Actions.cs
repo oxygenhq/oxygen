@@ -8,6 +8,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using System.Threading;
+using System.Windows.Automation;
 
 namespace CloudBeat.Oxygen
 {
@@ -62,6 +63,43 @@ namespace CloudBeat.Oxygen
 
             if (!success)
                 throw new StaleElementReferenceException();
+        }
+
+        // Works with Chrome and Windows only
+        public void SeCmdFileBrowse(string filepath)
+        {
+            // find Open dialog. try for up to 5 seconds
+            int i = 0;
+            AutomationElement openDialog;
+            do
+            {
+                openDialog = AutomationElement.RootElement.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, "Open"));
+                ++i;
+                Thread.Sleep(100);
+            }
+            while (openDialog == null && i < 50);
+
+            if (openDialog == null)
+                throw new OxUnknownException("Cannot find Open dialog");
+
+            // set file path
+            var pathEdit = openDialog.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.AutomationIdProperty, "1148"));
+            if (pathEdit == null)
+                throw new OxUnknownException("Cannot find file path edit field");
+
+            pathEdit.SetFocus();
+
+            object valuePattern = null;
+            pathEdit.TryGetCurrentPattern(ValuePattern.Pattern, out valuePattern);
+            ((ValuePattern)valuePattern).SetValue(filepath);
+
+            // click Open button
+            var openBtn = openDialog.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.NameProperty, "Open"));
+            if (openBtn == null)
+                throw new OxUnknownException("Cannot find open button");
+
+            var invokerPattern = openBtn.GetCurrentPattern(InvokePattern.Pattern) as InvokePattern;
+            invokerPattern.Invoke();
         }
 
         public void SeCmdScrollToElement(string locator, int yOffset = 0)

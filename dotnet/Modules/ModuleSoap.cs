@@ -145,7 +145,11 @@ namespace CloudBeat.Oxygen.Modules
                     }
 
                     object wsvcClass = results.CompiledAssembly.CreateInstance(serviceName);
+                    if (wsvcClass == null)
+                        return result.ErrorBase(CheckResultStatus.SOAP, "Invalid service name");
                     MethodInfo mi = wsvcClass.GetType().GetMethod(methodName);
+                    if (mi == null)
+                        return result.ErrorBase(CheckResultStatus.SOAP, "Invalid method name");
                     var reqResult = mi.Invoke(wsvcClass, args);
                     var cmdRes = result.SuccessBase();
                     cmdRes.ReturnValue = JsonConvert.SerializeObject(reqResult);
