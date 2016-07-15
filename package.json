@@ -40,7 +40,7 @@
     "csv-load-sync": "~1.0.0",
     "easyxml": "^2.0.1",
     "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git",
-    "fibers": "git+https://github.com/oxygenhq/node-fibers.git#73ab11eb2e27665210e33a2b2e77c23ad301342e",
+    "fibers": "git+https://github.com/oxygenhq/node-fibers.git#e0b208f0ff084e95b3c2dfe521f9d57b1d8ce7cd",
     "globule": "^0.2.0",
     "minimist": "^1.2.0",
     "moment": "^2.11.1",
