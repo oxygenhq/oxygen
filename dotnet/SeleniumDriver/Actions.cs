@@ -363,7 +363,7 @@ namespace CloudBeat.Oxygen
             Thread.Sleep(waitTime);
         }
 
-        public void SeCmdWaitForPopUp(string windowLocator, int timeout)
+        public void SeCmdWaitForWindow(string windowLocator, int timeout)
         {
             if (string.IsNullOrWhiteSpace(windowLocator))  // wait for any new window
             {
@@ -425,7 +425,7 @@ namespace CloudBeat.Oxygen
         public string SeCmdSelectWindow(string windowLocator)
         {
             // FIXME: should use timeout provided as argument once support for optional paramteres is implemented
-            SeCmdWaitForPopUp(windowLocator, waitForTimeout);
+            SeCmdWaitForWindow(windowLocator, waitForTimeout);
 
             string curWinHandle = null;
             try
