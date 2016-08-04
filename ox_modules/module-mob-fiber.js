@@ -47,13 +47,19 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	module.autoWait = false;
 
 	/**
-     * @summary Pauses test execution for given amount of seconds.
+     * @summary Initializes test settings and start a new Appium session.
      * @function init
-     * @param {String} platform - Android or iOS.
-	 * @param {String} appPackage - name of the package to run.
-	 * @param {String} appActivity - app activity for run initialization.
+     * @param {Json} caps - desired capabilities.
+	 * @param {String} url - Appium server url, including port.
      */
 	module.init = function(caps, url) {
+		var deviceName = argv['mob@deviceName'];
+		if (deviceName && deviceName.length > 0)
+			caps.deviceName = deviceName;
+		var deviceOS = argv['mob@deviceOS'];
+		if (deviceOS)
+			caps.platformName = deviceOS;
+		
 		var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call(arguments));
 		isInitialized = true;
 	};
@@ -67,19 +73,34 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
     module.transaction = function (name) { 
         ctx._lastTransactionName = name;
     };
-	
+	/**
+     * @summary Sets context.
+     * @function setContext
+	 * @param {String} context - Context name (NATIVE_APP, WEBVIEW, etc.).
+     */
 	module.setContext = function(context) {
 		driver.context(context);
 	};
-
+	/**
+     * @summary Gets source code of the page.
+     * @function getSource
+     */
 	module.getSource = function() {
 		return driver.source();
 	}
-
+	/**
+     * @summary Injects a snippet of JavaScript into the page.
+     * @function execute
+	 * @param {String} js - The script to be executed.
+	 * @param {Object} elm - Element to be passed as parameter.
+     */
 	module.execute = function(js, elm) {
 		return driver.execute(js, elm);
 	}
-	
+	/**
+     * @summary Automatically sets context to the first available WEBVIEW.
+     * @function setWebViewContext
+     */
 	module.setWebViewContext = function() {
 		try {
 			var contexts = driver.contexts();
@@ -97,7 +118,10 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
             throw new AppiumError(e, null, null);
         }
 	}
-	
+	/**
+     * @summary Ends Appium session.
+     * @function dispose
+     */
 	module.dispose = function() {
 		if (driver && isInitialized) {
             //console.log(wdSync.current());
@@ -106,7 +130,10 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			//return retval;
 		}
 	}	
-	
+	/**
+     * @summary Take a screenshot of the current page.
+     * @function takeScreenshot
+     */
 	module.takeScreenshot = function () {
 		return driver.takeScreenshot();
 	};
@@ -127,11 +154,9 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 		//return invokeDriverCommandComplete("swipe", locator, Array.prototype.slice.call(arguments));
 	};
     /**
-     * @summary Clicks on a widget.
+     * @summary Click on an element based on given locator.
      * @function click
-     * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {Integer} wait - Time in seconds to wait for the widget.
-     * @param {Integer} pollrate - Time in seconds between polling intervals.
+     * @param {String} locator - Element's locator. "id=" to search by ID or "//" to search by XPath.
      */
     module.click = function(locator) { 
 		return invokeDriverCommandComplete("click", locator, Array.prototype.slice.call(arguments));

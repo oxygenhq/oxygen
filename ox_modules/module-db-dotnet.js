@@ -12,7 +12,8 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
     var transactionName = null;
     
     // call ModuleInit
-	dispatcher.execute('db', 'moduleInit', argv); //Array.prototype.slice.call(
+	if (dispatcher)
+		dispatcher.execute('db', 'moduleInit', argv); //Array.prototype.slice.call(
 
     /**
     * @summary Stores DB connection string to be used by other methods. 

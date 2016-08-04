@@ -44,7 +44,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
     var _lastTransactionName;
 
 	// call ModuleInit
-	dispatcher.execute('web', 'moduleInit', argv);
+	if (dispatcher)
+		dispatcher.execute('web', 'moduleInit', argv);
 
     /**
      * @summary Initialize test settings and start correspondent Selenium server and browser.
@@ -301,7 +302,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      */
     module.pause = function() { return handleStepResult(dispatcher.execute('web', 'pause', Array.prototype.slice.call(arguments))); };
     /**
-     * @summary Waits for new window to appear.
+     * @summary Waits for a popup window to appear.
      * @description <code>windowLocator</code> can be:
      *              <ul>
      *              <li><code>title=TITLE</code> - Wait for the first window which matches the 
@@ -310,12 +311,12 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      *              </li>
      *              <li>An empty string - Wait for any new window to appear.</li>
      *              </ul>
-     * @function waitForWindow
+     * @function waitForPopUp
      * @param {String} windowLocator - A window locator.
      * @param {Integer} timeout - A timeout in milliseconds, after which the action will return with 
      *                           an error.
      */
-    module.waitForWindow = function() { return handleStepResult(dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments))); };
+    module.waitForPopUp = function() { return handleStepResult(dispatcher.execute('web', 'waitForPopUp', Array.prototype.slice.call(arguments))); };
     /**
      * @summary Selects a frame within the current window.
      * @description Available frame locators:
