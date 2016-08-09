@@ -418,7 +418,7 @@ namespace CloudBeat.Oxygen
             }
             else
             {
-                throw new OxCommandNotImplementedException("Unsuported locator in WaitForPopUp - " + windowLocator);
+                throw new OxCommandNotImplementedException("Unsuported locator - " + windowLocator);
             }
         }
 
