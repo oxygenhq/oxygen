@@ -1,19 +1,21 @@
 /**
  * Provides methods for working with Data Bases through ODBC.
  */
-var DotNetError = require('../errors/dotnet');
-module.exports = function(argv, context, rs, logger, dispatcher) {
+ 
+const STATUS = require('../model/status.js');
+
+module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
     var module = {};
     var moment = require('moment');
     
     var ctx = context;
 	var dispatcher = dispatcher;
     var rs = rs; // results store
-    var transactionName = null;
     
     // call ModuleInit
-	if (dispatcher)
-		dispatcher.execute('db', 'moduleInit', argv); //Array.prototype.slice.call(
+    if (dispatcher) {
+        dispatcher.execute('db', 'moduleInit', argv);
+    }
 
     /**
     * @summary Stores DB connection string to be used by other methods. 
@@ -25,52 +27,21 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
     * @function init
     * @param {String} connString - ODBC connection string.
     */
-    module.init = function() { return executeAndHandleResult('init', arguments); };
+    module.init = function() { return handleStepResult(dispatcher.execute('db', 'init', Array.prototype.slice.call(arguments)), rs); };
     /**
      * @summary Executes SQL query and returns the first column of the first row in the result set.
      * @function getScalar
      * @param {String} query - The query to execute.
-     * @return {Object} The first column of the first row in the result set, or a null reference 
-     *                  if the result set is empty.
+     * @return {Object} The first column of the first row in the result set, or null if the result 
+     *                  set is empty.
      */
-    module.getScalar = function() { return executeAndHandleResult('getScalar', arguments); };
+    module.getScalar = function() { return handleStepResult(dispatcher.execute('db', 'getScalar', Array.prototype.slice.call(arguments)), rs); };
     /**
      * @summary Executes SQL statement.
      * @function executeNonQuery
      * @param {String} query - The query to execute.
      */
-    module.executeNonQuery = function() { return execMethod('db', 'executeNonQuery', Array.prototype.slice.call(arguments)); };
-    
-    function executeAndHandleResult(method, args)
-    {
-        //console.log(JSON.stringify(res));
-        var startTime = moment.utc();
-        var error = null;
-        var failure = null;
-        
-        var res = dispatcher.execute('db', method, Array.prototype.slice.call(args));
-        //console.dir(res);
-        
-        var StepResult = require('../model/stepresult');
-        var step = new StepResult();
-        step.$.name = 'db.' + method;
-        step.$.status = res.ErrorType ? 'failed' : 'passed';
-        var endTime = moment.utc();
-        var duration = endTime.unix() - startTime.unix();   // duration in seconds
-        step.$.duration = duration;
-        rs.steps.push(step);
-    
-        if (res.ErrorType)
-        {
-            step.failure.$.type = res.ErrorType;
-            step.failure.$.message = res.ErrorMessage;
-            step.failure.$.details = res.ErrorDetails;
-            
-            throw new DotNetError(res.ErrorType, res.ErrorMessage, res.ErrorDetails);
-        }
-        
-        return res.ReturnValue;
-    }
-    
+    module.executeNonQuery = function() { return handleStepResult(dispatcher.execute('db', 'executeNonQuery', Array.prototype.slice.call(arguments)), rs); };
+
     return module;
 };
