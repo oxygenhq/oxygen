@@ -18,16 +18,16 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
     }
 
     /**
-    * @summary Stores DB connection string to be used by other methods. 
+    * @summary Sets DB connection string to be used by other methods. 
     * @description This method doesn't actually open the connection as it's opened/closed 
     *               automatically by query methods.<br/>
     *               Example connection string: <code>Driver={MySQL ODBC 5.3 UNICODE Driver};
     *               Server=localhost;Database=myDatabase;User=myUsername;Password=myPassword;
     *               Option=3;</code>
-    * @function init
+    * @function setConnectionString
     * @param {String} connString - ODBC connection string.
     */
-    module.init = function() { return handleStepResult(dispatcher.execute('db', 'init', Array.prototype.slice.call(arguments)), rs); };
+    module.setConnectionString = function() { return handleStepResult(dispatcher.execute('db', 'setConnectionString', Array.prototype.slice.call(arguments)), rs); };
     /**
      * @summary Executes SQL query and returns the first column of the first row in the result set.
      * @function getScalar

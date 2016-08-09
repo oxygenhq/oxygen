@@ -22,7 +22,7 @@ namespace CloudBeat.Oxygen.Modules
         {
         }
 
-        public CommandResult init(string connString)
+        public CommandResult setConnectionString(string connString)
         {
             this.connString = connString;
 
