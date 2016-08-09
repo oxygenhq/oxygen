@@ -1,14 +1,15 @@
-﻿using System;
+﻿using CloudBeat.Oxygen.Models;
+using log4net;
+using System;
 using System.Data.Odbc;
 
 namespace CloudBeat.Oxygen.Modules
 {
 	public class ModuleDB : IModule
 	{
-        private string connString;
+        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
-        public delegate void ExceptionEventHandler(Exception e, string cmd, DateTime startTime, CheckResultStatus status);
-        public event ExceptionEventHandler CommandException;
+        private string connString;
 
 		ExecutionContext ctx;
 		bool isInitialized = false;
@@ -21,62 +22,80 @@ namespace CloudBeat.Oxygen.Modules
         {
         }
 
-        
-        public void init(string connString)
+        public CommandResult init(string connString)
         {
             this.connString = connString;
+
+            var result = new CommandResult();
+            result.CommandName = "db.setConnectionString('" + connString + "');";
+            result.StartTime = DateTime.UtcNow;
+            result.IsSuccess = true;
+            result.EndTime = DateTime.UtcNow;
+
+            return result;
         }
 
-        public object getScalar(string query)
+        public CommandResult getScalar(string query)
         {
-			DateTime cmdStartTime = DateTime.UtcNow;
-
-            var cmdFormatted = string.Format("getScalar(\"{0}\")", query);
-
+            var result = new CommandResult();
             try
             {
-                var conn = Connect(cmdFormatted);
+                result.CommandName = string.Format("db.getScalar(\"{0}\")", query);
+                result.StartTime = DateTime.UtcNow;
+                var conn = Connect();
                 OdbcCommand cmd = new OdbcCommand(query, conn);
-                var result = cmd.ExecuteScalar();
+                var retVal = cmd.ExecuteScalar();
                 conn.Close();
-                return result;
+                result.ReturnValue = retVal;
+                result.IsSuccess = true;
+                result.EndTime = DateTime.UtcNow;
+                
             }
             catch (Exception e)
             {
-                if (CommandException != null)
-					CommandException(e, cmdFormatted, cmdStartTime, CheckResultStatus.DB);
-                else
-                    throw e;
+                result.IsSuccess = false;
+                result.EndTime = DateTime.UtcNow;
+                result.ErrorType = e.GetType().ToString();
+                result.ErrorMessage = e.Message;
+                result.ErrorDetails = e.StackTrace;
+                string statusData = null;
+                var status = GetStatusByException(e, out statusData);
+                result.StatusText = status.ToString();
+                result.StatusData = statusData;
             }
-            return null;
+            return result;
         }
 
         public void executeNonQuery(string query)
         {
-			DateTime cmdStartTime = DateTime.UtcNow;
-
-            var cmdFormatted = string.Format("executeNonQuery(\"{0}\")", query);
-
+            var result = new CommandResult();
             try
             {
-                var conn = Connect(cmdFormatted);
+                result.CommandName = string.Format("db.executeNonQuery(\"{0}\")", query);
+                result.StartTime = DateTime.UtcNow;
+                var conn = Connect();
                 OdbcCommand cmd = new OdbcCommand(query, conn);
-                var result = cmd.ExecuteNonQuery();
+                cmd.ExecuteNonQuery();
                 conn.Close();
+                result.IsSuccess = true;
+                result.EndTime = DateTime.UtcNow;
             }
             catch (Exception e)
             {
-                if (CommandException != null)
-                    CommandException(e, cmdFormatted, cmdStartTime, CheckResultStatus.DB);
-                else
-                    throw e;
+                result.IsSuccess = false;
+                result.EndTime = DateTime.UtcNow;
+                result.ErrorType = e.GetType().ToString();
+                result.ErrorMessage = e.Message;
+                result.ErrorDetails = e.StackTrace;
+                string statusData = null;
+                var status = GetStatusByException(e, out statusData);
+                result.StatusText = status.ToString();
+                result.StatusData = statusData;
             }
         }
 
-        private OdbcConnection Connect(string cmd)
+        private OdbcConnection Connect()
         {
-			DateTime cmdStartTime = DateTime.UtcNow;
-
             try
             {
                 OdbcConnection conn = new OdbcConnection(connString);
@@ -85,12 +104,8 @@ namespace CloudBeat.Oxygen.Modules
             }
             catch (Exception e)
             {
-                if (CommandException != null)
-					CommandException(e, cmd, cmdStartTime, CheckResultStatus.DB);
-                else
-                    throw e;
+                throw new OxDBConnectionException(e.Message, e);
             }
-            return null;
         }
 
 		public bool Initialize(System.Collections.Generic.Dictionary<string, string> args, ExecutionContext ctx)
@@ -129,5 +144,28 @@ namespace CloudBeat.Oxygen.Modules
 		{
 			get { return "DB"; }
 		}
+
+        private CheckResultStatus GetStatusByException(Exception e, out string moreInfo)
+        {
+            var type = e.GetType();
+            moreInfo = null;
+
+            if (type == typeof(OxDBConnectionException))
+            {
+                moreInfo = e.Message;
+                return CheckResultStatus.DB_CONNECTION;
+            }
+            else if (type == typeof(OdbcException)) 
+            {
+                moreInfo = e.Message;
+                return CheckResultStatus.DB_QUERY;
+            }
+            else
+            {
+                log.Error("Unknown exception. Needs checking!!!", e);
+                moreInfo = e.Message;
+                return CheckResultStatus.UNKNOWN_ERROR;
+            }
+        }
 	}
 }

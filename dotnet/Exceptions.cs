@@ -18,17 +18,17 @@ namespace CloudBeat.Oxygen
         {
         }
     }
+
 	public class OxModuleInitializationException : Exception
 	{
 		public OxModuleInitializationException(string reason)
 			: base(reason)
 		{
-
 		}
+
 		public OxModuleInitializationException(string reason, Exception e)
 			: base(reason, e)
 		{
-
 		}
 	}
 
@@ -39,6 +39,7 @@ namespace CloudBeat.Oxygen
         {
         }
 	}
+
 	public class OxProxyException : OxException
 	{
 		public OxProxyException(string proxyUrl)
@@ -239,5 +240,22 @@ namespace CloudBeat.Oxygen
             : base(message, innerException)
         {
         }
+    }
+
+    public class OxDBConnectionException : OxException
+    {
+        public OxDBConnectionException()
+        {
+        }
+
+        public OxDBConnectionException(string message)
+            : base(message)
+        {
+        }
+
+        public OxDBConnectionException(string reason, Exception e)
+			: base(reason, e)
+		{
+		}
     }
 }
