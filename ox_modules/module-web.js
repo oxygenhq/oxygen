@@ -534,6 +534,25 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
     module.getElementCount = function() { return handleStepResult(dispatcher.execute('web', 'getElementCount', Array.prototype.slice.call(arguments)), rs); };
     
     module.fileBrowse = function() { return handleStepResult(dispatcher.execute('web', 'fileBrowse', Array.prototype.slice.call(arguments)), rs); };
+ 
+    /**
+     * @summary Makes hidden element visible.
+     * @description This a workaround command for situations which require manipulation of hidden 
+     *              elements, such as when using <code>web.type</code> command for file input 
+     *              fields which tend to be hidden.<br/>
+     *              Specifically <code>makeVisible</code> will apply following styles to the 
+     *              specified element:
+     *              <ul>
+     *              <li>visibility = 'visible'</li>
+     *              <li>height = '1px'</li>
+     *              <li>width = '1px'</li>
+     *              <li>opacity = 1</li>
+     *              <li>display='block'</li>
+     *              </ul>
+     * @function makeVisible
+     * @param {String} locator - An element locator.
+     */
+    module.makeVisible = function() { return handleStepResult(dispatcher.execute('web', 'makeVisible', Array.prototype.slice.call(arguments)), rs); };
     
     return module;
 };

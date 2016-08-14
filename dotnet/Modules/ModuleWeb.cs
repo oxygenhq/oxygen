@@ -538,6 +538,10 @@ namespace CloudBeat.Oxygen.Modules
         {
             return ExecuteSeleniumCommand(filepath);
         }
+        public CommandResult MakeVisible(string locator)
+        {
+            return ExecuteSeleniumCommand(locator);
+        }
 		#endregion
 
 		#region Internal Methods Implementation

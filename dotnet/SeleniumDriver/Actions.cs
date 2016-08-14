@@ -534,5 +534,26 @@ namespace CloudBeat.Oxygen
 
             return JsonConvert.SerializeObject(result);
         }
+
+        public void SeCmdMakeVisible(string locator)
+        {
+            bool success = false;
+
+            var loc = ResolveLocator(locator);
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    var el = this.FindElement(loc);
+                    (this as IJavaScriptExecutor).ExecuteScript("arguments[0].style.visibility='visible';arguments[0].style.height='1px';arguments[0].style.width='1px';arguments[0].style.opacity=1;arguments[0].style.display='block';", el);
+                    success = true;
+                    return;
+                }
+                catch (StaleElementReferenceException) { }
+            }
+
+            if (!success)
+                throw new StaleElementReferenceException();
+        }
     }
 }
