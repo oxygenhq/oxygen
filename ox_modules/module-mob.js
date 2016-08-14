@@ -5,7 +5,7 @@
 const STATUS = require('../model/status.js');
 
 module.exports = function (argv, context, rs, logger, dispatcher) {
-    var module = {};
+	var module = { modType: "fiber" };
 	
     var _ = require('underscore');
 	var moment = require('moment');

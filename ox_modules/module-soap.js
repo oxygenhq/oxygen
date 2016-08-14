@@ -4,7 +4,7 @@
  * NOTE: Multi-argument calls are not supported yet.
  */
 module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
-    var module = {};
+	var module = { modType: "dotnet" };
     
 	var ctx = context;
 	var dispatcher = dispatcher;

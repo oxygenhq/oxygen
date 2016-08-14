@@ -5,7 +5,7 @@
 const STATUS = require('../model/status.js');
 
 module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
-    var module = {};
+	var module = { modType: "dotnet" };
     var moment = require('moment');
     
     var ctx = context;

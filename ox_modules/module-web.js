@@ -35,19 +35,20 @@
 const STATUS = require('../model/status.js');
 
 module.exports = function (argv, context, rs, logger, dispatcher, handleStepResult) {
-	var module = {};
+	var module = { modType: "dotnet" };
 
 	var ctx = context;
 	var dispatcher = dispatcher;
     var rs = rs; // results store
+
     
     global._lastTransactionName = null;
-
+    
 	// call ModuleInit
     if (dispatcher) {
         dispatcher.execute('web', 'moduleInit', argv);
     }
-
+    
     /**
      * @summary Initialize test settings and start correspondent Selenium server and browser.
      * @function init
@@ -530,9 +531,9 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
      * @param {String} xpath - XPath locator.
      * @return {Integer} Element count or 0 if no elements were found.
      */
-    module.getElementCount = function() { return handleStepResult(execMethod('web', 'getElementCount', Array.prototype.slice.call(arguments)), rs); };
+    module.getElementCount = function() { return handleStepResult(dispatcher.execute('web', 'getElementCount', Array.prototype.slice.call(arguments)), rs); };
     
-    module.fileBrowse = function() { return handleStepResult(execMethod('web', 'fileBrowse', Array.prototype.slice.call(arguments)), rs); };
+    module.fileBrowse = function() { return handleStepResult(dispatcher.execute('web', 'fileBrowse', Array.prototype.slice.call(arguments)), rs); };
     
     return module;
 };
