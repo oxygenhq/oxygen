@@ -36,9 +36,6 @@ namespace CloudBeat.Oxygen
 
         public string ToJSCommand()
         {
-            if (CommandName.EndsWith("AndWait", System.StringComparison.InvariantCultureIgnoreCase))
-                CommandName = CommandName.Substring(0, CommandName.Length - "AndWait".Length);
-
             if (Arguments == null)
                 return string.Format("web.{0}();", CommandName);
 
@@ -54,7 +51,7 @@ namespace CloudBeat.Oxygen
 
         private static HashSet<string> actions = new HashSet<string>() 
         {
-            "clickandwait", "click", "openandwait", "open", "doubleclick"
+            "click", "open", "doubleclick"
         };
 
         public bool IsAction()

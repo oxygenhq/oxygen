@@ -617,10 +617,5 @@ namespace CloudBeat.Oxygen
             if (!MatchPattern(text, pattern))
                 throw new OxAssertionException();
         }
-
-        public void SeCmdWaitForPageToLoad(string target, string value)
-        {
-            // this method does nothing as the preceding open/click/clickandwait/etc will do the actual waiting anyway
-        }
     }
 }

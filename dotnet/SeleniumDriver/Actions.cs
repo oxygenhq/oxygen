@@ -25,7 +25,6 @@ namespace CloudBeat.Oxygen
 			this.BaseURL = url;
 		}
 
-        // implicit *AndWait assumed
         public void SeCmdOpen(string url)
         {
             string urlFinal;

@@ -678,7 +678,7 @@ namespace CloudBeat.Oxygen.Modules
 				// can be overriden in the script using SetTimeout command.
 				return CheckResultStatus.SCRIPT_TIMEOUT;
 			else if (type == typeof(OxTimeoutException))
-				// This is thrown by any commands which rely on PageLoadTimeout (Open, ClickAndWait, etc.)
+				// This is thrown by any commands which rely on PageLoadTimeout (Open, Click, etc.)
 				// and essentially implies a script level timeout.
 				// By default the timeout is set to SeCommandProcessor.DEFAULT_PAGE_LOAD_TIMEOUT but
 				// can be overriden in the script using SetTimeout command.
@@ -693,7 +693,7 @@ namespace CloudBeat.Oxygen.Modules
 				{
 					var wex = wde.InnerException as WebException;
 					if (wex.Status == WebExceptionStatus.Timeout)
-						// there seems to be chromedriver bug where open/clickandwait will end in command timeout if 'load' event did not fire.
+						// there seems to be chromedriver bug where open/click will end in command timeout if 'load' event did not fire.
 						return CheckResultStatus.SCRIPT_TIMEOUT;
 				}
 				log.Error("Unknown WebDriverException. Needs checking!!!", wde);
