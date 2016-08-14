@@ -51,7 +51,11 @@ namespace CloudBeat.Oxygen
 	public class OxSetWindowSizeException : OxException
 	{
 		public OxSetWindowSizeException()
-			: base ("SetWindowSize funcion failed")
+        {
+        }
+
+        public OxSetWindowSizeException(string message)
+            : base(message)
         {
         }
 	}

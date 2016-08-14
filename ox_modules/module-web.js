@@ -554,5 +554,14 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
      */
     module.makeVisible = function() { return handleStepResult(dispatcher.execute('web', 'makeVisible', Array.prototype.slice.call(arguments)), rs); };
     
+    /**
+     * @summary Sets the size of the outer browser window.
+     * @description To maximize the window set both width and height to 0.
+     * @function setWindowSize
+     * @param {Integer} width - Width in pixels.
+     * @param {Integer} height - Height in pixels.
+     */
+    module.setWindowSize = function() { return handleStepResult(dispatcher.execute('web', 'setWindowSize', Array.prototype.slice.call(arguments)), rs); };
+    
     return module;
 };

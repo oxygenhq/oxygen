@@ -3,7 +3,6 @@ using CloudBeat.Oxygen.ProxyClient;
 using log4net;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
-using OpenQA.Selenium.Support.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -39,9 +38,6 @@ namespace CloudBeat.Oxygen.Modules
 
 		#region Defauts
 		private const string DEFAULT_BROWSER_NAME = "internetexplorer";
-		private const int TIMEOUT_WINDOW_SIZE = 60; // in seconds
-		private const int BROWSER_H = 900;
-		private const int BROWSER_W = 1600;
 
 		private const int BMP_READ_TIMEOUT = 300000;	// in ms
 		private const int BMP_CON_TIMEOUT = 300000;		// in ms
@@ -149,8 +145,7 @@ namespace CloudBeat.Oxygen.Modules
 			try
 			{
 				driver = ConnectToSelenium(capabilities, proxyClient, seleniumUrl, ctx);
-                if (!SetWindowSize(driver))
-                    throw new OxSetWindowSizeException();
+                driver.SeCmdSetWindowSize(0, 0);
 			}
 			catch (Exception e)
 			{
@@ -252,35 +247,6 @@ namespace CloudBeat.Oxygen.Modules
 					throw;
 				}
 			}
-		}
-
-		protected bool SetWindowSize(SeleniumDriver cmdProc)
-		{
-			// If Window.Size is called too soon before the browser/driver finished intializing
-			// we might receive a NoSuchFrameException exception.
-			// To avoid this, we retry multiple times till we succeed or maximum numer of retries is reached
-			// See issue #9.
-			try
-			{
-				new WebDriverWait(cmdProc, TimeSpan.FromSeconds(TIMEOUT_WINDOW_SIZE)).Until((d) =>
-				{
-					try
-					{
-                        cmdProc.Manage().Window.Maximize();// Size = new System.Drawing.Size(BROWSER_W, BROWSER_H);
-						return true;
-					}
-					catch (Exception)
-					{
-						return false;
-					}
-				});
-			}
-			catch (WebDriverTimeoutException e)
-			{
-				log.Error("Couldn't set window size.", e);
-				return false;
-			}
-			return true;
 		}
 
         public bool Dispose()
@@ -541,6 +507,10 @@ namespace CloudBeat.Oxygen.Modules
         public CommandResult MakeVisible(string locator)
         {
             return ExecuteSeleniumCommand(locator);
+        }
+        public CommandResult SetWindowSize(int width, int height)
+        {
+            return ExecuteSeleniumCommand(width, height);
         }
 		#endregion
 

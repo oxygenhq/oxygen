@@ -14,6 +14,8 @@ namespace CloudBeat.Oxygen
 {
     public partial class SeleniumDriver
     {
+        private const int TIMEOUT_WINDOW_SIZE = 20; // in seconds
+
         public void SeCmdSetTimeout(int timeout)
         {
             pageLoadTimeout = waitForTimeout = asynScriptTimeout = timeout;
@@ -553,6 +555,42 @@ namespace CloudBeat.Oxygen
 
             if (!success)
                 throw new StaleElementReferenceException();
+        }
+
+        public void SeCmdSetWindowSize(int width, int height)
+        {
+            if (width < 0 || height < 0 || (width == 0 && height != 0 || width != 0 && height == 0))
+                throw new OxSetWindowSizeException("Invalid arguments");
+
+            Exception lastException = null;
+			// If Window.Size is called too soon before the browser/driver finished intializing
+			// we might receive a NoSuchFrameException exception.
+			// To avoid this, we retry multiple times till we succeed or maximum numer of retries is reached
+			// See issue #9.
+			try
+			{
+				new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_WINDOW_SIZE)).Until((d) =>
+				{
+					try
+					{
+                        if (width == 0 && height == 0)
+                            Manage().Window.Maximize();
+                        else
+                            Manage().Window.Size = new System.Drawing.Size(width, height);
+
+						return true;
+					}
+					catch (Exception e)
+					{
+                        lastException = e;
+						return false;
+					}
+				});
+			}
+			catch (WebDriverTimeoutException)
+			{
+                throw new OxSetWindowSizeException(lastException.Message);
+			}
         }
     }
 }
