@@ -5,7 +5,7 @@
 const STATUS = require('../model/status.js');
 
 module.exports = function (argv, context, rs, logger, dispatcher) {
-	var module = { modType: "fiber" };
+    var module = { modType: "fiber" };
 	
     var _ = require('underscore');
 	var moment = require('moment');
@@ -171,7 +171,13 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	module.getLocation = function (locator) {
 	  return invokeDriverCommandComplete("getLocation", locator, Array.prototype.slice.call(arguments));
 	};
-		
+	
+	/**
+     * @summary Send a sequence of key strokes to an element based on given locator.
+     * @function sendKeys
+     * @param {String} locator - Element's locator. "id=" to search by ID or "//" to search by XPath.
+	 * @param {String} text - Text to be sent as a sequence of keys.
+     */
 	module.sendKeys = function(locator, text) { 
 		return invokeDriverCommandComplete("sendKeys", locator, Array.prototype.slice.call(arguments));
 	};
@@ -185,14 +191,20 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	};
 
     /**
-     * @summary Pauses test execution for given amount of seconds.
+     * @summary Pauses test execution for given amount of milliseconds.
      * @function pause
-     * @param {Float} seconds - seconds to pause the execution.
+     * @param {Integer} ms - Milliseconds to pause the execution.
      */
     module.pause = function(ms) { 
 		return invokeDriverCommandComplete("sleep", null, Array.prototype.slice.call(arguments));
 	};
 	
+	/**
+     * @summary Waits for an element for the given amount of milliseconds to be present in the DOM. 
+     * @function waitForElement
+	 * @param {String} locator - Element's locator. "id=" to search by ID or "//" to search by XPath.
+     * @param {Integer} ms - (optional) Milliseconds to pause the execution. If not specified, default timeout value will be used.
+     */
 	module.waitForElement = function(locator, timeout) {
 		var actualTimeout = timeout || DEFAULT_WAIT_TIMEOUT;
 		var StepResult = require('../model/stepresult');
