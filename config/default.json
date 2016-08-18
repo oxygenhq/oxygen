@@ -1,5 +1,6 @@
 {
 	"useFiber": false,
+	"allowRequire": true,
     "logger": {
         "log": "log.txt",
         "loglevel": "error"
