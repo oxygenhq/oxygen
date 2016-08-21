@@ -4742,6 +4742,26 @@
       <param name="port">The port number on which the driver will listen</param>
       <returns>A EdgeDriverService using the specified port.</returns>
     </member>
+    <member name="P:OpenQA.Selenium.Edge.EdgeDriverService.Host">
+      <summary>
+            Gets or sets the value of the host adapter on which the Edge driver service should listen for connections.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Edge.EdgeDriverService.Package">
+      <summary>
+            Gets or sets the value of the package the Edge driver service will launch and automate.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Edge.EdgeDriverService.UseVerboseLogging">
+      <summary>
+            Gets or sets a value indicating whether the service should use verbose logging.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Edge.EdgeDriverService.CommandLineArguments">
+      <summary>
+            Gets the command-line arguments for the driver service.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Edge.EdgePageLoadStrategy">
       <summary>
             Specifies the behavior of waiting for page loads in the Edge driver.
@@ -5079,16 +5099,6 @@
             channel of Firefox.
             </summary>
     </member>
-    <member name="P:OpenQA.Selenium.Firefox.FirefoxDriver.Binary">
-      <summary>
-            Gets the FirefoxBinary and its details for subclasses
-            </summary>
-    </member>
-    <member name="P:OpenQA.Selenium.Firefox.FirefoxDriver.Profile">
-      <summary>
-            Gets the FirefoxProfile that is currently in use by subclasses
-            </summary>
-    </member>
     <member name="T:OpenQA.Selenium.Remote.ICommandExecutor">
       <summary>
             Provides a way to send commands to the remote server
@@ -5211,7 +5221,7 @@
     </member>
     <member name="M:OpenQA.Selenium.Firefox.FirefoxDriverService.CreateDefaultService(System.String,System.String)">
       <summary>
-            Creates a default instance of the FirefoxDriverService using a specified path to the ChromeDriver executable with the given name.
+            Creates a default instance of the FirefoxDriverService using a specified path to the Firefox driver executable with the given name.
             </summary>
       <param name="driverPath">The directory containing the Firefox driver executable.</param>
       <param name="driverExecutableFileName">The name of th  Firefox driver executable file.</param>
@@ -5309,6 +5319,18 @@
             </code>
       </example>
     </member>
+    <member name="M:OpenQA.Selenium.Firefox.FirefoxOptions.#ctor">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Firefox.FirefoxOptions" /> class.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Firefox.FirefoxOptions.#ctor(OpenQA.Selenium.Firefox.FirefoxProfile,OpenQA.Selenium.Firefox.FirefoxBinary)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Firefox.FirefoxOptions" /> class for the given profile and binary.
+            </summary>
+      <param name="profile">The <see cref="T:OpenQA.Selenium.Firefox.FirefoxProfile" /> to use in the options.</param>
+      <param name="binary">The <see cref="T:OpenQA.Selenium.Firefox.FirefoxBinary" /> to use in the options.</param>
+    </member>
     <member name="M:OpenQA.Selenium.Firefox.FirefoxOptions.AddAdditionalCapability(System.String,System.Object)">
       <summary>
             Provides a means to add additional capabilities not yet added as type safe options
@@ -5335,6 +5357,22 @@
     <member name="P:OpenQA.Selenium.Firefox.FirefoxOptions.IsMarionette">
       <summary>
             Gets or sets a value indicating whether or not to use the Mozilla-provided Marionette implementation.
+            Defaults to <see langword="true" />.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Firefox.FirefoxOptions.UseLegacyImplementation">
+      <summary>
+            Gets or sets a value indicating whether to use the legacy driver implementation.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Firefox.FirefoxOptions.Profile">
+      <summary>
+            Gets or sets the <see cref="T:OpenQA.Selenium.Firefox.FirefoxProfile" /> object to be used with this instance.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Firefox.FirefoxOptions.BrowserExecutableLocation">
+      <summary>
+            Gets or sets the path and file name of the Firefox browser executable.
             </summary>
     </member>
     <member name="T:OpenQA.Selenium.Firefox.FirefoxProfile">
