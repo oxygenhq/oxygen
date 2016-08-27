@@ -5,9 +5,6 @@
   "private": true,
   "main": "./lib/oxygen.js",
   "preferGlobal": "true",
-  "bin": {
-    "oxygen-server": "lib/oxygen-server.js"
-  },
   "repository": {
     "type": "git",
     "url": "git://github.com/cloudbeat/oxygen.git"
