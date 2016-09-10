@@ -5,7 +5,8 @@
 const STATUS = require('../model/status.js');
 
 module.exports = function (argv, context, rs, logger, dispatcher) {
-    var module = { modType: "fiber" };
+    //var module = {};
+	var module = { modType: "fiber" };
 	
     var _ = require('underscore');
 	var moment = require('moment');
@@ -14,9 +15,9 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	var OxygenError = require('../errors/oxerror');
 	var Failure = require('../model/stepfailure');
 
-    var client = wdSync.remote("localhost", 4723);
-    var driver = module.driver = client.browser;
-    var sync = client.sync;
+    var client = null; //wdSync.remote("localhost", 4723);
+    var driver = null; //module.driver = client.browser;
+    var sync = null; //client.sync;
 	
 	// initialization indicator
 	var isInitialized = false;
@@ -29,6 +30,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 		
 	const DEFAULT_WAIT_TIMEOUT = 60000; 
 	const POOLING_INTERVAL = 5000; 
+	const DEFAULT_APPIUM_PORT = 4723;
+	const DEFAULT_APPIUM_HOST = "localhost";
 	
 	const noScreenshotCommands = [
 		"init"
@@ -47,19 +50,18 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	module.autoWait = false;
 
 	/**
-     * @summary Initializes test settings and start a new Appium session.
+     * @summary Pauses test execution for given amount of seconds.
      * @function init
-     * @param {Json} caps - desired capabilities.
-	 * @param {String} url - Appium server url, including port.
+     * @param {Json} caps - Desired capabilities.
+	 * @param {String} host - alternative appium host.
+	 * @param {Integer} port - alternative appium port.
      */
-	module.init = function(caps, url) {
-		var deviceName = argv['mob@deviceName'];
-		if (deviceName && deviceName.length > 0)
-			caps.deviceName = deviceName;
-		var deviceOS = argv['mob@deviceOS'];
-		if (deviceOS)
-			caps.platformName = deviceOS;
-		
+	module.init = function(caps, host, port) {
+		// initialize driver with either default or custom appium/selenium grid address
+		client = wdSync.remote(host || DEFAULT_APPIUM_HOST, port || DEFAULT_APPIUM_PORT);
+   		driver = module.driver = client.browser;
+		sync = client.sync;
+
 		var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call(arguments));
 		isInitialized = true;
 	};
@@ -73,34 +75,19 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
     module.transaction = function (name) { 
         ctx._lastTransactionName = name;
     };
-	/**
-     * @summary Sets context.
-     * @function setContext
-	 * @param {String} context - Context name (NATIVE_APP, WEBVIEW, etc.).
-     */
+	
 	module.setContext = function(context) {
 		driver.context(context);
 	};
-	/**
-     * @summary Gets source code of the page.
-     * @function getSource
-     */
+
 	module.getSource = function() {
 		return driver.source();
 	}
-	/**
-     * @summary Injects a snippet of JavaScript into the page.
-     * @function execute
-	 * @param {String} js - The script to be executed.
-	 * @param {Object} elm - Element to be passed as parameter.
-     */
+
 	module.execute = function(js, elm) {
 		return driver.execute(js, elm);
 	}
-	/**
-     * @summary Automatically sets context to the first available WEBVIEW.
-     * @function setWebViewContext
-     */
+	
 	module.setWebViewContext = function() {
 		try {
 			var contexts = driver.contexts();
@@ -118,10 +105,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
             throw new AppiumError(e, null, null);
         }
 	}
-	/**
-     * @summary Ends Appium session.
-     * @function dispose
-     */
+	
 	module.dispose = function() {
 		if (driver && isInitialized) {
             //console.log(wdSync.current());
@@ -130,10 +114,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			//return retval;
 		}
 	}	
-	/**
-     * @summary Take a screenshot of the current page.
-     * @function takeScreenshot
-     */
+	
 	module.takeScreenshot = function () {
 		return driver.takeScreenshot();
 	};
@@ -152,11 +133,18 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 		throw new Error("Not implemented");
 		//return driver.execute("mobile: swipe", { "touchCount": 1, "startX": 360, "startY": 1087, "endX": 349, "endY": 631, "duration": 0.665 })
 		//return invokeDriverCommandComplete("swipe", locator, Array.prototype.slice.call(arguments));
+        
+	};
+	  module.swipe = function(startX, startY, endX, endY, duration) {
+        AppiumDriver.context("NATIVE_APP"); 
+		AppiumDriver.swipe(startX, startY, endX, endY, duration);
 	};
     /**
-     * @summary Click on an element based on given locator.
+     * @summary Clicks on a widget.
      * @function click
-     * @param {String} locator - Element's locator. "id=" to search by ID or "//" to search by XPath.
+     * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
+     * @param {Integer} wait - Time in seconds to wait for the widget.
+     * @param {Integer} pollrate - Time in seconds between polling intervals.
      */
     module.click = function(locator) { 
 		return invokeDriverCommandComplete("click", locator, Array.prototype.slice.call(arguments));
@@ -171,13 +159,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	module.getLocation = function (locator) {
 	  return invokeDriverCommandComplete("getLocation", locator, Array.prototype.slice.call(arguments));
 	};
-	
-	/**
-     * @summary Send a sequence of key strokes to an element based on given locator.
-     * @function sendKeys
-     * @param {String} locator - Element's locator. "id=" to search by ID or "//" to search by XPath.
-	 * @param {String} text - Text to be sent as a sequence of keys.
-     */
+		
 	module.sendKeys = function(locator, text) { 
 		return invokeDriverCommandComplete("sendKeys", locator, Array.prototype.slice.call(arguments));
 	};
@@ -191,20 +173,14 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	};
 
     /**
-     * @summary Pauses test execution for given amount of milliseconds.
+     * @summary Pauses test execution for given amount of seconds.
      * @function pause
-     * @param {Integer} ms - Milliseconds to pause the execution.
+     * @param {Float} seconds - seconds to pause the execution.
      */
     module.pause = function(ms) { 
 		return invokeDriverCommandComplete("sleep", null, Array.prototype.slice.call(arguments));
 	};
 	
-	/**
-     * @summary Waits for an element for the given amount of milliseconds to be present in the DOM. 
-     * @function waitForElement
-	 * @param {String} locator - Element's locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {Integer} ms - (optional) Milliseconds to pause the execution. If not specified, default timeout value will be used.
-     */
 	module.waitForElement = function(locator, timeout) {
 		var actualTimeout = timeout || DEFAULT_WAIT_TIMEOUT;
 		var StepResult = require('../model/stepresult');
@@ -260,6 +236,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			return driver.waitForElementByAccessibilityId(locator.substr('text='.length));
 		//if (locator.indexOf('//') == 0)
 		//	return driver.elementByXPath(locator);
+		if (locator.indexOf('(/') == 0)
+			return driver.waitForElementByXPath(locator);
 		if (locator.indexOf('/') == 0)
 			return driver.waitForElementByXPath(locator);
 		
@@ -271,7 +249,9 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	}
 	
 	module.findElement = function(locator) {
-		if (!locator) throw new Error('locator is empty or not specified');
+		try
+		{
+		//if (!locator) throw new Error('locator is empty or not specified');
 		if (locator.indexOf('name=') == 0)
 			return driver.elementByName(locator.substr('name='.length));
 		if (locator.indexOf('id=') == 0)
@@ -280,12 +260,19 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			return driver.elementByXPath(locator.substr('xpath='.length));
 		if (locator.indexOf('text=') == 0)
 			return driver.elementByAccessibilityId(locator.substr('text='.length));
-		//if (locator.indexOf('//') == 0)
-		//	return driver.elementByXPath(locator);
+		if (locator.indexOf('//') == 0)
+			return driver.elementByXPath(locator);
+		if (locator.indexOf('(/') == 0)
+			return driver.elementByXPath(locator);
 		if (locator.indexOf('/') == 0)
 			return driver.elementByXPath(locator);
-		
-		throw new Error('Not a valid locator: ' + locator);
+		//throw new Error('Not a valid locator: ' + locator);
+		}
+		catch(e)
+		{
+			return null;
+		}
+
 	}
 	module.findElements = function(locator) {
 		if (!locator) throw new Error('locator is empty or not specified');
@@ -297,10 +284,15 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			return driver.elementsByXPath(locator.substr('xpath='.length));
 		if (locator.indexOf('text=') == 0)
 			return driver.elementsByAccessibilityId(locator.substr('text='.length));
+		//if (locator.indexOf('//') == 0)
+		//	return driver.elementsByXPath(locator.substr('//'.length));
+		if (locator.indexOf('//') == 0)
+			return driver.elementsByXPath(locator);			
 		if (locator.indexOf('/') == 0)
 			return driver.elementsByXPath(locator.substr('/'.length));
-		if (locator.indexOf('//') == 0)
-			return driver.elementsByXPath(locator.substr('//'.length));
+	
+	
+			
 		throw new Error('Not a valid locator: ' + locator);
 	};
 	/*
