@@ -392,7 +392,7 @@ namespace CloudBeat.Oxygen.Modules
         {
             return ExecuteSeleniumCommand(waitTime);
         }
-		public CommandResult WaitForPopUp(string windowID, int timeout)
+		public CommandResult WaitForWindow(string windowID, int timeout)
         {
             return ExecuteSeleniumCommand(windowID, timeout);
         }
