@@ -299,6 +299,12 @@ namespace CloudBeat.Oxygen
 		{
 			string currentUrl = null;
             UnhandledAlertException alert = null;
+
+            // NOTE: DO NOT REMOVE THE FOLLOWING LINE!
+            // There seems to be an issue in Chrome WebDriver (or C# bindings?) that if RemoteWebDriver.Url is called after current window was closed, such as a popup,
+            // it hangs indefinitely. Fetching WindowHandles seems to resolve this.
+            var hndls = this.WindowHandles;
+
 			new WebDriverWait(this, TimeSpan.FromSeconds(TIMEOUT_FETCH_URL)).Until((d) =>
 			{
 				try

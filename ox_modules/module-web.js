@@ -304,7 +304,7 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
      */
     module.pause = function() { return handleStepResult(dispatcher.execute('web', 'pause', Array.prototype.slice.call(arguments)), rs); };
     /**
-     * @summary Waits for a popup window to appear.
+     * @summary Waits for a window to appear.
      * @description <code>windowLocator</code> can be:
      *              <ul>
      *              <li><code>title=TITLE</code> - Wait for the first window which matches the 
@@ -313,12 +313,12 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
      *              </li>
      *              <li>An empty string - Wait for any new window to appear.</li>
      *              </ul>
-     * @function waitForPopUp
+     * @function waitForWindow
      * @param {String} windowLocator - A window locator.
      * @param {Integer} timeout - A timeout in milliseconds, after which the action will return with 
      *                           an error.
      */
-    module.waitForPopUp = function() { return handleStepResult(dispatcher.execute('web', 'waitForPopUp', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForWindow = function() { return handleStepResult(dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)), rs); };
     /**
      * @summary Selects a frame within the current window.
      * @description Available frame locators:
