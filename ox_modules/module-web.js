@@ -319,6 +319,10 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
      *                           an error.
      */
     module.waitForWindow = function() { return handleStepResult(dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)), rs); };
+    
+    // FIXME: temporary hack for backward compatibility. remove once DB and agents at all locations are updated.
+    module.waitForPopUp = function() { return handleStepResult(dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)), rs); };
+
     /**
      * @summary Selects a frame within the current window.
      * @description Available frame locators:
