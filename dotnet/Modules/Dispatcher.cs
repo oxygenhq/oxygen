@@ -25,7 +25,7 @@ namespace CloudBeat.Oxygen.Modules
             modules.Add("assert", new ModuleAssert());
 			ctx = new ExecutionContext();
 
-			//Thread.Sleep(15000);
+			//Thread.Sleep(25000);
 		}
 		public Task<object> Invoke(dynamic input)
 		{
@@ -145,7 +145,7 @@ namespace CloudBeat.Oxygen.Modules
 				return args;
 			foreach (var item in obj)
 			{
-				if (item.Value != null && item.Value.GetType() == typeof(string))
+				if (item.Value != null && (item.Value.GetType() == typeof(string) || item.Value.GetType().IsPrimitive))
 					args.Add(item.Key, item.Value.ToString());
 				else if (item.Value != null && item.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
 				{
