@@ -2,7 +2,12 @@
 	"useFiber": false,
 	"allowRequire": true,
     "logger": {
-        "log": "log.txt",
-        "loglevel": "error"
+		"console": {
+			"level": "debug"
+		},
+		"file": {
+			"level": "debug",
+			"path": "log.txt"
+		}
     }
 }

@@ -4,7 +4,7 @@
  */
 const STATUS = require('../model/status.js');
 
-module.exports = function (argv, context, rs, logger, dispatcher) {
+module.exports = function (options, context, rs, logger, dispatcher) {
     //var module = {};
 	var module = { modType: "fiber" };
 	
@@ -14,6 +14,12 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
     var AppiumError = require('../errors/appium');
 	var OxygenError = require('../errors/oxerror');
 	var Failure = require('../model/stepfailure');
+	
+	// constants
+	const DEFAULT_WAIT_TIMEOUT = 60000; 
+	const POOLING_INTERVAL = 5000; 
+	const DEFAULT_APPIUM_PORT = 4723;
+	const DEFAULT_APPIUM_HOST = "localhost";
 
     var client = null; //wdSync.remote("localhost", 4723);
     var driver = null; //module.driver = client.browser;
@@ -25,13 +31,16 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	var rs = rs;
 	// context variables
 	var ctx = context;
+	// startup options
+	var _options = options;
 	// save driver capabilities for later use when error occures
-	var caps = null;
+	var _caps = null;
+	// appium or selenium hub host name
+	var _host = options.host || DEFAULT_APPIUM_HOST;
+	// appium or selenium hub port number
+	var _port = options.port || DEFAULT_APPIUM_PORT;
 		
-	const DEFAULT_WAIT_TIMEOUT = 60000; 
-	const POOLING_INTERVAL = 5000; 
-	const DEFAULT_APPIUM_PORT = 4723;
-	const DEFAULT_APPIUM_HOST = "localhost";
+	
 	
 	const noScreenshotCommands = [
 		"init"
@@ -58,11 +67,11 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
      */
 	module.init = function(caps, host, port) {
 		// initialize driver with either default or custom appium/selenium grid address
-		client = wdSync.remote(host || DEFAULT_APPIUM_HOST, port || DEFAULT_APPIUM_PORT);
+		client = wdSync.remote(host || _host, port || _port);
    		driver = module.driver = client.browser;
 		sync = client.sync;
-
-		var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call(arguments));
+		_caps = caps || ctx.caps;
+		var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call([_caps]));	
 		isInitialized = true;
 	};
 	/**
@@ -167,6 +176,39 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	module.submit = function (locator) {
 	  return invokeDriverCommandComplete("submit", locator, Array.prototype.slice.call(arguments));
 	};
+	/**
+     * @summary Asserts element's value.
+     * @function assertValue
+     * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
+     * @param {String} value - Expected element value.
+     */
+	module.assertValue = function (locator, value) {
+		var elm = module.findElement(locator);
+		var StepResult = require('../model/stepresult');
+        var step = new StepResult();
+		var result = {
+			step: step,
+			err: null,
+			value: null
+		}
+		step._name = "mob.assertValue";
+		step._transaction = ctx._lastTransactionName;
+		step._status = "passed";
+		step._action = "false";
+		
+		var actualValue = elm.text();
+		
+		if (actualValue !== value) {
+			result.err = new OxygenError("ASSERTION_FAILED", "Assertion failed for element: '" + locator + "'. Expected value: '" + value + "'. Actual value: '" + actualValue + "'");
+			step._status = STATUS.FAILED;
+			step.failure = new Failure();
+			step.failure._message = result.err.message;
+			step.failure._expectedValue = value;
+			step.failure._actualValue = actualValue;
+		}
+		
+		return addStepResult(result);
+	};
 	
 	module.clear = function (locator) {
 	  return invokeDriverCommandComplete("clear", locator, Array.prototype.slice.call(arguments));
@@ -249,9 +291,8 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 	}
 	
 	module.findElement = function(locator) {
-		try
-		{
-		//if (!locator) throw new Error('locator is empty or not specified');
+		if (!locator) 
+			throw new Error('locator is empty or not specified');
 		if (locator.indexOf('name=') == 0)
 			return driver.elementByName(locator.substr('name='.length));
 		if (locator.indexOf('id=') == 0)
@@ -266,13 +307,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 			return driver.elementByXPath(locator);
 		if (locator.indexOf('/') == 0)
 			return driver.elementByXPath(locator);
-		//throw new Error('Not a valid locator: ' + locator);
-		}
-		catch(e)
-		{
-			return null;
-		}
-
+		throw new Error('Not a valid locator: ' + locator);
 	}
 	module.findElements = function(locator) {
 		if (!locator) throw new Error('locator is empty or not specified');
@@ -313,13 +348,22 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 		step._transaction = ctx._lastTransactionName;
 		step._status = "passed";
 		step._action = _.contains(ACTION_COMMANDS, cmd).toString();
+		
+		// check if driver has been initialized
+		if (!driver) {
+			result.err = new OxygenError("MODULE_NOT_INITIALIZED", "'mob.init' must be called first before any other method");
+			step._status = STATUS.FAILED;
+			step.failure = new Failure();
+			step.failure._message = result.err.message;
+			return result;
+		}
 		// if locator is specified, resolve the element first (not all selenium driver commands require element selection)
 		if (locator) {
 			try {
 				elm = module.findElement(locator);
 			}
 			catch (err) {
-				result.err = new AppiumError(err, caps, null);
+				result.err = new AppiumError(err, _caps, null);
 				step._status = STATUS.FAILED;
 				step.failure = new Failure();
 				step.failure._message = err.message;
@@ -342,7 +386,7 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 				}
 			}
 			catch (err) {
-				result.err = new AppiumError(err, caps, null);
+				result.err = new AppiumError(err, _caps, null);
 				step._status = STATUS.FAILED;
 				step.failure = new Failure();
 				step.failure._message = err.message;
@@ -358,6 +402,15 @@ module.exports = function (argv, context, rs, logger, dispatcher) {
 		rs.steps.push(result.step);
 		if (result.err) {
 			if (!_.contains(noScreenshotCommands, cmd))
+				result.step.screenshot = module.takeScreenshot();
+			throw result.err;
+		}
+		return result.value;
+	}
+	function addStepResult(result) {
+		rs.steps.push(result.step);
+		if (result.err) {
+			if (!_.contains(noScreenshotCommands, result.step._name))	// FIXME: extract cmd part from result.step._name
 				result.step.screenshot = module.takeScreenshot();
 			throw result.err;
 		}
