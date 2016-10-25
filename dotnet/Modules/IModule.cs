@@ -12,7 +12,7 @@ namespace CloudBeat.Oxygen.Modules
 		bool Dispose();
 		bool IsInitialized { get; }
 		object IterationStarted();
-		object IterationEnded();
+        object IterationEnded();
 		string Name { get; }
 	}
 }

@@ -1,5 +1,4 @@
 ﻿using CloudBeat.Oxygen.Models;
-using CloudBeat.Oxygen.ProxyClient;
 using log4net;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
@@ -17,11 +16,9 @@ namespace CloudBeat.Oxygen.Modules
 		private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
         private SeleniumDriver driver;
-        private BMPClient proxyClient = null;
+        private Proxy proxy = null;
         private const string PROXY_LOCAL_ADDR = "127.0.0.1";
-
-        public delegate void TransactionEventHandler(string transaction);
-        public event TransactionEventHandler TransactionUpdate;
+        private const int PROXY_LOCAL_PORT = 8080;
 
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
         private bool fetchStats = true;
@@ -34,7 +31,7 @@ namespace CloudBeat.Oxygen.Modules
 		private DesiredCapabilities capabilities;
 		private ExecutionContext ctx;
 
-        private HashSet<string> transactions = new HashSet<string>();
+        private IDictionary<string, string> transactions = new Dictionary<string, string>();
 
 		#region Defauts
 		private const string DEFAULT_BROWSER_NAME = "internetexplorer";
@@ -42,7 +39,7 @@ namespace CloudBeat.Oxygen.Modules
 		private const int BMP_READ_TIMEOUT = 300000;	// in ms
 		private const int BMP_CON_TIMEOUT = 300000;		// in ms
 
-		private const int PROXY_CONN_RETRY_COUNT = 5;
+		private const int PROXY_CONN_RETRY_COUNT = 10;
 		private const int SELENIUM_CONN_RETRY_COUNT = 2;
 		#endregion
 
@@ -56,8 +53,8 @@ namespace CloudBeat.Oxygen.Modules
 
 		public ModuleWeb()
 		{
-
 		}
+
 		public ModuleWeb(bool fetchStats, ScreenshotMode screenshotMode)
         {
 			this.screenshotMode = screenshotMode;
@@ -71,23 +68,32 @@ namespace CloudBeat.Oxygen.Modules
         {
 			this.driver = driver;
         }
+
 		public object IterationStarted()
 		{
 			// initialize selenium driver if auto init option is on and the driver is not initialized already
 			if (!initialized && autoInitDriver)
 				InitializeSeleniumDriver();
-			if (proxyClient != null)
-				proxyClient.NewHar(true);
 			return null;
 		}
-		public object IterationEnded()
+
+        public object IterationEnded()
 		{
-			if (proxyClient != null)
-				return proxyClient.GetHarJson();
 			if (reopenBrowserOnIteration)
-				Dispose();		
-			return null;
+				Dispose();
+
+            // har won't be fetched for last transaction, so we do it here
+            if (proxy != null)
+            {
+                String har = proxy.HarGet();
+                transactions.Remove(prevTransaction);
+                transactions.Add(prevTransaction, har);
+                proxy.HarReset();
+            }
+
+			return transactions;
 		}
+
 		public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
 		{
 			this.ctx = ctx;
@@ -119,32 +125,32 @@ namespace CloudBeat.Oxygen.Modules
 			initialized = true;
 			return true;
 		}
+
 		public void Quit()
 		{
 			Dispose();
 		}
+
 		protected void InitializeSeleniumDriver()
 		{
-			//BMPClient proxyClient = null;
-			if (!string.IsNullOrEmpty(proxyUrl))
-				proxyClient = ConnectToProxy(proxyUrl);
-			if (capabilities == null)
-				capabilities = DCFactory.Get(DEFAULT_BROWSER_NAME);
+            if (capabilities == null)
+                capabilities = DCFactory.Get(DEFAULT_BROWSER_NAME);
 
-            if (proxyClient != null)
+            if (!string.IsNullOrEmpty(proxyUrl))                    // FIXME: proxyUrl should be changed to addr and passed along with port from js
             {
-                var proxyPort = proxyClient.SeleniumProxy.Substring(proxyClient.SeleniumProxy.IndexOf(':'));
-                OpenQA.Selenium.Proxy proxy = new OpenQA.Selenium.Proxy
+                proxy = Proxy.Create(PROXY_LOCAL_ADDR, PROXY_LOCAL_PORT);
+
+                OpenQA.Selenium.Proxy selProxy = new OpenQA.Selenium.Proxy
                 {
-                    HttpProxy = PROXY_LOCAL_ADDR + proxyPort,
-                    SslProxy = PROXY_LOCAL_ADDR + proxyPort
+                    HttpProxy = PROXY_LOCAL_ADDR + ":" + PROXY_LOCAL_PORT,
+                    SslProxy = PROXY_LOCAL_ADDR + ":" + PROXY_LOCAL_PORT
                 };
-                capabilities.SetCapability(CapabilityType.Proxy, proxy);
+                capabilities.SetCapability(CapabilityType.Proxy, selProxy);
             }
 
 			try
 			{
-				driver = ConnectToSelenium(capabilities, proxyClient, seleniumUrl, ctx);
+				driver = ConnectToSelenium(capabilities, proxy, seleniumUrl, ctx);
                 driver.SeCmdSetWindowSize(0, 0);
 			}
 			catch (Exception e)
@@ -153,72 +159,17 @@ namespace CloudBeat.Oxygen.Modules
 				throw new OxModuleInitializationException("Can't initialize web module", e);
 			}
 			if (driver == null)
-				throw new OxModuleInitializationException("Can't initialize Selenium driver in web module");
-			
-		}
-		protected BMPClient ConnectToProxy(string proxyUrl)
-		{
-			// Due to a possible race condition in the proxy when it tries to find a new port for the proxy server
-			// we might get an WebException with Responce.StatusCode set to InternalServerError
-			// This means the proxy is alive but hit a blocked port when initializing new proxy server. Hence we retry until success.
-			// All other exceptions mean proxy is down or network problems.
-			int connectAttempt = 0;
-			BMPClient client = null;
-			Exception orgException = null;
-			do
-			{
-				try
-				{
-					client = new BMPClient(proxyUrl);
-				}
-				catch (Exception e)
-				{
-					var we = e as WebException;
-					if (we != null && we.Response != null && we.Response is HttpWebResponse && ((HttpWebResponse)we.Response).StatusDescription == "550")
-					{
-						orgException = we;
-						connectAttempt++;
-						continue;
-					}
-
-					log.Fatal("Error connecting to proxy", e);
-					throw new Exception("Can't initialize proxy: " + e.Message);
-				}
-				break;
-			} while (connectAttempt < PROXY_CONN_RETRY_COUNT);
-			if (client == null)
-			{
-				if (orgException != null)
-					throw new Exception("Can't initialize proxy, connection attempts failed: " + orgException.Message);
-				throw new Exception("Can't initialize proxy, connection attempts failed");
-			}
-			try
-			{
-				//client.NewHar(true); // now called in IterationStarted
-				client.SetTimeouts(new TimeoutOptions { ReadTimeout = BMP_READ_TIMEOUT, ConnectionTimeout = BMP_CON_TIMEOUT });
-			}
-			catch (Exception e)
-			{
-				log.Fatal("Error configuring the proxy", e);
-				throw new Exception("Can't initialize proxy: " + e.Message);
-			}
-			return client;
+				throw new OxModuleInitializationException("Can't initialize Selenium driver in web module");	
 		}
 
-		private void NewHarPageCallbackHandler(BMPClient proxyClient, string name)
-		{
-			if (proxyClient != null)
-				proxyClient.NewPage(name);
-		}
-
-		protected SeleniumDriver ConnectToSelenium(DesiredCapabilities dc, BMPClient proxyClient, string seleniumUrl, CloudBeat.Oxygen.ExecutionContext context)
+		protected SeleniumDriver ConnectToSelenium(DesiredCapabilities dc, Proxy proxy, string seleniumUrl, CloudBeat.Oxygen.ExecutionContext context)
 		{
 			int connectAttempt = 0;
 			while (true)
 			{
 				try
 				{
-					return new SeleniumDriver(new Uri(seleniumUrl), dc, (x) => NewHarPageCallbackHandler(proxyClient, x), context);
+                    return new SeleniumDriver(new Uri(seleniumUrl), dc, context);
 				}
 				catch (Exception e)
 				{
@@ -255,12 +206,12 @@ namespace CloudBeat.Oxygen.Modules
             {
                 if (driver != null)
 					driver.Quit();
-				if (proxyClient != null)
-					proxyClient.Close();
+				if (proxy != null)
+                    proxy.Dispose();
             }
             catch (Exception) { } // ignore exceptions
 			driver = null;
-			proxyClient = null;
+            proxy = null;
 			initialized = false;
 			return true;
         }
@@ -304,21 +255,30 @@ namespace CloudBeat.Oxygen.Modules
             return null;
         }
 
+        public string prevTransaction = null;
         public void transaction(string name)
         {
-			if (driver == null)
-				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
-            // throw in case we hit a duplicate transaction
-            if (transactions.Contains(name))
+            // throw in case we hit a duplicate transaction                                 // FIXME: throw
+            if (transactions.ContainsKey(name))
             {
                 var e = new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
                 // TODO: thwo on duplicate trnsactions
             }
-            transactions.Add(name);
-			driver.StartNewTransaction(name);
-            if (TransactionUpdate != null)   
-                TransactionUpdate(name);
+
+            transactions.Add(name, null);
+
+            //  fetch har and save it under previous transaction
+            if (proxy != null && prevTransaction != null)
+            {
+                String har = proxy.HarGet();
+                transactions.Remove(prevTransaction);
+                transactions.Add(prevTransaction, har);
+                proxy.HarReset();
+            }
+
+            prevTransaction = name;
         }
+
 		public CommandResult SetTimeout(int timeout)
         {
             return ExecuteSeleniumCommand(timeout);

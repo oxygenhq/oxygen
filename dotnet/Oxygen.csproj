@@ -90,10 +90,7 @@
     <Compile Include="PageObjects\PageObjectManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SeleniumDriver\DesiredCapabilities\Capabilities.cs" />
-    <Compile Include="SeleniumDriver\ProxyClient\BMPClient.cs" />
-    <Compile Include="SeleniumDriver\ProxyClient\HarOptions.cs" />
-    <Compile Include="SeleniumDriver\ProxyClient\LimitOptions.cs" />
-    <Compile Include="SeleniumDriver\ProxyClient\TimeoutOptions.cs" />
+    <Compile Include="SeleniumDriver\Proxy.cs" />
     <Compile Include="SeleniumDriver\SeCommand.cs" />
     <Compile Include="SeleniumDriver\Accessors.cs" />
     <Compile Include="SeleniumDriver\Actions.cs" />

@@ -51,8 +51,6 @@ namespace CloudBeat.Oxygen
 
 		private ExecutionContext context;
 
-        private Action<string> newHarPageCallback;
-
         #region variables dictionary
 		private ReadOnlyDictionary<string, string> constantVariables = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>() 
         {
@@ -111,10 +109,9 @@ namespace CloudBeat.Oxygen
         });
         #endregion
 
-		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, Action<string> newHarPageCallback, ExecutionContext context)
+		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, ExecutionContext context)
             : base(remoteAddress, desiredCapabilities, TimeSpan.FromSeconds(TIMEOUT_COMMAND))
         {
-            this.newHarPageCallback = newHarPageCallback;
 			base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
             base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
 
@@ -124,12 +121,6 @@ namespace CloudBeat.Oxygen
         }
 
 		public ExecutionContext ExecutionContext { get { return context; } }
-
-        public void StartNewTransaction(string name)
-        {
-            if (newHarPageCallback != null)
-                newHarPageCallback(name);
-        }
 
         public object ExecuteCommand(SeCommand cmd,  ScreenshotMode screenshotMode, out string screenShot, out Exception exception)
         {
