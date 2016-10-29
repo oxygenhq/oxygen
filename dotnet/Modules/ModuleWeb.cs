@@ -666,7 +666,7 @@ namespace CloudBeat.Oxygen.Modules
 					var wex = wde.InnerException as WebException;
 					if (wex.Status == WebExceptionStatus.Timeout)
 						// there seems to be chromedriver bug where open/click will end in command timeout if 'load' event did not fire.
-						return CheckResultStatus.SCRIPT_TIMEOUT;
+                        return CheckResultStatus.NAVIGATE_TIMEOUT;
 				}
 				log.Error("Unknown WebDriverException. Needs checking!!!", wde);
 				return CheckResultStatus.UNKNOWN_ERROR;

@@ -25,7 +25,8 @@ namespace CloudBeat.Oxygen
         XML_ERROR,
         NO_ALERT_PRESENT,
         BROWSER_JS_EXECUTE_ERROR,
-        DUPLICATE_TRANSACTION
+        DUPLICATE_TRANSACTION,
+        NAVIGATE_TIMEOUT            // load event did not fire. this might also happen due to a bug in chromedriver.
     }
 	public enum ScreenshotMode
 	{
