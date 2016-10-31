@@ -17,9 +17,6 @@ namespace CloudBeat.Oxygen.Modules
 
         private SeleniumDriver driver;
         private Proxy proxy = null;
-        private const string PROXY_LOCAL_ADDR = "127.0.0.1";
-        private const int PROXY_LOCAL_PORT = 8080;
-
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
         private bool fetchStats = true;
 		private bool reopenBrowserOnIteration = false;
@@ -138,12 +135,12 @@ namespace CloudBeat.Oxygen.Modules
 
             if (!string.IsNullOrEmpty(proxyUrl))                    // FIXME: proxyUrl should be changed to addr and passed along with port from js
             {
-                proxy = Proxy.Create(PROXY_LOCAL_ADDR, PROXY_LOCAL_PORT);
+                proxy = Proxy.Create();
 
                 OpenQA.Selenium.Proxy selProxy = new OpenQA.Selenium.Proxy
                 {
-                    HttpProxy = PROXY_LOCAL_ADDR + ":" + PROXY_LOCAL_PORT,
-                    SslProxy = PROXY_LOCAL_ADDR + ":" + PROXY_LOCAL_PORT
+                    HttpProxy = proxy.proxyAddr + ":" + proxy.proxyPort,
+                    SslProxy = proxy.proxyAddr + ":" + proxy.proxyPort
                 };
                 capabilities.SetCapability(CapabilityType.Proxy, selProxy);
             }
@@ -206,10 +203,16 @@ namespace CloudBeat.Oxygen.Modules
             {
                 if (driver != null)
 					driver.Quit();
-				if (proxy != null)
+            } catch (Exception e) {
+            } // ignore exceptions
+
+            try
+            {
+                if (proxy != null)
                     proxy.Dispose();
             }
-            catch (Exception) { } // ignore exceptions
+            catch (Exception e) {
+            } // ignore exceptions
 			driver = null;
             proxy = null;
 			initialized = false;
