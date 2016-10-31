@@ -40,7 +40,7 @@ namespace CloudBeat.Oxygen
                     // proxy.process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
                     // proxy.process.StartInfo.CreateNoWindow = true;
                     proxy.process.Start();
-                    // wait for the process to initialize
+
                     Thread.Sleep(1000);
 
                     // process will terminate on error
@@ -51,14 +51,21 @@ namespace CloudBeat.Oxygen
                         continue;
                     }
 
-                    break;
+                    // test if proxy has inited
+                    string log = proxy.HarGet();
+                    if (log.StartsWith("{\"log"))
+                        break;
+
+                    proxy.Dispose();
+                    connectAttempt++;
+                    Thread.Sleep(1000);
+                    continue;
             	}
 				catch (Exception e)
 				{
 					log.Fatal("Error connecting to proxy", e);
 					throw new Exception("Can't initialize proxy: " + e.Message);
 				}
-				break;
 			} while (connectAttempt < PROXY_CONN_RETRY_COUNT);
 
             return proxy;
@@ -109,8 +116,12 @@ namespace CloudBeat.Oxygen
         public void Dispose()
         {
             if (process != null) {
-                process.Kill();
-                process.Dispose();
+                try
+                {
+                    process.Kill();
+                    process.Dispose();
+                }
+                catch (Exception) { } // ignored
             }
         }
 
