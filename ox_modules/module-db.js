@@ -19,10 +19,15 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
     /**
     * @summary Sets DB connection string to be used by other methods. 
     * @description This method doesn't actually open the connection as it's opened/closed 
-    *               automatically by query methods.<br/>
-    *               Example connection string: <code>Driver={MySQL ODBC 5.3 UNICODE Driver};
-    *               Server=localhost;Database=myDatabase;User=myUsername;Password=myPassword;
-    *               Option=3;</code>
+    *              automatically by query methods.<br/>
+    *              Example connection strings:<br/>
+    *              <ul>
+    *              <li><code>Driver={MySQL ODBC 5.3 UNICODE Driver};Server=localhost;
+    *               Database=myDatabase;User=myUsername;Password=myPassword;Option=3;</code>
+    *              </li>
+    *              <li><code>Driver={Oracle in instantclient_11_2};dbq=127.0.0.1:1521/XE;
+    *              uid=myUsername;pwd=myPassword;</code></li>
+    *              </ul>
     * @function setConnectionString
     * @param {String} connString - ODBC connection string.
     */
