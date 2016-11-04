@@ -34,7 +34,7 @@
     "doctrine": "0.6.4"
   },
   "dependencies": {
-	"async": "^2.0.1",
+    "async": "^2.0.1",
     "config": "^1.19.0",
     "csv-load-sync": "~1.0.0",
     "easyxml": "^2.0.1",
@@ -48,7 +48,9 @@
     "sync": "^0.2.5",
     "underscore": "^1.8.3",
     "wd-sync": "^1.2.5",
-    "when": "^3.7.3"
+    "when": "^3.7.3",
+    "xls-to-json-lc": "^0.3.3",
+    "xlsx-to-json-lc": "^0.2.5"
   },
   "scripts": {
     "build": "node_modules/.bin/grunt"
