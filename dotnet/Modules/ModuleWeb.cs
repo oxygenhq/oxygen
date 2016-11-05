@@ -41,11 +41,11 @@ namespace CloudBeat.Oxygen.Modules
 		#endregion
 
 		#region Argument Names
-		const string ARG_PROXY_URL = "proxyUrl";
-		const string ARG_SELENIUM_URL = "seleniumUrl";
-		const string ARG_INIT_DRIVER = "initDriver";
-		const string ARG_BROWSER_NAME = "browserName";
-		const string ARG_REOPEN_BROWSER = "reopenBrowser";
+        const string ARG_PROXY_URL = "web@proxyUrl";
+        const string ARG_SELENIUM_URL = "web@seleniumUrl";
+        const string ARG_INIT_DRIVER = "web@initDriver";
+        const string ARG_BROWSER_NAME = "web@browserName";
+		const string ARG_REOPEN_BROWSER = "web@reopenBrowser";
 		#endregion
 
 		public ModuleWeb()
@@ -101,7 +101,7 @@ namespace CloudBeat.Oxygen.Modules
 				seleniumUrl = args[ARG_SELENIUM_URL];
 			//else
 				//throw new ArgumentNullException(ARG_SELENIUM_URL);
-			autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER] == "True";
+			autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER] == "true";
 			reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER] == "true";
 			// initialize DesiredCapabilities with provided browser
 			if (args.ContainsKey(ARG_BROWSER_NAME))

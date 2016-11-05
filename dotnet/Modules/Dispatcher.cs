@@ -1,11 +1,8 @@
 ﻿using CloudBeat.Oxygen.Models;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Dynamic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -32,18 +29,6 @@ namespace CloudBeat.Oxygen.Modules
 			string name = (string)input.module;
 			string method = (string)input.method;
 
-			/*if (string.IsNullOrEmpty(name) && method == "TestInit")
-			{
-				ctx.Environment = ConvertExpandoObjectToDictionary(input.env);
-				return Task.FromResult<object>(null);
-			}
-			else if (string.IsNullOrEmpty(name) && method == "IterationStart")
-			{
-				ctx.Parameters = ConvertExpandoObjectToDictionary(input.parameters);
-				// call each module's IterationStarted method
-				foreach (var m in modules.Values) m.IterationStarted();
-				return Task.FromResult<object>(null);
-			}*/
 			if (string.IsNullOrEmpty(name) || !modules.ContainsKey(name))
 				throw new ArgumentException("Module not found", name);
 			if (string.IsNullOrEmpty(method))
@@ -58,7 +43,7 @@ namespace CloudBeat.Oxygen.Modules
 			// specially handle ModuleInitialize and ModuleDispose method calls
 			if (method == "ModuleInit")
 			{
-				var initArgs = ConvertExpandoObjectToDictionary(input.args);
+                var initArgs = CreateArgsDictionary(input.args);
 				return Task.FromResult<object>(module.Initialize(initArgs, ctx));
 			}
 			else if (method == "ModuleDispose")
@@ -69,8 +54,6 @@ namespace CloudBeat.Oxygen.Modules
 				return Task.FromResult<object>(module.IterationEnded());
 
 			object[] args = input.args as object[];
-			/*if (((IDictionary<String, object>)input).ContainsKey("vars"))
-				ctx.Variables = ConvertExpandoObjectToDictionary(input.vars);*/
 
 			Type modType = module.GetType();
 
@@ -79,10 +62,9 @@ namespace CloudBeat.Oxygen.Modules
 			{
 				// convert ExpandoObject to Dictionary
 				if (args[i].GetType() == typeof(ExpandoObject))
-					args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
+                    args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
 				paramTypes[i] = args[i].GetType();
 			}
-				
 
 			MethodInfo cmdMethod = modType.GetMethod(method, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
 			object retval = null;
@@ -109,9 +91,9 @@ namespace CloudBeat.Oxygen.Modules
 			var inParams = inputCtx.@params;
 			if (ctx == null)
 				ctx = new ExecutionContext();
-			ctx.Parameters = inParams != null ? ConvertExpandoObjectToDictionary(inParams) : ctx.Parameters;
-			ctx.Environment = inEnv != null ? ConvertExpandoObjectToDictionary(inEnv) : ctx.Environment;
-			ctx.Variables = inVars != null ? ConvertExpandoObjectToDictionary(inVars) : ctx.Variables;
+			ctx.Parameters = inParams != null ? CreateArgsDictionary(inParams) : ctx.Parameters;
+			ctx.Environment = inEnv != null ? CreateArgsDictionary(inEnv) : ctx.Environment;
+			ctx.Variables = inVars != null ? CreateArgsDictionary(inVars) : ctx.Variables;
 
 		}
 		private InvokeResult GetInvokeResult(IModule module, string method, object retval, CommandResult cmdResult, Exception e)
@@ -138,21 +120,35 @@ namespace CloudBeat.Oxygen.Modules
 				list.Add(new KeyValuePair<string, string>(key, dic[key]));
 			return list;
 		}
-		private Dictionary<string, string> ConvertExpandoObjectToDictionary(System.Dynamic.ExpandoObject obj)
-		{
-			Dictionary<string, string> args = new Dictionary<string, string>();
-			if (obj == null)
-				return args;
-			foreach (var item in obj)
-			{
-				if (item.Value != null && (item.Value.GetType() == typeof(string) || item.Value.GetType().IsPrimitive))
+
+        private Dictionary<string, string> ConvertExpandoObjectToDictionary(System.Dynamic.ExpandoObject obj)
+        {
+            Dictionary<string, string> args = new Dictionary<string, string>();
+            if (obj == null)
+                return args;
+            foreach (var item in obj)
+            {
+                if (item.Value != null && (item.Value.GetType() == typeof(string) || item.Value.GetType().IsPrimitive))
 					args.Add(item.Key, item.Value.ToString());
 				else if (item.Value != null && item.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
 				{
 					var subdic = ConvertExpandoObjectToDictionary(item.Value as System.Dynamic.ExpandoObject);
 					foreach (var subkey in subdic.Keys)
-						args.Add(item.Key + "." + subkey, subdic[subkey]);
-				}
+                        args.Add(item.Key + "." + subkey, subdic[subkey]);
+                }
+            }
+            return args;
+        }
+
+		private Dictionary<string, string> CreateArgsDictionary(object[] argsarr)
+		{
+			Dictionary<string, string> args = new Dictionary<string, string>();
+			if (argsarr == null)
+				return args;
+			foreach (var item in argsarr)
+			{
+                int i = item.ToString().IndexOf('=');
+                args.Add(item.ToString().Substring(2, i - 2), item.ToString().Substring(i + 1));
 			}
 			return args;
 		}
