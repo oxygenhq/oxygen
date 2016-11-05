@@ -66,7 +66,7 @@ namespace CloudBeat.Oxygen.Modules
             return result;
         }
 
-        public void executeNonQuery(string query)
+        public CommandResult executeNonQuery(string query)
         {
             var result = new CommandResult();
             try
@@ -92,6 +92,8 @@ namespace CloudBeat.Oxygen.Modules
                 result.StatusText = status.ToString();
                 result.StatusData = statusData;
             }
+
+            return result;
         }
 
         private OdbcConnection Connect()
