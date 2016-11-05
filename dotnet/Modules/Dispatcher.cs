@@ -159,8 +159,10 @@ namespace CloudBeat.Oxygen.Modules
 				return args;
 			foreach (var item in argsarr)
 			{
-                int i = item.ToString().IndexOf('=');
-                args.Add(item.ToString().Substring(2, i - 2), item.ToString().Substring(i + 1));
+                string s = item.ToString();
+                int ei = s.IndexOf('=');
+                int ai = s.IndexOf('@') + 1;
+                args.Add(s.Substring(ai, ei - ai), s.Substring(ei + 1));
 			}
 			return args;
 		}

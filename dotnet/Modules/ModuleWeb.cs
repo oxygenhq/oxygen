@@ -41,11 +41,11 @@ namespace CloudBeat.Oxygen.Modules
 		#endregion
 
 		#region Argument Names
-        const string ARG_PROXY_URL = "web@proxyUrl";
-        const string ARG_SELENIUM_URL = "web@seleniumUrl";
-        const string ARG_INIT_DRIVER = "web@initDriver";
-        const string ARG_BROWSER_NAME = "web@browserName";
-		const string ARG_REOPEN_BROWSER = "web@reopenBrowser";
+        const string ARG_PROXY_URL = "proxyUrl";
+        const string ARG_SELENIUM_URL = "seleniumUrl";
+        const string ARG_INIT_DRIVER = "initDriver";
+        const string ARG_BROWSER_NAME = "browserName";
+		const string ARG_REOPEN_BROWSER = "reopenBrowser";
 		#endregion
 
 		public ModuleWeb()
