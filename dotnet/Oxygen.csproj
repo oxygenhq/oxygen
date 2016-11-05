@@ -71,7 +71,6 @@
     <Compile Include="ConfigLoader\TestCaseConfigLoader.cs" />
     <Compile Include="ExecutionContext.cs" />
     <Compile Include="CurrentIterationContext.cs" />
-    <Compile Include="Models\ParameterizationCSVModel.cs" />
     <Compile Include="Models\CommandResult.cs" />
     <Compile Include="Models\TestCase.cs" />
     <Compile Include="Models\TestResult.cs" />
@@ -83,7 +82,6 @@
     <Compile Include="Modules\ModuleAssert.cs" />
     <Compile Include="Modules\ModuleDB.cs" />
     <Compile Include="Modules\ModuleLog.cs" />
-    <Compile Include="Modules\ModuleMobile.cs" />
     <Compile Include="Modules\ModuleSoap.cs" />
     <Compile Include="Modules\ModuleWeb.cs" />
     <Compile Include="PageObjects\IPageObjectManager.cs" />
