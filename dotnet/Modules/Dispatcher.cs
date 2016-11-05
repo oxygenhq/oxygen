@@ -22,6 +22,7 @@ namespace CloudBeat.Oxygen.Modules
             modules.Add("assert", new ModuleAssert());
 			ctx = new ExecutionContext();
 
+			// uncomment for debugging
 			//Thread.Sleep(25000);
 		}
 		public Task<object> Invoke(dynamic input)
@@ -91,10 +92,21 @@ namespace CloudBeat.Oxygen.Modules
 			var inParams = inputCtx.@params;
 			if (ctx == null)
 				ctx = new ExecutionContext();
-			ctx.Parameters = inParams != null ? CreateArgsDictionary(inParams) : ctx.Parameters;
-			ctx.Environment = inEnv != null ? CreateArgsDictionary(inEnv) : ctx.Environment;
-			ctx.Variables = inVars != null ? CreateArgsDictionary(inVars) : ctx.Variables;
-
+			// parameters
+			if (inParams != null && inParams.GetType() == typeof(ExpandoObject))
+				ctx.Parameters = ConvertExpandoObjectToDictionary(inParams);
+			else if (inParams != null && inParams.GetType() == typeof(object[]))
+				ctx.Parameters = CreateArgsDictionary(inParams);
+			// environments
+			if (inEnv != null && inEnv.GetType() == typeof(ExpandoObject))
+				ctx.Environment = ConvertExpandoObjectToDictionary(inEnv);
+			else if (inEnv != null && inEnv.GetType() == typeof(object[]))
+				ctx.Environment = CreateArgsDictionary(inEnv);
+			// variables
+			if (inVars != null && inVars.GetType() == typeof(ExpandoObject))
+				ctx.Variables = ConvertExpandoObjectToDictionary(inVars);
+			else if (inVars != null && inVars.GetType() == typeof(object[]))
+				ctx.Variables = CreateArgsDictionary(inVars);
 		}
 		private InvokeResult GetInvokeResult(IModule module, string method, object retval, CommandResult cmdResult, Exception e)
 		{
