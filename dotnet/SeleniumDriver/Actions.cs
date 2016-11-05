@@ -470,17 +470,13 @@ namespace CloudBeat.Oxygen
                 int index = int.Parse(frameLocator.Substring("index=".Length));
                 SwitchTo().Frame(index);
             }
-            else if (frameLocator == "relative=parent" || frameLocator == "relative=up")
+            else if (frameLocator == "relative=parent")
             {
                 SwitchTo().ParentFrame();
             }
             else if (frameLocator == "relative=top")
             {
                 SwitchTo().DefaultContent();
-            }
-            else if (frameLocator.StartsWith("dom="))
-            {
-                throw new OxCommandNotImplementedException("'dom=' locator in SelectFrame is not supported");
             }
             else if (frameLocator.StartsWith("//"))   // non Selenium RC compliant
             {
