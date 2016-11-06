@@ -44,8 +44,12 @@ namespace CloudBeat.Oxygen.Modules
 			// specially handle ModuleInitialize and ModuleDispose method calls
 			if (method == "ModuleInit")
 			{
-                var initArgs = CreateArgsDictionary(input.args);
-				return Task.FromResult<object>(module.Initialize(initArgs, ctx));
+                Dictionary<string, string> initArgs;
+                if (input.args.GetType() == typeof(ExpandoObject))
+                    initArgs = ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
+                else
+                    initArgs = CreateArgsDictionary(input.args);
+                return Task.FromResult<object>(module.Initialize(initArgs, ctx));
 			}
 			else if (method == "ModuleDispose")
 				return Task.FromResult<object>(module.Dispose());
