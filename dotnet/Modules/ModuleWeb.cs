@@ -24,7 +24,7 @@ namespace CloudBeat.Oxygen.Modules
 		private bool initialized = false;
 		private bool autoInitDriver = false;
 		private string seleniumUrl;
-		private string proxyUrl;
+        private bool useProxy;
 		private DesiredCapabilities capabilities;
 		private ExecutionContext ctx;
 
@@ -41,7 +41,7 @@ namespace CloudBeat.Oxygen.Modules
 		#endregion
 
 		#region Argument Names
-        const string ARG_PROXY_URL = "proxyUrl";
+        const string ARG_USE_PROXY = "useProxy";
         const string ARG_SELENIUM_URL = "seleniumUrl";
         const string ARG_INIT_DRIVER = "initDriver";
         const string ARG_BROWSER_NAME = "browserName";
@@ -95,8 +95,8 @@ namespace CloudBeat.Oxygen.Modules
 		{
 			this.ctx = ctx;
 
-			if (args.ContainsKey(ARG_PROXY_URL))
-				proxyUrl = args[ARG_PROXY_URL];
+            if (args.ContainsKey(ARG_USE_PROXY))
+                useProxy = args.ContainsKey(ARG_USE_PROXY) && args[ARG_USE_PROXY].Equals("true", StringComparison.InvariantCultureIgnoreCase);
 			if (args.ContainsKey(ARG_SELENIUM_URL) && !string.IsNullOrEmpty(args[ARG_SELENIUM_URL]))
 				seleniumUrl = args[ARG_SELENIUM_URL];
 			// FIXME: agent uses "True" while IDE uses "true"
@@ -132,7 +132,7 @@ namespace CloudBeat.Oxygen.Modules
             if (capabilities == null)
                 capabilities = DCFactory.Get(DEFAULT_BROWSER_NAME);
 
-            if (!string.IsNullOrEmpty(proxyUrl))                    // FIXME: proxyUrl should be changed to addr and passed along with port from js
+            if (useProxy)
             {
                 proxy = Proxy.Create();
 
