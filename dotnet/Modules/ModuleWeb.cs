@@ -99,10 +99,9 @@ namespace CloudBeat.Oxygen.Modules
 				proxyUrl = args[ARG_PROXY_URL];
 			if (args.ContainsKey(ARG_SELENIUM_URL) && !string.IsNullOrEmpty(args[ARG_SELENIUM_URL]))
 				seleniumUrl = args[ARG_SELENIUM_URL];
-			//else
-				//throw new ArgumentNullException(ARG_SELENIUM_URL);
-			autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER] == "true";
-			reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER] == "true";
+			// FIXME: agent uses "True" while IDE uses "true"
+            autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
+            reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
 			// initialize DesiredCapabilities with provided browser
 			if (args.ContainsKey(ARG_BROWSER_NAME))
 				capabilities = DCFactory.Get(args[ARG_BROWSER_NAME]);
