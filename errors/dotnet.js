@@ -11,7 +11,11 @@ function DotNetError(type, message, dotnetStack) {
 	this._type = type;
 	this._message = message;
 	this._dotnetStack = dotnetStack;
+	this._stacktrace = null;
 	var self = this;
+	
+
+	this.caputeStackTrace();
 	
 	this.__defineGetter__('dotnetstack', function(){
 		return self._dotnetStack;
