@@ -4,10 +4,6 @@
     "logger": {
 		"console": {
 			"level": "debug"
-		},
-		"file": {
-			"level": "debug",
-			"path": "log.txt"
 		}
     }
 }
