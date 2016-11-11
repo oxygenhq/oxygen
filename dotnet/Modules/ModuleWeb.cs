@@ -227,7 +227,7 @@ namespace CloudBeat.Oxygen.Modules
 
 		#endregion
 
-		#region Selenium Standard Commands Implementation
+		#region API
 
 		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetDefaultCaps = true)
 		{
