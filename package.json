@@ -43,7 +43,6 @@
     "globule": "1.1.0",
     "minimist": "1.2.0",
     "moment": "2.15.2",
-    "npmlog": "4.0.0",
     "oxygen-logger": "git+https://github.com/oxygenhq/oxygen-logger.git",
     "underscore": "1.8.3",
     "wd-sync": "1.2.5",
