@@ -31,11 +31,7 @@ namespace CloudBeat.Oxygen.Modules
         private IDictionary<string, string> transactions = new Dictionary<string, string>();
 
 		#region Defauts
-		private const string DEFAULT_BROWSER_NAME = "internetexplorer";
-
-		private const int BMP_READ_TIMEOUT = 300000;	// in ms
-		private const int BMP_CON_TIMEOUT = 300000;		// in ms
-
+		private const string DEFAULT_BROWSER_NAME = "internetexplorer"; // FIXME: default is not needed. browser should be mandatory?
 		private const int PROXY_CONN_RETRY_COUNT = 10;
 		private const int SELENIUM_CONN_RETRY_COUNT = 2;
 		#endregion

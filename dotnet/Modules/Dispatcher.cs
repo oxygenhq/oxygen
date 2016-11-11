@@ -44,12 +44,7 @@ namespace CloudBeat.Oxygen.Modules
 			// specially handle ModuleInitialize and ModuleDispose method calls
 			if (method == "ModuleInit")
 			{
-                // FIXME: when executed from IDE args are held inside an array, while when executed from Agent args are a dynamic object
-                Dictionary<string, string> initArgs;
-                if (input.args.GetType() == typeof(ExpandoObject))
-                    initArgs = ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
-                else
-                    initArgs = CreateArgsDictionary(input.args);
+                var initArgs = ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
                 return Task.FromResult<object>(module.Initialize(initArgs, ctx));
 			}
 			else if (method == "ModuleDispose")
