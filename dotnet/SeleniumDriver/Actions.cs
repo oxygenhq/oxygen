@@ -83,6 +83,8 @@ namespace CloudBeat.Oxygen
             if (openDialog == null)
                 throw new OxUnknownException("Cannot find Open dialog");
 
+            Thread.Sleep(800);
+
             // set file path
             var pathEdit = openDialog.FindFirst(TreeScope.Descendants, new PropertyCondition(AutomationElement.AutomationIdProperty, "1148"));
             if (pathEdit == null)
