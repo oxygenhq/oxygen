@@ -4,6 +4,7 @@ namespace CloudBeat.Oxygen
 {
     public class SeCommand
     {
+		private const string DEFAULT_MODULE_NAME = "web";
         public int Line { get; set; }
         public string CommandName { get; set; }
         public object[] Arguments { get; set; } // should be null if no arguments
@@ -34,10 +35,10 @@ namespace CloudBeat.Oxygen
             return string.Format("{0}({1})", CommandName, string.Join(", ", argsQuoted));
         }
 
-        public string ToJSCommand()
+        public string ToJSCommand(string moduleName = DEFAULT_MODULE_NAME)
         {
             if (Arguments == null)
-                return string.Format("web.{0}();", CommandName);
+				return string.Format("{0}.{1}();", moduleName, CommandName);
 
             var argsQuoted = new string[Arguments.Length];
             for (int i = 0; i < Arguments.Length; i++)
@@ -46,7 +47,7 @@ namespace CloudBeat.Oxygen
                 var argEscaped = arg.ToString().Replace("'", @"\'").Replace(@"\\'", @"\'");
                 argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + argEscaped + "'" : argEscaped;
             }
-            return string.Format("web.{0}({1});", CommandName, string.Join(", ", argsQuoted));
+            return string.Format("{0}.{1}({2});", moduleName, CommandName, string.Join(", ", argsQuoted));
         }
 
         private static HashSet<string> actions = new HashSet<string>() 

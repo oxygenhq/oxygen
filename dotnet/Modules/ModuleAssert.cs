@@ -5,6 +5,7 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleAssert : IModule
 	{
+		private const string MODULE_NAME = "assert";
         private bool initialized = false;
         private ExecutionContext ctx;
 
@@ -40,20 +41,31 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult equal(string a, string b, string message)
         {
-            var result = new CommandResult(new SeCommand("equal", a, b, message).ToJSCommand());
-            return a != b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase() ;
+			var result = new CommandResult(new SeCommand("equal", a, b, message).ToJSCommand(MODULE_NAME));
+            result = a != b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase() ;
+
+			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
+				result.ErrorMessage = "'" + a + "' is not equal to '" + b + "'";
+			return result;
         }
 
         public CommandResult notEqual(string a, string b, string message)
         {
             var result = new CommandResult(new SeCommand("notEqual", a, b, message).ToJSCommand());
-            return a == b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase();
+            result = a == b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase();
+
+			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
+				result.ErrorMessage = "'" + a + "' is equal to '" + b + "'";
+
+			return result;
         }
 
         public CommandResult fail(string message)
         {
             var result = new CommandResult(new SeCommand("fail", message).ToJSCommand());
-            return result.ErrorBase(CheckResultStatus.ASSERT);
+            result = result.ErrorBase(CheckResultStatus.ASSERT);
+			result.ErrorMessage = message;
+			return result;
         }
 	}
 }
