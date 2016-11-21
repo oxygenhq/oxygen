@@ -1,0 +1,41 @@
+[{
+	"header": "suite.iteration",
+	"value": "${suite.iteration}"
+},
+{
+	"header": "suite.status",
+	"value": "${suite.status}"
+},
+{
+	"header": "case.iteration",
+	"value": "${case.iteration}"
+},
+{
+	"header": "case.name",
+	"value": "${case.name}"
+},
+{
+	"header": "case.status",
+	"value": "${case.status}"
+},
+{
+	"header": "failure.step",
+	"value": "${failure.step}"
+},
+{
+	"header": "failure.type",
+	"value": "${failure.type}"
+},
+{
+	"header": "failure.message",
+	"value": "${failure.message}"
+},
+{
+	"header": "failure.line",
+	"value": "${failure.line}"
+},
+{
+	"header": "param",
+	"value": "${param.all}"
+}]
+
