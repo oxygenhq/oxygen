@@ -24,7 +24,10 @@ namespace CloudBeat.Oxygen.Modules
 		private bool initialized = false;
 		private bool autoInitDriver = false;
 		private string seleniumUrl;
-        private bool useProxy;
+        private bool proxyEnabled;
+        private string proxyExe;
+        private string proxyKey;
+        private string proxyCer;
 		private DesiredCapabilities capabilities;
 		private ExecutionContext ctx;
 
@@ -37,7 +40,10 @@ namespace CloudBeat.Oxygen.Modules
 		#endregion
 
 		#region Argument Names
-        const string ARG_USE_PROXY = "useProxy";
+        const string ARG_PROXY_ENABLED = "proxyEnabled";
+        const string ARG_PROXY_EXE = "proxyExe";
+        const string ARG_PROXY_KEY = "proxyKey";
+        const string ARG_PROXY_CER = "proxyCer";
         const string ARG_SELENIUM_URL = "seleniumUrl";
         const string ARG_INIT_DRIVER = "initDriver";
         const string ARG_BROWSER_NAME = "browserName";
@@ -89,11 +95,17 @@ namespace CloudBeat.Oxygen.Modules
 		{
 			this.ctx = ctx;
 
-            if (args.ContainsKey(ARG_USE_PROXY))
-                useProxy = args.ContainsKey(ARG_USE_PROXY) && args[ARG_USE_PROXY].Equals("true", StringComparison.InvariantCultureIgnoreCase);
+            proxyEnabled = args.ContainsKey(ARG_PROXY_ENABLED) && args[ARG_PROXY_ENABLED].Equals("true", StringComparison.InvariantCultureIgnoreCase);
+            if (args.ContainsKey(ARG_PROXY_EXE) && !string.IsNullOrEmpty(args[ARG_PROXY_EXE]))
+                proxyExe = args[ARG_PROXY_EXE];
+            if (args.ContainsKey(ARG_PROXY_KEY) && !string.IsNullOrEmpty(args[ARG_PROXY_KEY]))
+                proxyKey = args[ARG_PROXY_KEY];
+            if (args.ContainsKey(ARG_PROXY_CER) && !string.IsNullOrEmpty(args[ARG_PROXY_CER]))
+                proxyCer = args[ARG_PROXY_CER];
+
 			if (args.ContainsKey(ARG_SELENIUM_URL) && !string.IsNullOrEmpty(args[ARG_SELENIUM_URL]))
 				seleniumUrl = args[ARG_SELENIUM_URL];
-			// FIXME: agent uses "True" while IDE uses "true"
+
             autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
             reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
 			// initialize DesiredCapabilities with provided browser
@@ -126,9 +138,9 @@ namespace CloudBeat.Oxygen.Modules
             if (capabilities == null)
                 capabilities = DCFactory.Get(DEFAULT_BROWSER_NAME);
 
-            if (useProxy)
+            if (proxyEnabled)
             {
-                proxy = Proxy.Create();
+                proxy = Proxy.Create(proxyExe, proxyKey, proxyCer);
 
                 OpenQA.Selenium.Proxy selProxy = new OpenQA.Selenium.Proxy
                 {

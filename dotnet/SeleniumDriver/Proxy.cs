@@ -20,7 +20,7 @@ namespace CloudBeat.Oxygen
 
         private const int PROXY_CONN_RETRY_COUNT = 10;
 
-        public static Proxy Create()
+        public static Proxy Create(string proxyExe, string proxyKey, string proxyCer)
         {
             int connectAttempt = 0;
             Proxy proxy = new Proxy();
@@ -33,8 +33,8 @@ namespace CloudBeat.Oxygen
                     proxy.proxyPort = proxyPort;
                     proxy.apiPort = apiPort;
                     proxy.process = new System.Diagnostics.Process();
-                    proxy.process.StartInfo.FileName = "proxy.exe";     // should receive path as argument
-                    proxy.process.StartInfo.Arguments = "-har=true -har-log-body=false -key=\"proxy_mitm_ca.key\" -cert=\"proxy_mitm_ca.pem\" -api-addr=\":" + proxy.apiPort + "\" -addr=" + proxy.proxyAddr + ":" + proxy.proxyPort;
+                    proxy.process.StartInfo.FileName = proxyExe;
+                    proxy.process.StartInfo.Arguments = "-har=true -har-log-body=false -key=\"" + proxyKey + "\" -cert=\"" + proxyCer + "\" -api-addr=\":" + proxy.apiPort + "\" -addr=" + proxy.proxyAddr + ":" + proxy.proxyPort;
                     proxy.process.StartInfo.UseShellExecute = false;
                     proxy.process.StartInfo.RedirectStandardOutput = true;
                     // proxy.process.StartInfo.WindowStyle = System.Diagnostics.ProcessWindowStyle.Hidden;
