@@ -5,10 +5,6 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleAssert : Module, IModule
 	{
-		private const string MODULE_NAME = "assert";
-        private bool initialized = false;
-        private ExecutionContext ctx;
-
         public ModuleAssert()
         {
         }
@@ -26,7 +22,7 @@ namespace CloudBeat.Oxygen.Modules
         public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
         {
             this.ctx = ctx;
-            initialized = true;
+            IsInitialized = true;
             return true;
         }
 
@@ -35,11 +31,11 @@ namespace CloudBeat.Oxygen.Modules
             return true;
         }
 
-        public bool IsInitialized { get { return initialized; } }
+
 
         public CommandResult equal(string a, string b, string message)
         {
-			var result = new CommandResult(new SeCommand("equal", a, b, message).ToJSCommand(MODULE_NAME));
+			var result = new CommandResult(new Command("equal", a, b, message).ToJSCommand(Name));
             result = a != b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase() ;
 
 			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
@@ -49,7 +45,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult notEqual(string a, string b, string message)
         {
-            var result = new CommandResult(new SeCommand("notEqual", a, b, message).ToJSCommand(Name));
+            var result = new CommandResult(new Command("notEqual", a, b, message).ToJSCommand(Name));
             result = a == b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase();
 
 			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
@@ -60,7 +56,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult fail(string message)
         {
-            var result = new CommandResult(new SeCommand("fail", message).ToJSCommand(Name));
+            var result = new CommandResult(new Command("fail", message).ToJSCommand(Name));
             result = result.ErrorBase(CheckResultStatus.ASSERT);
 			result.ErrorMessage = message;
 			return result;

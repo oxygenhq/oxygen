@@ -15,9 +15,6 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleSoap : Module, IModule
 	{
-        private bool initialized = false;
-        private ExecutionContext ctx;
-
         public ModuleSoap()
         {
         }
@@ -35,7 +32,7 @@ namespace CloudBeat.Oxygen.Modules
         public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
         {
             this.ctx = ctx;
-            initialized = true;
+            IsInitialized = true;
             return true;
         }
 
@@ -44,29 +41,27 @@ namespace CloudBeat.Oxygen.Modules
             return true;
         }
 
-        public bool IsInitialized { get { return initialized; } }
-
         public CommandResult get(string wsdlUrl, string serviceName, string methodName)
         {
-            var result = new CommandResult(new SeCommand("get", wsdlUrl, serviceName, methodName).ToJSCommand(Name));
+            var result = new CommandResult(new Command("get", wsdlUrl, serviceName, methodName).ToJSCommand(Name));
             return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap", result);
         }
 
         public CommandResult get12(string wsdlUrl, string serviceName, string methodName)
         {
-            var result = new CommandResult(new SeCommand("get12", wsdlUrl, serviceName, methodName).ToJSCommand(Name));
+            var result = new CommandResult(new Command("get12", wsdlUrl, serviceName, methodName).ToJSCommand(Name));
             return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap12", result);
         }
 
         public CommandResult get(string wsdlUrl, string serviceName, string methodName, object[] args)
         {
-            var result = new CommandResult(new SeCommand("get", wsdlUrl, serviceName, methodName, args).ToJSCommand(Name));
+            var result = new CommandResult(new Command("get", wsdlUrl, serviceName, methodName, args).ToJSCommand(Name));
             return get(wsdlUrl, serviceName, methodName, args, "Soap", result);
         }
 
         public CommandResult get12(string wsdlUrl, string serviceName, string methodName, object[] args)
         {
-            var result = new CommandResult(new SeCommand("get12", wsdlUrl, serviceName, methodName, args).ToJSCommand(Name));
+            var result = new CommandResult(new Command("get12", wsdlUrl, serviceName, methodName, args).ToJSCommand(Name));
             return get(wsdlUrl, serviceName, methodName, args, "Soap12", result);
         }
 

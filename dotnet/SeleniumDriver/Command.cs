@@ -2,7 +2,7 @@
 
 namespace CloudBeat.Oxygen
 {
-    public class SeCommand
+    public class Command
     {
         public int Line { get; set; }
         public string CommandName { get; set; }
@@ -10,28 +10,14 @@ namespace CloudBeat.Oxygen
         public string TransactionName { get; set; }
         public bool IsSupported { get; set; }
 
-        public SeCommand()
+        public Command()
         {
         }
 
-        public SeCommand(string name, params object[] args)
+        public Command(string name, params object[] args)
         {
             CommandName = name;
             Arguments = args;
-        }
-
-        public override string ToString()
-        {
-            if (Arguments == null)
-                return string.Format("{0}()", CommandName);
-
-            var argsQuoted = new string[Arguments.Length];
-            for (int i = 0; i < Arguments.Length; i++)
-            {
-                var arg = Arguments[i];
-                argsQuoted[i] = arg.GetType() == typeof(string) ? "\"" + arg.ToString().Replace("\"", "&quot;") + "\"" : arg.ToString().Replace("\"", "&quot;");
-            }
-            return string.Format("{0}({1})", CommandName, string.Join(", ", argsQuoted));
         }
 
         public string ToJSCommand(string moduleName)

@@ -122,7 +122,7 @@ namespace CloudBeat.Oxygen
 
 		public ExecutionContext ExecutionContext { get { return context; } }
 
-        public object ExecuteCommand(SeCommand cmd,  ScreenshotMode screenshotMode, out string screenShot, out Exception exception)
+        public object ExecuteCommand(Command cmd,  ScreenshotMode screenshotMode, out string screenShot, out Exception exception)
         {
             // substitute arguments and object repo locators
             object[] argsProcessed = null;

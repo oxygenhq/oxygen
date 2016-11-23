@@ -1,5 +1,4 @@
 ﻿using CloudBeat.Oxygen.Models;
-using log4net;
 using System;
 using System.Data.Odbc;
 
@@ -7,16 +6,9 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleDB : Module, IModule
 	{
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         private string connString;
 
-		ExecutionContext ctx;
-		bool isInitialized = false;
-
-		#region Argument Names
 		const string ARG_CONN_STR = "db@connString";
-		#endregion
 
         public ModuleDB()
         {
@@ -26,7 +18,7 @@ namespace CloudBeat.Oxygen.Modules
         {
             this.connString = connString;
 
-            var result = new CommandResult(new SeCommand("setConnectionString", connString).ToJSCommand(Name));
+            var result = new CommandResult(new Command("setConnectionString", connString).ToJSCommand(Name));
             result.StartTime = DateTime.UtcNow;
             result.IsSuccess = true;
             result.EndTime = DateTime.UtcNow;
@@ -36,7 +28,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult getScalar(string query)
         {
-            var result = new CommandResult(new SeCommand("getScalar", query).ToJSCommand(Name));
+            var result = new CommandResult(new Command("getScalar", query).ToJSCommand(Name));
             try
             {
                 result.StartTime = DateTime.UtcNow;
@@ -66,7 +58,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult executeNonQuery(string query)
         {
-            var result = new CommandResult(new SeCommand("executeNonQuery", query).ToJSCommand(Name));
+            var result = new CommandResult(new Command("executeNonQuery", query).ToJSCommand(Name));
             try
             {
                 result.StartTime = DateTime.UtcNow;
@@ -114,7 +106,7 @@ namespace CloudBeat.Oxygen.Modules
 			if (args.ContainsKey(ARG_CONN_STR))
 				connString = args[ARG_CONN_STR];
 
-			isInitialized = true;
+			IsInitialized = true;
 
 			return true;
 		}
@@ -122,11 +114,6 @@ namespace CloudBeat.Oxygen.Modules
 		public bool Dispose()
 		{
 			return true;
-		}
-
-		public bool IsInitialized
-		{
-			get { return isInitialized; }
 		}
 
 		public object IterationStarted()

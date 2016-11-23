@@ -1,5 +1,4 @@
 ﻿using CloudBeat.Oxygen.Models;
-using log4net;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using System;
@@ -13,15 +12,12 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleWeb : Module, IModule
 	{
-		private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         private SeleniumDriver driver;
         private Proxy proxy = null;
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
         private bool fetchStats = true;
 		private bool reopenBrowserOnIteration = false;
         private long prevNavigationStart = long.MinValue;
-		private bool initialized = false;
 		private bool autoInitDriver = false;
 		private string seleniumUrl;
         private bool proxyEnabled;
@@ -29,7 +25,6 @@ namespace CloudBeat.Oxygen.Modules
         private string proxyKey;
         private string proxyCer;
 		private DesiredCapabilities capabilities;
-		private ExecutionContext ctx;
 
         private IDictionary<string, string> transactions = new Dictionary<string, string>();
 
@@ -69,7 +64,7 @@ namespace CloudBeat.Oxygen.Modules
 		public object IterationStarted()
 		{
 			// initialize selenium driver if auto init option is on and the driver is not initialized already
-			if (!initialized && autoInitDriver)
+            if (!IsInitialized && autoInitDriver)
 				InitializeSeleniumDriver();
 			return null;
 		}
@@ -124,7 +119,7 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			if (autoInitDriver)
 				InitializeSeleniumDriver();
-			initialized = true;
+            IsInitialized = true;
 			return true;
 		}
 
@@ -208,7 +203,7 @@ namespace CloudBeat.Oxygen.Modules
             {
                 if (driver != null)
 					driver.Quit();
-            } catch (Exception e) {
+            } catch (Exception) {
             } // ignore exceptions
 
             try
@@ -216,15 +211,13 @@ namespace CloudBeat.Oxygen.Modules
                 if (proxy != null)
                     proxy.Dispose();
             }
-            catch (Exception e) {
+            catch (Exception) {
             } // ignore exceptions
 			driver = null;
             proxy = null;
-			initialized = false;
+            IsInitialized = false;
 			return true;
         }
-
-		public bool IsInitialized { get { return initialized; } }
 
         public void SetBaseUrl(string url)
         {
@@ -490,24 +483,16 @@ namespace CloudBeat.Oxygen.Modules
 			if (driver == null)
 				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
 
-            // execute the command
-            string screenShot = null;
-
             var name = new StackTrace().GetFrame(1).GetMethod().Name;
 			if (string.IsNullOrEmpty(name))
 				throw new ArgumentNullException("name", "Command name is null or empty");
 			// lowercase the first letter
 			name = Char.ToLowerInvariant(name[0]) + name.Substring(1);
 
-            var cmd = new SeCommand
-            {
-                CommandName = name,
-                Arguments = args
-            };
-			var result = new CommandResult()
-			{
-                CommandName = cmd.ToJSCommand(Name)
-			};
+            var cmd = new Command(name, args);
+            var result = new CommandResult(cmd.ToJSCommand(Name));
+
+            string screenShot = null;
 
             try
             {
@@ -686,8 +671,5 @@ namespace CloudBeat.Oxygen.Modules
 		}
 
 		#endregion
-
-
-		
 	}
 }
