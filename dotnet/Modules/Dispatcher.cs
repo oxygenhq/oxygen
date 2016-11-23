@@ -30,7 +30,7 @@ namespace CloudBeat.Oxygen.Modules
 			string name = (string)input.module;
 			string method = (string)input.method;
 
-			if (string.IsNullOrEmpty(name) || !modules.ContainsKey(name))
+			if (string.IsNullOrEmpty(name) || !modules.ContainsKey(name))   // FIXME: should these two checks be dropped?
 				throw new ArgumentException("Module not found", name);
 			if (string.IsNullOrEmpty(method))
 				throw new ArgumentNullException("method");
@@ -65,6 +65,21 @@ namespace CloudBeat.Oxygen.Modules
 				if (args[i].GetType() == typeof(ExpandoObject))
                     args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
 				paramTypes[i] = args[i].GetType();
+
+                try
+                {
+                    if (args[i].GetType() == typeof(string))
+                        args[i] = SubstituteVariable(args[i] as string);
+                }
+                catch (OxVariableUndefined u)
+                {
+                    var result = new CommandResult(new Command(method, args).ToJSCommand(name));
+                    result.IsSuccess = false;
+                    result.EndTime = DateTime.UtcNow;
+                    result.StatusText = CheckResultStatus.VARIABLE_NOT_DEFINED.ToString();
+                    result.StatusData = u.Message;
+                    return Task.FromResult<object>(GetInvokeResult(module, method, null, result, null));
+                }
 			}
 
 			MethodInfo cmdMethod = modType.GetMethod(method, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
@@ -85,6 +100,38 @@ namespace CloudBeat.Oxygen.Modules
 				
 			return Task.FromResult<object>(GetInvokeResult(module, method, retval, null, null));
 		}
+
+        private string SubstituteVariable(string str)
+        {
+            if (str == null)
+                return null;
+
+            while (true)
+            {
+                var varIndexStart = str.IndexOf("${");
+                if (varIndexStart == -1)
+                    return str;
+
+                var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
+                var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
+                string variableValue = null;
+                // check if this is a constant variable, such as ENTER key, etc.
+                if (SeleniumDriver.constantVariables != null && SeleniumDriver.constantVariables.ContainsKey(variableName.ToUpper()))
+                    variableValue = SeleniumDriver.constantVariables[variableName.ToUpper()];
+                else if (ctx.Variables != null && ctx.Variables.ContainsKey(variableName))
+                    variableValue = ctx.Variables[variableName];
+                else if (ctx.Parameters != null && ctx.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(ctx.Parameters[variableName]))
+                    variableValue = ctx.Parameters[variableName];
+                else if (ctx.Environment != null && ctx.Environment.ContainsKey(variableName))
+                    variableValue = ctx.Environment[variableName];
+
+                if (variableValue != null)
+                    str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
+                else
+                    throw new OxVariableUndefined(variableName);
+            }
+        }
+
 		private void UpdateExecutionContext(dynamic inputCtx)
 		{
 			var inVars = inputCtx.vars;

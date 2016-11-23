@@ -52,7 +52,7 @@ namespace CloudBeat.Oxygen
 		private ExecutionContext context;
 
         #region variables dictionary
-		private ReadOnlyDictionary<string, string> constantVariables = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>() 
+		public static ReadOnlyDictionary<string, string> constantVariables = new ReadOnlyDictionary<string, string>(new Dictionary<string, string>() 
         {
             {"KEY_BACKSPACE", Keys.Backspace },
             {"KEY_TAB",Keys.Tab},
@@ -124,7 +124,7 @@ namespace CloudBeat.Oxygen
 
         public object ExecuteCommand(Command cmd,  ScreenshotMode screenshotMode, out string screenShot, out Exception exception)
         {
-            // substitute arguments and object repo locators
+            // substitute object repo locators
             object[] argsProcessed = null;
             if (cmd.Arguments != null)
             {
@@ -132,15 +132,7 @@ namespace CloudBeat.Oxygen
                 for (int i = 0; i < cmd.Arguments.Length; i++)
                 {
                     var arg = cmd.Arguments[i];
-                    if (arg.GetType() == typeof(string))
-                    {
-                        var argStr = SubstituteVariable(arg.ToString());
-                        argsProcessed[i] = SubstituteLocator(argStr);
-                    }
-                    else
-                    {
-                        argsProcessed[i] = arg;
-                    }
+                    argsProcessed[i] = arg.GetType() == typeof(string) ? SubstituteLocator(arg.ToString()) : arg;
                 }
             }
 
@@ -229,37 +221,6 @@ namespace CloudBeat.Oxygen
 				catch (Exception) { }
 			}
 			return null;
-        }
-
-        private string SubstituteVariable(string str) 
-        {
-            if (str == null)
-                return null;
-
-            while (true)
-            {
-                var varIndexStart = str.IndexOf("${");
-                if (varIndexStart == -1)
-                    return str;
-
-                var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
-                var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-				string variableValue = null;
-				// check if this is a constant variable, such as ENTER key, etc.
-				if (constantVariables != null && constantVariables.ContainsKey(variableName.ToUpper()))
-					variableValue = constantVariables[variableName.ToUpper()];
-				else if (context.Variables != null && context.Variables.ContainsKey(variableName))
-					variableValue = context.Variables[variableName];
-                else if (context.Parameters != null && context.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(context.Parameters[variableName]))
-					variableValue = context.Parameters[variableName];
-				else if (context.Environment != null && context.Environment.ContainsKey(variableName))
-					variableValue = context.Environment[variableName];
-                
-				if (variableValue != null)
-					str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
-				else
-					throw new OxVariableUndefined(variableName);
-            }
         }
 
 		private string SubstituteLocator(string target)
