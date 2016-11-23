@@ -228,7 +228,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public void SetBaseUrl(string url)
         {
-			ExecuteSeleniumCommand(url);
+			ExecuteCommand(url);
         }
 
 		#endregion
@@ -289,203 +289,203 @@ namespace CloudBeat.Oxygen.Modules
 
 		public CommandResult SetTimeout(int timeout)
         {
-            return ExecuteSeleniumCommand(timeout);
+            return ExecuteCommand(timeout);
         }
 		public CommandResult Open(string url)
         {
-            return ExecuteSeleniumCommand(url);
+            return ExecuteCommand(url);
         }
 
 		public CommandResult Point(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 
 		public CommandResult ScrollToElement(string locator, int yOffset)
         {
-            return ExecuteSeleniumCommand(locator, yOffset.ToString());
+            return ExecuteCommand(locator, yOffset.ToString());
         }
 
 		public CommandResult Click(string locator)
 		{
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
 		}
 		public CommandResult ClickHidden(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult AssertTitle(string pattern)
         {
-            return ExecuteSeleniumCommand(pattern);
+            return ExecuteCommand(pattern);
         }
 		public CommandResult Type(string locator, string value)
         {
-            return ExecuteSeleniumCommand(locator, value);
+            return ExecuteCommand(locator, value);
         }
 		public CommandResult Clear(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult AssertText(string locator, string pattern)
         {
-            return ExecuteSeleniumCommand(locator, pattern);
+            return ExecuteCommand(locator, pattern);
         }
 		public CommandResult SelectWindow(string windowLocator)
         {
-            return ExecuteSeleniumCommand(windowLocator);
+            return ExecuteCommand(windowLocator);
         }
 		public CommandResult GetText(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult GetAttribute(string locator, string attributeName)
         {
-            return ExecuteSeleniumCommand(locator, attributeName);
+            return ExecuteCommand(locator, attributeName);
         }
 		public CommandResult GetValue(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult DoubleClick(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult Select(string selectLocator, string optionLocator)
         {
-            return ExecuteSeleniumCommand(selectLocator, optionLocator);
+            return ExecuteCommand(selectLocator, optionLocator);
         }
 		public CommandResult Deselect(string selectLocator, string optionLocator)
         {
-            return ExecuteSeleniumCommand(selectLocator, optionLocator);
+            return ExecuteCommand(selectLocator, optionLocator);
         }
 		public CommandResult Pause(int waitTime)
         {
-            return ExecuteSeleniumCommand(waitTime);
+            return ExecuteCommand(waitTime);
         }
 		public CommandResult WaitForWindow(string windowID, int timeout)
         {
-            return ExecuteSeleniumCommand(windowID, timeout);
+            return ExecuteCommand(windowID, timeout);
         }
 		public CommandResult SelectFrame(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult WaitForVisible(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult WaitForElementPresent(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult IsElementPresent(string locator, int timeout)
         {
-            return ExecuteSeleniumCommand(locator, timeout);
+            return ExecuteCommand(locator, timeout);
         }
 		public CommandResult IsElementVisible(string locator, int timeout)
         {
-            return ExecuteSeleniumCommand(locator, timeout);
+            return ExecuteCommand(locator, timeout);
         }
 		public CommandResult WaitForText(string locator, string pattern)
         {
-            return ExecuteSeleniumCommand(locator, pattern);
+            return ExecuteCommand(locator, pattern);
         }
 		public CommandResult WaitForNotText(string locator, string pattern)
         {
-            return ExecuteSeleniumCommand(locator, pattern);
+            return ExecuteCommand(locator, pattern);
         }
 		public CommandResult WaitForValue(string locator, string pattern)
         {
-            return ExecuteSeleniumCommand(locator, pattern);
+            return ExecuteCommand(locator, pattern);
         }
 		public CommandResult WaitForNotValue(string locator, string pattern)
         {
-            return ExecuteSeleniumCommand(locator, pattern);
+            return ExecuteCommand(locator, pattern);
         }
 		public CommandResult AssertValue(string locator, string pattern)
         {
-            return ExecuteSeleniumCommand(locator, pattern);
+            return ExecuteCommand(locator, pattern);
         }
 		public CommandResult AssertTextPresent(string pattern)
         {
-            return ExecuteSeleniumCommand(pattern);
+            return ExecuteCommand(pattern);
         }
 		public CommandResult AssertElementPresent(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
 		public CommandResult AssertAlert(string pattern)
         {
-            return ExecuteSeleniumCommand(pattern);
+            return ExecuteCommand(pattern);
         }
 		public CommandResult GetPageSource()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult GetXMLPageSource()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult GetXMLPageSourceAsJSON()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult GetWindowHandles()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
         public CommandResult getElementCount(string xpath)
         {
-            return ExecuteSeleniumCommand(xpath);
+            return ExecuteCommand(xpath);
         }
 		public CommandResult CloseWindow()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult IsAlertPresent(string text, int timeout)
         {
-            return ExecuteSeleniumCommand(text, timeout);
+            return ExecuteCommand(text, timeout);
         }
 		public CommandResult AlertAccept()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult AlertDismiss()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult AssertSelectedLabel(string locator, string text)
         {
-            return ExecuteSeleniumCommand(locator, text);
+            return ExecuteCommand(locator, text);
         }
 		public CommandResult AssertSelectedValue(string locator, string value)
         {
-            return ExecuteSeleniumCommand(locator, value);
+            return ExecuteCommand(locator, value);
         }
 		public CommandResult GetAlertText()
         {
-            return ExecuteSeleniumCommand();
+            return ExecuteCommand();
         }
 		public CommandResult ExecuteScript(string script)
         {
-            return ExecuteSeleniumCommand(script);
+            return ExecuteCommand(script);
         }
         public CommandResult FileBrowse(string filepath)
         {
-            return ExecuteSeleniumCommand(filepath);
+            return ExecuteCommand(filepath);
         }
         public CommandResult MakeVisible(string locator)
         {
-            return ExecuteSeleniumCommand(locator);
+            return ExecuteCommand(locator);
         }
         public CommandResult SetWindowSize(int width, int height)
         {
-            return ExecuteSeleniumCommand(width, height);
+            return ExecuteCommand(width, height);
         }
 		#endregion
 
 		#region Internal Methods Implementation
-		private CommandResult ExecuteSeleniumCommand(params object[] args)
+		private CommandResult ExecuteCommand(params object[] args)
         {
 			if (driver == null)
 				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
@@ -495,11 +495,7 @@ namespace CloudBeat.Oxygen.Modules
 
             var name = new StackTrace().GetFrame(1).GetMethod().Name;
 			if (string.IsNullOrEmpty(name))
-				throw new ArgumentNullException("name", "Selenium command name is null or empty");
-            // when used from within the Jurassic wrapper with optimization turned on 
-            // the name will be "binder_for_CloudBeat.Oxygen.JSEngine.ModuleWebJurassic.CMD"
-            if (name.StartsWith("binder_for"))
-                name = name.Substring(name.LastIndexOf('.') + 1);
+				throw new ArgumentNullException("name", "Command name is null or empty");
 			// lowercase the first letter
 			name = Char.ToLowerInvariant(name[0]) + name.Substring(1);
 
