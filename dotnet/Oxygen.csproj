@@ -77,6 +77,7 @@
     <Compile Include="Models\TestSuiteConfig.cs" />
     <Compile Include="Models\TestCaseConfig.cs" />
     <Compile Include="Modules\Dispatcher.cs" />
+    <Compile Include="Modules\Module.cs" />
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\InvokeResult.cs" />
     <Compile Include="Modules\ModuleAssert.cs" />

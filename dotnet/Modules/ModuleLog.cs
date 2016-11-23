@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CloudBeat.Oxygen.Modules
 {
-    public class ModuleLog : IModule
+    public class ModuleLog : Module, IModule
 	{
         public delegate void ExecutedEventHandler(string msg, Level level);
         public event ExecutedEventHandler CommandExecuted;
@@ -17,8 +17,6 @@ namespace CloudBeat.Oxygen.Modules
         public ModuleLog()
         {
         }
-
-        public string Name { get { return "Assert"; } }
 
         public object IterationStarted()
         {

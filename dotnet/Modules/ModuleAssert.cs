@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace CloudBeat.Oxygen.Modules
 {
-    public class ModuleAssert : IModule
+    public class ModuleAssert : Module, IModule
 	{
 		private const string MODULE_NAME = "assert";
         private bool initialized = false;
@@ -12,8 +12,6 @@ namespace CloudBeat.Oxygen.Modules
         public ModuleAssert()
         {
         }
-
-        public string Name { get { return "Assert"; } }
 
         public object IterationStarted()
         {
@@ -51,7 +49,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult notEqual(string a, string b, string message)
         {
-            var result = new CommandResult(new SeCommand("notEqual", a, b, message).ToJSCommand());
+            var result = new CommandResult(new SeCommand("notEqual", a, b, message).ToJSCommand(Name));
             result = a == b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase();
 
 			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
@@ -62,7 +60,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult fail(string message)
         {
-            var result = new CommandResult(new SeCommand("fail", message).ToJSCommand());
+            var result = new CommandResult(new SeCommand("fail", message).ToJSCommand(Name));
             result = result.ErrorBase(CheckResultStatus.ASSERT);
 			result.ErrorMessage = message;
 			return result;

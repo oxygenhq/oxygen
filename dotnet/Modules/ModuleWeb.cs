@@ -11,7 +11,7 @@ using System.Threading;
 
 namespace CloudBeat.Oxygen.Modules
 {
-    public class ModuleWeb : IModule
+    public class ModuleWeb : Module, IModule
 	{
 		private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -53,8 +53,6 @@ namespace CloudBeat.Oxygen.Modules
 			this.screenshotMode = screenshotMode;
             this.fetchStats = fetchStats;
         }
-
-		public string Name { get { return "Web"; } }
 
 		#region General Public Functions
 		public void SetDriver(SeleniumDriver driver)
@@ -500,7 +498,7 @@ namespace CloudBeat.Oxygen.Modules
             };
 			var result = new CommandResult()
 			{
-				CommandName = cmd.ToJSCommand()
+                CommandName = cmd.ToJSCommand(Name)
 			};
 
             try

@@ -5,7 +5,7 @@ using System.Data.Odbc;
 
 namespace CloudBeat.Oxygen.Modules
 {
-	public class ModuleDB : IModule
+    public class ModuleDB : Module, IModule
 	{
         private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
 
@@ -26,8 +26,7 @@ namespace CloudBeat.Oxygen.Modules
         {
             this.connString = connString;
 
-            var result = new CommandResult();
-            result.CommandName = "db.setConnectionString('" + connString + "');";
+            var result = new CommandResult(new SeCommand("setConnectionString", connString).ToJSCommand(Name));
             result.StartTime = DateTime.UtcNow;
             result.IsSuccess = true;
             result.EndTime = DateTime.UtcNow;
@@ -37,10 +36,9 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult getScalar(string query)
         {
-            var result = new CommandResult();
+            var result = new CommandResult(new SeCommand("getScalar", query).ToJSCommand(Name));
             try
             {
-                result.CommandName = string.Format("db.getScalar(\"{0}\")", query);
                 result.StartTime = DateTime.UtcNow;
                 var conn = Connect();
                 OdbcCommand cmd = new OdbcCommand(query, conn);
@@ -68,10 +66,9 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult executeNonQuery(string query)
         {
-            var result = new CommandResult();
+            var result = new CommandResult(new SeCommand("executeNonQuery", query).ToJSCommand(Name));
             try
             {
-                result.CommandName = string.Format("db.executeNonQuery(\"{0}\")", query);
                 result.StartTime = DateTime.UtcNow;
                 var conn = Connect();
                 OdbcCommand cmd = new OdbcCommand(query, conn);
@@ -140,11 +137,6 @@ namespace CloudBeat.Oxygen.Modules
 		public object IterationEnded()
 		{
 			return null;
-		}
-
-		public string Name
-		{
-			get { return "DB"; }
 		}
 
         private CheckResultStatus GetStatusByException(Exception e, out string moreInfo)
