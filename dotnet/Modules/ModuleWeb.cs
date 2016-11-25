@@ -43,6 +43,7 @@ namespace CloudBeat.Oxygen.Modules
         const string ARG_INIT_DRIVER = "initDriver";
         const string ARG_BROWSER_NAME = "browserName";
 		const string ARG_REOPEN_BROWSER = "reopenBrowser";
+		const string ARG_SCREENSHOT_MODE = "screenshots";
 		#endregion
 
 		public ModuleWeb()
@@ -100,6 +101,15 @@ namespace CloudBeat.Oxygen.Modules
 
 			if (args.ContainsKey(ARG_SELENIUM_URL) && !string.IsNullOrEmpty(args[ARG_SELENIUM_URL]))
 				seleniumUrl = args[ARG_SELENIUM_URL];
+			// screenshot mode
+			if (args.ContainsKey(ARG_SCREENSHOT_MODE) && !string.IsNullOrEmpty(args[ARG_SCREENSHOT_MODE]))
+			{
+				var mode = args[ARG_SCREENSHOT_MODE];
+				if (mode == "always")
+					screenshotMode = ScreenshotMode.Always;
+				else if (mode == "never")
+					screenshotMode = ScreenshotMode.Never;
+			}
 
             autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
             reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER].Equals("true", StringComparison.InvariantCultureIgnoreCase);

@@ -34,7 +34,7 @@
  */
 const STATUS = require('../model/status.js');
 
-module.exports = function (argv, context, rs, logger, dispatcher, handleStepResult) {
+module.exports = function (opts, context, rs, logger, dispatcher, handleStepResult) {
 	var module = { modType: "dotnet" };
 
 	var ctx = context;
@@ -46,7 +46,7 @@ module.exports = function (argv, context, rs, logger, dispatcher, handleStepResu
     
 	// call ModuleInit
     if (dispatcher) {
-        dispatcher.execute('web', 'moduleInit', argv);
+        dispatcher.execute('web', 'moduleInit', opts);
     }
     
     /**
