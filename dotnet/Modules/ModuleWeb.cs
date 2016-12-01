@@ -162,7 +162,6 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			catch (Exception e)
 			{
-				log.Fatal("Can't initialize web module: " + e.Message);
 				throw new OxModuleInitializationException("Can't initialize web module", e);
 			}
 			if (driver == null)
@@ -187,21 +186,17 @@ namespace CloudBeat.Oxygen.Modules
 						{
 							connectAttempt++;
 							if (connectAttempt >= SELENIUM_CONN_RETRY_COUNT)
-							{
-								log.Fatal("Unable to connect to Selenium server", e);
 								throw;
-							}
+
 							Thread.Sleep(1000);	// in case the failure was due to resources overload - wait a bit...
 							continue;
 						}
 						else if (e.Message.Contains("Unable to connect to the remote server"))
 						{
-							log.Fatal("Unable to connect to Selenium server", e);
 							throw new Exception("Unable to connect to Selenium server: " + seleniumUrl);
 						}
 					}
-						
-					log.Fatal("SeleniumDriver initializing failed", e);
+
 					throw;
 				}
 			}
@@ -569,10 +564,7 @@ namespace CloudBeat.Oxygen.Modules
 				result.StatusText = status.ToString();
 				result.StatusData = statusData;
 				if (status == CheckResultStatus.UNKNOWN_ERROR)
-				{
 					e.Data.Add("Cmd: ", cmd.ToString());
-					log.Error("Unknown WebDriverException. Needs checking!!!", e);
-				}
             }
 
             return result;
@@ -627,7 +619,7 @@ namespace CloudBeat.Oxygen.Modules
 						// there seems to be chromedriver bug where open/click will end in command timeout if 'load' event did not fire.
                         return CheckResultStatus.NAVIGATE_TIMEOUT;
 				}
-				log.Error("Unknown WebDriverException. Needs checking!!!", wde);
+
 				return CheckResultStatus.UNKNOWN_ERROR;
 			}
 			else if (type == typeof(OxVariableUndefined))
@@ -674,7 +666,6 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			else
 			{
-				log.Error("Unknown exception. Needs checking!!!", e);
 				moreInfo = e.Message;
 				return CheckResultStatus.UNKNOWN_ERROR;
 			}

@@ -40,9 +40,6 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net">
-      <HintPath>libs\log4net\log4net.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>libs\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -122,14 +119,10 @@
        ]]></Code>
     </Task>
   </UsingTask>
-  <Target Name="log4netTransform" Condition="Exists('Log4Net.$(Configuration).config')">
-    <TransformXml Source="Log4Net.config" Transform="Log4Net.$(Configuration).config" Destination="$(TargetDir)Log4Net.config" />
-  </Target>
   <Target Name="appTransform" Condition="Exists('App.$(Configuration).config')">
     <TransformXml Source="App.config" Transform="App.$(Configuration).config" Destination="$(TargetDir)$(TargetFileName).config" />
   </Target>
   <Target Name="BeforeBuild">
-    <CallTarget Targets="log4netTransform" />
     <CallTarget Targets="appTransform" />
     <!--  tags long should be prefixed with double dash -->
     <!-- <Exec Command="git describe tags long &gt; &quot;$(ProjectDir)VERSION&quot;" Outputs="$(ProjectDir)VERSION" WorkingDirectory="$(ProjectDir)" IgnoreExitCode="true">

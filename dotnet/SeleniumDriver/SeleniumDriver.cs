@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Reflection;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Support.UI;
-using log4net;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 
@@ -13,8 +12,6 @@ namespace CloudBeat.Oxygen
 	// http://release.seleniumhq.org/selenium-core/1.0.1/reference.html
     public partial class SeleniumDriver : RemoteWebDriver
     {
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
 		#region Timeout Defaults
 		// Defines the timeout (in seconds) for WebDriver commands. 
         // Due to a bug(?) with PageLoadTimeout not being actualy used by Navigate.GoToUrl for DOMComplete/load events

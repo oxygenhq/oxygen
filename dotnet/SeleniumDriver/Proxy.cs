@@ -1,5 +1,4 @@
-﻿using log4net;
-using System;
+﻿using System;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
@@ -10,8 +9,6 @@ namespace CloudBeat.Oxygen
 {
     public class Proxy
     {
-        private static readonly ILog log = LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
-
         public Process process { get; set; }
         public string proxyAddr { get { return "127.0.0.1"; } }
         public int proxyPort { get; set; }
@@ -63,7 +60,6 @@ namespace CloudBeat.Oxygen
             	}
 				catch (Exception e)
 				{
-					log.Fatal("Error connecting to proxy", e);
 					throw new Exception("Can't initialize proxy: " + e.Message);
 				}
 			} while (connectAttempt < PROXY_CONN_RETRY_COUNT);

@@ -143,7 +143,6 @@ namespace CloudBeat.Oxygen.Modules
             }
             else
             {
-                log.Error("Unknown exception. Needs checking!!!", e);
                 moreInfo = e.Message;
                 return CheckResultStatus.UNKNOWN_ERROR;
             }
