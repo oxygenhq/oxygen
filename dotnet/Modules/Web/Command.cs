@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CloudBeat.Oxygen
+namespace CloudBeat.Oxygen.Modules
 {
     public class Command
     {

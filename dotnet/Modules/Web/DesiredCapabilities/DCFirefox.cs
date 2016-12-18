@@ -1,6 +1,6 @@
 ﻿using OpenQA.Selenium.Remote;
 
-namespace CloudBeat.Oxygen
+namespace CloudBeat.Oxygen.Modules
 {
     public class DCFirefox : IDCBrowser
     {

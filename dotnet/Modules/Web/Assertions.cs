@@ -3,7 +3,7 @@ using OpenQA.Selenium.Support.UI;
 using System;
 using System.Linq;
 
-namespace CloudBeat.Oxygen
+namespace CloudBeat.Oxygen.Modules
 {
     public partial class SeleniumDriver
     {

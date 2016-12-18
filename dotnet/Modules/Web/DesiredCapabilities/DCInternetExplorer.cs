@@ -1,7 +1,7 @@
 ﻿using OpenQA.Selenium.IE;
 using OpenQA.Selenium.Remote;
 
-namespace CloudBeat.Oxygen
+namespace CloudBeat.Oxygen.Modules
 {
 	public class DCInternetExplorer : IDCBrowser
     {

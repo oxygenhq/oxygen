@@ -7,7 +7,7 @@ using OpenQA.Selenium.Support.UI;
 using System.Text.RegularExpressions;
 using System.Collections.ObjectModel;
 
-namespace CloudBeat.Oxygen
+namespace CloudBeat.Oxygen.Modules
 {
 	// http://release.seleniumhq.org/selenium-core/1.0.1/reference.html
     public partial class SeleniumDriver : RemoteWebDriver
