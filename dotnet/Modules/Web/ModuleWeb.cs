@@ -12,7 +12,7 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleWeb : Module, IModule
 	{
-        private SeleniumDriver driver;
+        public SeleniumDriver driver { get; private set; }
         private Proxy proxy = null;
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
         private bool fetchStats = true;
@@ -25,6 +25,7 @@ namespace CloudBeat.Oxygen.Modules
         private string proxyKey;
         private string proxyCer;
 		private DesiredCapabilities capabilities;
+        public string prevTransaction { get; private set; }
 
         private IDictionary<string, string> transactions = new Dictionary<string, string>();
 
@@ -57,10 +58,6 @@ namespace CloudBeat.Oxygen.Modules
         }
 
 		#region General Public Functions
-		public void SetDriver(SeleniumDriver driver)
-        {
-			this.driver = driver;
-        }
 
 		public object IterationStarted()
 		{
@@ -261,7 +258,6 @@ namespace CloudBeat.Oxygen.Modules
             return null;
         }
 
-        public string prevTransaction = null;
         public void transaction(string name)
         {
             // throw in case we hit a duplicate transaction                                 // FIXME: throw
