@@ -20,6 +20,7 @@ namespace CloudBeat.Oxygen.Modules
 			modules.Add("soap", new ModuleSoap());
 			modules.Add("db", new ModuleDB());
             modules.Add("assert", new ModuleAssert());
+            modules.Add("eyes", new ModuleEyes(modules));
 			ctx = new ExecutionContext();
 
 			// uncomment for debugging

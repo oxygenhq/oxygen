@@ -40,8 +40,20 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>libs\Newtonsoft.Json\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Eyes.Sdk.DotNet, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\Eyes\Eyes.Sdk.DotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Eyes.Selenium.DotNet, Version=1.1.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\Eyes\Eyes.Selenium.DotNet.dll</HintPath>
+    </Reference>
+    <Reference Include="log4net">
+      <HintPath>libs\Eyes\log4net.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>libs\Eyes\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -79,6 +91,7 @@
     <Compile Include="Modules\InvokeResult.cs" />
     <Compile Include="Modules\ModuleAssert.cs" />
     <Compile Include="Modules\ModuleDB.cs" />
+    <Compile Include="Modules\ModuleEyes.cs" />
     <Compile Include="Modules\ModuleSoap.cs" />
     <Compile Include="Modules\Web\ModuleWeb.cs" />
     <Compile Include="PageObjects\IPageObjectManager.cs" />

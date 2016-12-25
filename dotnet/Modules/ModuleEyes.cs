@@ -1,109 +1,167 @@
 ﻿using Applitools;
-using OpenQA.Selenium;
+using CloudBeat.Oxygen.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CloudBeat.Oxygen.JSEngine
+namespace CloudBeat.Oxygen.Modules
 {
-	/*public class ModuleEyes
+    public class ModuleEyes : Module, IModule
 	{
-		public delegate void ExceptionEventHandler(string commandName, Exception e);
-		public event ExceptionEventHandler CommandException;
-
-		public delegate void ExecutingEventHandler();
-		public event ExecutingEventHandler CommandExecuting;
-
-		public delegate void ExecutedEventHandler(SeCommand cmd, int domContentLoaded, int load);
-		public event ExecutedEventHandler CommandExecuted;
-
-		private string apiKey;
-		private IWebDriverModule mainModule;
+        private ModuleWeb web;
 		private Eyes eyes;
-		private IWebDriver eyesDriver;
-		public ModuleEyes(IWebDriverModule mainModule, string apiKey = null)
-		{
-			this.apiKey = apiKey;
-			this.mainModule = mainModule;
-			eyes = new Eyes();
-		}
-		public void Enable(string apiKey = null)
-		{
-			if (string.IsNullOrEmpty(apiKey) && string.IsNullOrEmpty(this.apiKey))
-				throw new ArgumentException("Applitools API key is not specified");
-			if (!string.IsNullOrEmpty(apiKey))
-				this.apiKey = apiKey;
-			// eyes.enable must be called before any call to web or mobile modules!
-			// check that Selenium driver in the main module has not been initialized
-			if (mainModule == null)
-				throw new ArgumentNullException("mainModule");
-			if (mainModule.GetDriver() == null)
-				mainModule.Init();
+        private Dictionary<string, IModule> modules;
 
-			eyes.ApiKey = this.apiKey;
-			eyesDriver = eyes.Open(mainModule.GetDriver(), "Applitools", "Test Web Page",
-								   new System.Drawing.Size(1024, 768));
-		}
-		public TestResults close(bool throwEx = false)
+        public ModuleEyes(Dictionary<string, IModule> modules)
 		{
-			if (eyes != null)
-			{
-				try
-				{
-					return eyes.Close(throwEx);
-				}
-				catch (Exception e)
-				{
-					if (CommandException != null)
-					{
-						CommandException("close", e);
-						return null;
-					}
-					else
-						throw;
-				}
-				finally
-				{
-					eyes.AbortIfNotClosed();
-				}
-			}
-			return null;
-				
+            this.modules = modules;
 		}
-		public void checkWindow(string tag = null)
+
+        public CommandResult init(string apiKey, string appName, string testName)
 		{
+            var result = new CommandResult(new Command("init", apiKey, appName, testName).ToJSCommand(Name));
+            result.StartTime = DateTime.UtcNow;
+
+            web = modules["web"] as ModuleWeb;
+            if (web == null || !web.IsInitialized)
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "web module hasn't been initialized.";
+                result.EndTime = DateTime.UtcNow;
+                return result;
+            }
+
+            eyes = new Eyes();
+			eyes.ApiKey = apiKey;
+            // we discard eyes' driver wrapper since there is no easy way to make it work with our custom driver implementation
+            // it seems to be needed solely for replaying mouse/keyboard interactions according to -
+            // http://support.applitools.com/customer/portal/questions/9866542-using-own-implementation-of-webdriver
+            eyes.Open(web.driver, appName, testName);
+
+            result.IsSuccess = true;
+            result.EndTime = DateTime.UtcNow;
+            return result;
+		}
+
+        public CommandResult close()
+		{
+            var result = new CommandResult(new Command("close").ToJSCommand(Name));
+            result.StartTime = DateTime.UtcNow;
+
+            if (eyes == null)
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
+                result.EndTime = DateTime.UtcNow;
+                return result;
+            }
+
 			try
 			{
-				if (eyes == null)
-					throw new Exception("Eyes module is not enabled. Call enable() first!");
-				eyes.CheckWindow(tag);
+				TestResults tr = eyes.Close(false);
+                result.ReturnValue = tr;
+                result.IsSuccess = true;
+                result.EndTime = DateTime.UtcNow;
+                return result;
 			}
 			catch (Exception e)
 			{
-				if (CommandException != null)
-					CommandException("checkWindow", e);
-				else
-					throw;
+                result.IsSuccess = false;
+                result.ErrorMessage = e.Message;
+                result.EndTime = DateTime.UtcNow;
+                return result;
+			}
+			finally
+			{
+                eyes.AbortIfNotClosed();
 			}
 		}
-		public void checkRegion(string target, string tag = null)
+
+        public CommandResult checkWindow()
 		{
+            var result = new CommandResult(new Command("checkWindow").ToJSCommand(Name));
+            result.StartTime = DateTime.UtcNow;
+
+            if (eyes == null)
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
+                result.EndTime = DateTime.UtcNow;
+                return result;
+            }
+
 			try
 			{
-				var locator = mainModule.GetDriver().ResolveLocator(target);
-				if (locator == null)
-					throw new ArgumentException("Target not found: " + target, "target");
-				eyes.CheckRegion(locator, tag);
+                eyes.CheckWindow(web.prevTransaction);
+                result.IsSuccess = true;
+                result.EndTime = DateTime.UtcNow;
+                return result;
 			}
 			catch (Exception e)
 			{
-				if (CommandException != null)
-					CommandException("checkWindow", e);
-				else
-					throw;
+                result.IsSuccess = false;
+                result.ErrorMessage = e.Message;
+                result.EndTime = DateTime.UtcNow;
+                return result;
 			}
 		}
-	}*/
+
+        public CommandResult checkRegion(string target)
+		{
+            var result = new CommandResult(new Command("checkRegion", target).ToJSCommand(Name));
+            result.StartTime = DateTime.UtcNow;
+
+            if (eyes == null)
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
+                result.EndTime = DateTime.UtcNow;
+                return result;
+            }
+
+			try
+			{
+                var locator = web.driver.ResolveLocator(target);
+                if (locator == null)
+                {
+                    result.IsSuccess = false;
+                    result.ErrorMessage = "Target not found";
+                    result.EndTime = DateTime.UtcNow;
+                    return result;
+                }
+				eyes.CheckRegion(locator, web.prevTransaction);
+                result.IsSuccess = true;
+                result.EndTime = DateTime.UtcNow;
+                return result;
+			}
+			catch (Exception e)
+			{
+                result.IsSuccess = false;
+                result.ErrorMessage = e.Message;
+                result.EndTime = DateTime.UtcNow;
+                return result;
+			}
+		}
+
+        public bool Initialize(System.Collections.Generic.Dictionary<string, string> args, ExecutionContext ctx)
+        {
+            this.ctx = ctx;
+            IsInitialized = true;
+            return true;
+        }
+
+        public bool Dispose()
+        {
+            return true;
+        }
+
+        public object IterationStarted()
+        {
+            return null;
+        }
+
+        public object IterationEnded()
+        {
+            return null;
+        }
+	}
 }
