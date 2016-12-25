@@ -393,7 +393,7 @@ namespace CloudBeat.Oxygen.Modules
 			return isSuccess;
         }
 
-        private By ResolveLocator(string target)
+        public By ResolveLocator(string target)
         {
             string arg;
             string locator = LocatorParse(target, out arg);
