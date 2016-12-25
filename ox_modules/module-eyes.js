@@ -1,32 +1,46 @@
 /**
  * Provides methods for Applitools Eyes
  */
-module.exports = function(execMethod) {
-    var module = {};
+module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
+	var module = { modType: "dotnet" };
+    
+    var ctx = context;
+	var dispatcher = dispatcher;
+    var rs = rs; // results store
+
+    if (dispatcher) {
+        dispatcher.execute('eyes', 'moduleInit', argv);
+    }
+    
     /**
-     * @summary Performs a swipe.
+     * @summary Performs validation on the whole window.
+     * @description This method always succeeds irregardless of validation result.
      * @function checkWindow
-     * @param {String} tag - object locator. "id=" to search by ID or "//" to search by XPath.
      */
-    module.checkWindow = function() { return execMethod('webeyes', 'checkWindow', Array.prototype.slice.call(arguments)); };
+    module.checkWindow = function() { return handleStepResult(dispatcher.execute('eyes', 'checkWindow', Array.prototype.slice.call(arguments)), rs); };
     /**
-     * @summary Clicks on a widget.
+     * @summary Performs validation on the specified element.
+     * @description This method always succeeds irregardless of validation result.
      * @function checkRegion
-     * @param {String} target - Widget locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {String} tag - Time in seconds to wait for the widget.
+     * @param {String} locator - An element locator.
      */
-    module.checkRegion = function() { return execMethod('webeyes', 'checkRegion', Array.prototype.slice.call(arguments)); };
+    module.checkRegion = function() { return handleStepResult(dispatcher.execute('eyes', 'checkRegion', Array.prototype.slice.call(arguments)), rs); };
      /**
-     * @summary Initializing Applitools Eyes.
-     * @function enable
+     * @summary Initializes Applitools Eyes.
+     * @function init
      * @param {String} apiKey - Applitools API key.
+     * @param {String} appName - String that represents the logical name of the AUT (this name will
+     *                           be presented in the test result).
+     * @param {String} testName - String that represents the name of the test (this name will be 
+     *                            presented in the test result)
      */ 
-    module.enable = function() { return execMethod('webeyes', 'enable', Array.prototype.slice.call(arguments)); };
+    module.init = function() { return handleStepResult(dispatcher.execute('eyes', 'init', Array.prototype.slice.call(arguments)), rs); };
 	/**
-     * @summary Notifies Eyes service that the test is completed.
+     * @summary Notifies Eyes service that the test has been completed.
      * @function close
-     * @param {Boolean} throwEx - Indicates if exception shall be thrown in case of failed test.
+     * @return {Object} Object describing the test status details. //TODO: add structure details
      */ 
-    module.close = function() { return execMethod('webeyes', 'close', Array.prototype.slice.call(arguments)); };
+    module.close = function() { return handleStepResult(dispatcher.execute('eyes', 'close', Array.prototype.slice.call(arguments)), rs); };
+    
     return module;
 };
