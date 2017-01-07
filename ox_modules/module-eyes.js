@@ -41,6 +41,12 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      * @return {Object} Object describing the test status details. //TODO: add structure details
      */ 
     module.close = function() { return handleStepResult(dispatcher.execute('eyes', 'close', Array.prototype.slice.call(arguments)), rs); };
+    /**
+     * @summary Allows forcing full page screenshots.
+     * @function forceFullPageScreenshot
+     * @param {Boolean} force - true to force full page screenshot, false otherwise.
+     */ 
+    module.forceFullPageScreenshot = function() { return handleStepResult(dispatcher.execute('eyes', 'forceFullPageScreenshot', Array.prototype.slice.call(arguments)), rs); };
     
     module._iterationEnd = function(vars) {
     	dispatcher.execute('eyes', 'iterationEnd', {});

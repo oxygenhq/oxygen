@@ -72,6 +72,25 @@ namespace CloudBeat.Oxygen.Modules
 			}
 		}
 
+        public CommandResult forceFullPageScreenshot(bool force)
+        {
+            var result = new CommandResult(new Command("forceFullPageScreenshot", force).ToJSCommand(Name));
+            result.StartTime = DateTime.UtcNow;
+
+            if (eyes == null)
+            {
+                result.IsSuccess = false;
+                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
+                result.EndTime = DateTime.UtcNow;
+                return result;
+            }
+
+            eyes.ForceFullPageScreenshot = force;
+            result.IsSuccess = true;
+            result.EndTime = DateTime.UtcNow;
+            return result;
+        }
+
         public CommandResult checkWindow()
 		{
             var result = new CommandResult(new Command("checkWindow").ToJSCommand(Name));
