@@ -70,10 +70,6 @@ namespace CloudBeat.Oxygen.Modules
                 result.EndTime = DateTime.UtcNow;
                 return result;
 			}
-			finally
-			{
-                eyes.AbortIfNotClosed();
-			}
 		}
 
         public CommandResult checkWindow()
@@ -161,6 +157,8 @@ namespace CloudBeat.Oxygen.Modules
 
         public object IterationEnded()
         {
+            if (IsInitialized)
+                eyes.AbortIfNotClosed();
             return null;
         }
 	}

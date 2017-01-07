@@ -42,5 +42,9 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      */ 
     module.close = function() { return handleStepResult(dispatcher.execute('eyes', 'close', Array.prototype.slice.call(arguments)), rs); };
     
+    module._iterationEnd = function(vars) {
+    	dispatcher.execute('eyes', 'iterationEnd', {});
+    };
+    
     return module;
 };
