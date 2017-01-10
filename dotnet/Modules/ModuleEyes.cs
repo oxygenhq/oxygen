@@ -39,6 +39,7 @@ namespace CloudBeat.Oxygen.Modules
 
             result.IsSuccess = true;
             result.EndTime = DateTime.UtcNow;
+            IsInitialized = true;
             return result;
 		}
 
@@ -160,7 +161,6 @@ namespace CloudBeat.Oxygen.Modules
         public bool Initialize(System.Collections.Generic.Dictionary<string, string> args, ExecutionContext ctx)
         {
             this.ctx = ctx;
-            IsInitialized = true;
             return true;
         }
 
