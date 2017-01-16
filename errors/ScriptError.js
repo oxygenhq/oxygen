@@ -2,9 +2,9 @@
  * Test script execution error class
  * This is a wrapper error class that allows to determine the line and the original error in the script which caused the failure
  */ 
-var OxError = require('./oxerror');
+var OxygenError = require('./OxygenError');
 var util = require('util');
-util.inherits(ScriptError, OxError);
+util.inherits(ScriptError, OxygenError);
 
 function ScriptError(err) {
 	ScriptError.super_.call(this);

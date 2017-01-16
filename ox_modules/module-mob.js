@@ -5,58 +5,138 @@
 const STATUS = require('../model/status.js');
 
 module.exports = function (options, context, rs, logger, dispatcher) {
-    //var module = {};
-	var module = { modType: "fiber" };
+	// this needs to be defined for wdio to work in sync mode 
+	global.browser = {
+		options: {
+			sync: true
+		}
+	};
+	var module = this._module = { modType: "fiber" };
+	var helpers = this._helpers = {};
 	
     var _ = require('underscore');
 	var moment = require('moment');
-	var wdSync = require('wd-sync');
-    var AppiumError = require('../errors/appium');
-	var OxygenError = require('../errors/oxerror');
+	var wdioSync = require('wdio-sync');
+	var wdio = require('webdriverio');
+	var path = require('path');
+	var fs = require('fs');
+    const errorsHelper = this.errorsHelper = require('../errors/helper');
+	var StepResult = require('../model/stepresult');
 	var Failure = require('../model/stepfailure');
 	
 	// constants
-	const DEFAULT_WAIT_TIMEOUT = 60000; 
-	const POOLING_INTERVAL = 5000; 
-	const DEFAULT_APPIUM_PORT = 4723;
-	const DEFAULT_APPIUM_HOST = "localhost";
+	const DEFAULT_WAIT_TIMEOUT = this.DEFAULT_WAIT_TIMEOUT = 60000; 
+	const POOLING_INTERVAL = this.POOLING_INTERVAL = 5000; 
+	const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
+	const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = "127.0.0.1";
 
-    var client = null; //wdSync.remote("localhost", 4723);
-    var driver = null; //module.driver = client.browser;
-    var sync = null; //client.sync;
+    this._client = null; //wdSync.remote("localhost", 4723);
+    this._driver = null; //module.driver = client.browser;
 	
+	// reference to this instance
+	var _this = this;
 	// initialization indicator
-	var isInitialized = false;
+	this._isInitialized = false;
 	// results store
-	var rs = rs;
+	this._rs = rs;
 	// context variables
-	var ctx = context;
+	this._ctx = context;
 	// startup options
-	var _options = options;
+	this._options = options;
+	// set logger
+	this.logger = logger;
+	// store current session id
+	this.sessionId = null;
 	// save driver capabilities for later use when error occures
-	var _caps = null;
+	this._caps = null;
 	// appium or selenium hub host name
-	var _host = options.host || DEFAULT_APPIUM_HOST;
+	this._host = options.host || DEFAULT_APPIUM_HOST;
 	// appium or selenium hub port number
-	var _port = options.port || DEFAULT_APPIUM_PORT;
+	this._port = options.port || DEFAULT_APPIUM_PORT;
 		
 	
 	
-	const noScreenshotCommands = [
+	const NO_SCREENSHOT_COMMANDS = [
 		"init"
 	];
 	const ACTION_COMMANDS = [
+		"open",
 		"tap",
 		"click",
 		"swipe",
-		"submit"
+		"submit",
+		"setValue"
 	];
 	
-    module.syncFunc = sync;
+	// load external commands
+	loadExternalCommands();
+	
+	
+	function loadExternalCommands() {
+		var commandName = null;
+		try {
+			var cmdDir = path.join(__dirname, 'module-mob', 'commands');
+			var files = fs.readdirSync(cmdDir);
+
+			for (var fileName of files) {
+				commandName = fileName.slice(0, -3);
+				if (commandName.indexOf('.') == 0)	// ignore any file that starts with '.'
+					continue;
+				module[commandName] = require(path.join(cmdDir, commandName));
+			}	
+		}
+		catch (e) {
+			console.log("Can't load command '" + commandName + ": " + e.message);
+			console.log(e.stack);
+		}
+	}
+	
+	function wrapModuleMethods() {
+		for (var key in module) {
+			if (typeof module[key] === 'function' && key.indexOf('_') != 0) {
+				module[key] = commandWrapper(key, module[key]);
+			}
+		}
+	}
+	
+	function commandWrapper(cmdName, cmdFunc) {
+		// do not wrap internal commands that start with _
+		if (cmdName.indexOf('_') == 0) {
+			return cmdFunc;
+		}
+		return function() {
+			var args = Array.prototype.slice.call(arguments);
+			var startTime = moment.utc();
+			var endTime = null;
+			try {
+				var retval = cmdFunc.apply(_this, args);
+				
+				// capture end time
+				endTime = moment.utc();
+				
+				addStep(cmdName, args, endTime - startTime, retval, null);
+				
+				return retval;
+			}
+			catch (e) {
+				// capture end time
+				endTime = moment.utc();
+
+				e = errorsHelper.getOxygenError(e, cmdName, args, _this._options, _this._caps);
+				
+				addStep(cmdName, args, endTime - startTime, null, e);
+				
+				throw e;
+			}
+		};
+	}
+	
+	// public properties
 	// auto pause in waitFor
 	module.autoPause = false;
 	// auto wait for actions
 	module.autoWait = false;
+	module.driver = null;
 
 	/**
      * @summary Pauses test execution for given amount of seconds.
@@ -66,14 +146,21 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	 * @param {Integer} port - alternative appium port.
      */
 	module.init = function(caps, host, port) {
+		var wdioOpts = {
+			host: host || _this._options.host || DEFAULT_APPIUM_HOST,
+			port: port || _this._options.port || DEFAULT_APPIUM_PORT,
+			desiredCapabilities: caps
+		}
 		// initialize driver with either default or custom appium/selenium grid address
-		client = wdSync.remote(host || _host, port || _port);
-   		driver = module.driver = client.browser;
-		sync = client.sync;
-		_caps = caps || ctx.caps;
-		var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call([_caps]));	
-		isInitialized = true;
+		_this._driver = module.driver = wdio.remote(wdioOpts);
+		wdioSync.wrapCommands(_this._driver); //wdSync.remote(host || _this._host, port || _this._port);
+   		//_this._driver = module.driver = _this._client.browser;
+		_this._caps = caps || _this._ctx.caps;
+		_this._driver.init();
+		//var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call([_this._caps]));	
+		_this._isInitialized = true;
 	};
+	
 	/**
      * @summary Opens new transaction.
      * @description The transaction will persist till a new one is opened. Transaction names must be
@@ -82,340 +169,78 @@ module.exports = function (options, context, rs, logger, dispatcher) {
      * @param {String} name - The transaction name.
      */
     module.transaction = function (name) { 
-        ctx._lastTransactionName = name;
+        _this._ctx._lastTransactionName = name;
     };
 	
 	module.setContext = function(context) {
-		driver.context(context);
+		_this._driver.context(context);
 	};
 
 	module.getSource = function() {
-		return driver.source();
+		return _this._driver.source();
 	}
 
 	module.execute = function(js, elm) {
-		return driver.execute(js, elm);
-	}
-	
-	module.setWebViewContext = function() {
-		try {
-			var contexts = driver.contexts();
-			// select first available WEBVIEW context
-			for (var i=0; i<contexts.length; i++) {
-				var context = contexts[i];
-				if (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf("CHROMIUM") > -1)) {
-					logger.debug('Setting context: ' + context);
-					driver.context(context);
-					break;
-				}
-			}
-		}
-        catch (e) {
-            throw new AppiumError(e, null, null);
-        }
+		return _this._driver.execute(js, elm);
 	}
 	
 	module.dispose = function() {
-		if (driver && isInitialized) {
-            //console.log(wdSync.current());
-			var retval = driver.quit();
-			isInitialized = false;
-			//return retval;
+		if (_this._driver && _this._isInitialized) {
+			var retval = _this._driver.end();
+			_this._isInitialized = false;
 		}
 	}	
 	
 	module.takeScreenshot = function () {
-		return driver.takeScreenshot();
+		var response = _this._driver.screenshot();
+		return response.value || null;
 	};
-	
-    /**
-     * @summary Performs a swipe.
-     * @function swipe
-     * @param {Integer} startx - Starting x coordinate.
-     * @param {Integer} starty - Starting y coordinate.
-     * @param {Integer} endx - Ending x coordinate.
-     * @param {Integer} endy - Ending y coordinate
-     * @param {Integer} duration - Amount of time in milliseconds for the entire swipe action to take.
-	 * @param {Integer} touchCount - Amount of touches.
-     */
-    module.swipe = function(locator, startX, startY, endX, endY, duration, touchCount) {
-		throw new Error("Not implemented");
-		//return driver.execute("mobile: swipe", { "touchCount": 1, "startX": 360, "startY": 1087, "endX": 349, "endY": 631, "duration": 0.665 })
-		//return invokeDriverCommandComplete("swipe", locator, Array.prototype.slice.call(arguments));
-        
-	};
-	  module.swipe = function(startX, startY, endX, endY, duration) {
-        AppiumDriver.context("NATIVE_APP"); 
-		AppiumDriver.swipe(startX, startY, endX, endY, duration);
-	};
-    /**
-     * @summary Clicks on a widget.
-     * @function click
-     * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {Integer} wait - Time in seconds to wait for the widget.
-     * @param {Integer} pollrate - Time in seconds between polling intervals.
-     */
-    module.click = function(locator) { 
-		return invokeDriverCommandComplete("click", locator, Array.prototype.slice.call(arguments));
-	};
-	
-	module.tap = function (locator, x, y, count) {
-		var elm = module.findElement(locator);
-		elm.tap();
-		//return invokeDriverCommandComplete("tap", locator, Array.prototype.slice.call(arguments));
-	};
-	
-	module.getLocation = function (locator) {
-	  return invokeDriverCommandComplete("getLocation", locator, Array.prototype.slice.call(arguments));
-	};
-		
+	  	
 	module.sendKeys = function(locator, text) { 
-		return invokeDriverCommandComplete("sendKeys", locator, Array.prototype.slice.call(arguments));
+		return module.setValue(locator, text);
 	};
 	
-	module.submit = function (locator) {
-	  return invokeDriverCommandComplete("submit", locator, Array.prototype.slice.call(arguments));
-	};
-	/**
-     * @summary Asserts element's value.
-     * @function assertValue
-     * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {String} value - Expected element value.
-     */
-	module.assertValue = function (locator, value) {
-		var elm = module.findElement(locator);
-		var StepResult = require('../model/stepresult');
+
+				
+	
+	function addStep(name, args, duration, retval, err) {
         var step = new StepResult();
 		var result = {
 			step: step,
 			err: null,
-			value: null
-		}
-		step._name = "mob.assertValue";
-		step._transaction = ctx._lastTransactionName;
-		step._status = "passed";
-		step._action = "false";
-		
-		var actualValue = elm.text();
-		
-		if (actualValue !== value) {
-			result.err = new OxygenError("ASSERTION_FAILED", "Assertion failed for element: '" + locator + "'. Expected value: '" + value + "'. Actual value: '" + actualValue + "'");
-			step._status = STATUS.FAILED;
-			step.failure = new Failure();
-			step.failure._message = result.err.message;
-			step.failure._expectedValue = value;
-			step.failure._actualValue = actualValue;
+			value: retval
 		}
 		
-		return addStepResult(result);
-	};
-	
-	module.clear = function (locator) {
-	  return invokeDriverCommandComplete("clear", locator, Array.prototype.slice.call(arguments));
-	};
-
-    /**
-     * @summary Pauses test execution for given amount of seconds.
-     * @function pause
-     * @param {Float} seconds - seconds to pause the execution.
-     */
-    module.pause = function(ms) { 
-		return invokeDriverCommandComplete("sleep", null, Array.prototype.slice.call(arguments));
-	};
-	
-	module.waitForElement = function(locator, timeout) {
-		var actualTimeout = timeout || DEFAULT_WAIT_TIMEOUT;
-		var StepResult = require('../model/stepresult');
-        var step = new StepResult();
-		rs.steps.push(step);
-		step._name = "mob.waitForElement";
-		step._status = STATUS.PASSED;
-		step._action = false.toString();
+		step._name = "mob." + name;
+		step._transaction = _this._ctx._lastTransactionName;
+		step._status = err ? STATUS.FAILED : STATUS.PASSED;
+		step._action = _.contains(ACTION_COMMANDS, name).toString();
+		step._duration = duration;
 		
-		logger.debug("waitForElement: " + locator);
-		var startTime = moment.utc();
-		var elapsed = 0;
-		var err = null;
-		
-		while (elapsed < actualTimeout) {
-			console.log('trying to wait for the element');
-			try {
-				err = null;
-				_waitForElement(locator);
-			}
-			catch (e) {
-				err = e;
-				console.log('Element not found');
-			}
-			var endTime = moment.utc();
-			elapsed = endTime - startTime;
-			if (!err)
-				break;
-			driver.sleep(POOLING_INTERVAL);
-		}
-		step._duration = elapsed;
 		if (err) {
-			step._status = STATUS.FAILED;
-			if (!_.contains(noScreenshotCommands, "waitForElement"))
-				step.screenshot = module.takeScreenshot();
-			throw err;
-		}
-		else if (module.autoPause) {
-			console.log('autoPause');
-			driver.sleep(500);
-		}
-	};
-
-	function _waitForElement(locator, timeout) {
-		if (!locator) throw new Error('locator is empty or not specified');
-		if (locator.indexOf('name=') == 0)
-			return driver.waitForElementByName(locator.substr('name='.length));
-		if (locator.indexOf('id=') == 0)
-			return driver.waitForElementById(locator.substr('id='.length));
-		if (locator.indexOf('xpath=') == 0)
-			return driver.waitForElementByXPath(locator.substr('xpath='.length));
-		if (locator.indexOf('text=') == 0)
-			return driver.waitForElementByAccessibilityId(locator.substr('text='.length));
-		//if (locator.indexOf('//') == 0)
-		//	return driver.elementByXPath(locator);
-		if (locator.indexOf('(/') == 0)
-			return driver.waitForElementByXPath(locator);
-		if (locator.indexOf('/') == 0)
-			return driver.waitForElementByXPath(locator);
-		
-		throw new Error('Not a valid locator: ' + locator);
-	}
-		
-	module.isDisplayed = function(locator) {
-		return invokeDriverCommandComplete("isDisplayed", locator, Array.prototype.slice.call(arguments));
-	}
-	
-	module.findElement = function(locator) {
-		if (!locator) 
-			throw new Error('locator is empty or not specified');
-		if (locator.indexOf('name=') == 0)
-			return driver.elementByName(locator.substr('name='.length));
-		if (locator.indexOf('id=') == 0)
-			return driver.elementById(locator.substr('id='.length));
-		if (locator.indexOf('xpath=') == 0)
-			return driver.elementByXPath(locator.substr('xpath='.length));
-		if (locator.indexOf('text=') == 0)
-			return driver.elementByAccessibilityId(locator.substr('text='.length));
-		if (locator.indexOf('//') == 0)
-			return driver.elementByXPath(locator);
-		if (locator.indexOf('(/') == 0)
-			return driver.elementByXPath(locator);
-		if (locator.indexOf('/') == 0)
-			return driver.elementByXPath(locator);
-		throw new Error('Not a valid locator: ' + locator);
-	}
-	module.findElements = function(locator) {
-		if (!locator) throw new Error('locator is empty or not specified');
-		if (locator.indexOf('name=') == 0)
-			return driver.elementsByName(locator.substr('name='.length));
-		if (locator.indexOf('id=') == 0)
-			return driver.elementsById(locator.substr('id='.length));
-		if (locator.indexOf('xpath=') == 0)
-			return driver.elementsByXPath(locator.substr('xpath='.length));
-		if (locator.indexOf('text=') == 0)
-			return driver.elementsByAccessibilityId(locator.substr('text='.length));
-		//if (locator.indexOf('//') == 0)
-		//	return driver.elementsByXPath(locator.substr('//'.length));
-		if (locator.indexOf('//') == 0)
-			return driver.elementsByXPath(locator);			
-		if (locator.indexOf('/') == 0)
-			return driver.elementsByXPath(locator.substr('/'.length));
-	
-	
-			
-		throw new Error('Not a valid locator: ' + locator);
-	};
-	/*
-	 * This function invokes selenium driver's method, including resolving element's locator, and generates SteResult object with execution result
-	 */
-	function invokeDriverCommand(cmd, locator, args)
-    {
-		var StepResult = require('../model/stepresult');
-        var step = new StepResult();
-		var result = {
-			step: step,
-			err: null,
-			value: null
-		}
-		var elm = null;
-		
-		step._name = "mob." + cmd;
-		step._transaction = ctx._lastTransactionName;
-		step._status = "passed";
-		step._action = _.contains(ACTION_COMMANDS, cmd).toString();
-		
-		// check if driver has been initialized
-		if (!driver) {
-			result.err = new OxygenError("MODULE_NOT_INITIALIZED", "'mob.init' must be called first before any other method");
-			step._status = STATUS.FAILED;
 			step.failure = new Failure();
-			step.failure._message = result.err.message;
-			return result;
+			step.failure._message = err.message;
+			step.failure._type = err.type;
+			// take a screenshot
+			if (!_.contains(NO_SCREENSHOT_COMMANDS, name))	// FIXME: extract cmd part from result.step._name
+				step.screenshot = module.takeScreenshot();
 		}
-		// if locator is specified, resolve the element first (not all selenium driver commands require element selection)
-		if (locator) {
-			try {
-				elm = module.findElement(locator);
-			}
-			catch (err) {
-				result.err = new AppiumError(err, _caps, null);
-				step._status = STATUS.FAILED;
-				step.failure = new Failure();
-				step.failure._message = err.message;
-				step.failure.data = {};
-				step.failure.data.locator = locator;
-				// do not continue if locator can't be resolved
-				return result;
-			}
-		}
-		if (!driver[cmd] && (elm && !elm[cmd]))
-			result.err = new OxygenError("UNIMPLEMENTED_METHOD", "'mob." + cmd + "' method is not found");
-		else {
-			var startTime = moment.utc();
-			try {
-				if (elm != null) {
-					result.value = elm[cmd].apply(null,  _.without(args, locator));
-				}
-				else {
-					result.value = driver[cmd].apply(null, args);
-				}
-			}
-			catch (err) {
-				result.err = new AppiumError(err, _caps, null);
-				step._status = STATUS.FAILED;
-				step.failure = new Failure();
-				step.failure._message = err.message;
-			}
-			var endTime = moment.utc();
-			step._duration = endTime - startTime;
-		}
-		return result;
+		// add step to result store
+		_this._rs.steps.push(step);
 	}
-	function invokeDriverCommandComplete(cmd, locator, args)
-	{
-		var result = invokeDriverCommand(cmd, locator, args);
-		rs.steps.push(result.step);
-		if (result.err) {
-			if (!_.contains(noScreenshotCommands, cmd))
-				result.step.screenshot = module.takeScreenshot();
-			throw result.err;
-		}
-		return result.value;
+
+	helpers.getWdioLocator = function(locator) {
+		if (locator.indexOf('/') == 0)
+			return locator;
+		if (locator.indexOf('id=') == 0)
+			return '#' + locator.substr('id='.length);
+		if (locator.indexOf('name=') == 0)
+			return '[name=' + locator.substr('name='.length) + ']';
+		return locator;
 	}
-	function addStepResult(result) {
-		rs.steps.push(result.step);
-		if (result.err) {
-			if (!_.contains(noScreenshotCommands, result.step._name))	// FIXME: extract cmd part from result.step._name
-				result.step.screenshot = module.takeScreenshot();
-			throw result.err;
-		}
-		return result.value;
-	}
+	
+	// wrap module methods
+	wrapModuleMethods();
 	
     return module;
 };
