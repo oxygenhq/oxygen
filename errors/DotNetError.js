@@ -1,12 +1,11 @@
 /*
  * .NET Exception representative class
  */ 
-var OxError = require('./oxerror');
+var OxygenError = require('./OxygenError');
 var util = require('util');
-util.inherits(DotNetError, OxError);
+util.inherits(DotNetError, OxygenError);
 
 function DotNetError(type, message, dotnetStack) {
-	DotNetError.super_.call(this);
     this.innerError = null;
 	this._type = type;
 	this._message = message;
@@ -14,6 +13,7 @@ function DotNetError(type, message, dotnetStack) {
 	this._stacktrace = null;
 	var self = this;
 	
+	OxygenError.call(this);
 
 	this.caputeStackTrace();
 	
