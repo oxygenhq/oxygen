@@ -136,6 +136,8 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	module.autoPause = false;
 	// auto wait for actions
 	module.autoWait = false;
+	// automatically renew appium session when init() is called for existing session
+	module.autoReopen = options.autoReopen || true;
 	module.driver = null;
 
 	/**
@@ -146,6 +148,18 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	 * @param {Integer} port - alternative appium port.
      */
 	module.init = function(caps, host, port) {
+		// ignore init if the module has been already initialized
+		// this is required when test suite with multiple test cases is executed
+		// then .init() might be called in each test case, but actually they all need to use the same Appium session
+		if (_this._isInitialized) {
+			if (module.autoReopen) {
+				_this._driver.reload();
+			}
+			else {
+				logger.debug('init() was called for already initialized module. autoReopen=false so the call is ignored.');
+			}
+			return;
+		}
 		var wdioOpts = {
 			host: host || _this._options.host || DEFAULT_APPIUM_HOST,
 			port: port || _this._options.port || DEFAULT_APPIUM_PORT,
@@ -185,10 +199,10 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	}
 	
 	module.dispose = function() {
-		if (_this._driver && _this._isInitialized) {
+		/*if (_this._driver && _this._isInitialized) {
 			var retval = _this._driver.end();
 			_this._isInitialized = false;
-		}
+		}*/
 	}	
 	
 	module.takeScreenshot = function () {

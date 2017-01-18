@@ -17,8 +17,8 @@ module.exports = function(locator, parent) {
 		retval = this._driver.element(locator);
 	}
 	// check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
-	if (retval && retval.value) {
-		retval = retval.value;
+	if (retval && retval.value == null) {
+		return null;
 	}
 	return retval;
 };
