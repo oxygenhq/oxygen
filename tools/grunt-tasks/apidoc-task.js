@@ -60,17 +60,39 @@ module.exports = function(grunt) {
     grunt.registerTask('apidoc', 'description', function() {
         var modules = fs.readdirSync(modPath);
         for (var m of modules) {
-            if (m.startsWith('module-') && m.endsWith('.js')) {
-                var name = m.substring('module-'.length, m.length - '.js'.length);
-                generate(load(m), name);
+            if (!m.startsWith('module-')) {
+                continue;
             }
+
+            var name = m.substring('module-'.length, m.length - '.js'.length);
+
+            if (fs.lstatSync(path.join(modPath, m)).isFile() && m.endsWith('.js')) {
+                var modDir = path.join(modPath, 'module-' + name);
+                
+                if (fs.existsSync(modDir)) {
+                    var modDoc = load(path.join(modPath, m), true);
+                    // load commands
+                    var cmdsDir = path.join(modDir, 'commands');
+                    var cmds = fs.readdirSync(cmdsDir);
+                    for (var cmd of cmds) {
+                        var cmdfile = path.join(cmdsDir, cmd);
+                        if (fs.lstatSync(cmdfile).isFile() && cmd.endsWith('.js')) {
+                            grunt.log.writeln('Generating ' + name + '.' + cmd.substring(0, cmd.length - '.js'.length));
+                            modDoc.methods = modDoc.methods.concat(load(cmdfile, false).methods);
+                        }
+                    }
+                    generate(modDoc, name);
+                } else {
+                    generate(load(path.join(modPath, m), true), name);
+                    grunt.log.writeln('Generating ' + name);
+                }
+            } 
         }
 
         /*
          * Loads up JSDoc comments from a module-*.js file and stores them in a JSON (Doctrine) form.
          */
-        function load(moduleName) {
-            var file = path.join(modPath, moduleName);
+        function load(file, loadDescription) {
             try {
                 var data = fs.readFileSync(file, 'utf8');
             
@@ -79,11 +101,15 @@ module.exports = function(grunt) {
                 var commentRaw;
                 var comments = [];
                 var commentParsed;
+                var description;
                 
-                commentRaw = regex.exec(data);
-                commentParsed = doctrine.parse(commentRaw[0], { unwrap: true });
-
-                var description = commentParsed.description;
+                if (loadDescription) {
+                    commentRaw = regex.exec(data);
+                    commentParsed = doctrine.parse(commentRaw[0], { unwrap: true });
+                    description = commentParsed.description;
+                } else {
+                    description = '';
+                }
 
                 while ((commentRaw = regex.exec(data)) !== null) {
                     commentParsed = doctrine.parse(commentRaw[0], { unwrap: true });
@@ -150,7 +176,7 @@ module.exports = function(grunt) {
                 }
                 return { description: description.replace(/(\r\n|\n)/gm,''), methods: comments };
             } catch (exc) {       
-                grunt.log.error("Unable to load/parse " + moduleName, exc);
+                grunt.log.error("Unable to load/parse " + file, exc);
             }
         };
 
