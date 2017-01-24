@@ -15,7 +15,7 @@ namespace CloudBeat.Oxygen.Modules
         public SeleniumDriver driver { get; private set; }
         private Proxy proxy = null;
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
-        private bool fetchStats = true;
+        private bool fetchStats = false;
 		private bool reopenBrowserOnIteration = false;
         private long prevNavigationStart = long.MinValue;
 		private bool autoInitDriver = false;
@@ -45,17 +45,12 @@ namespace CloudBeat.Oxygen.Modules
         const string ARG_BROWSER_NAME = "browserName";
 		const string ARG_REOPEN_BROWSER = "reopenBrowser";
 		const string ARG_SCREENSHOT_MODE = "screenshots";
+        const string ARG_FETCH_STATS = "fetchStats";
 		#endregion
 
 		public ModuleWeb()
 		{
 		}
-
-		public ModuleWeb(bool fetchStats, ScreenshotMode screenshotMode)
-        {
-			this.screenshotMode = screenshotMode;
-            this.fetchStats = fetchStats;
-        }
 
 		#region General Public Functions
 
@@ -107,6 +102,9 @@ namespace CloudBeat.Oxygen.Modules
 				else if (mode == "never")
 					screenshotMode = ScreenshotMode.Never;
 			}
+
+            if (args.ContainsKey(ARG_FETCH_STATS) && args[ARG_FETCH_STATS].Equals("true", StringComparison.InvariantCultureIgnoreCase))
+                fetchStats = true;
 
             autoInitDriver = args.ContainsKey(ARG_INIT_DRIVER) && args[ARG_INIT_DRIVER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
             reopenBrowserOnIteration = args.ContainsKey(ARG_REOPEN_BROWSER) && args[ARG_REOPEN_BROWSER].Equals("true", StringComparison.InvariantCultureIgnoreCase);
