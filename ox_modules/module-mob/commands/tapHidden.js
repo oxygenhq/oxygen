@@ -1,7 +1,8 @@
 /**
-     * @summary Performance tap action on a hidden element.
-     * @function tapHidden
-	 * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
+ * @summary Performance tap action on a hidden element.
+ * @function tapHidden
+ * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
+ * @return {}
 */
 module.exports = function(locator) {
 	if (!locator) 

@@ -1,7 +1,7 @@
 /**
-     * @summary Finds element.
-     * @function findElement
-	 * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
+ * @summary 
+ * @function setWebViewContext
+ * @return {}
 */
 module.exports = function() {
 	var response = this._driver.contexts();

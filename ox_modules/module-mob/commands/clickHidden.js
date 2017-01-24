@@ -1,8 +1,8 @@
 /**
-     * @summary Clicks hidden element.
-     * @function clickHidden
-	 * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
-	 * @param {Boolean} clickParent - If true, then parent of the element is clicked.
+ * @summary Clicks hidden element.
+ * @function clickHidden
+ * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
+ * @param {Boolean} clickParent - If true, then parent of the element is clicked.
 */
 module.exports = function(locator, clickParent) {
 	if (!locator) 

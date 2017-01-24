@@ -1,8 +1,8 @@
 /**
-     * @summary Scrolls the element into the visible area of the browser window.
-     * @function scrollIntoView
-	 * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
-	 * @param {Boolean} alignToTop - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
+ * @summary Scrolls the element into the visible area of the browser window.
+ * @function scrollIntoView
+ * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
+ * @param {Boolean} alignToTop -
 */
 module.exports = function(locator, alignToTop) {
 	if (!locator) 
@@ -21,4 +21,3 @@ module.exports = function(locator, alignToTop) {
 		alignToTop
 	);
 };
-

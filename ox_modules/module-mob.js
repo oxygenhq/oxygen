@@ -53,9 +53,7 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	this._host = options.host || DEFAULT_APPIUM_HOST;
 	// appium or selenium hub port number
 	this._port = options.port || DEFAULT_APPIUM_PORT;
-		
-	
-	
+
 	const NO_SCREENSHOT_COMMANDS = [
 		"init"
 	];
@@ -70,7 +68,6 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	
 	// load external commands
 	loadExternalCommands();
-	
 	
 	function loadExternalCommands() {
 		var commandName = null;
@@ -140,13 +137,6 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	module.autoReopen = options.autoReopen || true;
 	module.driver = null;
 
-	/**
-     * @summary Pauses test execution for given amount of seconds.
-     * @function init
-     * @param {Json} caps - Desired capabilities.
-	 * @param {String} host - alternative appium host.
-	 * @param {Integer} port - alternative appium port.
-     */
 	module.init = function(caps, host, port) {
 		// ignore init if the module has been already initialized
 		// this is required when test suite with multiple test cases is executed
@@ -212,10 +202,7 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	  	
 	module.sendKeys = function(locator, text) { 
 		return module.setValue(locator, text);
-	};
-	
-
-				
+	};		
 	
 	function addStep(name, args, duration, retval, err) {
         var step = new StepResult();

@@ -1,10 +1,8 @@
 /**
-     * @summary Clicks on a widget.
-     * @function click
-     * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {Integer} wait - Time in seconds to wait for the widget.
-     * @param {Integer} pollrate - Time in seconds between polling intervals.
-     */
+ * @summary Clicks on a widget.
+ * @function click
+ * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
+ */
 module.exports = function(locator) {
 	if (!locator) 
 		throw new Error('locator is empty or not specified');

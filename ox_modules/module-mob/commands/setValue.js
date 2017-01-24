@@ -1,7 +1,9 @@
 /**
-     * @summary Sets element value.
-     * @function setValue
-	 * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
+ * @summary Sets element value.
+ * @function setValue
+ * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
+ * @param {String} value - Value to set.
+ * @return {}
 */
 module.exports = function(locator, value) {
 	if (!locator) 

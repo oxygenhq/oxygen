@@ -1,10 +1,6 @@
 /**
-     * @summary Performs a swipe.
-     * @function swipe
-	 * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {Integer} startx - Horizontal offset.
-     * @param {Integer} starty - Vertical offset.
-     * @param {Integer} speed - Time (in milliseconds) to spend performing the swipe
+ * @summary 
+ * @function scrollToElement
 */
 var scrollToElement = function(containerLocator, elmLocator, direction) {
     if (!direction) {

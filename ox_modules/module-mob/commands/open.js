@@ -1,10 +1,8 @@
 /**
-     * @summary Clicks on a widget.
-     * @function open
-     * @param {String} locator - Widget locator. "id=" to search by ID or "//" to search by XPath.
-     * @param {Integer} wait - Time in seconds to wait for the widget.
-     * @param {Integer} pollrate - Time in seconds between polling intervals.
-     */
+ * @summary Opens an URL.
+ * @function open
+ * @param {String} url - The URL to open.
+ */
 module.exports = function(url) {
 	return this._driver.url(url);
 };
