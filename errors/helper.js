@@ -35,4 +35,4 @@ var self = module.exports = {
 				return new OxygenError(err.type, err.message, null);
 		}
 	}
-}
+};
