@@ -137,6 +137,14 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	module.autoReopen = options.autoReopen || true;
 	module.driver = null;
 
+	/**
+     * @function init
+	 * @summary Initializes a new Appium session.
+     * @description Initializes a new Appium session with provided desired capabilities and optional host name and port.
+     * @param {String} caps - New session's desired capabilities.
+	 * @param {String=} host - Appium server host name (default: localhost).
+	 * @param {Number=} port - Appium server port (default: 4723).
+     */
 	module.init = function(caps, host, port) {
 		// ignore init if the module has been already initialized
 		// this is required when test suite with multiple test cases is executed
@@ -175,33 +183,60 @@ module.exports = function (options, context, rs, logger, dispatcher) {
     module.transaction = function (name) { 
         _this._ctx._lastTransactionName = name;
     };
-	
+	/**
+	 * @function setContext
+     * @summary Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
+     * @param {String} context - The context name.
+	 * @for android, ios
+     */
 	module.setContext = function(context) {
 		_this._driver.context(context);
 	};
-
+	/**
+	 * @function getSource
+     * @summary Gets the source code of the page.
+	 * @for android, ios
+     */
 	module.getSource = function() {
 		return _this._driver.source();
 	}
-
+	/**
+	 * @function execute
+     * @summary Executes a JavaScript code inside the HTML page.
+	 * @for android, ios
+     */
 	module.execute = function(js, elm) {
 		return _this._driver.execute(js, elm);
 	}
-	
+	/**
+	 * @function dispose
+     * @summary Ends the current session.
+	 * @for android, ios
+     */
 	module.dispose = function() {
-		/*if (_this._driver && _this._isInitialized) {
+		if (_this._driver && _this._isInitialized) {
 			var retval = _this._driver.end();
 			_this._isInitialized = false;
-		}*/
+		}
 	}	
-	
+	/**
+	 * @function takeScreenshot
+     * @summary Take a screenshot of the current page or screen.
+	 * @for android, ios
+     */
 	module.takeScreenshot = function () {
 		var response = _this._driver.screenshot();
 		return response.value || null;
 	};
-	  	
-	module.sendKeys = function(locator, text) { 
-		return module.setValue(locator, text);
+	/**
+	 * @function sendKeys
+     * @summary Sends a sequence of key strokes to the element.
+	 * @param {String} locator - Locator of the element to be found. "id=" to search by ID or "//" to search by XPath.
+	 * @param {String} value - A value to be set to the element.
+	 * @for android, ios
+     */ 	
+	module.sendKeys = function(locator, value) { 
+		return module.setValue(locator, value);
 	};		
 	
 	function addStep(name, args, duration, retval, err) {
