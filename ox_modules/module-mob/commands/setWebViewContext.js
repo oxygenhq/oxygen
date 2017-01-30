@@ -1,7 +1,6 @@
 /**
- * @summary 
+ * @summary Sets context to WEBVIEW or CHROMIUM.
  * @function setWebViewContext
- * @return {}
 */
 module.exports = function() {
 	var response = this._driver.contexts();

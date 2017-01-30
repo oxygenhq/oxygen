@@ -3,7 +3,6 @@
  * @function waitForElement
  * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
  * @param {Integer} wait - Time in milliseconds to wait for the element.
- * @return {}
  */
 module.exports = function(locator, wait) {
 	

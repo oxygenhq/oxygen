@@ -2,7 +2,7 @@
  * @summary Checks if element is visible on the screen.
  * @function isDisplayed
  * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
- * @return {}
+ * @return {Boolean} - true if the element is visible.
 */
 module.exports = function(locator) {
 	if (!locator) 

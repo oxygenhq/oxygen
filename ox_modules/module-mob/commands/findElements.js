@@ -3,7 +3,7 @@
  * @function findElements
  * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
  * @param {Object} parent - Optional parent element for relative search. "id=" to search by ID or "//" to search by XPath.
- * @return {}
+ * @return {WebElement} - WebElement JSON objects.
 */
 module.exports = function(locator, parent) {
 	if (!locator) 

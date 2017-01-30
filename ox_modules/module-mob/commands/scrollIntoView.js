@@ -2,7 +2,7 @@
  * @summary Scrolls the element into the visible area of the browser window.
  * @function scrollIntoView
  * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
- * @param {Boolean} alignToTop -
+ * @param {Boolean} alignToTop - Indicates whether to align the element to the top.
 */
 module.exports = function(locator, alignToTop) {
 	if (!locator) 

@@ -1,5 +1,5 @@
 /**
- * @summary Clicks on a widget.
+ * @summary Clicks on an element.
  * @function click
  * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
  */
