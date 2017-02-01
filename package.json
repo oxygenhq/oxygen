@@ -39,8 +39,8 @@
     "config": "1.24.0",
     "csv-load-sync": "1.0.0",
     "easyxml": "2.0.1",
-    "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git#d62fbb8b085f980b98e2dd136768c36ab8ac595a",
-    "fibers": "git+https://github.com/oxygenhq/node-fibers.git#a5e7002e42889306d488ddcbcd2057dae12472c9",
+    "electron-edge": "git+https://github.com/oxygenhq/electron-edge.git#6110c74e6d3adb16f47d4375f5dda1f5e8a839fa",
+    "fibers": "git+https://github.com/oxygenhq/node-fibers.git#1935b77dca3ddaef8784e35c23529622b3509575",
     "globule": "1.1.0",
     "minimist": "1.2.0",
     "moment": "2.15.2",
@@ -50,7 +50,7 @@
     "xlsx": "0.8.0",
     "xls-to-json-lc": "0.3.3",
     "xlsx-to-json-lc": "0.2.5",
-    "wdio-sync": "git+https://github.com/oxygenhq/wdio-sync.git#bdbd82aa0b517e7ea3929ac43f31abe13dc353dc",
+    "wdio-sync": "0.6.10",
     "webdriverio": "4.6.1"
   },
   "scripts": {
