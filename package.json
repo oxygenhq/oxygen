@@ -34,7 +34,7 @@
     "doctrine": "1.5.0"
   },
   "dependencies": {
-    "async": "2.1.2",
+    "async": "2.1.4",
     "chai": "3.5.0",
     "config": "1.24.0",
     "csv-load-sync": "1.0.0",
@@ -43,15 +43,15 @@
     "fibers": "git+https://github.com/oxygenhq/node-fibers.git#1935b77dca3ddaef8784e35c23529622b3509575",
     "globule": "1.1.0",
     "minimist": "1.2.0",
-    "moment": "2.15.2",
+    "moment": "2.17.1",
     "oxygen-logger": "git+https://github.com/oxygenhq/oxygen-logger.git",
     "underscore": "1.8.3",
     "when": "3.7.7",
-    "xlsx": "0.8.0",
+    "xlsx": "0.8.1",
     "xls-to-json-lc": "0.3.3",
     "xlsx-to-json-lc": "0.2.5",
     "wdio-sync": "0.6.10",
-    "webdriverio": "4.6.1"
+    "webdriverio": "4.6.2"
   },
   "scripts": {
     "build": "node_modules/.bin/grunt"
