@@ -34,13 +34,10 @@ namespace CloudBeat.Oxygen.Modules
 		// Defines the timeout (in milliseconds) for WaitFor* commands and some assert* commands.
 		// This value, or rather the underlying waitForTimeout, can be overriden from a script using Selenese SetTimeout command.
         private const int DEFAULT_WAIT_FOR_TIMEOUT = 60 * 1000;
-        // Defines the timeout (in milliseconds) for asynchronous scripts execution.
-        private const int DEFAULT_ASYNC_SCRIPT_TIMEOUT = 60 * 1000;
 		#endregion
 
 		private int pageLoadTimeout = DEFAULT_PAGE_LOAD_TIMEOUT;
-        private int asynScriptTimeout = DEFAULT_ASYNC_SCRIPT_TIMEOUT;
-		private int waitForTimeout = DEFAULT_WAIT_FOR_TIMEOUT;
+        private int waitForTimeout = DEFAULT_WAIT_FOR_TIMEOUT;
 
 		public const string SE_CMD_METHOD_PREFIX = "SeCmd";
 
@@ -110,7 +107,6 @@ namespace CloudBeat.Oxygen.Modules
             : base(remoteAddress, desiredCapabilities, TimeSpan.FromSeconds(TIMEOUT_COMMAND))
         {
 			base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
-            base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
 
 			this.context = context;
 			if (context == null)

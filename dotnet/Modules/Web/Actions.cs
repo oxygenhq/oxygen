@@ -18,9 +18,8 @@ namespace CloudBeat.Oxygen.Modules
 
         public void SeCmdSetTimeout(int timeout)
         {
-            pageLoadTimeout = waitForTimeout = asynScriptTimeout = timeout;
+            pageLoadTimeout = waitForTimeout = timeout;
             base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
-            base.Manage().Timeouts().SetScriptTimeout(TimeSpan.FromMilliseconds(asynScriptTimeout));
         }
 		public void SeCmdSetBaseUrl(string url)
 		{
