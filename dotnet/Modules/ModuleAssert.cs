@@ -31,35 +31,26 @@ namespace CloudBeat.Oxygen.Modules
             return true;
         }
 
-
-
         public CommandResult equal(string a, string b, string message)
         {
 			var result = new CommandResult(new Command("equal", a, b, message).ToJSCommand(Name));
-            result = a != b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase() ;
-
-			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
-				result.ErrorMessage = "'" + a + "' is not equal to '" + b + "'";
-			return result;
+            return a != b ? 
+                result.ErrorBase(CheckResultStatus.ASSERT, "'" + a + "' is not equal to '" + b + "'") :
+                result.SuccessBase();
         }
 
         public CommandResult notEqual(string a, string b, string message)
         {
             var result = new CommandResult(new Command("notEqual", a, b, message).ToJSCommand(Name));
-            result = a == b ? result.ErrorBase(CheckResultStatus.ASSERT) : result.SuccessBase();
-
-			if (result.StatusText == CheckResultStatus.ASSERT.ToString())
-				result.ErrorMessage = "'" + a + "' is equal to '" + b + "'";
-
-			return result;
+            return a == b ?
+                result.ErrorBase(CheckResultStatus.ASSERT, "'" + a + "' is equal to '" + b + "'") :
+                result.SuccessBase();
         }
 
         public CommandResult fail(string message)
         {
             var result = new CommandResult(new Command("fail", message).ToJSCommand(Name));
-            result = result.ErrorBase(CheckResultStatus.ASSERT);
-			result.ErrorMessage = message;
-			return result;
+			return result.ErrorBase(CheckResultStatus.ASSERT, message);
         }
 	}
 }

@@ -491,75 +491,52 @@ namespace CloudBeat.Oxygen.Modules
             var cmd = new Command(name, args);
             var result = new CommandResult(cmd.ToJSCommand(Name));
 
+			// expected exceptions won't be thrown but rather returned by 'exception' output parameter
+			Exception exception = null;
             string screenShot = null;
-
-            try
-            {
-				result.StartTime = DateTime.UtcNow;
-				// expected exceptions won't be thrown but rather returned by 'exception' output parameter
-				Exception exception = null;
-				var retVal = driver.ExecuteCommand(cmd, screenshotMode, out screenShot, out exception);
+			var retVal = driver.ExecuteCommand(cmd, screenshotMode, out screenShot, out exception);
 				
-				result.IsAction = cmd.IsAction();
-				result.Screenshot = screenShot;
-				result.ReturnValue = retVal;
-				result.IsSuccess = exception == null;
-				if (exception != null)
-				{
-					result.ErrorType = exception.GetType().ToString();
-					result.ErrorMessage = exception.Message;
-					result.ErrorDetails = exception.StackTrace;
-					string statusData = null;
-					var status = GetStatusByException(exception, out statusData);
-					result.StatusText = status.ToString();
-					result.StatusData = statusData;
-				}
+			result.IsAction = cmd.IsAction();
+			result.Screenshot = screenShot;
+			result.ReturnValue = retVal;
+			result.IsSuccess = exception == null;
+			if (exception != null)
+			{
+                string statusData = null;
+                var status = GetStatusByException(exception, out statusData);
+                result = result.ErrorBase(status, statusData);
 
-                int domContentLoaded = 0;
-                int load = 0;
+                if (status == CheckResultStatus.UNKNOWN_ERROR)
+                {
+                    result.ErrorType = exception.GetType().ToString();
+                    result.ErrorMessage = exception.Message;
+                    result.ErrorDetails = exception.StackTrace;
+                }
+            }
 
-                if (fetchStats)
+            if (fetchStats)
+            {
+                if (cmd.IsAction())
                 {
                     long navigationStart = 0;
-
-                    if (cmd.IsAction())
+                    int domContentLoaded = 0;
+                    int load = 0;
+                    if (driver.GetPerformanceTimings(out domContentLoaded, out load, out navigationStart))
                     {
-                        if (driver.GetPerformanceTimings(out domContentLoaded, out load, out navigationStart))
-                        {
-                            // if navigateStart equals to the one we got from previous attempt
-                            // it means we are still on the same page and don't need to record load/domContentLoaded times
-                            if (prevNavigationStart == navigationStart)
-                                load = domContentLoaded = 0;
-                            else
-                                prevNavigationStart = navigationStart;
-                        }
-						result.DomContentLoadedEvent = domContentLoaded;
-						result.LoadEvent = load;
+                        // if navigateStart equals to the one we got from previous attempt
+                        // it means we are still on the same page and don't need to record load/domContentLoaded times
+                        if (prevNavigationStart == navigationStart)
+                            load = domContentLoaded = 0;
+                        else
+                            prevNavigationStart = navigationStart;
                     }
+					result.DomContentLoadedEvent = domContentLoaded;
+					result.LoadEvent = load;
                 }
-
-                result.EndTime = DateTime.UtcNow;
-                result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
-
-                return result;
             }
-            catch (Exception e)
-            {
-				result.EndTime = DateTime.UtcNow;
-                result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
-				result.IsAction = cmd.IsAction();
-				result.IsSuccess = false;
-				result.Screenshot = screenShot;
-				result.ErrorType = e.GetType().ToString();
-				result.ErrorMessage = e.Message;
-				result.ErrorDetails = e.StackTrace;
-				string statusData = null;
-				var status = GetStatusByException(e, out statusData);
-				result.StatusText = status.ToString();
-				result.StatusData = statusData;
-				if (status == CheckResultStatus.UNKNOWN_ERROR)
-					e.Data.Add("Cmd: ", cmd.ToString());
-            }
+
+            result.EndTime = DateTime.UtcNow;
+            result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
 
             return result;
         }

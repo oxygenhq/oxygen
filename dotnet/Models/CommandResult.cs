@@ -48,11 +48,12 @@ namespace CloudBeat.Oxygen.Models
             return this;
         }
 
-        public CommandResult SuccessBase()
+        public CommandResult SuccessBase(object retVal = null)
         {
             this.EndTime = DateTime.UtcNow;
             this.Duration = (this.EndTime - this.StartTime).TotalSeconds;
             this.IsSuccess = true;
+            this.ReturnValue = retVal;
             return this;
         }
     }

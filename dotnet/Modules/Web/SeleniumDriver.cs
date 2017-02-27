@@ -129,20 +129,24 @@ namespace CloudBeat.Oxygen.Modules
                 }
             }
 
-            Type thisType = this.GetType();
-            MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
-            if (cmdMethod == null)
-                throw new OxCommandNotImplementedException();
-
 			exception = null;
             screenShot = null;
             try
             {
+                Type thisType = this.GetType();
+                MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                if (cmdMethod == null)
+                    throw new OxCommandNotImplementedException();
+
                 var retval = cmdMethod.Invoke(this, argsProcessed);
 				if ((screenshotMode == ScreenshotMode.OnAction && cmd.IsAction() == true)
 					|| screenshotMode == ScreenshotMode.Always)
 					screenShot = TakeScreenshot();
 				return retval;
+            }
+            catch (OxCommandNotImplementedException ame)
+            {
+                throw ame;
             }
             catch (TargetInvocationException tie)
             {

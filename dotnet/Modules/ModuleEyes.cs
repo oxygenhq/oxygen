@@ -19,16 +19,10 @@ namespace CloudBeat.Oxygen.Modules
         public CommandResult init(string apiKey, string appName, string testName)
 		{
             var result = new CommandResult(new Command("init", apiKey, appName, testName).ToJSCommand(Name));
-            result.StartTime = DateTime.UtcNow;
 
             web = modules["web"] as ModuleWeb;
             if (web == null || !web.IsInitialized)
-            {
-                result.IsSuccess = false;
-                result.ErrorMessage = "web module hasn't been initialized.";
-                result.EndTime = DateTime.UtcNow;
-                return result;
-            }
+                return result.ErrorBase(CheckResultStatus.APPLITOOLS, "web module hasn't been initialized.");
 
             eyes = new Eyes();
 			eyes.ApiKey = apiKey;
@@ -37,124 +31,76 @@ namespace CloudBeat.Oxygen.Modules
             // http://support.applitools.com/customer/portal/questions/9866542-using-own-implementation-of-webdriver
             eyes.Open(web.driver, appName, testName);
 
-            result.IsSuccess = true;
-            result.EndTime = DateTime.UtcNow;
             IsInitialized = true;
-            return result;
+            return result.SuccessBase();
 		}
 
         public CommandResult close()
 		{
             var result = new CommandResult(new Command("close").ToJSCommand(Name));
-            result.StartTime = DateTime.UtcNow;
 
             if (eyes == null)
-            {
-                result.IsSuccess = false;
-                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
-                result.EndTime = DateTime.UtcNow;
-                return result;
-            }
+                return eyesNotInitedResult(result);
 
 			try
 			{
 				TestResults tr = eyes.Close(false);
-                result.ReturnValue = tr;
-                result.IsSuccess = true;
-                result.EndTime = DateTime.UtcNow;
-                return result;
+                return result.SuccessBase(tr);
 			}
 			catch (Exception e)
 			{
-                result.IsSuccess = false;
-                result.ErrorMessage = e.Message;
-                result.EndTime = DateTime.UtcNow;
-                return result;
+                return result.ErrorBase(CheckResultStatus.APPLITOOLS, e.Message);
 			}
 		}
 
         public CommandResult forceFullPageScreenshot(bool force)
         {
             var result = new CommandResult(new Command("forceFullPageScreenshot", force).ToJSCommand(Name));
-            result.StartTime = DateTime.UtcNow;
 
             if (eyes == null)
-            {
-                result.IsSuccess = false;
-                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
-                result.EndTime = DateTime.UtcNow;
-                return result;
-            }
+                return eyesNotInitedResult(result);
 
             eyes.ForceFullPageScreenshot = force;
-            result.IsSuccess = true;
-            result.EndTime = DateTime.UtcNow;
-            return result;
+            return result.SuccessBase();
         }
 
         public CommandResult checkWindow()
 		{
             var result = new CommandResult(new Command("checkWindow").ToJSCommand(Name));
-            result.StartTime = DateTime.UtcNow;
 
             if (eyes == null)
-            {
-                result.IsSuccess = false;
-                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
-                result.EndTime = DateTime.UtcNow;
-                return result;
-            }
+                return eyesNotInitedResult(result);
 
 			try
 			{
                 eyes.CheckWindow(web.prevTransaction);
-                result.IsSuccess = true;
-                result.EndTime = DateTime.UtcNow;
-                return result;
+                return result.SuccessBase();
 			}
 			catch (Exception e)
 			{
-                result.IsSuccess = false;
-                result.ErrorMessage = e.Message;
-                result.EndTime = DateTime.UtcNow;
-                return result;
+                return result.ErrorBase(CheckResultStatus.APPLITOOLS, e.Message);
 			}
 		}
 
         public CommandResult checkRegion(string target)
 		{
             var result = new CommandResult(new Command("checkRegion", target).ToJSCommand(Name));
-            result.StartTime = DateTime.UtcNow;
 
             if (eyes == null)
-            {
-                result.IsSuccess = false;
-                result.ErrorMessage = "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.";
-                result.EndTime = DateTime.UtcNow;
-                return result;
-            }
+                return eyesNotInitedResult(result);
 
 			try
 			{
                 var locator = web.driver.ResolveLocator(target);
                 if (locator == null)
-                {
-                    result.IsSuccess = false;
-                    result.ErrorMessage = "Target not found";
-                    result.EndTime = DateTime.UtcNow;
-                    return result;
-                }
+                    return result.ErrorBase(CheckResultStatus.APPLITOOLS, "Target not found");
+
 				eyes.CheckRegion(locator, web.prevTransaction);
-                result.IsSuccess = true;
-                result.EndTime = DateTime.UtcNow;
-                return result;
+                return result.SuccessBase();
 			}
 			catch (Exception e)
 			{
-                result.IsSuccess = false;
-                result.ErrorMessage = e.Message;
-                result.EndTime = DateTime.UtcNow;
-                return result;
+                return result.ErrorBase(CheckResultStatus.APPLITOOLS, e.Message);
 			}
 		}
 
@@ -179,6 +125,11 @@ namespace CloudBeat.Oxygen.Modules
             if (IsInitialized)
                 eyes.AbortIfNotClosed();
             return null;
+        }
+
+        private CommandResult eyesNotInitedResult(CommandResult result)
+        {
+            return result.ErrorBase(CheckResultStatus.APPLITOOLS, "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.");
         }
 	}
 }

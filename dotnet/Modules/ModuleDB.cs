@@ -19,11 +19,7 @@ namespace CloudBeat.Oxygen.Modules
             this.connString = connString;
 
             var result = new CommandResult(new Command("setConnectionString", connString).ToJSCommand(Name));
-            result.StartTime = DateTime.UtcNow;
-            result.IsSuccess = true;
-            result.EndTime = DateTime.UtcNow;
-
-            return result;
+            return result.SuccessBase();
         }
 
         public CommandResult getScalar(string query)
@@ -31,27 +27,17 @@ namespace CloudBeat.Oxygen.Modules
             var result = new CommandResult(new Command("getScalar", query).ToJSCommand(Name));
             try
             {
-                result.StartTime = DateTime.UtcNow;
                 var conn = Connect();
                 OdbcCommand cmd = new OdbcCommand(query, conn);
                 var retVal = cmd.ExecuteScalar();
                 conn.Close();
-                result.ReturnValue = retVal;
-                result.IsSuccess = true;
-                result.EndTime = DateTime.UtcNow;
-                
+                result = result.SuccessBase(retVal);
             }
             catch (Exception e)
             {
-                result.IsSuccess = false;
-                result.EndTime = DateTime.UtcNow;
-                result.ErrorType = e.GetType().ToString();
-                result.ErrorMessage = e.Message;
-                result.ErrorDetails = e.StackTrace;
                 string statusData = null;
                 var status = GetStatusByException(e, out statusData);
-                result.StatusText = status.ToString();
-                result.StatusData = statusData;
+                result = result.ErrorBase(status, statusData);
             }
             return result;
         }
@@ -61,25 +47,17 @@ namespace CloudBeat.Oxygen.Modules
             var result = new CommandResult(new Command("executeNonQuery", query).ToJSCommand(Name));
             try
             {
-                result.StartTime = DateTime.UtcNow;
                 var conn = Connect();
                 OdbcCommand cmd = new OdbcCommand(query, conn);
                 cmd.ExecuteNonQuery();
                 conn.Close();
-                result.IsSuccess = true;
-                result.EndTime = DateTime.UtcNow;
+                result = result.SuccessBase();
             }
             catch (Exception e)
             {
-                result.IsSuccess = false;
-                result.EndTime = DateTime.UtcNow;
-                result.ErrorType = e.GetType().ToString();
-                result.ErrorMessage = e.Message;
-                result.ErrorDetails = e.StackTrace;
                 string statusData = null;
                 var status = GetStatusByException(e, out statusData);
-                result.StatusText = status.ToString();
-                result.StatusData = statusData;
+                result = result.ErrorBase(status, statusData);
             }
 
             return result;
