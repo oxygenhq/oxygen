@@ -1,12 +1,14 @@
 /*
+ * NOTE: not used anywhere and requires non existent modules - therefore commented out for now.
+ *
  * Appium errors representative class
  */ 
+/*
 var OxError = require('./oxerror');
 var util = require('util');
 util.inherits(AppiumError, OxError);
 
 function AppiumError(err, caps, args) {
-    //console.log(JSON.stringify(arguments.callee.arguments));
 	AppiumError.super_.call(this);
     this.innerError = null;
 	this._type = 'Appium';
@@ -17,14 +19,6 @@ function AppiumError(err, caps, args) {
 	else
 		this._message = err.toString();
 	this.caputeStackTrace();
-	/*this._dotnetStack = null;
-	var self = this;
-	
-    this.__defineGetter__('toString', function(){
-        if (this._type)
-            return this._type + ': ' + this._message;
-        return this._message;
-    });*/
 }
 function getAppiumErrorMessage(data) {
 	if (typeof data !== 'object')
@@ -40,3 +34,4 @@ function getAppiumErrorMessage(data) {
 }
 
 module.exports = AppiumError;
+*/

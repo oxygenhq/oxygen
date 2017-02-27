@@ -5,23 +5,11 @@ var util = require('util');
 util.inherits(OxygenError, Error);
 
 function OxygenError(type, message, innerError) {
-	//Error.super_.call(this);
     this.innerError = innerError || null;
 	this._type = type || this._type || null;
 	this._message = message || this._message || null;
 	this._subtype = this._subtype || null;
 	this._data = this._data || null;
-	//Error.captureStackTrace(this);
-
-	// don't generate stacktrace if the OxygenError is used indirectly through inheritance
-	if (type || message || innerError) {
-		var orig = Error.prepareStackTrace;
-		Error.prepareStackTrace = function (_, stack) { return stack; };
-		var err = new Error();
-		Error.captureStackTrace(err, arguments.callee.caller);
-		this._stacktrace = err.stack;
-		Error.prepareStackTrace = orig;
-	}
 	
 	var self = this;
 	
@@ -49,7 +37,10 @@ function OxygenError(type, message, innerError) {
 		return self._data;
 	});
 	
-	this.caputeStackTrace();
+    // don't generate stacktrace if OxygenError is used indirectly through inheritance
+	if (type || message || innerError) {
+        this.caputeStackTrace();
+    }
 }
 
 module.exports = OxygenError;
