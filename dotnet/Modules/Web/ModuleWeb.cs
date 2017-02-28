@@ -491,11 +491,86 @@ namespace CloudBeat.Oxygen.Modules
             var cmd = new Command(name, args);
             var result = new CommandResult(cmd.ToJSCommand(Name));
 
-			// expected exceptions won't be thrown but rather returned by 'exception' output parameter
-			Exception exception = null;
+            // substitute object repo locators
+            object[] argsProcessed = null;
+            if (cmd.Arguments != null)
+            {
+                argsProcessed = new object[cmd.Arguments.Length];
+                for (int i = 0; i < cmd.Arguments.Length; i++)
+                {
+                    var arg = cmd.Arguments[i];
+                    argsProcessed[i] = arg.GetType() == typeof(string) ? driver.SubstituteLocator(arg.ToString()) : arg;
+                }
+            }
+
+            Exception exception = null;
             string screenShot = null;
-			var retVal = driver.ExecuteCommand(cmd, screenshotMode, out screenShot, out exception);
-				
+            object retVal = null;
+            try
+            {
+                Type dtype = driver.GetType();
+                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                if (cmdMethod == null)
+                    throw new OxCommandNotImplementedException();
+
+                retVal = cmdMethod.Invoke(driver, argsProcessed);
+                if ((screenshotMode == ScreenshotMode.OnAction && cmd.IsAction() == true) || screenshotMode == ScreenshotMode.Always)
+                    screenShot = driver.TakeScreenshot();
+            }
+            catch (OxCommandNotImplementedException ame)
+            {
+                throw ame;
+            }
+            catch (TargetInvocationException tie)
+            {
+                if (screenshotMode != ScreenshotMode.Never)
+                {
+                    if (tie.InnerException != null &&
+                        (tie.InnerException is OxAssertionException ||
+                        tie.InnerException is OxVerificationException ||
+                        tie.InnerException is OxWaitForException ||
+                        tie.InnerException is OxElementNotFoundException ||
+                        tie.InnerException is OxElementNotVisibleException ||
+                        tie.InnerException is OxOperationException ||
+                        tie.InnerException is NoAlertPresentException ||
+                        tie.InnerException is WebDriverTimeoutException))
+                    {
+                        screenShot = driver.TakeScreenshot();
+                    }
+                    else if (tie.InnerException != null && tie.InnerException is UnhandledAlertException)
+                    {
+                        // can't take screenshots when alert is showing. so capture whole screen
+                        // this works only localy
+                        // TODO: linux
+                        /*if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
+                        {
+                            Rectangle bounds = System.Windows.Forms.Screen.GetBounds(Point.Empty);
+                            using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
+                            {
+                                using (Graphics g = Graphics.FromImage(bitmap))
+                                {
+                                    g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
+                                }
+
+                                ImageConverter converter = new ImageConverter();
+                                var sb = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
+                                screenShot = Convert.ToBase64String(sb);
+                            }
+                        }*/
+                    }
+                }
+
+                // wrap Selenium exceptions. generaly SeCmds throw Oxygen exceptions, however in certain 
+                // cases like with ElementNotVisibleException it's simplier to just wrap it out here so we don't need to do it
+                // for each FindElement().doSomething
+                if (tie.InnerException is ElementNotVisibleException)
+                    exception = new OxElementNotVisibleException();
+                else if (tie.InnerException is WebDriverTimeoutException)
+                    exception = new OxTimeoutException();
+                else
+                    exception = tie.InnerException;
+            }
+
 			result.IsAction = cmd.IsAction();
 			result.Screenshot = screenShot;
 			result.ReturnValue = retVal;
@@ -514,25 +589,22 @@ namespace CloudBeat.Oxygen.Modules
                 }
             }
 
-            if (fetchStats)
+            if (fetchStats && cmd.IsAction())
             {
-                if (cmd.IsAction())
+                long navigationStart = 0;
+                int domContentLoaded = 0;
+                int load = 0;
+                if (driver.GetPerformanceTimings(out domContentLoaded, out load, out navigationStart))
                 {
-                    long navigationStart = 0;
-                    int domContentLoaded = 0;
-                    int load = 0;
-                    if (driver.GetPerformanceTimings(out domContentLoaded, out load, out navigationStart))
-                    {
-                        // if navigateStart equals to the one we got from previous attempt
-                        // it means we are still on the same page and don't need to record load/domContentLoaded times
-                        if (prevNavigationStart == navigationStart)
-                            load = domContentLoaded = 0;
-                        else
-                            prevNavigationStart = navigationStart;
-                    }
-					result.DomContentLoadedEvent = domContentLoaded;
-					result.LoadEvent = load;
+                    // if navigateStart equals to the one we got from previous attempt
+                    // it means we are still on the same page and don't need to record load/domContentLoaded times
+                    if (prevNavigationStart == navigationStart)
+                        load = domContentLoaded = 0;
+                    else
+                        prevNavigationStart = navigationStart;
                 }
+				result.DomContentLoadedEvent = domContentLoaded;
+				result.LoadEvent = load;
             }
 
             result.EndTime = DateTime.UtcNow;

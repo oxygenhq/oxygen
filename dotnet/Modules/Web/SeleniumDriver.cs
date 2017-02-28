@@ -115,112 +115,7 @@ namespace CloudBeat.Oxygen.Modules
 
 		public ExecutionContext ExecutionContext { get { return context; } }
 
-        public object ExecuteCommand(Command cmd,  ScreenshotMode screenshotMode, out string screenShot, out Exception exception)
-        {
-            // substitute object repo locators
-            object[] argsProcessed = null;
-            if (cmd.Arguments != null)
-            {
-                argsProcessed = new object[cmd.Arguments.Length];
-                for (int i = 0; i < cmd.Arguments.Length; i++)
-                {
-                    var arg = cmd.Arguments[i];
-                    argsProcessed[i] = arg.GetType() == typeof(string) ? SubstituteLocator(arg.ToString()) : arg;
-                }
-            }
-
-			exception = null;
-            screenShot = null;
-            try
-            {
-                Type thisType = this.GetType();
-                MethodInfo cmdMethod = thisType.GetMethod(SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
-                if (cmdMethod == null)
-                    throw new OxCommandNotImplementedException();
-
-                var retval = cmdMethod.Invoke(this, argsProcessed);
-				if ((screenshotMode == ScreenshotMode.OnAction && cmd.IsAction() == true)
-					|| screenshotMode == ScreenshotMode.Always)
-					screenShot = TakeScreenshot();
-				return retval;
-            }
-            catch (OxCommandNotImplementedException ame)
-            {
-                throw ame;
-            }
-            catch (TargetInvocationException tie)
-            {
-				if (screenshotMode != ScreenshotMode.Never)
-				{
-					if (tie.InnerException != null && 
-						(tie.InnerException is OxAssertionException || 
-						tie.InnerException is OxVerificationException ||
-						tie.InnerException is OxWaitForException ||
-						tie.InnerException is OxElementNotFoundException ||
-						tie.InnerException is OxElementNotVisibleException ||
-						tie.InnerException is OxOperationException ||
-						tie.InnerException is NoAlertPresentException ||
-						tie.InnerException is WebDriverTimeoutException))
-					{
-						screenShot = TakeScreenshot();
-					}
-					else if (tie.InnerException != null && tie.InnerException is UnhandledAlertException)
-					{
-						// can't take screenshots when alert is showing. so capture whole screen
-						// this works only localy
-						// TODO: linux
-						/*if (Environment.OSVersion.Platform.ToString().StartsWith("Win"))
-						{
-							Rectangle bounds = System.Windows.Forms.Screen.GetBounds(Point.Empty);
-							using (Bitmap bitmap = new Bitmap(bounds.Width, bounds.Height))
-							{
-								using (Graphics g = Graphics.FromImage(bitmap))
-								{
-									g.CopyFromScreen(Point.Empty, Point.Empty, bounds.Size);
-								}
-
-								ImageConverter converter = new ImageConverter();
-								var sb = (byte[])converter.ConvertTo(bitmap, typeof(byte[]));
-								screenShot = Convert.ToBase64String(sb);
-							}
-						}*/
-					}
-				}
-
-                // wrap Selenium exceptions. generaly SeCmds throw Oxygen exceptions, however in certain 
-                // cases like with ElementNotVisibleException it's simplier to just wrap it out here so we don't need to do it
-                // for each FindElement().doSomething
-                if (tie.InnerException is ElementNotVisibleException)
-                    exception = new OxElementNotVisibleException();
-                else if (tie.InnerException is WebDriverTimeoutException)
-                    exception = new OxTimeoutException();
-                else
-                    exception = tie.InnerException;
-            }
-			finally
-			{
-				// prevent another exception
-				try
-				{
-					var currentUrl = this.GetCurrentURL();
-					var currentTitle = this.GetCurrentTitle();
-
-					// identify a new page if navigation occured (.e.g if URL or page title have changed)
-					// look up for a page in local POM first
-					var pom = context.PageObjectManager;
-                    if (pom != null && currentUrl != null && currentTitle != null)
-					{
-						if (currentTitle != pom.CurrentPageTitle || currentUrl != pom.CurrentPageUrl)
-							pom.IdentifyCurrentPage(currentTitle, currentUrl);
-					}
-					
-				}
-				catch (Exception) { }
-			}
-			return null;
-        }
-
-		private string SubstituteLocator(string target)
+        public string SubstituteLocator(string target)
 		{
 			if (context.PageObjectManager == null)
 				return target;
@@ -238,13 +133,13 @@ namespace CloudBeat.Oxygen.Modules
 			return target;
 		}
 
-		private string TakeScreenshot()
+        public string TakeScreenshot()
 		{
 			Response screenshotResponse = this.Execute(DriverCommand.Screenshot, null);
 			return screenshotResponse.Value.ToString();
 		}
 
-		private string GetCurrentURL()
+		public string GetCurrentURL()
 		{
 			string currentUrl = null;
             UnhandledAlertException alert = null;
@@ -280,7 +175,7 @@ namespace CloudBeat.Oxygen.Modules
 			return currentUrl;
 		}
 
-		private string GetCurrentTitle()
+        public string GetCurrentTitle()
 		{
 			string currentTitle = null;
             UnhandledAlertException alert = null;
