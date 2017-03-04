@@ -1,8 +1,5 @@
-﻿using System;
+﻿using CloudBeat.Oxygen.Models;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CloudBeat.Oxygen.Modules
 {
@@ -14,5 +11,6 @@ namespace CloudBeat.Oxygen.Modules
 		object IterationStarted();
         object IterationEnded();
 		string Name { get; }
+        CommandResult ExecuteCommand(string name, params object[] args);
 	}
 }

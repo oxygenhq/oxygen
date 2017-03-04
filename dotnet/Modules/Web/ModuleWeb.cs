@@ -3,7 +3,6 @@ using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Net;
 using System.Reflection;
 using System.Threading;
@@ -226,7 +225,6 @@ namespace CloudBeat.Oxygen.Modules
 
 		#endregion
 
-		#region API
 
 		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetDefaultCaps = true)
 		{
@@ -245,7 +243,7 @@ namespace CloudBeat.Oxygen.Modules
 			InitializeSeleniumDriver();
 		}
 
-        public string GetSessionId()
+       /* public string GetSessionId()
         {
             if (driver == null)
                 throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
@@ -254,7 +252,7 @@ namespace CloudBeat.Oxygen.Modules
             if (sessionId != null)
                 return sessionId.ToString();
             return null;
-        }
+        }*/
 
         public void transaction(string name)
         {
@@ -279,217 +277,26 @@ namespace CloudBeat.Oxygen.Modules
             prevTransaction = name;
         }
 
-		public CommandResult SetTimeout(int timeout)
-        {
-            return ExecuteCommand(timeout);
-        }
-		public CommandResult Open(string url)
-        {
-            return ExecuteCommand(url);
-        }
-
-		public CommandResult Point(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-
-		public CommandResult ScrollToElement(string locator, int yOffset)
-        {
-            return ExecuteCommand(locator, yOffset.ToString());
-        }
-
-		public CommandResult Click(string locator)
-		{
-            return ExecuteCommand(locator);
-		}
-		public CommandResult ClickHidden(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult AssertTitle(string pattern)
-        {
-            return ExecuteCommand(pattern);
-        }
-		public CommandResult Type(string locator, string value)
-        {
-            return ExecuteCommand(locator, value);
-        }
-		public CommandResult Clear(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult AssertText(string locator, string pattern)
-        {
-            return ExecuteCommand(locator, pattern);
-        }
-		public CommandResult SelectWindow(string windowLocator)
-        {
-            return ExecuteCommand(windowLocator);
-        }
-		public CommandResult GetText(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult GetAttribute(string locator, string attributeName)
-        {
-            return ExecuteCommand(locator, attributeName);
-        }
-		public CommandResult GetValue(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult DoubleClick(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult Select(string selectLocator, string optionLocator)
-        {
-            return ExecuteCommand(selectLocator, optionLocator);
-        }
-		public CommandResult Deselect(string selectLocator, string optionLocator)
-        {
-            return ExecuteCommand(selectLocator, optionLocator);
-        }
-		public CommandResult Pause(int waitTime)
-        {
-            return ExecuteCommand(waitTime);
-        }
-		public CommandResult WaitForWindow(string windowID, int timeout)
-        {
-            return ExecuteCommand(windowID, timeout);
-        }
-		public CommandResult SelectFrame(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult WaitForVisible(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult WaitForElementPresent(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult IsElementPresent(string locator, int timeout)
-        {
-            return ExecuteCommand(locator, timeout);
-        }
-		public CommandResult IsElementVisible(string locator, int timeout)
-        {
-            return ExecuteCommand(locator, timeout);
-        }
-		public CommandResult WaitForText(string locator, string pattern)
-        {
-            return ExecuteCommand(locator, pattern);
-        }
-		public CommandResult WaitForNotText(string locator, string pattern)
-        {
-            return ExecuteCommand(locator, pattern);
-        }
-		public CommandResult WaitForValue(string locator, string pattern)
-        {
-            return ExecuteCommand(locator, pattern);
-        }
-		public CommandResult WaitForNotValue(string locator, string pattern)
-        {
-            return ExecuteCommand(locator, pattern);
-        }
-		public CommandResult AssertValue(string locator, string pattern)
-        {
-            return ExecuteCommand(locator, pattern);
-        }
-		public CommandResult AssertTextPresent(string pattern)
-        {
-            return ExecuteCommand(pattern);
-        }
-		public CommandResult AssertElementPresent(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-		public CommandResult AssertAlert(string pattern)
-        {
-            return ExecuteCommand(pattern);
-        }
-		public CommandResult GetPageSource()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult GetXMLPageSource()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult GetXMLPageSourceAsJSON()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult GetWindowHandles()
-        {
-            return ExecuteCommand();
-        }
-        public CommandResult getElementCount(string xpath)
-        {
-            return ExecuteCommand(xpath);
-        }
-		public CommandResult CloseWindow()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult IsAlertPresent(string text, int timeout)
-        {
-            return ExecuteCommand(text, timeout);
-        }
-		public CommandResult AlertAccept()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult AlertDismiss()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult AssertSelectedLabel(string locator, string text)
-        {
-            return ExecuteCommand(locator, text);
-        }
-		public CommandResult AssertSelectedValue(string locator, string value)
-        {
-            return ExecuteCommand(locator, value);
-        }
-		public CommandResult GetAlertText()
-        {
-            return ExecuteCommand();
-        }
-		public CommandResult ExecuteScript(string script)
-        {
-            return ExecuteCommand(script);
-        }
-        public CommandResult FileBrowse(string filepath)
-        {
-            return ExecuteCommand(filepath);
-        }
-        public CommandResult MakeVisible(string locator)
-        {
-            return ExecuteCommand(locator);
-        }
-        public CommandResult SetWindowSize(int width, int height)
-        {
-            return ExecuteCommand(width, height);
-        }
-		#endregion
-
-		#region Internal Methods Implementation
-		private CommandResult ExecuteCommand(params object[] args)
+		public override CommandResult ExecuteCommand(string name, params object[] args)
         {
 			if (driver == null)
 				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
 
-            var name = new StackTrace().GetFrame(1).GetMethod().Name;
-			if (string.IsNullOrEmpty(name))
-				throw new ArgumentNullException("name", "Command name is null or empty");
 			// lowercase the first letter
 			name = Char.ToLowerInvariant(name[0]) + name.Substring(1);
 
             var cmd = new Command(name, args);
             var result = new CommandResult(cmd.ToJSCommand(Name));
+
+            // TODO: web.transaction needs refactoring
+            if (name == "transaction")
+            {
+                transaction(args[0] as string);
+                result.IsSuccess = true;
+                result.EndTime = DateTime.UtcNow;
+                result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
+                return result;
+            }
 
             // substitute object repo locators
             object[] argsProcessed = null;
@@ -713,7 +520,5 @@ namespace CloudBeat.Oxygen.Modules
 				return CheckResultStatus.UNKNOWN_ERROR;
 			}
 		}
-
-		#endregion
 	}
 }

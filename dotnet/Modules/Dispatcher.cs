@@ -2,8 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
-using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 
 namespace CloudBeat.Oxygen.Modules
@@ -12,9 +10,9 @@ namespace CloudBeat.Oxygen.Modules
 	{
 		Dictionary<string, IModule> modules;
 		ExecutionContext ctx;
-		public Dispatcher()
+		
+        public Dispatcher()
 		{
-			// add standard modules
 			modules = new Dictionary<string, IModule>();
 			modules.Add("web", new ModuleWeb());
 			modules.Add("soap", new ModuleSoap());
@@ -23,8 +21,8 @@ namespace CloudBeat.Oxygen.Modules
             modules.Add("eyes", new ModuleEyes(modules));
 			ctx = new ExecutionContext();
 
-			// uncomment for debugging
-			//Thread.Sleep(25000);
+            // uncomment for debugging
+            //System.Diagnostics.Debugger.Launch();
 		}
 		public Task<object> Invoke(dynamic input)
 		{
@@ -45,7 +43,7 @@ namespace CloudBeat.Oxygen.Modules
 			// specially handle ModuleInitialize and ModuleDispose method calls
 			if (method == "ModuleInit")
 			{
-                var initArgs = ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
+                var initArgs = Module.ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
                 return Task.FromResult<object>(module.Initialize(initArgs, ctx));
 			}
 			else if (method == "ModuleDispose")
@@ -55,83 +53,20 @@ namespace CloudBeat.Oxygen.Modules
 			else if (method == "IterationEnd")
 				return Task.FromResult<object>(module.IterationEnded());
 
-			object[] args = input.args as object[];
+            CommandResult cr = module.ExecuteCommand(method, input.args as object[]);
 
-			Type modType = module.GetType();
-
-			Type[] paramTypes = new Type[args.Length];
-			for (int i = 0; i < args.Length; i++)
-			{
-				// convert ExpandoObject to Dictionary
-				if (args[i].GetType() == typeof(ExpandoObject))
-                    args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
-				paramTypes[i] = args[i].GetType();
-
-                try
-                {
-                    if (args[i].GetType() == typeof(string))
-                        args[i] = SubstituteVariable(args[i] as string);
-                }
-                catch (OxVariableUndefined u)
-                {
-                    var result = new CommandResult(new Command(method, args).ToJSCommand(name));
-                    result.IsSuccess = false;
-                    result.EndTime = DateTime.UtcNow;
-                    result.StatusText = CheckResultStatus.VARIABLE_NOT_DEFINED.ToString();
-                    result.StatusData = u.Message;
-                    return Task.FromResult<object>(GetInvokeResult(module, method, null, result, null));
-                }
-			}
-
-			MethodInfo cmdMethod = modType.GetMethod(method, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
-			object retval = null;
-			try
-			{
-				retval = cmdMethod.Invoke(module, args);
-			}
-			catch (TargetInvocationException e)
-			{
-				return Task.FromResult<object>(GetInvokeResult(module, method, retval, null, e.InnerException));
-			}
-			if (retval != null && retval.GetType() == typeof(CommandResult))
-			{
-				var cr = retval as CommandResult;
-				return Task.FromResult<object>(GetInvokeResult(module, method, cr.ReturnValue, cr, null));
-			}
-				
-			return Task.FromResult<object>(GetInvokeResult(module, method, retval, null, null));
-		}
-
-        private string SubstituteVariable(string str)
-        {
-            if (str == null)
-                return null;
-
-            while (true)
+            return Task.FromResult<object>(new InvokeResult()
             {
-                var varIndexStart = str.IndexOf("${");
-                if (varIndexStart == -1)
-                    return str;
-
-                var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
-                var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
-                string variableValue = null;
-                // check if this is a constant variable, such as ENTER key, etc.
-                if (SeleniumDriver.constantVariables != null && SeleniumDriver.constantVariables.ContainsKey(variableName.ToUpper()))
-                    variableValue = SeleniumDriver.constantVariables[variableName.ToUpper()];
-                else if (ctx.Variables != null && ctx.Variables.ContainsKey(variableName))
-                    variableValue = ctx.Variables[variableName];
-                else if (ctx.Parameters != null && ctx.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(ctx.Parameters[variableName]))
-                    variableValue = ctx.Parameters[variableName];
-                else if (ctx.Environment != null && ctx.Environment.ContainsKey(variableName))
-                    variableValue = ctx.Environment[variableName];
-
-                if (variableValue != null)
-                    str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
-                else
-                    throw new OxVariableUndefined(variableName);
-            }
-        }
+                Module = module.Name,
+                Method = method,
+                ReturnValue = cr.ReturnValue,
+                ErrorType = cr.ErrorType,
+                ErrorMessage = cr.ErrorMessage,
+                ErrorDetails = cr.ErrorDetails,
+                Variables = ConvertDictionaryToKeyValueList(ctx.Variables),
+                CommandResult = cr
+            });
+		}
 
 		private void UpdateExecutionContext(dynamic inputCtx)
 		{
@@ -142,35 +77,21 @@ namespace CloudBeat.Oxygen.Modules
 				ctx = new ExecutionContext();
 			// parameters
 			if (inParams != null && inParams.GetType() == typeof(ExpandoObject))
-				ctx.Parameters = ConvertExpandoObjectToDictionary(inParams);
+				ctx.Parameters = Module.ConvertExpandoObjectToDictionary(inParams);
 			else if (inParams != null && inParams.GetType() == typeof(object[]))
 				ctx.Parameters = CreateArgsDictionary(inParams);
 			// environments
 			if (inEnv != null && inEnv.GetType() == typeof(ExpandoObject))
-				ctx.Environment = ConvertExpandoObjectToDictionary(inEnv);
+                ctx.Environment = Module.ConvertExpandoObjectToDictionary(inEnv);
 			else if (inEnv != null && inEnv.GetType() == typeof(object[]))
 				ctx.Environment = CreateArgsDictionary(inEnv);
 			// variables
 			if (inVars != null && inVars.GetType() == typeof(ExpandoObject))
-				ctx.Variables = ConvertExpandoObjectToDictionary(inVars);
+                ctx.Variables = Module.ConvertExpandoObjectToDictionary(inVars);
 			else if (inVars != null && inVars.GetType() == typeof(object[]))
 				ctx.Variables = CreateArgsDictionary(inVars);
 		}
-		private InvokeResult GetInvokeResult(IModule module, string method, object retval, CommandResult cmdResult, Exception e)
-		{
-			return new InvokeResult()
-			{
-				Module = module.Name,
-				Method = method,
-				ReturnValue = retval,
-				ErrorType = e != null ? e.GetType().Name : null,
-				ErrorMessage = e != null ? e.Message : null,
-				ErrorDetails = e != null ? e.StackTrace : null,
-				Variables = ConvertDictionaryToKeyValueList(ctx.Variables),
-				CommandResult = cmdResult
-			};
-			
-		}
+
 		private List<KeyValuePair<string, string>> ConvertDictionaryToKeyValueList(Dictionary<string, string> dic)
 		{
 			if (dic == null)
@@ -180,25 +101,6 @@ namespace CloudBeat.Oxygen.Modules
 				list.Add(new KeyValuePair<string, string>(key, dic[key]));
 			return list;
 		}
-
-        private Dictionary<string, string> ConvertExpandoObjectToDictionary(System.Dynamic.ExpandoObject obj)
-        {
-            Dictionary<string, string> args = new Dictionary<string, string>();
-            if (obj == null)
-                return args;
-            foreach (var item in obj)
-            {
-                if (item.Value != null && (item.Value.GetType() == typeof(string) || item.Value.GetType().IsPrimitive))
-					args.Add(item.Key, item.Value.ToString());
-				else if (item.Value != null && item.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
-				{
-					var subdic = ConvertExpandoObjectToDictionary(item.Value as System.Dynamic.ExpandoObject);
-					foreach (var subkey in subdic.Keys)
-                        args.Add(item.Key + "." + subkey, subdic[subkey]);
-                }
-            }
-            return args;
-        }
 
 		private Dictionary<string, string> CreateArgsDictionary(object[] argsarr)
 		{

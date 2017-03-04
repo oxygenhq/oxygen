@@ -1,9 +1,122 @@
-﻿namespace CloudBeat.Oxygen.Modules
+﻿using CloudBeat.Oxygen.Models;
+using System;
+using System.Collections.Generic;
+using System.Dynamic;
+using System.Reflection;
+
+namespace CloudBeat.Oxygen.Modules
 {
     public abstract class Module
 	{
         public string Name { get { return this.GetType().Name.Substring("Module".Length); } }
         protected ExecutionContext ctx;
         public bool IsInitialized { get; protected set; }
+
+        /// <summary>
+        /// Method for executing module's commands. 
+        /// Only public instance methods with return type of CommandResult will be allowed to execute.
+        /// This method will NOT throw:
+        ///     In case of properly handled exceptions, CommandResult.StatusText will contain relevant CheckResultStatus string.
+        ///     Otherwise CommandResult.StatusText will contain CheckResultStatus.UNKNOWN_ERROR
+        /// </summary>
+        /// <param name="name">Command name</param>
+        /// <param name="args">Arguments to invoke the command with.</param>
+        /// <returns></returns>
+        public virtual CommandResult ExecuteCommand(string name, params object[] args)
+        {
+            var result = new CommandResult(new Command(name, args).ToJSCommand(Name));
+
+            Type[] paramTypes = new Type[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                // convert ExpandoObject to Dictionary
+                if (args[i].GetType() == typeof(ExpandoObject))
+                    args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
+                paramTypes[i] = args[i].GetType();
+
+                try
+                {
+                    if (args[i].GetType() == typeof(string))
+                        args[i] = SubstituteVariable(args[i] as string);
+                }
+                catch (OxVariableUndefined u)
+                {
+                    return result.ErrorBase(CheckResultStatus.VARIABLE_NOT_DEFINED, u.Message);
+                }
+            }
+
+            try
+            {
+                Type modType = this.GetType();
+                MethodInfo method = modType.GetMethod(name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
+                if (method == null)
+                    return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, ".NET: cannot find method. Possible name or arguments type mismatch.");
+                if (method.ReturnType != typeof(CommandResult))
+                    return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, ".NET: attempted to invoke method with return type other than CommandResult.");
+
+                return method.Invoke(this, args) as CommandResult;
+            }
+            catch (Exception e)
+            {
+                // module commands should catch all exceptions and return proper CommandResult with error details
+                // however as a safety measure we also catch everything that might haven't been caught
+                e = e is TargetInvocationException ? e.InnerException : e;
+                result.ErrorType = e.GetType().Name;
+                result.ErrorMessage = e.Message;
+                result.ErrorDetails = e.StackTrace;
+                return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, e.Message);
+            }
+        }
+
+        public static Dictionary<string, string> ConvertExpandoObjectToDictionary(System.Dynamic.ExpandoObject obj)
+        {
+            Dictionary<string, string> args = new Dictionary<string, string>();
+            if (obj == null)
+                return args;
+            foreach (var item in obj)
+            {
+                if (item.Value != null && (item.Value.GetType() == typeof(string) || item.Value.GetType().IsPrimitive))
+                    args.Add(item.Key, item.Value.ToString());
+                else if (item.Value != null && item.Value.GetType() == typeof(System.Dynamic.ExpandoObject))
+                {
+                    var subdic = ConvertExpandoObjectToDictionary(item.Value as System.Dynamic.ExpandoObject);
+                    foreach (var subkey in subdic.Keys)
+                        args.Add(item.Key + "." + subkey, subdic[subkey]);
+                }
+            }
+            return args;
+        }
+
+        private string SubstituteVariable(string str)
+        {
+            if (str == null)
+                return null;
+
+            while (true)
+            {
+                var varIndexStart = str.IndexOf("${");
+                if (varIndexStart == -1)
+                    return str;
+
+                var varIndexEnd = str.IndexOf('}', varIndexStart + 2);
+                var variableName = str.Substring(varIndexStart + 2, varIndexEnd - varIndexStart - 2);
+                string variableValue = null;
+                // check if this is a constant variable, such as ENTER key, etc.
+                if (SeleniumDriver.constantVariables != null && SeleniumDriver.constantVariables.ContainsKey(variableName.ToUpper()))
+                    variableValue = SeleniumDriver.constantVariables[variableName.ToUpper()];
+                else if (ctx.Variables != null && ctx.Variables.ContainsKey(variableName))
+                    variableValue = ctx.Variables[variableName];
+                else if (ctx.Parameters != null && ctx.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(ctx.Parameters[variableName]))
+                    variableValue = ctx.Parameters[variableName];
+                else if (ctx.Environment != null && ctx.Environment.ContainsKey(variableName))
+                    variableValue = ctx.Environment[variableName];
+
+                if (variableValue != null)
+                    str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
+                else
+                    throw new OxVariableUndefined(variableName);
+            }
+        }
+
 	}
 }
