@@ -34,7 +34,7 @@ namespace CloudBeat.Oxygen.Modules
         {
             var result = new CommandResult(Name, "equal", a, b, message);
             return a != b ? 
-                result.ErrorBase(CheckResultStatus.ASSERT, "'" + a + "' is not equal to '" + b + "'") :
+                result.ErrorBase(ErrorType.ASSERT, "'" + a + "' is not equal to '" + b + "'") :
                 result.SuccessBase();
         }
 
@@ -42,14 +42,14 @@ namespace CloudBeat.Oxygen.Modules
         {
             var result = new CommandResult(Name, "notEqual", a, b, message);
             return a == b ?
-                result.ErrorBase(CheckResultStatus.ASSERT, "'" + a + "' is equal to '" + b + "'") :
+                result.ErrorBase(ErrorType.ASSERT, "'" + a + "' is equal to '" + b + "'") :
                 result.SuccessBase();
         }
 
         public CommandResult fail(string message)
         {
             var result = new CommandResult(Name, "fail", message);
-			return result.ErrorBase(CheckResultStatus.ASSERT, message);
+			return result.ErrorBase(ErrorType.ASSERT, message);
         }
 	}
 }

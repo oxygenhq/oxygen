@@ -133,15 +133,15 @@ namespace CloudBeat.Oxygen.Modules
                         IList<string> errorTexts = new List<string>();
                         foreach (CompilerError oops in results.Errors)
                             errorTexts.Add(oops.ErrorText);
-                        return result.ErrorBase(CheckResultStatus.SOAP, "Compile Error: " + string.Join(":", errorTexts));
+                        return result.ErrorBase(ErrorType.SOAP, "Compile Error: " + string.Join(":", errorTexts));
                     }
 
                     object wsvcClass = results.CompiledAssembly.CreateInstance(serviceName);
                     if (wsvcClass == null)
-                        return result.ErrorBase(CheckResultStatus.SOAP, "Invalid service name");
+                        return result.ErrorBase(ErrorType.SOAP, "Invalid service name");
                     MethodInfo mi = wsvcClass.GetType().GetMethod(methodName);
                     if (mi == null)
-                        return result.ErrorBase(CheckResultStatus.SOAP, "Invalid method name");
+                        return result.ErrorBase(ErrorType.SOAP, "Invalid method name");
                     var reqResult = mi.Invoke(wsvcClass, args);
                     var cmdRes = result.SuccessBase();
                     cmdRes.ReturnValue = JsonConvert.SerializeObject(reqResult);
@@ -149,12 +149,12 @@ namespace CloudBeat.Oxygen.Modules
                 }
                 else
                 {
-                    return result.ErrorBase(CheckResultStatus.SOAP, "Import Error");
+                    return result.ErrorBase(ErrorType.SOAP, "Import Error");
                 }
             }
             catch (Exception e)
             {
-                return result.ErrorBase(CheckResultStatus.SOAP, e.Message);
+                return result.ErrorBase(ErrorType.SOAP, e.Message);
             }
         }
 	}

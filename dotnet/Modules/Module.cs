@@ -7,6 +7,36 @@ namespace CloudBeat.Oxygen.Modules
 {
     public abstract class Module
 	{
+        public enum ErrorType
+        {
+            // general
+            VARIABLE_NOT_DEFINED,
+            UNKNOWN_PAGE_OBJECT,
+            UNKNOWN_ERROR,
+            COMMAND_NOT_IMPLEMENTED,
+            DUPLICATE_TRANSACTION,
+            // web
+            NO_ELEMENT,
+            ASSERT,
+            SCRIPT_TIMEOUT,
+            UNHANDLED_ALERT,
+            ELEMENT_NOT_VISIBLE,
+            FRAME_NOT_FOUND,
+            STALE_ELEMENT,
+            INVALID_OPERATION,  // misc InvalidOperationExceptions such as "Element is not clickable at point (x, y). Other element would receive the click"
+            XML_ERROR,
+            NO_ALERT_PRESENT,
+            BROWSER_JS_EXECUTE_ERROR,
+            NAVIGATE_TIMEOUT,   // load event did not fire. this might also happen due to a bug in chromedriver.
+            // soap
+            SOAP,
+            // db
+            DB_CONNECTION,
+            DB_QUERY,
+            // eyes
+            APPLITOOLS
+        }
+
         public string Name { get { return this.GetType().Name.Substring("Module".Length); } }
         protected ExecutionContext ctx;
         public bool IsInitialized { get; protected set; }
@@ -32,7 +62,7 @@ namespace CloudBeat.Oxygen.Modules
             }
             catch (OxVariableUndefined u)
             {
-                return result.ErrorBase(CheckResultStatus.VARIABLE_NOT_DEFINED, u.Message);
+                return result.ErrorBase(ErrorType.VARIABLE_NOT_DEFINED, u.Message);
             }
 
             try
@@ -40,9 +70,9 @@ namespace CloudBeat.Oxygen.Modules
                 Type modType = this.GetType();
                 MethodInfo method = modType.GetMethod(name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance, null, paramTypes, null);
                 if (method == null)
-                    return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, ".NET: cannot find method. Possible name or arguments type mismatch.");
+                    return result.ErrorBase(ErrorType.UNKNOWN_ERROR, ".NET: cannot find method. Possible name or arguments type mismatch.");
                 if (method.ReturnType != typeof(CommandResult))
-                    return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, ".NET: attempted to invoke method with return type other than CommandResult.");
+                    return result.ErrorBase(ErrorType.UNKNOWN_ERROR, ".NET: attempted to invoke method with return type other than CommandResult.");
 
                 return method.Invoke(this, args) as CommandResult;
             }
@@ -52,7 +82,7 @@ namespace CloudBeat.Oxygen.Modules
                 // however as a safety measure we also catch everything that might haven't been caught
                 e = e is TargetInvocationException ? e.InnerException : e;
                 result.ErrorStackTrace = e.StackTrace;
-                return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, e.GetType().Name + ": " + e.Message);
+                return result.ErrorBase(ErrorType.UNKNOWN_ERROR, e.GetType().Name + ": " + e.Message);
             }
         }
 

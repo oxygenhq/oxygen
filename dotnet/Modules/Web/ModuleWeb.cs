@@ -10,6 +10,14 @@ namespace CloudBeat.Oxygen.Modules
 {
     public class ModuleWeb : Module, IModule
 	{
+        private enum ScreenshotMode
+        {
+            Never,
+            OnError,
+            OnAction,	// if step is action or error occured
+            Always
+        }
+
         public SeleniumDriver driver { get; private set; }
         private Proxy proxy = null;
         private ScreenshotMode screenshotMode = ScreenshotMode.OnError;
@@ -293,7 +301,7 @@ namespace CloudBeat.Oxygen.Modules
             }
             catch (OxVariableUndefined u)
             {
-                return result.ErrorBase(CheckResultStatus.VARIABLE_NOT_DEFINED, u.Message);
+                return result.ErrorBase(ErrorType.VARIABLE_NOT_DEFINED, u.Message);
             }
 
             // TODO: web.transaction needs refactoring
@@ -382,7 +390,7 @@ namespace CloudBeat.Oxygen.Modules
                 string statusData = null;
                 var status = GetStatusByException(exception, out statusData);
                 result = result.ErrorBase(status, statusData);
-                if (status == CheckResultStatus.UNKNOWN_ERROR)
+                if (status == ErrorType.UNKNOWN_ERROR)
                     result.ErrorStackTrace = exception.StackTrace;
             }
 
@@ -410,40 +418,40 @@ namespace CloudBeat.Oxygen.Modules
             return result;
         }
 
-		private CheckResultStatus GetStatusByException(Exception e, out string moreInfo)
+		private ErrorType GetStatusByException(Exception e, out string moreInfo)
 		{
 			var type = e.GetType();
 			moreInfo = null;
 
 			if (type == typeof(OxAssertionException))
-				return CheckResultStatus.ASSERT;
+				return ErrorType.ASSERT;
 			else if (type == typeof(NoSuchElementException))
-				return CheckResultStatus.NO_ELEMENT;
+				return ErrorType.NO_ELEMENT;
 			else if (type == typeof(OxElementNotFoundException))
-				return CheckResultStatus.NO_ELEMENT;
+				return ErrorType.NO_ELEMENT;
 			else if (type == typeof(OxElementNotVisibleException))
-				return CheckResultStatus.ELEMENT_NOT_VISIBLE;
+				return ErrorType.ELEMENT_NOT_VISIBLE;
 			else if (type == typeof(NoSuchFrameException))
-				return CheckResultStatus.FRAME_NOT_FOUND;
+				return ErrorType.FRAME_NOT_FOUND;
 			else if (type == typeof(StaleElementReferenceException))
-				return CheckResultStatus.STALE_ELEMENT;
+				return ErrorType.STALE_ELEMENT;
 			else if (type == typeof(UnhandledAlertException))
 			{
 				moreInfo = "Alert text: " + driver._GetAlertText();
-				return CheckResultStatus.UNHANDLED_ALERT;
+				return ErrorType.UNHANDLED_ALERT;
 			}
 			else if (type == typeof(OxWaitForException))
 				// This is thrown by any WaitFor* commands (e.g. _WaitForVisible)
 				// and essentially implies a script level timeout.
 				// By default the timeout is set to SeCommandProcessor.DEFAULT_WAIT_FOR_TIMEOUT but
 				// can be overriden in the script using SetTimeout command.
-				return CheckResultStatus.SCRIPT_TIMEOUT;
+				return ErrorType.SCRIPT_TIMEOUT;
 			else if (type == typeof(OxTimeoutException))
 				// This is thrown by any commands which rely on PageLoadTimeout (Open, Click, etc.)
 				// and essentially implies a script level timeout.
 				// By default the timeout is set to SeCommandProcessor.DEFAULT_PAGE_LOAD_TIMEOUT but
 				// can be overriden in the script using SetTimeout command.
-				return CheckResultStatus.SCRIPT_TIMEOUT;
+				return ErrorType.SCRIPT_TIMEOUT;
 			else if (type == typeof(WebDriverException))
 			{
 				var wde = e as WebDriverException;
@@ -455,58 +463,58 @@ namespace CloudBeat.Oxygen.Modules
 					var wex = wde.InnerException as WebException;
 					if (wex.Status == WebExceptionStatus.Timeout)
 						// there seems to be chromedriver bug where open/click will end in command timeout if 'load' event did not fire.
-                        return CheckResultStatus.NAVIGATE_TIMEOUT;
+                        return ErrorType.NAVIGATE_TIMEOUT;
 				}
 
                 moreInfo = e.GetType().Name + ": " + e.Message;
-				return CheckResultStatus.UNKNOWN_ERROR;
+				return ErrorType.UNKNOWN_ERROR;
 			}
 			else if (type == typeof(OxVariableUndefined))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.VARIABLE_NOT_DEFINED;
+				return ErrorType.VARIABLE_NOT_DEFINED;
 			}
 			else if (type == typeof(OxLocatorUndefined))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.UNKNOWN_PAGE_OBJECT;
+				return ErrorType.UNKNOWN_PAGE_OBJECT;
 			}
 			else if (type == typeof(OxCommandNotImplementedException))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.COMMAND_NOT_IMPLEMENTED;
+				return ErrorType.COMMAND_NOT_IMPLEMENTED;
 			}
 			else if (type == typeof(OxOperationException))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.INVALID_OPERATION;
+				return ErrorType.INVALID_OPERATION;
 			}
 			else if (type == typeof(OxXMLExtractException))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.XML_ERROR;
+				return ErrorType.XML_ERROR;
 			}
 			else if (type == typeof(OxXMLtoJSONConvertException))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.XML_ERROR;
+				return ErrorType.XML_ERROR;
 			}
 			else if (type == typeof(NoAlertPresentException))
-				return CheckResultStatus.NO_ALERT_PRESENT;
+				return ErrorType.NO_ALERT_PRESENT;
 			else if (type == typeof(OxBrowserJSExecutionException))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.BROWSER_JS_EXECUTE_ERROR;
+				return ErrorType.BROWSER_JS_EXECUTE_ERROR;
 			}
 			else if (type == typeof(OxDuplicateTransactionException))
 			{
 				moreInfo = e.Message;
-				return CheckResultStatus.DUPLICATE_TRANSACTION;
+				return ErrorType.DUPLICATE_TRANSACTION;
 			}
 			else
 			{
 				moreInfo = e.GetType().Name + ": " + e.Message;
-				return CheckResultStatus.UNKNOWN_ERROR;
+				return ErrorType.UNKNOWN_ERROR;
 			}
 		}
 

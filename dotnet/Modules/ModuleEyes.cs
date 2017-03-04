@@ -21,7 +21,7 @@ namespace CloudBeat.Oxygen.Modules
 
             web = modules["web"] as ModuleWeb;
             if (web == null || !web.IsInitialized)
-                return result.ErrorBase(CheckResultStatus.APPLITOOLS, "web module hasn't been initialized.");
+                return result.ErrorBase(ErrorType.APPLITOOLS, "web module hasn't been initialized.");
 
             eyes = new Eyes();
 			eyes.ApiKey = apiKey;
@@ -48,7 +48,7 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			catch (Exception e)
 			{
-                return result.ErrorBase(CheckResultStatus.APPLITOOLS, e.Message);
+                return result.ErrorBase(ErrorType.APPLITOOLS, e.Message);
 			}
 		}
 
@@ -77,7 +77,7 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			catch (Exception e)
 			{
-                return result.ErrorBase(CheckResultStatus.APPLITOOLS, e.Message);
+                return result.ErrorBase(ErrorType.APPLITOOLS, e.Message);
 			}
 		}
 
@@ -92,14 +92,14 @@ namespace CloudBeat.Oxygen.Modules
 			{
                 var locator = web.driver.ResolveLocator(target);
                 if (locator == null)
-                    return result.ErrorBase(CheckResultStatus.APPLITOOLS, "Target not found");
+                    return result.ErrorBase(ErrorType.APPLITOOLS, "Target not found");
 
 				eyes.CheckRegion(locator, web.prevTransaction);
                 return result.SuccessBase();
 			}
 			catch (Exception e)
 			{
-                return result.ErrorBase(CheckResultStatus.APPLITOOLS, e.Message);
+                return result.ErrorBase(ErrorType.APPLITOOLS, e.Message);
 			}
 		}
 
@@ -128,7 +128,7 @@ namespace CloudBeat.Oxygen.Modules
 
         private CommandResult eyesNotInitedResult(CommandResult result)
         {
-            return result.ErrorBase(CheckResultStatus.APPLITOOLS, "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.");
+            return result.ErrorBase(ErrorType.APPLITOOLS, "Eyes module hasn't been initalized. 'eyes.init' should be called before interacting with other methods.");
         }
 	}
 }

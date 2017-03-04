@@ -75,7 +75,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommonEnums.cs" />
     <Compile Include="ExecutionContext.cs" />
     <Compile Include="CommandResult.cs" />
     <Compile Include="Dispatcher.cs" />

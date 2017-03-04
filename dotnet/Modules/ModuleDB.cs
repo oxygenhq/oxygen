@@ -103,7 +103,7 @@ namespace CloudBeat.Oxygen.Modules
 			return null;
 		}
 
-        private CheckResultStatus GetStatusByException(Exception e, out string moreInfo)
+        private ErrorType GetStatusByException(Exception e, out string moreInfo)
         {
             var type = e.GetType();
             moreInfo = null;
@@ -111,17 +111,17 @@ namespace CloudBeat.Oxygen.Modules
             if (type == typeof(OxDBConnectionException))
             {
                 moreInfo = e.Message;
-                return CheckResultStatus.DB_CONNECTION;
+                return ErrorType.DB_CONNECTION;
             }
             else if (type == typeof(OdbcException)) 
             {
                 moreInfo = e.Message;
-                return CheckResultStatus.DB_QUERY;
+                return ErrorType.DB_QUERY;
             }
             else
             {
                 moreInfo = e.Message;
-                return CheckResultStatus.UNKNOWN_ERROR;
+                return ErrorType.UNKNOWN_ERROR;
             }
         }
 	}

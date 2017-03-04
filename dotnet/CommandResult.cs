@@ -44,7 +44,7 @@ namespace CloudBeat.Oxygen
             this.CommandExpression = string.Format("{0}.{1}({2});", moduleName.ToLower(), commandName, string.Join(", ", argsQuoted));
         }
 
-        public CommandResult ErrorBase(CheckResultStatus errType, string errMsg = null)
+        public CommandResult ErrorBase(CloudBeat.Oxygen.Modules.Module.ErrorType errType, string errMsg = null)
         {
             this.EndTime = DateTime.UtcNow;
             this.Duration = (this.EndTime - this.StartTime).TotalSeconds;
