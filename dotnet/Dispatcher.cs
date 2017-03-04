@@ -1,10 +1,10 @@
-﻿using CloudBeat.Oxygen.Models;
+﻿using CloudBeat.Oxygen.Modules;
 using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Threading.Tasks;
 
-namespace CloudBeat.Oxygen.Modules
+namespace CloudBeat.Oxygen
 {
 	public class Dispatcher
 	{

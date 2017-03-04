@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CloudBeat.Oxygen.Models
+namespace CloudBeat.Oxygen
 {
     public class CommandResult
     {

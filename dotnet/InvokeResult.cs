@@ -1,11 +1,6 @@
-﻿using CloudBeat.Oxygen.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
-namespace CloudBeat.Oxygen.Modules
+namespace CloudBeat.Oxygen
 {
 	public class InvokeResult
 	{

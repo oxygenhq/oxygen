@@ -115,24 +115,6 @@ namespace CloudBeat.Oxygen.Modules
 
 		public ExecutionContext ExecutionContext { get { return context; } }
 
-        public string SubstituteLocator(string target)
-		{
-			if (context.PageObjectManager == null)
-				return target;
-			if (string.IsNullOrEmpty(target))
-				return target;
-			if (target.StartsWith("@{") && target.EndsWith("}"))
-			{
-				// extract the value enclosed in @{...}
-				var objectName = target.Substring(2, target.Length - 3);
-				var locator = context.PageObjectManager.GetLocator(objectName);
-				if (locator == null)
-                    throw new OxLocatorUndefined(objectName);
-				return locator;
-			}
-			return target;
-		}
-
         public string TakeScreenshot()
 		{
 			Response screenshotResponse = this.Execute(DriverCommand.Screenshot, null);

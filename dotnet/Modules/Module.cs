@@ -1,5 +1,4 @@
-﻿using CloudBeat.Oxygen.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Dynamic;
 using System.Reflection;
@@ -26,23 +25,14 @@ namespace CloudBeat.Oxygen.Modules
         {
             var result = new CommandResult(new Command(name, args).ToJSCommand(Name));
 
-            Type[] paramTypes = new Type[args.Length];
-            for (int i = 0; i < args.Length; i++)
+            Type[] paramTypes = null;
+            try
             {
-                // convert ExpandoObject to Dictionary
-                if (args[i].GetType() == typeof(ExpandoObject))
-                    args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
-                paramTypes[i] = args[i].GetType();
-
-                try
-                {
-                    if (args[i].GetType() == typeof(string))
-                        args[i] = SubstituteVariable(args[i] as string);
-                }
-                catch (OxVariableUndefined u)
-                {
-                    return result.ErrorBase(CheckResultStatus.VARIABLE_NOT_DEFINED, u.Message);
-                }
+                paramTypes = ProcessArguments(args);
+            }
+            catch (OxVariableUndefined u)
+            {
+                return result.ErrorBase(CheckResultStatus.VARIABLE_NOT_DEFINED, u.Message);
             }
 
             try
@@ -118,5 +108,20 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
+        public Type[] ProcessArguments(params object[] args)
+        {
+            Type[] paramTypes = new Type[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                // convert ExpandoObject to Dictionary
+                if (args[i].GetType() == typeof(ExpandoObject))
+                    args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
+                paramTypes[i] = args[i].GetType();
+
+                if (args[i].GetType() == typeof(string))
+                    args[i] = SubstituteVariable(args[i] as string);
+            }
+            return paramTypes;
+        }
 	}
 }

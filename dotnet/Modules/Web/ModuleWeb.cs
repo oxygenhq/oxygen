@@ -1,5 +1,4 @@
-﻿using CloudBeat.Oxygen.Models;
-using OpenQA.Selenium;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Remote;
 using System;
 using System.Collections.Generic;
@@ -288,6 +287,16 @@ namespace CloudBeat.Oxygen.Modules
             var cmd = new Command(name, args);
             var result = new CommandResult(cmd.ToJSCommand(Name));
 
+            Type[] paramTypes = null;
+            try
+            {
+                paramTypes = ProcessArguments(args);
+            }
+            catch (OxVariableUndefined u)
+            {
+                return result.ErrorBase(CheckResultStatus.VARIABLE_NOT_DEFINED, u.Message);
+            }
+
             // TODO: web.transaction needs refactoring
             if (name == "transaction")
             {
@@ -296,18 +305,6 @@ namespace CloudBeat.Oxygen.Modules
                 result.EndTime = DateTime.UtcNow;
                 result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
                 return result;
-            }
-
-            // substitute object repo locators
-            object[] argsProcessed = null;
-            if (cmd.Arguments != null)
-            {
-                argsProcessed = new object[cmd.Arguments.Length];
-                for (int i = 0; i < cmd.Arguments.Length; i++)
-                {
-                    var arg = cmd.Arguments[i];
-                    argsProcessed[i] = arg.GetType() == typeof(string) ? driver.SubstituteLocator(arg.ToString()) : arg;
-                }
             }
 
             Exception exception = null;
@@ -320,7 +317,7 @@ namespace CloudBeat.Oxygen.Modules
                 if (cmdMethod == null)
                     throw new OxCommandNotImplementedException();
 
-                retVal = cmdMethod.Invoke(driver, argsProcessed);
+                retVal = cmdMethod.Invoke(driver, args);
                 if ((screenshotMode == ScreenshotMode.OnAction && cmd.IsAction() == true) || screenshotMode == ScreenshotMode.Always)
                     screenShot = driver.TakeScreenshot();
             }

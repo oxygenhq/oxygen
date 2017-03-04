@@ -1,5 +1,4 @@
 ﻿using Applitools;
-using CloudBeat.Oxygen.Models;
 using System;
 using System.Collections.Generic;
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 
 namespace CloudBeat.Oxygen
 {
@@ -12,6 +7,5 @@ namespace CloudBeat.Oxygen
 		public Dictionary<string, string> Parameters { get; set; }
 		public Dictionary<string, string> Variables { get; set; }
 		public Dictionary<string, string> Environment { get; set; }
-		public IPageObjectManager PageObjectManager { get; set; }
 	}
 }

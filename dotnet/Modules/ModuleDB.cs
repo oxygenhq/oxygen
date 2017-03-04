@@ -1,5 +1,4 @@
-﻿using CloudBeat.Oxygen.Models;
-using System;
+﻿using System;
 using System.Data.Odbc;
 
 namespace CloudBeat.Oxygen.Modules
