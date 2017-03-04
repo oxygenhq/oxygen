@@ -54,42 +54,6 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        // not exposed through web module
-        public void SeCmdWaitForAllLinks(string pattern)
-        {
-            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
-            {
-                try
-                {
-                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
-                    {
-                        var links = this.FindElements(By.TagName("a"));
-
-                        string ids = "";
-                        foreach (var link in links)
-                        {
-                            string id = link.GetAttribute("id");
-                            ids += id + ",";
-                        }
-
-                        if (ids.Length > 1)
-                            ids = ids.TrimEnd(',');
-
-                        return MatchPattern(ids, pattern);
-                    });
-
-                    return;
-                }
-                catch (StaleElementReferenceException) { }
-                catch (WebDriverTimeoutException)
-                {
-                    throw new OxWaitForException();
-                }
-            }
-
-            throw new StaleElementReferenceException();
-        }
-
         public void SeCmdWaitForElementPresent(string locator)
         {
             UnhandledAlertException alert = null;
@@ -337,70 +301,6 @@ namespace CloudBeat.Oxygen.Modules
                 }
             }
             throw new StaleElementReferenceException();
-        }
-
-        private void SeCmdVerifyValue(string locator, string pattern)
-        {
-            try
-            {
-                SeCmdAssertValue(locator, pattern);
-            }
-            catch (OxAssertionException)
-            {
-                throw new OxVerificationException();
-            }
-        }
-
-        // not exposed through web module
-        private void SeCmdVerifyTextPresent(string text)
-        {
-            try
-            {
-                SeCmdAssertTextPresent(text);
-            }
-            catch (OxAssertionException)
-            {
-                throw new OxVerificationException();
-            }
-        }
-
-        // not exposed through web module
-        private void SeCmdVerifyElementPresent(string locator)
-        {
-            try
-            {
-                SeCmdAssertElementPresent(locator);
-            }
-            catch (OxAssertionException)
-            {
-                throw new OxVerificationException();
-            }
-        }
-
-        // not exposed through web module
-        public void SeCmdVerifyTitle(string pattern)
-        {
-            try
-            {
-                SeCmdAssertTitle(pattern);
-            }
-            catch (OxAssertionException)
-            {
-                throw new OxVerificationException();
-            }
-        }
-
-        // not exposed through web module
-        private void SeCmdVerifyText(string locator, string pattern)
-        {
-            try
-            {
-                SeCmdAssertText(locator, pattern);
-            }
-            catch (OxAssertionException)
-            {
-                throw new OxVerificationException();
-            }
         }
 
         public void SeCmdAssertText(string locator, string pattern)

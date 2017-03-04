@@ -245,24 +245,6 @@ namespace CloudBeat.Oxygen.Modules
                 throw new StaleElementReferenceException();
         }
 
-        // not exposed through web module
-        public void SeCmdSendKeys(string locator, string value)
-        {
-            var loc = ResolveLocator(locator);
-            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
-            {
-                try
-                {
-					// make sure that the element present first
-                    this.SeCmdWaitForVisible(locator);
-
-                    this.FindElement(loc).SendKeys(value);
-                    return;
-                }
-                catch (StaleElementReferenceException) { }
-            }
-        }
-
         public void SeCmdClear(string locator)
         {
             var loc = ResolveLocator(locator);

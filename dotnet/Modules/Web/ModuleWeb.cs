@@ -312,7 +312,7 @@ namespace CloudBeat.Oxygen.Modules
             try
             {
                 Type dtype = driver.GetType();
-                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.SE_CMD_METHOD_PREFIX + result.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.SE_CMD_METHOD_PREFIX + result.CommandName, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
                 if (cmdMethod == null)
                     throw new OxCommandNotImplementedException();
 
@@ -330,7 +330,6 @@ namespace CloudBeat.Oxygen.Modules
                 {
                     if (tie.InnerException != null &&
                         (tie.InnerException is OxAssertionException ||
-                        tie.InnerException is OxVerificationException ||
                         tie.InnerException is OxWaitForException ||
                         tie.InnerException is OxElementNotFoundException ||
                         tie.InnerException is OxElementNotVisibleException ||
@@ -418,8 +417,6 @@ namespace CloudBeat.Oxygen.Modules
 
 			if (type == typeof(OxAssertionException))
 				return CheckResultStatus.ASSERT;
-			else if (type == typeof(OxVerificationException))
-				return CheckResultStatus.VERIFICATION;
 			else if (type == typeof(NoSuchElementException))
 				return CheckResultStatus.NO_ELEMENT;
 			else if (type == typeof(OxElementNotFoundException))

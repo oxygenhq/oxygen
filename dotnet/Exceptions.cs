@@ -83,13 +83,6 @@ namespace CloudBeat.Oxygen
         }
     }
 
-    public class OxVerificationException : OxException
-    {
-        public OxVerificationException()
-        {
-        }
-    }
-
     public class OxWaitForException : OxException
 	{
 		public OxWaitForException()

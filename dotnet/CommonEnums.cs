@@ -11,7 +11,6 @@ namespace CloudBeat.Oxygen
         // web
         NO_ELEMENT,
         ASSERT,
-		VERIFICATION,
         SCRIPT_TIMEOUT,
         UNHANDLED_ALERT,
         ELEMENT_NOT_VISIBLE,
