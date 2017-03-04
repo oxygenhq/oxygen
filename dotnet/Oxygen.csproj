@@ -85,6 +85,7 @@
     <Compile Include="Modules\ModuleDB.cs" />
     <Compile Include="Modules\ModuleEyes.cs" />
     <Compile Include="Modules\ModuleSoap.cs" />
+    <Compile Include="Modules\Web\Exceptions.cs" />
     <Compile Include="Modules\Web\ModuleWeb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Modules\Web\DesiredCapabilities\Capabilities.cs" />
@@ -97,7 +98,6 @@
     <Compile Include="Modules\Web\DesiredCapabilities\DCFactory.cs" />
     <Compile Include="Modules\Web\DesiredCapabilities\DCFirefox.cs" />
     <Compile Include="Modules\Web\DesiredCapabilities\DCInternetExplorer.cs" />
-    <Compile Include="Exceptions.cs" />
     <Compile Include="Modules\Web\DesiredCapabilities\IDCBrowser.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

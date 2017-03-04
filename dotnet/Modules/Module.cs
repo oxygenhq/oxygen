@@ -122,4 +122,42 @@ namespace CloudBeat.Oxygen.Modules
             return paramTypes;
         }
 	}
+
+    public class OxException : Exception
+    {
+        public OxException()
+        {
+        }
+
+        public OxException(string message, Exception innerException)
+            : base(message, innerException)
+        {
+        }
+
+        public OxException(string message)
+            : base(message)
+        {
+        }
+    }
+
+    public class OxModuleInitializationException : Exception
+    {
+        public OxModuleInitializationException(string reason)
+            : base(reason)
+        {
+        }
+
+        public OxModuleInitializationException(string reason, Exception e)
+            : base(reason, e)
+        {
+        }
+    }
+
+    public class OxVariableUndefined : OxException
+    {
+        public OxVariableUndefined(string variableName)
+            : base("Variable '" + variableName + "' is not defined.")
+        {
+        }
+    }
 }

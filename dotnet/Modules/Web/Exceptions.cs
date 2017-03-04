@@ -1,53 +1,7 @@
 ﻿using System;
 
-namespace CloudBeat.Oxygen
+namespace CloudBeat.Oxygen.Modules
 {
-    public class OxException : Exception
-    {
-        public OxException()
-        {
-        }
-
-        public OxException(string message, Exception innerException)
-            : base(message, innerException)
-        {
-        }
-
-        public OxException(string message)
-            : base(message)
-        {
-        }
-    }
-
-	public class OxModuleInitializationException : Exception
-	{
-		public OxModuleInitializationException(string reason)
-			: base(reason)
-		{
-		}
-
-		public OxModuleInitializationException(string reason, Exception e)
-			: base(reason, e)
-		{
-		}
-	}
-
-	public class OxConnectionException : OxException
-	{
-		public OxConnectionException(string seleniumUrl)
-			: base("Can't connect to selenium server: " + seleniumUrl)
-        {
-        }
-	}
-
-	public class OxProxyException : OxException
-	{
-		public OxProxyException(string proxyUrl)
-			: base("Can't initialize or connect to proxy server: " + proxyUrl)
-		{
-		}
-	}
-
 	public class OxSetWindowSizeException : OxException
 	{
 		public OxSetWindowSizeException()
@@ -59,14 +13,6 @@ namespace CloudBeat.Oxygen
         {
         }
 	}
-
-    public class OxVariableUndefined : OxException
-    {
-        public OxVariableUndefined(string variableName)
-            : base("Variable '" + variableName + "' is not defined.")
-        {
-        }
-    }
 
     public class OxLocatorUndefined : OxException
     {
@@ -171,14 +117,6 @@ namespace CloudBeat.Oxygen
         }
     }
 
-    public class OxParameterizationCSVException : Exception
-    {
-        public OxParameterizationCSVException(string message)
-            : base(message)
-        {
-        }
-    }
-
     public class OxXMLExtractException : OxException
     {
         public OxXMLExtractException(string message)
@@ -237,22 +175,5 @@ namespace CloudBeat.Oxygen
             : base(message, innerException)
         {
         }
-    }
-
-    public class OxDBConnectionException : OxException
-    {
-        public OxDBConnectionException()
-        {
-        }
-
-        public OxDBConnectionException(string message)
-            : base(message)
-        {
-        }
-
-        public OxDBConnectionException(string reason, Exception e)
-			: base(reason, e)
-		{
-		}
     }
 }

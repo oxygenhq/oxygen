@@ -125,4 +125,21 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 	}
+
+    public class OxDBConnectionException : OxException
+    {
+        public OxDBConnectionException()
+        {
+        }
+
+        public OxDBConnectionException(string message)
+            : base(message)
+        {
+        }
+
+        public OxDBConnectionException(string reason, Exception e)
+            : base(reason, e)
+        {
+        }
+    }
 }
