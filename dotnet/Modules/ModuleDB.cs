@@ -17,13 +17,13 @@ namespace CloudBeat.Oxygen.Modules
         {
             this.connString = connString;
 
-            var result = new CommandResult(new Command("setConnectionString", connString).ToJSCommand(Name));
+            var result = new CommandResult(Name, "setConnectionString", connString);
             return result.SuccessBase();
         }
 
         public CommandResult getScalar(string query)
         {
-            var result = new CommandResult(new Command("getScalar", query).ToJSCommand(Name));
+            var result = new CommandResult(Name, "getScalar", query);
             try
             {
                 var conn = Connect();
@@ -43,7 +43,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult executeNonQuery(string query)
         {
-            var result = new CommandResult(new Command("executeNonQuery", query).ToJSCommand(Name));
+            var result = new CommandResult(Name, "executeNonQuery", query);
             try
             {
                 var conn = Connect();

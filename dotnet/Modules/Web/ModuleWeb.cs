@@ -284,8 +284,7 @@ namespace CloudBeat.Oxygen.Modules
 			// lowercase the first letter
 			name = Char.ToLowerInvariant(name[0]) + name.Substring(1);
 
-            var cmd = new Command(name, args);
-            var result = new CommandResult(cmd.ToJSCommand(Name));
+            var result = new CommandResult(Name, name, args);
 
             Type[] paramTypes = null;
             try
@@ -313,12 +312,12 @@ namespace CloudBeat.Oxygen.Modules
             try
             {
                 Type dtype = driver.GetType();
-                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.SE_CMD_METHOD_PREFIX + cmd.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.SE_CMD_METHOD_PREFIX + result.CommandName, BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
                 if (cmdMethod == null)
                     throw new OxCommandNotImplementedException();
 
                 retVal = cmdMethod.Invoke(driver, args);
-                if ((screenshotMode == ScreenshotMode.OnAction && cmd.IsAction() == true) || screenshotMode == ScreenshotMode.Always)
+                if ((screenshotMode == ScreenshotMode.OnAction && IsAction(name)) || screenshotMode == ScreenshotMode.Always)
                     screenShot = driver.TakeScreenshot();
             }
             catch (OxCommandNotImplementedException ame)
@@ -375,7 +374,7 @@ namespace CloudBeat.Oxygen.Modules
                     exception = tie.InnerException;
             }
 
-			result.IsAction = cmd.IsAction();
+            result.IsAction = IsAction(name);
 			result.Screenshot = screenShot;
 			result.ReturnValue = retVal;
 			result.IsSuccess = exception == null;
@@ -384,16 +383,11 @@ namespace CloudBeat.Oxygen.Modules
                 string statusData = null;
                 var status = GetStatusByException(exception, out statusData);
                 result = result.ErrorBase(status, statusData);
-
                 if (status == CheckResultStatus.UNKNOWN_ERROR)
-                {
-                    result.ErrorType = exception.GetType().ToString();
-                    result.ErrorMessage = exception.Message;
-                    result.ErrorDetails = exception.StackTrace;
-                }
+                    result.ErrorStackTrace = exception.StackTrace;
             }
 
-            if (fetchStats && cmd.IsAction())
+            if (fetchStats && IsAction(name))
             {
                 long navigationStart = 0;
                 int domContentLoaded = 0;
@@ -467,6 +461,7 @@ namespace CloudBeat.Oxygen.Modules
                         return CheckResultStatus.NAVIGATE_TIMEOUT;
 				}
 
+                moreInfo = e.GetType().Name + ": " + e.Message;
 				return CheckResultStatus.UNKNOWN_ERROR;
 			}
 			else if (type == typeof(OxVariableUndefined))
@@ -513,9 +508,19 @@ namespace CloudBeat.Oxygen.Modules
 			}
 			else
 			{
-				moreInfo = e.Message;
+				moreInfo = e.GetType().Name + ": " + e.Message;
 				return CheckResultStatus.UNKNOWN_ERROR;
 			}
 		}
+
+        private static HashSet<string> actions = new HashSet<string>() 
+        {
+            "click", "open", "doubleclick"
+        };
+
+        private bool IsAction(string cmdName)
+        {
+            return actions.Contains(cmdName.ToLowerInvariant());
+        }
 	}
 }

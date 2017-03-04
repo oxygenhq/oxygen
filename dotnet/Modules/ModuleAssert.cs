@@ -32,7 +32,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult equal(string a, string b, string message)
         {
-			var result = new CommandResult(new Command("equal", a, b, message).ToJSCommand(Name));
+            var result = new CommandResult(Name, "equal", a, b, message);
             return a != b ? 
                 result.ErrorBase(CheckResultStatus.ASSERT, "'" + a + "' is not equal to '" + b + "'") :
                 result.SuccessBase();
@@ -40,7 +40,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult notEqual(string a, string b, string message)
         {
-            var result = new CommandResult(new Command("notEqual", a, b, message).ToJSCommand(Name));
+            var result = new CommandResult(Name, "notEqual", a, b, message);
             return a == b ?
                 result.ErrorBase(CheckResultStatus.ASSERT, "'" + a + "' is equal to '" + b + "'") :
                 result.SuccessBase();
@@ -48,7 +48,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult fail(string message)
         {
-            var result = new CommandResult(new Command("fail", message).ToJSCommand(Name));
+            var result = new CommandResult(Name, "fail", message);
 			return result.ErrorBase(CheckResultStatus.ASSERT, message);
         }
 	}

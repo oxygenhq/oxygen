@@ -81,7 +81,6 @@
     <Compile Include="Dispatcher.cs" />
     <Compile Include="Modules\Module.cs" />
     <Compile Include="Modules\IModule.cs" />
-    <Compile Include="InvokeResult.cs" />
     <Compile Include="Modules\ModuleAssert.cs" />
     <Compile Include="Modules\ModuleDB.cs" />
     <Compile Include="Modules\ModuleEyes.cs" />
@@ -90,7 +89,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Modules\Web\DesiredCapabilities\Capabilities.cs" />
     <Compile Include="Modules\Web\Proxy.cs" />
-    <Compile Include="Modules\Web\Command.cs" />
     <Compile Include="Modules\Web\Accessors.cs" />
     <Compile Include="Modules\Web\Actions.cs" />
     <Compile Include="Modules\Web\Assertions.cs" />

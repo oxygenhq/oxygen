@@ -23,7 +23,7 @@ namespace CloudBeat.Oxygen.Modules
         /// <returns></returns>
         public virtual CommandResult ExecuteCommand(string name, params object[] args)
         {
-            var result = new CommandResult(new Command(name, args).ToJSCommand(Name));
+            var result = new CommandResult(Name, name, args);
 
             Type[] paramTypes = null;
             try
@@ -51,10 +51,8 @@ namespace CloudBeat.Oxygen.Modules
                 // module commands should catch all exceptions and return proper CommandResult with error details
                 // however as a safety measure we also catch everything that might haven't been caught
                 e = e is TargetInvocationException ? e.InnerException : e;
-                result.ErrorType = e.GetType().Name;
-                result.ErrorMessage = e.Message;
-                result.ErrorDetails = e.StackTrace;
-                return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, e.Message);
+                result.ErrorStackTrace = e.StackTrace;
+                return result.ErrorBase(CheckResultStatus.UNKNOWN_ERROR, e.GetType().Name + ": " + e.Message);
             }
         }
 

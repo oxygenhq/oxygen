@@ -54,18 +54,7 @@ namespace CloudBeat.Oxygen
 				return Task.FromResult<object>(module.IterationEnded());
 
             CommandResult cr = module.ExecuteCommand(method, input.args as object[]);
-
-            return Task.FromResult<object>(new InvokeResult()
-            {
-                Module = module.Name,
-                Method = method,
-                ReturnValue = cr.ReturnValue,
-                ErrorType = cr.ErrorType,
-                ErrorMessage = cr.ErrorMessage,
-                ErrorDetails = cr.ErrorDetails,
-                Variables = ConvertDictionaryToKeyValueList(ctx.Variables),
-                CommandResult = cr
-            });
+            return Task.FromResult<object>(cr);
 		}
 
 		private void UpdateExecutionContext(dynamic inputCtx)

@@ -17,7 +17,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult init(string apiKey, string appName, string testName)
 		{
-            var result = new CommandResult(new Command("init", apiKey, appName, testName).ToJSCommand(Name));
+            var result = new CommandResult(Name, "init", apiKey, appName, testName);
 
             web = modules["web"] as ModuleWeb;
             if (web == null || !web.IsInitialized)
@@ -36,7 +36,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult close()
 		{
-            var result = new CommandResult(new Command("close").ToJSCommand(Name));
+            var result = new CommandResult(Name, "close");
 
             if (eyes == null)
                 return eyesNotInitedResult(result);
@@ -54,7 +54,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult forceFullPageScreenshot(bool force)
         {
-            var result = new CommandResult(new Command("forceFullPageScreenshot", force).ToJSCommand(Name));
+            var result = new CommandResult(Name, "forceFullPageScreenshot", force);
 
             if (eyes == null)
                 return eyesNotInitedResult(result);
@@ -65,7 +65,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult checkWindow()
 		{
-            var result = new CommandResult(new Command("checkWindow").ToJSCommand(Name));
+            var result = new CommandResult(Name, "checkWindow");
 
             if (eyes == null)
                 return eyesNotInitedResult(result);
@@ -83,7 +83,7 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult checkRegion(string target)
 		{
-            var result = new CommandResult(new Command("checkRegion", target).ToJSCommand(Name));
+            var result = new CommandResult(Name, "checkRegion", target);
 
             if (eyes == null)
                 return eyesNotInitedResult(result);

@@ -1,18 +1,12 @@
-﻿using OpenQA.Selenium;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System;
 
 namespace CloudBeat.Oxygen
 {
     public class CommandResult
     {
+        public string ModuleName { get; set; }
         public string CommandName { get; set; }
-        public int? CommandOrder { get; set; }
-        public string StatusText { get; set; }
-        public string StatusData { get; set; }
+        public string CommandExpression { get; set; }
         public bool IsSuccess { get; set; }
         public bool IsAction { get; set; }
         public string TransactionName { get; set; }
@@ -24,27 +18,39 @@ namespace CloudBeat.Oxygen
         public DateTime EndTime { get; set; }
         public double Duration { get; set; }
         public object ReturnValue { get; set; }
-        public string ErrorType { get; set; }
-        public string ErrorMessage { get; set; }
-        public string ErrorDetails { get; set; }
+        public string ErrorType { get; set; }       // CheckResultStatus
+        public string ErrorMessage { get; set; }    // Error details. On ErrorType == UNKNOWN_ERROR populated with exception type + message.
+        public string ErrorStackTrace { get; set; } // Exception stacktrace. Populated only on ErrorType == UNKNOWN_ERROR.
 
-        public CommandResult()
-        {
-        }
 
-        public CommandResult(string CommandName)
+        public CommandResult(string moduleName, string commandName, params object[] args)
         {
             this.StartTime = DateTime.UtcNow;
-            this.CommandName = CommandName;
+            this.ModuleName = moduleName;
+            this.CommandName = commandName;
+
+            // build command name
+
+            if (args == null)
+                this.CommandExpression = string.Format("{0}.{1}();", moduleName.ToLower(), commandName);
+
+            var argsQuoted = new string[args.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                var arg = args[i];
+                var argEscaped = arg.ToString().Replace("'", @"\'").Replace(@"\\'", @"\'");
+                argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + argEscaped + "'" : argEscaped;
+            }
+            this.CommandExpression = string.Format("{0}.{1}({2});", moduleName.ToLower(), commandName, string.Join(", ", argsQuoted));
         }
 
-        public CommandResult ErrorBase(CheckResultStatus status, string statusData = null)
+        public CommandResult ErrorBase(CheckResultStatus errType, string errMsg = null)
         {
             this.EndTime = DateTime.UtcNow;
             this.Duration = (this.EndTime - this.StartTime).TotalSeconds;
             this.IsSuccess = false;
-            this.StatusText = status.ToString();
-            this.StatusData = statusData;
+            this.ErrorType = errType.ToString();
+            this.ErrorMessage = errMsg;
             return this;
         }
 

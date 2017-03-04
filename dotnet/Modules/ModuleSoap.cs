@@ -42,25 +42,25 @@ namespace CloudBeat.Oxygen.Modules
 
         public CommandResult get(string wsdlUrl, string serviceName, string methodName)
         {
-            var result = new CommandResult(new Command("get", wsdlUrl, serviceName, methodName).ToJSCommand(Name));
+            var result = new CommandResult(Name, "get", wsdlUrl, serviceName, methodName);
             return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap", result);
         }
 
         public CommandResult get12(string wsdlUrl, string serviceName, string methodName)
         {
-            var result = new CommandResult(new Command("get12", wsdlUrl, serviceName, methodName).ToJSCommand(Name));
+            var result = new CommandResult(Name, "get12", wsdlUrl, serviceName, methodName);
             return get(wsdlUrl, serviceName, methodName, new object[] { }, "Soap12", result);
         }
 
         public CommandResult get(string wsdlUrl, string serviceName, string methodName, object[] args)
         {
-            var result = new CommandResult(new Command("get", wsdlUrl, serviceName, methodName, args).ToJSCommand(Name));
+            var result = new CommandResult(Name, "get", wsdlUrl, serviceName, methodName, args);
             return get(wsdlUrl, serviceName, methodName, args, "Soap", result);
         }
 
         public CommandResult get12(string wsdlUrl, string serviceName, string methodName, object[] args)
         {
-            var result = new CommandResult(new Command("get12", wsdlUrl, serviceName, methodName, args).ToJSCommand(Name));
+            var result = new CommandResult(Name, "get12", wsdlUrl, serviceName, methodName, args);
             return get(wsdlUrl, serviceName, methodName, args, "Soap12", result);
         }
 
