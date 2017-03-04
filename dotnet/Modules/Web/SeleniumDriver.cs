@@ -9,7 +9,6 @@ using System.Collections.ObjectModel;
 
 namespace CloudBeat.Oxygen.Modules
 {
-	// http://release.seleniumhq.org/selenium-core/1.0.1/reference.html
     public partial class SeleniumDriver : RemoteWebDriver
     {
 		#region Timeout Defaults
@@ -39,7 +38,7 @@ namespace CloudBeat.Oxygen.Modules
 		private int pageLoadTimeout = DEFAULT_PAGE_LOAD_TIMEOUT;
         private int waitForTimeout = DEFAULT_WAIT_FOR_TIMEOUT;
 
-		public const string SE_CMD_METHOD_PREFIX = "SeCmd";
+		public const string CMD_METHOD_PREFIX = "_";
 
         public string BaseURL { get; set; }
 

@@ -151,7 +151,7 @@ namespace CloudBeat.Oxygen.Modules
 			try
 			{
 				driver = ConnectToSelenium(capabilities, proxy, seleniumUrl, ctx);
-                driver.SeCmdSetWindowSize(0, 0);
+                driver._SetWindowSize(0, 0);
 			}
 			catch (Exception e)
 			{
@@ -312,7 +312,7 @@ namespace CloudBeat.Oxygen.Modules
             try
             {
                 Type dtype = driver.GetType();
-                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.SE_CMD_METHOD_PREFIX + result.CommandName, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.CMD_METHOD_PREFIX + result.CommandName, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
                 if (cmdMethod == null)
                     throw new OxCommandNotImplementedException();
 
@@ -362,7 +362,7 @@ namespace CloudBeat.Oxygen.Modules
                     }
                 }
 
-                // wrap Selenium exceptions. generaly SeCmds throw Oxygen exceptions, however in certain 
+                // wrap Selenium exceptions. generaly commands throw Oxygen exceptions, however in certain 
                 // cases like with ElementNotVisibleException it's simplier to just wrap it out here so we don't need to do it
                 // for each FindElement().doSomething
                 if (tie.InnerException is ElementNotVisibleException)
@@ -429,11 +429,11 @@ namespace CloudBeat.Oxygen.Modules
 				return CheckResultStatus.STALE_ELEMENT;
 			else if (type == typeof(UnhandledAlertException))
 			{
-				moreInfo = "Alert text: " + driver.SeCmdGetAlertText();
+				moreInfo = "Alert text: " + driver._GetAlertText();
 				return CheckResultStatus.UNHANDLED_ALERT;
 			}
 			else if (type == typeof(OxWaitForException))
-				// This is thrown by any WaitFor* commands (e.g. SeCmdWaitForVisible)
+				// This is thrown by any WaitFor* commands (e.g. _WaitForVisible)
 				// and essentially implies a script level timeout.
 				// By default the timeout is set to SeCommandProcessor.DEFAULT_WAIT_FOR_TIMEOUT but
 				// can be overriden in the script using SetTimeout command.

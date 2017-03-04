@@ -7,7 +7,7 @@ namespace CloudBeat.Oxygen.Modules
 {
     public partial class SeleniumDriver
     {
-        public void SeCmdWaitForVisible(string locator)
+        public void _WaitForVisible(string locator)
         {
             bool elementPresent = false;
             UnhandledAlertException alert = null;
@@ -54,7 +54,7 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForElementPresent(string locator)
+        public void _WaitForElementPresent(string locator)
         {
             UnhandledAlertException alert = null;
             try
@@ -89,7 +89,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdWaitForText(string locator, string pattern)
+        public void _WaitForText(string locator, string pattern)
         {
             string valCleaned = CollapseWhitespace(pattern);
             bool elementPresent = false;
@@ -137,7 +137,7 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForNotText(string locator, string pattern)
+        public void _WaitForNotText(string locator, string pattern)
         {
             string valCleaned = CollapseWhitespace(pattern);
             bool elementPresent = false;
@@ -184,9 +184,9 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdAssertValue(string locator, string pattern)
+        public void _AssertValue(string locator, string pattern)
         {
-            this.SeCmdWaitForVisible(locator);
+            this._WaitForVisible(locator);
             // assertValue asserts the value of an input field (or anything else with a value parameter). 
             // For checkbox/radio elements, the value will be "on" or "off" depending on whether the element is checked or not.
             // hence we need to take two different approaches when comparing depending if the element is radio/checkbox or something else
@@ -215,7 +215,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdWaitForValue(string locator, string pattern)
+        public void _WaitForValue(string locator, string pattern)
         {
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -259,7 +259,7 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdWaitForNotValue(string locator, string pattern)
+        public void _WaitForNotValue(string locator, string pattern)
         {
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -303,7 +303,7 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdAssertText(string locator, string pattern)
+        public void _AssertText(string locator, string pattern)
         {
             string text = null;
 
@@ -312,7 +312,7 @@ namespace CloudBeat.Oxygen.Modules
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
                     text = this.FindElement(ResolveLocator(locator)).Text;
                     success = true;
                     break;
@@ -331,18 +331,18 @@ namespace CloudBeat.Oxygen.Modules
                 throw new OxAssertionException();
         }
 
-        public void SeCmdAssertTextPresent(string text)
+        public void _AssertTextPresent(string text)
         {
             var els = this.FindElements(By.XPath("//*[contains(text(),'" + text + "')]"));
             if (els.Count() == 0)
                 throw new OxAssertionException();
         }
 
-        public void SeCmdAssertElementPresent(string locator)
+        public void _AssertElementPresent(string locator)
         {
             try
             {
-                this.SeCmdWaitForElementPresent(locator);
+                this._WaitForElementPresent(locator);
             }
             catch (OxElementNotFoundException)
             {
@@ -350,7 +350,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdAssertAlert(string pattern)
+        public void _AssertAlert(string pattern)
         {
             new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
             {
@@ -368,7 +368,7 @@ namespace CloudBeat.Oxygen.Modules
             });
         }
 
-        public void SeCmdAssertTitle(string pattern)
+        public void _AssertTitle(string pattern)
         {
             try
             {
@@ -383,7 +383,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public bool SeCmdIsElementPresent(string locator, int timeout)
+        public bool _IsElementPresent(string locator, int timeout)
         {
             try
             {
@@ -407,7 +407,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public bool SeCmdIsElementVisible(string locator, int timeout)
+        public bool _IsElementVisible(string locator, int timeout)
         {
             try
             {
@@ -431,7 +431,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public bool SeCmdIsAlertPresent(string text, int timeout)
+        public bool _IsAlertPresent(string text, int timeout)
         {
             try
             {
@@ -456,7 +456,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdAssertSelectedLabel(string locator, string pattern)
+        public void _AssertSelectedLabel(string locator, string pattern)
         {
             string text = null;
 
@@ -465,7 +465,7 @@ namespace CloudBeat.Oxygen.Modules
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
 
                     var el = new SelectElement(this.FindElement(ResolveLocator(locator)));
                     text = el.SelectedOption.Text;
@@ -487,7 +487,7 @@ namespace CloudBeat.Oxygen.Modules
                 throw new OxAssertionException();
         }
 
-        public void SeCmdAssertSelectedValue(string locator, string pattern)
+        public void _AssertSelectedValue(string locator, string pattern)
         {
             string text = null;
 
@@ -496,7 +496,7 @@ namespace CloudBeat.Oxygen.Modules
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
 
                     var el = new SelectElement(this.FindElement(ResolveLocator(locator)));
                     text = el.SelectedOption.GetAttribute("value");

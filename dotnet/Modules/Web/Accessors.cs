@@ -10,7 +10,7 @@ namespace CloudBeat.Oxygen.Modules
 {
     public partial class SeleniumDriver
     {
-        public string SeCmdGetAttribute(string locator, string attributeName)
+        public string _GetAttribute(string locator, string attributeName)
         {
             var loc = ResolveLocator(locator);
             string attr = null;
@@ -43,7 +43,7 @@ namespace CloudBeat.Oxygen.Modules
             return attr;
         }
 
-        public string SeCmdGetText(string locator)
+        public string _GetText(string locator)
         {
             var loc = ResolveLocator(locator);
             string text = null;
@@ -76,7 +76,7 @@ namespace CloudBeat.Oxygen.Modules
             return text;
         }
 
-        public string SeCmdGetValue(string locator)
+        public string _GetValue(string locator)
         {
             var loc = ResolveLocator(locator);
             string val = null;
@@ -126,12 +126,12 @@ namespace CloudBeat.Oxygen.Modules
             return val;
         }
 
-        public string SeCmdGetPageSource()
+        public string _GetPageSource()
         {
             return this.PageSource;
         }
 
-        public string SeCmdGetXMLPageSource()
+        public string _GetXMLPageSource()
         {
             switch (this.Capabilities.BrowserName)
             {
@@ -156,9 +156,9 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public string SeCmdGetXMLPageSourceAsJSON()
+        public string _GetXMLPageSourceAsJSON()
         {
-            var src = SeCmdGetXMLPageSource();
+            var src = _GetXMLPageSource();
             try 
             {
                 XmlDocument doc = new XmlDocument();
@@ -171,7 +171,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public int SeCmdGetElementCount(string xpath)
+        public int _GetElementCount(string xpath)
         {
             int count = 0;
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
@@ -198,7 +198,7 @@ namespace CloudBeat.Oxygen.Modules
             return count;
         }
 
-        public string SeCmdGetWindowHandles()
+        public string _GetWindowHandles()
         {
             var originalWin = this.CurrentWindowHandle;
 
@@ -218,7 +218,7 @@ namespace CloudBeat.Oxygen.Modules
             return JsonConvert.SerializeObject(windows);
         }
 
-        public string SeCmdGetAlertText()
+        public string _GetAlertText()
         {
             return base.SwitchTo().Alert().Text;
         }

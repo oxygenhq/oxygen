@@ -16,17 +16,17 @@ namespace CloudBeat.Oxygen.Modules
     {
         private const int TIMEOUT_WINDOW_SIZE = 20; // in seconds
 
-        public void SeCmdSetTimeout(int timeout)
+        public void _SetTimeout(int timeout)
         {
             pageLoadTimeout = waitForTimeout = timeout;
             base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
         }
-		public void SeCmdSetBaseUrl(string url)
+		public void _SetBaseUrl(string url)
 		{
 			this.BaseURL = url;
 		}
 
-        public void SeCmdOpen(string url)
+        public void _Open(string url)
         {
             string urlFinal;
 
@@ -42,14 +42,14 @@ namespace CloudBeat.Oxygen.Modules
             this.Navigate().GoToUrl(urlFinal);
         }
 
-        public void SeCmdPoint(string locator)
+        public void _Point(string locator)
         {
             bool success = false;
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
                     Actions actions = new Actions(this);
                     actions.MoveToElement(this.FindElement(ResolveLocator(locator))).Perform();
                     success = true;
@@ -66,7 +66,7 @@ namespace CloudBeat.Oxygen.Modules
         }
 
         // Works with Chrome and Windows only
-        public void SeCmdFileBrowse(string filepath)
+        public void _FileBrowse(string filepath)
         {
             // find Open dialog. try for up to 5 seconds
             int i = 0;
@@ -104,7 +104,7 @@ namespace CloudBeat.Oxygen.Modules
             invokerPattern.Invoke();
         }
 
-        public void SeCmdScrollToElement(string locator, int yOffset = 0)
+        public void _ScrollToElement(string locator, int yOffset = 0)
         {
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -122,11 +122,11 @@ namespace CloudBeat.Oxygen.Modules
         }
 
         private int windowsCount;
-        public void SeCmdClick(string locator)
+        public void _Click(string locator)
         {
             windowsCount = base.WindowHandles.Count();
 
-            this.SeCmdWaitForVisible(locator);
+            this._WaitForVisible(locator);
 
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
@@ -180,7 +180,7 @@ namespace CloudBeat.Oxygen.Modules
             throw new StaleElementReferenceException();
         }
 
-        public void SeCmdClickHidden(string locator)
+        public void _ClickHidden(string locator)
         {
             windowsCount = base.WindowHandles.Count();
 
@@ -192,7 +192,7 @@ namespace CloudBeat.Oxygen.Modules
             {
                 try
                 {
-                    this.SeCmdWaitForElementPresent(locator);
+                    this._WaitForElementPresent(locator);
                     var el = this.FindElement(ResolveLocator(locator));
                     (this as IJavaScriptExecutor).ExecuteScript("var clck_ev = document.createEvent('MouseEvent');clck_ev.initEvent('click', true, true);arguments[0].dispatchEvent(clck_ev)", el);
                     success = true;
@@ -212,7 +212,7 @@ namespace CloudBeat.Oxygen.Modules
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdDoubleClick(string locator)
+        public void _DoubleClick(string locator)
         {
             bool success = false;
             // since FindElement.Displayed is not an atomic operation, there could be a race condition when we get the element but some javascript changes it before Display.Get
@@ -223,7 +223,7 @@ namespace CloudBeat.Oxygen.Modules
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
 
                     var el = this.FindElement(ResolveLocator(locator));
 
@@ -245,14 +245,14 @@ namespace CloudBeat.Oxygen.Modules
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdClear(string locator)
+        public void _Clear(string locator)
         {
             var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
             {
                 try
                 {
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
                     this.FindElement(loc).Clear();
                     return;
                 }
@@ -260,7 +260,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdType(string locator, string value)
+        public void _Type(string locator, string value)
         {
             var loc = ResolveLocator(locator);
             for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
@@ -268,7 +268,7 @@ namespace CloudBeat.Oxygen.Modules
                 try
                 {
 					// make sure that the element present first
-                    this.SeCmdWaitForVisible(locator);
+                    this._WaitForVisible(locator);
 
                     var el = this.FindElement(loc);
 
@@ -290,12 +290,12 @@ namespace CloudBeat.Oxygen.Modules
         }
 
         // NOTE: doesn't support pattern matching for label= and value= locators and does exact match instead.
-        public void SeCmdSelect(string selectLocator, string optionLocator)
+        public void _Select(string selectLocator, string optionLocator)
         {
             string selArg;
             string selectorMethod = "Select" + ParseSelector(optionLocator, out selArg);
 			// make sure that the element present first
-            this.SeCmdWaitForVisible(selectLocator);
+            this._WaitForVisible(selectLocator);
 
             try
             {
@@ -316,12 +316,12 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdDeselect(string selectLocator, string optionLocator)
+        public void _Deselect(string selectLocator, string optionLocator)
         {
             string selArg;
             string selectorMethod = "Deselect" + ParseSelector(optionLocator, out selArg);
             // make sure that the element present first
-            this.SeCmdWaitForVisible(selectLocator);
+            this._WaitForVisible(selectLocator);
 
             try
             {
@@ -342,12 +342,12 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdPause(int waitTime)
+        public void _Pause(int waitTime)
         {
             Thread.Sleep(waitTime);
         }
 
-        public void SeCmdWaitForWindow(string windowLocator, int timeout)
+        public void _WaitForWindow(string windowLocator, int timeout)
         {
             if (string.IsNullOrWhiteSpace(windowLocator))  // wait for any new window
             {
@@ -406,10 +406,10 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public string SeCmdSelectWindow(string windowLocator)
+        public string _SelectWindow(string windowLocator)
         {
             // FIXME: should use timeout provided as argument once support for optional paramteres is implemented
-            SeCmdWaitForWindow(windowLocator, waitForTimeout);
+            _WaitForWindow(windowLocator, waitForTimeout);
 
             string curWinHandle = null;
             try
@@ -446,7 +446,7 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdSelectFrame(string frameLocator)
+        public void _SelectFrame(string frameLocator)
         {
             if (frameLocator.StartsWith("index="))
             {
@@ -469,7 +469,7 @@ namespace CloudBeat.Oxygen.Modules
                 // descend into frames
                 foreach (var frame in frames) 
                 {
-                    this.SeCmdWaitForElementPresent(frame);
+                    this._WaitForElementPresent(frame);
                     var el = this.FindElement(By.XPath(frame));
                     SwitchTo().Frame(el);
                 }
@@ -480,22 +480,22 @@ namespace CloudBeat.Oxygen.Modules
             }
         }
 
-        public void SeCmdCloseWindow()
+        public void _CloseWindow()
         {
             this.Close();
         }
 
-        public void SeCmdAlertAccept()
+        public void _AlertAccept()
         {
             base.SwitchTo().Alert().Accept();
         }
 
-        public void SeCmdAlertDismiss()
+        public void _AlertDismiss()
         {
             base.SwitchTo().Alert().Dismiss();
         }
 
-        public string SeCmdExecuteScript(string script)
+        public string _ExecuteScript(string script)
         {
             object result;
 
@@ -515,7 +515,7 @@ namespace CloudBeat.Oxygen.Modules
             return JsonConvert.SerializeObject(result);
         }
 
-        public void SeCmdMakeVisible(string locator)
+        public void _MakeVisible(string locator)
         {
             bool success = false;
 
@@ -536,7 +536,7 @@ namespace CloudBeat.Oxygen.Modules
                 throw new StaleElementReferenceException();
         }
 
-        public void SeCmdSetWindowSize(int width, int height)
+        public void _SetWindowSize(int width, int height)
         {
             if (width < 0 || height < 0 || (width == 0 && height != 0 || width != 0 && height == 0))
                 throw new OxSetWindowSizeException("Invalid arguments");
