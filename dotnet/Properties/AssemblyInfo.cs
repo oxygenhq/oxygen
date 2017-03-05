@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("Oxygen")]
-[assembly: AssemblyCopyright("Copyright © 2014-2015 CloudBeat")]
+[assembly: AssemblyCopyright("Copyright © 2014-2017 CloudBeat")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 
