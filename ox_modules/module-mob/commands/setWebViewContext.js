@@ -12,6 +12,7 @@ module.exports = function() {
 		if (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf("CHROMIUM") > -1)) {
 			this.logger.debug('Setting context: ' + context);
 			this._driver.context(context);
+			this._context = context;
 			return context;
 		}
 	}
