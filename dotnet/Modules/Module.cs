@@ -11,7 +11,6 @@ namespace CloudBeat.Oxygen.Modules
         {
             // general
             VARIABLE_NOT_DEFINED,
-            UNKNOWN_PAGE_OBJECT,
             UNKNOWN_ERROR,
             COMMAND_NOT_IMPLEMENTED,
             DUPLICATE_TRANSACTION,
@@ -27,7 +26,6 @@ namespace CloudBeat.Oxygen.Modules
             XML_ERROR,
             NO_ALERT_PRESENT,
             BROWSER_JS_EXECUTE_ERROR,
-            NAVIGATE_TIMEOUT,   // load event did not fire. this might also happen due to a bug in chromedriver.
             // soap
             SOAP,
             // db

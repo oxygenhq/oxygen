@@ -308,10 +308,7 @@ namespace CloudBeat.Oxygen.Modules
             if (name == "transaction")
             {
                 transaction(args[0] as string);
-                result.IsSuccess = true;
-                result.EndTime = DateTime.UtcNow;
-                result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
-                return result;
+                return result.SuccessBase();
             }
 
             Exception exception = null;
@@ -320,7 +317,7 @@ namespace CloudBeat.Oxygen.Modules
             try
             {
                 Type dtype = driver.GetType();
-                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.CMD_METHOD_PREFIX + result.CommandName, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
+                MethodInfo cmdMethod = dtype.GetMethod(SeleniumDriver.CMD_METHOD_PREFIX + name, BindingFlags.Public | BindingFlags.IgnoreCase | BindingFlags.Instance);
                 if (cmdMethod == null)
                     throw new OxCommandNotImplementedException();
 
@@ -328,9 +325,9 @@ namespace CloudBeat.Oxygen.Modules
                 if ((screenshotMode == ScreenshotMode.OnAction && IsAction(name)) || screenshotMode == ScreenshotMode.Always)
                     screenShot = driver.TakeScreenshot();
             }
-            catch (OxCommandNotImplementedException ame)
+            catch (OxCommandNotImplementedException)
             {
-                throw ame;
+                return result.ErrorBase(ErrorType.COMMAND_NOT_IMPLEMENTED, result.CommandExpression);
             }
             catch (TargetInvocationException tie)
             {
@@ -386,13 +383,7 @@ namespace CloudBeat.Oxygen.Modules
 			result.ReturnValue = retVal;
 			result.IsSuccess = exception == null;
 			if (exception != null)
-			{
-                string statusData = null;
-                var status = GetStatusByException(exception, out statusData);
-                result = result.ErrorBase(status, statusData);
-                if (status == ErrorType.UNKNOWN_ERROR)
-                    result.ErrorStackTrace = exception.StackTrace;
-            }
+                PopulateErrorDetails(exception, result);
 
             if (fetchStats && IsAction(name))
             {
@@ -418,104 +409,72 @@ namespace CloudBeat.Oxygen.Modules
             return result;
         }
 
-		private ErrorType GetStatusByException(Exception e, out string moreInfo)
+        private void PopulateErrorDetails(Exception e, CommandResult result)
 		{
 			var type = e.GetType();
-			moreInfo = null;
 
-			if (type == typeof(OxAssertionException))
-				return ErrorType.ASSERT;
-			else if (type == typeof(NoSuchElementException))
-				return ErrorType.NO_ELEMENT;
-			else if (type == typeof(OxElementNotFoundException))
-				return ErrorType.NO_ELEMENT;
-			else if (type == typeof(OxElementNotVisibleException))
-				return ErrorType.ELEMENT_NOT_VISIBLE;
-			else if (type == typeof(NoSuchFrameException))
-				return ErrorType.FRAME_NOT_FOUND;
-			else if (type == typeof(StaleElementReferenceException))
-				return ErrorType.STALE_ELEMENT;
-			else if (type == typeof(UnhandledAlertException))
-			{
-				moreInfo = "Alert text: " + driver._GetAlertText();
-				return ErrorType.UNHANDLED_ALERT;
-			}
-			else if (type == typeof(OxWaitForException))
-				// This is thrown by any WaitFor* commands (e.g. _WaitForVisible)
-				// and essentially implies a script level timeout.
-				// By default the timeout is set to SeCommandProcessor.DEFAULT_WAIT_FOR_TIMEOUT but
-				// can be overriden in the script using SetTimeout command.
-				return ErrorType.SCRIPT_TIMEOUT;
-			else if (type == typeof(OxTimeoutException))
-				// This is thrown by any commands which rely on PageLoadTimeout (Open, Click, etc.)
-				// and essentially implies a script level timeout.
-				// By default the timeout is set to SeCommandProcessor.DEFAULT_PAGE_LOAD_TIMEOUT but
-				// can be overriden in the script using SetTimeout command.
-				return ErrorType.SCRIPT_TIMEOUT;
-			else if (type == typeof(WebDriverException))
-			{
-				var wde = e as WebDriverException;
-
-				// This is thrown when WebDriver does not respond within the command timeout period defined by SeCommandProcessor.TIMEOUT_COMMAND
-				// and may occur due to multiple reasons: network errors, webdriver locking due to browser/internal bugs, etc.
-				if (wde.InnerException != null && wde.InnerException is WebException)
-				{
-					var wex = wde.InnerException as WebException;
-					if (wex.Status == WebExceptionStatus.Timeout)
-						// there seems to be chromedriver bug where open/click will end in command timeout if 'load' event did not fire.
-                        return ErrorType.NAVIGATE_TIMEOUT;
-				}
-
-                moreInfo = e.GetType().Name + ": " + e.Message;
-				return ErrorType.UNKNOWN_ERROR;
-			}
-			else if (type == typeof(OxVariableUndefined))
-			{
-				moreInfo = e.Message;
-				return ErrorType.VARIABLE_NOT_DEFINED;
-			}
-			else if (type == typeof(OxLocatorUndefined))
-			{
-				moreInfo = e.Message;
-				return ErrorType.UNKNOWN_PAGE_OBJECT;
-			}
-			else if (type == typeof(OxCommandNotImplementedException))
-			{
-				moreInfo = e.Message;
-				return ErrorType.COMMAND_NOT_IMPLEMENTED;
-			}
-			else if (type == typeof(OxOperationException))
-			{
-				moreInfo = e.Message;
-				return ErrorType.INVALID_OPERATION;
-			}
-			else if (type == typeof(OxXMLExtractException))
-			{
-				moreInfo = e.Message;
-				return ErrorType.XML_ERROR;
-			}
-			else if (type == typeof(OxXMLtoJSONConvertException))
-			{
-				moreInfo = e.Message;
-				return ErrorType.XML_ERROR;
-			}
-			else if (type == typeof(NoAlertPresentException))
-				return ErrorType.NO_ALERT_PRESENT;
-			else if (type == typeof(OxBrowserJSExecutionException))
-			{
-				moreInfo = e.Message;
-				return ErrorType.BROWSER_JS_EXECUTE_ERROR;
-			}
-			else if (type == typeof(OxDuplicateTransactionException))
-			{
-				moreInfo = e.Message;
-				return ErrorType.DUPLICATE_TRANSACTION;
-			}
-			else
-			{
-				moreInfo = e.GetType().Name + ": " + e.Message;
-				return ErrorType.UNKNOWN_ERROR;
-			}
+            if (type == typeof(OxAssertionException))
+                result.ErrorType = ErrorType.ASSERT.ToString();
+            else if (type == typeof(NoSuchElementException))
+                result.ErrorType = ErrorType.NO_ELEMENT.ToString();
+            else if (type == typeof(OxElementNotFoundException))
+                result.ErrorType = ErrorType.NO_ELEMENT.ToString();
+            else if (type == typeof(OxElementNotVisibleException))
+                result.ErrorType = ErrorType.ELEMENT_NOT_VISIBLE.ToString();
+            else if (type == typeof(NoSuchFrameException))
+                result.ErrorType = ErrorType.FRAME_NOT_FOUND.ToString();
+            else if (type == typeof(StaleElementReferenceException))
+                result.ErrorType = ErrorType.STALE_ELEMENT.ToString();
+            else if (type == typeof(UnhandledAlertException))
+            {
+                result.ErrorMessage = "Alert text: " + driver._GetAlertText();
+                result.ErrorType = ErrorType.UNHANDLED_ALERT.ToString();
+            }
+            else if (type == typeof(OxWaitForException))
+                // This is thrown by any WaitFor* commands (e.g. _WaitForVisible)
+                // and essentially implies a script level timeout.
+                // By default the timeout is set to SeCommandProcessor.DEFAULT_WAIT_FOR_TIMEOUT but
+                // can be overriden in the script using SetTimeout command.
+                result.ErrorType = ErrorType.SCRIPT_TIMEOUT.ToString();
+            else if (type == typeof(OxTimeoutException))
+                // This is thrown by any commands which rely on PageLoadTimeout (Open, Click, etc.)
+                // and essentially implies a script level timeout.
+                // By default the timeout is set to SeCommandProcessor.DEFAULT_PAGE_LOAD_TIMEOUT but
+                // can be overriden in the script using SetTimeout command.
+                result.ErrorType = ErrorType.SCRIPT_TIMEOUT.ToString();
+            else if (type == typeof(OxCommandNotImplementedException)) 
+            {
+                result.ErrorType = ErrorType.COMMAND_NOT_IMPLEMENTED.ToString();
+                result.ErrorMessage = e.Message;
+            }
+            else if (type == typeof(OxOperationException))
+            {
+                result.ErrorType = ErrorType.INVALID_OPERATION.ToString();
+                result.ErrorMessage = e.Message;
+            }
+            else if (type == typeof(OxXMLExtractException) || type == typeof(OxXMLtoJSONConvertException)) 
+            {
+                result.ErrorType = ErrorType.XML_ERROR.ToString();
+                result.ErrorMessage = e.Message;
+            }
+            else if (type == typeof(NoAlertPresentException))
+                result.ErrorType = ErrorType.NO_ALERT_PRESENT.ToString();
+            else if (type == typeof(OxBrowserJSExecutionException))
+            {
+                result.ErrorType = ErrorType.BROWSER_JS_EXECUTE_ERROR.ToString();
+                result.ErrorMessage = e.Message;
+            }
+            else if (type == typeof(OxDuplicateTransactionException))
+            {
+                result.ErrorType = ErrorType.DUPLICATE_TRANSACTION.ToString();
+                result.ErrorMessage = e.Message;
+            }
+            else
+            {
+                result.ErrorMessage = e.GetType().Name + ": " + e.Message;
+                result.ErrorStackTrace = e.StackTrace;
+                result.ErrorType = ErrorType.UNKNOWN_ERROR.ToString();
+            }
 		}
 
         private static HashSet<string> actions = new HashSet<string>() 

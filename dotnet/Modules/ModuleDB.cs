@@ -34,9 +34,7 @@ namespace CloudBeat.Oxygen.Modules
             }
             catch (Exception e)
             {
-                string statusData = null;
-                var status = GetStatusByException(e, out statusData);
-                result = result.ErrorBase(status, statusData);
+                return ErrorResult(e, result);
             }
             return result;
         }
@@ -54,9 +52,7 @@ namespace CloudBeat.Oxygen.Modules
             }
             catch (Exception e)
             {
-                string statusData = null;
-                var status = GetStatusByException(e, out statusData);
-                result = result.ErrorBase(status, statusData);
+                return ErrorResult(e, result);
             }
 
             return result;
@@ -103,26 +99,31 @@ namespace CloudBeat.Oxygen.Modules
 			return null;
 		}
 
-        private ErrorType GetStatusByException(Exception e, out string moreInfo)
+        private CommandResult ErrorResult(Exception e, CommandResult result)
         {
             var type = e.GetType();
-            moreInfo = null;
+
+            ErrorType errType;
+            string errMsg = null;
 
             if (type == typeof(OxDBConnectionException))
             {
-                moreInfo = e.Message;
-                return ErrorType.DB_CONNECTION;
+                errType = ErrorType.DB_CONNECTION;
+                errMsg = e.Message;
             }
-            else if (type == typeof(OdbcException)) 
+            else if (type == typeof(OdbcException))
             {
-                moreInfo = e.Message;
-                return ErrorType.DB_QUERY;
+                errType = ErrorType.DB_QUERY;
+                errMsg = e.Message;
             }
             else
             {
-                moreInfo = e.Message;
-                return ErrorType.UNKNOWN_ERROR;
+                errType = ErrorType.UNKNOWN_ERROR;
+                result.ErrorStackTrace = e.StackTrace;
+                errMsg = e.GetType().Name + ": " + e.Message;
             }
+
+            return result.ErrorBase(errType, errMsg);
         }
 	}
 

@@ -14,14 +14,6 @@ namespace CloudBeat.Oxygen.Modules
         }
 	}
 
-    public class OxLocatorUndefined : OxException
-    {
-        public OxLocatorUndefined(string objectName)
-            : base("Locator '" + objectName + "' is not found.")
-        {
-        }
-    }
-
     public class OxAssertionException : OxException
     {
         public OxAssertionException()
