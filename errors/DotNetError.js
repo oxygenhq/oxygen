@@ -1,5 +1,7 @@
 /*
- * .NET Exception representative class
+ * Denotes .NET level exception which wasn't properly handled (i.e. type == UNKNOWN_ERROR)
+ * _message - exception class name.
+ * _dotnetStack - exception stack trace.
  */ 
 var OxygenError = require('./OxygenError');
 var util = require('util');

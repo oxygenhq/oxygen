@@ -7,6 +7,7 @@ namespace CloudBeat.Oxygen.Modules
 {
     public abstract class Module
 	{
+        // NOTE: on any changes to this enum, DB error - alert mapping needs to be updated. 
         public enum ErrorType
         {
             // general
