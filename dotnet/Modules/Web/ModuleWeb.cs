@@ -263,16 +263,14 @@ namespace CloudBeat.Oxygen.Modules
 
         public void transaction(string name)
         {
-            // throw in case we hit a duplicate transaction                                 // FIXME: throw
+            // throw in case we hit a duplicate transaction
             if (transactions.ContainsKey(name))
-            {
-                var e = new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
-                // TODO: thwo on duplicate trnsactions
-            }
+                throw new OxDuplicateTransactionException("Duplicate transaction found: \"" + name + "\". Transactions must be unique.");
 
             transactions.Add(name, null);
 
-            //  fetch har and save it under previous transaction
+            // fetch har and save it under previous transaction
+            // TODO: handle proxy related errors. this includes all other areas where proxy is used.
             if (proxy != null && prevTransaction != null)
             {
                 String har = proxy.HarGet();
@@ -307,7 +305,14 @@ namespace CloudBeat.Oxygen.Modules
             // TODO: web.transaction needs refactoring
             if (name == "transaction")
             {
-                transaction(args[0] as string);
+                try
+                {
+                    transaction(args[0] as string);
+                }
+                catch (OxDuplicateTransactionException dte)
+                {
+                    return result.ErrorBase(ErrorType.DUPLICATE_TRANSACTION, dte.Message);
+                }
                 return result.SuccessBase();
             }
 
@@ -470,11 +475,6 @@ namespace CloudBeat.Oxygen.Modules
             else if (type == typeof(OxBrowserJSExecutionException))
             {
                 result.ErrorType = ErrorType.BROWSER_JS_EXECUTE_ERROR.ToString();
-                result.ErrorMessage = e.Message;
-            }
-            else if (type == typeof(OxDuplicateTransactionException))
-            {
-                result.ErrorType = ErrorType.DUPLICATE_TRANSACTION.ToString();
                 result.ErrorMessage = e.Message;
             }
             else
