@@ -329,6 +329,14 @@ namespace CloudBeat.Oxygen.Modules
             {
                 return result.ErrorBase(ErrorType.COMMAND_NOT_IMPLEMENTED, result.CommandExpression);
             }
+            catch (ArgumentException)
+            {
+                return result.ErrorBase(ErrorType.SCRIPT_ERROR, "One of the arguments has an incorrect type.");
+            }
+            catch (TargetParameterCountException)
+            {
+                return result.ErrorBase(ErrorType.SCRIPT_ERROR, "Invalid number of arguments.");
+            }
             catch (TargetInvocationException tie)
             {
                 if (screenshotMode != ScreenshotMode.Never)

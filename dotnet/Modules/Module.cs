@@ -15,6 +15,7 @@ namespace CloudBeat.Oxygen.Modules
             UNKNOWN_ERROR,
             COMMAND_NOT_IMPLEMENTED,
             DUPLICATE_TRANSACTION,
+            SCRIPT_ERROR,
             // web
             NO_ELEMENT,
             ASSERT,
