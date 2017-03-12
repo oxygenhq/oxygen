@@ -33,24 +33,22 @@ namespace CloudBeat.Oxygen
 				throw new ArgumentException("Module not found", name);
 			if (string.IsNullOrEmpty(method))
 				throw new ArgumentNullException("method");
-			// uppercase method's first letter
-			method = Char.ToUpperInvariant(method[0]) + method.Substring(1);
 
 			UpdateExecutionContext(input.ctx);
 
 			IModule module = modules[name];
 
 			// specially handle ModuleInitialize and ModuleDispose method calls
-			if (method == "ModuleInit")
+			if (method == "moduleInit")
 			{
                 var initArgs = Module.ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
                 return Task.FromResult<object>(module.Initialize(initArgs, ctx));
 			}
-			else if (method == "ModuleDispose")
+			else if (method == "moduleDispose")                     // FIXME: not used anywhere?
 				return Task.FromResult<object>(module.Dispose());
-			else if (method == "IterationStart")
+			else if (method == "iterationStart")
 				return Task.FromResult<object>(module.IterationStarted());
-			else if (method == "IterationEnd")
+			else if (method == "iterationEnd")
 				return Task.FromResult<object>(module.IterationEnded());
 
             CommandResult cr = module.ExecuteCommand(method, input.args as object[]);

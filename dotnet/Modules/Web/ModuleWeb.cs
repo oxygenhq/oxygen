@@ -281,9 +281,6 @@ namespace CloudBeat.Oxygen.Modules
 			if (driver == null)
 				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
 
-			// lowercase the first letter
-			name = Char.ToLowerInvariant(name[0]) + name.Substring(1);
-
             var result = new CommandResult(Name, name, args);
 
             Type[] paramTypes = null;
