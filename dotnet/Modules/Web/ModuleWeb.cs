@@ -224,12 +224,6 @@ namespace CloudBeat.Oxygen.Modules
             IsInitialized = false;
 			return true;
         }
-
-        public void SetBaseUrl(string url)
-        {
-			ExecuteCommand(url);
-        }
-
 		#endregion
 
 
