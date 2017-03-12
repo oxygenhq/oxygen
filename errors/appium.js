@@ -11,13 +11,13 @@ util.inherits(AppiumError, OxError);
 function AppiumError(err, caps, args) {
 	AppiumError.super_.call(this);
     this.innerError = null;
-	this._type = 'Appium';
+	this.type = 'Appium';
 	if (err.data)
-		this._message = getAppiumErrorMessage(err.data);
+		this.message = getAppiumErrorMessage(err.data);
 	else if (err.cause)
-		this._message = getAppiumErrorMessage(err.cause);
+		this.message = getAppiumErrorMessage(err.cause);
 	else
-		this._message = err.toString();
+		this.message = err.toString();
 	this.caputeStackTrace();
 }
 function getAppiumErrorMessage(data) {

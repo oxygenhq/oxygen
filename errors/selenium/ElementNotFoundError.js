@@ -7,11 +7,11 @@ util.inherits(ElementNotFoundError, OxygenError);
 const TYPE = 'ELEMENT_NOT_FOUND';
 
 function ElementNotFoundError(err, cmd, args, opts, caps) {
-	this._type = TYPE;
-	this._message = err.message;
-	this._data = {};
-	this._data.command = cmd;
-	this._data.args = args;
+	this.type = TYPE;
+	this.message = err.message;
+	this.data = {};
+	this.data.command = cmd;
+	this.data.args = args;
 	
 	OxygenError.call(this);
 }

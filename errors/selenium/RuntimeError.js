@@ -7,23 +7,23 @@ var util = require('util');
 util.inherits(RuntimeError, OxygenError);
 
 function RuntimeError(err, cmd, args, opts, caps) {
-	this._type = 'RuntimeError';
-	this._subtype = err.seleniumStack ? err.seleniumStack.type : null;
-	this._message = err.message;
-	this._data = {};
-	this._data.command = cmd;
-	this._data.args = args;
+	this.type = 'RuntimeError';
+	this.subtype = err.seleniumStack ? err.seleniumStack.type : null;
+	this.message = err.message;
+	this.data = {};
+	this.data.command = cmd;
+	this.data.args = args;
 	
 	// add connection information if this is ECONNREFUSED 
-	if (this._subtype === 'ECONNREFUSED') {
+	if (this.subtype === 'ECONNREFUSED') {
 		if (opts.seleniumUrl) {
-			this._message += ' ' + opts.seleniumUrl;
-			this._data.seleniumUrl = opts.seleniumUrl;
+			this.message += ' ' + opts.seleniumUrl;
+			this.data.seleniumUrl = opts.seleniumUrl;
 		}
 		else if (opts.host && opts.port) {
-			this._message += ' ' + opts.host + ':' + opts.port;
-			this._data.host = opts.host;
-			this._data.port = opts.port;
+			this.message += ' ' + opts.host + ':' + opts.port;
+			this.data.host = opts.host;
+			this.data.port = opts.port;
 		}
 	}
 

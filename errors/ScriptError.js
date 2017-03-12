@@ -9,9 +9,9 @@ const TYPE = 'SCRIPT_ERROR';
 function ScriptError(err) {
 	ScriptError.super_.call(this);
 	var self = this;
-	this._stacktrace = err.stack;
-	this._type = TYPE;
-	this._message = err.message;
+	this.stacktrace = err.stack;
+	this.type = TYPE;
+	this.message = err.message;
 }
 
 module.exports = ScriptError;

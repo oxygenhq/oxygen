@@ -11,25 +11,25 @@ var util = require('util');
 util.inherits(SeleniumError, OxygenError);
 
 function SeleniumError(err, cmd, args, opts, caps) {
-	this._type = err.type;
-	this._message = err.message;
+	this.type = err.type;
+	this.message = err.message;
 
 	// get more detailed error if possible
-	this._type = err.seleniumStack.type || this._type;
+	this.type = err.seleniumStack.type || this.type;
 	if (err.seleniumStack && err.seleniumStack.type === 'SessionNotCreatedException') {
 		if (err.seleniumStack.orgStatusMessage && err.seleniumStack.orgStatusMessage.indexOf('Could not find a connected Android device') > -1) {
-			this._type = DEVICE_NOT_FOUND;
-			this._message = 'Could not find a connected device';
+			this.type = DEVICE_NOT_FOUND;
+			this.message = 'Could not find a connected device';
 			if (caps && (caps.deviceName || caps.udid)) {
-				this._message += ': ' + (caps.deviceName || caps.udid);
+				this.message += ': ' + (caps.deviceName || caps.udid);
 			}
 		}
 		else {
-			this._type = SESSION_NOT_CREATED;
+			this.type = SESSION_NOT_CREATED;
 		}
 	}
 	else if (err.seleniumStack && err.seleniumStack.type === 'ElementNotVisible') {
-		this._type = ELEMENT_NOT_VISIBLE;
+		this.type = ELEMENT_NOT_VISIBLE;
 	}
 
 	OxygenError.call(this, null, null, null);

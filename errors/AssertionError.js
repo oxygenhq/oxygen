@@ -7,13 +7,13 @@ util.inherits(AssertionError, OxygenError);
 const TYPE = 'ASSERT';
 
 function AssertionError(err, cmd, args, opts, caps) {
-	this._type = TYPE;
-	this._message = err.message;
-	this._data = {};
-	this._data.command = cmd;
-	this._data.args = args;
-	this._data.expected = err.expected;
-	this._data.actual = err.actual;
+	this.type = TYPE;
+	this.message = err.message;
+	this.data = {};
+	this.data.command = cmd;
+	this.data.args = args;
+	this.data.expected = err.expected;
+	this.data.actual = err.actual;
 	
 	OxygenError.call(this);
 }
