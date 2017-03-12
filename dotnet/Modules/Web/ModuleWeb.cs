@@ -226,8 +226,8 @@ namespace CloudBeat.Oxygen.Modules
         }
 		#endregion
 
-
-		public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetDefaultCaps = true)
+        // FIXME
+		/*public void Init(string seleniumUrl, Dictionary<string, string> caps, bool resetDefaultCaps = true)
 		{
 			if (driver != null)
 				throw new Exception("Selenium driver has been already initialized");
@@ -242,7 +242,7 @@ namespace CloudBeat.Oxygen.Modules
 					this.capabilities.SetCapability(cap.Key, cap.Value);
 			}
 			InitializeSeleniumDriver();
-		}
+		}*/
 
        /* public string GetSessionId()
         {
@@ -255,7 +255,7 @@ namespace CloudBeat.Oxygen.Modules
             return null;
         }*/
 
-        public void transaction(string name)
+        public void _Transaction(string name)
         {
             // throw in case we hit a duplicate transaction
             if (transactions.ContainsKey(name))
@@ -301,7 +301,7 @@ namespace CloudBeat.Oxygen.Modules
             {
                 try
                 {
-                    transaction(args[0] as string);
+                    _Transaction(args[0] as string);
                 }
                 catch (OxDuplicateTransactionException dte)
                 {
