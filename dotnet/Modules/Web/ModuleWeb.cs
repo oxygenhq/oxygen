@@ -76,9 +76,13 @@ namespace CloudBeat.Oxygen.Modules
             // har won't be fetched for last transaction, so we do it here
             if (proxy != null)
             {
-                String har = proxy.HarGet();
-                transactions.Remove(prevTransaction);
-                transactions.Add(prevTransaction, har);
+                // there might be no transactions set if test fails before web.transaction command
+                if (prevTransaction != null)
+                {
+                    String har = proxy.HarGet();
+                    transactions.Remove(prevTransaction);
+                    transactions.Add(prevTransaction, har);
+                }
                 proxy.HarReset();
             }
 
