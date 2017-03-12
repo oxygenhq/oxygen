@@ -17,7 +17,7 @@ function OxygenError(type, message, innerError) {
 		Error.prepareStackTrace = function (_, stack) { return stack; };
 		var err = new Error();
 		Error.captureStackTrace(err, arguments.callee.caller);
-		self._stacktrace = err.stack;
+		self.stacktrace = err.stack;
 		Error.prepareStackTrace = orig;
 	};
 	
