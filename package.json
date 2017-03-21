@@ -48,8 +48,6 @@
     "underscore": "1.8.3",
     "when": "3.7.7",
     "xlsx": "0.8.1",
-    "xls-to-json-lc": "0.3.3",
-    "xlsx-to-json-lc": "0.2.5",
     "wdio-sync": "0.6.10",
     "webdriverio": "4.6.2"
   },
