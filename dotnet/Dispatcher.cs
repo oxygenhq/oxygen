@@ -38,13 +38,13 @@ namespace CloudBeat.Oxygen
 
 			IModule module = modules[name];
 
-			// specially handle ModuleInitialize and ModuleDispose method calls
+			// FIXME: error handling for the following internal methods. should probably return CommandResult.
 			if (method == "moduleInit")
 			{
                 var initArgs = Module.ConvertExpandoObjectToDictionary(input.args as ExpandoObject);
                 return Task.FromResult<object>(module.Initialize(initArgs, ctx));
 			}
-			else if (method == "moduleDispose")                     // FIXME: not used anywhere?
+			else if (method == "moduleDispose")
 				return Task.FromResult<object>(module.Dispose());
 			else if (method == "iterationStart")
 				return Task.FromResult<object>(module.IterationStarted());

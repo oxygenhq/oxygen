@@ -160,51 +160,33 @@ namespace CloudBeat.Oxygen.Modules
                 capabilities.SetCapability(CapabilityType.Proxy, selProxy);
             }
 
-			try
-			{
-				driver = ConnectToSelenium(capabilities, proxy, seleniumUrl, ctx);
-                driver._SetWindowSize(0, 0);
-			}
-			catch (Exception e)
-			{
-				throw new OxModuleInitializationException("Can't initialize web module", e);
-			}
-			if (driver == null)
-				throw new OxModuleInitializationException("Can't initialize Selenium driver in web module");	
-		}
+            int connectAttempt = 0;
+            while (true)
+            {
+                try
+                {
+                    driver = new SeleniumDriver(new Uri(seleniumUrl), capabilities, ctx);
+                    break;
+                }
+                catch (Exception e)
+                {
+                    if (e is WebDriverException)
+                    {
+                        var we = e.InnerException as WebException;
+                        if (we != null && we.Status == WebExceptionStatus.Timeout)
+                        {
+                            connectAttempt++;
+                            if (connectAttempt >= SELENIUM_CONN_RETRY_COUNT)
+                                throw;
+                            Thread.Sleep(1000);	// wait a bit...
+                            continue;
+                        }
+                    }
+                    throw;
+                }
+            }
 
-		protected SeleniumDriver ConnectToSelenium(DesiredCapabilities dc, Proxy proxy, string seleniumUrl, CloudBeat.Oxygen.ExecutionContext context)
-		{
-			int connectAttempt = 0;
-			while (true)
-			{
-				try
-				{
-                    return new SeleniumDriver(new Uri(seleniumUrl), dc, context);
-				}
-				catch (Exception e)
-				{
-					if (e is WebDriverException)
-					{
-						var we = e.InnerException as WebException;
-						if (we != null && we.Status == WebExceptionStatus.Timeout)
-						{
-							connectAttempt++;
-							if (connectAttempt >= SELENIUM_CONN_RETRY_COUNT)
-								throw;
-
-							Thread.Sleep(1000);	// in case the failure was due to resources overload - wait a bit...
-							continue;
-						}
-						else if (e.Message.Contains("Unable to connect to the remote server"))
-						{
-							throw new Exception("Unable to connect to Selenium server: " + seleniumUrl);
-						}
-					}
-
-					throw;
-				}
-			}
+            driver._SetWindowSize(0, 0);
 		}
 
         public bool Dispose()
