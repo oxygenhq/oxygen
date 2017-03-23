@@ -79,7 +79,6 @@
     <Compile Include="Dispatcher.cs" />
     <Compile Include="Modules\Module.cs" />
     <Compile Include="Modules\IModule.cs" />
-    <Compile Include="Modules\ModuleAssert.cs" />
     <Compile Include="Modules\ModuleDB.cs" />
     <Compile Include="Modules\ModuleEyes.cs" />
     <Compile Include="Modules\ModuleSoap.cs" />
