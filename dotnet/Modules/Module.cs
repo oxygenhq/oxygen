@@ -13,20 +13,20 @@ namespace CloudBeat.Oxygen.Modules
             // general
             VARIABLE_NOT_DEFINED,
             UNKNOWN_ERROR,
-            COMMAND_NOT_IMPLEMENTED,
+            UNKNOWN_COMMAND,
             DUPLICATE_TRANSACTION,
             SCRIPT_ERROR,
             // web
-            NO_ELEMENT,
+            NO_SUCH_ELEMENT,
             ASSERT,
-            SCRIPT_TIMEOUT,
-            UNHANDLED_ALERT,
+            TIMEOUT,
+            UNEXPECTED_ALERT_OPEN,
             ELEMENT_NOT_VISIBLE,
-            FRAME_NOT_FOUND,
-            STALE_ELEMENT,
+            NO_SUCH_FRAME,
+            STALE_ELEMENT_REFERENCE,
             INVALID_OPERATION,  // misc InvalidOperationExceptions such as "Element is not clickable at point (x, y). Other element would receive the click"
             XML_ERROR,
-            NO_ALERT_PRESENT,
+            NO_ALERT_OPEN_ERROR,
             BROWSER_JS_EXECUTE_ERROR,
             // soap
             SOAP,

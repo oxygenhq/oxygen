@@ -309,7 +309,7 @@ namespace CloudBeat.Oxygen.Modules
             }
             catch (OxCommandNotImplementedException)
             {
-                return result.ErrorBase(ErrorType.COMMAND_NOT_IMPLEMENTED, result.CommandExpression);
+                return result.ErrorBase(ErrorType.UNKNOWN_COMMAND, result.CommandExpression);
             }
             catch (ArgumentException)
             {
@@ -406,35 +406,35 @@ namespace CloudBeat.Oxygen.Modules
             if (type == typeof(OxAssertionException))
                 result.ErrorType = ErrorType.ASSERT.ToString();
             else if (type == typeof(NoSuchElementException))
-                result.ErrorType = ErrorType.NO_ELEMENT.ToString();
+                result.ErrorType = ErrorType.NO_SUCH_ELEMENT.ToString();
             else if (type == typeof(OxElementNotFoundException))
-                result.ErrorType = ErrorType.NO_ELEMENT.ToString();
+                result.ErrorType = ErrorType.NO_SUCH_ELEMENT.ToString();
             else if (type == typeof(OxElementNotVisibleException))
                 result.ErrorType = ErrorType.ELEMENT_NOT_VISIBLE.ToString();
             else if (type == typeof(NoSuchFrameException))
-                result.ErrorType = ErrorType.FRAME_NOT_FOUND.ToString();
+                result.ErrorType = ErrorType.NO_SUCH_FRAME.ToString();
             else if (type == typeof(StaleElementReferenceException))
-                result.ErrorType = ErrorType.STALE_ELEMENT.ToString();
+                result.ErrorType = ErrorType.STALE_ELEMENT_REFERENCE.ToString();
             else if (type == typeof(UnhandledAlertException))
             {
                 result.ErrorMessage = "Alert text: " + driver._GetAlertText();
-                result.ErrorType = ErrorType.UNHANDLED_ALERT.ToString();
+                result.ErrorType = ErrorType.UNEXPECTED_ALERT_OPEN.ToString();
             }
             else if (type == typeof(OxWaitForException))
                 // This is thrown by any WaitFor* commands (e.g. _WaitForVisible)
                 // and essentially implies a script level timeout.
                 // By default the timeout is set to SeCommandProcessor.DEFAULT_WAIT_FOR_TIMEOUT but
                 // can be overriden in the script using SetTimeout command.
-                result.ErrorType = ErrorType.SCRIPT_TIMEOUT.ToString();
+                result.ErrorType = ErrorType.TIMEOUT.ToString();
             else if (type == typeof(OxTimeoutException))
                 // This is thrown by any commands which rely on PageLoadTimeout (Open, Click, etc.)
                 // and essentially implies a script level timeout.
                 // By default the timeout is set to SeCommandProcessor.DEFAULT_PAGE_LOAD_TIMEOUT but
                 // can be overriden in the script using SetTimeout command.
-                result.ErrorType = ErrorType.SCRIPT_TIMEOUT.ToString();
+                result.ErrorType = ErrorType.TIMEOUT.ToString();
             else if (type == typeof(OxCommandNotImplementedException)) 
             {
-                result.ErrorType = ErrorType.COMMAND_NOT_IMPLEMENTED.ToString();
+                result.ErrorType = ErrorType.UNKNOWN_COMMAND.ToString();
                 result.ErrorMessage = e.Message;
             }
             else if (type == typeof(OxOperationException))
@@ -448,7 +448,7 @@ namespace CloudBeat.Oxygen.Modules
                 result.ErrorMessage = e.Message;
             }
             else if (type == typeof(NoAlertPresentException))
-                result.ErrorType = ErrorType.NO_ALERT_PRESENT.ToString();
+                result.ErrorType = ErrorType.NO_ALERT_OPEN_ERROR.ToString();
             else if (type == typeof(OxBrowserJSExecutionException))
             {
                 result.ErrorType = ErrorType.BROWSER_JS_EXECUTE_ERROR.ToString();
