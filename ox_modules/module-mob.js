@@ -4,7 +4,7 @@
  */
 const STATUS = require('../model/status.js');
 
-module.exports = function (options, context, rs, logger, dispatcher) {
+module.exports = function (options, context, rs, logger) {
 	// this needs to be defined for wdio to work in sync mode 
 	global.browser = {
 		options: {
@@ -14,7 +14,6 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	var module = this._module = { modType: "fiber" };
 	var helpers = this._helpers = {};
 	
-    var _ = require('underscore');
 	var moment = require('moment');
 	var wdioSync = require('wdio-sync');
 	var wdio = require('webdriverio');
@@ -67,27 +66,27 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 		"setValue"
 	];
 	
-	// load external commands
-	loadExternalCommands();
-	
-	function loadExternalCommands() {
-		var commandName = null;
-		try {
-			var cmdDir = path.join(__dirname, 'module-mob', 'commands');
-			var files = fs.readdirSync(cmdDir);
-
-			for (var fileName of files) {
-				commandName = fileName.slice(0, -3);
-				if (commandName.indexOf('.') == 0)	// ignore any file that starts with '.'
-					continue;
-				module[commandName] = require(path.join(cmdDir, commandName));
-			}	
-		}
-		catch (e) {
-			console.log("Can't load command '" + commandName + ": " + e.message);
-			console.log(e.stack);
-		}
-	}
+    // load external commands
+    // FIXME: this needs to live in module loader so module creator won't need to implement
+	(function() {
+        var cmdDir = path.join(__dirname, 'module-mob', 'commands');
+        if (fs.existsSync(cmdDir)) {
+            var commandName = null;
+            try {
+                var files = fs.readdirSync(cmdDir);
+                for (var fileName of files) {
+                    commandName = fileName.slice(0, -3);
+                    if (commandName.indexOf('.') !== 0) {   // ignore possible hidden files (i.e. starting with '.')
+                        module[commandName] = require(path.join(cmdDir, commandName));
+                    }
+                }	
+            }
+            catch (e) {
+                console.log("Can't load command '" + commandName + ": " + e.message);
+                console.log(e.stack);
+            }
+        }
+	})();
 	
 	function wrapModuleMethods() {
 		for (var key in module) {
@@ -98,32 +97,20 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 	}
 	
 	function commandWrapper(cmdName, cmdFunc) {
-		// do not wrap internal commands that start with _
-		if (cmdName.indexOf('_') == 0) {
-			return cmdFunc;
-		}
 		return function() {
 			var args = Array.prototype.slice.call(arguments);
 			var startTime = moment.utc();
 			var endTime = null;
 			try {
 				var retval = cmdFunc.apply(_this, args);
-				
-				// capture end time
 				endTime = moment.utc();
-				
 				addStep(cmdName, args, endTime - startTime, retval, null);
-				
 				return retval;
 			}
 			catch (e) {
-				// capture end time
 				endTime = moment.utc();
-
 				e = errorsHelper.getOxygenError(e, cmdName, args, _this._options, _this._caps);
-				
 				addStep(cmdName, args, endTime - startTime, null, e);
-				
 				throw e;
 			}
 		};
@@ -166,11 +153,9 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 		}
 		// initialize driver with either default or custom appium/selenium grid address
 		_this._driver = module.driver = wdio.remote(wdioOpts);
-		wdioSync.wrapCommands(_this._driver); //wdSync.remote(host || _this._host, port || _this._port);
-   		//_this._driver = module.driver = _this._client.browser;
+		wdioSync.wrapCommands(_this._driver);
 		_this._caps = caps || _this._ctx.caps;
-		_this._driver.init();
-		//var retval = invokeDriverCommandComplete("init", null, Array.prototype.slice.call([_this._caps]));	
+		_this._driver.init();	
 		_this._isInitialized = true;
 	};
 	
@@ -252,7 +237,7 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 		step._name = "mob." + name;
 		step._transaction = _this._ctx._lastTransactionName;
 		step._status = err ? STATUS.FAILED : STATUS.PASSED;
-		step._action = _.contains(ACTION_COMMANDS, name).toString();
+		step._action = ACTION_COMMANDS.includes(name).toString();
 		step._duration = duration;
 		
 		if (err) {
@@ -260,7 +245,7 @@ module.exports = function (options, context, rs, logger, dispatcher) {
 			step.failure._message = err.message;
 			step.failure._type = err.type;
 			// take a screenshot
-			if (!_.contains(NO_SCREENSHOT_COMMANDS, name))	// FIXME: extract cmd part from result.step._name
+			if (!NO_SCREENSHOT_COMMANDS.includes(name))	// FIXME: extract cmd part from result.step._name
 				step.screenshot = module.takeScreenshot();
 		}
 		// add step to result store
