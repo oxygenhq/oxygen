@@ -7,7 +7,7 @@ module.exports = function() {
 	var contexts = response.value;
 	this.sessionId = response.sessionId;
  	// select first available WEBVIEW context
-	for (var i=0; i<contexts.length; i++) {
+	for (var i=0; i < contexts.length; i++) {
 		var context = contexts[i];
 		if (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf("CHROMIUM") > -1)) {
 			this.logger.debug('Setting context: ' + context);

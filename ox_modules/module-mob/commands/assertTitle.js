@@ -9,13 +9,11 @@ const assert = chai.assert;
 
 module.exports = function(pattern, message) {
 	var title = this._driver.getTitle();
-	if (!pattern || typeof pattern !== 'string')
-		return;		// TODO throw InvalidArgumentError
+    this._assertArgumentNonEmptyString(pattern);
 	if (pattern.indexOf('regex:') == 0) {
 		var regex = new RegExp(pattern.substring('regex:'.length));
 		assert.match(title, regex, message);
-	}
-	else {
+	} else {
 		assert.equal(title, pattern, message);
 	}
 };

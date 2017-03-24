@@ -17,8 +17,7 @@ var swipe = function(locator, xoffset, yoffset, speed) {
 		var elm = null;
 		if (typeof locator === 'object') {
 			elm = locator;
-		}
-		else {
+		} else {
 			elm = this._module.findElement(locator);
 		}
 

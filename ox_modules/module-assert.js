@@ -5,6 +5,7 @@
 const chai = require('chai');
 const OxError = require('../errors/OxygenError');
 const STATUS = require('../model/status.js');
+var errHelper = require('../errors/helper');
 
 module.exports = function(argv, context, rs, logger) {
 	var ctx = context;
@@ -79,7 +80,7 @@ module.exports = function(argv, context, rs, logger) {
      * @function fail
      * @param {String=} message - Error message to return.
      */
-    module.fail = function(message) { throw new OxError('ASSERT', message); };
+    module.fail = function(message) { throw new OxError(errHelper.errorCode.ASSERT, message); };
     
     wrapModuleMethods();
     

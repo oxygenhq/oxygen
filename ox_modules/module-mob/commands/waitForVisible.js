@@ -5,10 +5,9 @@
  * @param {Integer} wait - Time in milliseconds to wait for the element.
  */
 module.exports = function(locator, wait) {
+    this._assertLocator(locator);
 	wait = wait || this.DEFAULT_WAIT_TIMEOUT;
 	
-	if (!locator) 
-		throw new Error('locator is empty or not specified');
 	// when locator is an element object
 	if (typeof locator === 'object' && locator.waitForVisible) {
 		return locator.waitForVisible(wait);

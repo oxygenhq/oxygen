@@ -10,18 +10,16 @@ const assert = chai.assert;
 
 module.exports = function(locator, value, message) {
 	var elm = module.findElement(locator);
-	// TODO: if element doesn't exist, throw ElementNotFoundError
-	if (!elm)
-		return false;
+	if (!elm) {
+        throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
+    }
 	var actualValue = elm.text();
 	var expectedValue = value;
 	
 	if (pattern.indexOf('regex:') == 0) {
 		var regex = new RegExp(expectedValue.substring('regex:'.length));
 		assert.match(actualValue, regex, message);
-	}
-	else {
+	} else {
 		assert.equal(actualValue, expectedValue, message);
 	}
-	
 };

@@ -5,8 +5,7 @@
  * @param {Boolean} clickParent - If true, then parent of the element is clicked.
 */
 module.exports = function(locator, clickParent) {
-	if (!locator) 
-		throw new Error('locator is empty or not specified');
+	this._assertLocator(locator);
 	clickParent = typeof clickParent === 'boolean' ? clickParent : false;
 	locator = this._helpers.getWdioLocator(locator);
 	
@@ -14,14 +13,16 @@ module.exports = function(locator, clickParent) {
 		locator,
 		function(elms, clickParent) {
 			var elm = elms && elms.length > 0 ? elms[0] : null;
-			if (!elm)
-				retun;
+			if (!elm) {
+				return;
+            }
 			var clck_ev = document.createEvent('MouseEvent');
 			clck_ev.initEvent('click', true, true);
-			if (clickParent)
+			if (clickParent) {
 				elm.parentElement.dispatchEvent(clck_ev);
-			else 
+			} else {
 				elm.dispatchEvent(clck_ev);
+            }
 		},
 		clickParent
 	);

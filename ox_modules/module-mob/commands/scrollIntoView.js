@@ -5,8 +5,7 @@
  * @param {Boolean} alignToTop - Indicates whether to align the element to the top.
 */
 module.exports = function(locator, alignToTop) {
-	if (!locator) 
-		throw new Error('locator is empty or not specified');
+	this._assertLocator(locator);
 	alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
 	locator = this._helpers.getWdioLocator(locator);
 	
@@ -14,8 +13,9 @@ module.exports = function(locator, alignToTop) {
 		locator,
 		function(elms, alignToTop) {
 			var elm = elms && elms.length > 0 ? elms[0] : null;
-			if (!elm)
-				retun;
+			if (!elm) {
+				return;
+            }
 			elm.scrollIntoView(alignToTop);
 		},
 		alignToTop

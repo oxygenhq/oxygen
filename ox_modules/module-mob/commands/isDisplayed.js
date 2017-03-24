@@ -5,8 +5,8 @@
  * @return {Boolean} - true if the element is visible.
 */
 module.exports = function(locator) {
-	if (!locator) 
-		throw new Error('locator is empty or not specified');
+	this._assertLocator(locator);
+    
 	// when locator is an element object
 	if (typeof locator === 'object' && locator.click) {
 		return locator.isVisible();

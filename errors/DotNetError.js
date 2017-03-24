@@ -6,10 +6,11 @@
 var OxygenError = require('./OxygenError');
 var util = require('util');
 util.inherits(DotNetError, OxygenError);
+var errHelper = require('../errors/helper');
 
 function DotNetError(message, dotnetStack) {
     this.innerError = null;
-	this.type = 'UNKNOWN_ERROR';
+	this.type = errHelper.errorCode.UNKNOWN_ERROR;
 	this.message = message;
 	this.dotnetStack = dotnetStack;
 	this.stacktrace = null;

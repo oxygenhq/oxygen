@@ -22,6 +22,9 @@ module.exports = function (options, context, rs, logger) {
     const errorsHelper = this.errorsHelper = require('../errors/helper');
 	var StepResult = require('../model/stepresult');
 	var Failure = require('../model/stepfailure');
+    
+    var OxError = this._OxError = require('../errors/OxygenError');
+    var errHelper = this._errHelper = require('../errors/helper');
 	
 	// constants
 	const DEFAULT_WAIT_TIMEOUT = this.DEFAULT_WAIT_TIMEOUT = 60000; 
@@ -32,26 +35,16 @@ module.exports = function (options, context, rs, logger) {
     this._client = null; //wdSync.remote("localhost", 4723);
     this._driver = null; //module.driver = client.browser;
 	
-	// reference to this instance
-	var _this = this;
-	// initialization indicator
-	this._isInitialized = false;
-	// results store
-	this._rs = rs;
-	// context variables
-	this._ctx = context;
-	// startup options
-	this._options = options;
-	// set logger
-	this.logger = logger;
-	// store current session id
-	this.sessionId = null;
-	// save driver capabilities for later use when error occures
-	this._caps = null;
-	// appium or selenium hub host name
-	this._host = options.host || DEFAULT_APPIUM_HOST;
-	// appium or selenium hub port number
-	this._port = options.port || DEFAULT_APPIUM_PORT;
+	var _this = this;               // reference to this instance
+	this._isInitialized = false;    // initialization indicator
+	this._rs = rs;                  // results store
+	this._ctx = context;            // context variables
+	this._options = options;        // startup options
+	this.logger = logger;           // set logger
+	this.sessionId = null;          // store current session id
+	this._caps = null;              // save driver capabilities for later use when error occures
+	this._host = options.host || DEFAULT_APPIUM_HOST;   // appium or selenium hub host name
+	this._port = options.port || DEFAULT_APPIUM_PORT;   // appium or selenium hub port number
 	this._context = "NATIVE_APP";
 
 	const NO_SCREENSHOT_COMMANDS = [
@@ -65,9 +58,31 @@ module.exports = function (options, context, rs, logger) {
 		"submit",
 		"setValue"
 	];
+    
+    // TODO: _assert* should be extracted into a separate helper later on
+    this._assertLocator = function(locator) {
+        if (!locator) {
+            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        }
+    };
+    this._assertArgument = function(arg) {
+        if (arg === undefined) {
+            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
+        }
+    };
+    this._assertArgumentNonEmptyString = function(arg) {
+        if (!arg || typeof arg !== 'string') {
+            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
+        }
+    };
+    this._assertArgumentNumber = function(arg) {
+        if (typeof(arg) !== 'number') {
+            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
+        }
+    };
 	
     // load external commands
-    // FIXME: this needs to live in module loader so module creator won't need to implement
+    // FIXME: this needs to live in module loader so module creator won't need to implement it in each module
 	(function() {
         var cmdDir = path.join(__dirname, 'module-mob', 'commands');
         if (fs.existsSync(cmdDir)) {
@@ -88,6 +103,7 @@ module.exports = function (options, context, rs, logger) {
         }
 	})();
 	
+    // FIXME: needs to be rafactored so the wrapper can be used for other modules
 	function wrapModuleMethods() {
 		for (var key in module) {
 			if (typeof module[key] === 'function' && key.indexOf('_') != 0) {
@@ -117,10 +133,8 @@ module.exports = function (options, context, rs, logger) {
 	}
 	
 	// public properties
-	// auto pause in waitFor
-	module.autoPause = false;
-	// auto wait for actions
-	module.autoWait = false;
+	module.autoPause = false;   // auto pause in waitFor
+	module.autoWait = false;    // auto wait for actions
 	// automatically renew appium session when init() is called for existing session
 	module.autoReopen = options.autoReopen || true;
 	module.driver = null;

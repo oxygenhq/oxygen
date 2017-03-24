@@ -5,18 +5,13 @@
  * @param {Integer} wait - Time in milliseconds to wait for the element.
  */
 module.exports = function(locator, wait) {
-	
+    this._assertLocator(locator);
 	wait = wait || this.DEFAULT_WAIT_TIMEOUT;
 	
-	if (!locator) 
-		throw new Error('locator is empty or not specified');
 	var retval = null;
-	// when locator is an element object
-	if (typeof locator === 'object' && locator.waitForExist) {
+	if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object
 		retval = locator.waitForExist(wait);
-	}
-	// when locator is string
-	else {
+	} else {                                                    // when locator is string
 		locator = this._helpers.getWdioLocator(locator);
 		retval = this._driver.waitForExist(locator, wait);	
 	}

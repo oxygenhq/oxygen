@@ -4,13 +4,13 @@
 var OxygenError = require('./OxygenError');
 var util = require('util');
 util.inherits(ScriptError, OxygenError);
-const TYPE = 'SCRIPT_ERROR';
+var errHelper = require('../errors/helper');
 
 function ScriptError(err) {
 	ScriptError.super_.call(this);
 	var self = this;
 	this.stacktrace = err.stack;
-	this.type = TYPE;
+	this.type = errHelper.errorCode.SCRIPT_ERROR;
 	this.message = err.message;
 }
 
