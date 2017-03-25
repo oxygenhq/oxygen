@@ -5,6 +5,6 @@
  */
 module.exports = function(url) {
     this._assertArgumentNonEmptyString(url);
-	return this._driver.url(url);
+    return this._driver.url(url);
 };
 

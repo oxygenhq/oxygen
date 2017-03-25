@@ -1,5 +1,5 @@
 module.exports = {
-	FAILED: "failed",
-	PASSED: "passed",
-	WARNED: "warned"
+    FAILED: "failed",
+    PASSED: "passed",
+    WARNED: "warned"
 };

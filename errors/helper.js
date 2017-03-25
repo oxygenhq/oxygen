@@ -63,20 +63,20 @@ const CHAI_ERROR_CODES = {
 };
 
 var self = module.exports = {
-	getOxygenError: function(err, cmd, args, opts, caps) {
+    getOxygenError: function(err, cmd, args, opts, caps) {
         // return the error as is if it has been already processed
         if (err instanceof OxError) {
             return err;
         }
         
-		var errType = err.type || err.name || typeof err;
+        var errType = err.type || err.name || typeof err;
         
         // FIXME:
-		if (errType === 'RuntimeError') {
-			if (err.seleniumStack) {
-				return new SeleniumError(err, cmd, args, opts, caps);
-			}	
-		}
+        if (errType === 'RuntimeError') {
+            if (err.seleniumStack) {
+                return new SeleniumError(err, cmd, args, opts, caps);
+            }   
+        }
 
         // try to resolve WDIO error code 
         var oxErrorCode = WDIO_ERROR_CODES[errType];
@@ -91,7 +91,7 @@ var self = module.exports = {
         }
         
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
-	},
+    },
     
     errorCode: ERROR_CODES
 };

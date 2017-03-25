@@ -9,17 +9,17 @@ const chai = require('chai');
 const assert = chai.assert;
 
 module.exports = function(locator, value, message) {
-	var elm = module.findElement(locator);
-	if (!elm) {
+    var elm = module.findElement(locator);
+    if (!elm) {
         throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
     }
-	var actualValue = elm.text();
-	var expectedValue = value;
-	
-	if (pattern.indexOf('regex:') == 0) {
-		var regex = new RegExp(expectedValue.substring('regex:'.length));
-		assert.match(actualValue, regex, message);
-	} else {
-		assert.equal(actualValue, expectedValue, message);
-	}
+    var actualValue = elm.text();
+    var expectedValue = value;
+    
+    if (pattern.indexOf('regex:') == 0) {
+        var regex = new RegExp(expectedValue.substring('regex:'.length));
+        assert.match(actualValue, regex, message);
+    } else {
+        assert.equal(actualValue, expectedValue, message);
+    }
 };

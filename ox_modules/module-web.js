@@ -34,10 +34,10 @@
  */
 
 module.exports = function (opts, context, rs, logger, dispatcher) {
-	var module = { modType: "dotnet" };
+    var module = { modType: "dotnet" };
 
-	var ctx = context;
-	var dispatcher = dispatcher;
+    var ctx = context;
+    var dispatcher = dispatcher;
     var rs = rs; // results store
     
     global._lastTransactionName = null;
@@ -56,20 +56,20 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.init = function ()
     {
-    	return dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments));
+        return dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments));
     };
     module.dispose = function ()
     {
-    	return dispatcher.execute('web', 'moduleDispose', Array.prototype.slice.call(arguments));
+        return dispatcher.execute('web', 'moduleDispose', Array.prototype.slice.call(arguments));
     };
     module._iterationStart = function(vars)
     {
-    	dispatcher.execute('web', 'iterationStart', { vars: ctx.vars });
+        dispatcher.execute('web', 'iterationStart', { vars: ctx.vars });
     };
-	module._iterationEnd = function(vars)
+    module._iterationEnd = function(vars)
     {
-    	var har = dispatcher.execute('web', 'iterationEnd', {});
-		rs.har = har;
+        var har = dispatcher.execute('web', 'iterationEnd', {});
+        rs.har = har;
     };
     /**
      * @summary Sets base URL which can be used for relative navigation using the <code>open</code> 

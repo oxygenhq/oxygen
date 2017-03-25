@@ -13,17 +13,17 @@ var swipe = function(locator, xoffset, yoffset, speed) {
         yoffset = xoffset;
         locator = null;
     }
-	if (locator != null) {
-		var elm = null;
-		if (typeof locator === 'object') {
-			elm = locator;
-		} else {
-			elm = this._module.findElement(locator);
-		}
+    if (locator != null) {
+        var elm = null;
+        if (typeof locator === 'object') {
+            elm = locator;
+        } else {
+            elm = this._module.findElement(locator);
+        }
 
-		return elm.swipe(xoffset, yoffset, speed);
-	}
-	return this._driver.swipe(xoffset, yoffset, speed);
+        return elm.swipe(xoffset, yoffset, speed);
+    }
+    return this._driver.swipe(xoffset, yoffset, speed);
 };
 
 module.exports = swipe;

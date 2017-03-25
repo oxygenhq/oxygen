@@ -3,8 +3,8 @@
  */
 
 module.exports = function(argv, context, rs, logger, dispatcher) {
-	var module = { modType: "dotnet" };
-	var dispatcher = dispatcher;
+    var module = { modType: "dotnet" };
+    var dispatcher = dispatcher;
     if (dispatcher) {
         dispatcher.execute('eyes', 'moduleInit', argv);
     }
@@ -32,7 +32,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      *                            presented in the test result)
      */ 
     module.init = function() { return dispatcher.execute('eyes', 'init', Array.prototype.slice.call(arguments)); };
-	/**
+    /**
      * @summary Notifies Eyes service that the test has been completed.
      * @function close
      * @return {Object} Object describing the test status details. //TODO: add structure details
@@ -46,7 +46,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
     module.forceFullPageScreenshot = function() { return dispatcher.execute('eyes', 'forceFullPageScreenshot', Array.prototype.slice.call(arguments)); };
     
     module._iterationEnd = function(vars) {
-    	dispatcher.execute('eyes', 'iterationEnd', {});
+        dispatcher.execute('eyes', 'iterationEnd', {});
     };
     
     return module;

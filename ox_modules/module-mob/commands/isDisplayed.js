@@ -5,14 +5,14 @@
  * @return {Boolean} - true if the element is visible.
 */
 module.exports = function(locator) {
-	this._assertLocator(locator);
+    this._assertLocator(locator);
     
-	// when locator is an element object
-	if (typeof locator === 'object' && locator.click) {
-		return locator.isVisible();
-	}
-	// when locator is string
-	locator = this._helpers.getWdioLocator(locator);
-	return this._driver.isVisible(locator);
+    // when locator is an element object
+    if (typeof locator === 'object' && locator.click) {
+        return locator.isVisible();
+    }
+    // when locator is string
+    locator = this._helpers.getWdioLocator(locator);
+    return this._driver.isVisible(locator);
 };
 

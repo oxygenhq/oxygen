@@ -2,9 +2,9 @@
  * Test Suite Iteration Results
  */
 module.exports = function () {
-	return {
+    return {
         _iterationNum: null,
         _status: '',
-		testcases: []    // type of tcresult.js
-	};
+        testcases: []    // type of tcresult.js
+    };
 };

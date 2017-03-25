@@ -6,14 +6,14 @@
  */
 module.exports = function(locator, wait) {
     this._assertLocator(locator);
-	wait = wait || this.DEFAULT_WAIT_TIMEOUT;
-	
-	var retval = null;
-	if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object
-		retval = locator.waitForExist(wait);
-	} else {                                                    // when locator is string
-		locator = this._helpers.getWdioLocator(locator);
-		retval = this._driver.waitForExist(locator, wait);	
-	}
-	return retval;
+    wait = wait || this.DEFAULT_WAIT_TIMEOUT;
+    
+    var retval = null;
+    if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object
+        retval = locator.waitForExist(wait);
+    } else {                                                    // when locator is string
+        locator = this._helpers.getWdioLocator(locator);
+        retval = this._driver.waitForExist(locator, wait);  
+    }
+    return retval;
 };

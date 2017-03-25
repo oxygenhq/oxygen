@@ -10,14 +10,14 @@ var errHelper = require('../errors/helper');
 
 function DotNetError(message, dotnetStack) {
     this.innerError = null;
-	this.type = errHelper.errorCode.UNKNOWN_ERROR;
-	this.message = message;
-	this.dotnetStack = dotnetStack;
-	this.stacktrace = null;
+    this.type = errHelper.errorCode.UNKNOWN_ERROR;
+    this.message = message;
+    this.dotnetStack = dotnetStack;
+    this.stacktrace = null;
 
-	OxygenError.call(this);
+    OxygenError.call(this);
 
-	this.caputeStackTrace();
+    this.caputeStackTrace();
 }
 
 module.exports = DotNetError;

@@ -6,19 +6,19 @@
  * @return {WebElement} - A WebElement object.
 */
 module.exports = function(locator, parent) {
-	this._assertLocator(locator);
-	locator = this._helpers.getWdioLocator(locator);
-	var retval = null;
-	
-	if (parent && typeof parent === 'object' && parent.element) {
-		retval = parent.element(locator);
-	} else {
-		retval = this._driver.element(locator);
-	}
-	// check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
-	if (retval && retval.value == null) {
-		return null;
-	}
-	return retval;
+    this._assertLocator(locator);
+    locator = this._helpers.getWdioLocator(locator);
+    var retval = null;
+    
+    if (parent && typeof parent === 'object' && parent.element) {
+        retval = parent.element(locator);
+    } else {
+        retval = this._driver.element(locator);
+    }
+    // check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
+    if (retval && retval.value == null) {
+        return null;
+    }
+    return retval;
 };
 
