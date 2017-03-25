@@ -85,7 +85,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.transaction = function (name) { 
         global._lastTransactionName = name;
-        dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments));
+        return dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments));
     };
     /**
      * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
