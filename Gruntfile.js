@@ -1,14 +1,12 @@
-var pkg = require('./package.json');
-
 module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-sync');
     grunt.loadNpmTasks('grunt-msbuild');
-    grunt.loadNpmTasks('grunt-contrib-jshint');
+    grunt.loadNpmTasks('grunt-eslint');
     
     grunt.loadTasks('./tools/grunt-tasks');
 
     var defaultTasks = [];
-    defaultTasks.push('jshint');
+    defaultTasks.push('eslint');
     defaultTasks.push('msbuild:oxygen');
     defaultTasks.push('sync:main');
     
@@ -27,15 +25,11 @@ module.exports = function(grunt) {
                 verbose: true
             },
         },
-        jshint: {
-            files: ['Gruntfile.js', 'lib/*.js', 'errors/*.js', 'model/*.js', 'ox_modules/*.js'],
-                options: {
-                    esversion: 6,
-                    curly: false,
-                    loopfunc: true,
-                    shadow: true,
-                    node: true
-                }
+        eslint: {
+            target: ['Gruntfile.js', 'lib/*.js', 'errors/*.js', 'model/*.js', 'ox_modules/*.js'],
+            options: {
+                configFile: 'tools/.eslintrc.json'
+            },
         },
         msbuild: {
             oxygen: {

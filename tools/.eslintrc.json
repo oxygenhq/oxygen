@@ -1,0 +1,17 @@
+{
+    "extends": "eslint:recommended",
+    "env": {
+        "node": true
+    },
+    "parserOptions": {
+        "ecmaVersion": 6
+    },
+    "rules": {
+        "no-console": "off",
+        "indent": ["error", 4],
+        "quotes": ["error", "single", { "avoidEscape": true }],
+        "semi": ["error", "always"],
+        "semi-spacing": ["error", {"before": false, "after": true}],
+        "no-unused-vars": ["error", {"args": "none"}]
+    }
+}

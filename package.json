@@ -30,7 +30,7 @@
     "grunt-cli": "0.1.13",
     "grunt-msbuild": "0.3.7",
     "grunt-sync": "0.6.2",
-    "grunt-contrib-jshint": "1.0.0",
+    "grunt-eslint": "19.0.0",
     "doctrine": "1.5.0"
   },
   "dependencies": {
