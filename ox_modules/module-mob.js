@@ -1,7 +1,17 @@
 'use strict';
 /**
  * Provides methods for mobile automation. 
+ * <br /><br />
+ * <b><i>Notes:</i></b><br />
+ * <div id="patterns">Commands which expect a string matching pattern in their arguments, support 
+ *  following patterns unless specified otherwise:
+ *  <ul>
+ *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
+ *  <li><code>PATTERN</code> - Verbatim matching.</li>
+ *  </ul>
+ * </div>
  */
+
 module.exports = function (options, context, rs, logger) {
     // this needs to be defined for wdio to work in sync mode 
     global.browser = {
@@ -155,6 +165,7 @@ module.exports = function (options, context, rs, logger) {
     /**
      * @function execute
      * @summary Executes a JavaScript code inside the HTML page.
+     * @param {String} js - Script to execute.
      * @for android, ios
      */
     module.execute = function(js, elm) {
@@ -183,7 +194,7 @@ module.exports = function (options, context, rs, logger) {
     /**
      * @function sendKeys
      * @summary Sends a sequence of key strokes to the element.
-     * @param {String} locator - Locator of the element to be found. "id=" to search by ID or "//" to search by XPath.
+     * @param {String} locator - Element locator.
      * @param {String} value - A value to be set to the element.
      * @for android, ios
      */     
