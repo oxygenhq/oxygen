@@ -96,7 +96,7 @@ module.exports = function(grunt) {
             try {
                 var data = fs.readFileSync(file, 'utf8');
             
-                var regex = /(\/\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)/g;
+                var regex = /(\/\*\*([^*]|[\r\n]|(\*+([^*\/]|[\r\n])))*\*+\/)/g;
                 
                 var commentRaw;
                 var comments = [];
