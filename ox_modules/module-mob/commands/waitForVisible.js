@@ -1,8 +1,8 @@
 /**
  * @summary Wait for an element for the provided amount of milliseconds to be visible.
  * @function waitForVisible
- * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
- * @param {Integer} wait - Time in milliseconds to wait for the element.
+ * @param {String} locator - Element locator.
+ * @param {Integer=} wait - Time in milliseconds to wait for the element.
  */
 module.exports = function(locator, wait) {
     this._assertLocator(locator);

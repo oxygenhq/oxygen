@@ -1,8 +1,8 @@
 /**
  * @summary Asserts the page title.
  * @function assertTitle
- * @param {String} pattern - The expected title or regular expression pattern.
- * @param {String} message - The message to be displayed in case of assert failure.
+ * @param {String} pattern - Assertion pattern.
+ * @param {String} message - Message to be displayed in case of assert failure.
  */
 const chai = require('chai');
 const assert = chai.assert;

@@ -1,7 +1,7 @@
 /**
  * @summary Performs a swipe.
  * @function swipe
- * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
+ * @param {String} locator - Element locator.
  * @param {Integer} xoffset - Horizontal offset.
  * @param {Integer} yoffset - Vertical offset.
  * @param {Integer} speed - Time (in milliseconds) to spend performing the swipe.

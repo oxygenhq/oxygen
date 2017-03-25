@@ -1,7 +1,7 @@
 /**
  * @summary Sets element's value.
  * @function setValue
- * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
+ * @param {String} locator - Element locator.
  * @param {String} value - Value to set.
 */
 module.exports = function(locator, value) {

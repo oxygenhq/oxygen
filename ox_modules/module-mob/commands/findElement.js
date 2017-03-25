@@ -1,8 +1,8 @@
 /**
  * @summary Finds an element.
  * @function findElement
- * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
- * @param {Object} parent - Optional parent element for relative search. "id=" to search by ID or "//" to search by XPath.
+ * @param {String} locator - Element locator.
+ * @param {Object=} parent - Optional parent element for relative search.
  * @return {WebElement} - A WebElement object.
 */
 module.exports = function(locator, parent) {

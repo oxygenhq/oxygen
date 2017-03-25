@@ -1,9 +1,9 @@
 /**
- * @summary Finds element.
+ * @summary Finds elements.
  * @function findElements
- * @param {String} locator - Locator of element to be found. "id=" to search by ID or "//" to search by XPath.
- * @param {Object} parent - Optional parent element for relative search. "id=" to search by ID or "//" to search by XPath.
- * @return {WebElement} - WebElement JSON objects.
+ * @param {String} locator - Element locator.
+ * @param {Object=} parent - Optional parent element for relative search.
+ * @return {Array<WebElement>} - Collection of WebElement JSON objects.
 */
 module.exports = function(locator, parent) {
     this._assertLocator(locator);

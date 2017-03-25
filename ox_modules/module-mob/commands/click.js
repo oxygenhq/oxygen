@@ -1,7 +1,7 @@
 /**
  * @summary Clicks on an element.
  * @function click
- * @param {String} locator - Element locator. "id=" to search by ID or "//" to search by XPath.
+ * @param {String} locator - Element locator.
  */
 module.exports = function(locator) {
     this._assertLocator(locator);
