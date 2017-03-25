@@ -393,9 +393,6 @@ namespace CloudBeat.Oxygen.Modules
 				result.LoadEvent = load;
             }
 
-            result.EndTime = DateTime.UtcNow;
-            result.Duration = (result.EndTime - result.StartTime).TotalSeconds;
-
             return result;
         }
 

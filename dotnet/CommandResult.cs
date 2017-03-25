@@ -1,5 +1,4 @@
-﻿using System;
-
+﻿
 namespace CloudBeat.Oxygen
 {
     public class CommandResult
@@ -14,9 +13,6 @@ namespace CloudBeat.Oxygen
         public string Har { get; set; }
         public int DomContentLoadedEvent { get; set; }
         public int LoadEvent { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime EndTime { get; set; }
-        public double Duration { get; set; }
         public object ReturnValue { get; set; }
         public string ErrorType { get; set; }       // CheckResultStatus
         public string ErrorMessage { get; set; }    // Error details. On ErrorType == UNKNOWN_ERROR populated with exception type + message.
@@ -25,12 +21,10 @@ namespace CloudBeat.Oxygen
 
         public CommandResult(string moduleName, string commandName, params object[] args)
         {
-            this.StartTime = DateTime.UtcNow;
             this.ModuleName = moduleName;
             this.CommandName = commandName;
 
             // build command name
-
             if (args == null)
                 this.CommandExpression = string.Format("{0}.{1}();", moduleName.ToLower(), commandName);
 
@@ -46,8 +40,6 @@ namespace CloudBeat.Oxygen
 
         public CommandResult ErrorBase(CloudBeat.Oxygen.Modules.Module.ErrorType errType, string errMsg = null)
         {
-            this.EndTime = DateTime.UtcNow;
-            this.Duration = (this.EndTime - this.StartTime).TotalSeconds;
             this.IsSuccess = false;
             this.ErrorType = errType.ToString();
             this.ErrorMessage = errMsg;
@@ -56,8 +48,6 @@ namespace CloudBeat.Oxygen
 
         public CommandResult SuccessBase(object retVal = null)
         {
-            this.EndTime = DateTime.UtcNow;
-            this.Duration = (this.EndTime - this.StartTime).TotalSeconds;
             this.IsSuccess = true;
             this.ReturnValue = retVal;
             return this;
