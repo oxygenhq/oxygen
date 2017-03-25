@@ -69,7 +69,7 @@ var self = module.exports = {
             return err;
         }
         
-		var errType = err.type || err.name || typeof err
+		var errType = err.type || err.name || typeof err;
         
         // FIXME:
 		if (errType === 'RuntimeError') {
