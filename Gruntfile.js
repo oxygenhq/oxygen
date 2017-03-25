@@ -28,12 +28,13 @@ module.exports = function(grunt) {
             },
         },
         jshint: {
-            files: ['Gruntfile.js', 'lib/*.js', 'errors/*.js', 'model/*.js'],
+            files: ['Gruntfile.js', 'lib/*.js', 'errors/*.js', 'model/*.js', 'ox_modules/*.js'],
                 options: {
-                    esnext: true,
+                    esversion: 6,
                     curly: false,
                     loopfunc: true,
-                    shadow: true
+                    shadow: true,
+                    node: true
                 }
         },
         msbuild: {
