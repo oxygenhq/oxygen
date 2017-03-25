@@ -51,6 +51,8 @@ var PARAMS_ROW = '<tr>' +
                  '<td class="description last">{2}</td>' +
                  '</tr>';
 
+var OPTIONAL = '<span class="optional">optional</span>';
+                 
 var RETURNS = '<h5>Returns:</h5>' +
                 '<div class="param-desc"><span class="param-type">{0}</span> - {1}</div>';
   
@@ -156,16 +158,20 @@ module.exports = function(grunt) {
                             if (tag.title === 'param') {
                                  
                                 var type;
+                                var optional;
                                 if (tag.type.type === 'OptionalType') {
                                     type = tag.type.expression.name;
+                                    optional = true;
                                 } else {
                                     type = tag.type.name;
+                                    optional = false;
                                 }
                                 
                                 params.push({ 
                                     description: tag.description.replace(/(\r\n|\n)/gm,''), 
                                     name: tag.name, 
-                                    type: type 
+                                    type: type,
+                                    optional: optional
                                 });
                             }
                         }
@@ -251,7 +257,9 @@ module.exports = function(grunt) {
                     var paramRowsHtml = '';
                     
                     for (var param of params) {           
-                        paramRowsHtml += PARAMS_ROW.format(param.name, param.type, param.description);
+                        paramRowsHtml += PARAMS_ROW.format(param.name, 
+                                                            param.type, 
+                                                            (param.optional ? OPTIONAL : '') + param.description);
                     }
                         
                     fs.appendFileSync(outFile, PARAMS.format(paramRowsHtml)); 
