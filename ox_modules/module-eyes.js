@@ -3,8 +3,7 @@
  */
 
 module.exports = function(argv, context, rs, logger, dispatcher) {
-    var module = { modType: "dotnet" };
-    var dispatcher = dispatcher;
+    var module = { modType: 'dotnet' };
     if (dispatcher) {
         dispatcher.execute('eyes', 'moduleInit', argv);
     }

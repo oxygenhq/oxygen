@@ -1,9 +1,7 @@
-"use strict";
+'use strict';
 /**
  * Provides methods for mobile automation. 
  */
-const STATUS = require('../model/status.js');
-
 module.exports = function (options, context, rs, logger) {
     // this needs to be defined for wdio to work in sync mode 
     global.browser = {
@@ -11,26 +9,20 @@ module.exports = function (options, context, rs, logger) {
             sync: true
         }
     };
-    var module = this._module = { modType: "fiber" };
+    var module = this._module = { modType: 'fiber' };
     var helpers = this._helpers = {};
     
-    var moment = require('moment');
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
-    var path = require('path');
-    var fs = require('fs');
-    const errorsHelper = this.errorsHelper = require('../errors/helper');
-    var StepResult = require('../model/stepresult');
-    var Failure = require('../model/stepfailure');
     
-    var OxError = this._OxError = require('../errors/OxygenError');
-    var errHelper = this._errHelper = require('../errors/helper');
+    this._OxError = require('../errors/OxygenError');
+    this._errHelper = require('../errors/helper');
     
     // constants
-    const DEFAULT_WAIT_TIMEOUT = this.DEFAULT_WAIT_TIMEOUT = 60000; 
-    const POOLING_INTERVAL = this.POOLING_INTERVAL = 5000; 
+    this.DEFAULT_WAIT_TIMEOUT = 60000; 
+    this.POOLING_INTERVAL = 5000; 
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
-    const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = "127.0.0.1";
+    const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
 
     this._client = null; //wdSync.remote("localhost", 4723);
     this._driver = null; //module.driver = client.browser;
@@ -45,18 +37,18 @@ module.exports = function (options, context, rs, logger) {
     this._caps = null;              // save driver capabilities for later use when error occures
     this._host = options.host || DEFAULT_APPIUM_HOST;   // appium or selenium hub host name
     this._port = options.port || DEFAULT_APPIUM_PORT;   // appium or selenium hub port number
-    this._context = "NATIVE_APP";
+    this._context = 'NATIVE_APP';
 
     const NO_SCREENSHOT_COMMANDS = [
-        "init"
+        'init'
     ];
     const ACTION_COMMANDS = [
-        "open",
-        "tap",
-        "click",
-        "swipe",
-        "submit",
-        "setValue"
+        'open',
+        'tap',
+        'click',
+        'swipe',
+        'submit',
+        'setValue'
     ];
     
     module._isAction = function(name) {
@@ -175,7 +167,7 @@ module.exports = function (options, context, rs, logger) {
      */
     module.dispose = function() {
         if (_this._driver && _this._isInitialized) {
-            var retval = _this._driver.end();
+            _this._driver.end();
             _this._isInitialized = false;
         }
     };

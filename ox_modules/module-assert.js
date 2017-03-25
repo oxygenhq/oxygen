@@ -7,8 +7,6 @@ const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 
 module.exports = function(argv, context, rs, logger) {
-    var ctx = context;
-
     /**
      * @summary Asserts that two values are equal.
      * @function equal

@@ -34,11 +34,9 @@
  */
 
 module.exports = function (opts, context, rs, logger, dispatcher) {
-    var module = { modType: "dotnet" };
+    var module = { modType: 'dotnet' };
 
     var ctx = context;
-    var dispatcher = dispatcher;
-    var rs = rs; // results store
     
     global._lastTransactionName = null;
     

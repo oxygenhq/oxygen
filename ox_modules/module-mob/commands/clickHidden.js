@@ -16,6 +16,7 @@ module.exports = function(locator, clickParent) {
             if (!elm) {
                 return;
             }
+            /*global document*/
             var clck_ev = document.createEvent('MouseEvent');
             clck_ev.initEvent('click', true, true);
             if (clickParent) {

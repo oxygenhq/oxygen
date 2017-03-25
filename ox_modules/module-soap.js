@@ -5,8 +5,7 @@
  */
 
 module.exports = function(argv, context, rs, logger, dispatcher) {
-    var module = { modType: "dotnet" };
-    var dispatcher = dispatcher;
+    var module = { modType: 'dotnet' };
 
     /**
      * @summary Initiates a SOAP request and returns the response.

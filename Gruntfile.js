@@ -26,7 +26,7 @@ module.exports = function(grunt) {
             },
         },
         eslint: {
-            target: ['Gruntfile.js', 'lib/*.js', 'errors/*.js', 'model/*.js', 'ox_modules/*.js'],
+            target: ['Gruntfile.js', 'lib/**/*.js', 'errors/**/*.js', 'model/**/*.js', 'ox_modules/**/*.js'],
             options: {
                 configFile: 'tools/.eslintrc.json'
             },

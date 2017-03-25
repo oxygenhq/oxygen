@@ -8,7 +8,6 @@ var errHelper = require('../errors/helper');
 
 function ScriptError(err) {
     ScriptError.super_.call(this);
-    var self = this;
     this.stacktrace = err.stack;
     this.type = errHelper.errorCode.SCRIPT_ERROR;
     this.message = err.message;
