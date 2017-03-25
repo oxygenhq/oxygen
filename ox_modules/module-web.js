@@ -32,19 +32,16 @@
  *  </ul>
  * </div>
  */
-const STATUS = require('../model/status.js');
 
-module.exports = function (opts, context, rs, logger, dispatcher, handleStepResult) {
+module.exports = function (opts, context, rs, logger, dispatcher) {
 	var module = { modType: "dotnet" };
 
 	var ctx = context;
 	var dispatcher = dispatcher;
     var rs = rs; // results store
-
     
     global._lastTransactionName = null;
     
-	// call ModuleInit
     if (dispatcher) {
         dispatcher.execute('web', 'moduleInit', opts);
     }
@@ -59,7 +56,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      */
     module.init = function ()
     {
-    	return handleStepResult(dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments)));
+    	return dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments));
     };
     module.dispose = function ()
     {
@@ -90,7 +87,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      */
     module.transaction = function (name) { 
         global._lastTransactionName = name;
-        handleStepResult(dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments)), rs);
+        dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments));
     };
     /**
      * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
@@ -110,7 +107,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function open
      * @param {String} url - The URL to open; may be relative or absolute.
      */
-    module.open = function () { return handleStepResult(dispatcher.execute('web', 'open', Array.prototype.slice.call(arguments)), rs); };
+    module.open = function () { return dispatcher.execute('web', 'open', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Scrolls the page to the location of the specified element.
      * @description <i>yOffset</i> determines the offset from the specified element where to scroll 
@@ -119,13 +116,13 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {Integer} yOffset - Y offset from the element.
      */
-    module.scrollToElement = function () { return handleStepResult(dispatcher.execute('web', 'scrollToElement', Array.prototype.slice.call(arguments)), rs); };
+    module.scrollToElement = function () { return dispatcher.execute('web', 'scrollToElement', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Points the mouse cursor over the specified element.
      * @function point
      * @param {String} locator - An element locator.
      */
-    module.point = function () { return handleStepResult(dispatcher.execute('web', 'point', Array.prototype.slice.call(arguments)), rs); };
+    module.point = function () { return dispatcher.execute('web', 'point', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Clicks on a link, button, checkbox, or radio button. 
      * @description If the click causes new page to load, the command waits for page to load before 
@@ -133,7 +130,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function click
      * @param {String} locator - An element locator.
      */
-    module.click = function () { return handleStepResult(dispatcher.execute('web', 'click', Array.prototype.slice.call(arguments)), rs); };
+    module.click = function () { return dispatcher.execute('web', 'click', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Clicks on a non-visible link, button, checkbox, or radio button.
      * @description If the click causes new page to load, the command waits for page to load before 
@@ -141,7 +138,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function clickHidden
      * @param {String} locator - An element locator.
      */
-    module.clickHidden = function() { return handleStepResult(dispatcher.execute('web', 'clickHidden', Array.prototype.slice.call(arguments)), rs); };
+    module.clickHidden = function() { return dispatcher.execute('web', 'clickHidden', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts the page title.
      * @description Assertion pattern can be any of the supported <a href="#patterns">
@@ -149,7 +146,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function assertTitle
      * @param {String} pattern - The assertion pattern.
      */
-    module.assertTitle = function() { return handleStepResult(dispatcher.execute('web', 'assertTitle', Array.prototype.slice.call(arguments)), rs); };
+    module.assertTitle = function() { return dispatcher.execute('web', 'assertTitle', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Simulates keystroke events on the specified element, as though you typed the value 
      *          key-by-key. Previous value if any will be cleared.
@@ -210,13 +207,13 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} value - The value to type.
      */
-    module.type = function() { return handleStepResult(dispatcher.execute('web', 'type', Array.prototype.slice.call(arguments)), rs); };
+    module.type = function() { return dispatcher.execute('web', 'type', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Clear the value of an input field.
      * @function clear
      * @param {String} locator - An element locator.
      */
-    module.clear = function() { return handleStepResult(dispatcher.execute('web', 'clear', Array.prototype.slice.call(arguments)), rs); };
+    module.clear = function() { return dispatcher.execute('web', 'clear', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts element's inner text.
      * @description Assertion pattern can be any of the supported <a href="#patterns">
@@ -225,7 +222,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - The assertion pattern.
      */
-    module.assertText = function() { return handleStepResult(dispatcher.execute('web', 'assertText', Array.prototype.slice.call(arguments)), rs); };
+    module.assertText = function() { return dispatcher.execute('web', 'assertText', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Selects window. Once window has been selected, all commands go to that window.
      * @description <code>windowLocator</code> can be:
@@ -241,7 +238,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} windowLocator - Window locator.
      * @return {String} windowHandle of the previously selected window.
      */
-    module.selectWindow = function() { return handleStepResult(dispatcher.execute('web', 'selectWindow', Array.prototype.slice.call(arguments)), rs); };
+    module.selectWindow = function() { return dispatcher.execute('web', 'selectWindow', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Returns the element's attribute.
      * @function getAttribute
@@ -249,14 +246,14 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} attributeName - The name of the attribute to retrieve.
      * @return {String} The attribute's value.
      */
-    module.getAttribute = function() { return handleStepResult(dispatcher.execute('web', 'getAttribute', Array.prototype.slice.call(arguments)), rs); };
+    module.getAttribute = function() { return dispatcher.execute('web', 'getAttribute', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Returns the text (rendered text shown to the user) of an element.
      * @function getText
      * @param {String} locator - An element locator.
      * @return {String} The element's text.
      */
-    module.getText = function() { return handleStepResult(dispatcher.execute('web', 'getText', Array.prototype.slice.call(arguments)), rs); };
+    module.getText = function() { return dispatcher.execute('web', 'getText', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Returns the (whitespace-trimmed) value of an input field. For checkbox/radio 
      *          elements, the value will be "on" or "off".
@@ -264,13 +261,13 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @return {String} The value.
      */
-    module.getValue = function() { return handleStepResult(dispatcher.execute('web', 'getValue', Array.prototype.slice.call(arguments)), rs); };
+    module.getValue = function() { return dispatcher.execute('web', 'getValue', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Double clicks on a link, button, checkbox, or radio button.
      * @function doubleClick
      * @param {String} locator - An element locator.
      */
-    module.doubleClick = function() { return handleStepResult(dispatcher.execute('web', 'doubleClick', Array.prototype.slice.call(arguments)), rs); };
+    module.doubleClick = function() { return dispatcher.execute('web', 'doubleClick', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Selects an option from a drop-down list using an option locator. This command works 
      *          with multiple-choice lists as well.
@@ -284,7 +281,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} selectLocator - An element locator identifying a drop-down menu.
      * @param {String} optionLocator - An option locator.
      */
-    module.select = function() { return handleStepResult(dispatcher.execute('web', 'select', Array.prototype.slice.call(arguments)), rs); };
+    module.select = function() { return dispatcher.execute('web', 'select', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Deselects an option from multiple-choice drop-down list.
      * @description Option locator can be one of the following (No prefix is same as label matching):
@@ -296,13 +293,13 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} selectLocator - An element locator identifying a drop-down menu.
      * @param {String} optionLocator - An option locator.
      */
-    module.deselect = function() { return handleStepResult(dispatcher.execute('web', 'deselect', Array.prototype.slice.call(arguments)), rs); };
+    module.deselect = function() { return dispatcher.execute('web', 'deselect', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Pauses for the specified amount of time (in milliseconds).
      * @function pause
      * @param {Integer} waitTime - The amount of time to sleep (in milliseconds)
      */
-    module.pause = function() { return handleStepResult(dispatcher.execute('web', 'pause', Array.prototype.slice.call(arguments)), rs); };
+    module.pause = function() { return dispatcher.execute('web', 'pause', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for a window to appear.
      * @description <code>windowLocator</code> can be:
@@ -318,7 +315,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {Integer} timeout - A timeout in milliseconds, after which the action will return with 
      *                           an error.
      */
-    module.waitForWindow = function() { return handleStepResult(dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForWindow = function() { return dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)); };
 
     /**
      * @summary Selects a frame within the current window.
@@ -334,20 +331,20 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function selectFrame
      * @param {String} frameLocator - A locator identifying a frame or an iframe.
      */
-    module.selectFrame = function() { return handleStepResult(dispatcher.execute('web', 'selectFrame', Array.prototype.slice.call(arguments)), rs); };
+    module.selectFrame = function() { return dispatcher.execute('web', 'selectFrame', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for element to become visible.
      * @function waitForVisible
      * @param {String} locator - An element locator.
      */
-    module.waitForVisible = function() { return handleStepResult(dispatcher.execute('web', 'waitForVisible', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForVisible = function() { return dispatcher.execute('web', 'waitForVisible', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for element to appear in the DOM. The element might be visible to the user or
      *          not.
      * @function waitForElementPresent
      * @param {String} locator - An element locator.
      */
-    module.waitForElementPresent = function() { return handleStepResult(dispatcher.execute('web', 'waitForElementPresent', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForElementPresent = function() { return dispatcher.execute('web', 'waitForElementPresent', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Checks if element is present in the DOM. Returns false if element was not found 
      *          within the specified timeout.
@@ -356,7 +353,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {Integer} timeout - Timeout in milliseconds to wait for element to appear.
      * @return {Boolean} True if element was found. False otherwise.
      */
-    module.isElementPresent = function() { return handleStepResult(dispatcher.execute('web', 'isElementPresent', Array.prototype.slice.call(arguments)), rs); };
+    module.isElementPresent = function() { return dispatcher.execute('web', 'isElementPresent', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Checks if element is present and visible. Returns false if element was not found or 
      *          wasn't visible within the specified timeout.
@@ -365,7 +362,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {Integer} timeout - Timeout in milliseconds to wait for element to appear.
      * @return {Boolean} True if element was found and it was visible. False otherwise.
      */
-    module.isElementVisible = function() { return handleStepResult(dispatcher.execute('web', 'isElementVisible', Array.prototype.slice.call(arguments)), rs); };
+    module.isElementVisible = function() { return dispatcher.execute('web', 'isElementVisible', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for inner text of the given element to match the specified pattern.
      * @description Text pattern can be any of the supported <a href="#patterns">
@@ -374,7 +371,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - Text pattern.
      */
-    module.waitForText = function() { return handleStepResult(dispatcher.execute('web', 'waitForText', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForText = function() { return dispatcher.execute('web', 'waitForText', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for inner text of the given element to stop matching the specified pattern.
      * @description Text pattern can be any of the supported <a href="#patterns">
@@ -383,7 +380,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - Text pattern.
      */
-    module.waitForNotText = function() { return handleStepResult(dispatcher.execute('web', 'waitForNotText', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForNotText = function() { return dispatcher.execute('web', 'waitForNotText', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for input element's value to match the specified pattern.
      * @description Value pattern can be any of the supported <a href="#patterns">
@@ -392,7 +389,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - Value pattern.
      */
-    module.waitForValue = function() { return handleStepResult(dispatcher.execute('web', 'waitForValue', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForValue = function() { return dispatcher.execute('web', 'waitForValue', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Waits for input element's value to stop matching the specified pattern.
      * @description Value pattern can be any of the supported <a href="#patterns">
@@ -401,7 +398,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - Value pattern.
      */
-    module.waitForNotValue = function() { return handleStepResult(dispatcher.execute('web', 'waitForNotValue', Array.prototype.slice.call(arguments)), rs); };
+    module.waitForNotValue = function() { return dispatcher.execute('web', 'waitForNotValue', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts element's value.
      * @description Value pattern can be any of the supported <a href="#patterns">
@@ -410,20 +407,20 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - Value pattern.
      */
-    module.assertValue = function() { return handleStepResult(dispatcher.execute('web', 'assertValue', Array.prototype.slice.call(arguments)), rs); };
+    module.assertValue = function() { return dispatcher.execute('web', 'assertValue', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts whether the given text is present somewhere on the page. That is whether an 
      *          element containing this text exists on the page.
      * @function assertTextPresent
      * @param {String} text - Text.
      */
-    module.assertTextPresent = function() { return handleStepResult(dispatcher.execute('web', 'assertTextPresent', Array.prototype.slice.call(arguments)), rs); };
+    module.assertTextPresent = function() { return dispatcher.execute('web', 'assertTextPresent', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts whether element exists in the DOM.
      * @function assertElementPresent
      * @param {String} locator - An element locator.
      */
-    module.assertElementPresent = function() { return handleStepResult(dispatcher.execute('web', 'assertElementPresent', Array.prototype.slice.call(arguments)), rs); };
+    module.assertElementPresent = function() { return dispatcher.execute('web', 'assertElementPresent', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts whether alert matches the specified pattern and dismisses it.
      * @description Text pattern can be any of the supported <a href="#patterns">
@@ -431,43 +428,43 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function assertAlert
      * @param {String} pattern - Text pattern.
      */
-    module.assertAlert = function() { return handleStepResult(dispatcher.execute('web', 'assertAlert', Array.prototype.slice.call(arguments)), rs); };
+    module.assertAlert = function() { return dispatcher.execute('web', 'assertAlert', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Gets the source of the currently active window.
      * @function getPageSource
      * @return {String} The page source.
      */
-    module.getPageSource = function() { return handleStepResult(dispatcher.execute('web', 'getPageSource', Array.prototype.slice.call(arguments)), rs); };
+    module.getPageSource = function() { return dispatcher.execute('web', 'getPageSource', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Gets the source of the currently active window which displays <code>text/xml</code> 
      *          page.
      * @function getXMLPageSource
      * @return {String} The XML page source.
      */
-    module.getXMLPageSource = function() { return handleStepResult(dispatcher.execute('web', 'getXMLPageSource', Array.prototype.slice.call(arguments)), rs); };
+    module.getXMLPageSource = function() { return dispatcher.execute('web', 'getXMLPageSource', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Gets the source of the currently active window which displays <code>text/xml</code> 
      *          page and returns it as JSON object.
      * @function getXMLPageSourceAsJSON
      * @return {String} The XML page source represented as a JSON string.
      */
-    module.getXMLPageSourceAsJSON = function() { return handleStepResult(dispatcher.execute('web', 'getXMLPageSourceAsJSON', Array.prototype.slice.call(arguments)), rs); };
+    module.getXMLPageSourceAsJSON = function() { return dispatcher.execute('web', 'getXMLPageSourceAsJSON', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Gets handles, titles, and URLs of the currently open windows.
      * @function getWindowHandles
      * @return {String} JSON array containing all available windows.
      */
-    module.getWindowHandles = function() { return handleStepResult(dispatcher.execute('web', 'getWindowHandles', Array.prototype.slice.call(arguments)), rs); };
+    module.getWindowHandles = function() { return dispatcher.execute('web', 'getWindowHandles', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Closes the currently active window.
      * @function closeWindow
      */
-    module.closeWindow = function() { return handleStepResult(dispatcher.execute('web', 'closeWindow', Array.prototype.slice.call(arguments)), rs); };
+    module.closeWindow = function() { return dispatcher.execute('web', 'closeWindow', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Closes the current session
      * @function quit
      */
-    module.quit = function() { return handleStepResult(dispatcher.execute('web', 'quit', Array.prototype.slice.call(arguments)), rs); };
+    module.quit = function() { return dispatcher.execute('web', 'quit', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Checks if alert box is present.
      * @function isAlertPresent
@@ -475,19 +472,19 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {Integer} timeout - Timeout in milliseconds to wait for the alert box.
      * @return {Boolean} True if alert with the specified text is present. False otherwise.
      */
-    module.isAlertPresent = function() { return handleStepResult(dispatcher.execute('web', 'isAlertPresent', Array.prototype.slice.call(arguments)), rs); };
+    module.isAlertPresent = function() { return dispatcher.execute('web', 'isAlertPresent', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Accepts an alert or a confirmation dialog. 
      * @description In case of an alert box this command is identical to <code>alertDismiss</code>.
      * @function alertAccept
      */
-    module.alertAccept = function() { return handleStepResult(dispatcher.execute('web', 'alertAccept', Array.prototype.slice.call(arguments)), rs); };
+    module.alertAccept = function() { return dispatcher.execute('web', 'alertAccept', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Dismisses an alert or a confirmation dialog.
      * @description In case of an alert box this command is identical to <code>alertAccept</code>.
      * @function alertDismiss
      */
-    module.alertDismiss = function() { return handleStepResult(dispatcher.execute('web', 'alertDismiss', Array.prototype.slice.call(arguments)), rs); };
+    module.alertDismiss = function() { return dispatcher.execute('web', 'alertDismiss', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts text of the currently selected option in a drop-down list.
      * @description Assertion pattern can be any of the supported <a href="#patterns">
@@ -496,7 +493,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - The assertion pattern.
      */
-    module.assertSelectedLabel = function() { return handleStepResult(dispatcher.execute('web', 'assertSelectedLabel', Array.prototype.slice.call(arguments)), rs); };
+    module.assertSelectedLabel = function() { return dispatcher.execute('web', 'assertSelectedLabel', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Asserts value of the currently selected option in a drop-down list.
      * @description Assertion pattern can be any of the supported <a href="#patterns">
@@ -505,13 +502,13 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} locator - An element locator.
      * @param {String} pattern - The assertion pattern.
      */
-    module.assertSelectedValue = function() { return handleStepResult(dispatcher.execute('web', 'assertSelectedValue', Array.prototype.slice.call(arguments)), rs); };
+    module.assertSelectedValue = function() { return dispatcher.execute('web', 'assertSelectedValue', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Gets the text displayed by an alert or confirm dialog.
      * @function getAlertText
      * @return {String} The alert's text.
      */
-    module.getAlertText = function() { return handleStepResult(dispatcher.execute('web', 'getAlertText', Array.prototype.slice.call(arguments)), rs); };
+    module.getAlertText = function() { return dispatcher.execute('web', 'getAlertText', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Executes JavaScript in the context of the currently selected frame or window.
      * @description The return value is serialized into a JSON string. If the value is null or there
@@ -525,16 +522,16 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {String} script - The JavaScript to execute.
      * @return {String} The return value serialized as a JSON string.
      */
-    module.executeScript = function () { return handleStepResult(dispatcher.execute('web', 'executeScript', Array.prototype.slice.call(arguments)), rs); };
+    module.executeScript = function () { return dispatcher.execute('web', 'executeScript', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Retrieves the count of elements matching the given XPath expression.
      * @function getElementCount
      * @param {String} xpath - XPath locator.
      * @return {Integer} Element count or 0 if no elements were found.
      */
-    module.getElementCount = function() { return handleStepResult(dispatcher.execute('web', 'getElementCount', Array.prototype.slice.call(arguments)), rs); };
+    module.getElementCount = function() { return dispatcher.execute('web', 'getElementCount', Array.prototype.slice.call(arguments)); };
     
-    module.fileBrowse = function() { return handleStepResult(dispatcher.execute('web', 'fileBrowse', Array.prototype.slice.call(arguments)), rs); };
+    module.fileBrowse = function() { return dispatcher.execute('web', 'fileBrowse', Array.prototype.slice.call(arguments)); };
  
     /**
      * @summary Makes hidden element visible.
@@ -553,7 +550,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @function makeVisible
      * @param {String} locator - An element locator.
      */
-    module.makeVisible = function() { return handleStepResult(dispatcher.execute('web', 'makeVisible', Array.prototype.slice.call(arguments)), rs); };
+    module.makeVisible = function() { return dispatcher.execute('web', 'makeVisible', Array.prototype.slice.call(arguments)); };
     
     /**
      * @summary Sets the size of the outer browser window.
@@ -562,7 +559,7 @@ module.exports = function (opts, context, rs, logger, dispatcher, handleStepResu
      * @param {Integer} width - Width in pixels.
      * @param {Integer} height - Height in pixels.
      */
-    module.setWindowSize = function() { return handleStepResult(dispatcher.execute('web', 'setWindowSize', Array.prototype.slice.call(arguments)), rs); };
+    module.setWindowSize = function() { return dispatcher.execute('web', 'setWindowSize', Array.prototype.slice.call(arguments)); };
     
     return module;
 };

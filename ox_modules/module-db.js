@@ -1,17 +1,10 @@
 /**
  * Provides methods for working with Data Bases through ODBC.
  */
- 
-const STATUS = require('../model/status.js');
 
-module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
+module.exports = function(argv, context, rs, logger, dispatcher) {
 	var module = { modType: "dotnet" };
-    
-    var ctx = context;
 	var dispatcher = dispatcher;
-    var rs = rs; // results store
-    
-    // call ModuleInit
     if (dispatcher) {
         dispatcher.execute('db', 'moduleInit', argv);
     }
@@ -31,7 +24,7 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
     * @function setConnectionString
     * @param {String} connString - ODBC connection string.
     */
-    module.setConnectionString = function() { return handleStepResult(dispatcher.execute('db', 'setConnectionString', Array.prototype.slice.call(arguments)), rs); };
+    module.setConnectionString = function() { return dispatcher.execute('db', 'setConnectionString', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Executes SQL query and returns the first column of the first row in the result set.
      * @function getScalar
@@ -39,13 +32,13 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      * @return {Object} The first column of the first row in the result set, or null if the result 
      *                  set is empty.
      */
-    module.getScalar = function() { return handleStepResult(dispatcher.execute('db', 'getScalar', Array.prototype.slice.call(arguments)), rs); };
+    module.getScalar = function() { return dispatcher.execute('db', 'getScalar', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Executes SQL statement.
      * @function executeNonQuery
      * @param {String} query - The query to execute.
      */
-    module.executeNonQuery = function() { return handleStepResult(dispatcher.execute('db', 'executeNonQuery', Array.prototype.slice.call(arguments)), rs); };
+    module.executeNonQuery = function() { return dispatcher.execute('db', 'executeNonQuery', Array.prototype.slice.call(arguments)); };
 
     return module;
 };

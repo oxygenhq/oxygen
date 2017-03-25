@@ -3,13 +3,11 @@
  * <br /><br />
  * NOTE: Multi-argument calls are not supported yet.
  */
-module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
+
+module.exports = function(argv, context, rs, logger, dispatcher) {
 	var module = { modType: "dotnet" };
-    
-	var ctx = context;
 	var dispatcher = dispatcher;
-    var rs = rs; // results store
-    
+
     /**
      * @summary Initiates a SOAP request and returns the response.
      * @function get
@@ -19,7 +17,7 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      * @param {Array=} args - Array of arguments.
      * @return {String} JSON representing the response object.
      */
-    module.get = function() { return handleStepResult(dispatcher.execute('soap', 'get', Array.prototype.slice.call(arguments)), rs); };
+    module.get = function() { return dispatcher.execute('soap', 'get', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Initiates a SOAP 1.2 request and returns the response.
      * @function get12
@@ -29,7 +27,7 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      * @param {Array=} args - Array of arguments.
      * @return {String} JSON representing the response object.
      */
-    module.get12 = function() { return handleStepResult(dispatcher.execute('soap', 'get12', Array.prototype.slice.call(arguments)), rs); };
+    module.get12 = function() { return dispatcher.execute('soap', 'get12', Array.prototype.slice.call(arguments)); };
     
     return module;
 };

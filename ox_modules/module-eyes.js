@@ -1,13 +1,10 @@
 /**
  * Provides methods for Applitools Eyes
  */
-module.exports = function(argv, context, rs, logger, dispatcher, handleStepResult) {
-	var module = { modType: "dotnet" };
-    
-    var ctx = context;
-	var dispatcher = dispatcher;
-    var rs = rs; // results store
 
+module.exports = function(argv, context, rs, logger, dispatcher) {
+	var module = { modType: "dotnet" };
+	var dispatcher = dispatcher;
     if (dispatcher) {
         dispatcher.execute('eyes', 'moduleInit', argv);
     }
@@ -17,14 +14,14 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      * @description This method always succeeds irregardless of validation result.
      * @function checkWindow
      */
-    module.checkWindow = function() { return handleStepResult(dispatcher.execute('eyes', 'checkWindow', Array.prototype.slice.call(arguments)), rs); };
+    module.checkWindow = function() { return dispatcher.execute('eyes', 'checkWindow', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Performs validation on the specified element.
      * @description This method always succeeds irregardless of validation result.
      * @function checkRegion
      * @param {String} locator - An element locator.
      */
-    module.checkRegion = function() { return handleStepResult(dispatcher.execute('eyes', 'checkRegion', Array.prototype.slice.call(arguments)), rs); };
+    module.checkRegion = function() { return dispatcher.execute('eyes', 'checkRegion', Array.prototype.slice.call(arguments)); };
      /**
      * @summary Initializes Applitools Eyes.
      * @function init
@@ -34,19 +31,19 @@ module.exports = function(argv, context, rs, logger, dispatcher, handleStepResul
      * @param {String} testName - String that represents the name of the test (this name will be 
      *                            presented in the test result)
      */ 
-    module.init = function() { return handleStepResult(dispatcher.execute('eyes', 'init', Array.prototype.slice.call(arguments)), rs); };
+    module.init = function() { return dispatcher.execute('eyes', 'init', Array.prototype.slice.call(arguments)); };
 	/**
      * @summary Notifies Eyes service that the test has been completed.
      * @function close
      * @return {Object} Object describing the test status details. //TODO: add structure details
      */ 
-    module.close = function() { return handleStepResult(dispatcher.execute('eyes', 'close', Array.prototype.slice.call(arguments)), rs); };
+    module.close = function() { return dispatcher.execute('eyes', 'close', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Allows forcing full page screenshots.
      * @function forceFullPageScreenshot
      * @param {Boolean} force - true to force full page screenshot, false otherwise.
      */ 
-    module.forceFullPageScreenshot = function() { return handleStepResult(dispatcher.execute('eyes', 'forceFullPageScreenshot', Array.prototype.slice.call(arguments)), rs); };
+    module.forceFullPageScreenshot = function() { return dispatcher.execute('eyes', 'forceFullPageScreenshot', Array.prototype.slice.call(arguments)); };
     
     module._iterationEnd = function(vars) {
     	dispatcher.execute('eyes', 'iterationEnd', {});

@@ -35,7 +35,7 @@ module.exports = function (options, context, rs, logger) {
     this._client = null; //wdSync.remote("localhost", 4723);
     this._driver = null; //module.driver = client.browser;
 	
-	var _this = this;               // reference to this instance
+	var _this = module._this = this;               // reference to this instance
 	this._isInitialized = false;    // initialization indicator
 	this._rs = rs;                  // results store
 	this._ctx = context;            // context variables
@@ -59,6 +59,16 @@ module.exports = function (options, context, rs, logger) {
 		"setValue"
 	];
     
+    module._isAction = function(name) {
+        return ACTION_COMMANDS.includes(name);
+    };
+    
+    module._takeScreenshot = function(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name))	{
+            return module.takeScreenshot();
+        }
+    };
+    
     // TODO: _assert* should be extracted into a separate helper later on
     this._assertLocator = function(locator) {
         if (!locator) {
@@ -80,57 +90,6 @@ module.exports = function (options, context, rs, logger) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
         }
     };
-	
-    // load external commands
-    // FIXME: this needs to live in module loader so module creator won't need to implement it in each module
-	(function() {
-        var cmdDir = path.join(__dirname, 'module-mob', 'commands');
-        if (fs.existsSync(cmdDir)) {
-            var commandName = null;
-            try {
-                var files = fs.readdirSync(cmdDir);
-                for (var fileName of files) {
-                    commandName = fileName.slice(0, -3);
-                    if (commandName.indexOf('.') !== 0) {   // ignore possible hidden files (i.e. starting with '.')
-                        module[commandName] = require(path.join(cmdDir, commandName));
-                    }
-                }	
-            }
-            catch (e) {
-                console.log("Can't load command '" + commandName + ": " + e.message);
-                console.log(e.stack);
-            }
-        }
-	})();
-	
-    // FIXME: needs to be rafactored so the wrapper can be used for other modules
-	function wrapModuleMethods() {
-		for (var key in module) {
-			if (typeof module[key] === 'function' && key.indexOf('_') != 0) {
-				module[key] = commandWrapper(key, module[key]);
-			}
-		}
-	}
-	
-	function commandWrapper(cmdName, cmdFunc) {
-		return function() {
-			var args = Array.prototype.slice.call(arguments);
-			var startTime = moment.utc();
-			var endTime = null;
-			try {
-				var retval = cmdFunc.apply(_this, args);
-				endTime = moment.utc();
-				addStep(cmdName, args, endTime - startTime, retval, null);
-				return retval;
-			}
-			catch (e) {
-				endTime = moment.utc();
-				e = errorsHelper.getOxygenError(e, cmdName, args, _this._options, _this._caps);
-				addStep(cmdName, args, endTime - startTime, null, e);
-				throw e;
-			}
-		};
-	}
 	
 	// public properties
 	module.autoPause = false;   // auto pause in waitFor
@@ -181,7 +140,7 @@ module.exports = function (options, context, rs, logger) {
      * @param {String} name - The transaction name.
      */
     module.transaction = function (name) { 
-        _this._ctx._lastTransactionName = name;
+        global._lastTransactionName = name;
     };
 	/**
 	 * @function setContext
@@ -240,32 +199,6 @@ module.exports = function (options, context, rs, logger) {
 		return module.setValue(locator, value);
 	};		
 	
-	function addStep(name, args, duration, retval, err) {
-        var step = new StepResult();
-		var result = {
-			step: step,
-			err: null,
-			value: retval
-		}
-		
-		step._name = "mob." + name;
-		step._transaction = _this._ctx._lastTransactionName;
-		step._status = err ? STATUS.FAILED : STATUS.PASSED;
-		step._action = ACTION_COMMANDS.includes(name).toString();
-		step._duration = duration;
-		
-		if (err) {
-			step.failure = new Failure();
-			step.failure._message = err.message;
-			step.failure._type = err.type;
-			// take a screenshot
-			if (!NO_SCREENSHOT_COMMANDS.includes(name))	// FIXME: extract cmd part from result.step._name
-				step.screenshot = module.takeScreenshot();
-		}
-		// add step to result store
-		_this._rs.steps.push(step);
-	}
-
 	helpers.getWdioLocator = function(locator) {
 		if (locator.indexOf('/') == 0)
 			return locator;	// leave xpath locator as is
@@ -292,9 +225,6 @@ module.exports = function (options, context, rs, logger) {
 		// if locator has not been recognized, return it as is
 		return locator;
 	}
-	
-	// wrap module methods
-	wrapModuleMethods();
-	
+    
     return module;
 };
