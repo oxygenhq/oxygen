@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2015-2017 CloudBeat Limited
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
- 
 /**
  * @summary Scrolls the element into the visible area of the browser window.
  * @function scrollIntoView
@@ -14,7 +5,7 @@
  * @param {Boolean=} alignToTop - Indicates whether to align the element to the top.
 */
 module.exports = function(locator, alignToTop) {
-    this._assertLocator(locator);
+    this._helpers._assertLocator(locator);
     alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
     locator = this._helpers.getWdioLocator(locator);
     

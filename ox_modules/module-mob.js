@@ -1,12 +1,3 @@
-/*
- * Copyright (C) 2015-2017 CloudBeat Limited
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- */
- 
 'use strict';
 /**
  * Provides methods for mobile automation. 
@@ -81,22 +72,22 @@ module.exports = function (options, context, rs, logger) {
     };
     
     // TODO: _assert* should be extracted into a separate helper later on
-    this._assertLocator = function(locator) {
+    this._helpers._assertLocator = function(locator) {
         if (!locator) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         }
     };
-    this._assertArgument = function(arg) {
+    this._helpers._assertArgument = function(arg) {
         if (arg === undefined) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
         }
     };
-    this._assertArgumentNonEmptyString = function(arg) {
+    this._helpers._assertArgumentNonEmptyString = function(arg) {
         if (!arg || typeof arg !== 'string') {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
         }
     };
-    this._assertArgumentNumber = function(arg) {
+    this._helpers._assertArgumentNumber = function(arg) {
         if (typeof(arg) !== 'number') {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
         }
@@ -208,7 +199,7 @@ module.exports = function (options, context, rs, logger) {
      * @for android, ios
      */     
     module.sendKeys = function(locator, value) { 
-        return module.setValue(locator, value);
+        return module.setValue.apply(_this, arguments);
     };      
     
     helpers.getWdioLocator = function(locator) {
