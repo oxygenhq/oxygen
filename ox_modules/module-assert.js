@@ -15,7 +15,7 @@ const chai = require('chai');
 const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 
-module.exports = function(argv, context, rs, logger) {
+module.exports = function() {
     /**
      * @summary Asserts that two values are equal.
      * @function equal

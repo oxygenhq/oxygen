@@ -11,7 +11,7 @@
  * [IDE ONLY] Provides methods for sending messages to the Event Log window.
  */
 
-module.exports = function(argv, context, rs, logger) {
+module.exports = function() {
     /**
      * @summary Print an INFO message to the log window.
      * @function info
