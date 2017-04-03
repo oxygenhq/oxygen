@@ -49,7 +49,9 @@
     "when": "3.7.7",
     "xlsx": "0.8.1",
     "wdio-sync": "0.6.10",
-    "webdriverio": "4.6.2"
+    "webdriverio": "4.6.2",
+    "deasync": "0.1.9",
+    "request": "2.81.0"
   },
   "scripts": {
     "build": "node_modules/.bin/grunt"
