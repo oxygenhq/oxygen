@@ -77,9 +77,10 @@ module.exports = function(argv, context, rs) {
     }
 
     /**
-     * @summary Print an INFO message to the log window.
-     * @function info
-     * @param {String} msg - Message to print.
+     * @summary Initializes mailinator module.
+     * @function init
+     * @param {String} token - API token.
+     * @param {String=} privateDomain - Specifies whether to use a private domain.
      */
     module.init = function(token, privateDomain) {
         _token = token;
@@ -88,24 +89,24 @@ module.exports = function(argv, context, rs) {
     
     /**
      * @summary Fetches inbox messages or all saved messages.
-     * @description Return example:
-     *                  {
-     *                      "messages": [
-     *                          {
-     *                              "fromfull": "noreply@example.com",
-     *                              "subject": "Subject",
-     *                              "from": "Test Tester",
-     *                              "origfrom": "Test Tester <noreply@example.com>",
-     *                              "to": "inbox-name",
-     *                              "id": "RANDOMLY GENERATED ID",
-     *                              "time": 1491200030000,
-     *                              "seconds_ago": 234
-     *                          },
-     *                      ]
-     *                  }
      * @function list
      * @param {String=} inbox - Inbox name. If ommited saved messages will be fetched instead.
-     * @return {Object} List of email details.               
+     * @return {Object} List containing message details.  
+     * @example <caption>[json] Example of the returned object</caption>
+     * {
+     *   "messages": [
+     *     {
+     *       "fromfull": "noreply@example.com",
+     *       "subject": "Subject",
+     *       "from": "Test Tester",
+     *       "origfrom": "Test Tester <noreply@example.com>",
+     *       "to": "inbox-name",
+     *       "id": "RANDOMLY GENERATED ID",
+     *       "time": 1491200030000,
+     *       "seconds_ago": 234
+     *     },
+     *   ]
+     * }     
      */
     module.list = function(inbox) {
         _currentTry = 0;
@@ -117,33 +118,33 @@ module.exports = function(argv, context, rs) {
      * @function fetch
      * @param {String} id - Message ID.
      * @return {Object} Email details. E.g.
-     *                  <pre><code>
-     *                   {
-     *                     "data":{
-     *                        "fromfull":"noreply@example.com",
-     *                        "headers":{ ... email headers ... },
-     *                        "subject":"test subject",
-     *                        "requestId":"REQUEST ID",
-     *                        "parts":[
-     *                           {
-     *                              "headers":{ "content-type":"text/plain; charset=utf-8" },
-     *                              "body":"EMAIL BODY (TEXT)"
-     *                           },
-     *                           {
-     *                              "headers":{ "content-type":"text/html; charset=utf-8" },
-     *                              "body":"EMAIL BODY (HTML)"
-     *                            }
-     *                        ],
-     *                        "from":"Test Tester",
-     *                        "origfrom":"Test Tester <noreply@example.com>",
-     *                        "to":"cb-test-2",
-     *                        "id":"RANDOMLY GENERATED ID",
-     *                        "time":1491200030000,
-     *                        "seconds_ago":1174
-     *                     },
-     *                     "apiEmailFetchesLeft":1999
-     *                  }
-     *                  </code></pre>
+     * @example <caption>[json] Example of the returned object</caption>
+     * {
+     *   "data": 
+     *     {
+     *       "fromfull":"noreply@example.com",
+     *       "headers": { ... email headers ... },
+     *       "subject":"test subject",
+     *       "requestId":"REQUEST ID",
+     *       "parts": [
+     *         {
+     *           "headers":{ "content-type":"text/plain; charset=utf-8" },
+     *           "body":"EMAIL BODY (TEXT)"
+     *         },
+     *         {
+     *           "headers":{ "content-type":"text/html; charset=utf-8" },
+     *           "body":"EMAIL BODY (HTML)"
+     *         }
+     *       ],
+     *       "from":"Test Tester",
+     *       "origfrom":"Test Tester <noreply@example.com>",
+     *       "to":"cb-test-2",
+     *       "id":"RANDOMLY GENERATED ID",
+     *       "time":1491200030000,
+     *       "seconds_ago":1174
+     *    },
+     *   "apiEmailFetchesLeft":1999
+     * }
      */
     module.fetch = function(id) {
         _currentTry = 0;
@@ -176,10 +177,11 @@ module.exports = function(argv, context, rs) {
      * @summary Deletes sepcific email.
      * @function delete
      * @param {String} id - Message ID.
-     * @return {Object} Status. E.g.
-     *                  <pre><code>
-     *                  { "status": "ok"}
-     *                  </code></pre>
+     * @return {Object} Status.
+     * @example <caption>[json] Example of the returned object</caption>
+     * { 
+     *   "status": "ok"
+     * }
      */
     module.delete = function(id) { 
         _currentTry = 0;
