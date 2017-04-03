@@ -58,6 +58,13 @@ var RETURNS = '<h5>Returns:</h5>' +
   
 var LINK = '<a href="#{0}">{0}</a><br />';
 
+var EXAMPLE = '<div markdown="1">' +
+              '<br/><span class="example-caption">{0}</span>' +
+              '\n```{1}\n' + 
+              '{2}'+
+              '\n```\n' +
+              '</div>';
+
 module.exports = function(grunt) {
     grunt.registerTask('apidoc', 'description', function() {
         var modules = fs.readdirSync(modPath);
@@ -137,6 +144,19 @@ module.exports = function(grunt) {
                         {
                             if (tag.title === 'description') {
                                 return tag.description.replace(/(\r\n|\n)/gm,''); 
+                            }
+                        }
+                    };
+                    // TODO: add support for multiple examples
+                    commentParsed.getExample = function() {
+                        for (var tag of this.tags)
+                        {
+                            if (tag.title === 'example') {
+                                var example = {
+                                    description: tag.description,
+                                    caption: tag.caption
+                                }
+                                return example;
                             }
                         }
                     };
@@ -248,9 +268,24 @@ module.exports = function(grunt) {
                 var methodDesc = method.getDescription();
                       
                 var descHtml = DESCRIPTION.format(method.getSummary() + 
-                                                  (methodDesc !== undefined ? 
-                                                    '<br/><br/>' + methodDesc : ''));                              
+                                                  (methodDesc !== undefined ? '<br/><br/>' + methodDesc : ''));
                 fs.appendFileSync(outFile, sigHtml + descHtml);
+                
+                // example
+                var example = method.getExample();
+                if (example !== undefined) {
+                    var caption = '';
+                    var language = '';
+                    
+                    var langStart = example.caption.indexOf('[');
+                    var langEnd = example.caption.indexOf(']');
+                    if (langStart !== -1 && langEnd !== -1) {
+                        caption = example.caption.substring(langEnd + 1);
+                        language = example.caption.substring(langStart + 1, langEnd);
+                    }
+                    var exampleHtml = EXAMPLE.format(caption, language, example.description);                              
+                    fs.appendFileSync(outFile, exampleHtml);
+                }
                 
                 // parameters
                 if (paramConcat.length > 0) {
