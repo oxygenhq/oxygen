@@ -1,6 +1,6 @@
 {
   "name": "oxygen",
-  "version": "0.7.3",
+  "version": "0.8.0",
   "description": "Oxygen is an open source automation framework for Web & Mobile",
   "private": true,
   "main": "./lib/oxygen.js",
