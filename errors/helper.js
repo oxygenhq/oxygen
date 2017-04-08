@@ -11,7 +11,6 @@
  * Helper module for handling and converting various error types
  */
 
-var SeleniumError = require('../errors/SeleniumError');
 var OxError = require('../errors/OxygenError');
 
 // NOTE: these should match any codes defined at the .net backend
@@ -82,13 +81,6 @@ module.exports = {
         
         var errType = err.type || err.name || typeof err;
         
-        // FIXME:
-        if (errType === 'RuntimeError') {
-            if (err.seleniumStack) {
-                return new SeleniumError(err, cmd, args, opts, caps);
-            }   
-        }
-
         // try to resolve WDIO error code 
         var oxErrorCode = WDIO_ERROR_CODES[errType];
         if (oxErrorCode) {
