@@ -53,7 +53,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
         dispatcher.execute('web', 'moduleInit', opts);
     }
     
-    /**
+    /* FIXME:
      * @summary Initialize test settings and start correspondent Selenium server and browser.
      * @function init
      * @param {String} seleniumUrl - Selenium server url.
@@ -61,7 +61,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @param {Boolean} resetDefaultCaps - If true default capabilities will be cleared, otherwise 
      *                                     custom capabilities will be merged with the default ones.
      */
-    module.init = function ()
+    module.init = function (seleniumUrl, caps, resetDefaultCaps)
     {
         return dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments));
     };
