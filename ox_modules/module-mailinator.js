@@ -70,7 +70,8 @@ module.exports = function(argv, context, rs) {
         }
         
         if (result.statusCode !== 200) {
-            throw new OxError(errHelper.errorCode.MAILINATOR_ERROR, 'Status Code - ' + result.statusCode);
+            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
+            throw new OxError(errHelper.errorCode.MAILINATOR_ERROR, msg);
         }
 
         return result.body;
