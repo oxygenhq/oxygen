@@ -34,9 +34,6 @@ namespace CloudBeat.Oxygen
             this.CommandName = commandName;
 
             // build command name
-            if (args == null)
-                this.CommandExpression = string.Format("{0}.{1}();", moduleName.ToLower(), commandName);
-
             var argsQuoted = new string[args.Length];
             for (int i = 0; i < args.Length; i++)
             {
@@ -44,7 +41,7 @@ namespace CloudBeat.Oxygen
                 var argEscaped = arg.ToString().Replace("'", @"\'").Replace(@"\\'", @"\'");
                 argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + argEscaped + "'" : argEscaped;
             }
-            this.CommandExpression = string.Format("{0}.{1}({2});", moduleName.ToLower(), commandName, string.Join(", ", argsQuoted));
+            this.CommandExpression = string.Format("{0}.{1}({2});", moduleName.ToLower(), commandName, argsQuoted.Length > 0 ? string.Join(", ", argsQuoted) : "");
         }
 
         public CommandResult ErrorBase(CloudBeat.Oxygen.Modules.Module.ErrorType errType, string errMsg = null)
