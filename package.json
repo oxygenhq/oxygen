@@ -46,7 +46,7 @@
     "oxygen-logger": "git+https://github.com/oxygenhq/oxygen-logger.git",
     "underscore": "1.8.3",
     "when": "3.7.7",
-    "xlsx": "0.8.1",
+    "xlsx": "0.9.11",
     "wdio-sync": "0.6.10",
     "webdriverio": "4.6.2",
     "deasync": "git+https://github.com/oxygenhq/deasync.git#f56cff67a95e5167c44ee2fa0dca667e61d57ae4",
