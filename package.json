@@ -1,6 +1,6 @@
 {
   "name": "oxygen",
-  "version": "0.8.3",
+  "version": "0.9.1",
   "description": "Oxygen is an open source automation framework for Web & Mobile",
   "private": true,
   "main": "./lib/oxygen.js",
@@ -49,7 +49,7 @@
     "xlsx": "0.9.11",
     "wdio-sync": "0.6.10",
     "webdriverio": "4.6.2",
-    "deasync": "git+https://github.com/oxygenhq/deasync.git#f56cff67a95e5167c44ee2fa0dca667e61d57ae4",
+    "deasync": "git+https://github.com/oxygenhq/deasync.git#51fcb3794835f7d2f9da611ad128056747c4bc77",
     "request": "2.81.0"
   }
 }
