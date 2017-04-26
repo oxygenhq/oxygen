@@ -49,7 +49,7 @@
     "xlsx": "0.9.11",
     "wdio-sync": "0.6.10",
     "webdriverio": "4.6.2",
-    "deasync": "git+https://github.com/oxygenhq/deasync.git#51fcb3794835f7d2f9da611ad128056747c4bc77",
+    "deasync": "git+https://github.com/oxygenhq/deasync.git#678a2e1408d33fd1fe6f7f1e72efa44a4f7e6b09",
     "request": "2.81.0"
   }
 }
