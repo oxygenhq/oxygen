@@ -137,7 +137,7 @@ module.exports = function (options, context, rs, logger) {
         }
         // take capabilities either from init method argument or from context parameters passed in the constructor
 		// merge capabilities in context and in init function arguments
-        _this._caps = {}; //caps || _this._ctx.caps;
+        _this._caps = {};
 		if (_this._ctx.caps) {
 			_.extend(_this._caps, _this._ctx.caps);
 		}
@@ -152,7 +152,15 @@ module.exports = function (options, context, rs, logger) {
         // initialize driver with either default or custom appium/selenium grid address
         _this._driver = module.driver = wdio.remote(wdioOpts);
         wdioSync.wrapCommands(_this._driver);
-        _this._driver.init();   
+        try {
+            _this._driver.init();
+        } catch (err) {
+            // make webdriverio's generic 'selenium' message more descriptive
+            if (err.type === 'RuntimeError' && err.message === "Couldn't connect to selenium server") {
+                throw new this._OxError(this._errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't connect to appium server");
+            }
+            throw err;
+        }
         _this._isInitialized = true;
     };
     
