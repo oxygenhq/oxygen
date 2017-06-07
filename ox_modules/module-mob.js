@@ -33,6 +33,7 @@ module.exports = function (options, context, rs, logger) {
     
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
+	var _ = require('underscore');
     
     this._OxError = require('../errors/OxygenError');
     this._errHelper = require('../errors/helper');
@@ -109,6 +110,10 @@ module.exports = function (options, context, rs, logger) {
     module.autoReopen = options.autoReopen || true;
     module.driver = null;
 
+    module.getCaps = function() {
+        return _this._caps || _this._ctx.caps;
+    };
+
     /**
      * @function init
      * @summary Initializes a new Appium session.
@@ -130,15 +135,23 @@ module.exports = function (options, context, rs, logger) {
             }
             return;
         }
+        // take capabilities either from init method argument or from context parameters passed in the constructor
+		// merge capabilities in context and in init function arguments
+        _this._caps = {}; //caps || _this._ctx.caps;
+		if (_this._ctx.caps) {
+			_.extend(_this._caps, _this._ctx.caps);
+		}
+		if (caps) {
+			_.extend(_this._caps, caps);
+		}
         var wdioOpts = {
             host: host || _this._options.host || DEFAULT_APPIUM_HOST,
             port: port || _this._options.port || DEFAULT_APPIUM_PORT,
-            desiredCapabilities: caps
+            desiredCapabilities: _this._caps
         };
         // initialize driver with either default or custom appium/selenium grid address
         _this._driver = module.driver = wdio.remote(wdioOpts);
         wdioSync.wrapCommands(_this._driver);
-        _this._caps = caps || _this._ctx.caps;
         _this._driver.init();   
         _this._isInitialized = true;
     };
@@ -187,7 +200,12 @@ module.exports = function (options, context, rs, logger) {
      */
     module.dispose = function() {
         if (_this._driver && _this._isInitialized) {
-            _this._driver.end();
+            try {
+                _this._driver.end();
+            }
+            catch (e) {
+                logger.error(e);    // ignore any error at disposal stage
+            }
             _this._isInitialized = false;
         }
     };

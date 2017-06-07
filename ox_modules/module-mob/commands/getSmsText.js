@@ -3,11 +3,11 @@
  * @function getSmsText
 */
 module.exports = function() {
-    var locSms = "id=net.everythingandroid.smspopup:id/messageTextView";
-    var locSmsClose = "id=net.everythingandroid.smspopup:id/button1";
+    var locSms = 'id=net.everythingandroid.smspopup:id/messageTextView';
+    var locSmsClose = 'id=net.everythingandroid.smspopup:id/button1';
     console.dir(this._module);
     //try {
-        this._module.waitForElement(locSms);
+    this._module.waitForElement(locSms);
     /*}
     catch (e) {
         // if sms popup didn't appear within wait time, return null value
