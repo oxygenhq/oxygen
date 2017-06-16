@@ -144,6 +144,9 @@ module.exports = function (options, context, rs, logger) {
 		if (caps) {
 			_.extend(_this._caps, caps);
 		}
+        // write back to the context the merged caps (used later in the reporter)
+        _this._ctx.caps = _this._caps;
+        
         var wdioOpts = {
             host: host || _this._options.host || DEFAULT_APPIUM_HOST,
             port: port || _this._options.port || DEFAULT_APPIUM_PORT,
