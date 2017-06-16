@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * Provides generic assertion methods.
  */
@@ -38,6 +38,6 @@ module.exports = function() {
      * @param {String=} message - Error message to return.
      */
     module.fail = function(message) { throw new OxError(errHelper.errorCode.ASSERT, message); };
-    
+
     return module;
 };

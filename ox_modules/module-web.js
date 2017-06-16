@@ -6,30 +6,30 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
- * Provides methods for browser automation. 
+ * Provides methods for browser automation.
  * <br /><br />
  * <b><i>Notes:</i></b><br />
- * Commands which operate on elements such as click, assert, waitFor, type, select, and others will 
- * automatically wait for a period of time for the element to appear in DOM and become visible. By 
- * default this period equals to 60 seconds, but can be changed using the <code>setTimeout</code> 
+ * Commands which operate on elements such as click, assert, waitFor, type, select, and others will
+ * automatically wait for a period of time for the element to appear in DOM and become visible. By
+ * default this period equals to 60 seconds, but can be changed using the <code>setTimeout</code>
  * command.
  * <br /><br />
- * <div id="patterns">Commands which expect a string matching pattern in their arguments, support 
+ * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
  *  following patterns unless specified otherwise:
  *  <ul>
  *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
  *  <li><code>regexi:PATTERN</code> - Match using case-insensitive regular expression.</li>
  *  <li><code>exact:STRING</code> - Match the string verbatim.</li>
- *  <li><code>glob:PATTERN</code> - Match using case-insensitive glob pattern. 
+ *  <li><code>glob:PATTERN</code> - Match using case-insensitive glob pattern.
  *      <code>?</code> will match any single character except new line (\n).
- *      <code>*</code> will match any sequence (0 or more) of characters except new line. Empty 
+ *      <code>*</code> will match any sequence (0 or more) of characters except new line. Empty
  *      PATTERN will match only other empty strings.</li>
  *  <li><code>PATTERN</code> - Same as glob matching.</li>
  *  </ul>
  * </div>
- * <div id="patterns">Commands which expect an element locator in their arguments, support 
+ * <div id="patterns">Commands which expect an element locator in their arguments, support
  *  following locator types unless specified otherwise:
  *  <ul>
  *  <li><code>id=ID</code> - Locates element by its ID attribute.</li>
@@ -46,19 +46,19 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
     var module = { modType: 'dotnet' };
 
     var ctx = context;
-    
+
     global._lastTransactionName = null;
-    
+
     if (dispatcher) {
         dispatcher.execute('web', 'moduleInit', opts);
     }
-    
+
     /* FIXME:
      * @summary Initialize test settings and start correspondent Selenium server and browser.
      * @function init
      * @param {String} seleniumUrl - Selenium server url.
      * @param {Object} caps - Selenium capabilities.
-     * @param {Boolean} resetDefaultCaps - If true default capabilities will be cleared, otherwise 
+     * @param {Boolean} resetDefaultCaps - If true default capabilities will be cleared, otherwise
      *                                     custom capabilities will be merged with the default ones.
      */
     module.init = function (seleniumUrl, caps, resetDefaultCaps)
@@ -79,7 +79,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
         rs.har = har;
     };
     /**
-     * @summary Sets base URL which can be used for relative navigation using the <code>open</code> 
+     * @summary Sets base URL which can be used for relative navigation using the <code>open</code>
      *          command.
      * @function setBaseUrl
      * @param {String} url - The base URL.
@@ -92,14 +92,14 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @function transaction
      * @param {String} name - The transaction name.
      */
-    module.transaction = function (name) { 
+    module.transaction = function (name) {
         global._lastTransactionName = name;
         return dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments));
     };
     /**
      * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
      * @description This includes the <code>open</code> command, <code>waitFor*</code> commands, and
-     *              all other commands which wait for elements to appear or become visible before 
+     *              all other commands which wait for elements to appear or become visible before
      *              operating on them.<br/>
      *              If command wasn't able to complete within the specified period it will fail the
      *              test.<br/>
@@ -117,7 +117,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
     module.open = function () { return dispatcher.execute('web', 'open', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Scrolls the page to the location of the specified element.
-     * @description <i>yOffset</i> determines the offset from the specified element where to scroll 
+     * @description <i>yOffset</i> determines the offset from the specified element where to scroll
      *              to. It can be either a positive or a negative value.
      * @function scrollToElement
      * @param {String} locator - An element locator.
@@ -131,8 +131,8 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.point = function () { return dispatcher.execute('web', 'point', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Clicks on a link, button, checkbox, or radio button. 
-     * @description If the click causes new page to load, the command waits for page to load before 
+     * @summary Clicks on a link, button, checkbox, or radio button.
+     * @description If the click causes new page to load, the command waits for page to load before
      *              proceeding.
      * @function click
      * @param {String} locator - An element locator.
@@ -140,7 +140,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
     module.click = function () { return dispatcher.execute('web', 'click', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Clicks on a non-visible link, button, checkbox, or radio button.
-     * @description If the click causes new page to load, the command waits for page to load before 
+     * @description If the click causes new page to load, the command waits for page to load before
      *              proceeding.
      * @function clickHidden
      * @param {String} locator - An element locator.
@@ -155,9 +155,9 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.assertTitle = function() { return dispatcher.execute('web', 'assertTitle', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Simulates keystroke events on the specified element, as though you typed the value 
+     * @summary Simulates keystroke events on the specified element, as though you typed the value
      *          key-by-key. Previous value if any will be cleared.
-     * @description Following special key codes are supported using the <code>'${KEY_CODE}'</code> 
+     * @description Following special key codes are supported using the <code>'${KEY_CODE}'</code>
      *              notation:<br/>
      *          KEY_BACKSPACE<br/>
      *          KEY_TAB<br/>
@@ -234,7 +234,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @summary Selects window. Once window has been selected, all commands go to that window.
      * @description <code>windowLocator</code> can be:
      *              <ul>
-     *              <li><code>title=TITLE</code> - Switch to the first window which matches the 
+     *              <li><code>title=TITLE</code> - Switch to the first window which matches the
      *                  specified title. TITLE can be any of the supported <a href="#patterns">
      *                  string matching patterns</a>.
      *              </li>
@@ -262,7 +262,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.getText = function() { return dispatcher.execute('web', 'getText', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Returns the (whitespace-trimmed) value of an input field. For checkbox/radio 
+     * @summary Returns the (whitespace-trimmed) value of an input field. For checkbox/radio
      *          elements, the value will be "on" or "off".
      * @function getValue
      * @param {String} locator - An element locator.
@@ -276,7 +276,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.doubleClick = function() { return dispatcher.execute('web', 'doubleClick', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Selects an option from a drop-down list using an option locator. This command works 
+     * @summary Selects an option from a drop-down list using an option locator. This command works
      *          with multiple-choice lists as well.
      * @description Option locator can be one of the following (No prefix is same as label matching):
      *              <ul>
@@ -311,7 +311,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @summary Waits for a window to appear.
      * @description <code>windowLocator</code> can be:
      *              <ul>
-     *              <li><code>title=TITLE</code> - Wait for the first window which matches the 
+     *              <li><code>title=TITLE</code> - Wait for the first window which matches the
      *                  specified title. TITLE can be any of the supported <a href="#patterns">
      *                  string matching patterns</a>.
      *              </li>
@@ -319,7 +319,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      *              </ul>
      * @function waitForWindow
      * @param {String} windowLocator - A window locator.
-     * @param {Integer} timeout - A timeout in milliseconds, after which the action will return with 
+     * @param {Integer} timeout - A timeout in milliseconds, after which the action will return with
      *                           an error.
      */
     module.waitForWindow = function() { return dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)); };
@@ -331,8 +331,8 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      *              <li><code>relative=parent</code> - Select parent frame.</li>
      *              <li><code>relative=top</code> - Select top window.</li>
      *              <li><code>index=0</code> - Select frame by its 0-based index.</li>
-     *              <li><code>//XPATH</code> - XPath expression relative to the top window which 
-     *                  identifies the frame. Multiple XPaths can be concatenated using 
+     *              <li><code>//XPATH</code> - XPath expression relative to the top window which
+     *                  identifies the frame. Multiple XPaths can be concatenated using
      *                  <code>;;</code> to switch between nested frames.</li>
      *              </ul>
      * @function selectFrame
@@ -353,7 +353,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.waitForElementPresent = function() { return dispatcher.execute('web', 'waitForElementPresent', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Checks if element is present in the DOM. Returns false if element was not found 
+     * @summary Checks if element is present in the DOM. Returns false if element was not found
      *          within the specified timeout.
      * @function isElementPresent
      * @param {String} locator - An element locator.
@@ -362,7 +362,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.isElementPresent = function() { return dispatcher.execute('web', 'isElementPresent', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Checks if element is present and visible. Returns false if element was not found or 
+     * @summary Checks if element is present and visible. Returns false if element was not found or
      *          wasn't visible within the specified timeout.
      * @function isElementVisible
      * @param {String} locator - An element locator.
@@ -416,7 +416,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.assertValue = function() { return dispatcher.execute('web', 'assertValue', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Asserts whether the given text is present somewhere on the page. That is whether an 
+     * @summary Asserts whether the given text is present somewhere on the page. That is whether an
      *          element containing this text exists on the page.
      * @function assertTextPresent
      * @param {String} text - Text.
@@ -443,14 +443,14 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.getPageSource = function() { return dispatcher.execute('web', 'getPageSource', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Gets the source of the currently active window which displays <code>text/xml</code> 
+     * @summary Gets the source of the currently active window which displays <code>text/xml</code>
      *          page.
      * @function getXMLPageSource
      * @return {String} The XML page source.
      */
     module.getXMLPageSource = function() { return dispatcher.execute('web', 'getXMLPageSource', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Gets the source of the currently active window which displays <code>text/xml</code> 
+     * @summary Gets the source of the currently active window which displays <code>text/xml</code>
      *          page and returns it as JSON object.
      * @function getXMLPageSourceAsJSON
      * @return {String} The XML page source represented as a JSON string.
@@ -481,7 +481,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      */
     module.isAlertPresent = function() { return dispatcher.execute('web', 'isAlertPresent', Array.prototype.slice.call(arguments)); };
     /**
-     * @summary Accepts an alert or a confirmation dialog. 
+     * @summary Accepts an alert or a confirmation dialog.
      * @description In case of an alert box this command is identical to <code>alertDismiss</code>.
      * @function alertAccept
      */
@@ -520,10 +520,10 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @summary Executes JavaScript in the context of the currently selected frame or window.
      * @description The return value is serialized into a JSON string. If the value is null or there
      *              is no return value, <code>null</code> is returned. <br/>
-     *              DOM object return values are not supported. If value is a DOM object such as 
-     *              <code>document</code> or an element returned by <code>getElementById()</code>, 
+     *              DOM object return values are not supported. If value is a DOM object such as
+     *              <code>document</code> or an element returned by <code>getElementById()</code>,
      *              null is returned instead.<br/>
-     *              If the value cannot be serialized due to its size or circular-references the 
+     *              If the value cannot be serialized due to its size or circular-references the
      *              test will fail with "Maximum call stack size exceeded" error.
      * @function executeScript
      * @param {String} script - The JavaScript to execute.
@@ -537,15 +537,15 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @return {Integer} Element count or 0 if no elements were found.
      */
     module.getElementCount = function() { return dispatcher.execute('web', 'getElementCount', Array.prototype.slice.call(arguments)); };
-    
+
     module.fileBrowse = function() { return dispatcher.execute('web', 'fileBrowse', Array.prototype.slice.call(arguments)); };
- 
+
     /**
      * @summary Makes hidden element visible.
-     * @description This a workaround command for situations which require manipulation of hidden 
-     *              elements, such as when using <code>web.type</code> command for file input 
+     * @description This a workaround command for situations which require manipulation of hidden
+     *              elements, such as when using <code>web.type</code> command for file input
      *              fields which tend to be hidden.<br/>
-     *              Specifically <code>makeVisible</code> will apply following styles to the 
+     *              Specifically <code>makeVisible</code> will apply following styles to the
      *              specified element:
      *              <ul>
      *              <li>visibility = 'visible'</li>
@@ -558,7 +558,7 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @param {String} locator - An element locator.
      */
     module.makeVisible = function() { return dispatcher.execute('web', 'makeVisible', Array.prototype.slice.call(arguments)); };
-    
+
     /**
      * @summary Sets the size of the outer browser window.
      * @description To maximize the window set both width and height to 0.
@@ -567,6 +567,6 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @param {Integer} height - Height in pixels.
      */
     module.setWindowSize = function() { return dispatcher.execute('web', 'setWindowSize', Array.prototype.slice.call(arguments)); };
-    
+
     return module;
 };

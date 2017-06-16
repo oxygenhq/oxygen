@@ -14,7 +14,7 @@
 */
 module.exports = function(locator) {
     this.helpers._assertLocator(locator);
-    
+
     // when locator is an element object
     if (typeof locator === 'object' && locator.click) {
         return locator.isVisible();

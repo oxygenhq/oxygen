@@ -13,7 +13,7 @@
 module.exports = function () {
     return {
         _type: null,
-		_subtype: null,
+        _subtype: null,
         _message: null,
         _details: null,
         data: null

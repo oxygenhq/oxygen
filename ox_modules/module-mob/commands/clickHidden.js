@@ -16,7 +16,7 @@ module.exports = function(locator, clickParent) {
     this.helpers._assertLocator(locator);
     clickParent = typeof clickParent === 'boolean' ? clickParent : false;
     locator = this.helpers.getWdioLocator(locator);
-    
+
     this._driver.selectorExecute(
         locator,
         function(elms, clickParent) {

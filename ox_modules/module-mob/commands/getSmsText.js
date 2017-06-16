@@ -7,15 +7,15 @@ module.exports = function() {
     var locSmsClose = 'id=net.everythingandroid.smspopup:id/button1';
 
     this.module.waitForElement(locSms);
-    
+
     var sms = this.module.findElement(locSms);
-    
+
     var text = null;
     if (sms){
         text = sms.getText();
     }
     this.module.waitForElement(locSmsClose);
-    this.module.click(locSmsClose);  
+    this.module.click(locSmsClose);
     return text;
 };
 

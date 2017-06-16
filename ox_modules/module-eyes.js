@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * Provides methods for Applitools Eyes
  */
@@ -16,7 +16,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
     if (dispatcher) {
         dispatcher.execute('eyes', 'moduleInit', argv);
     }
-    
+
     /**
      * @summary Performs validation on the whole window.
      * @description This method always succeeds irregardless of validation result.
@@ -36,26 +36,26 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      * @param {String} apiKey - Applitools API key.
      * @param {String} appName - String that represents the logical name of the AUT (this name will
      *                           be presented in the test result).
-     * @param {String} testName - String that represents the name of the test (this name will be 
+     * @param {String} testName - String that represents the name of the test (this name will be
      *                            presented in the test result)
-     */ 
+     */
     module.init = function() { return dispatcher.execute('eyes', 'init', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Notifies Eyes service that the test has been completed.
      * @function close
      * @return {Object} Object describing the test status details. //TODO: add structure details
-     */ 
+     */
     module.close = function() { return dispatcher.execute('eyes', 'close', Array.prototype.slice.call(arguments)); };
     /**
      * @summary Allows forcing full page screenshots.
      * @function forceFullPageScreenshot
      * @param {Boolean} force - true to force full page screenshot, false otherwise.
-     */ 
+     */
     module.forceFullPageScreenshot = function() { return dispatcher.execute('eyes', 'forceFullPageScreenshot', Array.prototype.slice.call(arguments)); };
-    
+
     module._iterationEnd = function(vars) {
         dispatcher.execute('eyes', 'iterationEnd', {});
     };
-    
+
     return module;
 };

@@ -18,15 +18,15 @@ const assert = chai.assert;
 
 module.exports = function(locator, pattern, message) {
     this.helpers._assertLocator(locator);
-    
-	var elm = null;
-	// when locator is an element object
+
+    var elm = null;
+    // when locator is an element object
     if (typeof locator === 'object' && locator.getText) {
         elm = locator;
     }
-	else {
-		elm = this.module.findElement(locator);
-	}
+    else {
+        elm = this.module.findElement(locator);
+    }
     if (!elm) {
         throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
     }

@@ -6,29 +6,29 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * Provides methods for working with Mailinator service - www.mailinator.com
  */
- 
+
 const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 
 module.exports = function(argv, context, rs) {
     var request = require('request');
     var deasync = require('deasync');
-    
+
     const apiBase = 'https://api.mailinator.com/api';
-    
+
     const _responseTimeout = 1000 * 30;   // in ms
     const _retries = 2;                   // number of retries
     const _retryInterval = 1000;          // in ms
-    
+
     var _token;
     var _privateDomain;
-    
+
     var _currentTry;
-    
+
     // wait synchronously in a non-blocking manner
     function wait() {
         var isDone = false;
@@ -44,7 +44,7 @@ module.exports = function(argv, context, rs) {
 
         deasync.loopWhile(() => !isDone);
     }
-    
+
     function apiSettings() {
         return 'token=' + _token + (_privateDomain ? '&private_domain=true' : '');
     }
@@ -68,7 +68,7 @@ module.exports = function(argv, context, rs) {
             wait();
             result = invoke(url);
         }
-        
+
         if (result.statusCode !== 200) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.MAILINATOR_ERROR, msg);
@@ -86,13 +86,13 @@ module.exports = function(argv, context, rs) {
     module.init = function(token, privateDomain) {
         _token = token;
         _privateDomain = privateDomain;
-    }; 
-    
+    };
+
     /**
      * @summary Fetches inbox messages or all saved messages.
      * @function list
      * @param {String=} inbox - Inbox name. If ommited saved messages will be fetched instead.
-     * @return {Object} List containing message details.  
+     * @return {Object} List containing message details.
      * @example <caption>[json] Example of the returned object</caption>
      * {
      *   "messages": [
@@ -107,13 +107,13 @@ module.exports = function(argv, context, rs) {
      *       "seconds_ago": 234
      *     },
      *   ]
-     * }     
+     * }
      */
     module.list = function(inbox) {
         _currentTry = 0;
         return invoke(apiBase + '/inbox?' + apiSettings() + (inbox ? '&to=' + inbox : ''));
     };
-    
+
     /**
      * @summary Fetches specific email.
      * @function fetch
@@ -121,7 +121,7 @@ module.exports = function(argv, context, rs) {
      * @return {Object} Email details. E.g.
      * @example <caption>[json] Example of the returned object</caption>
      * {
-     *   "data": 
+     *   "data":
      *     {
      *       "fromfull":"noreply@example.com",
      *       "headers": { ... email headers ... },
@@ -151,7 +151,7 @@ module.exports = function(argv, context, rs) {
         _currentTry = 0;
         return invoke(apiBase + '/email?' + apiSettings() + '&id=' + id);
     };
-    
+
     /**
      * @summary Extracts email's subject.
      * @function getSubject
@@ -162,7 +162,7 @@ module.exports = function(argv, context, rs) {
         console.log(emailObj.data.subject);
         return emailObj.data.subject;
     };
-    
+
     /**
      * @summary Extracts first available email body.
      * @function getBody
@@ -173,21 +173,21 @@ module.exports = function(argv, context, rs) {
         console.log(emailObj.data.parts[0].body);
         return emailObj.data.parts[0].body;
     };
-    
+
     /**
      * @summary Deletes sepcific email.
      * @function delete
      * @param {String} id - Message ID.
      * @return {Object} Status.
      * @example <caption>[json] Example of the returned object</caption>
-     * { 
+     * {
      *   "status": "ok"
      * }
      */
-    module.delete = function(id) { 
+    module.delete = function(id) {
         _currentTry = 0;
         return invoke(apiBase + '/delete?' + apiSettings() + '&id=' + id);
-    }; 
-    
+    };
+
     return module;
 };

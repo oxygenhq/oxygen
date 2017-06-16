@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * Provides methods for working with Data Bases through ODBC.
  */
@@ -18,8 +18,8 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
     }
 
     /**
-    * @summary Sets DB connection string to be used by other methods. 
-    * @description This method doesn't actually open the connection as it's opened/closed 
+    * @summary Sets DB connection string to be used by other methods.
+    * @description This method doesn't actually open the connection as it's opened/closed
     *              automatically by query methods.<br/>
     *              Example connection strings:<br/>
     *              <ul>
@@ -37,7 +37,7 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      * @summary Executes SQL query and returns the first column of the first row in the result set.
      * @function getScalar
      * @param {String} query - The query to execute.
-     * @return {Object} The first column of the first row in the result set, or null if the result 
+     * @return {Object} The first column of the first row in the result set, or null if the result
      *                  set is empty.
      */
     module.getScalar = function() { return dispatcher.execute('db', 'getScalar', Array.prototype.slice.call(arguments)); };

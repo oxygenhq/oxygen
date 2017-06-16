@@ -16,7 +16,7 @@ module.exports = function(locator, alignToTop) {
     this.helpers._assertLocator(locator);
     alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
     locator = this.helpers.getWdioLocator(locator);
-    
+
     this._driver.selectorExecute(
         locator,
         function(elms, alignToTop) {

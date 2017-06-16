@@ -17,7 +17,7 @@ module.exports = function(locator, parent) {
     this.helpers._assertLocator(locator);
     locator = this.helpers.getWdioLocator(locator);
     var retval = null;
-    
+
     if (parent && typeof parent === 'object' && parent.elements) {
         retval = parent.elements(locator);
     } else {

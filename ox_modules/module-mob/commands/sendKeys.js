@@ -14,6 +14,6 @@
 module.exports = function(value) {
     this.helpers._assertArgument(value);
 
-		return this._driver.keys(value);
+    return this._driver.keys(value);
 };
 

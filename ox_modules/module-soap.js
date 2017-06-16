@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * Provides methods for working with SOAP based Web Services.
  * <br /><br />
@@ -36,6 +36,6 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      * @return {String} JSON representing the response object.
      */
     module.get12 = function() { return dispatcher.execute('soap', 'get12', Array.prototype.slice.call(arguments)); };
-    
+
     return module;
 };

@@ -19,7 +19,7 @@ module.exports = function(locator, value) {
     if (typeof locator === 'object' && locator.setValue) {
         return locator.setValue(value);
     }
- 
+
     locator = this.helpers.getWdioLocator(locator);
     return this._driver.setValue(locator, value);
 };

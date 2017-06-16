@@ -9,10 +9,10 @@
 
 'use strict';
 /**
- * Provides methods for mobile automation. 
+ * Provides methods for mobile automation.
  * <br /><br />
  * <b><i>Notes:</i></b><br />
- * <div id="patterns">Commands which expect a string matching pattern in their arguments, support 
+ * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
  *  following patterns unless specified otherwise:
  *  <ul>
  *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
@@ -22,7 +22,7 @@
  */
 
 module.exports = function (options, context, rs, logger) {
-    // this needs to be defined for wdio to work in sync mode 
+    // this needs to be defined for wdio to work in sync mode
     global.browser = {
         options: {
             sync: true
@@ -30,23 +30,23 @@ module.exports = function (options, context, rs, logger) {
     };
     var module = this.module = { modType: 'fiber' };
     var helpers = this.helpers = {};
-    
+
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
-	var _ = require('underscore');
-    
+    var _ = require('underscore');
+
     this._OxError = require('../errors/OxygenError');
     this._errHelper = require('../errors/helper');
-    
+
     // constants
-    this.DEFAULT_WAIT_TIMEOUT = 60000; 
-    this.POOLING_INTERVAL = 5000; 
+    this.DEFAULT_WAIT_TIMEOUT = 60000;
+    this.POOLING_INTERVAL = 5000;
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
 
     this._client = null; //wdSync.remote("localhost", 4723);
     this._driver = null; //module.driver = client.browser;
-    
+
     var _this = module._this = this;               // reference to this instance
     this._isInitialized = false;    // initialization indicator
     this._rs = rs;                  // results store
@@ -70,17 +70,17 @@ module.exports = function (options, context, rs, logger) {
         'submit',
         'setValue'
     ];
-    
+
     helpers._isAction = function(name) {
         return ACTION_COMMANDS.includes(name);
     };
-    
+
     helpers._takeScreenshot = function(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             return module.takeScreenshot();
         }
     };
-    
+
     // TODO: _assert* should be extracted into a separate helper later on
     helpers._assertLocator = function(locator) {
         if (!locator) {
@@ -102,7 +102,7 @@ module.exports = function (options, context, rs, logger) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
         }
     };
-    
+
     // public properties
     module.autoPause = false;   // auto pause in waitFor
     module.autoWait = false;    // auto wait for actions
@@ -136,17 +136,17 @@ module.exports = function (options, context, rs, logger) {
             return;
         }
         // take capabilities either from init method argument or from context parameters passed in the constructor
-		// merge capabilities in context and in init function arguments
+        // merge capabilities in context and in init function arguments
         _this._caps = {};
-		if (_this._ctx.caps) {
-			_.extend(_this._caps, _this._ctx.caps);
-		}
-		if (caps) {
-			_.extend(_this._caps, caps);
-		}
+        if (_this._ctx.caps) {
+            _.extend(_this._caps, _this._ctx.caps);
+        }
+        if (caps) {
+            _.extend(_this._caps, caps);
+        }
         // write back to the context the merged caps (used later in the reporter)
         _this._ctx.caps = _this._caps;
-        
+
         var wdioOpts = {
             host: host || _this._options.host || DEFAULT_APPIUM_HOST,
             port: port || _this._options.port || DEFAULT_APPIUM_PORT,
@@ -166,7 +166,7 @@ module.exports = function (options, context, rs, logger) {
         }
         _this._isInitialized = true;
     };
-    
+
     /**
      * @summary Opens new transaction.
      * @description The transaction will persist till a new one is opened. Transaction names must be
@@ -174,7 +174,7 @@ module.exports = function (options, context, rs, logger) {
      * @function transaction
      * @param {String} name - The transaction name.
      */
-    module.transaction = function (name) { 
+    module.transaction = function (name) {
         global._lastTransactionName = name;
     };
     /**
@@ -235,11 +235,11 @@ module.exports = function (options, context, rs, logger) {
      * @param {String} locator - Element locator.
      * @param {String} value - A value to be set to the element.
      * @for android, ios
-     */     
-    module.sendKeys = function(locator, value) { 
+     */
+    module.sendKeys = function(locator, value) {
         return module.setValue.apply(_this, arguments);
-    };      
-    
+    };
+
     helpers.getWdioLocator = function(locator) {
         if (locator.indexOf('/') === 0)
             return locator; // leave xpath locator as is
@@ -261,11 +261,11 @@ module.exports = function (options, context, rs, logger) {
             if (locator.indexOf('id=') === 0)
                 return '#' + locator.substr('id='.length);  // convert 'id=' to '#'
             if (locator.indexOf('name=') === 0)
-                return '[name=' + locator.substr('name='.length) + ']'; 
+                return '[name=' + locator.substr('name='.length) + ']';
         }
         // if locator has not been recognized, return it as is
         return locator;
     };
-    
+
     return module;
 };
