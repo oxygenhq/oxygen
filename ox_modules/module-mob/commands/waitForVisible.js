@@ -13,7 +13,7 @@
  * @param {Integer=} wait - Time in milliseconds to wait for the element.
  */
 module.exports = function(locator, wait) {
-    this._helpers._assertLocator(locator);
+    this.helpers._assertLocator(locator);
     wait = wait || this.DEFAULT_WAIT_TIMEOUT;
     
     // when locator is an element object
@@ -21,6 +21,6 @@ module.exports = function(locator, wait) {
         return locator.waitForVisible(wait);
     }
     // when locator is string
-    locator = this._helpers.getWdioLocator(locator);
+    locator = this.helpers.getWdioLocator(locator);
     return this._driver.waitForVisible(locator, wait);
 };

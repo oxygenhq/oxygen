@@ -13,9 +13,9 @@
  * @param {Boolean=} alignToTop - Indicates whether to align the element to the top.
 */
 module.exports = function(locator, alignToTop) {
-    this._helpers._assertLocator(locator);
+    this.helpers._assertLocator(locator);
     alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
-    locator = this._helpers.getWdioLocator(locator);
+    locator = this.helpers.getWdioLocator(locator);
     
     this._driver.selectorExecute(
         locator,

@@ -6,9 +6,14 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
-module.exports = {
-    FAILED: 'failed',
-    PASSED: 'passed',
-    WARNING: 'warning'
+/**
+ * @summary Send a sequence of key strokes to the active window or element.
+ * @function sendKeys
+ * @param {String} value - Sequence of key strokes to send.
+*/
+module.exports = function(value) {
+    this.helpers._assertArgument(value);
+
+		return this._driver.keys(value);
 };
+

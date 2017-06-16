@@ -5,21 +5,17 @@
 module.exports = function() {
     var locSms = 'id=net.everythingandroid.smspopup:id/messageTextView';
     var locSmsClose = 'id=net.everythingandroid.smspopup:id/button1';
-    console.dir(this._module);
-    //try {
-    this._module.waitForElement(locSms);
-    /*}
-    catch (e) {
-        // if sms popup didn't appear within wait time, return null value
-        return null;
-    }*/
-    var sms = this._module.findElement(locSms);
+
+    this.module.waitForElement(locSms);
+    
+    var sms = this.module.findElement(locSms);
+    
     var text = null;
     if (sms){
         text = sms.getText();
     }
-    this._module.waitForElement(locSmsClose);
-    this._module.click(locSmsClose);  
+    this.module.waitForElement(locSmsClose);
+    this.module.click(locSmsClose);  
     return text;
 };
 

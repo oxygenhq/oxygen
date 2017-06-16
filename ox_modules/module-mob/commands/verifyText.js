@@ -7,8 +7,8 @@
  * (at your option) any later version.
  */
 /**
- * @summary Asserts element's inner text.
- * @function assertText
+ * @summary Verifies element's inner text.
+ * @function verifyText
  * @param {String} locator - Element locator.
  * @param {String} pattern - Assertion pattern.
  * @param {String=} message - Message to be displayed in case of assert failure.

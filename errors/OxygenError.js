@@ -13,12 +13,13 @@
 var util = require('util');
 util.inherits(OxygenError, Error);
 
-function OxygenError(type, message, innerError) {
+function OxygenError(type, message, innerError, isFatal) {
     this.innerError = innerError || null;
     this.type = type || this.type || null;
     this.message = message || this.message || null;
     this.subtype = this.subtype || null;
     this.data = this.data || null;
+    this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
     
     var self = this;
     this.caputeStackTrace = function() {

@@ -13,9 +13,9 @@
  * @param {Boolean=} clickParent - If true, then parent of the element is clicked.
 */
 module.exports = function(locator, clickParent) {
-    this._helpers._assertLocator(locator);
+    this.helpers._assertLocator(locator);
     clickParent = typeof clickParent === 'boolean' ? clickParent : false;
-    locator = this._helpers.getWdioLocator(locator);
+    locator = this.helpers.getWdioLocator(locator);
     
     this._driver.selectorExecute(
         locator,

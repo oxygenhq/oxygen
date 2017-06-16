@@ -17,12 +17,31 @@ const chai = require('chai');
 const assert = chai.assert;
 
 module.exports = function(locator, pattern, message) {
-    var elm = module.findElement(locator);
+    this.helpers._assertLocator(locator);
+    
+    var elm = null;
+	// when locator is an element object
+    if (typeof locator === 'object' && locator.getText) {
+        elm = locator;
+    }
+	else {
+		elm = this.module.findElement(locator);
+	}
     if (!elm) {
         throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
     }
-    var actualValue = elm.getValue();
-
+    // not every element has "value" attribute, make sure to handle this case
+    var actualValue = null;
+    try {
+        actualValue = elm.getValue();
+    }
+    catch (e) {
+        // check if the error was due to missing value attribute (in this case NoSuchElement will be received)
+        if (e.type && e.type === 'RuntimeError' && e.seleniumStack && e.seleniumStack.type && e.seleniumStack.type === 'NoSuchElement') {
+            throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
+        }
+        throw e;
+    }
     if (pattern.indexOf('regex:') == 0) {
         var regex = new RegExp(pattern.substring('regex:'.length));
         assert.match(actualValue, regex, message);

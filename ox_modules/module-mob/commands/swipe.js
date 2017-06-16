@@ -16,7 +16,7 @@
 */
 var swipe = function(locator, xoffset, yoffset, speed) {
     speed = typeof speed === 'number' ? speed : 100;
-    if (arguments.length === 2 && typeof selector === 'number' && typeof xoffset === 'number') {
+    if (arguments.length === 2 && typeof locator === 'number' && typeof xoffset === 'number') {
         xoffset = locator;
         yoffset = xoffset;
         locator = null;
@@ -26,12 +26,12 @@ var swipe = function(locator, xoffset, yoffset, speed) {
         if (typeof locator === 'object') {
             elm = locator;
         } else {
-            elm = this._module.findElement(locator);
+            elm = this.module.findElement(locator);
         }
 
         return elm.swipe(xoffset, yoffset, speed);
     }
-    return this._driver.swipe(xoffset, yoffset, speed);
+    return this._driver.swipe(xoffset, yoffset);
 };
 
 module.exports = swipe;

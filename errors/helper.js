@@ -18,6 +18,7 @@ const ERROR_CODES = {
     SCRIPT_ERROR: 'SCRIPT_ERROR',
     UNKNOWN_ERROR: 'UNKNOWN_ERROR',
     ASSERT: 'ASSERT',
+    VERIFY: 'VERIFY',
     NO_SUCH_ELEMENT: 'NO_SUCH_ELEMENT',
     NO_SUCH_FRAME: 'NO_SUCH_FRAME',
     UNKNOWN_COMMAND: 'UNKNOWN_COMMAND',
@@ -91,6 +92,10 @@ module.exports = {
         // try to resolve Chai error code
         oxErrorCode = CHAI_ERROR_CODES[errType];
         if (oxErrorCode) {
+            // throw non-fatal error if method name starts with 'verify'
+            if (cmd.indexOf('verify') == 0 && oxErrorCode === ERROR_CODES.ASSERT) {
+                return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
+            }
             return new OxError(oxErrorCode, err.message, null);
         }
         

@@ -28,8 +28,8 @@ module.exports = function (options, context, rs, logger) {
             sync: true
         }
     };
-    var module = this._module = { modType: 'fiber' };
-    var helpers = this._helpers = {};
+    var module = this.module = { modType: 'fiber' };
+    var helpers = this.helpers = {};
     
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
@@ -71,33 +71,33 @@ module.exports = function (options, context, rs, logger) {
         'setValue'
     ];
     
-    module._isAction = function(name) {
+    helpers._isAction = function(name) {
         return ACTION_COMMANDS.includes(name);
     };
     
-    module._takeScreenshot = function(name) {
+    helpers._takeScreenshot = function(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             return module.takeScreenshot();
         }
     };
     
     // TODO: _assert* should be extracted into a separate helper later on
-    this._helpers._assertLocator = function(locator) {
+    helpers._assertLocator = function(locator) {
         if (!locator) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         }
     };
-    this._helpers._assertArgument = function(arg) {
+    helpers._assertArgument = function(arg) {
         if (arg === undefined) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
         }
     };
-    this._helpers._assertArgumentNonEmptyString = function(arg) {
+    helpers._assertArgumentNonEmptyString = function(arg) {
         if (!arg || typeof arg !== 'string') {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
         }
     };
-    this._helpers._assertArgumentNumber = function(arg) {
+    helpers._assertArgumentNumber = function(arg) {
         if (typeof(arg) !== 'number') {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
         }
@@ -241,7 +241,7 @@ module.exports = function (options, context, rs, logger) {
         if (locator.indexOf('/') === 0)
             return locator; // leave xpath locator as is
         // convert locators to UIAutomator selectors if we are in NATIVE_APP context and on Anroid
-        if (_this._context === 'NATIVE_APP' && _this._caps.platformName && _this._caps.platformName.toLowerCase() === 'android') {
+        if (this._context === 'NATIVE_APP' && this._caps && this._caps.platformName && this._caps.platformName.toLowerCase() === 'android') {
             if (locator.indexOf('id=') === 0)
                 return 'android=new UiSelector().resourceId("' + locator.substr('id='.length) + '")';
             else if (locator.indexOf('css=') === 0)

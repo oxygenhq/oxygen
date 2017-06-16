@@ -14,10 +14,10 @@
  * @return {WebElement} - A WebElement object.
 */
 module.exports = function(locator, parent) {
-    this._helpers._assertLocator(locator);
-    locator = this._helpers.getWdioLocator(locator);
+    this.helpers._assertLocator(locator);
+    locator = this.helpers.getWdioLocator(locator);
+
     var retval = null;
-    
     if (parent && typeof parent === 'object' && parent.element) {
         retval = parent.element(locator);
     } else {
@@ -29,4 +29,3 @@ module.exports = function(locator, parent) {
     }
     return retval;
 };
-

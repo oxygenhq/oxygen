@@ -6,9 +6,10 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
-module.exports = {
-    FAILED: 'failed',
-    PASSED: 'passed',
-    WARNING: 'warning'
+/**
+ * @summary Perform a shake action on the device
+ * @function shake
+ */
+module.exports = function() {
+    return this._driver.shake();
 };

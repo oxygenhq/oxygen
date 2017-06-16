@@ -14,8 +14,8 @@
  * @return {Array<WebElement>} - Collection of WebElement JSON objects.
 */
 module.exports = function(locator, parent) {
-    this._helpers._assertLocator(locator);
-    locator = this._helpers.getWdioLocator(locator);
+    this.helpers._assertLocator(locator);
+    locator = this.helpers.getWdioLocator(locator);
     var retval = null;
     
     if (parent && typeof parent === 'object' && parent.elements) {
