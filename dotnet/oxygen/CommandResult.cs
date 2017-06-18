@@ -38,8 +38,11 @@ namespace CloudBeat.Oxygen
             for (int i = 0; i < args.Length; i++)
             {
                 var arg = args[i];
-                var argEscaped = arg.ToString().Replace("'", @"\'").Replace(@"\\'", @"\'");
-                argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + argEscaped + "'" : argEscaped;
+                if (arg != null)
+                {
+                    var argEscaped = arg.ToString().Replace("'", @"\'").Replace(@"\\'", @"\'");
+                    argsQuoted[i] = arg.GetType() == typeof(string) ? "'" + argEscaped + "'" : argEscaped;
+                }
             }
             this.CommandExpression = string.Format("{0}.{1}({2});", moduleName.ToLower(), commandName, argsQuoted.Length > 0 ? string.Join(", ", argsQuoted) : "");
         }

@@ -150,9 +150,13 @@ namespace CloudBeat.Oxygen.Modules
             Type[] paramTypes = new Type[args.Length];
             for (int i = 0; i < args.Length; i++)
             {
+                if (args[i] == null)
+                    continue;
+
                 // convert ExpandoObject to Dictionary
                 if (args[i].GetType() == typeof(ExpandoObject))
                     args[i] = ConvertExpandoObjectToDictionary(args[i] as ExpandoObject);
+
                 paramTypes[i] = args[i].GetType();
 
                 if (args[i].GetType() == typeof(string))
