@@ -71,11 +71,11 @@ module.exports = function (options, context, rs, logger) {
         'setValue'
     ];
 
-    helpers._isAction = function(name) {
+    module._isAction = function(name) {
         return ACTION_COMMANDS.includes(name);
     };
 
-    helpers._takeScreenshot = function(name) {
+    module._takeScreenshot = function(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             return module.takeScreenshot();
         }
