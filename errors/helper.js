@@ -35,6 +35,7 @@ const ERROR_CODES = {
 
 // WebdriverIO to Oxygen error codes mapping
 // https://github.com/webdriverio/webdriverio/blob/master/lib/helpers/constants.js
+// https://github.com/webdriverio/webdriverio/blob/master/lib/utils/ErrorHandler.js
 // TODO: codes not directly mapped to ERROR_CODES need to be reviewed specificly their behaviour in web/mob modes.
 const WDIO_ERROR_CODES = {
     // selenium error codes https://w3c.github.io/webdriver/webdriver-spec.html#dfn-error-code
@@ -66,7 +67,9 @@ const WDIO_ERROR_CODES = {
     // WebdriverIO specific error codes
     SelectorTimeoutError: 'SELECTOR_TIMEOUT_ERROR',
     NoSessionIdError: 'NO_SESSION_ID_ERROR',
-    GridApiError: 'GRID_API_ERROR'
+    GridApiError: 'GRID_API_ERROR',
+    WaitForTimeoutError: ERROR_CODES.TIMEOUT,
+    WaitUntilTimeoutError: ERROR_CODES.TIMEOUT
 };
 
 // Chai to Oxygen error codes mapping
