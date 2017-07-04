@@ -198,6 +198,13 @@
 				<xsl:attribute name="id">collapse-it<xsl:value-of select="@iterationNum"/></xsl:attribute>
 				<div class="panel-body">
 					<xsl:for-each select="testcases">
+						<xsl:if test="not(iterations/steps/failure) and iterations/failure">
+							<pre style="background-color: #fcacac">
+								<b><xsl:value-of select="iterations/failure/@type"/></b><br/>
+								<xsl:value-of select="iterations/failure/@message"/>
+								<xsl:if test="iterations/failure/@line"> at line <xsl:value-of select="iterations/failure/@line"/></xsl:if>
+							</pre>
+						</xsl:if>
 						<h4><xsl:value-of select="@name"/></h4>
 						<table class="table table-bordered">
 							<thead>
