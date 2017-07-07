@@ -213,7 +213,7 @@
 									<th style="width: 45%;">Step</th>
 									<th style="width: 15%;">Transaction</th>
 									<th style="width: 7%;">Duration</th>
-									<th style="width: 7%;">Status</th>
+									<th style="width: 7.5%;">Status</th>
 									<th>Failure</th>
 								</tr>
 							</thead>
@@ -229,6 +229,11 @@
 												<xsl:choose>
 													<xsl:when test="@status='failed'">
 														<span class="label label-danger label-sm">
+															<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
+														</span>
+													</xsl:when>
+													<xsl:when test="@status='warning'">
+														<span class="label label-warning label-sm">
 															<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
 														</span>
 													</xsl:when>
