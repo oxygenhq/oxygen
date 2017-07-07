@@ -206,14 +206,14 @@
 							</pre>
 						</xsl:if>
 						<h4><xsl:value-of select="@name"/></h4>
-						<table class="table table-bordered">
+						<table class="table table-bordered" style="width: 100%; table-layout: fixed;">
 							<thead>
 								<tr>
-									<th>#</th>
-									<th>Step</th>
-									<th>Transaction</th>
-									<th>Duration</th>
-									<th>Status</th>
+									<th style="width: 3%;">#</th>
+									<th style="width: 45%;">Step</th>
+									<th style="width: 15%;">Transaction</th>
+									<th style="width: 7%;">Duration</th>
+									<th style="width: 7%;">Status</th>
 									<th>Failure</th>
 								</tr>
 							</thead>
@@ -222,7 +222,7 @@
 									<xsl:if test="not(contains(@name, '.transaction'))">
 										<tr>
 											<td><xsl:value-of select="position()" /></td>
-											<td><xsl:value-of select="@name"/></td>
+											<td style="word-wrap: break-word; width: 100%;"><xsl:value-of select="@name"/></td>
 											<td><xsl:value-of select="@transaction"/></td>
 											<td><xsl:value-of select="format-number(@duration div 1000, '###,##0.00')"/> s</td>
 											<td>
