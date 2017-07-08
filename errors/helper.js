@@ -78,7 +78,7 @@ const CHAI_ERROR_CODES = {
 };
 
 module.exports = {
-    getOxygenError: function(err, cmd, args, opts, caps) {
+    getOxygenError: function(err, module, cmd, args) {
         // return the error as is if it has been already processed
         if (err instanceof OxError) {
             return err;
@@ -95,8 +95,9 @@ module.exports = {
         // try to resolve Chai error code
         oxErrorCode = CHAI_ERROR_CODES[errType];
         if (oxErrorCode) {
-            // throw non-fatal error if method name starts with 'verify'
-            if (cmd.indexOf('verify') == 0 && oxErrorCode === ERROR_CODES.ASSERT) {
+            // throw non-fatal error if it's a "verify" module or method 
+            if (oxErrorCode === ERROR_CODES.ASSERT && 
+				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
             return new OxError(oxErrorCode, err.message, null);

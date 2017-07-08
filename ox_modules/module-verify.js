@@ -8,20 +8,18 @@
  */
 
 /**
- * Provides generic assertion methods.
+ * Provides generic verification methods.
  */
 
 const chai = require('chai');
-const OxError = require('../errors/OxygenError');
-var errHelper = require('../errors/helper');
 
 module.exports = function() {
     /**
-     * @summary Asserts that two values are equal.
+     * @summary Verifies that two values are equal.
      * @function equal
      * @param {String} actual - Actual value.
      * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with 'regex:'.
-     * @param {String=} message - Message to throw if assertion fails.
+     * @param {String=} message - Warning message to return if verification fails.
      */
     module.equal = function(actual, expected, message) {
         if (expected.indexOf('regex:') === 0) {
@@ -31,12 +29,13 @@ module.exports = function() {
             chai.assert.equal(actual, expected, message);
         }
     };
+
     /**
-     * @summary Asserts that two values are not equal.
+     * @summary Verifies that two values are not equal.
      * @function notEqual
      * @param {String} actual - Actual value.
      * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with 'regex:'.
-     * @param {String=} message - Message to throw if assertion fails.
+     * @param {String=} message - Warning message to return if verification fails.
      */
     module.notEqual = function(actual, expected, message) {
         if (expected.indexOf('regex:') === 0) {
@@ -46,13 +45,16 @@ module.exports = function() {
             chai.assert.notEqual(actual, expected, message);
         }
     };
+
     /**
-     * @summary Fails test with the given message.
-     * @function fail
-     * @param {String=} message - Error message to return.
+     * @summary Generates test warning with the given message.
+     * @function warn
+     * @param {String=} message - Warning message to return.
      */
-    module.fail = function(message) {
-        throw new OxError(errHelper.errorCode.ASSERT, message);
+    module.warn = function(message) {
+        var err = new Error(message);
+        err.name = 'AssertionError';
+        throw err;
     };
 
     return module;
