@@ -1334,6 +1334,39 @@
             Setting this parameter to <see cref="F:System.TimeSpan.MinValue" /> will allow the page to load indefinitely.</param>
       <returns>A self reference</returns>
     </member>
+    <member name="P:OpenQA.Selenium.ITimeouts.ImplicitWait">
+      <summary>
+            Gets or sets the implicit wait timeout, which is the  amount of time the
+            driver should wait when searching for an element if it is not immediately
+            present.
+            </summary>
+      <remarks>
+            When searching for a single element, the driver should poll the page
+            until the element has been found, or this timeout expires before throwing
+            a <see cref="T:OpenQA.Selenium.NoSuchElementException" />. When searching for multiple elements,
+            the driver should poll the page until at least one element has been found
+            or this timeout has expired.
+            <para>
+            Increasing the implicit wait timeout should be used judiciously as it
+            will have an adverse effect on test run time, especially when used with
+            slower location strategies like XPath.
+            </para></remarks>
+    </member>
+    <member name="P:OpenQA.Selenium.ITimeouts.AsynchronousJavaScript">
+      <summary>
+            Gets or sets the asynchronous script timeout, which is the amount
+            of time the driver should wait when executing JavaScript asynchronously.
+            This timeout only affects the <see cref="M:OpenQA.Selenium.IJavaScriptExecutor.ExecuteAsyncScript(System.String,System.Object[])" />
+            method.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.ITimeouts.PageLoad">
+      <summary>
+            Gets or sets the page load timeout, which is the amount of time the driver
+            should wait for a page to load when setting the <see cref="P:OpenQA.Selenium.IWebDriver.Url" />
+            property.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.ITouchScreen">
       <summary>
             Interface representing basic touch screen operations.
@@ -1996,6 +2029,13 @@
             Represents the function key COMMAND.
             </summary>
     </member>
+    <member name="M:OpenQA.Selenium.Keys.GetDescription(System.String)">
+      <summary>
+            Gets the description of a specific key.
+            </summary>
+      <param name="value">The key value for which to get the description.</param>
+      <returns>The description of the key.</returns>
+    </member>
     <member name="T:OpenQA.Selenium.LogEntry">
       <summary>
             Represents an entry in a log from a driver instance.
@@ -2447,6 +2487,36 @@
             Represents Landscape mode, where the screen is horizontal.
             </summary>
     </member>
+    <member name="T:OpenQA.Selenium.ScreenshotImageFormat">
+      <summary>
+            File format for saving screenshots.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.ScreenshotImageFormat.Png">
+      <summary>
+            W3C Portable Network Graphics image format.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.ScreenshotImageFormat.Jpeg">
+      <summary>
+            Joint Photgraphic Experts Group image format.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.ScreenshotImageFormat.Gif">
+      <summary>
+            Graphics Interchange Format image format.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.ScreenshotImageFormat.Tiff">
+      <summary>
+            Tagged Image File Format image format.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.ScreenshotImageFormat.Bmp">
+      <summary>
+            Bitmap image format.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Screenshot">
       <summary>
             Represents an image of the page currently loaded in the browser.
@@ -2457,6 +2527,14 @@
             Initializes a new instance of the <see cref="T:OpenQA.Selenium.Screenshot" /> class.
             </summary>
       <param name="base64EncodedScreenshot">The image of the page as a Base64-encoded string.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Screenshot.SaveAsFile(System.String,OpenQA.Selenium.ScreenshotImageFormat)">
+      <summary>
+            Saves the screenshot to a file, overwriting the file if it already exists.
+            </summary>
+      <param name="fileName">The full path and file name to save the screenshot to.</param>
+      <param name="format">A <see cref="T:OpenQA.Selenium.ScreenshotImageFormat" /> value indicating the format
+            to save the image to.</param>
     </member>
     <member name="M:OpenQA.Selenium.Screenshot.SaveAsFile(System.String,System.Drawing.Imaging.ImageFormat)">
       <summary>
@@ -2777,6 +2855,16 @@
             The selector used (CSS/XPath) was invalid.
             </summary>
     </member>
+    <member name="F:OpenQA.Selenium.WebDriverResult.InsecureCertificate">
+      <summary>
+            An insecure SSl certificate was specified.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.WebDriverResult.NoSuchCookie">
+      <summary>
+            No cookie was found matching the name requested.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.WebDriverTimeoutException">
       <summary>
             Represents exceptions that are thrown when an error occurs during actions.
@@ -3064,6 +3152,27 @@
             Gets the session ID of the current session.
             </summary>
     </member>
+    <member name="T:OpenQA.Selenium.Internal.IActionExecutor">
+      <summary>
+            Interface allowing execution of W3C Specification-compliant actions.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Internal.IActionExecutor.PerformActions(System.Collections.Generic.IList{OpenQA.Selenium.Interactions.ActionSequence})">
+      <summary>
+            Performs the specified list of actions with this action executor.
+            </summary>
+      <param name="actionSequenceList">The list of action sequences to perform.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Internal.IActionExecutor.ResetInputState">
+      <summary>
+            Resets the input state of the action executor.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Internal.IActionExecutor.IsActionExecutor">
+      <summary>
+            Gets a value indicating whether this object is a valid action executor.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Remote.RemoteWebDriver">
       <summary>
             Provides a way to use the driver through
@@ -3101,11 +3210,24 @@
             The default command timeout for HTTP requests in a RemoteWebDriver instance.
             </summary>
     </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.#ctor(OpenQA.Selenium.DriverOptions)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Remote.RemoteWebDriver" /> class. This constructor defaults proxy to http://127.0.0.1:4444/wd/hub
+            </summary>
+      <param name="options">An <see cref="T:OpenQA.Selenium.DriverOptions" /> object containing the desired capabilities of the browser.</param>
+    </member>
     <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.#ctor(OpenQA.Selenium.ICapabilities)">
       <summary>
             Initializes a new instance of the <see cref="T:OpenQA.Selenium.Remote.RemoteWebDriver" /> class. This constructor defaults proxy to http://127.0.0.1:4444/wd/hub
             </summary>
       <param name="desiredCapabilities">An <see cref="T:OpenQA.Selenium.ICapabilities" /> object containing the desired capabilities of the browser.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.#ctor(System.Uri,OpenQA.Selenium.DriverOptions)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Remote.RemoteWebDriver" /> class. This constructor defaults proxy to http://127.0.0.1:4444/wd/hub
+            </summary>
+      <param name="remoteAddress">URI containing the address of the WebDriver remote server (e.g. http://127.0.0.1:4444/wd/hub).</param>
+      <param name="options">An <see cref="T:OpenQA.Selenium.DriverOptions" /> object containing the desired capabilities of the browser.</param>
     </member>
     <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.#ctor(System.Uri,OpenQA.Selenium.ICapabilities)">
       <summary>
@@ -3426,6 +3548,17 @@
             Dispose the RemoteWebDriver Instance
             </summary>
     </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.PerformActions(System.Collections.Generic.IList{OpenQA.Selenium.Interactions.ActionSequence})">
+      <summary>
+            Performs the specified list of actions with this action executor.
+            </summary>
+      <param name="actionSequenceList">The list of action sequences to perform.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.ResetInputState">
+      <summary>
+            Resets the input state of the action executor.
+            </summary>
+    </member>
     <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.EscapeCssSelector(System.String)">
       <summary>
             Escapes invalid characters in a CSS selector.
@@ -3466,6 +3599,24 @@
             Starts a session with the driver
             </summary>
       <param name="desiredCapabilities">Capabilities of the browser</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.GetLegacyCapabilitiesDictionary(OpenQA.Selenium.ICapabilities)">
+      <summary>
+            Gets the capabilities as a dictionary supporting legacy drivers.
+            </summary>
+      <param name="legacyCapabilities">The dictionary to return.</param>
+      <returns>A Dictionary consisting of the capabilities requested.</returns>
+      <remarks>This method is only transitional. Do not rely on it. It will be removed
+            once browser driver capability formats stabilize.</remarks>
+    </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.GetCapabilitiesDictionary(OpenQA.Selenium.ICapabilities)">
+      <summary>
+            Gets the capabilities as a dictionary.
+            </summary>
+      <param name="capabilitiesToConvert">The dictionary to return.</param>
+      <returns>A Dictionary consisting of the capabilities requested.</returns>
+      <remarks>This method is only transitional. Do not rely on it. It will be removed
+            once browser driver capability formats stabilize.</remarks>
     </member>
     <member name="M:OpenQA.Selenium.Remote.RemoteWebDriver.Execute(System.String,System.Collections.Generic.Dictionary{System.String,System.Object})">
       <summary>
@@ -3607,6 +3758,11 @@
     <member name="P:OpenQA.Selenium.Remote.RemoteWebDriver.SessionId">
       <summary>
             Gets the <see cref="P:OpenQA.Selenium.Remote.RemoteWebDriver.SessionId" /> for the current session of this driver.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Remote.RemoteWebDriver.IsActionExecutor">
+      <summary>
+            Gets a value indicating whether this object is a valid action executor.
             </summary>
     </member>
     <member name="P:OpenQA.Selenium.Remote.RemoteWebDriver.IsSpecificationCompliant">
@@ -4183,6 +4339,22 @@
             Gets the <see cref="T:OpenQA.Selenium.IWebDriver" /> used to find this element.
             </summary>
     </member>
+    <member name="T:OpenQA.Selenium.Internal.IWebElementReference">
+      <summary>
+            Defines the interface through which the framework can serialize an element to the wire protocol.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Internal.IWebElementReference.ToDictionary">
+      <summary>
+            Converts an object into an object that represents an element for the wire protocol.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> that represents an element in the wire protocol.</returns>
+    </member>
+    <member name="P:OpenQA.Selenium.Internal.IWebElementReference.ElementReferenceId">
+      <summary>
+            Gets the internal ID of the element.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Remote.RemoteWebElement">
       <summary>
             RemoteWebElement allows you to have access to specific items that are found on the page
@@ -4492,6 +4664,12 @@
             </summary>
       <returns>A <see cref="T:OpenQA.Selenium.Screenshot" /> object containing the image.</returns>
     </member>
+    <member name="M:OpenQA.Selenium.Remote.RemoteWebElement.ToString">
+      <summary>
+            Returns a string that represents the current <see cref="T:OpenQA.Selenium.Remote.RemoteWebElement" />.
+            </summary>
+      <returns>A string that represents the current <see cref="T:OpenQA.Selenium.Remote.RemoteWebElement" />.</returns>
+    </member>
     <member name="M:OpenQA.Selenium.Remote.RemoteWebElement.GetHashCode">
       <summary>
             Method to get the hash code of the element
@@ -4600,18 +4778,6 @@
             Gets the coordinates identifying the location of this element using
             various frames of reference.
             </summary>
-    </member>
-    <member name="P:OpenQA.Selenium.Remote.RemoteWebElement.InternalElementId">
-      <summary>
-            Gets the ID of the element.
-            </summary>
-      <remarks>This property is internal to the WebDriver instance, and is
-            not intended to be used in your code. The element's ID has no meaning
-            outside of internal WebDriver usage, so it would be improper to scope
-            it as public. However, both subclasses of <see cref="T:OpenQA.Selenium.Remote.RemoteWebElement" />
-            and the parent driver hosting the element have a need to access the
-            internal element ID. Therefore, we have two properties returning the
-            same value, one scoped as internal, the other as protected.</remarks>
     </member>
     <member name="P:OpenQA.Selenium.Remote.RemoteWebElement.Id">
       <summary>
@@ -5308,11 +5474,6 @@
     <member name="P:OpenQA.Selenium.Firefox.FirefoxDriverService.TerminationTimeout">
       <summary>
             Gets a value indicating the time to wait for the service to terminate before forcing it to terminate.
-            </summary>
-    </member>
-    <member name="P:OpenQA.Selenium.Firefox.FirefoxDriverService.IsInitialized">
-      <summary>
-            Gets a value indicating whether the service is responding to HTTP requests.
             </summary>
     </member>
     <member name="P:OpenQA.Selenium.Firefox.FirefoxDriverService.CommandLineArguments">
@@ -6237,6 +6398,15 @@
       <param name="options">The <see cref="T:OpenQA.Selenium.IE.InternetExplorerOptions" /> used to initialize the driver.</param>
       <param name="commandTimeout">The maximum amount of time to wait for each command.</param>
     </member>
+    <member name="M:OpenQA.Selenium.IE.InternetExplorerDriver.GetLegacyCapabilitiesDictionary(OpenQA.Selenium.ICapabilities)">
+      <summary>
+            Gets the capabilities as a dictionary supporting legacy drivers.
+            </summary>
+      <param name="legacyCapabilities">The dictionary to return.</param>
+      <returns>A Dictionary consisting of the capabilities requested.</returns>
+      <remarks>This method is only transitional. Do not rely on it. It will be removed
+            once browser driver capability formats stabilize.</remarks>
+    </member>
     <member name="P:OpenQA.Selenium.IE.InternetExplorerDriver.FileDetector">
       <summary>
             Gets or sets the <see cref="T:OpenQA.Selenium.IFileDetector" /> responsible for detecting
@@ -6248,30 +6418,6 @@
             this property has no effect, but does not throw an exception. If you
             are attempting to run the IE driver remotely, use <see cref="T:OpenQA.Selenium.Remote.RemoteWebDriver" />
             in conjunction with a standalone WebDriver server.</remarks>
-    </member>
-    <member name="T:OpenQA.Selenium.IE.InternetExplorerDriverEngine">
-      <summary>
-            Represents the valid values for driver engine available with the IEDriverServer.exe.
-            </summary>
-    </member>
-    <member name="F:OpenQA.Selenium.IE.InternetExplorerDriverEngine.Legacy">
-      <summary>
-            Represents the Legacy value, forcing the driver to use only the open-source
-            driver engine implementation.
-            </summary>
-    </member>
-    <member name="F:OpenQA.Selenium.IE.InternetExplorerDriverEngine.AutoDetect">
-      <summary>
-            Represents the AutoDetect value, instructing the driver to use the vendor-provided
-            driver engine implementation, if available, falling back to the open-source
-            implementation, if it is not available.
-            </summary>
-    </member>
-    <member name="F:OpenQA.Selenium.IE.InternetExplorerDriverEngine.Vendor">
-      <summary>
-            Represents the Vendor value, instructing the driver to use the vendor-provided
-            driver engine implementation, and throwing an exception if it is not available.
-            </summary>
     </member>
     <member name="T:OpenQA.Selenium.IE.InternetExplorerDriverLogLevel">
       <summary>
@@ -6355,11 +6501,6 @@
     <member name="P:OpenQA.Selenium.IE.InternetExplorerDriverService.LoggingLevel">
       <summary>
             Gets or sets the logging level used by the IEDriverServer.
-            </summary>
-    </member>
-    <member name="P:OpenQA.Selenium.IE.InternetExplorerDriverService.Implementation">
-      <summary>
-            Gets or sets the implementation to be used by the IEDriverServer.
             </summary>
     </member>
     <member name="P:OpenQA.Selenium.IE.InternetExplorerDriverService.LibraryExtractionPath">
@@ -6476,6 +6617,12 @@
             </code>
       </example>
     </member>
+    <member name="F:OpenQA.Selenium.IE.InternetExplorerOptions.Capability">
+      <summary>
+            Gets the name of the capability used to store IE options in
+            a <see cref="T:OpenQA.Selenium.Remote.DesiredCapabilities" /> object.
+            </summary>
+    </member>
     <member name="M:OpenQA.Selenium.IE.InternetExplorerOptions.AddAdditionalCapability(System.String,System.Object)">
       <summary>
             Provides a means to add additional capabilities not yet added as type safe options
@@ -6487,7 +6634,26 @@
             thrown when attempting to add a capability for which there is already a type safe option, or
             when <paramref name="capabilityName" /> is <see langword="null" /> or the empty string.
             </exception>
-      <remarks>Calling <see cref="M:OpenQA.Selenium.IE.InternetExplorerOptions.AddAdditionalCapability(System.String,System.Object)" /> where <paramref name="capabilityName" />
+      <remarks>Calling <see cref="M:OpenQA.Selenium.IE.InternetExplorerOptions.AddAdditionalCapability(System.String,System.Object)" />
+            where <paramref name="capabilityName" /> has already been added will overwrite the
+            existing value with the new value in <paramref name="capabilityValue" />.
+            Also, by default, calling this method adds capabilities to the options object passed to
+            IEDriverServer.exe.</remarks>
+    </member>
+    <member name="M:OpenQA.Selenium.IE.InternetExplorerOptions.AddAdditionalCapability(System.String,System.Object,System.Boolean)">
+      <summary>
+            Provides a means to add additional capabilities not yet added as type safe options
+            for the Internet Explorer driver.
+            </summary>
+      <param name="capabilityName">The name of the capability to add.</param>
+      <param name="capabilityValue">The value of the capability to add.</param>
+      <param name="isGlobalCapability">Indicates whether the capability is to be set as a global
+            capability for the driver instead of a IE-specific option.</param>
+      <exception cref="T:System.ArgumentException">
+            thrown when attempting to add a capability for which there is already a type safe option, or
+            when <paramref name="capabilityName" /> is <see langword="null" /> or the empty string.
+            </exception>
+      <remarks>Calling <see cref="M:OpenQA.Selenium.IE.InternetExplorerOptions.AddAdditionalCapability(System.String,System.Object,System.Boolean)" /> where <paramref name="capabilityName" />
             has already been added will overwrite the existing value with the new value in <paramref name="capabilityValue" /></remarks>
     </member>
     <member name="M:OpenQA.Selenium.IE.InternetExplorerOptions.ToCapabilities">
@@ -6647,6 +6813,51 @@
             </summary>
       <param name="parent">Driver in use.</param>
       <param name="id">ID of the element.</param>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.ActionBuilder">
+      <summary>
+            Provides methods that allow the creation of action sequences to enable
+            advanced user interactions.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionBuilder.AddAction(OpenQA.Selenium.Interactions.Interaction)">
+      <summary>
+            Adds an action to the built set of actions. Adding an action will
+            add a "tick" to the set of all actions to be executed.
+            </summary>
+      <param name="actionToAdd">The action to add to the set of actions</param>
+      <returns>A self reference.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionBuilder.AddActions(OpenQA.Selenium.Interactions.Interaction[])">
+      <summary>
+            Adds an action to the built set of actions. Adding an action will
+            add a "tick" to the set of all actions to be executed. Only one action
+            for each input device may be added for a single tick.
+            </summary>
+      <param name="actionsToAdd">The set actions to add to the existing set of actions.</param>
+      <returns>A self reference.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionBuilder.ToString">
+      <summary>
+            Returns a string that represents the current <see cref="T:OpenQA.Selenium.Interactions.ActionBuilder" />.
+            </summary>
+      <returns>A string that represents the current <see cref="T:OpenQA.Selenium.Interactions.ActionBuilder" />.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionBuilder.ToActionSequenceList">
+      <summary>
+            Converts the set of actions in this <see cref="T:OpenQA.Selenium.Interactions.ActionBuilder" /> to a <see cref="T:System.Collections.Generic.List`1" />.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.List`1" /> suitable for transmission across the wire.</returns>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.IAction">
+      <summary>
+            Provides methods by which an interaction with the browser can be performed.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.IAction.Perform">
+      <summary>
+            Performs this action on the browser.
+            </summary>
     </member>
     <member name="T:OpenQA.Selenium.Interactions.Actions">
       <summary>
@@ -6842,6 +7053,42 @@
             </summary>
       <param name="actionToAdd">The <see cref="T:OpenQA.Selenium.Interactions.IAction" /> to be added.</param>
     </member>
+    <member name="T:OpenQA.Selenium.Interactions.ActionSequence">
+      <summary>
+            Represents a sequence of actions to be performed in the target browser.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionSequence.#ctor(OpenQA.Selenium.Interactions.InputDevice,System.Int32)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.ActionSequence" /> class.
+            </summary>
+      <param name="device">The input device that executes this sequence of actions.</param>
+      <param name="initialSize">the initial size of the sequence.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionSequence.AddAction(OpenQA.Selenium.Interactions.Interaction)">
+      <summary>
+            Adds an action to the sequence.
+            </summary>
+      <param name="interactionToAdd">The action to add to the sequence.</param>
+      <returns>A self-reference to this sequence of actions.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionSequence.ToDictionary">
+      <summary>
+            Converts this action sequence into an object suitable for serializing across the wire.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> containing the actions in this sequence.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.ActionSequence.ToString">
+      <summary>
+            Returns a string that represents the current <see cref="T:OpenQA.Selenium.Interactions.ActionSequence" />.
+            </summary>
+      <returns>A string that represents the current <see cref="T:OpenQA.Selenium.Interactions.ActionSequence" />.</returns>
+    </member>
+    <member name="P:OpenQA.Selenium.Interactions.ActionSequence.Count">
+      <summary>
+            Gets the count of actions in the sequence.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Interactions.Internal.WebDriverAction">
       <summary>
             Defines an action for keyboard and mouse interaction with the browser.
@@ -6889,16 +7136,6 @@
     <member name="P:OpenQA.Selenium.Interactions.Internal.MouseAction.Mouse">
       <summary>
             Gets the mouse with which to perform the action.
-            </summary>
-    </member>
-    <member name="T:OpenQA.Selenium.Interactions.IAction">
-      <summary>
-            Provides methods by which an interaction with the browser can be performed.
-            </summary>
-    </member>
-    <member name="M:OpenQA.Selenium.Interactions.IAction.Perform">
-      <summary>
-            Performs this action on the browser.
             </summary>
     </member>
     <member name="T:OpenQA.Selenium.Interactions.ButtonReleaseAction">
@@ -7102,6 +7339,96 @@
             Gets a locator providing a user-defined location for this element.
             </summary>
     </member>
+    <member name="T:OpenQA.Selenium.Interactions.InputDevice">
+      <summary>
+            Base class for all input devices for actions.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.InputDevice.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.InputDevice" /> class.
+            </summary>
+      <param name="deviceName">The unique name of the input device represented by this class.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.InputDevice.ToDictionary">
+      <summary>
+            Returns a value for this input device that can be transmitted across the wire to a remote end.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> representing this action.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.InputDevice.GetHashCode">
+      <summary>
+            Returns a hash code for the current <see cref="T:OpenQA.Selenium.Interactions.InputDevice" />.
+            </summary>
+      <returns>A hash code for the current <see cref="T:OpenQA.Selenium.Interactions.InputDevice" />.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.InputDevice.ToString">
+      <summary>
+            Returns a string that represents the current <see cref="T:OpenQA.Selenium.Interactions.InputDevice" />.
+            </summary>
+      <returns>A string that represents the current <see cref="T:OpenQA.Selenium.Interactions.InputDevice" />.</returns>
+    </member>
+    <member name="P:OpenQA.Selenium.Interactions.InputDevice.DeviceName">
+      <summary>
+            Gets the unique name of this input device.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Interactions.InputDevice.DeviceKind">
+      <summary>
+            Gets the kind of device for this input device.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.InputDeviceKind">
+      <summary>
+            Enumerated values for the kinds of devices available.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.InputDeviceKind.None">
+      <summary>
+            Represents the null device.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.InputDeviceKind.Key">
+      <summary>
+            Represents a key-based device, primarily for entering text.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.InputDeviceKind.Pointer">
+      <summary>
+            Represents a pointer-based device, such as a mouse, pen, or stylus.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.Interaction">
+      <summary>
+            Represents a single interaction for a given input device.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.Interaction.#ctor(OpenQA.Selenium.Interactions.InputDevice)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.Interaction" /> class.
+            </summary>
+      <param name="sourceDevice">The input device which performs this action.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.Interaction.ToDictionary">
+      <summary>
+            Returns a value for this action that can be transmitted across the wire to a remote end.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> representing this action.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.Interaction.IsValidFor(OpenQA.Selenium.Interactions.InputDeviceKind)">
+      <summary>
+            Gets a value indicating whether this action is valid for the specified type of input device.
+            </summary>
+      <param name="sourceDeviceKind">The type of device to check.</param>
+      <returns>
+        <see langword="true" /> if the action is valid for the specified type of input device;
+            otherwise, <see langword="false" />.</returns>
+    </member>
+    <member name="P:OpenQA.Selenium.Interactions.Interaction.SourceDevice">
+      <summary>
+            Gets the device for which this action is intended.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Interactions.Internal.KeyboardAction">
       <summary>
             Defines an action for keyboard interaction with the browser.
@@ -7161,6 +7488,47 @@
     <member name="M:OpenQA.Selenium.Interactions.KeyDownAction.Perform">
       <summary>
             Performs this action.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.KeyInputDevice">
+      <summary>
+            Represents a key input device, such as a keyboard.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.KeyInputDevice.#ctor">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.KeyInputDevice" /> class.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.KeyInputDevice.#ctor(System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.KeyInputDevice" /> class, given the device's name.
+            </summary>
+      <param name="deviceName">The unique name of this input device.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.KeyInputDevice.ToDictionary">
+      <summary>
+            Converts this input device into an object suitable for serializing across the wire.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> representing this input device.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.KeyInputDevice.CreateKeyDown(System.Char)">
+      <summary>
+            Creates a key-down action for simulating a press of a key.
+            </summary>
+      <param name="codePoint">The unicode character to be sent.</param>
+      <returns>The <see cref="T:OpenQA.Selenium.Interactions.Interaction" /> representing the action.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.KeyInputDevice.CreateKeyUp(System.Char)">
+      <summary>
+            Creates a key-up action for simulating a release of a key.
+            </summary>
+      <param name="codePoint">The unicode character to be sent.</param>
+      <returns>The <see cref="T:OpenQA.Selenium.Interactions.Interaction" /> representing the action.</returns>
+    </member>
+    <member name="P:OpenQA.Selenium.Interactions.KeyInputDevice.DeviceKind">
+      <summary>
+            Gets the type of device for this input device.
             </summary>
     </member>
     <member name="T:OpenQA.Selenium.Interactions.KeyUpAction">
@@ -7233,6 +7601,176 @@
     <member name="M:OpenQA.Selenium.Interactions.MoveToOffsetAction.Perform">
       <summary>
             Performs this action.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.PauseInteraction">
+      <summary>
+            Represents a pause action.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PauseInteraction.#ctor(OpenQA.Selenium.Interactions.InputDevice)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.PauseInteraction" /> class.
+            </summary>
+      <param name="sourceDevice">The input device on which to execute the pause.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PauseInteraction.#ctor(OpenQA.Selenium.Interactions.InputDevice,System.TimeSpan)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.PauseInteraction" /> class.
+            </summary>
+      <param name="sourceDevice">The input device on which to execute the pause.</param>
+      <param name="duration">The length of time to pause for.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PauseInteraction.ToDictionary">
+      <summary>
+            Returns a value for this action that can be transmitted across the wire to a remote end.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> representing this action.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PauseInteraction.IsValidFor(OpenQA.Selenium.Interactions.InputDeviceKind)">
+      <summary>
+            Gets a value indicating whether this action is valid for the specified type of input device.
+            </summary>
+      <param name="sourceDeviceKind">The type of device to check.</param>
+      <returns>
+        <see langword="true" /> if the action is valid for the specified type of input device;
+            otherwise, <see langword="false" />.</returns>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.CoordinateOrigin">
+      <summary>
+            Represents the origin of the coordinates for mouse movement.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.CoordinateOrigin.Viewport">
+      <summary>
+            The coordinate origin is the origin of the view port of the browser.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.CoordinateOrigin.Pointer">
+      <summary>
+            The origin of the movement is the most recent pointer location.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.CoordinateOrigin.Element">
+      <summary>
+            The origin of the movement is the center of the element specified.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.PointerKind">
+      <summary>
+            Specifies the type of pointer a pointer device represents.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.PointerKind.Mouse">
+      <summary>
+            The pointer device is a mouse.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.PointerKind.Pen">
+      <summary>
+            The pointer device is a pen or stylus.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.PointerKind.Touch">
+      <summary>
+            The pointer device is a touch screen device.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.MouseButton">
+      <summary>
+            Specifies the button used during a pointer down or up action.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.MouseButton.Left">
+      <summary>
+            The button used is the primary button.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.MouseButton.Middle">
+      <summary>
+            The button used is the middle button or mouse wheel.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Interactions.MouseButton.Right">
+      <summary>
+            The button used is the secondary button.
+            </summary>
+    </member>
+    <member name="T:OpenQA.Selenium.Interactions.PointerInputDevice">
+      <summary>
+            Represents a pointer input device, such as a stylus, mouse, or finger on a touch screen.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.#ctor">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.PointerInputDevice" /> class.
+            </summary>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.#ctor(OpenQA.Selenium.Interactions.PointerKind)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.PointerInputDevice" /> class.
+            </summary>
+      <param name="pointerKind">The kind of pointer represented by this input device.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.#ctor(OpenQA.Selenium.Interactions.PointerKind,System.String)">
+      <summary>
+            Initializes a new instance of the <see cref="T:OpenQA.Selenium.Interactions.PointerInputDevice" /> class.
+            </summary>
+      <param name="pointerKind">The kind of pointer represented by this input device.</param>
+      <param name="deviceName">The unique name for this input device.</param>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.ToDictionary">
+      <summary>
+            Returns a value for this input device that can be transmitted across the wire to a remote end.
+            </summary>
+      <returns>A <see cref="T:System.Collections.Generic.Dictionary`2" /> representing this action.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.CreatePointerDown(OpenQA.Selenium.Interactions.MouseButton)">
+      <summary>
+            Creates a pointer down action.
+            </summary>
+      <param name="button">The button of the pointer that should be pressed.</param>
+      <returns>The action representing the pointer down gesture.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.CreatePointerUp(OpenQA.Selenium.Interactions.MouseButton)">
+      <summary>
+            Creates a pointer up action.
+            </summary>
+      <param name="button">The button of the pointer that should be released.</param>
+      <returns>The action representing the pointer up gesture.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.CreatePointerMove(OpenQA.Selenium.IWebElement,System.Int32,System.Int32,System.TimeSpan)">
+      <summary>
+            Creates a pointer move action to a specific element.
+            </summary>
+      <param name="target">The <see cref="T:OpenQA.Selenium.IWebElement" /> used as the target for the move.</param>
+      <param name="xOffset">The horizontal offset from the origin of the move.</param>
+      <param name="yOffset">The vertical offset from the origin of the move.</param>
+      <param name="duration">The length of time the move gesture takes to complete.</param>
+      <returns>The action representing the pointer move gesture.</returns>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.CreatePointerMove(OpenQA.Selenium.Interactions.CoordinateOrigin,System.Int32,System.Int32,System.TimeSpan)">
+      <summary>
+            Creates a pointer move action to an absolute coordinate.
+            </summary>
+      <param name="origin">The origin of coordinates for the move. Values can be relative to
+            the view port origin, or the most recent pointer position.</param>
+      <param name="xOffset">The horizontal offset from the origin of the move.</param>
+      <param name="yOffset">The vertical offset from the origin of the move.</param>
+      <param name="duration">The length of time the move gesture takes to complete.</param>
+      <returns>The action representing the pointer move gesture.</returns>
+      <exception cref="T:System.ArgumentException">Thrown when passing CoordinateOrigin.Element into origin.
+            Users should us the other CreatePointerMove overload to move to a specific element.</exception>
+    </member>
+    <member name="M:OpenQA.Selenium.Interactions.PointerInputDevice.CreatePointerCancel">
+      <summary>
+            Creates a pointer cancel action.
+            </summary>
+      <returns>The action representing the pointer cancel gesture.</returns>
+    </member>
+    <member name="P:OpenQA.Selenium.Interactions.PointerInputDevice.DeviceKind">
+      <summary>
+            Gets the type of device for this input device.
             </summary>
     </member>
     <member name="T:OpenQA.Selenium.Interactions.ScreenMoveAction">
@@ -8629,6 +9167,11 @@
             Capability name used to indicate whether the browser accepts SSL certificates.
             </summary>
     </member>
+    <member name="F:OpenQA.Selenium.Remote.CapabilityType.AcceptInsecureCertificates">
+      <summary>
+            Capability name used to indicate whether the browser accepts SSL certificates on W3C Endpoints
+            </summary>
+    </member>
     <member name="F:OpenQA.Selenium.Remote.CapabilityType.HasNativeEvents">
       <summary>
             Capability name used to indicate whether the browser uses native events.
@@ -8985,6 +9528,11 @@
             Gets or sets a value indicating whether the browser is JavaScript enabled
             </summary>
     </member>
+    <member name="P:OpenQA.Selenium.Remote.DesiredCapabilities.AcceptInsecureCerts">
+      <summary>
+            Gets or sets a value indicating whether the browser accepts SSL certificates.
+            </summary>
+    </member>
     <member name="P:OpenQA.Selenium.Remote.DesiredCapabilities.CapabilitiesDictionary">
       <summary>
             Gets the internal capabilities dictionary.
@@ -9285,9 +9833,24 @@
             Represents SetWindowPosition command
             </summary>
     </member>
+    <member name="F:OpenQA.Selenium.Remote.DriverCommand.GetWindowRect">
+      <summary>
+            Represents GetWindowRect command
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Remote.DriverCommand.SetWindowRect">
+      <summary>
+            Represents SetWindowRect command
+            </summary>
+    </member>
     <member name="F:OpenQA.Selenium.Remote.DriverCommand.MaximizeWindow">
       <summary>
             Represents MaximizeWindow command
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Remote.DriverCommand.MinimizeWindow">
+      <summary>
+            Represents MinimizeWindow command
             </summary>
     </member>
     <member name="F:OpenQA.Selenium.Remote.DriverCommand.FullScreenWindow">
@@ -9330,7 +9893,12 @@
             Represents the SetAsyncScriptTimeout command
             </summary>
     </member>
-    <member name="F:OpenQA.Selenium.Remote.DriverCommand.SetTimeout">
+    <member name="F:OpenQA.Selenium.Remote.DriverCommand.SetTimeouts">
+      <summary>
+            Represents the SetTimeout command
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Remote.DriverCommand.GetTimeouts">
       <summary>
             Represents the SetTimeout command
             </summary>
@@ -9338,6 +9906,11 @@
     <member name="F:OpenQA.Selenium.Remote.DriverCommand.Actions">
       <summary>
             Represents the Actions command.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Remote.DriverCommand.CancelActions">
+      <summary>
+            Represents the CancelActions command.
             </summary>
     </member>
     <member name="F:OpenQA.Selenium.Remote.DriverCommand.MouseClick">
@@ -10172,6 +10745,39 @@
             Setting this parameter to <see cref="F:System.TimeSpan.MinValue" /> will allow the page to load indefinitely.</param>
       <returns>A self reference</returns>
     </member>
+    <member name="P:OpenQA.Selenium.Remote.RemoteTimeouts.ImplicitWait">
+      <summary>
+            Gets or sets the implicit wait timeout, which is the  amount of time the
+            driver should wait when searching for an element if it is not immediately
+            present.
+            </summary>
+      <remarks>
+            When searching for a single element, the driver should poll the page
+            until the element has been found, or this timeout expires before throwing
+            a <see cref="T:OpenQA.Selenium.NoSuchElementException" />. When searching for multiple elements,
+            the driver should poll the page until at least one element has been found
+            or this timeout has expired.
+            <para>
+            Increasing the implicit wait timeout should be used judiciously as it
+            will have an adverse effect on test run time, especially when used with
+            slower location strategies like XPath.
+            </para></remarks>
+    </member>
+    <member name="P:OpenQA.Selenium.Remote.RemoteTimeouts.AsynchronousJavaScript">
+      <summary>
+            Gets or sets the asynchronous script timeout, which is the amount
+            of time the driver should wait when executing JavaScript asynchronously.
+            This timeout only affects the <see cref="M:OpenQA.Selenium.IJavaScriptExecutor.ExecuteAsyncScript(System.String,System.Object[])" />
+            method.
+            </summary>
+    </member>
+    <member name="P:OpenQA.Selenium.Remote.RemoteTimeouts.PageLoad">
+      <summary>
+            Gets or sets the page load timeout, which is the amount of time the driver
+            should wait for a page to load when setting the <see cref="P:OpenQA.Selenium.IWebDriver.Url" />
+            property.
+            </summary>
+    </member>
     <member name="T:OpenQA.Selenium.Remote.RemoteTouchScreen">
       <summary>
             Defines the interface through which the user can execute advanced touch screen interactions.
@@ -10464,14 +11070,30 @@
             dialect of the wire protocol.
             </summary>
     </member>
+    <member name="F:OpenQA.Selenium.Remote.WebDriverError.ElementClickIntercepted">
+      <summary>
+            Represents the element click intercepted error.
+            </summary>
+    </member>
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.ElementNotSelectable">
       <summary>
             Represents the element not selectable error.
             </summary>
     </member>
+    <member name="F:OpenQA.Selenium.Remote.WebDriverError.ElementNotInteractable">
+      <summary>
+            Represents the element not interactable error.
+            </summary>
+    </member>
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.ElementNotVisible">
       <summary>
             Represents the element not visible error.
+            </summary>
+            TODO: Remove this string; it is no longer valid in the specification.
+        </member>
+    <member name="F:OpenQA.Selenium.Remote.WebDriverError.InsecureCertificate">
+      <summary>
+            Represents the insecure certificate error.
             </summary>
     </member>
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.InvalidArgument">
@@ -10479,11 +11101,22 @@
             Represents the invalid argument error.
             </summary>
     </member>
+    <member name="F:OpenQA.Selenium.Remote.WebDriverError.InvalidCookieDomain">
+      <summary>
+            Represents the invalid cookie domain error.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Remote.WebDriverError.InvalidCoordinates">
+      <summary>
+            Represents the invalid coordinates error.
+            </summary>
+    </member>
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.InvalidElementCoordinates">
       <summary>
             Represents the invalid element coordinates error.
             </summary>
-    </member>
+            TODO: Remove this string; it is no longer valid in the specification.
+        </member>
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.InvalidElementState">
       <summary>
             Represents the invalid element state error.
@@ -10512,6 +11145,11 @@
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.NoSuchAlert">
       <summary>
             Represents the no such alert error.
+            </summary>
+    </member>
+    <member name="F:OpenQA.Selenium.Remote.WebDriverError.NoSuchCookie">
+      <summary>
+            Represents the no such cookie error.
             </summary>
     </member>
     <member name="F:OpenQA.Selenium.Remote.WebDriverError.NoSuchElement">

@@ -114,7 +114,7 @@ namespace CloudBeat.Oxygen.Modules
 		public SeleniumDriver(Uri remoteAddress, ICapabilities desiredCapabilities, ExecutionContext context)
             : base(remoteAddress, desiredCapabilities, TimeSpan.FromSeconds(TIMEOUT_COMMAND))
         {
-			base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
+			base.Manage().Timeouts().PageLoad = TimeSpan.FromMilliseconds(pageLoadTimeout);
 
 			this.context = context;
 			if (context == null)

@@ -28,7 +28,7 @@ namespace CloudBeat.Oxygen.Modules
         public void _SetTimeout(int timeout)
         {
             pageLoadTimeout = waitForTimeout = timeout;
-            base.Manage().Timeouts().SetPageLoadTimeout(TimeSpan.FromMilliseconds(pageLoadTimeout));
+            base.Manage().Timeouts().PageLoad = TimeSpan.FromMilliseconds(pageLoadTimeout);
         }
 		public void _SetBaseUrl(string url)
 		{
