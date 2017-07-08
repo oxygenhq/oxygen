@@ -20,18 +20,32 @@ module.exports = function() {
      * @summary Asserts that two values are equal.
      * @function equal
      * @param {String} actual - Actual value.
-     * @param {String} expected - Expected value.
+     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with 'regex:'.
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.equal = function(actual, expected, message) { chai.assert.equal(actual, expected, message); };
+    module.equal = function(actual, expected, message) {
+        if (expected.indexOf('regex:') === 0) {
+            var regex = new RegExp(expected.substring('regex:'.length));
+            chai.assert.match(actual, regex, message);
+        } else {
+            chai.assert.equal(actual, expected, message);
+        }
+    };
     /**
      * @summary Asserts that two values are not equal.
      * @function notEqual
      * @param {String} actual - Actual value.
-     * @param {String} expected - Expected value.
+     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with 'regex:'.
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.notEqual = function(actual, expected, message) { chai.assert.notEqual(actual, expected, message); };
+    module.notEqual = function(actual, expected, message) {
+        if (expected.indexOf('regex:') === 0) {
+            var regex = new RegExp(expected.substring('regex:'.length));
+            chai.assert.notMatch(actual, regex, message);
+        } else {
+            chai.assert.notEqual(actual, expected, message);
+        }
+    };
     /**
      * @summary Fails a test with the given message.
      * @function fail
