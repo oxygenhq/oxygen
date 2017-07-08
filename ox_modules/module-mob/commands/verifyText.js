@@ -10,7 +10,7 @@
  * @summary Verifies element's inner text.
  * @function verifyText
  * @param {String} locator - Element locator.
- * @param {String} pattern - Assertion pattern.
+ * @param {String} pattern - Assertion pattern. Either a verbatim string or a regex string prefixed with 'regex:'.
  * @param {String=} message - Message to be displayed in case of assert failure.
  */
 const chai = require('chai');
