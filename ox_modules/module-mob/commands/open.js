@@ -6,13 +6,14 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Opens an URL.
  * @function open
  * @param {String} url - The URL to open.
+ * @for web
  */
 module.exports = function(url) {
     this.helpers._assertArgumentNonEmptyString(url);
     return this._driver.url(url);
 };
-

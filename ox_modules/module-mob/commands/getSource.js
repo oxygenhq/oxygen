@@ -10,7 +10,8 @@
 /**
  * @function getSource
  * @summary Gets the source code of the page.
- * @for android, ios. native/hybrid/web
+ * @return {String} - HTML in case of web or hybrid application or XML in case of native.
+ * @for android, ios, hybrid, web
  */
 module.exports = function() {
     return _this._driver.source();

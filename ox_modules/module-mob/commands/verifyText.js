@@ -6,12 +6,14 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+
 /**
  * @summary Verifies element's inner text.
  * @function verifyText
  * @param {String} locator - Element locator.
- * @param {String} pattern - Assertion pattern. Either a verbatim string or a regex string prefixed with 'regex:'.
- * @param {String=} message - Message to be displayed in case of assert failure.
+ * @param {String} pattern - Assertion text or pattern.
+ * @param {String=} message - Message to generate in case of verification failure.
+ * @for android, ios, hybrid, web
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -23,10 +25,10 @@ module.exports = function(locator, pattern, message) {
     // when locator is an element object
     if (typeof locator === 'object' && locator.getText) {
         elm = locator;
-    }
-    else {
+    } else {
         elm = this.module.findElement(locator);
     }
+    
     if (!elm) {
         throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
     }

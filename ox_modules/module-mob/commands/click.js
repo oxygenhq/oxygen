@@ -6,10 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+
 /**
  * @summary Clicks on an element.
  * @function click
  * @param {String} locator - Element locator.
+ * @for android, ios, hybrid, web
  */
 module.exports = function(locator) {
     this.helpers._assertLocator(locator);
@@ -22,4 +24,3 @@ module.exports = function(locator) {
     locator = this.helpers.getWdioLocator(locator);
     return this._driver.click(locator);
 };
-

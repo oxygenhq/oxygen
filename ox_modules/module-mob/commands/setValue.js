@@ -6,12 +6,14 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Sets element's value.
  * @function setValue
  * @param {String} locator - Element locator.
  * @param {String} value - Value to set.
-*/
+ * @for android, ios, hybrid, web
+ */
 module.exports = function(locator, value) {
     this.helpers._assertLocator(locator);
     this.helpers._assertArgument(value);
@@ -23,4 +25,3 @@ module.exports = function(locator, value) {
     locator = this.helpers.getWdioLocator(locator);
     return this._driver.setValue(locator, value);
 };
-

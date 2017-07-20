@@ -6,14 +6,15 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+
 /**
  * @summary Send a sequence of key strokes to the active window or element.
  * @function sendKeys
  * @param {String} value - Sequence of key strokes to send.
+ * @for android, ios, hybrid, web
 */
 module.exports = function(value) {
     this.helpers._assertArgument(value);
-
     return this._driver.keys(value);
 };
 

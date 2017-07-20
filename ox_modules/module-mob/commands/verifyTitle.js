@@ -6,12 +6,13 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Verifies the page title.
  * @function verifyTitle
  * @param {String} pattern - Assertion text or pattern.
- * @param {String=} message - Message to be displayed in case of assert failure.
- * @platform web.hybrid
+ * @param {String=} message - Message to generate in case of verification failure.
+ * @for hybrid, web
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -26,4 +27,3 @@ module.exports = function(pattern, message) {
         assert.equal(title, pattern, message);
     }
 };
-

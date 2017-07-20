@@ -6,12 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
- * @summary Navigate backwards in the browser history or simulates back button on Android device
+ * @summary Navigate backwards in the browser history or simulates back button on Android device.
  * @function back
- * @param {String} locator - Element locator.
+ * @for android, hybrid, web
  */
-
 module.exports = function() {
     return this._driver.back();
 };

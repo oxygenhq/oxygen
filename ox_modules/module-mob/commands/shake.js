@@ -6,9 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
- * @summary Perform a shake action on the device
+ * @summary Perform shake action on the device
+ * @description Supported on Android and iOS <= 9
  * @function shake
+ * @for android, ios
  */
 module.exports = function() {
     return this._driver.shake();

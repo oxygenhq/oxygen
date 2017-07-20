@@ -6,14 +6,21 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Clears element's value or content
  * @function clear
  * @param {String} locator - Element locator.
+ * @for android, ios, hybrid, web
  */
-
 module.exports = function(locator) {
     this.helpers._assertLocator(locator);
+    
+    // when locator is an element object
+    if (typeof locator === 'object' && locator.clearElement) {
+        return locator.clearElement();
+    }
+    // when locator is string
     locator = this.helpers.getWdioLocator(locator);
     return this._driver.clearElement(locator);
 };

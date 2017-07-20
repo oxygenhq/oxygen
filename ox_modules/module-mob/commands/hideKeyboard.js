@@ -6,10 +6,13 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Hides device keyboard.
  * @function hideKeyboard
- * @param {String} strategy - Strategy to use for closing the keyboard ('tapOutside' or 'pressDone').
+ * @param {String=} strategy - Strategy to use for closing the keyboard - <code>tapOutside</code> or <code>pressDone</code>.
+ *                             Default is tapOutside.
+ * @for android, ios, hybrid, web
  */
 module.exports = function(strategy) {
     if (strategy && strategy === 'pressDone') {
@@ -17,4 +20,3 @@ module.exports = function(strategy) {
     }
     return this._driver.hideDeviceKeyboard(strategy);
 };
-

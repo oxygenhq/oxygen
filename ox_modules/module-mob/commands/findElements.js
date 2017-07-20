@@ -12,6 +12,7 @@
  * @param {String} locator - Element locator.
  * @param {Object=} parent - Optional parent element for relative search.
  * @return {Array<WebElement>} - Collection of WebElement JSON objects.
+ * @for android, ios, hybrid, web
 */
 module.exports = function(locator, parent) {
     this.helpers._assertLocator(locator);
@@ -29,4 +30,3 @@ module.exports = function(locator, parent) {
     }
     return retval;
 };
-

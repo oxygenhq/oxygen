@@ -10,8 +10,9 @@
  * @summary Asserts element's value.
  * @function assertValue
  * @param {String} locator - Element locator.
- * @param {String} pattern - Assertion pattern.
- * @param {String=} message - Message to be displayed in case of assert failure.
+ * @param {String} pattern - Assertion text or pattern.
+ * @param {String=} message - Message to generate in case of assert failure.
+ * @for android, ios, hybrid, web
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -23,10 +24,10 @@ module.exports = function(locator, pattern, message) {
     // when locator is an element object
     if (typeof locator === 'object' && locator.getText) {
         elm = locator;
-    }
-    else {
+    } else {
         elm = this.module.findElement(locator);
     }
+    
     if (!elm) {
         throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
     }
@@ -34,8 +35,7 @@ module.exports = function(locator, pattern, message) {
     var actualValue = null;
     try {
         actualValue = elm.getValue();
-    }
-    catch (e) {
+    } catch (e) {
         // check if the error was due to missing value attribute (in this case NoSuchElement will be received)
         if (e.type && e.type === 'RuntimeError' && e.seleniumStack && e.seleniumStack.type && e.seleniumStack.type === 'NoSuchElement') {
             throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);

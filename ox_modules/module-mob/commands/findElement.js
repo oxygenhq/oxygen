@@ -6,12 +6,14 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Finds an element.
  * @function findElement
  * @param {String} locator - Element locator.
  * @param {Object=} parent - Optional parent element for relative search.
  * @return {WebElement} - A WebElement object.
+ * @for android, ios, hybrid, web
 */
 module.exports = function(locator, parent) {
     this.helpers._assertLocator(locator);

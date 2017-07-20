@@ -9,8 +9,9 @@
 /**
  * @summary Asserts the page title.
  * @function assertTitle
- * @param {String} pattern - Assertion pattern.
- * @param {String} message - Message to be displayed in case of assert failure.
+ * @param {String} pattern - Assertion text or pattern.
+ * @param {String=} message - Message to generate in case of assert failure.
+ * @for hybrid, web
  */
 const chai = require('chai');
 const assert = chai.assert;
@@ -25,4 +26,3 @@ module.exports = function(pattern, message) {
         assert.equal(title, pattern, message);
     }
 };
-

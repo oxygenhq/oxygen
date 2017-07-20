@@ -6,10 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Pauses test execution for given amount of milliseconds.
  * @function pause
  * @param {Integer} ms - milliseconds to pause the execution.
+ * @for android, ios, hybrid, web
  */
 module.exports = function(ms) {
     this.helpers._assertArgumentNumber(ms);
