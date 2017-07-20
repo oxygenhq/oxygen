@@ -197,7 +197,17 @@ module.exports = function(grunt) {
                         }
                         return params;
                     };
-                    
+                    commentParsed.getFor = function() {
+                        for (var tag of this.tags)
+                        {
+                            if (tag.title === 'for') {
+                                var fors = tag.description.replace(/(\r\n|\n)/gm,'').split(',').map(function(item) {
+                                    return item.trim();
+                                });
+                                return fors;
+                            }
+                        }
+                    };
                     comments.push(commentParsed);
                 }
                 return { description: description.replace(/(\r\n|\n)/gm,''), methods: comments };
