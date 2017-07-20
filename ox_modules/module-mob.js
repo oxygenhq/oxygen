@@ -243,27 +243,32 @@ module.exports = function (options, context, rs, logger) {
     helpers.getWdioLocator = function(locator) {
         if (locator.indexOf('/') === 0)
             return locator; // leave xpath locator as is
-        // convert locators to UIAutomator selectors if we are in NATIVE_APP context and on Anroid
-        if (this._context === 'NATIVE_APP' && this._caps && this._caps.platformName && this._caps.platformName.toLowerCase() === 'android') {
+        
+        var platform = this._caps && this._caps.platformName ? this._caps.platformName.toLowerCase() : null;
+        
+        if (this._context === 'NATIVE_APP' && platform === 'android') {
             if (locator.indexOf('id=') === 0)
                 return 'android=new UiSelector().resourceId("' + locator.substr('id='.length) + '")';
-            else if (locator.indexOf('css=') === 0)
-                return 'android=new UiSelector().className("' + locator.substr('css='.length) + '")';
             else if (locator.indexOf('class=') === 0)
                 return 'android=new UiSelector().className("' + locator.substr('class='.length) + '")';
             else if (locator.indexOf('text=') === 0)
                 return 'android=new UiSelector().text("' + locator.substr('text='.length) + '")';
             else if (locator.indexOf('desc=') === 0)
                 return 'android=new UiSelector().description("' + locator.substr('desc='.length) + '")';
-        }
-        // for anything other than Android and NATIVE_APP context
-        else {
+        } else if (this._context === 'NATIVE_APP' && platform === 'ios') {
             if (locator.indexOf('id=') === 0)
-                return '#' + locator.substr('id='.length);  // convert 'id=' to '#'
+                return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
+        } else if (this._context !== 'NATIVE_APP') {            // Hybrid or Web application
+            if (locator.indexOf('id=') === 0)
+                return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
             if (locator.indexOf('name=') === 0)
                 return '[name=' + locator.substr('name='.length) + ']';
+            if (locator.indexOf('link=') === 0)
+                return '=' + locator.substr('link='.length);    // convert 'link=' to '='
+            if (locator.indexOf('css=') === 0)
+                return locator.substr('css='.length);           // in case of css, just remove css= prefix
         }
-        // if locator has not been recognized, return it as is
+        
         return locator;
     };
 
