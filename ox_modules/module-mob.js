@@ -177,33 +177,7 @@ module.exports = function (options, context, rs, logger) {
     module.transaction = function (name) {
         global._lastTransactionName = name;
     };
-    /**
-     * @function setContext
-     * @summary Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
-     * @param {String} context - The context name.
-     * @for android, ios
-     */
-    module.setContext = function(context) {
-        _this._driver.context(context);
-        this._context = context;
-    };
-    /**
-     * @function getSource
-     * @summary Gets the source code of the page.
-     * @for android, ios
-     */
-    module.getSource = function() {
-        return _this._driver.source();
-    };
-    /**
-     * @function execute
-     * @summary Executes a JavaScript code inside the HTML page.
-     * @param {String} js - Script to execute.
-     * @for android, ios
-     */
-    module.execute = function(js, elm) {
-        return _this._driver.execute(js, elm);
-    };
+    
     /**
      * @function dispose
      * @summary Ends the current session.
@@ -219,25 +193,6 @@ module.exports = function (options, context, rs, logger) {
             }
             _this._isInitialized = false;
         }
-    };
-    /**
-     * @function takeScreenshot
-     * @summary Take a screenshot of the current page or screen.
-     * @for android, ios
-     */
-    module.takeScreenshot = function () {
-        var response = _this._driver.screenshot();
-        return response.value || null;
-    };
-    /**
-     * @function sendKeys
-     * @summary Sends a sequence of key strokes to the element.
-     * @param {String} locator - Element locator.
-     * @param {String} value - A value to be set to the element.
-     * @for android, ios
-     */
-    module.sendKeys = function(locator, value) {
-        return module.setValue.apply(_this, arguments);
     };
 
     helpers.getWdioLocator = function(locator) {
