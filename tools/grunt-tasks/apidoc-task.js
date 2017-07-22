@@ -182,22 +182,29 @@ module.exports = function(grunt) {
                         for (var tag of this.tags)
                         {
                             if (tag.title === 'param') {
-                                 
                                 var type;
                                 var optional;
+                                var variableNum;
+                                
                                 if (tag.type.type === 'OptionalType') {
                                     type = tag.type.expression.name;
                                     optional = true;
+                                } else if (tag.type.type === 'RestType') {
+                                    type = tag.type.expression.name;
+                                    optional = true;
+                                    variableNum = true;
                                 } else {
                                     type = tag.type.name;
                                     optional = false;
+                                    variableNum = false;
                                 }
                                 
                                 params.push({ 
                                     description: tag.description.replace(/(\r\n|\n)/gm,''), 
-                                    name: tag.name, 
+                                    name: variableNum ? '...' + tag.name : tag.name, 
                                     type: type,
-                                    optional: optional
+                                    optional: optional,
+                                    variableNum: variableNum
                                 });
                             }
                         }
