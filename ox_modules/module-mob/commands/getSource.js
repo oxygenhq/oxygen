@@ -14,5 +14,5 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function() {
-    return _this._driver.source();
+    return this._driver.source();
 };
