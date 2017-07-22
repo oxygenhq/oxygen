@@ -9,7 +9,7 @@
  
 /**
  * @summary Perform shake action on the device
- * @description Supported on Android and iOS <= 9
+ * @description Supported on Android and iOS 9 or earlier versions. 
  * @function shake
  * @for android, ios
  */

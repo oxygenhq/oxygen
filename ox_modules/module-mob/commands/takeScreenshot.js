@@ -11,7 +11,7 @@
  * (consider improving. write into test results)
  * @function takeScreenshot
  * @summary Take a screenshot of the current page or screen.
- * @for android, ios. all.
+ * @for android, ios, hybrid, web
  */
 module.exports = function() {
     var response = _this._driver.screenshot();
