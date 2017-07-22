@@ -6,12 +6,13 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Sets context to NATIVE_APP.
  * @function setNativeContext
+ * @for android, ios, hybrid, web
 */
 module.exports = function() {
     this._driver.context('NATIVE_APP');
     this._context = 'NATIVE_APP';
 };
-

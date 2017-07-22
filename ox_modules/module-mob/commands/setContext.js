@@ -8,11 +8,10 @@
  */
 
 /**
- * move to separate file
- * @function setContext [move to separate file]
+ * @function setContext
  * @summary Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
  * @param {String} context - The context name.
- * @for android, ios (check attribute name "for"). all
+ * @for android, ios, hybrid, web
  */
 module.exports = function(context) {
     _this._driver.context(context);

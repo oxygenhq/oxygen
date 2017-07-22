@@ -10,7 +10,7 @@
 /**
  * @summary Checks if the current context is of WebView type.
  * @function isWebViewContext
- * @return {Boolean} - true if the context is of WebView type.
+ * @return {Boolean} - true if the context name is WEBVIEW or CHROMIUM.
  * @for android, ios, hybrid, web
  */
 module.exports = function() {

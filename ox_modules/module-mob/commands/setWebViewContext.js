@@ -6,10 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
- * @summary Sets context to WEBVIEW or CHROMIUM.
+ * @summary Sets context to the first available WEBVIEW or CHROMIUM (Crosswalk WebView) view.
  * @function setWebViewContext
-*/
+ * @for android, ios, hybrid, web
+ */
 module.exports = function() {
     var response = this._driver.contexts();
     var contexts = response.value;
@@ -25,4 +27,3 @@ module.exports = function() {
         }
     }
 };
-
