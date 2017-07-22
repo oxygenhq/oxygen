@@ -29,7 +29,13 @@ var INDEX = '<div class="index">' +
 var SIGNATURE = '<h4 id="{0}">' +
                 '<span class="signature">{0}({1})</span>' + 
                 '<span class="signature-return">{2}</span>' +
+                '<div class="signature-for">{3}</div>' + 
                 '</h4>';
+                
+var SIGNATURE_AND = '<div class="android" title="Native Android applications"></div>';
+var SIGNATURE_IOS = '<div class="apple" title="Native iOS applications"></div>'; 
+var SIGNATURE_HYB = '<div class="hybrid" title="Hybrid applications on Android/iOS"></div>';       
+var SIGNATURE_WEB = '<div class="web" title="Web applications on Android/iOS"></div>';
 
 var DESCRIPTION = '<div class="description">{0}</div>';
 
@@ -270,10 +276,35 @@ module.exports = function(grunt) {
                 
                 var ret = method.getReturn();
                 
+                var platforms = method.getFor();
+                
+                var platformSignature = '';
+                if (platforms) {
+                    platforms.forEach(function(item){
+                        switch(item) {
+                            case 'android':
+                                platformSignature += SIGNATURE_AND;
+                                break;
+                            case 'ios':
+                                platformSignature += SIGNATURE_IOS;
+                                break;
+                            case 'hybrid':
+                                platformSignature += SIGNATURE_HYB;
+                                break;
+                            case 'web':
+                                platformSignature += SIGNATURE_WEB;
+                                break;
+                            default:
+                                grunt.fail.fatal("Unknown value '" + item + "' in @for attribute.");
+                        } 
+                    });
+                }
+                
                 // signature & description
                 var sigHtml = SIGNATURE.format(method.getMethod(), 
                                                 paramConcat.join(', '), 
-                                                ret === undefined ? '' : '&rarr; {' + ret.type + '}');
+                                                ret === undefined ? '' : '&rarr; {' + ret.type + '}',
+                                                platformSignature);
 
                 var methodDesc = method.getDescription();
                       
