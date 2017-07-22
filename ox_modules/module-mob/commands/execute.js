@@ -9,10 +9,12 @@
 
 /**
  * @function execute
- * @summary Executes a JavaScript code inside the HTML page.
+ * @summary Executes JavaScript code inside HTML page.
  * @param {String} js - Script to execute.
- * @for android, ios. web/hybrid
+ * @param {...Object} arg - Optional script arguments.
+ * @for hybrid, web
  */
-module.exports = function(js, elm) {
-    return _this._driver.execute(js, elm);
+module.exports = function(js) {
+    var args = Array.prototype.splice.call(arguments, 0);
+    return _this._driver.execute.apply(null, args);
 };
