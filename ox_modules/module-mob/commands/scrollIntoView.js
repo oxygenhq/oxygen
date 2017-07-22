@@ -6,11 +6,13 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+ 
 /**
  * @summary Scrolls the element into the visible area of the browser window.
  * @function scrollIntoView
  * @param {String} locator - Element locator.
- * @param {Boolean=} alignToTop - Indicates whether to align the element to the top.
+ * @param {Boolean=} alignToTop - Indicates whether to align the element to the top. Element is centered otherwise.
+ * @for hybrid, web
 */
 module.exports = function(locator, alignToTop) {
     this.helpers._assertLocator(locator);
