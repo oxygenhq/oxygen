@@ -11,7 +11,35 @@
 /**
  * Provides methods for mobile automation.
  * <br /><br />
- * <b><i>Notes:</i></b><br />
+ * <b><i>Locators:</i></b><br />
+ * <div id="locators-android-native">Native application locators for<img src="/img/platforms/android.png"></img>
+ *  <ul>
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
+ *  <li><code>id=ID</code> - Locates element by its ID.</li>
+ *  <li><code>class=CLASS</code> - Locates element by its CLASS.</li>
+ *  <li><code>text=TEXT</code> - Locates element by its TEXT.</li>
+ *  <li><code>desc=DESCRIPTION</code> - Locates element by its DESCRIPTION.</li>
+ *  </ul>
+ * </div>
+ * <div id="locators-ios">Native application locators for<img src="/img/platforms/apple.png"></img>
+ *  <ul>
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
+ *  <li><code>id=ID</code> - Locates element by its ID.</li>
+ *  </ul>
+ * </div>
+ * <div id="locators-hybrid-web">
+ *  Hybrid<img src="/img/platforms/hybrid.png"></img>and Web<img src="/img/platforms/web.png"></img>application locators
+ *  for<img src="/img/platforms/android.png"></img><img src="/img/platforms/apple.png"></img>
+ *  <ul>
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
+ *  <li><code>id=ID</code> - Locates element by its ID.</li>
+ *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>
+ *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>
+ *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>
+ *  </ul>
+ * </div>
+ * <br/>
+ * <b><i>Pattern arguments:</i></b><br />
  * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
  *  following patterns unless specified otherwise:
  *  <ul>
