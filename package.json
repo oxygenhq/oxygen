@@ -1,6 +1,6 @@
 {
   "name": "oxygen",
-  "version": "0.12.0",
+  "version": "0.13.0",
   "description": "Automation framework for Web & Mobile applications",
   "private": true,
   "main": "./lib/oxygen.js",
