@@ -1,17 +1,19 @@
 {
   "name": "oxygen",
   "version": "0.12.0",
-  "description": "Oxygen is an open source automation framework for Web & Mobile",
+  "description": "Automation framework for Web & Mobile applications",
   "private": true,
   "main": "./lib/oxygen.js",
   "bin": "./lib/cli.js",
   "preferGlobal": "true",
   "repository": {
     "type": "git",
-    "url": "git://github.com/cloudbeat/oxygen.git"
+    "url": "git://github.com/oxygenhq/oxygen.git"
   },
   "keywords": [
     "selenium",
+    "appium",
+    "webdriver",
     "testing",
     "automation",
     "qa"
@@ -23,7 +25,7 @@
   },
   "license": "GPL-3.0",
   "bugs": {
-    "url": "https://github.com/cloudbeat/oxygen/issues"
+    "url": "https://github.com/oxygenhq/oxygen/issues"
   },
   "devDependencies": {
     "grunt": "1.0.1",
