@@ -273,9 +273,6 @@ namespace CloudBeat.Oxygen.Modules
 
 		public override CommandResult ExecuteCommand(string name, params object[] args)
         {
-			if (driver == null)
-				throw new OxModuleInitializationException("Selenium driver is not initialized in web module");
-
             var result = new CommandResult(Name, name, args);
 
             Type[] paramTypes = null;
@@ -286,6 +283,10 @@ namespace CloudBeat.Oxygen.Modules
             catch (OxVariableUndefined u)
             {
                 return result.ErrorBase(ErrorType.VARIABLE_NOT_DEFINED, u.Message);
+            }
+            catch (Exception e)
+            {
+                return result.ErrorBase(ErrorType.UNKNOWN_ERROR, "Error processing arguments: " + e.Message);
             }
 
             // TODO: web.transaction needs refactoring
@@ -298,6 +299,10 @@ namespace CloudBeat.Oxygen.Modules
                 catch (OxDuplicateTransactionException dte)
                 {
                     return result.ErrorBase(ErrorType.DUPLICATE_TRANSACTION, dte.Message);
+                }
+                catch (Exception e)
+                {
+                    return result.ErrorBase(ErrorType.UNKNOWN_ERROR, "Error processing transaction:" + e.Message);
                 }
                 return result.SuccessBase();
             }
@@ -341,7 +346,14 @@ namespace CloudBeat.Oxygen.Modules
                         tie.InnerException is NoAlertPresentException ||
                         tie.InnerException is WebDriverTimeoutException))
                     {
-                        screenShot = driver.TakeScreenshot();
+                        try
+                        {
+                            screenShot = driver.TakeScreenshot();
+                        } 
+                        catch (Exception e) 
+                        {
+                            Console.Error.WriteLine("Error taking screenshot: " + e.Message);
+                        }
                     }
                     else if (tie.InnerException != null && tie.InnerException is UnhandledAlertException)
                     {
@@ -375,6 +387,10 @@ namespace CloudBeat.Oxygen.Modules
                     exception = new OxTimeoutException();
                 else
                     exception = tie.InnerException;
+            }
+            catch (Exception e)
+            {
+                return result.ErrorBase(ErrorType.UNKNOWN_ERROR, e.Message);
             }
 
             result.IsAction = IsAction(name);

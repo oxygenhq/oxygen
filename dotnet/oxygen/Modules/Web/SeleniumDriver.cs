@@ -266,12 +266,15 @@ namespace CloudBeat.Oxygen.Modules
 					}
 				});
 			}
-			catch (WebDriverTimeoutException)
+            catch (Exception e)               // we should get only WebDriverTimeoutException here, but just in case...
 			{
 				isSuccess = false;
 				domContentLoadedTmp = 0;
 				loadTmp = 0;
-			}
+
+                if (e.GetType() != typeof(WebDriverTimeoutException))
+                    Console.Error.WriteLine("Got unexpected exception in GetPerformanceTimings." + e.Message);
+            }
 			domContentLoaded = domContentLoadedTmp;
 			load = loadTmp;
             o_navigationStart = navigationStartTmp;
