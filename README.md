@@ -14,7 +14,7 @@ Oxygen is an open source framework and tool-set built on top of Appium, Webdrive
 ## Installation
 
 ```shell
-npm install -g oxygen
+npm install -g oxygen-cli
 ```
 
 ## Getting Started
