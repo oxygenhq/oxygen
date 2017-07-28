@@ -1,5 +1,5 @@
 {
-  "name": "oxygen",
+  "name": "oxygen-cli",
   "version": "0.13.0",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./lib/oxygen.js",
