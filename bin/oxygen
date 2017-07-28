@@ -1,9 +1,0 @@
-#!/usr/bin/env node
-
-//process.env.NODE_ENV = process.env.NODE_ENV || 'test';
-
-var path = require('path');
-// fix config file path
-process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../config');
-
-require('../lib/cli.js');
