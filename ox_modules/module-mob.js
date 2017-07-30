@@ -83,8 +83,8 @@ module.exports = function (options, context, rs, logger) {
     this.logger = logger;           // set logger
     this.sessionId = null;          // store current session id
     this._caps = null;              // save driver capabilities for later use when error occures
-    this._host = options.host || DEFAULT_APPIUM_HOST;   // appium or selenium hub host name
-    this._port = options.port || DEFAULT_APPIUM_PORT;   // appium or selenium hub port number
+    this._host = options.host || DEFAULT_APPIUM_HOST;   // appium server host name
+    this._port = options.port || DEFAULT_APPIUM_PORT;   // appium server port number
     this._context = 'NATIVE_APP';
 
     const NO_SCREENSHOT_COMMANDS = [
