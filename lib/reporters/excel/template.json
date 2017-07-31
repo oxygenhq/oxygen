@@ -37,5 +37,8 @@
 {
 	"header": "",
 	"value": "${param.all}"
+},
+{
+	"header": "",
+	"value": "${var.all}"
 }]
-
