@@ -1,41 +1,41 @@
 [{
-	"header": "suite.iteration",
+	"header": "Suite Iteration",
 	"value": "${suite.iteration}"
 },
 {
-	"header": "suite.status",
+	"header": "Suite Status",
 	"value": "${suite.status}"
 },
 {
-	"header": "case.iteration",
+	"header": "Case Iteration",
 	"value": "${case.iteration}"
 },
 {
-	"header": "case.name",
+	"header": "Case Name",
 	"value": "${case.name}"
 },
 {
-	"header": "case.status",
+	"header": "Case Status",
 	"value": "${case.status}"
 },
 {
-	"header": "failure.step",
+	"header": "Failure Step",
 	"value": "${failure.step}"
 },
 {
-	"header": "failure.type",
+	"header": "Failure Type",
 	"value": "${failure.type}"
 },
 {
-	"header": "failure.message",
+	"header": "Failure Message",
 	"value": "${failure.message}"
 },
 {
-	"header": "failure.line",
+	"header": "Failure Line",
 	"value": "${failure.line}"
 },
 {
-	"header": "param",
+	"header": "",
 	"value": "${param.all}"
 }]
 
