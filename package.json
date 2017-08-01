@@ -52,5 +52,8 @@
     "webdriverio": "4.7.1",
     "deasync": "0.1.10",
     "request": "2.81.0"
+  },
+  "scripts": {
+    "prepublish": "grunt eslint"
   }
 }
