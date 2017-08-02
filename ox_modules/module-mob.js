@@ -14,11 +14,14 @@
  * <b><i>Locators:</i></b><br />
  * <div id="locators-android-native">Native application locators for<img src="/img/platforms/android.png"></img>
  *  <ul>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  <li><code>id=ID</code> - Locates element by its ID.</li>
- *  <li><code>class=CLASS</code> - Locates element by its CLASS.</li>
- *  <li><code>text=TEXT</code> - Locates element by its TEXT.</li>
- *  <li><code>desc=DESCRIPTION</code> - Locates element by its DESCRIPTION.</li>
+ *  <li><code>/XPATH</code> - Locates element(s) using an XPath 1.0 expression.</li>
+ *  <li><code>id=ID</code> - Locates element by its id.</li>
+ *  <li><code>class=CLASS</code> - Locates element(s) by its class.</li>
+ *  <li><code>text=TEXT</code> - Locates element(s) by its visible text.</li>
+ *  <li><code>text-contains=TEXT</code> - Locates element(s) whose visible text contains the specified string.</li>
+ *  <li><code>desc=DESCRIPTION</code> - Locates element(s) by its description.</li>
+ *  <li><code>desc-contains=DESCRIPTION</code> - Locates element(s) whose description contains the specified string.</li>
+ *  <li><code>scrollable</code> - Locates elements that are scrollable.</li>
  *  </ul>
  * </div>
  * <div id="locators-ios">Native application locators for<img src="/img/platforms/apple.png"></img>
@@ -236,8 +239,14 @@ module.exports = function (options, context, rs, logger) {
                 return 'android=new UiSelector().className("' + locator.substr('class='.length) + '")';
             else if (locator.indexOf('text=') === 0)
                 return 'android=new UiSelector().text("' + locator.substr('text='.length) + '")';
+            else if (locator.indexOf('text-contains=') === 0)
+                return 'android=new UiSelector().textContains("' + locator.substr('text-contains='.length) + '")';
             else if (locator.indexOf('desc=') === 0)
                 return 'android=new UiSelector().description("' + locator.substr('desc='.length) + '")';
+            else if (locator.indexOf('desc-contains=') === 0)
+                return 'android=new UiSelector().descriptionContains("' + locator.substr('desc-contains='.length) + '")';
+            else if (locator.indexOf('scrollable') === 0)
+                return 'android=new UiSelector().scrollable(true)';
         } else if (this._context === 'NATIVE_APP' && platform === 'ios') {
             if (locator.indexOf('id=') === 0)
                 return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
