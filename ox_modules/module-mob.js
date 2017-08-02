@@ -14,13 +14,13 @@
  * <b><i>Locators:</i></b><br />
  * <div id="locators-android-native">Native application locators for<img src="/img/platforms/android.png"></img>
  *  <ul>
- *  <li><code>/XPATH</code> - Locates element(s) using an XPath 1.0 expression.</li>
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
  *  <li><code>id=ID</code> - Locates element by its id.</li>
- *  <li><code>class=CLASS</code> - Locates element(s) by its class.</li>
- *  <li><code>text=TEXT</code> - Locates element(s) by its visible text.</li>
- *  <li><code>text-contains=TEXT</code> - Locates element(s) whose visible text contains the specified string.</li>
- *  <li><code>desc=DESCRIPTION</code> - Locates element(s) by its description.</li>
- *  <li><code>desc-contains=DESCRIPTION</code> - Locates element(s) whose description contains the specified string.</li>
+ *  <li><code>class=CLASS</code> - Locates element by its class.</li>
+ *  <li><code>text=TEXT</code> - Locates element by its visible text.</li>
+ *  <li><code>text-contains=TEXT</code> - Locates element whose visible text contains the specified string.</li>
+ *  <li><code>desc=DESCRIPTION</code> - Locates element by its description.</li>
+ *  <li><code>desc-contains=DESCRIPTION</code> - Locates element whose description contains the specified string.</li>
  *  <li><code>scrollable</code> - Locates elements that are scrollable.</li>
  *  </ul>
  * </div>
@@ -37,7 +37,7 @@
  *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
  *  <li><code>id=ID</code> - Locates element by its ID.</li>
  *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>
- *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>
+ *  <li><code>link=TEXT</code> - Locates anchor element whose text matches the given string.</li>
  *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>
  *  </ul>
  * </div>
@@ -253,11 +253,13 @@ module.exports = function (options, context, rs, logger) {
         } else if (this._context !== 'NATIVE_APP') {            // Hybrid or Web application
             if (locator.indexOf('id=') === 0)
                 return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
-            if (locator.indexOf('name=') === 0)
+            else if (locator.indexOf('name=') === 0)
                 return '[name=' + locator.substr('name='.length) + ']';
-            if (locator.indexOf('link=') === 0)
-                return '=' + locator.substr('link='.length);    // convert 'link=' to '='
-            if (locator.indexOf('css=') === 0)
+            else if (locator.indexOf('link=') === 0)
+                return '=' + locator.substr('link='.length);
+            else if (locator.indexOf('link-contains=') === 0)
+                return '*=' + locator.substr('link='.length);
+            else if (locator.indexOf('css=') === 0)
                 return locator.substr('css='.length);           // in case of css, just remove css= prefix
         }
         
