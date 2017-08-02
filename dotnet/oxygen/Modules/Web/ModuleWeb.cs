@@ -95,7 +95,10 @@ namespace CloudBeat.Oxygen.Modules
                 proxy.HarReset();
             }
 
-			return transactions;
+            var _transactions = new Dictionary<string, string>(transactions);
+            transactions.Clear(); // clear transactions so we won't get duplicates on multiple iterations
+
+			return _transactions;
 		}
 
 		public bool Initialize(Dictionary<string, string> args, ExecutionContext ctx)
