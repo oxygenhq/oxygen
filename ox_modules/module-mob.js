@@ -35,9 +35,10 @@
  *  for<img src="/img/platforms/android.png"></img><img src="/img/platforms/apple.png"></img>
  *  <ul>
  *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  <li><code>id=ID</code> - Locates element by its ID.</li>
- *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>
+ *  <li><code>id=ID</code> - Locates element by its id.</li>
+ *  <li><code>name=NAME</code> - Locates element by its name attribute.</li>
  *  <li><code>link=TEXT</code> - Locates anchor element whose text matches the given string.</li>
+ *  <li><code>link-contains=TEXT</code> - Locates anchor element whose text contains the given string.</li>
  *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>
  *  </ul>
  * </div>
