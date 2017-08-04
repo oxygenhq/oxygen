@@ -74,10 +74,10 @@ module.exports = function (options, context, rs, logger) {
     this.POOLING_INTERVAL = 5000;
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
-	const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
+    const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
 
-    this._client = null; 
-    this._driver = null; 
+    this._client = null;
+    this._driver = null;
 
     var _this = module._this = this;               // reference to this instance
     this._isInitialized = false;    // initialization indicator
@@ -178,23 +178,23 @@ module.exports = function (options, context, rs, logger) {
         }
         // write back to the context the merged caps (used later in the reporter)
         _this._ctx.caps = _this._caps;
-		// populate WDIO options 
+        // populate WDIO options
         var wdioOpts = {
             host: host || _this._options.host || DEFAULT_APPIUM_HOST,
             port: port || _this._options.port || DEFAULT_APPIUM_PORT,
             desiredCapabilities: _this._caps
         };
 
-		// if host parameter includes a full URL to the hub, then divide it into separate parts to pass to WDIO
-		if ((arguments.length == 2 && host.indexOf('http') == 0)
-			|| (wdioOpts.host && wdioOpts.host.indexOf('http') == 0)) {
-			var URL = require('url');
-			var url = URL.parse(host || wdioOpts.host);
-			wdioOpts.host = url.hostname;
-			wdioOpts.port = url.port || DEFAULT_GRID_PORT;
-			wdioOpts.path = url.pathname;
-			wdioOpts.protocol = url.protocol.substr(0, url.protocol.length - 1);	// remove ':' character
-		}
+        // if host parameter includes a full URL to the hub, then divide it into separate parts to pass to WDIO
+        if ((arguments.length == 2 && host.indexOf('http') == 0)
+            || (wdioOpts.host && wdioOpts.host.indexOf('http') == 0)) {
+            var URL = require('url');
+            var url = URL.parse(host || wdioOpts.host);
+            wdioOpts.host = url.hostname;
+            wdioOpts.port = url.port || DEFAULT_GRID_PORT;
+            wdioOpts.path = url.pathname;
+            wdioOpts.protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
+        }
         // initialize driver with either default or custom appium/selenium grid address
         _this._driver = module.driver = wdio.remote(wdioOpts);
         wdioSync.wrapCommands(_this._driver);
