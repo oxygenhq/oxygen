@@ -33,7 +33,8 @@ var SIGNATURE = '<div style="position:relative;">' +
                 '<span class="signature">{0}({1})</span>' + 
                 '<span class="signature-return">{2}</span>' +
                 '<div class="signature-for">{3}</div>' + 
-                '</h4>';
+                '</h4>' + 
+                '</div>';
                 
 var SIGNATURE_AND = '<div class="android" title="Native Android applications"></div>';
 var SIGNATURE_IOS = '<div class="apple" title="Native iOS applications"></div>'; 
