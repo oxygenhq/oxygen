@@ -26,7 +26,10 @@ var INDEX = '<div class="index">' +
             '<div id="index-col-3" class="index-col">{2}</div>' +
             '</div>';
             
-var SIGNATURE = '<h4 id="{0}">' +
+var SIGNATURE = '<div style="position:relative;">' +
+                // trick to scroll slightly above the target anchor, because floating header will overlap it otherwise
+                '<div id="{0}" style="position:absolute;top:-70px;" />' +   
+                '<h4>' +
                 '<span class="signature">{0}({1})</span>' + 
                 '<span class="signature-return">{2}</span>' +
                 '<div class="signature-for">{3}</div>' + 
