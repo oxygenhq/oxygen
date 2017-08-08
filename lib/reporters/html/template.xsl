@@ -221,7 +221,7 @@
 								<xsl:for-each select="iterations/steps">
 									<xsl:if test="not(contains(@name, '.transaction'))">
 										<tr>
-											<td><xsl:value-of select="position()" /></td>
+											<td><xsl:number count="steps[not(contains(@name, '.transaction'))]" /></td>
 											<td style="word-wrap: break-word; width: 100%;"><xsl:value-of select="@name"/></td>
 											<td><xsl:value-of select="@transaction"/></td>
 											<td><xsl:value-of select="format-number(@duration div 1000, '###,##0.00')"/> s</td>
