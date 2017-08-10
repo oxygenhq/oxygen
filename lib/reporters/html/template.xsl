@@ -221,51 +221,113 @@
 								<xsl:for-each select="iterations/steps">
 									<xsl:if test="not(contains(@name, '.transaction'))">
 										<tr>
-											<td><xsl:number count="steps[not(contains(@name, '.transaction'))]" /></td>
-											<td style="word-wrap: break-word; width: 100%;"><xsl:value-of select="@name"/></td>
-											<td><xsl:value-of select="@transaction"/></td>
-											<td><xsl:value-of select="format-number(@duration div 1000, '###,##0.00')"/> s</td>
-											<td>
-												<xsl:choose>
-													<xsl:when test="@status='failed'">
-														<span class="label label-danger label-sm">
-															<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
-														</span>
-													</xsl:when>
-													<xsl:when test="@status='warning'">
-														<span class="label label-warning label-sm">
-															<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
-														</span>
-													</xsl:when>
-													<xsl:otherwise>
-														<span class="label label-success label-sm">
-															<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
-														</span>
-													</xsl:otherwise>
-												</xsl:choose>
-											</td>
-											<td>
-												<xsl:if test="failure">
+											<xsl:choose>
+												<xsl:when test="contains(@name, 'log.info')">
+													<td></td>
+													<td style="word-wrap: break-word; width: 100%; background-color: #e9f1f9;">
+												  	<xsl:variable name="cmdArg" select="substring(@name, string-length('log.info(') + 1, string-length(@name) - string-length('log.info(') - 1)"/>
 													<xsl:choose>
-														<xsl:when test="@screenshotFile">
-															<a target="_blank"><xsl:attribute name="href">./<xsl:value-of select="@screenshotFile"/></xsl:attribute>
-																<b><xsl:value-of select="failure/@type"/></b><br/>
-																<xsl:value-of select="failure/@message"/>
-																<xsl:if test="failure/data/line">
-																	at line <xsl:value-of select="failure/data/line"/>
-																</xsl:if>
-															</a>
+														<xsl:when test="substring($cmdArg, string-length($cmdArg)) = '&quot;'">
+															<xsl:value-of select="substring($cmdArg, 2, string-length($cmdArg) - 2)"/>
 														</xsl:when>
 														<xsl:otherwise>
-															<b><xsl:value-of select="failure/@type"/></b><br/>
-															<xsl:value-of select="failure/@message"/>
-															<xsl:if test="failure/data/line">
-																at line <xsl:value-of select="failure/data/line"/>
-															</xsl:if>
+															<xsl:value-of select="$cmdArg"/>
 														</xsl:otherwise>
 													</xsl:choose>
-												</xsl:if>
-											</td>
+													</td>
+												</xsl:when>
+												<xsl:when test="contains(@name, 'log.warn')">
+													<td></td>
+													<td style="word-wrap: break-word; width: 100%; background-color: #f9f9e9;">
+														<xsl:variable name="cmdArg" select="substring(@name, string-length('log.warn(') + 1, string-length(@name) - string-length('log.warn(') - 1)"/>
+														<xsl:choose>
+															<xsl:when test="substring($cmdArg, string-length($cmdArg)) = '&quot;'">
+																<xsl:value-of select="substring($cmdArg, 2, string-length($cmdArg) - 2)"/>
+															</xsl:when>
+															<xsl:otherwise>
+																<xsl:value-of select="$cmdArg"/>
+															</xsl:otherwise>
+														</xsl:choose>
+													</td>
+												</xsl:when>
+												<xsl:when test="contains(@name, 'log.error')">
+													<td></td>
+													<td style="word-wrap: break-word; width: 100%; background-color: #f9e9ec;">
+														<xsl:variable name="cmdArg" select="substring(@name, string-length('log.error(') + 1, string-length(@name) - string-length('log.error(') - 1)"/>
+														<xsl:choose>
+															<xsl:when test="substring($cmdArg, string-length($cmdArg)) = '&quot;'">
+																<xsl:value-of select="substring($cmdArg, 2, string-length($cmdArg) - 2)"/>
+															</xsl:when>
+															<xsl:otherwise>
+																<xsl:value-of select="$cmdArg"/>
+															</xsl:otherwise>
+														</xsl:choose>
+													</td>
+												</xsl:when>
+												<xsl:when test="contains(@name, 'log.debug')">
+													<td></td>
+													<td style="word-wrap: break-word; width: 100%; background-color: #e9f9ee;">
+														<xsl:variable name="cmdArg" select="substring(@name, string-length('log.debug(') + 1, string-length(@name) - string-length('log.debug(') - 1)"/>
+														<xsl:choose>
+															<xsl:when test="substring($cmdArg, string-length($cmdArg)) = '&quot;'">
+																<xsl:value-of select="substring($cmdArg, 2, string-length($cmdArg) - 2)"/>
+															</xsl:when>
+															<xsl:otherwise>
+																<xsl:value-of select="$cmdArg"/>
+															</xsl:otherwise>
+														</xsl:choose>
+													</td>
+												</xsl:when>
+												<xsl:otherwise>
+													<td><xsl:number count="steps[not(contains(@name, '.transaction')) and not(contains(@name, 'log.'))]" /></td>
+													<td style="word-wrap: break-word; width: 100%;">
+														<xsl:value-of select="@name"/>
+													</td>
+													<td><xsl:value-of select="@transaction"/></td>
+													<td><xsl:value-of select="format-number(@duration div 1000, '###,##0.00')"/> s</td>
+													<td>
+														<xsl:choose>
+															<xsl:when test="@status='failed'">
+																<span class="label label-danger label-sm">
+																	<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
+																</span>
+															</xsl:when>
+															<xsl:when test="@status='warning'">
+																<span class="label label-warning label-sm">
+																	<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
+																</span>
+															</xsl:when>
+															<xsl:otherwise>
+																<span class="label label-success label-sm">
+																	<xsl:value-of select="translate(@status, $smallcase, $uppercase)"/>
+																</span>
+															</xsl:otherwise>
+														</xsl:choose>
+													</td>
+													<td>
+														<xsl:if test="failure">
+															<xsl:choose>
+																<xsl:when test="@screenshotFile">
+																	<a target="_blank"><xsl:attribute name="href">./<xsl:value-of select="@screenshotFile"/></xsl:attribute>
+																		<b><xsl:value-of select="failure/@type"/></b><br/>
+																		<xsl:value-of select="failure/@message"/>
+																		<xsl:if test="failure/data/line">
+																			at line <xsl:value-of select="failure/data/line"/>
+																		</xsl:if>
+																	</a>
+																</xsl:when>
+																<xsl:otherwise>
+																	<b><xsl:value-of select="failure/@type"/></b><br/>
+																	<xsl:value-of select="failure/@message"/>
+																	<xsl:if test="failure/data/line">
+																		at line <xsl:value-of select="failure/data/line"/>
+																	</xsl:if>
+																</xsl:otherwise>
+															</xsl:choose>
+														</xsl:if>
+													</td>
+												</xsl:otherwise>
+											</xsl:choose>
 										</tr>
 									</xsl:if>
 								</xsl:for-each>
