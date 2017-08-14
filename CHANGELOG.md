@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.14.1 (2017-08-14)
+* Make log.* commands generate proper output in html reports.
+* Remove log.fatal command.
+
 ## v0.14.0 (2017-08-05)
 * Additional mobile locators: desc-contains, text-contains, scrollable, link-contains.
 * Fix not being able to use transactions when running web tests with multiple iterations.
