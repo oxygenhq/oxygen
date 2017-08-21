@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.15.0 (2017-08-21)
+* Add mob.tap command.
+
 ## v0.14.1 (2017-08-14)
 * Make log.* commands generate proper output in html reports.
 * Remove log.fatal command.
