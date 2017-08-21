@@ -135,6 +135,11 @@ module.exports = function (options, context, rs, logger) {
             throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
         }
     };
+    helpers._assertArgumentNumberNonNegative = function(arg) {
+        if (typeof(arg) !== 'number' || arg < 0) {
+            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
+        }
+    };
 
     // public properties
     module.autoPause = false;   // auto pause in waitFor
