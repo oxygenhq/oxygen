@@ -571,7 +571,8 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @summary Returns the value of a CSS property of an element.
      * @function getCssValue
      * @param {String} locator - An element locator.
-     * @return {String} propertyName - CSS property name.
+     * @param {String} propertyName - CSS property name.
+     * @return {String} CSS property value.
      */
     module.getCssValue = function() { return dispatcher.execute('web', 'getCssValue', Array.prototype.slice.call(arguments)); };
 
