@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.16.0 (2017-09-02)
+* Add web.getCssValue command.
+
 ## v0.15.0 (2017-08-21)
 * Add mob.tap command.
 
