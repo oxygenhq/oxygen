@@ -567,6 +567,13 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @param {Integer} height - Height in pixels.
      */
     module.setWindowSize = function() { return dispatcher.execute('web', 'setWindowSize', Array.prototype.slice.call(arguments)); };
+    /**
+     * @summary Returns the value of a CSS property of an element.
+     * @function getCssValue
+     * @param {String} locator - An element locator.
+     * @return {String} propertyName - CSS property name.
+     */
+    module.getCssValue = function() { return dispatcher.execute('web', 'getCssValue', Array.prototype.slice.call(arguments)); };
 
     return module;
 };

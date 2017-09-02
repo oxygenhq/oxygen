@@ -231,5 +231,38 @@ namespace CloudBeat.Oxygen.Modules
         {
             return base.SwitchTo().Alert().Text;
         }
+
+        public string _GetCssValue(string locator, string propertyName)
+        {
+            var loc = ResolveLocator(locator);
+            string value = null;
+            for (int i = 0; i < STALE_ELEMENT_ATTEMPTS; i++)
+            {
+                try
+                {
+                    new WebDriverWait(this, TimeSpan.FromMilliseconds(waitForTimeout)).Until((d) =>
+                    {
+                        try
+                        {
+                            var el = this.FindElement(loc);
+                            value = el.GetCssValue(propertyName);
+                            return true;
+                        }
+                        catch (NoSuchElementException)
+                        {
+                        }
+                        return false;
+                    });
+                }
+                catch (StaleElementReferenceException)
+                {
+                }
+                catch (WebDriverTimeoutException)
+                {
+                    throw new OxElementNotFoundException();
+                }
+            }
+            return value;
+        }
     }
 }
