@@ -107,6 +107,16 @@
 			.panel-heading .accordion-toggle.collapsed:before {
 				content: "\2795";
 			}
+            /* needed for proper HTML to PDF tables conversion. https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2367 */
+            thead { 
+                display: table-header-group;
+            }
+            tfoot { 
+                display: table-row-group;
+            }
+            tr {
+                page-break-inside: avoid;
+            }
 		</style>
         <script type="text/javascript">
         <![CDATA[
