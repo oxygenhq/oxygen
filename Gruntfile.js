@@ -73,6 +73,12 @@ module.exports = function(grunt) {
                     verbosity: 'minimal'
                 }
             }
+        },
+        dos2unix: {
+            file: 'lib/cli.js'
+        },
+        unix2dos: {
+            file: 'lib/cli.js'
         }
     });
 };

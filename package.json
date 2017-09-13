@@ -54,6 +54,8 @@
     "request": "2.81.0"
   },
   "scripts": {
-    "prepublish": "grunt eslint"
+    "prepublish": "grunt eslint",
+    "winpublish": "grunt dos2unix && npm publish",
+    "postpublish": "grunt unix2dos"
   }
 }
