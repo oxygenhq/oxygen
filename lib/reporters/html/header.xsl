@@ -25,14 +25,14 @@
 				font-size: 1.8em;
 			}
 			.summary .counter .value.passed {
-				color: blue;
+				color: #5cb85c;
 			}
 			.summary .counter .value.failed {
-				color: red;
+				color: #d9534f;
 			}
-			.expand-buttons .btn.collapsed {
-				
-			}
+            .summary .counter .value.warning {
+                color: #f0ad4e;
+            }
 			.bs-callout {
 				padding: 20px;
 				margin: 20px 0;

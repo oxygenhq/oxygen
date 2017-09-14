@@ -79,7 +79,7 @@
 				</div>
 				<div class="col-md-3 col-sm-3 col-xs-6 counter">
 					<span>Warning Steps</span>
-					<div class="value"><xsl:value-of select="count(./test-result//steps[@status='warning'])"/></div>
+					<div class="value warning"><xsl:value-of select="count(./test-result//steps[@status='warning'])"/></div>
 				</div>
 			</div>
 		</div>
