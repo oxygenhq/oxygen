@@ -156,7 +156,7 @@ module.exports = function (options, context, rs, logger) {
      * @function init
      * @summary Initializes a new Appium session.
      * @description Initializes a new Appium session with provided desired capabilities and optional host name and port.
-     * @param {String} caps - New session's desired capabilities.
+     * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
      * @param {String=} host - Appium server host name or Selenium Grid full URL (default: localhost).
      * @param {Number=} port - Appium server port (default: 4723). If full URL is specified in the host parameter, port parameter must not be specified.
      */
