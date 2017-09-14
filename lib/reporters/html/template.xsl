@@ -206,7 +206,12 @@
 						</xsl:choose>
 					</h2>
 					<xsl:for-each select="./iterations">
-						<xsl:apply-templates select="."/>
+						<xsl:variable name="globalIndex">
+							<xsl:number level="any" />
+						</xsl:variable>
+						<xsl:apply-templates select=".">
+							<xsl:with-param name="globalIndex" select="$globalIndex" />
+						</xsl:apply-templates>
 					</xsl:for-each>
 				</xsl:for-each>
 			</div>
@@ -214,12 +219,13 @@
 	</xsl:template>
 		
 	<xsl:template match="iterations">
+		<xsl:param name="globalIndex" /> 
 		<div class="panel-group" id="accordion">
 		  <div class="panel panel-default iteration">
 			<div class="panel-heading">
 			  <h3 class="panel-title">
 				<a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-it">
-					<xsl:attribute name="href">#collapse-it<xsl:value-of select="@iterationNum"/></xsl:attribute>
+					<xsl:attribute name="href">#collapse-it<xsl:value-of select="$globalIndex"/></xsl:attribute>
 					Iteration #<xsl:value-of select="@iterationNum"/>
 				</a>
 					<xsl:choose>
@@ -238,7 +244,7 @@
 				</h3>
 			</div>
 			<div id="collapse-it" class="panel-collapse collapse in">
-				<xsl:attribute name="id">collapse-it<xsl:value-of select="@iterationNum"/></xsl:attribute>
+				<xsl:attribute name="id">collapse-it<xsl:value-of select="$globalIndex"/></xsl:attribute>
 				<div class="panel-body">
 					<xsl:for-each select="testcases">
 						<xsl:if test="not(iterations/steps/failure) and iterations/failure">
