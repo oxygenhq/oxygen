@@ -113,6 +113,9 @@
 			.panel-heading .accordion-toggle.collapsed:before {
 				content: "\2795";
 			}
+            .progress {
+                margin-bottom: 0px;
+            }
             /* needed for proper HTML to PDF tables conversion. https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2367 */
             thead { 
                 display: table-header-group;
