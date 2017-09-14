@@ -131,12 +131,12 @@ namespace CloudBeat.Oxygen.Modules
                 // check if this is a constant variable, such as ENTER key, etc.
                 if (SeleniumDriver.constantVariables != null && SeleniumDriver.constantVariables.ContainsKey(variableName.ToUpper()))
                     variableValue = SeleniumDriver.constantVariables[variableName.ToUpper()];
+                else if (ctx.Environment != null && ctx.Environment.ContainsKey(variableName))
+                    variableValue = ctx.Environment[variableName];
                 else if (ctx.Variables != null && ctx.Variables.ContainsKey(variableName))
                     variableValue = ctx.Variables[variableName];
                 else if (ctx.Parameters != null && ctx.Parameters.ContainsKey(variableName) && !String.IsNullOrEmpty(ctx.Parameters[variableName]))
                     variableValue = ctx.Parameters[variableName];
-                else if (ctx.Environment != null && ctx.Environment.ContainsKey(variableName))
-                    variableValue = ctx.Environment[variableName];
 
                 if (variableValue != null)
                     str = str.Substring(0, varIndexStart) + variableValue + str.Substring(varIndexEnd + 1);
