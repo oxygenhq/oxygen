@@ -24,6 +24,12 @@
 			.summary .counter .value {
 				font-size: 1.8em;
 			}
+			.summary .counter .value.passed {
+				color: blue;
+			}
+			.summary .counter .value.failed {
+				color: red;
+			}
 			.expand-buttons .btn.collapsed {
 				
 			}

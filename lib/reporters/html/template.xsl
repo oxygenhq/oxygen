@@ -55,15 +55,31 @@
 				</div>
 				<div class="col-md-3 col-sm-3 col-xs-6 counter">
 					<span>Passed Tests</span>
-					<div class="value"><xsl:value-of select="count(./test-result/summary[@status='passed'])"/></div>
+					<div class="value passed"><xsl:value-of select="count(./test-result/summary[@status='passed'])"/></div>
 				</div>
 				<div class="col-md-3 col-sm-3 col-xs-6 counter">
 					<span>Failed Tests</span>
-					<div class="value"><xsl:value-of select="count(./test-result/summary[@status='failed'])"/></div>
+					<div class="value failed"><xsl:value-of select="count(./test-result/summary[@status='failed'])"/></div>
 				</div>
 				<div class="col-md-3 col-sm-3 col-xs-6 counter">
 					<span>Iterations</span>
 					<div class="value"><xsl:value-of select="count(./test-result[1]/iterations)"/></div>
+				</div>
+				<div class="col-md-3 col-sm-3 col-xs-6 counter">
+					<span>Total Steps</span>
+					<div class="value"><xsl:value-of select="count(./test-result//steps)"/></div>
+				</div>
+				<div class="col-md-3 col-sm-3 col-xs-6 counter">
+					<span>Passed Steps</span>
+					<div class="value passed"><xsl:value-of select="count(./test-result//steps[@status='passed'])"/></div>
+				</div>
+				<div class="col-md-3 col-sm-3 col-xs-6 counter">
+					<span>Failed Steps</span>
+					<div class="value failed"><xsl:value-of select="count(./test-result//steps[@status='failed'])"/></div>
+				</div>
+				<div class="col-md-3 col-sm-3 col-xs-6 counter">
+					<span>Warning Steps</span>
+					<div class="value"><xsl:value-of select="count(./test-result//steps[@status='warning'])"/></div>
 				</div>
 			</div>
 		</div>
@@ -76,6 +92,7 @@
 							<th>Test Name</th>
 							<th>Device / Browser</th>
 							<th>Platform</th>
+							<th>Pass/Failed Cases</th>
 							<th>Status</th>
 						</tr>
 					</thead>
@@ -109,6 +126,32 @@
 										<xsl:value-of select="./options/platformVersion/."/>
 									</xsl:when>
 								</xsl:choose>
+							</td>
+							<td>
+								<xsl:variable name="casesTotal" select="count(./iterations/testcases)"/>
+								<xsl:variable name="casesFailed" select="count(./iterations/testcases[./iterations[@status='failed']])"/>
+								<xsl:variable name="casesFailedRatio" select="$casesFailed div $casesTotal"/>
+								<xsl:variable name="casesPassed" select="$casesTotal - count(./iterations/testcases[./iterations[@status='failed']])"/>
+								<xsl:variable name="casesPassedRatio" select="$casesPassed div $casesTotal"/>
+								<div class="progress">
+								  <div class="progress-bar progress-bar-success">
+									<xsl:attribute name="style">
+									   <xsl:value-of select="'width: '"/>
+									   <xsl:value-of select="format-number($casesPassedRatio, '#,##0%')"/>
+									</xsl:attribute>
+									<span><xsl:value-of select="format-number($casesPassedRatio, '#,##0%')"/> (<xsl:value-of select="$casesPassed"/>)</span>
+								  </div>
+								  <!--<div class="progress-bar progress-bar-warning" style="width: 5%">
+									<span class="sr-only">20% Complete (warning)</span>
+								  </div>-->
+								  <div class="progress-bar progress-bar-danger">
+									<xsl:attribute name="style">
+									   <xsl:value-of select="'width: '"/>
+									   <xsl:value-of select="format-number($casesFailedRatio, '#,##0%')"/>
+									</xsl:attribute>
+									<span><xsl:value-of select="format-number($casesFailedRatio, '#,##0%')"/> (<xsl:value-of select="$casesFailed"/>)</span>
+								  </div>
+								</div>
 							</td>
 							<td>
 								<xsl:choose>
