@@ -116,6 +116,9 @@
             .progress {
                 margin-bottom: 0px;
             }
+            .label {
+                line-height: inherit;
+            }
             /* needed for proper HTML to PDF tables conversion. https://github.com/wkhtmltopdf/wkhtmltopdf/issues/2367 */
             thead { 
                 display: table-header-group;
