@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.17.0 (2017-09-17)
+* Fix iteration collapsing not working in HTML reports when having more than one iteration.
+* Improve HTML reports.
+* Add PDF reporter (--rf=pdf switch).
+* Fix oxygen bin not launching on OSX and Linux.
+* Fix random parameters mode.
+
 ## v0.16.0 (2017-09-02)
 * Add web.getCssValue command.
 
