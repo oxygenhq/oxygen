@@ -24,7 +24,6 @@ namespace CloudBeat.Oxygen
 		{
 			modules = new Dictionary<string, IModule>();
 			modules.Add("web", new ModuleWeb());
-			modules.Add("soap", new ModuleSoap());
             modules.Add("eyes", new ModuleEyes(modules));
 			ctx = new ExecutionContext();
 

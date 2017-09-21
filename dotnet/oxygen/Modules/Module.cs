@@ -37,8 +37,6 @@ namespace CloudBeat.Oxygen.Modules
             XML_ERROR,
             NO_ALERT_OPEN_ERROR,
             BROWSER_JS_EXECUTE_ERROR,
-            // soap
-            SOAP,
             // eyes
             APPLITOOLS
         }

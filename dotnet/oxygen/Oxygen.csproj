@@ -59,9 +59,7 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Web" />
     <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Web.Services" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="UIAutomationClient" />
@@ -80,7 +78,6 @@
     <Compile Include="Modules\Module.cs" />
     <Compile Include="Modules\IModule.cs" />
     <Compile Include="Modules\ModuleEyes.cs" />
-    <Compile Include="Modules\ModuleSoap.cs" />
     <Compile Include="Modules\Web\Exceptions.cs" />
     <Compile Include="Modules\Web\ModuleWeb.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

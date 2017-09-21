@@ -9,33 +9,106 @@
 
 /**
  * Provides methods for working with SOAP based Web Services.
- * <br /><br />
- * NOTE: Multi-argument calls are not supported yet.
  */
 
-module.exports = function(argv, context, rs, logger, dispatcher) {
-    var module = { modType: 'dotnet' };
+const OxError = require('../errors/OxygenError');
+var errHelper = require('../errors/helper');
+
+module.exports = function(argv, context, rs, logger) {
+    var deasync = require('deasync');
+    var soap = require('soap');
 
     /**
      * @summary Initiates a SOAP request and returns the response.
      * @function get
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
-     * @param {String} serviceName - Service name (case sensitive).
-     * @param {String} methodName - Method name (case sensitive).
-     * @param {Array=} args - Array of arguments.
-     * @return {String} JSON representing the response object.
+     * @param {String} method - Method name (case sensitive).
+     * @param {Object=} args - Arguments.
+     * @return {Object} The response object.
      */
-    module.get = function() { return dispatcher.execute('soap', 'get', Array.prototype.slice.call(arguments)); };
+    module.get = function(wsdlUrl, method, args) {
+        var resultClient = null;
+        var result = null;
+
+        soap.createClient(wsdlUrl, (err, client) => {
+            if (client === undefined) {
+                var msg =  'Error creating client';
+                if (err.message) {
+                    var soapMsg = err.message;
+                    var firstBreakIndex = soapMsg.indexOf('\n');
+                    if (firstBreakIndex > 0) {
+                        soapMsg = err.message.substring(0, firstBreakIndex);
+                    }
+                    msg += ': ' + soapMsg;
+                }
+                resultClient = new OxError(errHelper.errorCode.SOAP, msg);
+                return;
+            }
+
+            resultClient = client;
+
+            if (typeof client[method] !== 'function') { 
+                resultClient = new OxError(errHelper.errorCode.SOAP, 'No method named ' + method + ' was found.');
+                return;
+            }
+
+            client[method](args, (err, res) => { 
+                if (err !== null) {
+                    result = new OxError(errHelper.errorCode.SOAP, err.root.Envelope.Body.Fault.faultstring);
+                    return;
+                }
+
+                result = res;
+            });
+        });
+
+        deasync.loopWhile(() => !resultClient);
+        if (resultClient.type === errHelper.errorCode.SOAP) {
+            throw resultClient;
+        } 
+
+        deasync.loopWhile(() => !result);
+        if (result.type === errHelper.errorCode.SOAP) {
+            throw result;
+        }
+
+        return result;
+    };
+
     /**
-     * @summary Initiates a SOAP 1.2 request and returns the response.
-     * @function get12
+     * @summary Returns SOAP service description.
+     * @function describe
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
-     * @param {String} serviceName - Service name (case sensitive).
-     * @param {String} methodName - Method name (case sensitive).
-     * @param {Array=} args - Array of arguments.
-     * @return {String} JSON representing the response object.
+     * @return {String} JSON containing the service description.
      */
-    module.get12 = function() { return dispatcher.execute('soap', 'get12', Array.prototype.slice.call(arguments)); };
+    module.describe = function(wsdlUrl) {
+        var resultClient = null;
+
+        soap.createClient(wsdlUrl, (err, client) => {
+            if (client === undefined) {
+                var msg =  'Error creating client';
+                if (err.message) {
+                    var soapMsg = err.message;
+                    var firstBreakIndex = soapMsg.indexOf('\n');
+                    if (firstBreakIndex > 0) {
+                        soapMsg = err.message.substring(0, firstBreakIndex);
+                    }
+                    msg += ': ' + soapMsg;
+                }
+                resultClient = new OxError(errHelper.errorCode.SOAP, msg);
+                return;
+            }
+
+            resultClient = JSON.stringify(client.describe());
+        });
+
+        deasync.loopWhile(() => !resultClient);
+        if (resultClient.type === errHelper.errorCode.SOAP) {
+            throw resultClient;
+        } 
+
+        return resultClient;
+    };
 
     return module;
 };
