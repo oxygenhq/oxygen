@@ -148,6 +148,12 @@ module.exports = function (options, context, rs, logger) {
     module.autoReopen = options.autoReopen || true;
     module.driver = null;
 
+    /**
+     * @function getCaps
+     * @summary Returns currently defined device capabilities.
+     * @return {Object} capabilities - Current capabilities object.
+     * @for android, ios, hybrid, web
+     */
     module.getCaps = function() {
         return _this._caps || _this._ctx.caps;
     };
