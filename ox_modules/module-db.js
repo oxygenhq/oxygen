@@ -11,11 +11,27 @@
  * Provides methods for working with Data Bases through ODBC.
  */
 
-module.exports = function(argv, context, rs, logger, dispatcher) {
-    var module = { modType: 'dotnet' };
-    if (dispatcher) {
-        dispatcher.execute('db', 'moduleInit', argv);
-    }
+const db = require('odbc')();
+const OxError = require('../errors/OxygenError');
+var errHelper = require('../errors/helper');
+
+module.exports = function(argv, context, rs, logger) {
+    this.logger = logger;
+    this.argv = argv;
+    this._rs = rs;
+    this._ctx = context;
+
+    module._openDbConn = function() {
+        if (!this.connString) {
+            throw new OxError(errHelper.errorCode.DB_CONNECTION, 'No connection string specified. Use db.setConnectionString().');
+        }
+
+        try {
+            db.openSync(this.connString);
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.DB_CONNECTION, e.message);
+        }
+    };
 
     /**
     * @summary Sets DB connection string to be used by other methods.
@@ -32,7 +48,10 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
     * @function setConnectionString
     * @param {String} connString - ODBC connection string.
     */
-    module.setConnectionString = function() { return dispatcher.execute('db', 'setConnectionString', Array.prototype.slice.call(arguments)); };
+    module.setConnectionString = function(connString) {
+        module.connString = connString;
+    };
+
     /**
      * @summary Executes SQL query and returns the first column of the first row in the result set.
      * @function getScalar
@@ -40,13 +59,39 @@ module.exports = function(argv, context, rs, logger, dispatcher) {
      * @return {Object} The first column of the first row in the result set, or null if the result
      *                  set is empty.
      */
-    module.getScalar = function() { return dispatcher.execute('db', 'getScalar', Array.prototype.slice.call(arguments)); };
+    module.getScalar = function(query) {
+        module._openDbConn();
+        try {
+            var resultSet =  db.querySync(query);
+            if (resultSet.length === 0) {
+                return null;
+            }
+            var firstRow = resultSet[0];
+            var firstCol = firstRow[Object.keys(firstRow)[0]];
+            return firstCol;
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.DB_QUERY, e.message);
+        } finally {
+            db.closeSync();
+        }
+    };
+
     /**
      * @summary Executes SQL statement.
+     * @description Any results from the query are discarded.
      * @function executeNonQuery
      * @param {String} query - The query to execute.
      */
-    module.executeNonQuery = function() { return dispatcher.execute('db', 'executeNonQuery', Array.prototype.slice.call(arguments)); };
+    module.executeNonQuery = function(query) {
+        module._openDbConn();
+        try {
+            db.querySync(query);
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.DB_QUERY, e.message);
+        } finally {
+            db.closeSync();
+        }
+    };
 
     return module;
 };

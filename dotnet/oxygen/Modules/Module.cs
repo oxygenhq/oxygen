@@ -39,9 +39,6 @@ namespace CloudBeat.Oxygen.Modules
             BROWSER_JS_EXECUTE_ERROR,
             // soap
             SOAP,
-            // db
-            DB_CONNECTION,
-            DB_QUERY,
             // eyes
             APPLITOOLS
         }
