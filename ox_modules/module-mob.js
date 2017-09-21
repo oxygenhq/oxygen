@@ -222,6 +222,7 @@ module.exports = function (options, context, rs, logger) {
      *              unique.
      * @function transaction
      * @param {String} name - The transaction name.
+     * @for android, ios, hybrid, web
      */
     module.transaction = function (name) {
         global._lastTransactionName = name;
