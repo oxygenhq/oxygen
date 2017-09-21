@@ -77,7 +77,6 @@ module.exports = function (options, context, rs, logger) {
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
     const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
 
-    this._client = null;
     this._driver = null;
 
     var _this = module._this = this;               // reference to this instance
