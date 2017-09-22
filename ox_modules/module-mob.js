@@ -140,9 +140,6 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    // public properties
-    module.autoPause = false;   // auto pause in waitFor
-    module.autoWait = false;    // auto wait for actions
     // automatically renew appium session when init() is called for existing session
     module.autoReopen = options.autoReopen || true;
     module.driver = null;
