@@ -16,7 +16,6 @@ module.exports = function(grunt) {
 
     var defaultTasks = [];
     defaultTasks.push('eslint');
-    defaultTasks.push('msbuild:oxygen');
     defaultTasks.push('msbuild:xsltransform');
     defaultTasks.push('sync:main');
     
@@ -26,11 +25,6 @@ module.exports = function(grunt) {
         sync: {
             main: {
                 files: [
-                    { 
-                        expand: true, 
-                        cwd: 'dotnet/oxygen/bin/Debug', src: ['**', '!**/*.xml'], 
-                        dest: 'lib/native' 
-                    },
                     { 
                         expand: true, 
                         cwd: 'dotnet/xsltransform/bin/Debug', src: ['XSLTransform.exe'], 
@@ -47,19 +41,6 @@ module.exports = function(grunt) {
             },
         },
         msbuild: {
-            oxygen: {
-                src: ['dotnet/oxygen/Oxygen.csproj'],
-                options: {
-                    projectConfiguration: 'Debug',
-                    targets: ['Rebuild'],
-                    version: 12.0,
-                    maxCpuCount: 4,
-                    buildParameters: {
-                        WarningLevel: 2
-                    },
-                    verbosity: 'minimal'
-                }
-            },
             xsltransform: {
                 src: ['dotnet/xsltransform/XSLTransform.csproj'],
                 options: {

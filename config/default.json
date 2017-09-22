@@ -1,5 +1,4 @@
 {
-	"useFiber": false,
 	"allowRequire": true,
     "logger": {
 		"console": {

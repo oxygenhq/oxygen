@@ -60,7 +60,7 @@ module.exports = function (options, context, rs, logger) {
             sync: true
         }
     };
-    var module = this.module = { modType: 'fiber' };
+
     var helpers = this.helpers = {};
 
     var wdioSync = require('wdio-sync');

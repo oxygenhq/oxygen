@@ -41,50 +41,340 @@
  *  </ul>
  * </div>
  */
+module.exports = function (options, context, rs, logger) {
+    // TODO: remove rs (from all modules?)
+    var deasync = require('deasync');
+    var request = require('request');
+    var net = require('net');
+    var wdioSync = require('wdio-sync');
+    var wdio = require('webdriverio');
+    var _ = require('underscore');
+    var globToRegex = require('glob-to-regexp');
+    var cp = require('child_process');
 
-module.exports = function (opts, context, rs, logger, dispatcher) {
-    var module = { modType: 'dotnet' };
+    var _this = module._this = this;
 
-    var ctx = context;
+    // properties exposed to external commands
+    this.OxError = require('../errors/OxygenError');
+    this.errHelper = require('../errors/helper');
+    this.driver = null;
+    this.helpers = {};
+    this.logger = logger;
+    this.waitForTimeout = 60 * 1000;            // default 60s wait timeout
 
-    global._lastTransactionName = null;
+    // module's constructor scoped variables
+    var helpers = this.helpers;
+    var ctx = context;                          // context variables
+    var opts = options;                         // startup options
+    var isInitialized = false;
+    var transactions = {};                      // transaction->har dictionary
+    var autoReopen = options.autoReopen || true;// automatically reload selenium session if already exists when calling init()
 
-    if (dispatcher) {
-        dispatcher.execute('web', 'moduleInit', opts);
+    const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
+    const PROXY_ADDR = '127.0.0.1';
+    const PROXY_API_ADDR = 'localhost'; // bug in martian (?) - uses localhost instead of "martian.proxy" when -api-addr is defined
+    const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
+    const ACTION_COMMANDS = ['open', 'click'];
+
+    module._isAction = function(name) {
+        return ACTION_COMMANDS.includes(name);
+    };
+
+    module._takeScreenshot = function(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            try {
+                return module.takeScreenshot();
+            } catch (e) {
+                throw require('../errors/helper').getOxygenError(e);
+            }
+        }
+    };
+
+    // TODO: refactor. most initialization shoyld be done in module constructor
+    module._iterationStart = function(vars) {
+        // populate caps from options
+        // FIXME: modules should receive already populated caps.
+        if (!ctx.caps.browserName) {
+            ctx.caps.browserName = opts.browserName;
+        }
+
+        // webdriver expects lower case names
+        ctx.caps.browserName = ctx.caps.browserName.toLowerCase();
+        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
+        if (ctx.caps.browserName === 'ie') {
+            ctx.caps.browserName = 'internet explorer';
+        }
+
+        if (!isInitialized && opts.initDriver) {
+            module.init(ctx.caps, opts.seleniumUrl);
+        }
+    };
+
+    module._iterationEnd = function(vars) {
+        if (opts.autoReopen) {
+            module.dispose();
+        }
+
+        if (opts.proxyEnabled) {
+            // there might be no transactions set if test fails before web.transaction command
+            if (global._lastTransactionName) {
+                transactions[global._lastTransactionName] = harGet();
+                harReset();
+            }
+        }
+
+        // TODO: should clear transactions to avoid duplicate names across iterations
+        // also should throw on duplicate names.
+
+        rs.har = transactions;
+    };
+
+    /*
+     * Since HARs provided by the proxy don't contain any browser level timings, such as domContentLoaded and load event timings,
+     * we try to retrieve them directly from the browser for the currently active page/action.
+     *
+     *  domContentLoaded (aka First Visual Time)- Represents the difference between domContentLoadedEventStart and navigationStart.
+     *  load (aka Full Load Time)               - Represents the difference between loadEventStart and navigationStart.
+     * 
+     * The processing model:
+     * 
+     *  1. navigationStart              - The browser has requested the document.
+     *  2. ...                          - Not relevant to us. See http://www.w3.org/TR/navigation-timing/#process for more information.
+     *  3. domLoading                   - The browser starts parsing the document.
+     *  4. domInteractive               - The browser has finished parsing the document and the user can interact with the page.
+     *  5. domContentLoadedEventStart   - The document has been completely loaded and parsed and deferred scripts, if any, have executed. 
+     *                                    Async scripts, if any, might or might not have executed.
+     *                                    Stylesheets[1], images, and subframes might or might not have finished loading.
+     *                                      [1] - Stylesheets /usually/ defer this event! - http://molily.de/weblog/domcontentloaded
+     *  6. domContentLoadedEventEnd     - The DOMContentLoaded event callback, if any, finished executing. E.g.
+     *                                      document.addEventListener("DOMContentLoaded", function(event) {
+     *                                          console.log("DOM fully loaded and parsed");
+     *                                      });
+     *  7. domComplete                  - The DOM tree is completely built. Async scripts, if any, have executed.
+     *  8. loadEventStart               - The browser have finished loading all the resources like images, swf, etc.
+     *  9. loadEventEnd                 - The load event callback, if any, finished executing.
+     */
+    module._getStats = function (commandName) {
+        if (opts.fetchStats && isInitialized && module._isAction(commandName)) {
+            var domContentLoaded = 0;
+            var load = 0;
+
+            // TODO: handle following situation:
+            // if navigateStart equals to the one we got from previous attempt (we need to save it)
+            // it means we are still on the same page and don't need to record load/domContentLoaded times
+            try {
+                _this.driver.waitUntil(() => {
+                    var timingsJS = 'return {' +
+                                   'navigationStart: window.performance.timing.navigationStart, ' +
+                                   'domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart, ' +
+                                   'loadEventStart: window.performance.timing.loadEventStart}';
+                    return _this.driver.execute(timingsJS).then((result) => {
+                        var timings = result.value;
+                        var navigationStart = timings.navigationStart;
+                        var domContentLoadedEventStart = timings.domContentLoadedEventStart;
+                        var loadEventStart = timings.loadEventStart;
+
+                        domContentLoaded = domContentLoadedEventStart - navigationStart;
+                        load = loadEventStart - navigationStart;
+
+                        return domContentLoadedEventStart > 0 && loadEventStart > 0;
+                    });
+                }, 
+                90 * 1000);
+            } catch (e) {
+                // couldn't get timings.
+            }
+
+            return { DomContentLoadedEvent: domContentLoaded, LoadEvent: load };
+        }
+
+        return {};
+    };
+
+    /**
+     * @function getCaps
+     * @summary Returns currently defined capabilities.
+     * @return {Object} capabilities - Current capabilities object.
+     */
+    module.getCaps = function() {
+        return ctx.caps;
+    };
+
+    /**
+     * @function init
+     * @summary Initializes new Selenium session.
+     * @description Initializes new Selenium session with provided desired capabilities.
+     * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
+     * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
+     */
+    module.init = function(caps, seleniumUrl) {
+        // FIXME: move to agent?
+        if (opts.proxyEnabled) {
+            initProxy();
+        }
+
+        // ignore init if the module has been already initialized
+        // this is required when test suite with multiple test cases is executed
+        // then .init() might be called in each test case, but actually they all need to use the same Appium session
+        if (isInitialized) {
+            if (autoReopen) {
+                _this.driver.reload();
+            } else {
+                logger.debug('init() was called for already initialized module. autoReopen=false so the call is ignored.');
+            }
+            return;
+        }
+
+        if (opts.proxyEnabled) {
+            var uri = PROXY_ADDR + ':' + _this.proxyPort;
+            caps.proxy = {
+                proxyType: 'MANUAL',
+                httpProxy: uri,
+                sslProxy: uri
+            };
+        }
+
+        // take capabilities either from init method argument or from context parameters passed in the constructor
+        // and merge if both are defined
+        // write back merged caps to the context (used later in the reporter)
+        var capsMerged = {};
+        if (ctx.caps) {
+            _.extend(capsMerged, ctx.caps);
+        }
+        if (caps) {
+            _.extend(capsMerged, caps);
+        }
+        ctx.caps = capsMerged;  
+
+        // populate WDIO options
+        var URL = require('url');
+        var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
+        var host = url.hostname;
+        var port = parseInt(url.port);
+        var path = url.pathname;
+        var protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
+
+        var wdioOpts = {
+            protocol: protocol,
+            host: host,
+            port: port,
+            path: path,
+            desiredCapabilities: capsMerged
+        };
+        
+        // initialize driver with either default or custom appium/selenium grid address
+        _this.driver = module.driver = wdio.remote(wdioOpts);
+        wdioSync.wrapCommands(_this.driver);
+        try {
+            _this.driver.init();
+        } catch (err) {
+            throw new _this.OxError(_this.errHelper.errorCode.SELENIUM_SERVER_UNREACHABLE, err.message);
+        }
+        isInitialized = true;
+    };
+
+    // TODO: this should be done in agent
+    function initProxy() {
+        _this.proxyPort = null;
+        _this.proxyAPIPort = null;
+
+        getFreePort((port) => { _this.proxyPort = port; }, 1000);
+        deasync.loopWhile(() => !_this.proxyPort);
+        getFreePort((port) => { _this.proxyAPIPort = port; }, _this.proxyPort + 1);
+        deasync.loopWhile(() => !_this.proxyAPIPort);
+
+        var proxyOk = null;
+        var proxyFail = null;
+        // NOTE: for some reason enclosing key/cert path in double quotes doesn't work.
+        //       therefore it must be assured that the path doesn't contain spaces.
+        _this._proxy = cp.execFile(opts.proxyExe, ['-har=true',
+                                                   '-har-log-body=false',
+                                                   '-key=' + opts.proxyKey,
+                                                   '-cert=' + opts.proxyCer, 
+                                                   '-api-addr=:' + _this.proxyAPIPort,
+                                                   '-addr=127.0.0.1:' + _this.proxyPort, 
+        ]);
+
+        // why does martian writes to stderr instead of stdout on success?
+        _this._proxy.stderr.on('data', function(data) { 
+            if (data.indexOf('martian: proxy started on') > 0) {
+                proxyOk = true;
+            }
+        });
+        _this._proxy.stdout.on('data', function(data) {
+            if (data.indexOf('martian: proxy started on') > 0) {
+                proxyOk = true;
+            }
+        });
+
+        _this._proxy.on('close', function(code) {
+            proxyFail = true;
+        });
+
+        deasync.loopWhile(() => !proxyOk && !proxyFail);
+
+        // TODO: consider saving stderr data and adding it to the message for easier debugging
+        if (proxyFail) {
+            throw new _this.OxError(_this.errHelper.errorCode.PROXY_INITIALIZATION_ERROR, 'Proxy initialization failed');
+        }
     }
 
-    /* FIXME:
-     * @summary Initialize test settings and start correspondent Selenium server and browser.
-     * @function init
-     * @param {String} seleniumUrl - Selenium server url.
-     * @param {Object} caps - Selenium capabilities.
-     * @param {Boolean} resetDefaultCaps - If true default capabilities will be cleared, otherwise
-     *                                     custom capabilities will be merged with the default ones.
-     */
-    module.init = function (seleniumUrl, caps, resetDefaultCaps)
-    {
-        return dispatcher.execute('web', 'init', Array.prototype.slice.call(arguments));
-    };
-    module.dispose = function ()
-    {
-        return dispatcher.execute('web', 'moduleDispose', Array.prototype.slice.call(arguments));
-    };
-    module._iterationStart = function(vars)
-    {
-        dispatcher.execute('web', 'iterationStart', { vars: ctx.vars });
-    };
-    module._iterationEnd = function(vars)
-    {
-        var har = dispatcher.execute('web', 'iterationEnd', {});
-        rs.har = har;
-    };
-    /**
-     * @summary Sets base URL which can be used for relative navigation using the <code>open</code>
-     *          command.
-     * @function setBaseUrl
-     * @param {String} url - The base URL.
-     */
-    module.setBaseUrl = function () { return dispatcher.execute('web', 'setBaseUrl', Array.prototype.slice.call(arguments)); };
+    function getFreePort(cb, startPort) {
+        var server = net.createServer();
+
+        server.listen(startPort, function (err) {
+            server.once('close', function () {
+                cb(startPort);
+            });
+            server.close();
+        });
+
+        server.on('error', function (err) {
+            getFreePort(cb, startPort + 1);
+        });
+    }
+
+    function harReset() {
+        var result = null;
+
+        var options = {
+            url: 'http://' + PROXY_API_ADDR + ':' + _this.proxyAPIPort + '/logs/reset',
+            method: 'DELETE',
+            timeout: 1000 * 20,
+            proxy: 'http://' + PROXY_ADDR + ':' + _this.proxyPort
+        };
+
+        request(options, (err, res, body) => { result = err || res; });
+        deasync.loopWhile(() => !result);
+
+        if (result.statusCode !== 204) {
+            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
+            throw new _this.OxError(_this.errHelper.errorCode.PROXY_HAR_FETCH_ERROR, msg);
+        }
+    }
+
+    function harGet() {
+        var result = null;
+
+        var options = {
+            url: 'http://' + PROXY_API_ADDR + ':' + _this.proxyAPIPort + '/logs',
+            method: 'GET',
+            json: false,
+            timeout: 1000 * 20,
+            proxy: 'http://' + PROXY_ADDR + ':' + _this.proxyPort
+        };
+
+        request(options, (err, res, body) => { result = err || res; });
+        deasync.loopWhile(() => !result);
+
+        if (result.statusCode !== 200) {
+            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
+            throw new _this.OxError(_this.errHelper.errorCode.PROXY_HAR_FETCH_ERROR, msg);
+        }
+
+        return result.body;
+    }
+
     /**
      * @summary Opens new transaction.
      * @description The transaction will persist till a new one is opened. Transaction names must be
@@ -93,488 +383,110 @@ module.exports = function (opts, context, rs, logger, dispatcher) {
      * @param {String} name - The transaction name.
      */
     module.transaction = function (name) {
+        if (global._lastTransactionName) {
+            transactions[global._lastTransactionName] = null;
+
+            if (opts.proxyEnabled) {
+                transactions[global._lastTransactionName] = harGet();
+                harReset();
+            }
+        } 
+
         global._lastTransactionName = name;
-        return dispatcher.execute('web', 'transaction', Array.prototype.slice.call(arguments));
     };
+    
     /**
-     * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
-     * @description This includes the <code>open</code> command, <code>waitFor*</code> commands, and
-     *              all other commands which wait for elements to appear or become visible before
-     *              operating on them.<br/>
-     *              If command wasn't able to complete within the specified period it will fail the
-     *              test.<br/>
-     *              The default time-out is 60 seconds.
-     * @function setTimeout
-     * @param {Integer} timeout - A time-out in milliseconds.
+     * @function dispose
+     * @summary Ends the current session.
      */
-    module.setTimeout = function () { return dispatcher.execute('web', 'setTimeout', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Opens an URL.
-     * @description The <code>open</code> command waits for the page to load before proceeding.
-     * @function open
-     * @param {String} url - The URL to open; may be relative or absolute.
-     */
-    module.open = function () { return dispatcher.execute('web', 'open', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Scrolls the page to the location of the specified element.
-     * @description <i>yOffset</i> determines the offset from the specified element where to scroll
-     *              to. It can be either a positive or a negative value.
-     * @function scrollToElement
-     * @param {String} locator - An element locator.
-     * @param {Integer} yOffset - Y offset from the element.
-     */
-    module.scrollToElement = function () { return dispatcher.execute('web', 'scrollToElement', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Points the mouse cursor over the specified element.
-     * @function point
-     * @param {String} locator - An element locator.
-     */
-    module.point = function () { return dispatcher.execute('web', 'point', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Clicks on a link, button, checkbox, or radio button.
-     * @description If the click causes new page to load, the command waits for page to load before
-     *              proceeding.
-     * @function click
-     * @param {String} locator - An element locator.
-     */
-    module.click = function () { return dispatcher.execute('web', 'click', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Clicks on a non-visible link, button, checkbox, or radio button.
-     * @description If the click causes new page to load, the command waits for page to load before
-     *              proceeding.
-     * @function clickHidden
-     * @param {String} locator - An element locator.
-     */
-    module.clickHidden = function() { return dispatcher.execute('web', 'clickHidden', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts the page title.
-     * @description Assertion pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function assertTitle
-     * @param {String} pattern - The assertion pattern.
-     */
-    module.assertTitle = function() { return dispatcher.execute('web', 'assertTitle', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Simulates keystroke events on the specified element, as though you typed the value
-     *          key-by-key. Previous value if any will be cleared.
-     * @description Following special key codes are supported using the <code>'${KEY_CODE}'</code>
-     *              notation:<br/>
-     *          KEY_BACKSPACE<br/>
-     *          KEY_TAB<br/>
-     *          KEY_ENTER<br/>
-     *          KEY_SHIFT<br/>
-     *          KEY_CTRL<br/>
-     *          KEY_ALT<br/>
-     *          KEY_PAUSE<br/>
-     *          KEY_ESC<br/>
-     *          KEY_SPACE<br/>
-     *          KEY_PAGE_UP<br/>
-     *          KEY_PAGE_DOWN<br/>
-     *          KEY_END<br/>
-     *          KEY_HOME<br/>
-     *          KEY_LEFT<br/>
-     *          KEY_UP<br/>
-     *          KEY_RIGHT<br/>
-     *          KEY_DOWN<br/>
-     *          KEY_INSERT<br/>
-     *          KEY_DELETE<br/>
-     *          KEY_SEMICOLON<br/>
-     *          KEY_EQUALS<br/>
-     *          KEY_N0<br/>
-     *          KEY_N1<br/>
-     *          KEY_N2<br/>
-     *          KEY_N3<br/>
-     *          KEY_N4<br/>
-     *          KEY_N5<br/>
-     *          KEY_N6<br/>
-     *          KEY_N7<br/>
-     *          KEY_N8<br/>
-     *          KEY_N9<br/>
-     *          KEY_MULTIPLY<br/>
-     *          KEY_ADD<br/>
-     *          KEY_SUBSTRACT<br/>
-     *          KEY_SEPARATOR<br/>
-     *          KEY_DECIMAL<br/>
-     *          KEY_DIVIDE<br/>
-     *          KEY_F1<br/>
-     *          KEY_F2<br/>
-     *          KEY_F3<br/>
-     *          KEY_F4<br/>
-     *          KEY_F5<br/>
-     *          KEY_F6<br/>
-     *          KEY_F7<br/>
-     *          KEY_F8<br/>
-     *          KEY_F9<br/>
-     *          KEY_F10<br/>
-     *          KEY_F11<br/>
-     *          KEY_F12<br/>
-     *          KEY_META<br/>
-     *          KEY_COMMAND
-     * @function type
-     * @param {String} locator - An element locator.
-     * @param {String} value - The value to type.
-     */
-    module.type = function() { return dispatcher.execute('web', 'type', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Clear the value of an input field.
-     * @function clear
-     * @param {String} locator - An element locator.
-     */
-    module.clear = function() { return dispatcher.execute('web', 'clear', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts element's inner text.
-     * @description Assertion pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function assertText
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - The assertion pattern.
-     */
-    module.assertText = function() { return dispatcher.execute('web', 'assertText', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Selects window. Once window has been selected, all commands go to that window.
-     * @description <code>windowLocator</code> can be:
-     *              <ul>
-     *              <li><code>title=TITLE</code> - Switch to the first window which matches the
-     *                  specified title. TITLE can be any of the supported <a href="#patterns">
-     *                  string matching patterns</a>.
-     *              </li>
-     *              <li>An empty string - Switch to the last opened window.</li>
-     *              <li><code>windowHandle</code> - Switch to a window using its unique handle.</li>
-     *              </ul>
-     * @function selectWindow
-     * @param {String} windowLocator - Window locator.
-     * @return {String} windowHandle of the previously selected window.
-     */
-    module.selectWindow = function() { return dispatcher.execute('web', 'selectWindow', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Returns the element's attribute.
-     * @function getAttribute
-     * @param {String} locator - An element locator.
-     * @param {String} attributeName - The name of the attribute to retrieve.
-     * @return {String} The attribute's value.
-     */
-    module.getAttribute = function() { return dispatcher.execute('web', 'getAttribute', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Returns the text (rendered text shown to the user) of an element.
-     * @function getText
-     * @param {String} locator - An element locator.
-     * @return {String} The element's text.
-     */
-    module.getText = function() { return dispatcher.execute('web', 'getText', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Returns the (whitespace-trimmed) value of an input field. For checkbox/radio
-     *          elements, the value will be "on" or "off".
-     * @function getValue
-     * @param {String} locator - An element locator.
-     * @return {String} The value.
-     */
-    module.getValue = function() { return dispatcher.execute('web', 'getValue', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Double clicks on a link, button, checkbox, or radio button.
-     * @function doubleClick
-     * @param {String} locator - An element locator.
-     */
-    module.doubleClick = function() { return dispatcher.execute('web', 'doubleClick', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Selects an option from a drop-down list using an option locator. This command works
-     *          with multiple-choice lists as well.
-     * @description Option locator can be one of the following (No prefix is same as label matching):
-     *              <ul>
-     *              <li><code>label=STRING</code> - Matches option based on the visible text.</li>
-     *              <li><code>value=STRING</code> - Matches option based on its value.</li>
-     *              <li><code>index=STRING</code> - Matches option based on its index.</li>
-     *              </ul>
-     * @function select
-     * @param {String} selectLocator - An element locator identifying a drop-down menu.
-     * @param {String} optionLocator - An option locator.
-     */
-    module.select = function() { return dispatcher.execute('web', 'select', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Deselects an option from multiple-choice drop-down list.
-     * @description Option locator can be one of the following (No prefix is same as label matching):
-     *              <ul>
-     *              <li><code>label=STRING</code> - Matches option based on the visible text.</li>
-     *              <li><code>value=STRING</code> - Matches option based on its value.</li>
-     *              </ul>
-     * @function deselect
-     * @param {String} selectLocator - An element locator identifying a drop-down menu.
-     * @param {String} optionLocator - An option locator.
-     */
-    module.deselect = function() { return dispatcher.execute('web', 'deselect', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Pauses for the specified amount of time (in milliseconds).
-     * @function pause
-     * @param {Integer} waitTime - The amount of time to sleep (in milliseconds)
-     */
-    module.pause = function() { return dispatcher.execute('web', 'pause', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for a window to appear.
-     * @description <code>windowLocator</code> can be:
-     *              <ul>
-     *              <li><code>title=TITLE</code> - Wait for the first window which matches the
-     *                  specified title. TITLE can be any of the supported <a href="#patterns">
-     *                  string matching patterns</a>.
-     *              </li>
-     *              <li>An empty string - Wait for any new window to appear.</li>
-     *              </ul>
-     * @function waitForWindow
-     * @param {String} windowLocator - A window locator.
-     * @param {Integer} timeout - A timeout in milliseconds, after which the action will return with
-     *                           an error.
-     */
-    module.waitForWindow = function() { return dispatcher.execute('web', 'waitForWindow', Array.prototype.slice.call(arguments)); };
+    module.dispose = function() {
+        if (_this.driver && isInitialized) {
+            try {
+                _this.driver.end();
+            } catch (e) {
+                logger.error(e);    // ignore any errors at disposal stage
+            }
+            isInitialized = false;
+        }
 
-    /**
-     * @summary Selects a frame within the current window.
-     * @description Available frame locators:
-     *              <ul>
-     *              <li><code>relative=parent</code> - Select parent frame.</li>
-     *              <li><code>relative=top</code> - Select top window.</li>
-     *              <li><code>index=0</code> - Select frame by its 0-based index.</li>
-     *              <li><code>//XPATH</code> - XPath expression relative to the top window which
-     *                  identifies the frame. Multiple XPaths can be concatenated using
-     *                  <code>;;</code> to switch between nested frames.</li>
-     *              </ul>
-     * @function selectFrame
-     * @param {String} frameLocator - A locator identifying a frame or an iframe.
-     */
-    module.selectFrame = function() { return dispatcher.execute('web', 'selectFrame', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for element to become visible.
-     * @function waitForVisible
-     * @param {String} locator - An element locator.
-     */
-    module.waitForVisible = function() { return dispatcher.execute('web', 'waitForVisible', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for element to appear in the DOM. The element might be visible to the user or
-     *          not.
-     * @function waitForElementPresent
-     * @param {String} locator - An element locator.
-     */
-    module.waitForElementPresent = function() { return dispatcher.execute('web', 'waitForElementPresent', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Checks if element is present in the DOM. Returns false if element was not found
-     *          within the specified timeout.
-     * @function isElementPresent
-     * @param {String} locator - An element locator.
-     * @param {Integer} timeout - Timeout in milliseconds to wait for element to appear.
-     * @return {Boolean} True if element was found. False otherwise.
-     */
-    module.isElementPresent = function() { return dispatcher.execute('web', 'isElementPresent', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Checks if element is present and visible. Returns false if element was not found or
-     *          wasn't visible within the specified timeout.
-     * @function isElementVisible
-     * @param {String} locator - An element locator.
-     * @param {Integer} timeout - Timeout in milliseconds to wait for element to appear.
-     * @return {Boolean} True if element was found and it was visible. False otherwise.
-     */
-    module.isElementVisible = function() { return dispatcher.execute('web', 'isElementVisible', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for inner text of the given element to match the specified pattern.
-     * @description Text pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function waitForText
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - Text pattern.
-     */
-    module.waitForText = function() { return dispatcher.execute('web', 'waitForText', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for inner text of the given element to stop matching the specified pattern.
-     * @description Text pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function waitForNotText
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - Text pattern.
-     */
-    module.waitForNotText = function() { return dispatcher.execute('web', 'waitForNotText', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for input element's value to match the specified pattern.
-     * @description Value pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function waitForValue
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - Value pattern.
-     */
-    module.waitForValue = function() { return dispatcher.execute('web', 'waitForValue', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Waits for input element's value to stop matching the specified pattern.
-     * @description Value pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function waitForNotValue
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - Value pattern.
-     */
-    module.waitForNotValue = function() { return dispatcher.execute('web', 'waitForNotValue', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts element's value.
-     * @description Value pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function assertValue
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - Value pattern.
-     */
-    module.assertValue = function() { return dispatcher.execute('web', 'assertValue', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts whether the given text is present somewhere on the page. That is whether an
-     *          element containing this text exists on the page.
-     * @function assertTextPresent
-     * @param {String} text - Text.
-     */
-    module.assertTextPresent = function() { return dispatcher.execute('web', 'assertTextPresent', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts whether element exists in the DOM.
-     * @function assertElementPresent
-     * @param {String} locator - An element locator.
-     */
-    module.assertElementPresent = function() { return dispatcher.execute('web', 'assertElementPresent', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts whether alert matches the specified pattern and dismisses it.
-     * @description Text pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function assertAlert
-     * @param {String} pattern - Text pattern.
-     */
-    module.assertAlert = function() { return dispatcher.execute('web', 'assertAlert', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Gets the source of the currently active window.
-     * @function getPageSource
-     * @return {String} The page source.
-     */
-    module.getPageSource = function() { return dispatcher.execute('web', 'getPageSource', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Gets the source of the currently active window which displays <code>text/xml</code>
-     *          page.
-     * @function getXMLPageSource
-     * @return {String} The XML page source.
-     */
-    module.getXMLPageSource = function() { return dispatcher.execute('web', 'getXMLPageSource', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Gets the source of the currently active window which displays <code>text/xml</code>
-     *          page and returns it as JSON object.
-     * @function getXMLPageSourceAsJSON
-     * @return {String} The XML page source represented as a JSON string.
-     */
-    module.getXMLPageSourceAsJSON = function() { return dispatcher.execute('web', 'getXMLPageSourceAsJSON', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Gets handles, titles, and URLs of the currently open windows.
-     * @function getWindowHandles
-     * @return {String} JSON array containing all available windows.
-     */
-    module.getWindowHandles = function() { return dispatcher.execute('web', 'getWindowHandles', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Closes the currently active window.
-     * @function closeWindow
-     */
-    module.closeWindow = function() { return dispatcher.execute('web', 'closeWindow', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Closes the current session
-     * @function quit
-     */
-    module.quit = function() { return dispatcher.execute('web', 'quit', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Checks if alert box is present.
-     * @function isAlertPresent
-     * @param {String} text - Alert's text.
-     * @param {Integer} timeout - Timeout in milliseconds to wait for the alert box.
-     * @return {Boolean} True if alert with the specified text is present. False otherwise.
-     */
-    module.isAlertPresent = function() { return dispatcher.execute('web', 'isAlertPresent', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Accepts an alert or a confirmation dialog.
-     * @description In case of an alert box this command is identical to <code>alertDismiss</code>.
-     * @function alertAccept
-     */
-    module.alertAccept = function() { return dispatcher.execute('web', 'alertAccept', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Dismisses an alert or a confirmation dialog.
-     * @description In case of an alert box this command is identical to <code>alertAccept</code>.
-     * @function alertDismiss
-     */
-    module.alertDismiss = function() { return dispatcher.execute('web', 'alertDismiss', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts text of the currently selected option in a drop-down list.
-     * @description Assertion pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function assertSelectedLabel
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - The assertion pattern.
-     */
-    module.assertSelectedLabel = function() { return dispatcher.execute('web', 'assertSelectedLabel', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Asserts value of the currently selected option in a drop-down list.
-     * @description Assertion pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
-     * @function assertSelectedValue
-     * @param {String} locator - An element locator.
-     * @param {String} pattern - The assertion pattern.
-     */
-    module.assertSelectedValue = function() { return dispatcher.execute('web', 'assertSelectedValue', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Gets the text displayed by an alert or confirm dialog.
-     * @function getAlertText
-     * @return {String} The alert's text.
-     */
-    module.getAlertText = function() { return dispatcher.execute('web', 'getAlertText', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Executes JavaScript in the context of the currently selected frame or window.
-     * @description The return value is serialized into a JSON string. If the value is null or there
-     *              is no return value, <code>null</code> is returned. <br/>
-     *              DOM object return values are not supported. If value is a DOM object such as
-     *              <code>document</code> or an element returned by <code>getElementById()</code>,
-     *              null is returned instead.<br/>
-     *              If the value cannot be serialized due to its size or circular-references the
-     *              test will fail with "Maximum call stack size exceeded" error.
-     * @function executeScript
-     * @param {String} script - The JavaScript to execute.
-     * @return {String} The return value serialized as a JSON string.
-     */
-    module.executeScript = function () { return dispatcher.execute('web', 'executeScript', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Retrieves the count of elements matching the given XPath expression.
-     * @function getElementCount
-     * @param {String} xpath - XPath locator.
-     * @return {Integer} Element count or 0 if no elements were found.
-     */
-    module.getElementCount = function() { return dispatcher.execute('web', 'getElementCount', Array.prototype.slice.call(arguments)); };
+        if (_this._proxy) {
+            _this._proxy.kill();
+        }
+    };
 
-    module.fileBrowse = function() { return dispatcher.execute('web', 'fileBrowse', Array.prototype.slice.call(arguments)); };
+    helpers.assertLocator = function(locator) {
+        if (!locator) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        }
+    };
 
-    /**
-     * @summary Makes hidden element visible.
-     * @description This a workaround command for situations which require manipulation of hidden
-     *              elements, such as when using <code>web.type</code> command for file input
-     *              fields which tend to be hidden.<br/>
-     *              Specifically <code>makeVisible</code> will apply following styles to the
-     *              specified element:
-     *              <ul>
-     *              <li>visibility = 'visible'</li>
-     *              <li>height = '1px'</li>
-     *              <li>width = '1px'</li>
-     *              <li>opacity = 1</li>
-     *              <li>display='block'</li>
-     *              </ul>
-     * @function makeVisible
-     * @param {String} locator - An element locator.
-     */
-    module.makeVisible = function() { return dispatcher.execute('web', 'makeVisible', Array.prototype.slice.call(arguments)); };
+    helpers.assertArgument = function(arg) {
+        if (arg === undefined) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
+        }
+    };
 
-    /**
-     * @summary Sets the size of the outer browser window.
-     * @description To maximize the window set both width and height to 0.
-     * @function setWindowSize
-     * @param {Integer} width - Width in pixels.
-     * @param {Integer} height - Height in pixels.
-     */
-    module.setWindowSize = function() { return dispatcher.execute('web', 'setWindowSize', Array.prototype.slice.call(arguments)); };
-    /**
-     * @summary Returns the value of a CSS property of an element.
-     * @function getCssValue
-     * @param {String} locator - An element locator.
-     * @param {String} propertyName - CSS property name.
-     * @return {String} CSS property value.
-     */
-    module.getCssValue = function() { return dispatcher.execute('web', 'getCssValue', Array.prototype.slice.call(arguments)); };
+    helpers.assertArgumentNonEmptyString = function(arg) {
+        if (!arg || typeof arg !== 'string') {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
+        }
+    };
+
+    helpers.assertArgumentNumber = function(arg) {
+        if (typeof(arg) !== 'number') {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
+        }
+    };
+
+    helpers.assertArgumentNumberNonNegative = function(arg) {
+        if (typeof(arg) !== 'number' || arg < 0) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
+        }
+    };
+
+    helpers.getWdioLocator = function(locator) {
+        if (!locator)
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        else if (typeof locator === 'object')
+            return locator;
+        else if (locator.indexOf('/') === 0)
+            return locator;                                 // leave xpath locator as is
+        else if (locator.indexOf('id=') === 0)
+            return '//*[@id = "' + locator.substr('id='.length) + '"]';  // convert 'id=' to xpath (# wouldn't work if id contains colons)
+        else if (locator.indexOf('name=') === 0)
+            return '[name=' + locator.substr('name='.length) + ']';
+        else if (locator.indexOf('link=') === 0)
+            return '=' + locator.substr('link='.length);
+        else if (locator.indexOf('link-contains=') === 0)
+            return '*=' + locator.substr('link='.length);
+        else if (locator.indexOf('css=') === 0)
+            return locator.substr('css='.length);           // in case of css, just remove css= prefix
+ 
+        return locator;
+    };
+
+    helpers.matchPattern = function(val, pattern) {
+        if (!val && !pattern) {                                         // special case
+            return true;
+        }
+
+        var regex;
+        if (pattern.indexOf('regex:') == 0) {                           // match using a regular-expression
+            regex = new RegExp(pattern.substring('regex:'.length));
+            return regex.test(val);
+        } else if (pattern.indexOf('regexi:') == 0) {                   // match using a case-insensitive regular-expression
+            regex = new RegExp(pattern.substring('regexi:'.length), 'i');
+            return regex.test(val);
+        } else if (pattern.indexOf('exact:') == 0) {                    // match a string exactly, verbatim
+            return pattern.substring('exact:'.length) === val;
+        } else if (pattern.indexOf('glob:') == 0) {                     // match against a case-insensitive "glob" pattern
+            regex = globToRegex(pattern.substring('glob:'.length), { flags: 'i' });
+            return regex.test(val);
+        } else {                                                        // no prefix same as glob matching
+            regex = globToRegex(pattern, { flags: 'i' });
+            return regex.test(val);
+        }
+    };
 
     return module;
 };
