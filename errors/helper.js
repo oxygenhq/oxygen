@@ -92,6 +92,11 @@ module.exports = {
         // try to resolve WDIO error code 
         var oxErrorCode = WDIO_ERROR_CODES[errType];
         if (oxErrorCode) {
+            // remove "Promise rejected..." from errors produced by waitUntil
+            if (errType === 'WaitUntilTimeoutError' && 
+                err.message.indexOf('Promise was rejected with the following reason: ') === 0) {
+                err.message = err.message.substring('Promise was rejected with the following reason: '.length);
+            }
             return new OxError(oxErrorCode, err.message, null);
         }
 
