@@ -94,7 +94,15 @@ module.exports = {
         if (oxErrorCode) {
             return new OxError(oxErrorCode, err.message, null);
         }
-        
+
+        // try to resolve WDIO RuntimeError-s having seleniumStack
+        if (errType === 'RuntimeError' && err.seleniumStack) {
+            oxErrorCode = WDIO_ERROR_CODES[err.seleniumStack.type];
+            if (oxErrorCode) {
+                return new OxError(oxErrorCode, err.message, null);
+            }
+        }
+
         // try to resolve Chai error code
         oxErrorCode = CHAI_ERROR_CODES[errType];
         if (oxErrorCode) {
