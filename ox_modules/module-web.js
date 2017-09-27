@@ -76,7 +76,6 @@ module.exports = function (options, context, rs, logger) {
     var opts = options;                         // startup options
     var isInitialized = false;
     var transactions = {};                      // transaction->har dictionary
-    var autoReopen = options.reopenBrowser || true;// automatically reload selenium session if already exists when calling init()
 
     const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
     const PROXY_ADDR = '127.0.0.1';
@@ -128,10 +127,10 @@ module.exports = function (options, context, rs, logger) {
                 harReset();
             }
         }
-        
-        rs.har = transactions;
 
-        if (autoReopen) {
+        rs.har = transactions;
+        
+        if (opts.reopenBrowser) {
             module.dispose();
         }
     };
@@ -224,7 +223,7 @@ module.exports = function (options, context, rs, logger) {
         // this is required when test suite with multiple test cases is executed
         // then .init() might be called in each test case, but actually they all need to use the same Appium session
         if (isInitialized) {
-            if (autoReopen) {
+            if (opts.reopenBrowser) {
                 _this.driver.reload();
             } else {
                 logger.debug('init() was called for already initialized module. autoReopen=false so the call is ignored.');
