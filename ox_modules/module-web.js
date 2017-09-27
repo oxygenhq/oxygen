@@ -76,7 +76,7 @@ module.exports = function (options, context, rs, logger) {
     var opts = options;                         // startup options
     var isInitialized = false;
     var transactions = {};                      // transaction->har dictionary
-    var autoReopen = options.autoReopen || true;// automatically reload selenium session if already exists when calling init()
+    var autoReopen = options.reopenBrowser || true;// automatically reload selenium session if already exists when calling init()
 
     const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
     const PROXY_ADDR = '127.0.0.1';
@@ -119,10 +119,8 @@ module.exports = function (options, context, rs, logger) {
     };
 
     module._iterationEnd = function(vars) {
-        if (opts.autoReopen) {
-            module.dispose();
-        }
-
+        // TODO: should clear transactions to avoid duplicate names across iterations
+        // also should throw on duplicate names.
         if (opts.proxyEnabled) {
             // there might be no transactions set if test fails before web.transaction command
             if (global._lastTransactionName) {
@@ -130,11 +128,12 @@ module.exports = function (options, context, rs, logger) {
                 harReset();
             }
         }
-
-        // TODO: should clear transactions to avoid duplicate names across iterations
-        // also should throw on duplicate names.
-
+        
         rs.har = transactions;
+
+        if (autoReopen) {
+            module.dispose();
+        }
     };
 
     /*
