@@ -78,7 +78,7 @@ module.exports = function (options, context, rs, logger) {
     const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
 
     this._driver = null;
-
+    var module = this.module = {};  // TODO: remove
     var _this = module._this = this;               // reference to this instance
     this._isInitialized = false;    // initialization indicator
     this._rs = rs;                  // results store
