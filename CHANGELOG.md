@@ -9,18 +9,18 @@
 
   Module specific changes are as follows:
 
-  __`soap` module__
-  *Removed*
+  __`soap`__  
+  *Removed*  
   `get12` - Removed in favor of the new `soap.get` method.
-  *Changed*
+  *Changed*  
   `get` - Signature changed to accept WSDL URL, method name, and any complex objects as service arguments. Unlike prior implementation this method will return object instead of a JSON serialization. 
-  *Added* 
+  *Added*  
   `describe`
 
-  __`web` module__
-  *Removed*
+  __`web`__  
+  *Removed*  
   `setBaseUrl`, `quit`, `getXMLPageSourceAsJSON`
-  *Changed*
+  *Changed*  
   [`waitForWindow`, `waitForValue`, `waitForText`, `waitForNotValuec`, `waitForNotValue`, `waitForElementPresent`, 
              `assertValue`, `assertElementPresent`, `assertAlert`, `assertSelectedValue`, `assertSelectedLabel`] - Now accept timeout as and optional argument.
   `type` - Support for `${KEY_}` key codes has been removed in favor of Unicode characters.
@@ -29,7 +29,7 @@
   `getElementCount` - Accepts any of supported locators in addition to XPath.
   `getElementCount` - Return type changed to Object.
 
-  __`eyes` module__
+  __`eyes`__  
   Temporary removed pending rewrite.
    
 * Updated dependencies.
