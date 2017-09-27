@@ -277,6 +277,9 @@ module.exports = function (options, context, rs, logger) {
         } catch (err) {
             throw new _this.OxError(_this.errHelper.errorCode.SELENIUM_SERVER_UNREACHABLE, err.message);
         }
+
+        _this.driver.windowHandleMaximize('current');
+
         isInitialized = true;
     };
 
