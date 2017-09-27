@@ -43,6 +43,14 @@
  */
 module.exports = function (options, context, rs, logger) {
     // TODO: remove rs (from all modules?)
+
+    // this needs to be defined for wdio to work in sync mode
+    global.browser = {
+        options: {
+            sync: true
+        }
+    };
+
     var deasync = require('deasync');
     var request = require('request');
     var net = require('net');
