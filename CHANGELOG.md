@@ -2,35 +2,36 @@
 
 
 ## v0.18.0 (2017-09-x)
-* `web`, `soap`, and `db` modules, previously implemented in C#, have been reimplemented in Node.js. This provides a number of significant benefits - faster test initialization, removes the need for version matching between Oxygen and Selenium servers, solves a number of issues on Linux/OS X related to Mono version incompatibility, and provides more flexibility in module's development.
+* `web`, `soap`, and `db` modules, previously implemented in C#, have been reimplemented in Node.js. This provides a number of significant benefits - faster test initialization, removes the need for version matching between Oxygen and Selenium servers, solves a number of issues on Linux/OS X related to Mono version incompatibility, allows using `soap` and `db` along with the `mob` module, and provides more flexibility in module's development.
 
-  Note that .NET/Mono is still required if you wish to generate HTML or PDF reports.
-  In addition, on Linux and OS X `unixODBC` libraries are now required for Oxygen compilation.
+  Note that .NET/Mono is still required if you wish to generate HTML or PDF reports.  
+  In addition, `db` module now requires `unixODBC` libraries to be installed. See README. If `unixODBC` is not available the module won't be installed.
 
   Module specific changes are as follows:
 
   __`soap`__  
   *Removed*  
-  `get12` - Removed in favor of the new `soap.get` method.
+  `get12` - Removed in favor of the new `soap.get` method.  
   *Changed*  
-  `get` - Signature changed to accept WSDL URL, method name, and any complex objects as service arguments. Unlike prior implementation this method will return object instead of a JSON serialization. 
+  `get` - Signature changed to accept WSDL URL, method name, and any complex objects as service arguments. Unlike prior implementation this method will return object instead of a JSON serialization.  
   *Added*  
   `describe`
 
   __`web`__  
   *Removed*  
-  `setBaseUrl`, `quit`, `getXMLPageSourceAsJSON`
+  `setBaseUrl`, `quit`, `getXMLPageSourceAsJSON`  
   *Changed*  
   [`waitForWindow`, `waitForValue`, `waitForText`, `waitForNotValuec`, `waitForNotValue`, `waitForElementPresent`, 
-             `assertValue`, `assertElementPresent`, `assertAlert`, `assertSelectedValue`, `assertSelectedLabel`] - Now accept timeout as and optional argument.
-  `type` - Support for `${KEY_}` key codes has been removed in favor of Unicode characters.
-  `point` - Accepts two optional arguments xoffset and yoffset.
-  `getWindowHandles` - Return type changed to String[].
-  `getElementCount` - Accepts any of supported locators in addition to XPath.
+             `assertValue`, `assertElementPresent`, `assertAlert`, `assertSelectedValue`, `assertSelectedLabel`] - Now accept timeout as and optional argument.  
+  `type` - Support for `${KEY_}` key codes has been removed in favor of Unicode characters.  
+  `point` - Accepts two optional arguments xoffset and yoffset.  
+  `getWindowHandles` - Return type changed to String[].  
+  `getElementCount` - Accepts any of supported locators in addition to XPath.  
   `getElementCount` - Return type changed to Object.
 
   __`eyes`__  
   Temporary removed pending rewrite.
+   
    
 * Updated dependencies.
 
