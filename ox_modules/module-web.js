@@ -278,7 +278,7 @@ module.exports = function (options, context, rs, logger) {
         try {
             _this.driver.windowHandleMaximize('current');
         } catch (err) {
-            throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERRROR, err.message);
+            throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message);
         }
 
         isInitialized = true;
