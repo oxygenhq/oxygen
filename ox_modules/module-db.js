@@ -11,7 +11,14 @@
  * Provides methods for working with Data Bases through ODBC.
  */
 
-const db = require('odbc')();
+// ignore this module if odbc wasn't installed
+var db;
+try {
+    db = require('odbc')();
+} catch (e) {
+    return;
+}
+
 const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 

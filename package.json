@@ -49,10 +49,12 @@
     "webdriverio": "4.7.1",
     "deasync": "0.1.10",
     "request": "2.83.0",
-    "odbc": "1.3.0",
     "soap": "0.21.0",
     "glob-to-regexp": "0.3.0"
   },
+  "optionalDependencies": {
+      "odbc": "1.3.0"
+    },
   "scripts": {
     "prepublish": "grunt eslint",
     "winpublish": "grunt dos2unix && npm publish",
