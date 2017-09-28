@@ -28,8 +28,6 @@
   },
   "devDependencies": {
     "grunt": "1.0.1",
-    "grunt-msbuild": "0.4.0",
-    "grunt-sync": "0.6.2",
     "grunt-eslint": "19.0.0",
     "doctrine": "2.0.0"
   },
