@@ -1,5 +1,7 @@
 # CHANGELOG
 
+## v0.18.2 (2017-10-01)
+* Fix error types generated on waitForExist and and waitForVisible.
 
 ## v0.18.0 (2017-09-29)
 * `web`, `soap`, and `db` modules, previously implemented in C#, have been reimplemented in Node.js. This provides a number of significant benefits - faster test initialization, removes the need for version matching between Oxygen and Selenium servers, solves a number of issues on Linux/OS X related to Mono version incompatibility, allows using `soap` and `db` along with the `mob` module, and provides more flexibility in module's development.

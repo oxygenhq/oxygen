@@ -15,5 +15,12 @@
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);
-    this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout));
+    try {
+        this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout));
+    } catch (e) {
+        if (e.type === 'WaitUntilTimeoutError') {
+             throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+        }
+        throw e;
+    }
 };
