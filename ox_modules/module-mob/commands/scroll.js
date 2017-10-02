@@ -12,12 +12,13 @@
  * @description This command will perform 'press' on the element, move by provided offset, and perform 'release'.
  * @function scroll
  * @param {String} locator - Element locator on which to perform the initial tap.
- * @param {Integer} xoffset - Horizontal offset. Positve to scroll right. Negative to scroll left.
- * @param {Integer} yoffset - Vertical offset. Positve to scroll up. Negative to scroll down.
- * @for android, ios, hybrid, web
+ * @param {Integer} xoffset - Horizontal offset. Positive to scroll right. Negative to scroll left.
+ * @param {Integer} yoffset - Vertical offset. Positive to scroll up. Negative to scroll down.
+ * @for android, ios
  */
 module.exports = function(locator, xoffset, yoffset) {   
-    // TODO: this command should be renamed. 
+    // TODO: this command should be renamed to 'drag' or 'press and move' or similar.
+    //       also consider riding of it entirely and exposing chainable actions instead.
     this.helpers._assertLocator(locator);
     this.helpers._assertArgumentNumber(xoffset);
     this.helpers._assertArgumentNumber(yoffset);
