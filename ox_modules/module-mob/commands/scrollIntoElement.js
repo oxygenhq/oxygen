@@ -33,12 +33,12 @@ module.exports = function(scrollElmLocator, findElmLocator, xoffset, yoffset, re
     var retry = 0;
 
     while (retry < retries) {
-        elm = this.module.findElement(findElmLocator);
+        elm = this.findElement(findElmLocator);
         if (elm) {
             break;
         }
         retry++;
-        this.module.scroll(scrollElmLocator, xoffset, yoffset);
+        this.scroll(scrollElmLocator, xoffset, yoffset);
     }
 
     return elm;

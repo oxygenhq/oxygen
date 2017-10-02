@@ -24,5 +24,5 @@ module.exports = function(locator, wait) {
     }
     // when locator is string
     locator = this.helpers.getWdioLocator(locator);
-    return this._driver.waitForVisible(locator, wait);
+    return this.driver.waitForVisible(locator, wait);
 };

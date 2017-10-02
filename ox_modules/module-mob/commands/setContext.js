@@ -14,6 +14,6 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(context) {
-    this._driver.context(context);
-    this._context = context;
+    this.driver.context(context);
+    this.appContext = context;
 };

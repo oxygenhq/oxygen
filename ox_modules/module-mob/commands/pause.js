@@ -15,5 +15,5 @@
  */
 module.exports = function(ms) {
     this.helpers._assertArgumentNumber(ms);
-    return this._driver.pause(ms);
+    return this.driver.pause(ms);
 };

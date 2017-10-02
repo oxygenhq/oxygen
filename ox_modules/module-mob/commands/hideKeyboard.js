@@ -16,7 +16,7 @@
  */
 module.exports = function(strategy) {
     if (strategy && strategy === 'pressDone') {
-        return this._driver.hideDeviceKeyboard('pressKey', 'Done');
+        return this.driver.hideDeviceKeyboard('pressKey', 'Done');
     }
-    return this._driver.hideDeviceKeyboard(strategy);
+    return this.driver.hideDeviceKeyboard(strategy);
 };

@@ -13,6 +13,6 @@
  * @for android, ios, hybrid, web
 */
 module.exports = function() {
-    this._driver.context('NATIVE_APP');
-    this._context = 'NATIVE_APP';
+    this.driver.context('NATIVE_APP');
+    this.appContext = 'NATIVE_APP';
 };

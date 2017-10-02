@@ -61,48 +61,37 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    var helpers = this.helpers = {};
-
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
     var _ = require('underscore');
 
-    this._OxError = require('../errors/OxygenError');
-    this._errHelper = require('../errors/helper');
+    var _this = module._this = this;
 
-    // constants
+    // properties exposed to external commands
+    this.OxError = require('../errors/OxygenError');
+    this.errHelper = require('../errors/helper');
+    this.driver = null;
+    this.helpers = {};
+    this.logger = logger;
     this.DEFAULT_WAIT_TIMEOUT = 60000;
     this.POOLING_INTERVAL = 5000;
+    this.sessionId = null;                          // current session id
+    this.appContext = 'NATIVE_APP';
+    this.caps = null;                               // save driver capabilities for later use when error occures
+
+    // module's constructor scoped variables
+    var isInitialized = false;
+    var ctx = context;
+    var opts = options;
+    var helpers = this.helpers;
+
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
     const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
+    const NO_SCREENSHOT_COMMANDS = ['init'];
+    const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
 
-    this._driver = null;
-    var module = this.module = {};  // TODO: remove
-    var _this = module._this = this;               // reference to this instance
-    this._isInitialized = false;    // initialization indicator
-    this._rs = rs;                  // results store
-    this._ctx = context;            // context variables
-    this._options = options;        // startup options
-    this.logger = logger;           // set logger
-    this.sessionId = null;          // store current session id
-    this._caps = null;              // save driver capabilities for later use when error occures
-    this._host = options.host || DEFAULT_APPIUM_HOST;   // appium server host name
-    this._port = options.port || DEFAULT_APPIUM_PORT;   // appium server port number
-    this._context = 'NATIVE_APP';
-
-    const NO_SCREENSHOT_COMMANDS = [
-        'init'
-    ];
-    const ACTION_COMMANDS = [
-        'open',
-        'tap',
-        'click',
-        'swipe',
-        'submit',
-        'setValue'
-    ];
-
+    // TODO: pending deprecation
     module._isAction = function(name) {
         return ACTION_COMMANDS.includes(name);
     };
@@ -116,33 +105,29 @@ module.exports = function (options, context, rs, logger) {
     // TODO: _assert* should be extracted into a separate helper later on
     helpers._assertLocator = function(locator) {
         if (!locator) {
-            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         }
     };
     helpers._assertArgument = function(arg) {
         if (arg === undefined) {
-            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
         }
     };
     helpers._assertArgumentNonEmptyString = function(arg) {
         if (!arg || typeof arg !== 'string') {
-            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
         }
     };
     helpers._assertArgumentNumber = function(arg) {
         if (typeof(arg) !== 'number') {
-            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
         }
     };
     helpers._assertArgumentNumberNonNegative = function(arg) {
         if (typeof(arg) !== 'number' || arg < 0) {
-            throw new this._OxError(this._errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
         }
     };
-
-    // automatically renew appium session when init() is called for existing session
-    module.autoReopen = options.autoReopen || true;
-    module.driver = null;
 
     /**
      * @function getCaps
@@ -151,7 +136,7 @@ module.exports = function (options, context, rs, logger) {
      * @for android, ios, hybrid, web
      */
     module.getCaps = function() {
-        return _this._caps || _this._ctx.caps;
+        return _this.caps || ctx.caps;
     };
 
     /**
@@ -166,9 +151,9 @@ module.exports = function (options, context, rs, logger) {
         // ignore init if the module has been already initialized
         // this is required when test suite with multiple test cases is executed
         // then .init() might be called in each test case, but actually they all need to use the same Appium session
-        if (_this._isInitialized) {
-            if (module.autoReopen) {
-                _this._driver.reload();
+        if (isInitialized) {
+            if (opts.autoReopen !== false) { // true or false if explisitly set. true on null or undefined.
+                _this.driver.reload();
             }
             else {
                 logger.debug('init() was called for already initialized module. autoReopen=false so the call is ignored.');
@@ -177,20 +162,20 @@ module.exports = function (options, context, rs, logger) {
         }
         // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities in context and in init function arguments
-        _this._caps = {};
-        if (_this._ctx.caps) {
-            _.extend(_this._caps, _this._ctx.caps);
+        _this.caps = {};
+        if (ctx.caps) {
+            _.extend(_this.caps, ctx.caps);
         }
         if (caps) {
-            _.extend(_this._caps, caps);
+            _.extend(_this.caps, caps);
         }
         // write back to the context the merged caps (used later in the reporter)
-        _this._ctx.caps = _this._caps;
+        ctx.caps = _this.caps;
         // populate WDIO options
         var wdioOpts = {
-            host: host || _this._options.host || DEFAULT_APPIUM_HOST,
-            port: port || _this._options.port || DEFAULT_APPIUM_PORT,
-            desiredCapabilities: _this._caps
+            host: host || opts.host || DEFAULT_APPIUM_HOST,
+            port: port || opts.port || DEFAULT_APPIUM_PORT,
+            desiredCapabilities: _this.caps
         };
 
         // if host parameter includes a full URL to the hub, then divide it into separate parts to pass to WDIO
@@ -204,18 +189,18 @@ module.exports = function (options, context, rs, logger) {
             wdioOpts.protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
         }
         // initialize driver with either default or custom appium/selenium grid address
-        _this._driver = module.driver = wdio.remote(wdioOpts);
-        wdioSync.wrapCommands(_this._driver);
+        _this.driver = wdio.remote(wdioOpts);
+        wdioSync.wrapCommands(_this.driver);
         try {
-            _this._driver.init();
+            _this.driver.init();
         } catch (err) {
             // make webdriverio's generic 'selenium' message more descriptive
             if (err.type === 'RuntimeError' && err.message === "Couldn't connect to selenium server") {
-                throw new this._OxError(this._errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't connect to appium server");
+                throw new this.OxError(this.errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't connect to appium server");
             }
             throw err;
         }
-        _this._isInitialized = true;
+        isInitialized = true;
     };
 
     /**
@@ -236,14 +221,14 @@ module.exports = function (options, context, rs, logger) {
      * @for android, ios
      */
     module.dispose = function() {
-        if (_this._driver && _this._isInitialized) {
+        if (_this.driver && isInitialized) {
             try {
-                _this._driver.end();
+                _this.driver.end();
             }
             catch (e) {
                 logger.error(e);    // ignore any error at disposal stage
             }
-            _this._isInitialized = false;
+            isInitialized = false;
         }
     };
 
@@ -251,9 +236,9 @@ module.exports = function (options, context, rs, logger) {
         if (locator.indexOf('/') === 0)
             return locator; // leave xpath locator as is
         
-        var platform = this._caps && this._caps.platformName ? this._caps.platformName.toLowerCase() : null;
+        var platform = this.caps && this.caps.platformName ? this.caps.platformName.toLowerCase() : null;
         
-        if (this._context === 'NATIVE_APP' && platform === 'android') {
+        if (this.appContext === 'NATIVE_APP' && platform === 'android') {
             if (locator.indexOf('id=') === 0)
                 return 'android=new UiSelector().resourceId("' + locator.substr('id='.length) + '")';
             else if (locator.indexOf('class=') === 0)
@@ -268,10 +253,10 @@ module.exports = function (options, context, rs, logger) {
                 return 'android=new UiSelector().descriptionContains("' + locator.substr('desc-contains='.length) + '")';
             else if (locator.indexOf('scrollable') === 0)
                 return 'android=new UiSelector().scrollable(true)';
-        } else if (this._context === 'NATIVE_APP' && platform === 'ios') {
+        } else if (this.appContext === 'NATIVE_APP' && platform === 'ios') {
             if (locator.indexOf('id=') === 0)
                 return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
-        } else if (this._context !== 'NATIVE_APP') {            // Hybrid or Web application
+        } else if (this.appContext !== 'NATIVE_APP') {            // Hybrid or Web application
             if (locator.indexOf('id=') === 0)
                 return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
             else if (locator.indexOf('name=') === 0)

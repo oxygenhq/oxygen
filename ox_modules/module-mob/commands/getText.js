@@ -21,5 +21,5 @@ module.exports = function(locator) {
     }
     // when locator is string
     locator = this._helpers.getWdioLocator(locator);
-    return this._driver.getText(locator);
+    return this.driver.getText(locator);
 };

@@ -23,5 +23,5 @@ module.exports = function(locator, value) {
     }
 
     locator = this.helpers.getWdioLocator(locator);
-    return this._driver.setValue(locator, value);
+    return this.driver.setValue(locator, value);
 };

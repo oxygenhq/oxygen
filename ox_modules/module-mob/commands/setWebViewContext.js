@@ -13,7 +13,7 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function() {
-    var response = this._driver.contexts();
+    var response = this.driver.contexts();
     var contexts = response.value;
     this.sessionId = response.sessionId;
     // select first available WEBVIEW context
@@ -21,8 +21,8 @@ module.exports = function() {
         var context = contexts[i];
         if (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf('CHROMIUM') > -1)) {
             this.logger.debug('Setting context: ' + context);
-            this._driver.context(context);
-            this._context = context;
+            this.driver.context(context);
+            this.appContext = context;
             return context;
         }
     }

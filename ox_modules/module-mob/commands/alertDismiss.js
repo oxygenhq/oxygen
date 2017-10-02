@@ -4,5 +4,5 @@
  * @for android, ios, hybrid, web
 */
 module.exports = function() {
-    return this._driver.alertDismiss();
+    return this.driver.alertDismiss();
 };

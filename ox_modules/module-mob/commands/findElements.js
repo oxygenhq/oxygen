@@ -22,7 +22,7 @@ module.exports = function(locator, parent) {
     if (parent && typeof parent === 'object' && parent.elements) {
         retval = parent.elements(locator);
     } else {
-        retval = this._driver.elements(locator);
+        retval = this.driver.elements(locator);
     }
     // check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
     if (retval && retval.value) {

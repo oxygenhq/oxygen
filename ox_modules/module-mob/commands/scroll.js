@@ -29,7 +29,7 @@ module.exports = function(locator, xoffset, yoffset) {
             ]
         );    
     } 
-    return this._driver.touchAction(
+    return this.driver.touchAction(
         this.helpers.getWdioLocator(locator),
         [
             'press',

@@ -19,7 +19,7 @@ module.exports = function(locator, alignToTop) {
     alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
     locator = this.helpers.getWdioLocator(locator);
 
-    this._driver.selectorExecute(
+    this.driver.selectorExecute(
         locator,
         function(elms, alignToTop) {
             var elm = elms && elms.length > 0 ? elms[0] : null;

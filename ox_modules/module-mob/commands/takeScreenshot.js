@@ -14,6 +14,6 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function() {
-    var response = this._driver.screenshot();
+    var response = this.driver.screenshot();
     return response.value || null;
 };

@@ -14,6 +14,6 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function() {
-    var context = this._driver.context().value;
+    var context = this.driver.context().value;
     return (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf('CHROMIUM') > -1));
 };

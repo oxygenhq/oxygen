@@ -26,11 +26,11 @@ module.exports = function(locator, pattern, message) {
     if (typeof locator === 'object' && locator.getText) {
         elm = locator;
     } else {
-        elm = this.module.findElement(locator);
+        elm = this.findElement(locator);
     }
     
     if (!elm) {
-        throw new this._OxError(this._errHelper.errorCode.NO_SUCH_ELEMENT);
+        throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
     }
     var actualValue = elm.getText();
 

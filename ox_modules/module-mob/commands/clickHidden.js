@@ -42,7 +42,7 @@ module.exports = function(locator, clickParent) {
     // when locator is string
     locator = this.helpers.getWdioLocator(locator);
 
-    this._driver.selectorExecute(
+    this.driver.selectorExecute(
         locator,
         func,
         clickParent

@@ -18,7 +18,7 @@ module.exports = function(x, y) {
     this.helpers._assertArgumentNumberNonNegative(x);
     this.helpers._assertArgumentNumberNonNegative(y);
 
-    this._driver.touchPerform([{
+    this.driver.touchPerform([{
         action: 'tap',
         options: {
             x: x,

@@ -22,5 +22,5 @@ module.exports = function(locator) {
     }
 
     locator = this.helpers.getWdioLocator(locator);
-    return this._driver.getAttribute(locator, 'clickable');
+    return this.driver.getAttribute(locator, 'clickable');
 };

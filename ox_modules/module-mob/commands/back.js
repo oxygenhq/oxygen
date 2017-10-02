@@ -13,5 +13,5 @@
  * @for android, hybrid, web
  */
 module.exports = function() {
-    return this._driver.back();
+    return this.driver.back();
 };

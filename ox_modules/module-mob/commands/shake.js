@@ -14,5 +14,5 @@
  * @for android, ios
  */
 module.exports = function() {
-    return this._driver.shake();
+    return this.driver.shake();
 };

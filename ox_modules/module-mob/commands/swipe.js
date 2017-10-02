@@ -28,10 +28,10 @@ module.exports = function(locator, xoffset, yoffset, speed) {
         if (typeof locator === 'object') {
             elm = locator;
         } else {
-            elm = this.module.findElement(locator);
+            elm = this.findElement(locator);
         }
 
         return elm.swipe(xoffset, yoffset, speed);
     }
-    return this._driver.swipe(xoffset, yoffset);
+    return this.driver.swipe(xoffset, yoffset);
 };

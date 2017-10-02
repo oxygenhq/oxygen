@@ -18,7 +18,7 @@ const chai = require('chai');
 const assert = chai.assert;
 
 module.exports = function(pattern, message) {
-    var title = this._driver.getTitle();
+    var title = this.driver.getTitle();
     this.helpers._assertArgumentNonEmptyString(pattern);
     if (pattern.indexOf('regex:') == 0) {
         var regex = new RegExp(pattern.substring('regex:'.length));

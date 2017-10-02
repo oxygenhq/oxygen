@@ -24,7 +24,7 @@ module.exports = function(locator, wait) {
         retval = locator.waitForExist(wait);
     } else {                                                    // when locator is string
         locator = this.helpers.getWdioLocator.call(this, locator);
-        retval = this._driver.waitForExist(locator, wait);
+        retval = this.driver.waitForExist(locator, wait);
     }
     return retval;
 };

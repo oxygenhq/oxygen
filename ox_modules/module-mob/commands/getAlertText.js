@@ -14,5 +14,5 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function() {
-    return this._driver.alertText();
+    return this.driver.alertText();
 };
