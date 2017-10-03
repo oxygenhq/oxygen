@@ -8,17 +8,14 @@
  */
  
 /**
- * @summary Scroll to a relative position of the scrollable element.
- * @description This command will perform 'press' on the element, move by provided offset, and perform 'release'.
- * @function scroll
+ * @summary Tap on an element, drag by the specified offset, and release.
+ * @function dragAndDrop
  * @param {String} locator - Element locator on which to perform the initial tap.
- * @param {Integer} xoffset - Horizontal offset. Positive to scroll right. Negative to scroll left.
- * @param {Integer} yoffset - Vertical offset. Positive to scroll up. Negative to scroll down.
+ * @param {Integer} xoffset - Horizontal offset. Positive for right direction; Negative for left. 
+ * @param {Integer} yoffset - Vertical offset. Positive for up direction; Negative for down. 
  * @for android, ios
  */
 module.exports = function(locator, xoffset, yoffset) {   
-    // TODO: this command should be renamed to 'drag' or 'press and move' or similar.
-    //       also consider riding of it entirely and exposing chainable actions instead.
     this.helpers._assertLocator(locator);
     this.helpers._assertArgumentNumber(xoffset);
     this.helpers._assertArgumentNumber(yoffset);
