@@ -28,5 +28,5 @@ module.exports = function(locator, value) {
     // where element becomes unavailable between these two commands.
     // this should be fixed!!!
     var el = this.driver.element(wdloc);
-    this.driver.elementIdValue(el.value.ELEMENT, value);
+    this.driver.elementIdValue(el.value.ELEMENT, value.toString());
 };

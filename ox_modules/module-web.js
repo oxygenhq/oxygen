@@ -481,6 +481,8 @@ module.exports = function (options, context, rs, logger) {
             return true;
         }
 
+        pattern = pattern.toString();
+
         var regex;
         if (pattern.indexOf('regex:') == 0) {                           // match using a regular-expression
             regex = new RegExp(pattern.substring('regex:'.length));
