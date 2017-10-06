@@ -42,7 +42,7 @@
     "minimist": "1.2.0",
     "moment": "2.18.1",
     "oxygen-logger": "0.1.0",
-    "underscore": "1.8.3",
+    "lodash": "4.17.4",
     "when": "3.7.8",
     "xlsx": "0.11.4",
     "wdio-sync": "0.7.0",

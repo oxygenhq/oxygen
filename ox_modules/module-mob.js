@@ -63,7 +63,7 @@ module.exports = function (options, context, rs, logger) {
 
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
-    var _ = require('underscore');
+    var _ = require('lodash');
 
     var _this = module._this = this;
 

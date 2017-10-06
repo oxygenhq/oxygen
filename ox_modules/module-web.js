@@ -54,7 +54,7 @@ module.exports = function (options, context, rs, logger) {
     var net = require('net');
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
-    var _ = require('underscore');
+    var _ = require('lodash');
     var globToRegex = require('glob-to-regexp');
     var cp = require('child_process');
 
