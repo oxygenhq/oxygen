@@ -134,6 +134,7 @@ module.exports = function (options, context, rs, logger) {
     };
 
     /*
+     * FIXME: There is a bug with IE. See the comment within function body.
      * Since HARs provided by the proxy don't contain any browser level timings, such as domContentLoaded and load event timings,
      * we try to retrieve them directly from the browser for the currently active page/action.
      *
@@ -172,6 +173,10 @@ module.exports = function (options, context, rs, logger) {
                                    'navigationStart: window.performance.timing.navigationStart, ' +
                                    'domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart, ' +
                                    'loadEventStart: window.performance.timing.loadEventStart}';
+
+                    // FIXME: there seems to be a bug in IE driver or WDIO. if execute is called on closed window (e.g. 
+                    // clicking button in a popup that clsoes said popup) a number of exceptions gets thrown and 
+                    // continues to be thrown for any future commands.
                     return _this.driver.execute(timingsJS).then((result) => {
                         var timings = result.value;
                         var navigationStart = timings.navigationStart;
@@ -182,7 +187,7 @@ module.exports = function (options, context, rs, logger) {
                         load = loadEventStart - navigationStart;
 
                         return domContentLoadedEventStart > 0 && loadEventStart > 0;
-                    });
+                    }).catch(() => true);
                 }, 
                 90 * 1000);
             } catch (e) {
