@@ -49,7 +49,7 @@
     "webdriverio": "4.7.1",
     "deasync": "0.1.10",
     "request": "2.83.0",
-    "soap": "0.21.0",
+    "soap": "0.22.0",
     "glob-to-regexp": "0.3.0"
   },
   "optionalDependencies": {
