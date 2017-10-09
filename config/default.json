@@ -1,8 +1,7 @@
 {
-	"allowRequire": true,
     "logger": {
-		"console": {
-			"level": "debug"
-		}
+        "console": {
+            "level": "debug"
+        }
     }
 }
