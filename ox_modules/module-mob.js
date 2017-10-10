@@ -78,9 +78,9 @@ module.exports = function (options, context, rs, logger) {
     this.sessionId = null;                          // current session id
     this.appContext = 'NATIVE_APP';
     this.caps = null;                               // save driver capabilities for later use when error occures
+    this.isInitialized = false;
 
     // module's constructor scoped variables
-    var isInitialized = false;
     var ctx = context;
     var opts = options;
     var helpers = this.helpers;
@@ -151,7 +151,7 @@ module.exports = function (options, context, rs, logger) {
         // ignore init if the module has been already initialized
         // this is required when test suite with multiple test cases is executed
         // then .init() might be called in each test case, but actually they all need to use the same Appium session
-        if (isInitialized) {
+        if (_this.isInitialized) {
             if (opts.autoReopen !== false) { // true or false if explisitly set. true on null or undefined.
                 _this.driver.reload();
             }
@@ -200,7 +200,7 @@ module.exports = function (options, context, rs, logger) {
             }
             throw err;
         }
-        isInitialized = true;
+        _this.isInitialized = true;
     };
 
     /**
@@ -221,14 +221,14 @@ module.exports = function (options, context, rs, logger) {
      * @for android, ios
      */
     module.dispose = function() {
-        if (_this.driver && isInitialized) {
+        if (_this.driver && _this.isInitialized) {
+            _this.isInitialized = false;
             try {
                 _this.driver.end();
             }
             catch (e) {
                 logger.error(e);    // ignore any error at disposal stage
             }
-            isInitialized = false;
         }
     };
 
