@@ -225,9 +225,7 @@ module.exports = function (options, context, rs, logger) {
             _this.isInitialized = false;
             try {
                 _this.driver.end();
-            }
-            catch (e) {
-                logger.error(e);    // ignore any error at disposal stage
+            } catch (e) {
             }
         }
     };
