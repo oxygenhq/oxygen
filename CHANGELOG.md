@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.19.0 (2017-10-11)
+* Add mob.isCheckable, mob.isChecked, mob.isClickable, mob.isSelected
+* mob.scroll command renamed to mob.dragAndDrop
+* Fix web.type failing if passed value is not a string.
+* Fix handling of parameters with underscore in the name.
+* Update dependencies.
+
 ## v0.18.2 (2017-10-01)
 * Fix error types generated on waitForExist and and waitForVisible.
 
