@@ -226,6 +226,7 @@ module.exports = function (options, context, rs, logger) {
             try {
                 _this.driver.end();
             } catch (e) {
+                // ignore errors
             }
         }
     };
