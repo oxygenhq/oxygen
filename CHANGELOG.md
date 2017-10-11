@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.19.2 (2017-10-12)
+* Use local time instead of UTC in reports.
+
 ## v0.19.0 (2017-10-11)
 * Add mob.isCheckable, mob.isChecked, mob.isClickable, mob.isSelected
 * mob.scroll command renamed to mob.dragAndDrop
