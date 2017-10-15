@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.19.4 (2017-10-15)
+* Fix mob.scrollIntoElement
+
 ## v0.19.2 (2017-10-12)
 * Use local time instead of UTC in reports.
 
