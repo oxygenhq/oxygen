@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.19.5 (2017-10-16)
+* Return boolean instead of string from mob.is* commands.
+
 ## v0.19.4 (2017-10-15)
 * Fix mob.scrollIntoElement
 
