@@ -38,7 +38,7 @@ module.exports = function(scrollElmLocator, findElmLocator, xoffset, yoffset, re
             break;
         }
         retry++;
-        this.scroll(scrollElmLocator, xoffset, yoffset);
+        this.dragAndDrop(scrollElmLocator, xoffset, yoffset);
     }
 
     return elm;
