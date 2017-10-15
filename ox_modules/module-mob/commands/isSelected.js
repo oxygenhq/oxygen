@@ -18,9 +18,9 @@ module.exports = function(locator) {
     this.helpers._assertLocator(locator);
 
     if (typeof locator === 'object' && locator.getAttribute) {
-        return locator.getAttribute('selected');
+        return locator.getAttribute('selected') == 'true';
     }
 
     locator = this.helpers.getWdioLocator(locator);
-    return this.driver.getAttribute(locator, 'selected');
+    return this.driver.getAttribute(locator, 'selected') == 'true';
 };
