@@ -498,10 +498,10 @@ module.exports = function (options, context, rs, logger) {
         } else if (pattern.indexOf('exact:') == 0) {                    // match a string exactly, verbatim
             return pattern.substring('exact:'.length) === val;
         } else if (pattern.indexOf('glob:') == 0) {                     // match against a case-insensitive "glob" pattern
-            regex = globToRegex(pattern.substring('glob:'.length), { flags: 'i' });
+            regex = globToRegex(pattern.substring('glob:'.length), { flags: 'ig' });
             return regex.test(val);
         } else {                                                        // no prefix same as glob matching
-            regex = globToRegex(pattern, { flags: 'i' });
+            regex = globToRegex(pattern, { flags: 'ig' });
             return regex.test(val);
         }
     };
