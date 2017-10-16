@@ -17,5 +17,9 @@
 module.exports = function(locator, attribute) {
     var wdloc = this.helpers.getWdioLocator(locator); 
     this.waitForVisible(locator);
-    return this.driver.getAttribute(wdloc, attribute);
+    var ret = this.driver.getAttribute(wdloc, attribute);
+    if (ret.constructor === Array && ret.length >= 1) {
+        return ret[0];
+    }
+    return ret;
 };
