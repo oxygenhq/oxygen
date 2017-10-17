@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "0.19.5",
+  "version": "0.19.6",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./lib/oxygen.js",
   "bin": { "oxygen": "./lib/cli.js" },

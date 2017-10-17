@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.19.6 (2017-10-17)
+* Return attribute only for the first matching element in web.getAttribute.
+* Fix glob pattern matching in multi line text.
+
 ## v0.19.5 (2017-10-16)
 * Return boolean instead of string from mob.is* commands.
 
