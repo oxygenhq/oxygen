@@ -55,7 +55,7 @@ module.exports = function (options, context, rs, logger) {
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
     var _ = require('lodash');
-    var globToRegex = require('glob-to-regexp');
+    var utils = require('./utils');
     var cp = require('child_process');
 
     var _this = module._this = this;
@@ -481,30 +481,7 @@ module.exports = function (options, context, rs, logger) {
         return locator;
     };
 
-    helpers.matchPattern = function(val, pattern) {
-        if (!val && !pattern) {                                         // special case
-            return true;
-        }
-
-        pattern = pattern.toString();
-
-        var regex;
-        if (pattern.indexOf('regex:') == 0) {                           // match using a regular-expression
-            regex = new RegExp(pattern.substring('regex:'.length));
-            return regex.test(val);
-        } else if (pattern.indexOf('regexi:') == 0) {                   // match using a case-insensitive regular-expression
-            regex = new RegExp(pattern.substring('regexi:'.length), 'i');
-            return regex.test(val);
-        } else if (pattern.indexOf('exact:') == 0) {                    // match a string exactly, verbatim
-            return pattern.substring('exact:'.length) === val;
-        } else if (pattern.indexOf('glob:') == 0) {                     // match against a case-insensitive "glob" pattern
-            regex = globToRegex(pattern.substring('glob:'.length), { flags: 'ig' });
-            return regex.test(val);
-        } else {                                                        // no prefix same as glob matching
-            regex = globToRegex(pattern, { flags: 'ig' });
-            return regex.test(val);
-        }
-    };
+    helpers.matchPattern = utils.matchPattern;
 
     return module;
 };
