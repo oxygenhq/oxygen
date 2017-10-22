@@ -21,7 +21,17 @@
   * @param {Integer} timeout - Timeout in milliseconds.
   */
 module.exports = function(windowLocator, timeout) {
-    var currentHandle = this.driver.windowHandle().value;
+    var currentHandle;
+
+    // windowHandle() could possibly fail if there is no active window,
+    // so we select the last opened one in such case
+    try {
+        currentHandle = this.driver.windowHandle().value;
+    } catch (err) {
+        var wnds = this.driver.windowHandles().value;
+        this.driver.window(wnds[wnds.length - 1]);
+        currentHandle = this.driver.windowHandle().value;
+    }
 
     if (windowLocator.indexOf('title=') === 0) {
         var pattern = windowLocator.substring('title='.length);

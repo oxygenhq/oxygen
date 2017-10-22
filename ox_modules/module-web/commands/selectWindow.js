@@ -23,7 +23,17 @@
  * @return {String} windowHandle of the previously selected window.
  */
 module.exports = function(windowLocator) {
-    var currentHandle = this.driver.windowHandle().value;
+    var currentHandle;
+
+    // windowHandle() could possibly fail if there is no active window,
+    // so we select the last opened one in such case
+    try {
+        currentHandle = this.driver.windowHandle().value;
+    } catch (err) {
+        var wnds = this.driver.windowHandles().value;
+        this.driver.window(wnds[wnds.length - 1]);
+        currentHandle = this.driver.windowHandle().value;
+    }
 
     // TODO: remove empty string windowLocator and just leave undefined
     var windowHandles;
