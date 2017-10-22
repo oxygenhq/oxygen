@@ -468,9 +468,9 @@ module.exports = function (options, context, rs, logger) {
         else if (locator.indexOf('/') === 0)
             return locator;                                 // leave xpath locator as is
         else if (locator.indexOf('id=') === 0)
-            return '//*[@id = "' + locator.substr('id='.length) + '"]';  // convert 'id=' to xpath (# wouldn't work if id contains colons)
+            return '//*[@id="' + locator.substr('id='.length) + '"]';   // convert 'id=' to xpath (# wouldn't work if id contains colons)
         else if (locator.indexOf('name=') === 0)
-            return '[name=' + locator.substr('name='.length) + ']';
+            return '//*[@name="' + locator.substr('name='.length) + '"]';
         else if (locator.indexOf('link=') === 0)
             return '=' + locator.substr('link='.length);
         else if (locator.indexOf('link-contains=') === 0)
