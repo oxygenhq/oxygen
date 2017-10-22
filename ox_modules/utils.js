@@ -23,7 +23,7 @@ module.exports = {
         } else if (pattern.indexOf('regexi:') == 0) {                   // match using a case-insensitive regular-expression
             regex = new RegExp(pattern.substring('regexi:'.length), 'i');
             return regex.test(val);
-        } else if (pattern.indexOf('exact:') == 0) {                    // match a string exactly, verbatim
+        } else if (pattern.indexOf('exact:') == 0 || pattern === '') {  // match a string exactly, verbatim
             return pattern.substring('exact:'.length) === val;
         } else if (pattern.indexOf('glob:') == 0) {                     // match against a case-insensitive "glob" pattern
             regex = globToRegex(pattern.substring('glob:'.length), { flags: 'ig' });
