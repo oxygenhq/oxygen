@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.20.0 (2017-10-23)
+* Fixed certain errors being ignored.
+* Add `serial` module.
+* Add `http` module.
+* Add `mob.getLcoation`
+* Fixed empty pattern matching in `web` module.
+* Fixed `web.selectWindow` and `web.waitForWindow` failing if there is no currently active window.
+* Fixed `name` locator handling in `web` module.
+
 ## v0.19.6 (2017-10-17)
 * Return attribute only for the first matching element in web.getAttribute.
 * Fix glob pattern matching in multi line text.
