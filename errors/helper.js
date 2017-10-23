@@ -38,7 +38,8 @@ const ERROR_CODES = {
     DB_QUERY: 'DB_QUERY',
     SOAP: 'SOAP',
     NOT_IMPLEMENTED: 'NOT_IMPLEMENTED',
-    SERIAL_PORT_ERROR: 'SERIAL_PORT_ERROR'
+    SERIAL_PORT_ERROR: 'SERIAL_PORT_ERROR',
+    HTTP_ERROR: 'HTTP_ERROR'
 };
 
 // WebdriverIO to Oxygen error codes mapping
