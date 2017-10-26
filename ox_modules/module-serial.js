@@ -121,6 +121,27 @@ module.exports = function() {
         });
     };
 
+    /**
+     * @summary Write data to the port.
+     * @function write
+     * @param {String|Array} data - Data to send. Either a string or an array of bytes.
+     */
+    module.write = function(data) {
+        var done;
+        serialPort.write(data);
+        serialPort.drain(() => { done = true;});
+        deasync.loopWhile(() => !done);
+    };
+
+    /*
+     * @summary Return data buffer.
+     * @function getBuffer
+     * @return {CircularStringBuffer} Data buffer.
+     */
+    module.getBuffer = function() {
+        return stringBuffer;
+    };
+
     module.dispose = function() {
         if (serialPort) {
             serialPort.close();
