@@ -9,7 +9,7 @@
  
 /**
  * @summary Gets the text displayed by an alert or confirm dialog.
- * @function getAlertText
+ * @function isAlertPresent
  * @return {String} The alert's text.
  */
 module.exports = function() {
