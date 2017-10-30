@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.21.0 (2017-10-30)
+* Add `serial.write` and `serial.getBuffer`.
+* `mob.getSmsText` now uses android-smspopup application (see documentation) instead of SMSPopup from Play Store and accepts optional `wait` argument.
+* Add `mob.isExist`.
+* Fix regex pattern matching not performing the matching globally.
+
 ## v0.20.0 (2017-10-23)
 * Fixed certain errors being ignored.
 * Add `serial` module.
