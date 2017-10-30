@@ -18,10 +18,10 @@ module.exports = {
 
         var regex;
         if (pattern.indexOf('regex:') == 0) {                           // match using a regular-expression
-            regex = new RegExp(pattern.substring('regex:'.length));
+            regex = new RegExp(pattern.substring('regex:'.length), 'g');
             return regex.test(val);
         } else if (pattern.indexOf('regexi:') == 0) {                   // match using a case-insensitive regular-expression
-            regex = new RegExp(pattern.substring('regexi:'.length), 'i');
+            regex = new RegExp(pattern.substring('regexi:'.length), 'ig');
             return regex.test(val);
         } else if (pattern.indexOf('exact:') == 0 || pattern === '') {  // match a string exactly, verbatim
             return pattern.substring('exact:'.length) === val;
