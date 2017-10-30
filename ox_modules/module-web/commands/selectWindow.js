@@ -15,7 +15,6 @@
  *                  specified title. TITLE can be any of the supported <a href="#patterns">
  *                  string matching patterns</a>.
  *              </li>
- *              <li>An empty string - Switch to the last opened window.</li>
  *              <li><code>windowHandle</code> - Switch to a window using its unique handle.</li>
  *              </ul>
  * @function selectWindow
