@@ -35,28 +35,31 @@ module.exports = function(windowLocator, timeout) {
 
     if (windowLocator.indexOf('title=') === 0) {
         var pattern = windowLocator.substring('title='.length);
-
-        var self = this;
-        
-        this.driver.waitUntil(() => self.driver.windowHandles().then((windowHandles) => {
-            var titles = [];
-            windowHandles.value.forEach((handle) => {
-                self.driver.window(handle);
-                titles.push(new Promise((resolve) => {
-                    self.driver.title().then((title) => {
-                        resolve(self.helpers.matchPattern(title.value, pattern));
-                    });
-                }));
-            });
-
-            return Promise.all(titles).then(windowsStatus => { 
-                return windowsStatus.includes(true);
-            });
-        }), 
-        (!timeout ? this.waitForTimeout : timeout));
-
-        // return to original window
-        this.driver.window(currentHandle);
+        timeout = !timeout ? this.waitForTimeout : timeout;
+        var start = (new Date()).getTime();
+        while ((new Date()).getTime() - start < timeout) {
+            var windowHandles = this.driver.windowHandles();
+            for (var i = 0; i < windowHandles.value.length; i++) {
+                var handle = windowHandles.value[i];
+                try {
+                    this.driver.window(handle);
+                } catch (err) { // in case window was closed
+                    continue;
+                }
+                var title = this.driver.title();
+                if (this.helpers.matchPattern(title.value, pattern)) {
+                    try {
+                        this.driver.window(currentHandle);  // return to original window
+                    } catch (err) {
+                        windowHandles = this.driver.windowHandles().value;
+                        this.driver.window(windowHandles[windowHandles.length - 1]);
+                    }
+                    return;
+                }
+            }
+            this.pause(500);
+        }
+        throw new this.OxError(this.errHelper.errorCode.NO_SUCH_WINDOW);
     } else {
         throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - windowLocator.');
     }
