@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.22.0 (2017-11-11)
+* Fix time formatting in reports.
+* Fix reliability issues with `web.waitForWindow`.
+* Add `mob.smsClickLink`.
+* Change `mob.getSmsText` to `mob.smsGetText`.
+
 ## v0.21.0 (2017-10-30)
 * Add `serial.write` and `serial.getBuffer`.
 * `mob.getSmsText` now uses android-smspopup application (see documentation) instead of SMSPopup from Play Store and accepts optional `wait` argument.
