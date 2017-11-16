@@ -13,10 +13,10 @@
 module.exports = function () {
     return {
         _name: null,
-        _startDate: null,
-        _endDate: null,
-        duration: null,
-        status: null,
+        _startTime: null,
+        _endTime: null,
+        _duration: null,
+        _status: null,
         iterations: []    // type of tciresult.js
     };
 };

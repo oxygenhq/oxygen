@@ -47,7 +47,7 @@
 				</div>
 				<div class="col-md-3 col-sm-3 col-xs-6 counter">
 					<span>Total Duration</span>
-					<div class="value"><xsl:value-of select="sum(./test-result/summary/@duration)"/> sec</div>
+					<div class="value"><xsl:value-of select="format-number(sum(./test-result/summary/@duration) div 1000, '###,##0.0')"/> sec</div>
 				</div>
 				<div class="col-md-3 col-sm-3 col-xs-6 counter">
 					<span>Total Tests</span>
