@@ -109,10 +109,6 @@ module.exports = function (options, context, rs, logger) {
         if (ctx.caps.browserName === 'ie') {
             ctx.caps.browserName = 'internet explorer';
         }
-
-        if (!isInitialized && opts.initDriver) {
-            module.init(ctx.caps, opts.seleniumUrl);
-        }
     };
 
     module._iterationEnd = function(vars) {
@@ -127,10 +123,6 @@ module.exports = function (options, context, rs, logger) {
         }
 
         rs.har = transactions;
-        
-        if (opts.reopenBrowser) {
-            module.dispose();
-        }
     };
 
     /*
@@ -217,21 +209,18 @@ module.exports = function (options, context, rs, logger) {
      * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
      */
     module.init = function(caps, seleniumUrl) {
+        if (isInitialized) {
+            return;
+        }
+        
+        if (!caps) {
+            caps = ctx.caps;
+            seleniumUrl = opts.seleniumUrl;
+        }
+
         // FIXME: move to agent?
         if (opts.proxyEnabled) {
             initProxy();
-        }
-
-        // ignore init if the module has been already initialized
-        // this is required when test suite with multiple test cases is executed
-        // then .init() might be called in each test case, but actually they all need to use the same Appium session
-        if (isInitialized) {
-            if (opts.reopenBrowser) {
-                _this.driver.reload();
-            } else {
-                logger.debug('init() was called for already initialized module. autoReopen=false so the call is ignored.');
-            }
-            return;
         }
 
         if (opts.proxyEnabled) {
