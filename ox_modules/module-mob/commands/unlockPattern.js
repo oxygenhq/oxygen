@@ -8,7 +8,7 @@
  */
  
 /**
- * @summary 
+ * @summary Unlocks a pattern lock
  * @function unlockPattern
  * @param {String} locator - Element locator for the pattern lock.
  * @param {Integer} cols - Number of columns in the pattern.
