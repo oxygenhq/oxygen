@@ -161,13 +161,13 @@ module.exports = function (options, context, rs, logger) {
             return;
         }
         // take capabilities either from init method argument or from context parameters passed in the constructor
-        // merge capabilities in context and in init function arguments
+        // merge capabilities in context and in init function arguments, give preference to context-passed capabilities
         _this.caps = {};
-        if (ctx.caps) {
-            _.extend(_this.caps, ctx.caps);
-        }
         if (caps) {
             _.extend(_this.caps, caps);
+        }
+        if (ctx.caps) {
+            _.extend(_this.caps, ctx.caps);
         }
         // write back to the context the merged caps (used later in the reporter)
         ctx.caps = _this.caps;
