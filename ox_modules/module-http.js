@@ -39,7 +39,7 @@ module.exports = function(argv, context, rs) {
         request(options, (err, res, body) => { result = err || res; });
         deasync.loopWhile(() => !result);
 
-        if (result.statusCode !== 200) {
+        if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
         }
@@ -68,7 +68,7 @@ module.exports = function(argv, context, rs) {
         request(options, (err, res, body) => { result = err || res; });
         deasync.loopWhile(() => !result);
 
-        if (result.statusCode !== 201) {
+        if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
         }
@@ -97,7 +97,7 @@ module.exports = function(argv, context, rs) {
         request(options, (err, res, body) => { result = err || res; });
         deasync.loopWhile(() => !result);
 
-        if (result.statusCode !== 200) {
+        if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
         }
@@ -123,7 +123,7 @@ module.exports = function(argv, context, rs) {
         request(options, (err, res, body) => { result = err || res; });
         deasync.loopWhile(() => !result);
 
-        if (result.statusCode !== 200) {
+        if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
         }
