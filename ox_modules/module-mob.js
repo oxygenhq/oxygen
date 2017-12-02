@@ -238,9 +238,16 @@ module.exports = function (options, context, rs, logger) {
         var platform = this.caps && this.caps.platformName ? this.caps.platformName.toLowerCase() : null;
         
         if (this.appContext === 'NATIVE_APP' && platform === 'android') {
-            if (locator.indexOf('id=') === 0)
-                return 'android=new UiSelector().resourceId("' + locator.substr('id='.length) + '")';
-            else if (locator.indexOf('class=') === 0)
+            if (locator.indexOf('id=') === 0) {
+                // prepend package name if it's not specified
+                // NOTE: getCurrentPackage() seems to crash possibly due to a wdio bug. 
+                //       so we get package name from caps instead.
+                locator = locator.substr('id='.length);
+                if (locator.indexOf(':id/') === -1) {
+                    locator = _this.caps.appPackage + ':id/' + locator;
+                }
+                return 'android=new UiSelector().resourceId("' + locator + '")';
+            } else if (locator.indexOf('class=') === 0)
                 return 'android=new UiSelector().className("' + locator.substr('class='.length) + '")';
             else if (locator.indexOf('text=') === 0)
                 return 'android=new UiSelector().text("' + locator.substr('text='.length) + '")';
