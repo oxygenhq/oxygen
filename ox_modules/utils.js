@@ -14,7 +14,7 @@ module.exports = {
         }
 
         var globToRegex = require('glob-to-regexp');
-        pattern = pattern.toString();
+        pattern = pattern.toString().replace(/\s+/g, ' ');
 
         var regex;
         if (pattern.indexOf('regex:') == 0) {                           // match using a regular-expression
