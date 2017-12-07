@@ -17,5 +17,5 @@
 module.exports = function(locator, propertyName) {
     var wdloc = this.helpers.getWdioLocator(locator);
     this.waitForExist(locator);
-    return this.driver.getCssProperty(wdloc, propertyName).value;
+    return this.driver.getCssProperty(wdloc, propertyName).value.trim().replace(/\s+/g, ' ');
 };

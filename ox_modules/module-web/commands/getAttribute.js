@@ -19,7 +19,7 @@ module.exports = function(locator, attribute) {
     this.waitForVisible(locator);
     var ret = this.driver.getAttribute(wdloc, attribute);
     if (ret.constructor === Array && ret.length >= 1) {
-        return ret[0];
+        return ret[0].trim().replace(/\s+/g, ' ');
     }
-    return ret;
+    return ret.trim().replace(/\s+/g, ' ');
 };

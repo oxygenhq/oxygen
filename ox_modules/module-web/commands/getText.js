@@ -16,5 +16,5 @@
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator); 
     this.waitForVisible(locator);
-    return this.driver.getText(wdloc);
+    return this.driver.getText(wdloc).trim().replace(/\s+/g, ' ');
 };
