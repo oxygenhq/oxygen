@@ -11,7 +11,7 @@
  * @summary Waits for inner text of the given element to match the specified pattern.
  * @description Text pattern can be any of the supported <a href="#patterns">
  *              string matching patterns</a>.
- * @function waitForText
+ * @function assertText
  * @param {String} locator - An element locator.
  * @param {String} pattern - Text pattern.
  * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
