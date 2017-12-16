@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v0.23.0 (2017-12-16)
+* [Breaking change] Require explicit web module initialization with `web.init`.
+* Add `mob.unlockPattern`.
+* A more reliable `web.waitFor*` implementation.
+* Add preliminary support for JUnit reports.
+* Fix suites execution stopping on the first fatal error.
+* Fix status code handling in `http` module.
+* Add support for native android id locators without package prefix.
+* Trim and collapse white space for `web.getAttribute`, `getCssValue`, `getText` return values.
+* Collapse whitespace in patterns.
+* Add preliminary `date` module implementation.
+* webdriverio@4.9.9
+
 ## v0.22.0 (2017-11-11)
 * Fix time formatting in reports.
 * Fix reliability issues with `web.waitForWindow`.
