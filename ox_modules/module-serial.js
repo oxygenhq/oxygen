@@ -124,7 +124,7 @@ module.exports = function() {
     /**
      * @summary Write data to the port.
      * @function write
-     * @param {String|Array} data - Data to send. Either a string or an array of bytes.
+     * @param {(String|Array)} data - Data to send. Either a string or an array of bytes.
      */
     module.write = function(data) {
         var done;
