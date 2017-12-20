@@ -174,9 +174,14 @@ module.exports = function(grunt) {
                         for (var tag of this.tags)
                         {
                             if (tag.title === 'return') {
+                                var type = doctrine.type.stringify(tag.type, {compact:true});
+                                type = type.replace(/<|>/ig, function(m){
+                                    return '&' + (m == '>' ? 'g' : 'l') + 't;';
+                                });
+
                                 return { 
                                     description: tag.description.replace(/(\r\n|\n)/gm,''), 
-                                    type: tag.type.name 
+                                    type: type
                                 };
                             }
                         }
@@ -186,29 +191,23 @@ module.exports = function(grunt) {
                         for (var tag of this.tags)
                         {
                             if (tag.title === 'param') {
-                                var type;
                                 var optional;
-                                var variableNum;
-                                
-                                if (tag.type.type === 'OptionalType') {
-                                    type = tag.type.expression.name;
+                                if (tag.type.type === 'OptionalType' || tag.type.type === 'RestType') {
                                     optional = true;
-                                } else if (tag.type.type === 'RestType') {
-                                    type = tag.type.expression.name;
-                                    optional = true;
-                                    variableNum = true;
                                 } else {
-                                    type = tag.type.name;
                                     optional = false;
-                                    variableNum = false;
                                 }
+
+                                var type = doctrine.type.stringify(tag.type, {compact:true});
+                                type = type.replace(/<|>/ig, function(m){
+                                    return '&' + (m == '>' ? 'g' : 'l') + 't;';
+                                });
                                 
                                 params.push({ 
                                     description: tag.description.replace(/(\r\n|\n)/gm,''), 
-                                    name: variableNum ? '...' + tag.name : tag.name, 
+                                    name: tag.name, 
                                     type: type,
-                                    optional: optional,
-                                    variableNum: variableNum
+                                    optional: optional
                                 });
                             }
                         }
