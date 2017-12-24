@@ -261,7 +261,7 @@ module.exports = function (options, context, rs, logger) {
                 return 'android=new UiSelector().scrollable(true)';
         } else if (this.appContext === 'NATIVE_APP' && platform === 'ios') {
             if (locator.indexOf('id=') === 0)
-                return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
+                return '~' + locator.substr('id='.length);      // convert 'id=' to '~' (accessibility id)
         } else if (this.appContext !== 'NATIVE_APP') {            // Hybrid or Web application
             if (locator.indexOf('id=') === 0)
                 return '#' + locator.substr('id='.length);      // convert 'id=' to '#'
