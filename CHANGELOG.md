@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.24.1 (2017-12-25)
+* Emit iteration-end event.
+
 ## v0.24.0 (2017-12-25)
 * Add `mob.alertAccept`.
 * Fix accessibility id locator strategy for native iOS applications.
