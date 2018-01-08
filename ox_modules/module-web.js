@@ -113,6 +113,9 @@ module.exports = function (options, context, rs, logger) {
     };
 
     module._iterationEnd = function(vars) {
+        if (!isInitialized) {
+            return;
+        }
         // TODO: should clear transactions to avoid duplicate names across iterations
         // also should throw on duplicate names.
         if (opts.proxyEnabled) {
