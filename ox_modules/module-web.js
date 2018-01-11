@@ -96,20 +96,7 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    // TODO: refactor. most initialization shoyld be done in module constructor
     module._iterationStart = function(vars) {
-        // populate caps from options
-        // FIXME: modules should receive already populated caps.
-        if (!ctx.caps.browserName) {
-            ctx.caps.browserName = opts.browserName;
-        }
-
-        // webdriver expects lower case names
-        ctx.caps.browserName = ctx.caps.browserName.toLowerCase();
-        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
-        if (ctx.caps.browserName === 'ie') {
-            ctx.caps.browserName = 'internet explorer';
-        }
     };
 
     module._iterationEnd = function(vars) {
@@ -215,6 +202,19 @@ module.exports = function (options, context, rs, logger) {
     module.init = function(caps, seleniumUrl) {
         if (isInitialized) {
             return;
+        }
+
+        // populate caps from options
+        // FIXME: modules should receive already populated caps?
+        if (!ctx.caps.browserName) {
+            ctx.caps.browserName = opts.browserName;
+        }
+
+        // webdriver expects lower case names
+        ctx.caps.browserName = ctx.caps.browserName.toLowerCase();
+        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
+        if (ctx.caps.browserName === 'ie') {
+            ctx.caps.browserName = 'internet explorer';
         }
         
         if (!caps) {
