@@ -259,6 +259,8 @@ module.exports = function (options, context, rs, logger) {
                 return 'android=new UiSelector().descriptionContains("' + locator.substr('desc-contains='.length) + '")';
             else if (locator.indexOf('scrollable') === 0)
                 return 'android=new UiSelector().scrollable(true)';
+            else if (locator.indexOf('~') === 0)    // accessibility id                    
+                return locator;
         } else if (this.appContext === 'NATIVE_APP' && platform === 'ios') {
             if (locator.indexOf('id=') === 0)
                 return '~' + locator.substr('id='.length);      // convert 'id=' to '~' (accessibility id)
