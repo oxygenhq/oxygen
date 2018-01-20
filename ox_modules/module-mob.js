@@ -90,6 +90,11 @@ module.exports = function (options, context, rs, logger) {
     const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
     const NO_SCREENSHOT_COMMANDS = ['init'];
     const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
+    
+    // expose wdio driver for debugging purposes
+    module.driver = function() {
+        return _this.driver;
+    };
 
     // TODO: pending deprecation
     module._isAction = function(name) {

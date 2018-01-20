@@ -82,6 +82,11 @@ module.exports = function (options, context, rs, logger) {
     const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
     const ACTION_COMMANDS = ['open', 'click'];
 
+    // expose wdio driver for debugging purposes
+    module.driver = function() {
+        return _this.driver;
+    };
+
     module._isAction = function(name) {
         return ACTION_COMMANDS.includes(name);
     };
@@ -265,7 +270,7 @@ module.exports = function (options, context, rs, logger) {
         };
         
         // initialize driver with either default or custom appium/selenium grid address
-        _this.driver = module.driver = wdio.remote(wdioOpts);
+        _this.driver = wdio.remote(wdioOpts);
         wdioSync.wrapCommands(_this.driver);
         try {
             _this.driver.init();
