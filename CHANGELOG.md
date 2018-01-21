@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.25.0 (2018-01-21)
+* Remove '-m' switch.
+* Add support for accessibility id locators on Android.
+* [Breaking change] Use ~ for accessibility id locators on iOS instead of "id=" prefix.
+* Make driver instance accessible from user level scripts.
+* Add support for external debuggers.
+
 ## v0.24.1 (2017-12-25)
 * Emit iteration-end event.
 
