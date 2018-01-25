@@ -133,6 +133,11 @@ module.exports = function (options, context, rs, logger) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
         }
     };
+    helpers._assertArgumentBool = function(arg) {
+        if (typeof(arg) != typeof(true)) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be true or false.');
+        }
+    };
 
     /**
      * @function getCaps
