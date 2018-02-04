@@ -12,7 +12,7 @@
  * @function dragAndDrop
  * @param {String} locator - Element locator on which to perform the initial tap.
  * @param {Integer} xoffset - Horizontal offset. Positive for right direction; Negative for left. 
- * @param {Integer} yoffset - Vertical offset. Positive for up direction; Negative for down. 
+ * @param {Integer} yoffset - Vertical offset. Negative for up direction; Positive for down. 
  * @for android, ios
  */
 module.exports = function(locator, xoffset, yoffset) {   
