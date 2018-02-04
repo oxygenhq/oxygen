@@ -10,10 +10,10 @@
 /**
  * @summary Perform a swipe on the screen or an element.
  * @function swipe
- * @param {String=} locator - Locator of the
+ * @param {String=} locator - Locator of the element to swipe on.
  * @param {Number} xoffset - Horizontal offset.
- * @param {Number} yoffset - Vertical offset. Nagative value indicates swipe down and positive indicates swipe up direction.
- * @param {Number=} speed - Time in seconds to spend performing the swipe. Default is 1 second.
+ * @param {Number} yoffset - Vertical offset. Negative value indicates swipe up and positive indicates swipe down direction.
+ * @param {Number=} speed - The speed of swiping in pixels per second. Default is 1.
  * @for android, ios
 */
 module.exports = function(locator, xoffset, yoffset, speed) {
