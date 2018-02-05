@@ -29,12 +29,12 @@
   "devDependencies": {
     "grunt": "1.0.1",
     "grunt-eslint": "20.1.0",
-    "doctrine": "2.0.0"
+    "doctrine": "2.1.0"
   },
   "dependencies": {
-    "async": "2.5.0",
+    "async": "2.6.0",
     "chai": "4.1.2",
-    "config": "1.26.2",
+    "config": "1.29.4",
     "csv-load-sync": "1.0.0",
     "easyxml": "2.0.1",
     "fibers": "2.0.0",
@@ -42,14 +42,14 @@
     "minimist": "1.2.0",
     "moment": "2.18.1",
     "oxygen-logger": "0.2.0",
-    "lodash": "4.17.4",
+    "lodash": "4.17.5",
     "when": "3.7.8",
-    "xlsx": "0.11.4",
-    "wdio-sync": "0.7.0",
-    "webdriverio": "4.9.9",
-    "deasync": "0.1.10",
+    "xlsx": "0.11.19",
+    "wdio-sync": "0.7.1",
+    "webdriverio": "4.10.2",
+    "deasync": "0.1.12",
     "request": "2.83.0",
-    "soap": "0.22.0",
+    "soap": "0.23.0",
     "glob-to-regexp": "0.3.0",
     "serialport": "6.0.4",
     "junit-report-builder": "1.2.0"
