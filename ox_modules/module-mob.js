@@ -170,6 +170,14 @@ module.exports = function (options, context, rs, logger) {
             }
             return;
         }
+
+        // FIXME: this needs to be re-implimented!!!
+        // because when we run mixed web/mobile tests using a suite, ctx.cap will contain browserName
+        // we need to remove it in case a native app was specified.
+        if (caps.appPackage && ctx.caps.browserName) {
+            delete ctx.caps.browserName;
+        }
+
         // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities in context and in init function arguments, give preference to context-passed capabilities
         _this.caps = {};
