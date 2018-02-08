@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.26.0 (2018-02-08)
+* Add `mob.enableNetwork`.
+* Fix `mob.swipe` and `mob.dragAndDrop` docs.
+* Bump dependencies.
+
 ## v0.25.0 (2018-01-21)
 * Remove '-m' switch.
 * Add support for accessibility id locators on Android.
