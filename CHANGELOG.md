@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.26.1 (2018-02-14)
+* Fix parameters reading.
+
 ## v0.26.0 (2018-02-08)
 * Add `mob.enableNetwork`.
 * Fix `mob.swipe` and `mob.dragAndDrop` docs.
