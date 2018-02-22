@@ -174,7 +174,7 @@ module.exports = function (options, context, rs, logger) {
         // FIXME: this needs to be re-implimented!!!
         // because when we run mixed web/mobile tests using a suite, ctx.cap will contain browserName
         // we need to remove it in case a native app was specified.
-        if (caps.appPackage && ctx.caps.browserName) {
+        if (caps && caps.appPackage && ctx.caps.browserName) {
             delete ctx.caps.browserName;
         }
 
