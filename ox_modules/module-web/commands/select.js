@@ -22,7 +22,7 @@
  */
 module.exports = function(selectLocator, optionLocator) {
     var wdloc = this.helpers.getWdioLocator(selectLocator); 
-    this.waitForVisible(selectLocator);
+    this.waitForElementPresent(selectLocator);
 
     if (optionLocator.indexOf('value=') === 0) {
         this.driver.selectByValue(wdloc, optionLocator.substring('value='.length));
