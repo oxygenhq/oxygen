@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.27.0 (2018-02-27)
+* Add `mob.clickLong`.
+* Don't check for element visibility in `web.select`.
+
 ## v0.26.1 (2018-02-14)
 * Fix parameters reading.
 
