@@ -67,6 +67,7 @@ module.exports = function (options, context, rs, logger) {
     this.driver = null;
     this.helpers = {};
     this.logger = logger;
+    this.caps = null; 
     this.waitForTimeout = 60 * 1000;            // default 60s wait timeout
 
     // module's constructor scoped variables
@@ -194,7 +195,7 @@ module.exports = function (options, context, rs, logger) {
      * @return {Object} capabilities - Current capabilities object.
      */
     module.getCaps = function() {
-        return ctx.caps;
+        return _this.caps;
     };
 
     /**
@@ -209,21 +210,7 @@ module.exports = function (options, context, rs, logger) {
             return;
         }
 
-        // populate caps from options
-        // FIXME: modules should receive already populated caps?
-        if (!ctx.caps.browserName) {
-            ctx.caps.browserName = opts.browserName;
-        }
-
-        // webdriver expects lower case names
-        ctx.caps.browserName = ctx.caps.browserName.toLowerCase();
-        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
-        if (ctx.caps.browserName === 'ie') {
-            ctx.caps.browserName = 'internet explorer';
-        }
-        
-        if (!caps) {
-            caps = ctx.caps;
+        if (!seleniumUrl) {
             seleniumUrl = opts.seleniumUrl;
         }
 
@@ -242,17 +229,27 @@ module.exports = function (options, context, rs, logger) {
         }
 
         // take capabilities either from init method argument or from context parameters passed in the constructor
-        // and merge if both are defined
-        // write back merged caps to the context (used later in the reporter)
-        var capsMerged = {};
+        // merge capabilities from context and from init function argument, give preference to context-passed capabilities
+        _this.caps = {};
         if (ctx.caps) {
-            _.extend(capsMerged, ctx.caps);
+            _.extend(_this.caps, ctx.caps);
         }
         if (caps) {
-            _.extend(capsMerged, caps);
+            _.extend(_this.caps, caps);
         }
-        ctx.caps = capsMerged;  
 
+        // populate browserName caps from options. FIXME: why is this even needed?
+        if (!_this.caps.browserName) {
+            _this.caps.browserName = opts.browserName;
+        }
+
+        // webdriver expects lower case names
+        _this.caps.browserName = _this.caps.browserName.toLowerCase();
+        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
+        if (_this.caps.browserName === 'ie') {
+            _this.caps.browserName = 'internet explorer';
+        }
+        
         // populate WDIO options
         var URL = require('url');
         var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
@@ -266,7 +263,7 @@ module.exports = function (options, context, rs, logger) {
             host: host,
             port: port,
             path: path,
-            desiredCapabilities: capsMerged
+            desiredCapabilities: _this.caps
         };
         
         // initialize driver with either default or custom appium/selenium grid address
