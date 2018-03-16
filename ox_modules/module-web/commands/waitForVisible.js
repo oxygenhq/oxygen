@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,13 @@ module.exports = function(locator, timeout) {
         this.driver.waitForVisible(wdloc, (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
         if (e.type === 'WaitUntilTimeoutError') {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+            // check if the element exists and if doesn't then thow NO_SUCH_ELEMENT instead
+            // since ELEMENT_NOT_VISIBLE is slightly confusing if element doesn't actually exist 
+            if (!this.driver.isExisting(wdloc)) {
+                throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+            } else {
+                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+            }
         }
         throw e;
     }
