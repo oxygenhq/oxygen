@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.28.0 (2018-03-16)
+* Add --delay switch for delaying command execution.
+* Add `web.waitForNotExist`.
+* Throw NO_SUCH_ELEMENT from `web.waitForVisible` if element doesn't exist.
+* Deprecate `web.waitForElementPresent`.
+* Throw LOCATOR_MATCHES_MULTIPLE_ELEMENTS from `web.gettAttribute` and `web.getText` if the locator matches multiple elements.
+* Add `mob.selectFrame`.
+* Fix context and init method capabilities merging.
+* Bump dependencies.
+
 ## v0.27.0 (2018-02-27)
 * Add `mob.clickLong`.
 * Don't check for element visibility in `web.select`.
