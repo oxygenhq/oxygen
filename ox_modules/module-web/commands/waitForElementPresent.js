@@ -15,7 +15,7 @@
  * @deprecated Use waitForExist instead.
  */
 module.exports = function(locator, timeout) {
-    console.warn('waitForElementPresent is deprecated. Use waitForExist instead.');
+    console.warn('waitForElementPresent is deprecated and will be removed in the future. Use waitForExist instead.');
     var wdloc = this.helpers.getWdioLocator(locator);
     this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout));
 };
