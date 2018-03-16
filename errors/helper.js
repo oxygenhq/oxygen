@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,7 +13,6 @@
 
 var OxError = require('../errors/OxygenError');
 
-// NOTE: these should match any codes defined at the .net backend
 const ERROR_CODES = {
     SCRIPT_ERROR: 'SCRIPT_ERROR',
     UNKNOWN_ERROR: 'UNKNOWN_ERROR',
@@ -24,6 +23,7 @@ const ERROR_CODES = {
     UNKNOWN_COMMAND: 'UNKNOWN_COMMAND',
     STALE_ELEMENT_REFERENCE: 'STALE_ELEMENT_REFERENCE',
     ELEMENT_NOT_VISIBLE: 'ELEMENT_NOT_VISIBLE',
+    LOCATOR_MATCHES_MULTIPLE_ELEMENTS: 'LOCATOR_MATCHES_MULTIPLE_ELEMENTS',
     BROWSER_JS_EXECUTE_ERROR: 'BROWSER_JS_EXECUTE_ERROR',
     TIMEOUT: 'TIMEOUT',
     NO_SUCH_WINDOW: 'NO_SUCH_WINDOW',

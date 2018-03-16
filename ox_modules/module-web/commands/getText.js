@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,5 +16,9 @@
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator); 
     this.waitForVisible(locator);
-    return this.driver.getText(wdloc).trim().replace(/\s+/g, ' ');
+    var ret = this.driver.getText(wdloc);
+    if (ret.constructor === Array) {
+        throw new this.OxError(this.errHelper.errorCode.LOCATOR_MATCHES_MULTIPLE_ELEMENTS);
+    }
+    return ret.trim().replace(/\s+/g, ' ');
 };
