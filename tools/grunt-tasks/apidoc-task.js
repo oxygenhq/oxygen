@@ -43,6 +43,8 @@ var SIGNATURE_WEB = '<div class="web" title="Web applications on Android/iOS"></
 
 var DESCRIPTION = '<div class="description">{0}</div>';
 
+var DEPRECATED = '<div class="deprecated">{0}</div><br/>';
+
 var PARAMS = '<h5>Parameters:</h5>' +
              '<table class="params">' +
              '<thead>'+
@@ -66,7 +68,7 @@ var OPTIONAL = '<span class="optional">optional</span>';
 var RETURNS = '<h5>Returns:</h5>' +
                 '<div class="param-desc"><span class="param-type">{0}</span> - {1}</div>';
   
-var LINK = '<a href="#{0}">{0}</a><br />';
+var LINK = '<a href="#{0}" class={1}>{0}</a><br />';
 
 var EXAMPLE = '<div markdown="1">' +
               '<br/><span class="example-caption">{0}</span>' +
@@ -224,6 +226,16 @@ module.exports = function(grunt) {
                             }
                         }
                     };
+                    commentParsed.getDeprecated = function() {
+                        for (var tag of this.tags)
+                        {
+                            if (tag.title === 'deprecated') {
+                                return 'This command is deprecated and will be removed in the future. ' + tag.description;
+                            }
+                        }
+                    };
+
+
                     comments.push(commentParsed);
                 }
                 return { description: description.replace(/(\r\n|\n)/gm,''), methods: comments };
@@ -254,7 +266,7 @@ module.exports = function(grunt) {
             // index links
             var methodsUnsorted = [];
             for (var method of module.methods) {
-                methodsUnsorted.push(method.getMethod());
+                methodsUnsorted.push(method);
             }
             
             var links1 = '';
@@ -262,13 +274,24 @@ module.exports = function(grunt) {
             var links3 = '';
             var i = 0;
             var colSize = methodsUnsorted.length/3;
-            for (var method of methodsUnsorted.sort()) {   
+
+            var methodsSorted = methodsUnsorted.sort(function(a, b) {
+                if (a.getMethod() < b.getMethod()) {
+                    return -1;
+                }
+                if (a.getMethod() > b.getMethod()) {
+                    return 1;
+                }
+                return 0;
+            });
+
+            for (var method of methodsSorted) {
                 if (i < colSize) {
-                    links1 += LINK.format(method);
+                    links1 += LINK.format(method.getMethod(), method.getDeprecated() === undefined ? '' : 'deprecated');
                 } else if (i >= colSize && i < colSize*2) {
-                    links2 += LINK.format(method);
+                    links2 += LINK.format(method.getMethod(), method.getDeprecated() === undefined ? '' : 'deprecated');
                 } else {
-                    links3 += LINK.format(method);
+                    links3 += LINK.format(method.getMethod(), method.getDeprecated() === undefined ? '' : 'deprecated');
                 }
                 i++;
             }
@@ -320,8 +343,12 @@ module.exports = function(grunt) {
                       
                 var descHtml = DESCRIPTION.format(method.getSummary() + 
                                                   (methodDesc !== undefined ? '<br/><br/>' + methodDesc : ''));
-                fs.appendFileSync(outFile, sigHtml + descHtml);
-                
+
+                var depricated = method.getDeprecated();
+                var deprecatedHtml = depricated !== undefined ? DEPRECATED.format(method.getDeprecated()) : '';
+
+                fs.appendFileSync(outFile, sigHtml + deprecatedHtml + descHtml);
+
                 // example
                 var example = method.getExample();
                 if (example !== undefined) {
