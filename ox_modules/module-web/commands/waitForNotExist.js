@@ -18,7 +18,6 @@ module.exports = function(locator, timeout) {
     try {
         this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout), true);
     } catch (e) {
-        console.log(JSON.stringify(e, null, 2));
         if (e.type === 'WaitUntilTimeoutError') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STILL_EXISTS);
         }
