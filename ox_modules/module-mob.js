@@ -158,17 +158,16 @@ module.exports = function (options, context, rs, logger) {
      * @param {Number=} port - Appium server port (default: 4723). If full URL is specified in the host parameter, port parameter must not be specified.
      */
     module.init = function(caps, host, port) {
-        // ignore init if the module has been already initialized
-        // this is required when test suite with multiple test cases is executed
-        // then .init() might be called in each test case, but actually they all need to use the same Appium session
+        // if reopenSession is true - reinitilize the module
         if (_this.isInitialized) {
-            if (opts.autoReopen !== false) { // true or false if explisitly set. true on null or undefined.
-                _this.driver.reload();
+            if (opts.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
+                logger.debug('reopenSession is true - disposing mob module before re-initialization.');
+                module.dispose();
+                _this.isInitialized = false;
+            } else {
+                logger.debug('mob.init() was called for already initialized module. reopenSession is false so the call is ignored.');
+                return;
             }
-            else {
-                logger.debug('init() was called for already initialized module. autoReopen=false so the call is ignored.');
-            }
-            return;
         }
 
         // take capabilities either from init method argument or from context parameters passed in the constructor
