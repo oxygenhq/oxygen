@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,7 +9,6 @@
  
 /**
  * @summary Sets the size of the outer browser window.
- * @description To maximize the window set both width and height to 0.
  * @function setWindowSize
  * @param {Integer} width - Width in pixels.
  * @param {Integer} height - Height in pixels.
@@ -20,5 +19,5 @@ module.exports = function(width, height) {
     this.driver.setViewportSize({
         width: width,
         height: height
-    });
+    }, false);
 };
