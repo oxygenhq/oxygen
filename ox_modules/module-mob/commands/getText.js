@@ -15,12 +15,12 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator) {
-    this._helpers._assertLocator(locator);
+    this.helpers._assertLocator(locator);
     // when locator is an element object
     if (typeof locator === 'object' && locator.click) {
         return locator.getText();
     }
     // when locator is string
-    locator = this._helpers.getWdioLocator(locator);
+    locator = this.helpers.getWdioLocator(locator);
     return this.driver.getText(locator);
 };
