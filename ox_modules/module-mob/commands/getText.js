@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,6 +11,7 @@
  * @summary Gets element's text.
  * @function getText
  * @param {String} locator - Element locator.
+ * @return {String} - Element's text.
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator) {
