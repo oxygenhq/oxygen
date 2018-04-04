@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * @function hideKeyboard
  * @param {String=} strategy - Strategy to use for closing the keyboard - <code>tapOutside</code> or <code>pressDone</code>.
  *                             Default is tapOutside.
- * @for android, ios, hybrid, web
+ * @for android, hybrid, web
  */
 module.exports = function(strategy) {
     if (strategy && strategy === 'pressDone') {
