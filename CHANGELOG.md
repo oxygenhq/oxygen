@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.29.0 (2018-04-22)
+* Add `mob.getValue`.
+* Fix `mob.getText`.
+* Allow to use `require` with global modules inside test scripts.
+* Use window size instead of viewport in `web.setWindowSize`
+* Add `customStep` method.
+* Add support for `continueOnError` option.
+* Fix `mob` module re-initialization when `reopenSession` is specified. 
+
 ## v0.28.0 (2018-03-16)
 * Add --delay switch for delaying command execution.
 * Add `web.waitForNotExist`.
