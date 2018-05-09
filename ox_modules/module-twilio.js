@@ -32,7 +32,9 @@ module.exports = function(argv, context, rs) {
         
         while (!msg && ((new Date()).getTime() - now) < timeout) {
             _client.messages.each(messages => {
-                msg = messages;
+                if (messages.direction == 'inbound') {
+                    msg = messages;
+                }
             });
             deasync.sleep(500);
         }
