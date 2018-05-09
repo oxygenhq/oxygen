@@ -33,8 +33,12 @@ module.exports = function(argv, context, rs) {
         while (!msg && ((new Date()).getTime() - now) < timeout) {
             _client.messages.each(messages => {
                 if (messages.direction == 'inbound') {
-                    msg = messages;
-                }
+                    if (msg && Date.parse(msg.dateCreated) < Date.parse(messages.dateCreated)) {
+                        msg = messages;
+                    } else if (!msg) {
+                        msg = messages;
+                    }
+                }    
             });
             deasync.sleep(500);
         }
