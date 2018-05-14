@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.30.0 (2018-05-15)
+* Add support for referencing global node modules with `require`.
+* Add `require.allow` option to control if `require` usage is allowed within the script.
+* Add `opt.autoReport` flag to test script - allow to turn on/off auto-reporting steps.
+* Add preliminary implementation of `twilio` module.
+* Add preliminary implementation of `email` module.
+
 ## v0.29.0 (2018-04-22)
 * Add `mob.getValue`.
 * Fix `mob.getText`.
