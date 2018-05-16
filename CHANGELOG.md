@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.31.0 (2018-05-16)
+* Add `web.getUrl` command.
+* Change `web.assertText` and `web.assertValue` commands behavior to pass text or value assertions of hidden elements.
+
 ## v0.30.2 (2018-05-16)
 * Revised handling of 'require' calls from Oxygen script.
 
