@@ -18,7 +18,7 @@
  */
 module.exports = function(locator, pattern, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator, timeout);
+    this.waitForExist(locator, timeout);
 
     // FIXME: driver.element should throw if element not found, but it doesn't. possibly wdio-sync related
     // thus we will crash down the road with non descriptive error...
