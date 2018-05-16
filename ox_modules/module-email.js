@@ -44,8 +44,10 @@ module.exports = function(argv, context, rs) {
     module.getLastEmail = function(sinceMinutes, subject, timeout) {
         var mail;
         var now = (new Date()).getTime();
+        var err;
         
-        while (!mail && ((new Date()).getTime() - now) < timeout) {
+        while (!err && !mail && ((new Date()).getTime() - now) < timeout) {
+            var done = false;
             imaps.connect(_config).then(function (connection) {
                 return connection.openBox('INBOX').then(function () {
                     // fetch unseen emails from the last sinceMinutes
@@ -62,7 +64,7 @@ module.exports = function(argv, context, rs) {
 
                     return connection.search(searchCriteria, fetchOptions).then(function (results) {
                         for (var result of results) {
-                            if (subject instanceof RegExp) {
+                            if (subject.constructor.name === 'RegExp') {
                                 if (subject.test(result.parts[0].body.subject[0])) {
                                     mail = {
                                         from: result.parts[0].body.from[0],
@@ -86,14 +88,20 @@ module.exports = function(argv, context, rs) {
                                 }
                             }
                         }
+                        done = true;
                     });
                 });
+            }).catch(function (e) {
+                err = e;
             });
 
+            deasync.loopWhile(() => !done && !err);
             deasync.sleep(500);
         }
 
-        if (!mail) {
+        if (err) {
+            throw new OxError(errHelper.errorCode.EMAIL_ERROR, err.toString());
+        } else if (!mail) {
             throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get an email within " + timeout + 'ms.');
         }
 
