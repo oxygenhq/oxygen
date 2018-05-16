@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.30.1 (2018-05-16)
+* Various `twilio` module fixes.
+* Various `email` module fixes.
+
 ## v0.30.0 (2018-05-15)
 * Add support for referencing global node modules with `require`.
 * Add `require.allow` option to control if `require` usage is allowed within the script.
