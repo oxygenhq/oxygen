@@ -10,6 +10,10 @@
 /**
  * Provides methods for working with Twilio service.
  */
+
+const OxError = require('../errors/OxygenError');
+var errHelper = require('../errors/helper');
+
 module.exports = function(argv, context, rs) {
     var deasync = require('deasync');
 
@@ -24,7 +28,7 @@ module.exports = function(argv, context, rs) {
      * @function getLastSms
      * @param {Boolean} removeOnRead - Specifies whether to delete the message after reading it.
      * @param {String} timeout - Timeout for waiting for the message to arrive.
-     * @return {String} SMS body.
+     * @return {String} SMS text.
      */
     module.getLastSms = function(removeOnRead, timeout) {
         var msg;
@@ -38,13 +42,14 @@ module.exports = function(argv, context, rs) {
                     } else if (!msg) {
                         msg = messages;
                     }
-                }    
+                }
             });
+            deasync.loopWhile(() => !msg && ((new Date()).getTime() - now) < timeout);
             deasync.sleep(500);
         }
 
         if (!msg) {
-            return null;
+            throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get the SMS within " + timeout + 'ms.');
         }
 
         var removed;
