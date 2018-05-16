@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.30.2 (2018-05-16)
+* Revised handling of 'require' calls from Oxygen script.
+
 ## v0.30.1 (2018-05-16)
 * Various `twilio` module fixes.
 * Various `email` module fixes.
