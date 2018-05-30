@@ -73,7 +73,6 @@ module.exports = function(argv, context, rs) {
                                         date: result.parts[0].body.date[0],
                                         body: result.parts[1].body
                                     };
-                                    break;
                                 }
                             } else {
                                 if (subject === result.parts[0].body.subject[0]) {
@@ -84,7 +83,6 @@ module.exports = function(argv, context, rs) {
                                         date: result.parts[0].body.date[0],
                                         body: result.parts[1].body
                                     };
-                                    break;
                                 }
                             }
                         }
