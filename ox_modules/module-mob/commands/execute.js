@@ -16,5 +16,5 @@
  */
 module.exports = function(js) {
     var args = Array.prototype.splice.call(arguments, 0);
-    return this.driver.execute.apply(null, args);
+    return this.driver.execute.apply(js, args);
 };
