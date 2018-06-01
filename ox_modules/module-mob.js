@@ -146,7 +146,7 @@ module.exports = function (options, context, rs, logger) {
      * @for android, ios, hybrid, web
      */
     module.getCaps = function() {
-        return _this.caps;
+        return _this.caps || ctx.caps;
     };
 
     /**
