@@ -13,11 +13,11 @@
  * @param {String=} locator - Locator of the element to swipe on.
  * @param {Number} xoffset - Horizontal offset.
  * @param {Number} yoffset - Vertical offset. Negative value indicates swipe up and positive indicates swipe down direction.
- * @param {Number=} speed - The speed of swiping in pixels per second. Default is 1.
+ * @param {Number=} speed - The speed of swiping in pixels per second. Default is 30.
  * @for android, ios
 */
 module.exports = function(locator, xoffset, yoffset, speed) {
-    speed = typeof speed === 'number' ? speed : 1;
+    speed = typeof speed === 'number' ? speed : 30;
     if (arguments.length === 2 && typeof locator === 'number' && typeof xoffset === 'number') {
         xoffset = locator;
         yoffset = xoffset;
