@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.31.1 (2018-06-01)
+* Fix `mob.getCaps` for suites.
+* Bump default swipe speed for `mob.swipe` to 30.
+* Fix `mob.execute`.
+* Fix `email` module to read last email instead of the first.
+* Bump dependencies.
+
 ## v0.31.0 (2018-05-16)
 * Add `web.getUrl` command.
 * Change `web.assertText` and `web.assertValue` commands behavior to pass text or value assertions of hidden elements.
