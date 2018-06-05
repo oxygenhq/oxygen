@@ -12,7 +12,7 @@
  * @function swipe
  * @param {String=} locator - Locator of the element to swipe on.
  * @param {Number} xoffset - Horizontal offset.
- * @param {Number} yoffset - Vertical offset. Negative value indicates swipe up and positive indicates swipe down direction.
+ * @param {Number} yoffset - Vertical offset. Negative value indicates swipe down and positive indicates swipe up direction.
  * @param {Number=} speed - The speed of swiping in pixels per second. Default is 30.
  * @for android, ios
 */
