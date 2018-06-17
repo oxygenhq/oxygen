@@ -15,7 +15,17 @@
  * @param {String} locator - An element locator.
  */
 module.exports = function(locator) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator);
-    return this.driver.click(wdloc);
+    try {
+        this.waitForVisible(locator);
+        // when locator is an element object
+        if (typeof locator === 'object' && locator.click) {
+            return locator.click();
+        }
+        // when locator is string
+        locator = this.helpers.getWdioLocator(locator);
+        return this.driver.click(locator);
+    }
+    catch (e) {
+        this.clickHidden(locator);
+    }
 };
