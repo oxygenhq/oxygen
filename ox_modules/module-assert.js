@@ -24,10 +24,18 @@ module.exports = function() {
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.equal = function(actual, expected, message) {
-        if (expected.indexOf('regex:') === 0) {
+        if (expected && typeof expected === 'string' && expected.indexOf('regex:') === 0) {
             var regex = new RegExp(expected.substring('regex:'.length));
             chai.assert.match(actual, regex, message);
         } else {
+            // check if both values are string that can be converted to number
+            // if yes, convert them to number first and then compare
+            if (typeof actual === 'string' && !isNaN(actual)) {
+                actual = parseInt(actual);
+            }
+            if (typeof expected === 'string' && !isNaN(expected)) {
+                expected = parseInt(expected);
+            }
             chai.assert.equal(actual, expected, message);
         }
     };
