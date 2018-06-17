@@ -9,7 +9,7 @@
 
 /**
  * @summary Performs tap on an element multiple times in quick succession.
- * @function clickManyTimes
+ * @function clickMultipleTimes
  * @param {String} locator - Element locator.
  * @param {Integer} taps - Number of taps.
  * @for android, ios, hybrid, web
