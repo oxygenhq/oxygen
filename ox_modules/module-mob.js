@@ -28,6 +28,7 @@
  *  <ul>
  *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
  *  <li><code>id=ID</code> - Locates element by its ID.</li>
+ *  <li><code>~ACCESSIBILITY_ID</code> - Locates element by its Accessibility Id.</li>
  *  </ul>
  * </div>
  * <div id="locators-hybrid-web">
