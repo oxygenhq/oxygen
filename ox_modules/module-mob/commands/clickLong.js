@@ -27,11 +27,20 @@ module.exports = function(locator, duration) {
         }
     }
 
-    this.driver.touchPerform([{
-        action: 'longPress',
+    this.driver.touchPerform([
+    {
+        action: 'press',
         options: {
-            element: el.value.ELEMENT,
-            duration: duration
+            element: el.value.ELEMENT
         }
+    },
+    {
+        action: 'wait',
+        options: {
+            ms: duration
+        }
+    },
+    {
+        action: 'release'
     }]);
 };
