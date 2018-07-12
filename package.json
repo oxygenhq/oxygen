@@ -36,7 +36,7 @@
   "dependencies": {
     "async": "2.6.1",
     "chai": "4.1.2",
-    "chrome-remote-interface": "0.25.6",
+    "chrome-remote-interface": "0.26.0",
     "config": "1.30.0",
     "csv-load-sync": "1.0.0",
     "deasync": "0.1.13",
