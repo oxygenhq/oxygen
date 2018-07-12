@@ -12,5 +12,8 @@
         "semi": ["error", "always"],
         "semi-spacing": ["error", {"before": false, "after": true}],
         "no-unused-vars": ["error", {"args": "none"}]
+    },
+    "parserOptions": {
+        "ecmaVersion": 2017
     }
 }
