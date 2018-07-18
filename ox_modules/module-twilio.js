@@ -35,17 +35,22 @@ module.exports = function(argv, context, rs) {
         var now = (new Date()).getTime();
         
         while (!msg && ((new Date()).getTime() - now) < timeout) {
-            _client.messages.each(messages => {
-                if (messages.direction == 'inbound') {
-                    if (msg && Date.parse(msg.dateCreated) < Date.parse(messages.dateCreated)) {
-                        msg = messages;
-                    } else if (!msg) {
-                        msg = messages;
+            var msgsProcessed = false;
+            _client.messages.list(function(err, messages) {
+                var _msg;
+                for (_msg of messages) {
+                    if (_msg.direction == 'inbound') {
+                        if (msg && Date.parse(msg.dateCreated) < Date.parse(_msg.dateCreated)) {
+                            msg = _msg;
+                        } else if (!msg) {
+                            msg = _msg;
+                        }
                     }
                 }
+                msgsProcessed = true;
             });
-            deasync.loopWhile(() => !msg && ((new Date()).getTime() - now) < timeout);
-            deasync.sleep(500);
+            deasync.loopWhile(() => !msgsProcessed);
+            deasync.sleep(800);
         }
 
         if (!msg) {
