@@ -129,5 +129,27 @@ module.exports = function(argv, context, rs) {
         }
     };
 
+    /**
+     * @summary Returns response headers 
+     * @function getResponseHeaders
+     * @param {String} url - URL.
+     * @return {Object} Response headers.
+     */
+    module.getResponseHeaders = function(url) {
+        var result = null;
+
+        var options = {
+            url: url,
+            method: 'GET',
+            followRedirect: false,
+            timeout: _responseTimeout
+        };
+
+        request(options, (err, res, body) => { result = err || res; });
+        deasync.loopWhile(() => !result);
+
+        return result.headers;
+    };
+
     return module;
 };
