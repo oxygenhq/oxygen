@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,9 +12,10 @@
  * @description If return value is null or there is no return value, <code>null</code> is returned.
  * @function executeScript
  * @param {String} script - The JavaScript to execute.
+ * @param {...Object} arg - Optional script arguments.
  * @return {Object} The return value.
  */
 module.exports = function(script) {
-    this.helpers.assertArgumentNonEmptyString(script);
-    return this.driver.execute(script).value;
+    var args = Array.prototype.splice.call(arguments, 0);
+    return this.driver.execute.apply(script, args);
 };
