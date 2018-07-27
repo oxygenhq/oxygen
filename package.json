@@ -63,8 +63,7 @@
     "odbc": "1.4.2"
   },
   "scripts": {
-    "prepublish": "grunt eslint",
-    "winpublish": "grunt dos2unix && npm publish",
+    "prepublishOnly": "grunt eslint && grunt dos2unix",
     "postpublish": "grunt unix2dos"
   }
 }
