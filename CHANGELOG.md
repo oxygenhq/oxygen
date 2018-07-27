@@ -1,5 +1,19 @@
 # CHANGELOG
 
+## v0.32.0 (2018-xx-xx)
+* Fix `web.isAlertPresent`.
+* Add `mob.clickMultipleTimes`.
+* Fix int handling in `assert.equal`
+* Perform Javascript injection click if regular click fails in `web.click`
+* Reimplemented `mob.clickLong` using a different method to support iOS 11.4.
+* Fix bug with skipping second record in CSV file.
+* Add `http.getResponseHeaders`.
+* Fix hang in `twilio.getLastSms`.
+* Add support for script arguments in `web.executeScript`.
+* Improve logging.
+* Drop `verify` module.
+* Bump dependencies.
+
 ## v0.31.1 (2018-06-01)
 * Fix `mob.getCaps` for suites.
 * Bump default swipe speed for `mob.swipe` to 30.
