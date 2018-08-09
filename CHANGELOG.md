@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.32.0 (2018-xx-xx)
+## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
 * Add `mob.clickMultipleTimes`.
 * Fix int handling in `assert.equal`
