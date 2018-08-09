@@ -181,10 +181,9 @@ module.exports = function (options, context, rs, logger) {
         if (caps) {
             _.extend(_this.caps, caps);
         }
-
         // populate WDIO options
         var wdioOpts = {
-            host: host || opts.host || DEFAULT_APPIUM_HOST,
+            host: host || opts.host || opts.seleniumUrl || DEFAULT_APPIUM_HOST,
             port: port || opts.port || DEFAULT_APPIUM_PORT,
             desiredCapabilities: _this.caps
         };
@@ -206,8 +205,13 @@ module.exports = function (options, context, rs, logger) {
             _this.driver.init();
         } catch (err) {
             // make webdriverio's generic 'selenium' message more descriptive
-            if (err.type === 'RuntimeError' && err.message === "Couldn't connect to selenium server") {
-                throw new this.OxError(this.errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't connect to appium server");
+            if (err.type === 'RuntimeError') {
+                if (err.message === "Couldn't connect to selenium server") {
+                    throw new this.OxError(this.errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't connect to appium server");
+                }
+                else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
+                    throw new this.OxError(this.errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't resolve appium server address");
+                }
             }
             throw err;
         }
