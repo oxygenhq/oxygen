@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,10 @@
  *                  string matching patterns</a>.
  *              </li>
  *              <li><code>windowHandle</code> - Switch to a window using its unique handle.</li>
+ *              <li><code>unspecified</code> - Switch to the last opened window.</li>
  *              </ul>
  * @function selectWindow
- * @param {String=} windowLocator - Window locator. If not specified last opened window will be switched to.
+ * @param {String=} windowLocator - Window locator.
  * @return {String} windowHandle of the previously selected window.
  */
 module.exports = function(windowLocator) {
@@ -34,9 +35,8 @@ module.exports = function(windowLocator) {
         currentHandle = this.driver.windowHandle().value;
     }
 
-    // TODO: remove empty string windowLocator and just leave undefined
     var windowHandles;
-    if (!windowLocator || windowLocator === '') {
+    if (!windowLocator) {
         windowHandles = this.driver.windowHandles().value;
         this.driver.window(windowHandles[windowHandles.length - 1]);
     } else if (windowLocator.indexOf('title=') === 0) {
