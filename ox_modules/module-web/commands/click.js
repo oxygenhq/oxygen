@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,7 +16,9 @@
  */
 module.exports = function(locator) {
     try {
-        this.waitForVisible(locator);
+        if (this.autoWait) {
+            this.waitForVisible(locator);
+        }
         // when locator is an element object
         if (typeof locator === 'object' && locator.click) {
             return locator.click();

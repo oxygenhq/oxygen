@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,10 @@
  * @param {String} optionLocator - An option locator.
  */
 module.exports = function(selectLocator, optionLocator) {
-    var wdloc = this.helpers.getWdioLocator(selectLocator); 
-    this.waitForElementPresent(selectLocator);
+    var wdloc = this.helpers.getWdioLocator(selectLocator);
+    if (this.autoWait) {
+        this.waitForElementPresent(selectLocator);
+    }
 
     if (optionLocator.indexOf('value=') === 0) {
         this.driver.selectByValue(wdloc, optionLocator.substring('value='.length));

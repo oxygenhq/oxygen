@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@
  * web.type('id=someElement', 'hello world\uE007');
  */
 module.exports = function(locator, value) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator);
-
+    var wdloc = this.helpers.getWdioLocator(locator);
+    if (this.autoWait) {
+        this.waitForVisible(locator);
+    }
     // FIXME: driver.element should throw if element not found, but it doesn't. possibly wdio-sync related
     // thus we will crash down the road with non descriptive error...
     // the above waitForVisible helps with this since it does throw, however there can be situations

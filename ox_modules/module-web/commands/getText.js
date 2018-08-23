@@ -14,8 +14,10 @@
  * @return {String} The element's text.
  */
 module.exports = function(locator) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator);
+    var wdloc = this.helpers.getWdioLocator(locator);
+    if (this.autoWait) {
+        this.waitForVisible(locator);
+    }
     var ret = this.driver.getText(wdloc);
     if (ret.constructor === Array) {
         throw new this.OxError(this.errHelper.errorCode.LOCATOR_MATCHES_MULTIPLE_ELEMENTS);

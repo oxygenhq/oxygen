@@ -15,8 +15,10 @@
  * @return {String} The attribute's value.
  */
 module.exports = function(locator, attribute) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator);
+    var wdloc = this.helpers.getWdioLocator(locator);
+    if (this.autoWait) {
+        this.waitForVisible(locator);
+    }
     var ret = this.driver.getAttribute(wdloc, attribute);
     if (ret.constructor === Array) {
         throw new this.OxError(this.errHelper.errorCode.LOCATOR_MATCHES_MULTIPLE_ELEMENTS);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,7 +13,9 @@
  * @param {String} locator - An element locator.
  */
 module.exports = function(locator) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator);
-    return this.driver.doubleClick(wdloc);
+    var wdloc = this.helpers.getWdioLocator(locator);
+    if (this.autoWait) {
+        this.waitForVisible(locator);
+    }
+    this.driver.doubleClick(wdloc);
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,7 +17,9 @@
  */
 module.exports = function(locator, yoffset) {
     // FIXME: support for xoffset is missing due to legacy compatibility.
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.waitForVisible(locator);
+    var wdloc = this.helpers.getWdioLocator(locator);
+    if (this.autoWait) {
+        this.waitForVisible(locator);
+    }
     return this.driver.scroll(wdloc, 0, yoffset ? yoffset : 0);
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,8 +21,10 @@
  */
 module.exports = function(selectLocator, optionLocator) {
     // FIXME: this method is identical to select and should be removed in the future.
-    var wdloc = this.helpers.getWdioLocator(selectLocator); 
-    this.waitForVisible(selectLocator);
+    var wdloc = this.helpers.getWdioLocator(selectLocator);
+    if (this.autoWait) {
+        this.waitForVisible(selectLocator);
+    }
 
     if (optionLocator.indexOf('value=') === 0) {
         this.driver.selectByValue(wdloc, optionLocator.substring('value='.length));
