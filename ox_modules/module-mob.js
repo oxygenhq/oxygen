@@ -80,7 +80,8 @@ module.exports = function (options, context, rs, logger) {
     this.appContext = 'NATIVE_APP';
     this.caps = null;                               // save driver capabilities for later use when error occures
     this.isInitialized = false;
-
+    this.autoWait = true;
+    
     // module's constructor scoped variables
     var ctx = context;
     var opts = options;
