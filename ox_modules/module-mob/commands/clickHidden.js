@@ -15,7 +15,7 @@
  * @for hybrid, web
 */
 module.exports = function(locator, clickParent) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     clickParent = typeof clickParent === 'boolean' ? clickParent : false;
     // click hidden function
     var func = function(elms, clickParent) {

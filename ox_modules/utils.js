@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,12 +31,6 @@ module.exports = {
         } else {                                                        // no prefix same as glob matching
             regex = globToRegex(pattern, { flags: 'ig' });
             return regex.test(val);
-        }
-    },
-
-    assertLocator: function(arg, name) {
-        if (!arg) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' not specified");
         }
     },
 
@@ -74,6 +68,5 @@ module.exports = {
         if (arg && (typeof(arg) !== 'number' || arg < 0)) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
         }
-    },
-
+    }
 };

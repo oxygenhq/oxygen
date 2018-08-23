@@ -22,7 +22,7 @@
  * @for android
  */
 module.exports = function(locator, cols, rows, pattern) {   
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     this.helpers._assertArgumentNumberNonNegative(cols);
     this.helpers._assertArgumentNumberNonNegative(rows);
     this.helpers._assertArgumentNonEmptyString(pattern);

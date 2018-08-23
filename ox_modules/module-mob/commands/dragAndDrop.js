@@ -16,7 +16,7 @@
  * @for android, ios
  */
 module.exports = function(locator, xoffset, yoffset) {   
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     this.helpers._assertArgumentNumber(xoffset);
     this.helpers._assertArgumentNumber(yoffset);
 

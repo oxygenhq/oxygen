@@ -15,7 +15,7 @@
  * @for android
  */
 module.exports = function(locator) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
 
     if (typeof locator === 'object' && locator.getAttribute) {
         return locator.getAttribute('checkable');

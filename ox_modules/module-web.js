@@ -448,13 +448,13 @@ module.exports = function (options, context, rs, logger) {
     };
 
     helpers.matchPattern = utils.matchPattern;
-    helpers.assertLocator = utils.assertLocator;
+    
     helpers.assertArgument = utils.assertArgument;
     helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
     helpers.assertArgumentNumber = utils.assertArgumentNumber;
     helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
     helpers.assertArgumentBool = utils.assertArgumentBool;
     helpers.assertArgumentTimeout = utils.assertArgumentTimeout;
-    
+
     return module;
 };

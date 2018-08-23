@@ -15,7 +15,7 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, duration) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     
     var el;
     if (typeof locator === 'object' && el.value) {  // when locator is an element object

@@ -19,7 +19,7 @@ const chai = require('chai');
 const assert = chai.assert;
 
 module.exports = function(locator, pattern, message) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
 
     var elm = null;
     // when locator is an element object

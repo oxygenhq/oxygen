@@ -17,7 +17,7 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, wait) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     wait = wait || this.DEFAULT_WAIT_TIMEOUT;
     
     try {

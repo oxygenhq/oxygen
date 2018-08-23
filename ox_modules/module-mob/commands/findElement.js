@@ -16,7 +16,7 @@
  * @for android, ios, hybrid, web
 */
 module.exports = function(locator, parent) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     locator = this.helpers.getWdioLocator(locator);
 
     var retval = null;

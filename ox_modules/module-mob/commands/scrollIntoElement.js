@@ -22,8 +22,8 @@ module.exports = function(scrollElmLocator, findElmLocator, xoffset, yoffset, re
     yoffset = yoffset || -30;
     retries = retries || 50;
 
-    this.helpers._assertLocator(scrollElmLocator);
-    this.helpers._assertLocator(findElmLocator);
+    this.helpers._assertArgument(scrollElmLocator);
+    this.helpers._assertArgument(findElmLocator);
     
     this.helpers._assertArgumentNumber(xoffset);
     this.helpers._assertArgumentNumber(yoffset);

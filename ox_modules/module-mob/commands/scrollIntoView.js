@@ -15,7 +15,7 @@
  * @for hybrid, web
 */
 module.exports = function(locator, alignToTop) {
-    this.helpers._assertLocator(locator);
+    this.helpers._assertArgument(locator);
     alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
     locator = this.helpers.getWdioLocator(locator);
 
