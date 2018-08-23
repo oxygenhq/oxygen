@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v0.33.0 (2018-xx-xx)
+* [Breaking change] Remove `web.waitForElementPresent`.
+* [Breaking change] Rename `web.isElementPresent` to `web.isExist`.
+* [Breaking change] Rename `web.isElementVisible` to `web.isVisible`.
+* [Breaking change] Rename `web.assertElementPresent` to `web.assertExist`.
+* [Breaking change] Rename `web.executeScript` to `web.execute`.
+* [Breaking change] Rename `web.getPageSource` to `web.getSource`.
+* [Breaking change] Rename `mob.waitForElement` to `mob.waitForExist`.
+* [Breaking change] Remove empty string locator from `web.selectWindow`.
+* [Breaking change] Add `mob.setAutoWait`.
+* Add `web.setAutoWait`.
+* Add X offset support in `web.scrollToElement`.
+* Improved error handling for situations when invalid arguments are passed to methods.
+* Fix documentation.
+
 ## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
 * Add `mob.clickMultipleTimes`.
