@@ -32,5 +32,41 @@ module.exports = {
             regex = globToRegex(pattern, { flags: 'ig' });
             return regex.test(val);
         }
+    },
+
+    assertLocator: function(locator) {
+        if (!locator) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        }
+    },
+
+    assertArgument: function(arg) {
+        if (arg === undefined) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
+        }
+    },
+
+    assertArgumentNonEmptyString: function(arg) {
+        if (!arg || typeof arg !== 'string') {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
+        }
+    },
+
+    assertArgumentNumber: function(arg) {
+        if (typeof(arg) !== 'number') {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
+        }
+    },
+
+    assertArgumentNumberNonNegative: function(arg) {
+        if (typeof(arg) !== 'number' || arg < 0) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
+        }
+    },
+
+    assertArgumentBool: function(arg) {
+        if (typeof(arg) != typeof(true)) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be true or false.');
+        }
     }
 };

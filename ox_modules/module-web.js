@@ -426,36 +426,6 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    helpers.assertLocator = function(locator) {
-        if (!locator) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
-        }
-    };
-
-    helpers.assertArgument = function(arg) {
-        if (arg === undefined) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
-        }
-    };
-
-    helpers.assertArgumentNonEmptyString = function(arg) {
-        if (!arg || typeof arg !== 'string') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
-        }
-    };
-
-    helpers.assertArgumentNumber = function(arg) {
-        if (typeof(arg) !== 'number') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
-        }
-    };
-
-    helpers.assertArgumentNumberNonNegative = function(arg) {
-        if (typeof(arg) !== 'number' || arg < 0) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
-        }
-    };
-
     helpers.getWdioLocator = function(locator) {
         if (!locator)
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
@@ -478,6 +448,11 @@ module.exports = function (options, context, rs, logger) {
     };
 
     helpers.matchPattern = utils.matchPattern;
+    helpers.assertLocator = utils.assertLocator;
+    helpers.assertArgument = utils.assertArgument;
+    helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
+    helpers.assertArgumentNumber = utils.assertArgumentNumber;
+    helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
 
     return module;
 };

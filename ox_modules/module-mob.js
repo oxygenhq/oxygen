@@ -65,6 +65,8 @@ module.exports = function (options, context, rs, logger) {
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
     var _ = require('lodash');
+    
+    var utils = require('./utils');
 
     var _this = module._this = this;
 
@@ -109,37 +111,12 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    // TODO: _assert* should be extracted into a separate helper later on
-    helpers._assertLocator = function(locator) {
-        if (!locator) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
-        }
-    };
-    helpers._assertArgument = function(arg) {
-        if (arg === undefined) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
-        }
-    };
-    helpers._assertArgumentNonEmptyString = function(arg) {
-        if (!arg || typeof arg !== 'string') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
-        }
-    };
-    helpers._assertArgumentNumber = function(arg) {
-        if (typeof(arg) !== 'number') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
-        }
-    };
-    helpers._assertArgumentNumberNonNegative = function(arg) {
-        if (typeof(arg) !== 'number' || arg < 0) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
-        }
-    };
-    helpers._assertArgumentBool = function(arg) {
-        if (typeof(arg) != typeof(true)) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be true or false.');
-        }
-    };
+    helpers._assertLocator = utils.assertLocator;
+    helpers._assertArgument = utils.assertArgument;
+    helpers._assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
+    helpers._assertArgumentNumber = utils.assertArgumentNumber;
+    helpers._assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
+    helpers._assertArgumentBool = utils.assertArgumentBool;
 
     /**
      * @function getCaps
