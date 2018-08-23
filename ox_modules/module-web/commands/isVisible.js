@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,7 +10,7 @@
 /**
  * @summary Checks if element is present and visible. Returns false if element was not found or
  *          wasn't visible within the specified timeout.
- * @function isElementVisible
+ * @function isVisible
  * @param {String} locator - An element locator.
  * @param {Integer=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found and it was visible. False otherwise.
