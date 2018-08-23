@@ -21,6 +21,9 @@ module.exports = function(locator) {
         return locator.getAttribute('selected') == 'true';
     }
 
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.getAttribute(locator, 'selected') == 'true';
 };

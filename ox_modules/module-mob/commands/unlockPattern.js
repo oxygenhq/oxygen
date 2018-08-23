@@ -27,6 +27,10 @@ module.exports = function(locator, cols, rows, pattern) {
     this.helpers._assertArgumentNumberNonNegative(rows, 'rows');
     this.helpers._assertArgumentNonEmptyString(pattern, 'pattern');
 
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
+
     var wdloc = this.helpers.getWdioLocator(locator);
     var el = this.driver.element(wdloc);
     if (!el.value) {

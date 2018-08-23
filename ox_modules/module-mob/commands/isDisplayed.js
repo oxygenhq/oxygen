@@ -21,7 +21,11 @@ module.exports = function(locator) {
     if (typeof locator === 'object' && locator.click) {
         return locator.isVisible();
     }
+
     // when locator is string
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.isVisible(locator);
 };

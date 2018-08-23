@@ -21,6 +21,9 @@ module.exports = function(locator) {
         return locator.getAttribute('checkable');
     }
 
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.getAttribute(locator, 'checkable') == 'true';
 };

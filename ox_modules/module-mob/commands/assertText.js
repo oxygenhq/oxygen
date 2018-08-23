@@ -27,6 +27,9 @@ module.exports = function(locator, pattern, message) {
     if (typeof locator === 'object' && locator.getText) {
         elm = locator;
     } else {
+        if (this.autoWait) {
+            this.waitForExist(locator);
+        }
         elm = this.findElement(locator);
     }
     

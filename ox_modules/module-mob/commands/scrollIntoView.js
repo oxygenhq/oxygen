@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,11 @@
 module.exports = function(locator, alignToTop) {
     this.helpers._assertArgument(locator);
     alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
+
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
+
     locator = this.helpers.getWdioLocator(locator);
 
     this.driver.selectorExecute(

@@ -19,12 +19,15 @@ const assert = chai.assert;
 
 module.exports = function(locator, pattern, message) {
     this.helpers._assertArgument(locator, 'locator');
-
+    
     var elm = null;
     // when locator is an element object
     if (typeof locator === 'object' && locator.getText) {
         elm = locator;
     } else {
+        if (this.autoWait) {
+            this.waitForExist(locator);
+        }
         elm = this.findElement(locator);
     }
     

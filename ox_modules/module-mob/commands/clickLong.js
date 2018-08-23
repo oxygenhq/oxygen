@@ -17,11 +17,14 @@
 module.exports = function(locator, duration) {
     this.helpers._assertArgument(locator, 'locator');
     this.helpers._assertArgumentNumberNonNegative(duration, 'duration');
-   
+
     var el;
     if (typeof locator === 'object' && el.value) {  // when locator is an element object
         el = locator;
     } else {
+        if (this.autoWait) {
+            this.waitForExist(locator);
+        }
         el = this.driver.element(this.helpers.getWdioLocator(locator));
         if (!el.value) {
             throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);

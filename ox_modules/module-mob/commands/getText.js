@@ -16,11 +16,16 @@
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');
+
     // when locator is an element object
     if (typeof locator === 'object' && locator.click) {
         return locator.getText();
     }
+
     // when locator is string
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.getText(locator);
 };

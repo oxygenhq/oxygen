@@ -17,11 +17,15 @@
 module.exports = function(locator, value) {
     this.helpers._assertArgument(locator, 'locator');
     this.helpers._assertArgument(value, 'value');
+
     // when locator is an element object
     if (typeof locator === 'object' && locator.setValue) {
         return locator.setValue(value);
     }
 
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.setValue(locator, value);
 };

@@ -28,7 +28,11 @@ module.exports = function(locator, xoffset, yoffset) {
                 'release'
             ]
         );    
-    } 
+    }
+
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     return this.driver.touchAction(
         this.helpers.getWdioLocator(locator),
         [

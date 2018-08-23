@@ -20,7 +20,11 @@ module.exports = function(locator) {
     if (typeof locator === 'object' && locator.click) {
         return locator.click();
     }
+
     // when locator is string
+    if (this.autoWait) {
+        this.waitForExist(locator);
+    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.click(locator);
 };

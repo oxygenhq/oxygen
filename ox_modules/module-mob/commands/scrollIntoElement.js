@@ -28,6 +28,10 @@ module.exports = function(scrollElmLocator, findElmLocator, xoffset, yoffset, re
     this.helpers._assertArgumentNumber(yoffset, 'yoffset');
     this.helpers._assertArgumentNumber(retries, 'retries');
 
+    if (this.autoWait) {
+        this.waitForExist(scrollElmLocator);
+    }
+
     var elm = null;
     var retry = 0;
 
