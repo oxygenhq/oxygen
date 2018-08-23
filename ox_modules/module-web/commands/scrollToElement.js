@@ -13,13 +13,14 @@
  *              to. It can be either a positive or a negative value.
  * @function scrollToElement
  * @param {String} locator - An element locator.
- * @param {Integer=} yoffset - Y offset from the element.
+ * @param {Integer} xoffset - X offset from the element.
+ * @param {Integer} yoffset - Y offset from the element.
  */
-module.exports = function(locator, yoffset) {
-    // FIXME: support for xoffset is missing due to legacy compatibility.
+module.exports = function(locator, xoffset, yoffset) {
+
     var wdloc = this.helpers.getWdioLocator(locator);
     if (this.autoWait) {
         this.waitForVisible(locator);
     }
-    return this.driver.scroll(wdloc, 0, yoffset ? yoffset : 0);
+    return this.driver.scroll(wdloc, xoffset, yoffset);
 };
