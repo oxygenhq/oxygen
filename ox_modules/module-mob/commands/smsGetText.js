@@ -22,7 +22,7 @@ module.exports = function(wait) {
     var locSms = 'id=android:id/message';
     var locSmsClose = 'id=android:id/button2';
 
-    this.waitForElement(locSms, wait);
+    this.waitForExist(locSms, wait);
 
     var sms = this.findElement(locSms);
 
@@ -32,7 +32,7 @@ module.exports = function(wait) {
     }
     // timeout doesn't really matter here since if popup is open close button will
     // always exist
-    this.waitForElement(locSmsClose);
+    this.waitForExist(locSmsClose);
     this.click(locSmsClose);
     return text;
 };

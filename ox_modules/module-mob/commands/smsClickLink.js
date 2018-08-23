@@ -17,6 +17,6 @@
 */
 module.exports = function(wait) {
     this.helpers._assertArgumentTimeout(wait, 'wait'); 
-    this.waitForElement('id=android:id/message', wait);
+    this.waitForExist('id=android:id/message', wait);
     this.click('id=android:id/button1');
 };
