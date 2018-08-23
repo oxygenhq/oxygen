@@ -453,6 +453,8 @@ module.exports = function (options, context, rs, logger) {
     helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
     helpers.assertArgumentNumber = utils.assertArgumentNumber;
     helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
-
+    helpers.assertArgumentBool = utils.assertArgumentBool;
+    helpers.assertArgumentTimeout = utils.assertArgumentTimeout;
+    
     return module;
 };

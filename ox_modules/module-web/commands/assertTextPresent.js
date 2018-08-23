@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,7 @@
  * @param {String} text - Text.
  */
 module.exports = function(text) {
+    this.helpers.assertArgumentNonEmptyString(text, 'text');
     var count = this.driver.elements('//*[contains(text(),"' + text + '")]').value.length;
     if (count === 0) {
         throw new this.OxError(this.errHelper.errorCode.ASSERT);

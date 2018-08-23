@@ -18,9 +18,10 @@
   *              </ul>
   * @function waitForWindow
   * @param {String} windowLocator - A window locator.
-  * @param {Integer} timeout - Timeout in milliseconds.
+  * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
   */
 module.exports = function(windowLocator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     var currentHandle;
 
     // windowHandle() could possibly fail if there is no active window,

@@ -34,39 +34,46 @@ module.exports = {
         }
     },
 
-    assertLocator: function(locator) {
-        if (!locator) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+    assertLocator: function(arg, name) {
+        if (!arg) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' not specified");
         }
     },
 
-    assertArgument: function(arg) {
+    assertArgument: function(arg, name) {
         if (arg === undefined) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - argument is required.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
         }
     },
 
-    assertArgumentNonEmptyString: function(arg) {
+    assertArgumentNonEmptyString: function(arg, name) {
         if (!arg || typeof arg !== 'string') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-empty string.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
         }
     },
 
-    assertArgumentNumber: function(arg) {
+    assertArgumentNumber: function(arg, name) {
         if (typeof(arg) !== 'number') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a number.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a number.");
         }
     },
 
-    assertArgumentNumberNonNegative: function(arg) {
+    assertArgumentNumberNonNegative: function(arg, name) {
         if (typeof(arg) !== 'number' || arg < 0) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be a non-negative number.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
         }
     },
 
-    assertArgumentBool: function(arg) {
+    assertArgumentBool: function(arg, name) {
         if (typeof(arg) != typeof(true)) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - should be true or false.');
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
         }
-    }
+    }, 
+
+    assertArgumentTimeout: function(arg, name) {
+        if (arg && (typeof(arg) !== 'number' || arg < 0)) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
+        }
+    },
+
 };

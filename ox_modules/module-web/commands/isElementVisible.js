@@ -12,11 +12,12 @@
  *          wasn't visible within the specified timeout.
  * @function isElementVisible
  * @param {String} locator - An element locator.
- * @param {Integer} timeout - Timeout in milliseconds to wait for element to appear.
+ * @param {Integer=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found and it was visible. False otherwise.
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     try {
         this.driver.waitForVisible(wdloc, (!timeout ? this.waitForTimeout : timeout));
         return true;

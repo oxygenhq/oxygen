@@ -17,7 +17,8 @@
  * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(locator, pattern, timeout) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
+    var wdloc = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.waitForExist(locator);
 
     var self = this;

@@ -16,6 +16,7 @@
  */
 module.exports = function(locator, propertyName) {
     var wdloc = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgumentNonEmptyString(propertyName, 'propertyName');
     if (this.autoWait) {
         this.waitForExist(locator);
     }

@@ -22,6 +22,7 @@
 module.exports = function(selectLocator, optionLocator) {
     // FIXME: this method is identical to select and should be removed in the future.
     var wdloc = this.helpers.getWdioLocator(selectLocator);
+    this.helpers.assertArgumentNonEmptyString(optionLocator, 'optionLocator');
     if (this.autoWait) {
         this.waitForVisible(selectLocator);
     }

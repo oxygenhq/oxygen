@@ -15,6 +15,7 @@
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     try {
         this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout), true);
     } catch (e) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,9 +14,11 @@
  * @function waitForNotValue
  * @param {String} locator - An element locator.
  * @param {String} pattern - Value pattern.
+ * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(locator, pattern, timeout) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
+    var wdloc = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.waitForExist(locator);
 
     var self = this;

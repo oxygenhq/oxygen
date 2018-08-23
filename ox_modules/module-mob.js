@@ -117,7 +117,8 @@ module.exports = function (options, context, rs, logger) {
     helpers._assertArgumentNumber = utils.assertArgumentNumber;
     helpers._assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
     helpers._assertArgumentBool = utils.assertArgumentBool;
-
+    helpers._assertArgumentTimeout = utils.assertArgumentTimeout;
+    
     /**
      * @function getCaps
      * @summary Returns currently defined device capabilities.

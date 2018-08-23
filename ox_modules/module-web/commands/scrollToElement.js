@@ -17,7 +17,6 @@
  * @param {Integer} yoffset - Y offset from the element.
  */
 module.exports = function(locator, xoffset, yoffset) {
-
     var wdloc = this.helpers.getWdioLocator(locator);
     if (this.autoWait) {
         this.waitForVisible(locator);

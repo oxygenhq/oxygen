@@ -16,5 +16,6 @@
  * @param {Boolean} enable - true to enable automatic waiting, false to disable.
  */
 module.exports = function(enable) {
+    this.helpers.assertArgumentBool(enable, 'enable');
     this.autoWait = enable;
 };
