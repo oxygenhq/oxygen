@@ -24,7 +24,7 @@ module.exports = function(selectLocator, optionLocator) {
     var wdloc = this.helpers.getWdioLocator(selectLocator);
     this.helpers.assertArgumentNonEmptyString(optionLocator, 'optionLocator');
     if (this.autoWait) {
-        this.waitForElementPresent(selectLocator);
+        this.waitForExist(selectLocator);
     }
 
     if (optionLocator.indexOf('value=') === 0) {
