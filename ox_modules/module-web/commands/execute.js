@@ -11,7 +11,7 @@
  * @summary Executes JavaScript in the context of the currently selected frame or window.
  * @description If return value is null or there is no return value, <code>null</code> is returned.
  * @function execute
- * @param {String} script - The JavaScript to execute.
+ * @param {(String|Function)} script - The JavaScript to execute.
  * @param {...Object} arg - Optional script arguments.
  * @return {Object} The return value.
  */

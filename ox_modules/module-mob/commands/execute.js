@@ -10,7 +10,7 @@
 /**
  * @function execute
  * @summary Executes JavaScript code inside HTML page.
- * @param {String} js - Script to execute.
+ * @param {(String|Function)} js - Script to execute.
  * @param {...Object} arg - Optional script arguments.
  * @for hybrid, web
  */
