@@ -9,7 +9,7 @@
  
 /**
  * @summary Asserts whether element exists in the DOM.
- * @function assertElementPresent
+ * @function assertExist
  * @param {String} locator - An element locator.
  * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
