@@ -69,6 +69,7 @@ module.exports = function (options, context, rs, logger) {
     this.logger = logger;
     this.caps = null; 
     this.waitForTimeout = 60 * 1000;            // default 60s wait timeout
+    this.autoWait = true;
 
     // module's constructor scoped variables
     var helpers = this.helpers;
