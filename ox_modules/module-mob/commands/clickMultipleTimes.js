@@ -15,8 +15,9 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, taps) {
-    this.helpers._assertArgument(locator);
-    
+    this.helpers._assertArgument(locator, 'locator');
+    this.helpers._assertArgumentNumberNonNegative(taps, 'taps');
+
     var el;
     if (typeof locator === 'object' && el.value) {  // when locator is an element object
         el = locator;

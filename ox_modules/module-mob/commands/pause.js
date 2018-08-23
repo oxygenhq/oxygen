@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,6 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(ms) {
-    this.helpers._assertArgumentNumber(ms);
+    this.helpers._assertArgumentNumber(ms, 'ms');
     return this.driver.pause(ms);
 };

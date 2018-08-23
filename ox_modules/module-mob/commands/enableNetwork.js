@@ -15,8 +15,8 @@
  * @for android
  */
 module.exports = function(wifi, data) {
-    this.helpers._assertArgumentBool(wifi);
-    this.helpers._assertArgumentBool(data);
+    this.helpers._assertArgumentBool(wifi, 'wifi');
+    this.helpers._assertArgumentBool(data, 'data');
 
     /* According to Appium docs (https://appium.io/docs/en/writing-running-appium/other/network-connection/):
         Real Devices

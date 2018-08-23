@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * @for android, ios, hybrid, web
 */
 module.exports = function(locator, parent) {
-    this.helpers._assertArgument(locator);
+    this.helpers._assertArgument(locator, 'locator');
     locator = this.helpers.getWdioLocator(locator);
     var retval = null;
 

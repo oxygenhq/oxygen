@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,7 +19,8 @@ const chai = require('chai');
 const assert = chai.assert;
 
 module.exports = function(locator, pattern, message) {
-    this.helpers._assertArgument(locator);
+    this.helpers._assertArgument(locator, 'locator');
+    this.helpers._assertArgument(pattern, 'pattern');
 
     var elm = null;
     // when locator is an element object

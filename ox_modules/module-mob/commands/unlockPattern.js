@@ -22,10 +22,10 @@
  * @for android
  */
 module.exports = function(locator, cols, rows, pattern) {   
-    this.helpers._assertArgument(locator);
-    this.helpers._assertArgumentNumberNonNegative(cols);
-    this.helpers._assertArgumentNumberNonNegative(rows);
-    this.helpers._assertArgumentNonEmptyString(pattern);
+    this.helpers._assertArgument(locator, 'locator');
+    this.helpers._assertArgumentNumberNonNegative(cols, 'cols');
+    this.helpers._assertArgumentNumberNonNegative(rows, 'rows');
+    this.helpers._assertArgumentNonEmptyString(pattern, 'pattern');
 
     var wdloc = this.helpers.getWdioLocator(locator);
     var el = this.driver.element(wdloc);

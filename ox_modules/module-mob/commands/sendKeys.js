@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,6 +15,6 @@
 */
 module.exports = function(value) {
     this.helpers._assertArgument(value);
-    return this.driver.keys(value);
+    this.driver.keys(value);
 };
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,11 @@ module.exports = function(scrollElmLocator, findElmLocator, xoffset, yoffset, re
     yoffset = yoffset || -30;
     retries = retries || 50;
 
-    this.helpers._assertArgument(scrollElmLocator);
-    this.helpers._assertArgument(findElmLocator);
-    
-    this.helpers._assertArgumentNumber(xoffset);
-    this.helpers._assertArgumentNumber(yoffset);
-    this.helpers._assertArgumentNumber(retries);
+    this.helpers._assertArgument(scrollElmLocator, 'scrollElmLocator');
+    this.helpers._assertArgument(findElmLocator, 'findElmLocator');
+    this.helpers._assertArgumentNumber(xoffset, 'xoffset');
+    this.helpers._assertArgumentNumber(yoffset, 'yoffset');
+    this.helpers._assertArgumentNumber(retries, 'retries');
 
     var elm = null;
     var retry = 0;

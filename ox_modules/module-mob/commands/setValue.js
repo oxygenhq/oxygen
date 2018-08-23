@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,8 +15,8 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, value) {
-    this.helpers._assertArgument(locator);
-    this.helpers._assertArgument(value);
+    this.helpers._assertArgument(locator, 'locator');
+    this.helpers._assertArgument(value, 'value');
     // when locator is an element object
     if (typeof locator === 'object' && locator.setValue) {
         return locator.setValue(value);

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,6 +14,6 @@
  * @for web
  */
 module.exports = function(url) {
-    this.helpers._assertArgumentNonEmptyString(url);
-    return this.driver.url(url);
+    this.helpers._assertArgumentNonEmptyString(url, 'url');
+    this.driver.url(url);
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,5 +14,5 @@
  * @for android, ios
  */
 module.exports = function() {
-    return this.driver.shake();
+    this.driver.shake();
 };

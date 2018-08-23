@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,6 +16,7 @@
  * @for android
 */
 module.exports = function(wait) {
+    this.helpers._assertArgumentTimeout(wait, 'wait'); 
     this.waitForElement('id=android:id/message', wait);
     this.click('id=android:id/button1');
 };

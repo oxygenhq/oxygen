@@ -19,8 +19,9 @@ const chai = require('chai');
 const assert = chai.assert;
 
 module.exports = function(locator, pattern, message) {
-    this.helpers._assertArgument(locator);
-
+    this.helpers._assertArgument(locator, 'locator');
+    this.helpers._assertArgumentNonEmptyString(pattern, 'pattern');
+    
     var elm = null;
     // when locator is an element object
     if (typeof locator === 'object' && locator.getText) {

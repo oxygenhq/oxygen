@@ -17,6 +17,8 @@
  * @for android
 */
 module.exports = function(wait) {
+    this.helpers._assertArgumentTimeout(wait, 'wait');
+
     var locSms = 'id=android:id/message';
     var locSmsClose = 'id=android:id/button2';
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,9 +16,9 @@
  * @for android, ios
  */
 module.exports = function(locator, xoffset, yoffset) {   
-    this.helpers._assertArgument(locator);
-    this.helpers._assertArgumentNumber(xoffset);
-    this.helpers._assertArgumentNumber(yoffset);
+    this.helpers._assertArgument(locator, 'locator');
+    this.helpers._assertArgumentNumber(xoffset, 'xoffset');
+    this.helpers._assertArgumentNumber(yoffset, 'yoffset');
 
     if (typeof locator === 'object') {
         return locator.touchAction(

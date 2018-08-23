@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +15,7 @@
  * @for hybrid, web
 */
 module.exports = function(locator, clickParent) {
-    this.helpers._assertArgument(locator);
+    this.helpers._assertArgument(locator, 'locator');
     clickParent = typeof clickParent === 'boolean' ? clickParent : false;
     // click hidden function
     var func = function(elms, clickParent) {
