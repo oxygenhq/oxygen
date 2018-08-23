@@ -10,7 +10,7 @@
 /**
  * @summary Checks if element is present in the DOM. Returns false if element was not found
  *          within the specified timeout.
- * @function isElementPresent
+ * @function isExist
  * @param {String} locator - An element locator.
  * @param {Integer=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found. False otherwise.
