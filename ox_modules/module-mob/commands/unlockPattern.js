@@ -34,7 +34,7 @@ module.exports = function(locator, cols, rows, pattern) {
     var wdloc = this.helpers.getWdioLocator(locator);
     var el = this.driver.element(wdloc);
     if (!el.value) {
-        throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
     }
 
     var loc = this.driver.elementIdLocation(el.value.ELEMENT);

@@ -20,7 +20,7 @@ module.exports = function(locator, timeout) {
         this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
         if (e.type === 'WaitUntilTimeoutError') {
-            throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
         throw e;
     }

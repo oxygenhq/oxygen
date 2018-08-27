@@ -20,10 +20,10 @@ module.exports = function(locator, timeout) {
         this.driver.waitForVisible(wdloc, (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
         if (e.type === 'WaitUntilTimeoutError') {
-            // check if the element exists and if doesn't then thow NO_SUCH_ELEMENT instead
+            // check if the element exists and if doesn't then thow ELEMENT_NOT_FOUND instead
             // since ELEMENT_NOT_VISIBLE is slightly confusing if element doesn't actually exist 
             if (!this.driver.isExisting(wdloc)) {
-                throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
             } else {
                 throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
             }

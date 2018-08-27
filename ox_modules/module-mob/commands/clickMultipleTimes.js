@@ -27,7 +27,7 @@ module.exports = function(locator, taps) {
         }
         el = this.driver.element(this.helpers.getWdioLocator(locator));
         if (!el.value) {
-            throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
     }
 

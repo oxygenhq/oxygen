@@ -34,7 +34,7 @@ module.exports = function(locator, pattern, message) {
     }
     
     if (!elm) {
-        throw new this.OxError(this.errHelper.errorCode.NO_SUCH_ELEMENT);
+        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
     }
     var actualValue = elm.getText();
 
