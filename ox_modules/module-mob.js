@@ -161,7 +161,7 @@ module.exports = function (options, context, rs, logger) {
         }
         // populate WDIO options
         var wdioOpts = {
-            host: host || opts.host || opts.seleniumUrl || DEFAULT_APPIUM_HOST,
+            host: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
             port: port || opts.port || DEFAULT_APPIUM_PORT,
             desiredCapabilities: _this.caps
         };
