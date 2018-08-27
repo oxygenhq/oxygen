@@ -41,20 +41,20 @@ module.exports = function(argv, context, rs, logger) {
                     }
                     msg += ': ' + soapMsg;
                 }
-                resultClient = new OxError(errHelper.errorCode.SOAP, msg);
+                resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
                 return;
             }
 
             resultClient = client;
 
             if (typeof client[method] !== 'function') { 
-                resultClient = new OxError(errHelper.errorCode.SOAP, 'No method named ' + method + ' was found.');
+                resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, 'No method named ' + method + ' was found.');
                 return;
             }
 
             client[method](args, (err, res) => { 
                 if (err !== null) {
-                    result = new OxError(errHelper.errorCode.SOAP, err.root.Envelope.Body.Fault.faultstring);
+                    result = new OxError(errHelper.errorCode.SOAP_ERROR, err.root.Envelope.Body.Fault.faultstring);
                     return;
                 }
 
@@ -63,12 +63,12 @@ module.exports = function(argv, context, rs, logger) {
         });
 
         deasync.loopWhile(() => !resultClient);
-        if (resultClient.type === errHelper.errorCode.SOAP) {
+        if (resultClient.type === errHelper.errorCode.SOAP_ERROR) {
             throw resultClient;
         } 
 
         deasync.loopWhile(() => !result);
-        if (result.type === errHelper.errorCode.SOAP) {
+        if (result.type === errHelper.errorCode.SOAP_ERROR) {
             throw result;
         }
 
@@ -95,7 +95,7 @@ module.exports = function(argv, context, rs, logger) {
                     }
                     msg += ': ' + soapMsg;
                 }
-                resultClient = new OxError(errHelper.errorCode.SOAP, msg);
+                resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
                 return;
             }
 
@@ -103,7 +103,7 @@ module.exports = function(argv, context, rs, logger) {
         });
 
         deasync.loopWhile(() => !resultClient);
-        if (resultClient.type === errHelper.errorCode.SOAP) {
+        if (resultClient.type === errHelper.errorCode.SOAP_ERROR) {
             throw resultClient;
         } 
 

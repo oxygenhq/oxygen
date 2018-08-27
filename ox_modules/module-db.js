@@ -30,13 +30,13 @@ module.exports = function(argv, context, rs, logger) {
 
     module._openDbConn = function() {
         if (!this.connString) {
-            throw new OxError(errHelper.errorCode.DB_CONNECTION, 'No connection string specified. Use db.setConnectionString().');
+            throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, 'No connection string specified. Use db.setConnectionString().');
         }
 
         try {
             db.openSync(this.connString);
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_CONNECTION, e.message);
+            throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, e.message);
         }
     };
 
@@ -77,7 +77,7 @@ module.exports = function(argv, context, rs, logger) {
             var firstCol = firstRow[Object.keys(firstRow)[0]];
             return firstCol;
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY, e.message);
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
         } finally {
             db.closeSync();
         }
@@ -94,7 +94,7 @@ module.exports = function(argv, context, rs, logger) {
         try {
             db.querySync(query);
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY, e.message);
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
         } finally {
             db.closeSync();
         }

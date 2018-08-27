@@ -185,10 +185,10 @@ module.exports = function (options, context, rs, logger) {
             // make webdriverio's generic 'selenium' message more descriptive
             if (err.type === 'RuntimeError') {
                 if (err.message === "Couldn't connect to selenium server") {
-                    throw new this.OxError(this.errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't connect to appium server");
+                    throw new this.OxError(this.errHelper.errorCode.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to appium server");
                 }
                 else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
-                    throw new this.OxError(this.errHelper.errorCode.APPIUM_SERVER_UNREACHABLE, "Couldn't resolve appium server address");
+                    throw new this.OxError(this.errHelper.errorCode.APPIUM_UNREACHABLE_ERROR, "Couldn't resolve appium server address");
                 }
             }
             throw err;

@@ -26,6 +26,6 @@ module.exports = function(pattern, timeout) {
         (!timeout ? this.waitForTimeout : timeout));
         this.driver.alertDismiss();
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ASSERT);
+        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR);
     }
 };

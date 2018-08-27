@@ -65,7 +65,7 @@ module.exports = function(windowLocator) {
         // if window not found - switch to original one and throw
         if (!windowFound) {
             this.driver.window(currentHandle);
-            throw new this.OxError(this.errHelper.errorCode.NO_SUCH_WINDOW);
+            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
         }
     } else {
         this.driver.window(windowLocator);

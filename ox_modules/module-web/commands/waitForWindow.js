@@ -60,7 +60,7 @@ module.exports = function(windowLocator, timeout) {
             }
             this.pause(500);
         }
-        throw new this.OxError(this.errHelper.errorCode.NO_SUCH_WINDOW);
+        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
     } else {
         throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - windowLocator.');
     }

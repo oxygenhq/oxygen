@@ -37,6 +37,6 @@ module.exports = function(locator, pattern, timeout) {
         }, 
         (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ASSERT);
+        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR);
     }
 };

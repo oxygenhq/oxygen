@@ -17,6 +17,6 @@ module.exports = function(text) {
     this.helpers.assertArgumentNonEmptyString(text, 'text');
     var count = this.driver.elements('//*[contains(text(),"' + text + '")]').value.length;
     if (count === 0) {
-        throw new this.OxError(this.errHelper.errorCode.ASSERT);
+        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR);
     }
 };

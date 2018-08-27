@@ -20,6 +20,6 @@ module.exports = function(locator, timeout) {
     try {
         this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ASSERT);
+        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR);
     }
 };

@@ -60,7 +60,7 @@ module.exports = function() {
      * @param {String=} message - Error message to return.
      */
     module.fail = function(message) {
-        throw new OxError(errHelper.errorCode.ASSERT, message);
+        throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
     };
 
     return module;

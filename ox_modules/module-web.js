@@ -273,7 +273,7 @@ module.exports = function (options, context, rs, logger) {
         try {
             _this.driver.init();
         } catch (err) {
-            throw new _this.OxError(_this.errHelper.errorCode.SELENIUM_SERVER_UNREACHABLE, err.message);
+            throw new _this.OxError(_this.errHelper.errorCode.SELENIUM_UNREACHABLE_ERROR, err.message);
         }
 
         try {

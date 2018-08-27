@@ -14,6 +14,19 @@
 * Add X offset support in `web.scrollToElement`.
 * Improved error handling for situations when invalid arguments are passed to methods.
 * Fix documentation.
+* Error code names changes:
+    ASSERT -> ASSERT_ERROR
+    VERIFY -> VERIFY_ERROR
+    NO_SUCH_ELEMENT -> ELEMENT_NOT_FOUND
+    NO_SUCH_FRAME -> FRAME_NOT_FOUND
+    UNKNOWN_COMMAND -> UNKNOWN_COMMAND_ERROR
+    NO_SUCH_WINDOW -> WINDOW_NOT_FOUND
+    APPIUM_SERVER_UNREACHABLE -> APPIUM_UNREACHABLE_ERROR
+    SELENIUM_SERVER_UNREACHABLE SELENIUM_UNREACHABLE_ERROR
+    NOT_IMPLEMENTED -> NOT_IMPLEMENTED_ERROR
+    DB_CONNECTION -> DB_CONNECTION_ERROR
+    DB_QUERY -> DB_QUERY_ERROR
+    SOAP -> SOAP_ERROR
 
 ## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
