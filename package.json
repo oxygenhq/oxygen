@@ -37,11 +37,11 @@
     "async": "2.6.1",
     "chai": "4.1.2",
     "chrome-remote-interface": "0.26.0",
-    "config": "1.30.0",
+    "config": "2.0.1",
     "csv-load-sync": "1.0.0",
     "deasync": "0.1.13",
     "easyxml": "2.0.1",
-    "fibers": "2.0.2",
+    "fibers": "3.0.0",
     "glob-to-regexp": "0.4.0",
     "globule": "1.2.1",
     "imap-simple": "4.1.0",
@@ -50,17 +50,17 @@
     "minimist": "1.2.0",
     "moment": "2.22.2",
     "oxygen-logger": "0.2.0",
-    "request": "2.87.0",
-    "serialport": "6.2.1",
+    "request": "2.88.0",
+    "serialport": "7.0.2",
     "soap": "0.24.0",
-    "twilio": "3.17.6",
-    "wdio-sync": "0.7.1",
-    "webdriverio": "4.13.1",
+    "twilio": "3.19.2",
+    "wdio-sync": "0.7.2",
+    "webdriverio": "4.13.2",
     "when": "3.7.8",
     "xlsx": "0.11.19"
   },
   "optionalDependencies": {
-    "odbc": "1.4.2"
+    "odbc": "1.4.5"
   },
   "scripts": {
     "prepublishOnly": "grunt eslint && grunt dos2unix",
