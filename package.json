@@ -41,7 +41,7 @@
     "csv-load-sync": "1.0.0",
     "deasync": "0.1.13",
     "easyxml": "2.0.1",
-    "fibers": "3.0.0",
+    "fibers": "2.0.2",
     "glob-to-regexp": "0.4.0",
     "globule": "1.2.1",
     "imap-simple": "4.1.0",
