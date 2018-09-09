@@ -14,7 +14,7 @@
 const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 
-module.exports = function(argv, context, rs) {
+module.exports = function() {
     var deasync = require('deasync');
 
     var _client;

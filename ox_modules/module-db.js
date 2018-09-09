@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,12 +22,7 @@ try {
 const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 
-module.exports = function(argv, context, rs, logger) {
-    this.logger = logger;
-    this.argv = argv;
-    this._rs = rs;
-    this._ctx = context;
-
+module.exports = function() {
     // FIXME: change setConnectionString to init and add hadnling in here
     module._isInitialized = function() {
         return true;
