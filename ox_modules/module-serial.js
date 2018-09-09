@@ -21,6 +21,10 @@ module.exports = function() {
     var serialPort;
     var stringBuffer;
 
+    module._isInitialized = function() {
+        return serialPort !== undefined;
+    };
+
     /**
      * @summary Returns list of available ports.
      * @description See https://github.com/EmergingTechnologyAdvisors/node-serialport#module_serialport--SerialPort.list

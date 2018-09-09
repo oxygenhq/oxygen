@@ -12,6 +12,10 @@
  */
 
 module.exports = function() {
+    module._isInitialized = function() {
+        return true;
+    };
+    
     /**
      * @summary Print an INFO message.
      * @function info

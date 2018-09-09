@@ -20,6 +20,10 @@ module.exports = function(argv, context, rs) {
 
     const _responseTimeout = 1000 * 30;   // in ms
     
+    module._isInitialized = function() {
+        return true;
+    };
+    
     /**
      * @summary Performs HTTP GET
      * @function get

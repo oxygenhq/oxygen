@@ -11,6 +11,10 @@
  * Provides methods for working with dates.
  */
 module.exports = function() {
+    module._isInitialized = function() {
+        return true;
+    };
+    
     var moment = require('moment');
 
     /**

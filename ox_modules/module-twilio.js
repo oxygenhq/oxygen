@@ -18,6 +18,10 @@ module.exports = function(argv, context, rs) {
     var deasync = require('deasync');
 
     var _client;
+    
+    module._isInitialized = function() {
+        return _client !== undefined;
+    };
 
     module.init = function(accountSid, authToken) {
         _client = require('twilio')(accountSid, authToken);

@@ -20,6 +20,10 @@ module.exports = function(argv, context, rs) {
 
     var _config;
 
+    module._isInitialized = function() {
+        return _config !== undefined;
+    };
+
     module.init = function(user, password, host, port, tls, authTimeout) {
         _config = {
             imap: {

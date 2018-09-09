@@ -100,6 +100,10 @@ module.exports = function (options, context, rs, logger) {
         return _this.driver;
     };
 
+    module._isInitialized = function() {
+        return this.isInitialized;
+    };
+
     // TODO: pending deprecation
     module._isAction = function(name) {
         return ACTION_COMMANDS.includes(name);

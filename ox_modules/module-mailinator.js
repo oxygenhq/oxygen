@@ -77,6 +77,10 @@ module.exports = function(argv, context, rs) {
         return result.body;
     }
 
+    module._isInitialized = function() {
+        return _token !== undefined;
+    };
+
     /**
      * @summary Initializes mailinator module.
      * @function init

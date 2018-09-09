@@ -18,6 +18,10 @@ module.exports = function(argv, context, rs, logger) {
     var deasync = require('deasync');
     var soap = require('soap');
 
+    module._isInitialized = function() {
+        return true;
+    };
+
     /**
      * @summary Initiates a SOAP request and returns the response.
      * @function get

@@ -28,6 +28,11 @@ module.exports = function(argv, context, rs, logger) {
     this._rs = rs;
     this._ctx = context;
 
+    // FIXME: change setConnectionString to init and add hadnling in here
+    module._isInitialized = function() {
+        return true;
+    };
+
     module._openDbConn = function() {
         if (!this.connString) {
             throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, 'No connection string specified. Use db.setConnectionString().');

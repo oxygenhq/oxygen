@@ -16,6 +16,10 @@ const OxError = require('../errors/OxygenError');
 var errHelper = require('../errors/helper');
 
 module.exports = function() {
+    module._isInitialized = function() {
+        return true;
+    };
+
     /**
      * @summary Asserts that two values are equal.
      * @function equal
