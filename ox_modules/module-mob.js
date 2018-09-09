@@ -70,7 +70,7 @@ module.exports = function (options, context, rs, logger) {
 
     var _this = module._this = this;
 
-    // properties exposed to external commands
+    // public properties
     this.OxError = require('../errors/OxygenError');
     this.errHelper = require('../errors/helper');
     this.driver = null;
@@ -81,13 +81,13 @@ module.exports = function (options, context, rs, logger) {
     this.sessionId = null;                          // current session id
     this.appContext = 'NATIVE_APP';
     this.caps = null;                               // save driver capabilities for later use when error occures
-    this.isInitialized = false;
     this.autoWait = true;
     
-    // module's constructor scoped variables
+    // local variables
     var ctx = context;
     var opts = options;
     var helpers = this.helpers;
+    var isInitialized = false;
 
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
@@ -101,7 +101,7 @@ module.exports = function (options, context, rs, logger) {
     };
 
     module._isInitialized = function() {
-        return this.isInitialized;
+        return isInitialized;
     };
 
     // TODO: pending deprecation
@@ -142,11 +142,11 @@ module.exports = function (options, context, rs, logger) {
      */
     module.init = function(caps, host, port) {
         // if reopenSession is true - reinitilize the module
-        if (_this.isInitialized) {
+        if (isInitialized) {
             if (opts.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
                 logger.debug('reopenSession is true - disposing mob module before re-initialization.');
                 module.dispose();
-                _this.isInitialized = false;
+                isInitialized = false;
             } else {
                 logger.debug('mob.init() was called for already initialized module. reopenSession is false so the call is ignored.');
                 return;
@@ -197,7 +197,7 @@ module.exports = function (options, context, rs, logger) {
             }
             throw err;
         }
-        _this.isInitialized = true;
+        isInitialized = true;
     };
 
     /**
@@ -218,8 +218,8 @@ module.exports = function (options, context, rs, logger) {
      * @for android, ios
      */
     module.dispose = function() {
-        if (_this.driver && _this.isInitialized) {
-            _this.isInitialized = false;
+        if (_this.driver && isInitialized) {
+            isInitialized = false;
             try {
                 _this.driver.end();
             } catch (e) {
