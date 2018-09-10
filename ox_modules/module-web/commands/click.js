@@ -17,7 +17,7 @@
 module.exports = function(locator) {
     try {
         if (this.autoWait) {
-            this.waitForVisible(locator);
+            this.waitForExist(locator);
         }
         // when locator is an element object
         if (typeof locator === 'object' && locator.click) {
@@ -34,9 +34,18 @@ module.exports = function(locator) {
           "type": "UnknownError",
           "message": "An unknown server-side error occurred while processing the command.",
           "orgStatusMessage": "unknown error: Element <button id=\"myBtn\">...</button> is not clickable at point (52, 77). Other element would receive the click: <div id=\"myModal\" class=\"modal\" style=\"display: block;\">...</div>\n  (Session info: chrome=67.0.3396.99)\n  (Driver info: chromedriver=2.40.565498 (ea082db3280dd6843ebfb08a625e3eb905c4f5ab),platform=Windows NT 10.0.16299 x86_64)"
+        }
+        {
+          "message": "element not visible",
+          "type": "RuntimeError",
+          "seleniumStack": {
+            "type": "ElementNotVisible",
+            "message": "An element command could not be completed because the element is not visible on the page.",
+            "orgStatusMessage": "element not visible\n  (Session info: chrome=69.0.3497.81)\n  (Driver info: chromedriver=2.41.578737 (49da6702b16031c40d63e5618de03a32ff6c197e),platform=Windows NT 10.0.16299 x86_64)"
+          }
         }*/
-        if (e.message && e.message.includes('is not clickable at point (') ||
-            e.type === this.errHelper.errorCode.ELEMENT_NOT_VISIBLE) {
+        if (e.message && 
+            (e.message.includes('is not clickable at point') || e.message === 'element not visible')) {
             this.clickHidden(locator);
         } else {
             throw e;
