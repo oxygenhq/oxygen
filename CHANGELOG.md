@@ -1,32 +1,41 @@
 # CHANGELOG
 
 ## v0.33.0 (2018-xx-xx)
-* [Breaking change] Remove `web.waitForElementPresent`.
-* [Breaking change] Rename `web.isElementPresent` to `web.isExist`.
-* [Breaking change] Rename `web.isElementVisible` to `web.isVisible`.
-* [Breaking change] Rename `web.assertElementPresent` to `web.assertExist`.
-* [Breaking change] Rename `web.executeScript` to `web.execute`.
-* [Breaking change] Rename `web.getPageSource` to `web.getSource`.
-* [Breaking change] Rename `mob.waitForElement` to `mob.waitForExist`.
-* [Breaking change] Remove empty string locator from `web.selectWindow`.
-* [Breaking change] Add `mob.setAutoWait`.
+* **[Breaking change]** Rename `web.waitForElementPresent` to `web.waitForExist`.
+* **[Breaking change]** Rename `web.isElementPresent` to `web.isExist`.
+* **[Breaking change]** Rename `web.isElementVisible` to `web.isVisible`.
+* **[Breaking change]** Rename `web.assertElementPresent` to `web.assertExist`.
+* **[Breaking change]** Rename `web.executeScript` to `web.execute`.
+* **[Breaking change]** Rename `web.getPageSource` to `web.getSource`.
+* **[Breaking change]** Rename `mob.waitForElement` to `mob.waitForExist`.
+* **[Breaking change]** Remove empty string locator from `web.selectWindow`.
+* **[Breaking change]** Change `web.selectFrame` behavior:
+    * Multiple locators can be passed as arguments now instead of separating the frame XPathes with
+    `';;'`
+    * `"relative=parent"` changed to "parent"
+    * `"relative=top"` changed to  "top"
+    * `"index=x"` changed to x (passed as a number)
+* **[Breaking change]** Add `mob.setAutoWait`.
 * Add `web.setAutoWait`.
 * Add X offset support in `web.scrollToElement`.
 * Improved error handling for situations when invalid arguments are passed to methods.
 * Fix documentation.
 * Error code names changes:
-    ASSERT -> ASSERT_ERROR
-    VERIFY -> VERIFY_ERROR
-    NO_SUCH_ELEMENT -> ELEMENT_NOT_FOUND
-    NO_SUCH_FRAME -> FRAME_NOT_FOUND
-    UNKNOWN_COMMAND -> UNKNOWN_COMMAND_ERROR
-    NO_SUCH_WINDOW -> WINDOW_NOT_FOUND
-    APPIUM_SERVER_UNREACHABLE -> APPIUM_UNREACHABLE_ERROR
-    SELENIUM_SERVER_UNREACHABLE SELENIUM_UNREACHABLE_ERROR
-    NOT_IMPLEMENTED -> NOT_IMPLEMENTED_ERROR
-    DB_CONNECTION -> DB_CONNECTION_ERROR
-    DB_QUERY -> DB_QUERY_ERROR
-    SOAP -> SOAP_ERROR
+    * ASSERT -> ASSERT_ERROR
+    * VERIFY -> VERIFY_ERROR
+    * NO_SUCH_ELEMENT -> ELEMENT_NOT_FOUND
+    * NO_SUCH_FRAME -> FRAME_NOT_FOUND
+    * UNKNOWN_COMMAND -> UNKNOWN_COMMAND_ERROR
+    * NO_SUCH_WINDOW -> WINDOW_NOT_FOUND
+    * APPIUM_SERVER_UNREACHABLE -> APPIUM_UNREACHABLE_ERROR
+    * SELENIUM_SERVER_UNREACHABLE SELENIUM_UNREACHABLE_ERROR
+    * NOT_IMPLEMENTED -> NOT_IMPLEMENTED_ERROR
+    * DB_CONNECTION -> DB_CONNECTION_ERROR
+    * DB_QUERY -> DB_QUERY_ERROR
+    * SOAP -> SOAP_ERROR
+* Do not try to invoke web.clickHidden from web.click when element not found.
+* Fix hang when calling method on a uninitialized module.
+* Fix hidden click fallback in `web.click`.
 
 ## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
