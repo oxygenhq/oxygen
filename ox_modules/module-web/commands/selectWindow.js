@@ -13,7 +13,8 @@
  *              <ul>
  *              <li><code>title=TITLE</code> - Switch to the first window which matches the
  *                  specified title. TITLE can be any of the supported <a href="#patterns">
- *                  string matching patterns</a>.
+ *                  string matching patterns</a>. When using title locator, this command will wait
+ *                  for the window to appear first similarly to waitForWindow command.
  *              </li>
  *              <li><code>windowHandle</code> - Switch to a window using its unique handle.</li>
  *              <li><code>unspecified</code> - Switch to the last opened window.</li>
@@ -40,28 +41,27 @@ module.exports = function(windowLocator) {
         windowHandles = this.driver.windowHandles().value;
         this.driver.window(windowHandles[windowHandles.length - 1]);
     } else if (windowLocator.indexOf('title=') === 0) {
-        windowHandles = this.driver.windowHandles().value;
-
         var pattern = windowLocator.substring('title='.length);
-
-        var BreakException = {};
-        var self = this;
+        var start = (new Date()).getTime();
         var windowFound = false;
-        try {
-            windowHandles.forEach(function(handle) {
-                self.driver.window( handle);
-                var title = self.driver.getTitle();
-                if (self.helpers.matchPattern(title, pattern)) {
-                    windowFound = true;
-                    throw BreakException;
+wait:
+        while ((new Date()).getTime() - start < this.waitForTimeout) {
+            var windowHandles = this.driver.windowHandles();
+            for (var i = 0; i < windowHandles.value.length; i++) {
+                var handle = windowHandles.value[i];
+                try {
+                    this.driver.window(handle);
+                } catch (err) { // in case window was closed
+                    continue;
                 }
-            });
-        } catch (e) {
-            if (e !== BreakException) {
-                throw e;
+                var title = this.driver.title();
+                if (this.helpers.matchPattern(title.value, pattern)) {
+                    windowFound = true;
+                    break wait;
+                }
             }
+            this.pause(500);
         }
-
         // if window not found - switch to original one and throw
         if (!windowFound) {
             this.driver.window(currentHandle);
