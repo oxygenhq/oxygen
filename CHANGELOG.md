@@ -8,6 +8,7 @@
 * **[Breaking change]** Rename `web.executeScript` to `web.execute`.
 * **[Breaking change]** Rename `web.getPageSource` to `web.getSource`.
 * **[Breaking change]** Rename `mob.waitForElement` to `mob.waitForExist`.
+* **[Breaking change]** Rename `mob.setValue` to `mob.type`.
 * **[Breaking change]** Remove empty string locator from `web.selectWindow`.
 * **[Breaking change]** Change `web.selectFrame` behavior:
     * Multiple locators can be passed as arguments now instead of separating the frame XPathes with
@@ -36,6 +37,7 @@
 * Do not try to invoke web.clickHidden from web.click when element not found.
 * Fix hang when calling method on a uninitialized module.
 * Fix hidden click fallback in `web.click`.
+* Fix `web.type` not clearing the previous value.
 
 ## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
