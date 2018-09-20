@@ -38,6 +38,7 @@
 * Fix hang when calling method on a uninitialized module.
 * Fix hidden click fallback in `web.click`.
 * Fix `web.type` not clearing the previous value.
+* `web.selectWindow` will automatically wait for window to appear when using `title` locator.
 
 ## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
