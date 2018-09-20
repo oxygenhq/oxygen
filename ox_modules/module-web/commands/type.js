@@ -8,9 +8,8 @@
  */
  
 /**
- * @summary Simulates keystroke events on the specified element, as though you typed the value
- *          key-by-key. Previous value if any will be cleared.
- * @description Refer to <a href="https://w3c.github.io/webdriver/webdriver-spec.html#keyboard-actions">Key Codes</a> 
+ * @summary Send a sequence of key strokes to an element (clears value before).
+ * @description Refer to <a href="https://w3c.github.io/webdriver/#keyboard-actions">Key Codes</a>
  *              for the list of supported raw keyboard key codes.
  * @function type
  * @param {String} locator - An element locator.
@@ -23,11 +22,5 @@ module.exports = function(locator, value) {
     if (this.autoWait) {
         this.waitForVisible(locator);
     }
-    // FIXME: driver.element should throw if element not found, but it doesn't. possibly wdio-sync related
-    // thus we will crash down the road with non descriptive error...
-    // the above waitForVisible helps with this since it does throw, however there can be situations
-    // where element becomes unavailable between these two commands.
-    // this should be fixed!!!
-    var el = this.driver.element(wdloc);
-    this.driver.elementIdValue(el.value.ELEMENT, value.toString());
+    this.driver.setValue(wdloc, value.toString());
 };
