@@ -44,9 +44,9 @@ module.exports = function(windowLocator) {
         var pattern = windowLocator.substring('title='.length);
         var start = (new Date()).getTime();
         var windowFound = false;
-wait:
+        wait:
         while ((new Date()).getTime() - start < this.waitForTimeout) {
-            var windowHandles = this.driver.windowHandles();
+            windowHandles = this.driver.windowHandles();
             for (var i = 0; i < windowHandles.value.length; i++) {
                 var handle = windowHandles.value[i];
                 try {
