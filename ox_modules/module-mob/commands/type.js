@@ -8,11 +8,15 @@
  */
  
 /**
- * @summary Sets element's value.
- * @function setValue
- * @param {String} locator - Element locator.
- * @param {String} value - Value to set.
+ * @summary Send a sequence of key strokes to an element (clears value before).
+ * @description Refer to <a href="https://w3c.github.io/webdriver/#keyboard-actions">Key Codes</a>
+ *              for the list of supported raw keyboard key codes.
+ * @function type
+ * @param {String} locator - An element locator.
+ * @param {String} value - The value to type.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Example of typing a sequence of characters and pressing Enter afterwards.</caption>
+ * mob.type('id=someElement', 'hello world\uE007');
  */
 module.exports = function(locator, value) {
     this.helpers._assertArgument(locator, 'locator');
