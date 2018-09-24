@@ -50,14 +50,11 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    var deasync = require('deasync');
-    var request = require('request');
-    var net = require('net');
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
     var _ = require('lodash');
+    const { harFromMessages } = require('chrome-har');
     var utils = require('./utils');
-    var cp = require('child_process');
 
     var _this = module._this = this;
 
@@ -79,8 +76,6 @@ module.exports = function (options, context, rs, logger) {
     var transactions = {};                      // transaction->har dictionary
 
     const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
-    const PROXY_ADDR = '127.0.0.1';
-    const PROXY_API_ADDR = 'localhost'; // bug in martian (?) - uses localhost instead of "martian.proxy" when -api-addr is defined
     const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
     const ACTION_COMMANDS = ['open', 'click'];
 
@@ -116,11 +111,10 @@ module.exports = function (options, context, rs, logger) {
         }
         // TODO: should clear transactions to avoid duplicate names across iterations
         // also should throw on duplicate names.
-        if (opts.proxyEnabled) {
+        if (opts.recordHAR) {
             // there might be no transactions set if test fails before web.transaction command
             if (global._lastTransactionName) {
                 transactions[global._lastTransactionName] = harGet();
-                harReset();
             }
         }
 
@@ -129,14 +123,12 @@ module.exports = function (options, context, rs, logger) {
 
     /*
      * FIXME: There is a bug with IE. See the comment within function body.
-     * Since HARs provided by the proxy don't contain any browser level timings, such as domContentLoaded and load event timings,
-     * we try to retrieve them directly from the browser for the currently active page/action.
      *
      *  domContentLoaded (aka First Visual Time)- Represents the difference between domContentLoadedEventStart and navigationStart.
      *  load (aka Full Load Time)               - Represents the difference between loadEventStart and navigationStart.
-     * 
+     *
      * The processing model:
-     * 
+     *
      *  1. navigationStart              - The browser has requested the document.
      *  2. ...                          - Not relevant to us. See http://www.w3.org/TR/navigation-timing/#process for more information.
      *  3. domLoading                   - The browser starts parsing the document.
@@ -219,20 +211,6 @@ module.exports = function (options, context, rs, logger) {
             seleniumUrl = opts.seleniumUrl;
         }
 
-        // FIXME: move to agent?
-        if (opts.proxyEnabled) {
-            initProxy();
-        }
-
-        if (opts.proxyEnabled) {
-            var uri = PROXY_ADDR + ':' + _this.proxyPort;
-            caps.proxy = {
-                proxyType: 'MANUAL',
-                httpProxy: uri,
-                sslProxy: uri
-            };
-        }
-
         // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
         _this.caps = {};
@@ -254,7 +232,20 @@ module.exports = function (options, context, rs, logger) {
         if (_this.caps.browserName === 'ie') {
             _this.caps.browserName = 'internet explorer';
         }
-        
+
+        if (opts.recordHAR && _this.caps.browserName === 'chrome') {
+            _this.caps.loggingPrefs = {
+                browser: 'ALL',
+                performance: 'ALL'
+            };
+            _this.caps.chromeOptions = {
+                perfLoggingPrefs: {
+                    enableNetwork: true,
+                    enablePage: false
+                }
+            };
+        }
+
         // populate WDIO options
         var URL = require('url');
         var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
@@ -270,7 +261,7 @@ module.exports = function (options, context, rs, logger) {
             path: path,
             desiredCapabilities: _this.caps
         };
-        
+
         // initialize driver with either default or custom appium/selenium grid address
         _this.driver = wdio.remote(wdioOpts);
         wdioSync.wrapCommands(_this.driver);
@@ -289,106 +280,17 @@ module.exports = function (options, context, rs, logger) {
         isInitialized = true;
     };
 
-    // TODO: this should be done in agent
-    function initProxy() {
-        _this.proxyPort = null;
-        _this.proxyAPIPort = null;
-
-        getFreePort((port) => { _this.proxyPort = port; }, 1000);
-        deasync.loopWhile(() => !_this.proxyPort);
-        getFreePort((port) => { _this.proxyAPIPort = port; }, _this.proxyPort + 1);
-        deasync.loopWhile(() => !_this.proxyAPIPort);
-
-        var proxyOk = null;
-        var proxyFail = null;
-        // NOTE: for some reason enclosing key/cert path in double quotes doesn't work.
-        //       therefore it must be assured that the path doesn't contain spaces.
-        _this._proxy = cp.execFile(opts.proxyExe, ['-har=true',
-                                                   '-har-log-body=false',
-                                                   '-key=' + opts.proxyKey,
-                                                   '-cert=' + opts.proxyCer, 
-                                                   '-api-addr=:' + _this.proxyAPIPort,
-                                                   '-addr=127.0.0.1:' + _this.proxyPort, 
-        ]);
-
-        // why does martian writes to stderr instead of stdout on success?
-        _this._proxy.stderr.on('data', function(data) { 
-            if (data.indexOf('martian: proxy started on') > 0) {
-                proxyOk = true;
-            }
-        });
-        _this._proxy.stdout.on('data', function(data) {
-            if (data.indexOf('martian: proxy started on') > 0) {
-                proxyOk = true;
-            }
-        });
-
-        _this._proxy.on('close', function(code) {
-            proxyFail = true;
-        });
-
-        deasync.loopWhile(() => !proxyOk && !proxyFail);
-
-        // TODO: consider saving stderr data and adding it to the message for easier debugging
-        if (proxyFail) {
-            throw new _this.OxError(_this.errHelper.errorCode.PROXY_INITIALIZATION_ERROR, 'Proxy initialization failed');
-        }
-    }
-
-    function getFreePort(cb, startPort) {
-        var server = net.createServer();
-
-        server.listen(startPort, function (err) {
-            server.once('close', function () {
-                cb(startPort);
-            });
-            server.close();
-        });
-
-        server.on('error', function (err) {
-            getFreePort(cb, startPort + 1);
-        });
-    }
-
-    function harReset() {
-        var result = null;
-
-        var options = {
-            url: 'http://' + PROXY_API_ADDR + ':' + _this.proxyAPIPort + '/logs/reset',
-            method: 'DELETE',
-            timeout: 1000 * 20,
-            proxy: 'http://' + PROXY_ADDR + ':' + _this.proxyPort
-        };
-
-        request(options, (err, res, body) => { result = err || res; });
-        deasync.loopWhile(() => !result);
-
-        if (result.statusCode !== 204) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new _this.OxError(_this.errHelper.errorCode.PROXY_HAR_FETCH_ERROR, msg);
-        }
-    }
-
     function harGet() {
-        var result = null;
+        var logs = _this.driver.log('performance');
 
-        var options = {
-            url: 'http://' + PROXY_API_ADDR + ':' + _this.proxyAPIPort + '/logs',
-            method: 'GET',
-            json: false,
-            timeout: 1000 * 20,
-            proxy: 'http://' + PROXY_ADDR + ':' + _this.proxyPort
-        };
-
-        request(options, (err, res, body) => { result = err || res; });
-        deasync.loopWhile(() => !result);
-
-        if (result.statusCode !== 200) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new _this.OxError(_this.errHelper.errorCode.PROXY_HAR_FETCH_ERROR, msg);
+        var events = [];
+        for (var log of logs.value) {
+            var msgObj = JSON.parse(log.message);   // returned as string
+            events.push(msgObj.message);
         }
 
-        return result.body;
+        const har = harFromMessages(events);
+        return JSON.stringify(har);
     }
 
     /**
@@ -402,11 +304,10 @@ module.exports = function (options, context, rs, logger) {
         if (global._lastTransactionName) {
             transactions[global._lastTransactionName] = null;
 
-            if (opts.proxyEnabled) {
+            if (opts.recordHAR) {
                 transactions[global._lastTransactionName] = harGet();
-                harReset();
             }
-        } 
+        }
 
         global._lastTransactionName = name;
     };
@@ -423,10 +324,6 @@ module.exports = function (options, context, rs, logger) {
                 logger.error(e);    // ignore any errors at disposal stage
             }
             isInitialized = false;
-        }
-
-        if (_this._proxy) {
-            _this._proxy.kill();
         }
     };
 
