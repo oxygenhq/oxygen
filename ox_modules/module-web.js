@@ -225,7 +225,10 @@ module.exports = function (options, context, rs, logger) {
         if (!_this.caps.browserName) {
             _this.caps.browserName = opts.browserName;
         }
-
+        // FIXME: shall we throw an exception if browserName is not specified, neither in caps nor in options?!
+        if (!_this.caps.browserName) {
+            throw new Error('Cannot initialize web module - browserName must be specified.');
+        }
         // webdriver expects lower case names
         _this.caps.browserName = _this.caps.browserName.toLowerCase();
         // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
