@@ -36,7 +36,7 @@
   "dependencies": {
     "async": "2.6.1",
     "chai": "4.1.2",
-    "chrome-remote-interface": "0.26.0",
+    "chrome-remote-interface": "0.26.1",
     "config": "2.0.1",
     "deasync": "0.1.13",
     "easyxml": "2.0.1",
@@ -51,13 +51,13 @@
     "oxygen-logger": "0.2.0",
     "request": "2.88.0",
     "serialport": "7.0.2",
-    "soap": "0.24.0",
-    "twilio": "3.19.2",
+    "soap": "0.25.0",
+    "twilio": "3.23.1",
     "wdio-sync": "0.7.2",
     "webdriverio": "4.13.2",
     "when": "3.7.8",
     "xlsx": "0.14.0",
-    "chrome-har": "0.4.1"
+    "chrome-har": "0.5.0"
   },
   "optionalDependencies": {
     "odbc": "1.4.5"
