@@ -31,20 +31,34 @@ module.exports = function() {
      * @summary Retrieves last SMS message.
      * @function getLastSms
      * @param {Boolean} removeOnRead - Specifies whether to delete the message after reading it.
-     * @param {String} timeout - Timeout for waiting for the message to arrive.
+     * @param {Integer} timeout - Timeout in milliseconds for waiting for the message to arrive.
+     * @param {Integer=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms).
+     *                                  Default is 4 minutes.
      * @return {String} SMS text.
      */
-    module.getLastSms = function(removeOnRead, timeout) {
+    module.getLastSms = function(removeOnRead, timeout, notOlderThan) {
+        if (!notOlderThan) {
+            notOlderThan = 4*60*1000;
+        }
         var msg;
-        var now = (new Date()).getTime();
+        var now = Date.now();
+        var earliestMessageDate = now - notOlderThan;
         
-        while (!msg && ((new Date()).getTime() - now) < timeout) {
+        while (!msg && (Date.now() - now) < timeout) {
             var msgsProcessed = false;
             _client.messages.list(function(err, messages) {
                 var _msg;
                 for (_msg of messages) {
                     if (_msg.direction == 'inbound') {
-                        if (msg && Date.parse(msg.dateCreated) < Date.parse(_msg.dateCreated)) {
+                        var _msgDate = Date.parse(_msg.dateCreated);
+
+                        // skip if message is older than `notOlderThan`
+                        if (_msgDate < earliestMessageDate) {
+                            continue;
+                        }
+
+                        // if message is newer than the previous one - save it
+                        if (msg && Date.parse(msg.dateCreated) < _msgDate) {
                             msg = _msg;
                         } else if (!msg) {
                             msg = _msg;
