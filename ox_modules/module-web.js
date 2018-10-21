@@ -307,7 +307,7 @@ module.exports = function (options, context, rs, logger) {
         if (global._lastTransactionName) {
             transactions[global._lastTransactionName] = null;
 
-            if (opts.recordHAR) {
+            if (opts.recordHAR && isInitialized) {
                 transactions[global._lastTransactionName] = harGet();
             }
         }
