@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v0.33.0 (2018-xx-xx)
+## v0.33.0 (2018-10-24)
 * **[Breaking change]** Rename `web.waitForElementPresent` to `web.waitForExist`.
 * **[Breaking change]** Rename `web.isElementPresent` to `web.isExist`.
 * **[Breaking change]** Rename `web.isElementVisible` to `web.isVisible`.
@@ -40,6 +40,7 @@
 * Fix `web.type` not clearing the previous value.
 * `web.selectWindow` will automatically wait for window to appear when using `title` locator.
 * Add optional `notOlderThan` argument to `twilio.getLastSms`.
+* Fixed `transaction` not working if specified before `init`.
 
 ## v0.32.0 (2018-08-09)
 * Fix `web.isAlertPresent`.
