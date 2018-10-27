@@ -54,7 +54,7 @@
     "soap": "0.25.0",
     "twilio": "3.23.1",
     "wdio-sync": "0.7.2",
-    "webdriverio": "4.13.2",
+    "webdriverio": "4.14.0",
     "when": "3.7.8",
     "xlsx": "0.14.0",
     "chrome-har": "0.5.0"
