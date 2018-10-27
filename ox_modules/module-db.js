@@ -84,6 +84,23 @@ module.exports = function() {
     };
 
     /**
+     * @summary Executes SQL query and returns the result set.
+     * @function executeQuery
+     * @param {String} query - The query to execute.
+     * @return {Object} The result set.
+     */
+    module.executeQuery = function(query) {
+        module._openDbConn();
+        try {
+            return db.querySync(query);
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
+        } finally {
+            db.closeSync();
+        }
+    };
+
+    /**
      * @summary Executes SQL statement.
      * @description Any results from the query are discarded.
      * @function executeNonQuery

@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.34.0 (2018-xx-xx)
+* Add `db.executeQuery`.
+
 ## v0.33.0 (2018-10-24)
 * **[Breaking change]** Rename `web.waitForElementPresent` to `web.waitForExist`.
 * **[Breaking change]** Rename `web.isElementPresent` to `web.isExist`.
