@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.34.1 (2018-11-06)
+* Fix invalid error being reported under certain conditions.
+
 ## v0.34.0 (2018-11-06)
 * Add `db.executeQuery`.
 * Fix crash on Linux/OSX if odbc binaries are not installed.
