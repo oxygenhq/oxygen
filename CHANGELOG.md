@@ -1,7 +1,11 @@
 # CHANGELOG
 
-## v0.34.0 (2018-xx-xx)
+## v0.34.0 (2018-11-06)
 * Add `db.executeQuery`.
+* Fix crash on Linux/OSX if odbc binaries are not installed.
+* Fix incorrect error type returned in certain situations.
+* Fix error line number not shown for certain errors.
+* Bump webdriverio.
 
 ## v0.33.0 (2018-10-24)
 * **[Breaking change]** Rename `web.waitForElementPresent` to `web.waitForExist`.
