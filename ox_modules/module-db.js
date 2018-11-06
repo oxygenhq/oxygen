@@ -16,7 +16,9 @@ var db;
 try {
     db = require('odbc')();
 } catch (e) {
-    return;
+    // could happen only on unix due to missing unixodbc binaries
+    const ModuleUnavailableError = require('../errors/ModuleUnavailableError');
+    throw new ModuleUnavailableError('`unixodbc` binaries not installed');
 }
 
 const OxError = require('../errors/OxygenError');
