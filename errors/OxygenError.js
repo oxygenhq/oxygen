@@ -22,7 +22,7 @@ function OxygenError(type, message, innerError, isFatal) {
     this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
     
     var self = this;
-    this.caputeStackTrace = function() {
+    this.captureStackTrace = function() {
         var orig = Error.prepareStackTrace;
         Error.prepareStackTrace = function (_, stack) { return stack; };
         var err = new Error();
@@ -33,7 +33,7 @@ function OxygenError(type, message, innerError, isFatal) {
     
     // don't generate stacktrace if OxygenError is used indirectly through inheritance
     if (type || message || innerError) {
-        this.caputeStackTrace();
+        this.captureStackTrace();
     }
 }
 

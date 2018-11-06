@@ -40,7 +40,6 @@ const ERROR_CODES = {
     SERIAL_PORT_ERROR: 'SERIAL_PORT_ERROR',
     HTTP_ERROR: 'HTTP_ERROR',
     EMAIL_ERROR: 'EMAIL_ERROR',
-    ASYNC_ERROR: 'ASYNC_ERROR',
     MODULE_NOT_INITIALIZED_ERROR: 'MODULE_NOT_INITIALIZED_ERROR'
 };
 
@@ -111,16 +110,6 @@ module.exports = {
         // try to resolve WDIO RuntimeError-s having seleniumStack
         if (errType === 'RuntimeError' && err.seleniumStack) {
             oxErrorCode = WDIO_ERROR_CODES[err.seleniumStack.type];
-            
-            /* Special case. happens in web.clickHidden when element not found
-
-                "message": "unknown error: NoSuchElement",
-                "type": "RuntimeError",
-                "seleniumStack": {
-                    "type": "UnknownError",
-                    "message": "An unknown server-side error occurred while processing the command.",
-                    "orgStatusMessage": "unknown error: NoSuchElement\n  (Session info: chrome=68.0.3440.106)\n ..."
-                }*/
             if (err.message === 'unknown error: NoSuchElement') { // 
                 return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, null, null);
             } else if (oxErrorCode) {
