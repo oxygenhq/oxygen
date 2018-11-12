@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.34.2 (2018-11-12)
+* Bump dependencies (adds support Node 9 and 10)
+
 ## v0.34.1 (2018-11-06)
 * Fix invalid error being reported under certain conditions.
 
