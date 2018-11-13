@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "grunt": "1.0.3",
-    "grunt-eslint": "21.0.0",
+    "grunt-eslint": "20.2.0",
     "doctrine": "2.1.0"
   },
   "dependencies": {
