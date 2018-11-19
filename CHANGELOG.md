@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.34.4 (2018-11-19)
+* Fix debugger.
+
 ## v0.34.2 (2018-11-12)
 * Bump dependencies (adds support Node 9 and 10)
 
