@@ -36,7 +36,7 @@
   "dependencies": {
     "async": "2.6.1",
     "chai": "4.2.0",
-    "chrome-remote-interface": "0.26.1",
+    "chrome-remote-interface": "git+https://github.com/oxygenhq/chrome-remote-interface.git",
     "config": "2.0.1",
     "deasync": "0.1.13",
     "easyxml": "2.0.1",
