@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.35.0 (2018-xx-xx)
+* **[Breaking change]** Rename `mob.isDisplayed` to `mob.isVisible`.
+
 ## v0.34.4 (2018-11-19)
 * Fix debugger.
 
