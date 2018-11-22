@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,7 +10,7 @@
 /**
  * @summary Determines if an element is selected.
  * @function isSelected
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @return {Boolean} - true if element is selected. false otherwise.
  * @for android
  */
@@ -20,10 +20,7 @@ module.exports = function(locator) {
     if (typeof locator === 'object' && locator.getAttribute) {
         return locator.getAttribute('selected') == 'true';
     }
-
-    if (this.autoWait) {
-        this.waitForExist(locator);
-    }
+    
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.getAttribute(locator, 'selected') == 'true';
 };

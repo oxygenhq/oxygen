@@ -10,7 +10,7 @@
 /**
  * @summary Determines if checkbox or radio element is checked.
  * @function isChecked
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @return {Boolean} - true if element is checked. false otherwise.
  * @for android
  */
@@ -21,9 +21,6 @@ module.exports = function(locator) {
         return locator.getAttribute('checked');
     }
 
-    if (this.autoWait) {
-        this.waitForExist(locator);
-    }
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.getAttribute(locator, 'checked') == 'true';
 };
