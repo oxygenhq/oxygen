@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,7 +10,8 @@
 /**
  * (consider improving. write into test results)
  * @function takeScreenshot
- * @summary Take a screenshot of the current page or screen.
+ * @summary Take a screenshot of the current page or screen and return it as base64 encoded string.
+ * @return {String} Screenshot image encoded as a base64 string.
  */
 module.exports = function() {
     var response = this.driver.screenshot();
