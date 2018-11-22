@@ -10,7 +10,7 @@
 /**
  * @summary Performs a long click/touch on an element.
  * @function clickLong
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @param {Integer} duration - Touch duration in milliseconds.
  * @for android, ios, hybrid, web
  */

@@ -9,7 +9,7 @@
 /**
  * @summary Asserts element's value.
  * @function assertValue
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @param {String} pattern - Assertion text or pattern.
  * @param {String=} message - Message to generate in case of assert failure.
  * @for android, ios, hybrid, web

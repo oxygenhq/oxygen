@@ -10,7 +10,7 @@
 /**
  * @summary Gets element's value.
  * @function getValue
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @return {String} - Element's value.
  * @for android, ios, hybrid, web
  */
@@ -18,7 +18,7 @@ module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');
 
     // when locator is an element object
-    if (typeof locator === 'object' && locator.getValue) {
+    if (typeof locator === 'object' && locator.getAttribute) {
         return locator.getAttribute('value');
     }
 

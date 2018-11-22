@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,7 +10,7 @@
 /**
  * @summary Get element's location.
  * @function getLocation
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator) {

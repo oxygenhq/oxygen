@@ -10,7 +10,7 @@
 /**
  * @summary Clicks hidden element.
  * @function clickHidden
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @param {Boolean=} clickParent - If true, then parent of the element is clicked.
  * @for hybrid, web
 */

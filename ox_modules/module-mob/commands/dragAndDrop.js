@@ -10,24 +10,24 @@
 /**
  * @summary Tap on an element, drag by the specified offset, and release.
  * @function dragAndDrop
- * @param {String} locator - Element locator on which to perform the initial tap.
+ * @param {String|WebElement} locator - Element locator on which to perform the initial tap.
  * @param {Integer} xoffset - Horizontal offset. Positive for right direction; Negative for left. 
  * @param {Integer} yoffset - Vertical offset. Negative for up direction; Positive for down. 
  * @for android, ios
  */
-module.exports = function(locator, xoffset, yoffset) {   
+module.exports = function(locator, xoffset, yoffset) {
     this.helpers._assertArgument(locator, 'locator');
     this.helpers._assertArgumentNumber(xoffset, 'xoffset');
     this.helpers._assertArgumentNumber(yoffset, 'yoffset');
 
-    if (typeof locator === 'object') {
+    if (typeof locator === 'object' && locator.touchAction) {
         return locator.touchAction(
             [
                 'press',
                 { action: 'moveTo', x: xoffset, y: yoffset },
                 'release'
             ]
-        );    
+        );
     }
 
     if (this.autoWait) {

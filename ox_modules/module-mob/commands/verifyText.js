@@ -10,7 +10,7 @@
 /**
  * @summary Verifies element's inner text.
  * @function verifyText
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @param {String} pattern - Assertion text or pattern.
  * @param {String=} message - Message to generate in case of verification failure.
  * @for android, ios, hybrid, web

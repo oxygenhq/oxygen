@@ -10,7 +10,7 @@
 /**
  * @summary Clicks on an element.
  * @function click
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator) {

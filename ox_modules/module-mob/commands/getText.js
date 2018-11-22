@@ -10,7 +10,7 @@
 /**
  * @summary Gets element's text.
  * @function getText
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @return {String} - Element's text.
  * @for android, ios, hybrid, web
  */
@@ -18,7 +18,7 @@ module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');
 
     // when locator is an element object
-    if (typeof locator === 'object' && locator.click) {
+    if (typeof locator === 'object' && locator.getText) {
         return locator.getText();
     }
 

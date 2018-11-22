@@ -12,7 +12,7 @@
  * @description Refer to <a href="https://w3c.github.io/webdriver/#keyboard-actions">Key Codes</a>
  *              for the list of supported raw keyboard key codes.
  * @function type
- * @param {String} locator - An element locator.
+ * @param {String|WebElement} locator - An element locator.
  * @param {String} value - The value to type.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Example of typing a sequence of characters and pressing Enter afterwards.</caption>

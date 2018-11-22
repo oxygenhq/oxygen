@@ -11,7 +11,7 @@
  * @summary Wait for an element for the provided amount of milliseconds to be present.
  * @description The element is not necessary needs to be visible.
  * @function waitForExist
- * @param {String} locator - Element locator.
+ * @param {String|WebElement} locator - Element locator.
  * @param {Integer=} wait - Time in milliseconds to wait for the element. Default is 60 seconds.
  * @for android, ios, hybrid, web
  */

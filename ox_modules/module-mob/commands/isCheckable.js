@@ -20,7 +20,7 @@ module.exports = function(locator) {
     if (typeof locator === 'object' && locator.getAttribute) {
         return locator.getAttribute('checkable');
     }
-    
+
     locator = this.helpers.getWdioLocator(locator);
     return this.driver.getAttribute(locator, 'checkable') == 'true';
 };
