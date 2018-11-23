@@ -2,6 +2,9 @@
 
 ## v0.35.0 (2018-xx-xx)
 * **[Breaking change]** Rename `mob.isDisplayed` to `mob.isVisible`.
+* Fix `mob.is*` behavior when element not found.
+* Better error messages for Selenium and Appium init failures.
+* Documentation updates.
 
 ## v0.34.4 (2018-11-19)
 * Fix debugger.
