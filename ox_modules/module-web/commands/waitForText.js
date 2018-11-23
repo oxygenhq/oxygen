@@ -22,10 +22,20 @@ module.exports = function(locator, pattern, timeout) {
     this.waitForExist(locator);
 
     var self = this;
-    this.driver.waitUntil(() => {
-        return self.driver.getText(wdloc).then((txt) => {
-            return self.helpers.matchPattern(txt, pattern);
-        });
-    }, 
-    (!timeout ? this.waitForTimeout : timeout));
+    var elTxt;
+    try {
+        this.driver.waitUntil(() => {
+            return self.driver.getText(wdloc).then((txt) => {
+                elTxt = txt;
+                return self.helpers.matchPattern(txt, pattern);
+            });
+        },
+        (!timeout ? this.waitForTimeout : timeout));
+    } catch (e) {
+        if (e.type === 'WaitUntilTimeoutError') {
+            throw new this.OxError(this.errHelper.errorCode.TEXT_DOESNT_MATCH_ERROR,
+                'Expected text: ' + pattern + ", Element's text: " + elTxt);
+        }
+        throw e;
+    }
 };
