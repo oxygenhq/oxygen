@@ -97,7 +97,7 @@ module.exports = function (options, context, rs, logger) {
             try {
                 return module.takeScreenshot();
             } catch (e) {
-                throw require('../errors/helper').getOxygenError(e);
+                throw _this.errHelper.getOxygenError(e);
             }
         }
     };
