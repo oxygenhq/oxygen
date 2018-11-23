@@ -33,6 +33,7 @@ const ERROR_CODES = {
     MAILINATOR_ERROR: 'MAILINATOR_ERROR',
     APPIUM_UNREACHABLE_ERROR: 'APPIUM_UNREACHABLE_ERROR',
     SELENIUM_UNREACHABLE_ERROR: 'SELENIUM_UNREACHABLE_ERROR',
+    CHROME_BINARY_NOT_FOUND: 'CHROME_BINARY_NOT_FOUND',
     DB_CONNECTION_ERROR: 'DB_CONNECTION_ERROR',
     DB_QUERY_ERROR: 'DB_QUERY_ERROR',
     SOAP_ERROR: 'SOAP_ERROR',
@@ -128,6 +129,30 @@ module.exports = {
             return new OxError(oxErrorCode, err.message, null);
         }
         
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
+    },
+    getSeleniumInitError: function(err) {
+        if (err.type === 'RuntimeError') {
+            if (err.message != null && err.message.indexOf('cannot find Chrome binary') > -1) {
+                throw new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
+            } else if (err.message != null && err.message.indexOf('ECONNREFUSED') > -1) {
+                throw new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
+            } else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
+                throw new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't resolve Selenium server address");
+            }
+        }
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
+    },
+    getAppiumInitError: function(err) {
+        if (err.type === 'RuntimeError') {
+            if (err.message != null && err.message.indexOf('cannot find Chrome binary') > -1) {
+                throw new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
+            } else if (err.message != null && err.message.indexOf('ECONNREFUSED') > -1) {
+                throw new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
+            } else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
+                throw new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't resolve Appium server address");
+            }
+        }
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
     },
     
