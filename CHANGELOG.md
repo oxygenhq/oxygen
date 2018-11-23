@@ -1,9 +1,11 @@
 # CHANGELOG
 
-## v0.35.0 (2018-xx-xx)
+## v0.35.0 (2018-11-23)
 * **[Breaking change]** Rename `mob.isDisplayed` to `mob.isVisible`.
 * Fix `mob.is*` behavior when element not found.
 * Better error messages for Selenium and Appium init failures.
+* Better error messages on text mismatch for `web.waitForText` and `web.waitForValue`.
+* Fix test time being reported in utc instead of local time in reports.
 * Documentation updates.
 
 ## v0.34.4 (2018-11-19)
