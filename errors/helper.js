@@ -43,7 +43,8 @@ const ERROR_CODES = {
     EMAIL_ERROR: 'EMAIL_ERROR',
     MODULE_NOT_INITIALIZED_ERROR: 'MODULE_NOT_INITIALIZED_ERROR',
     TEXT_DOESNT_MATCH_ERROR: 'TEXT_DOESNT_MATCH_ERROR',
-    VALUE_DOESNT_MATCH_ERROR: 'VALUE_DOESNT_MATCH_ERROR'
+    VALUE_DOESNT_MATCH_ERROR: 'VALUE_DOESNT_MATCH_ERROR',
+    DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND'
 };
 
 // WebdriverIO to Oxygen error codes mapping
@@ -153,6 +154,9 @@ module.exports = {
                 return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
             } else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
                 return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't resolve Appium server address");
+            } else if (err.seleniumStack && err.seleniumStack.orgStatusMessage 
+                && err.seleniumStack.orgStatusMessage.indexOf('Could not find a connected Android device') > -1) {
+                return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
             }
         }
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
