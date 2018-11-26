@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.35.1 (2018-11-26)
+* Better error message when Android device is not found.
+* Fix crash under rare circumstances.
+
 ## v0.35.0 (2018-11-23)
 * **[Breaking change]** Rename `mob.isDisplayed` to `mob.isVisible`.
 * Fix `mob.is*` behavior when element not found.
