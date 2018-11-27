@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.35.2 (2018-11-27)
+* Remove extra whitespace characters from parameters loaded from xlsx.
+
 ## v0.35.1 (2018-11-26)
 * Better error message when Android device is not found.
 * Fix crash under rare circumstances.
