@@ -43,9 +43,20 @@ module.exports = function(locator) {
             "message": "An element command could not be completed because the element is not visible on the page.",
             "orgStatusMessage": "element not visible\n  (Session info: chrome=69.0.3497.81)\n  (Driver info: chromedriver=2.41.578737 (49da6702b16031c40d63e5618de03a32ff6c197e),platform=Windows NT 10.0.16299 x86_64)"
           }
+        }
+        {
+          "message": "element not interactable",
+          "type": "RuntimeError",
+          "seleniumStack": {
+            "type": "ElementNotVisible",
+            "message": "An element command could not be completed because the element is not visible on the page.",
+            "orgStatusMessage": "element not interactable\n  (Session info: chrome=70.0.3538.110)\n  (Driver info: chromedriver=2.44.609538 (b655c5a60b0b544917107a59d4153d4bf78e1b90),platform=Windows NT 10.0.16299 x86_64)"
+          }
         }*/
-        if (e.message && 
-            (e.message.includes('is not clickable at point') || e.message === 'element not visible')) {
+        if (e.message &&
+            (e.message.includes('is not clickable at point')
+                || e.message === 'element not visible'
+                || e.message === 'element not interactable')) {
             this.clickHidden(locator);
         } else {
             throw e;
