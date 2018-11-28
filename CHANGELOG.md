@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.35.3 (2018-11-28)
+* Don't try to trim non-string parameter values.
+* Use js injection click fallback for non-intractable elements.
+
 ## v0.35.2 (2018-11-27)
 * Remove extra whitespace characters from parameters loaded from xlsx.
 
