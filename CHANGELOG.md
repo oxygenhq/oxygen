@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.35.4 (2018-11-28)
+* User friendly error messages on invalid parameter files.
+
 ## v0.35.3 (2018-11-28)
 * Don't try to trim non-string parameter values.
 * Use js injection click fallback for non-intractable elements.
