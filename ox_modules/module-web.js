@@ -102,10 +102,12 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    module._iterationStart = function(vars) {
+    module._iterationStart = function() {
+        // clear transaction name saved in previous iteration if any
+        global._lastTransactionName = null;
     };
 
-    module._iterationEnd = function(vars) {
+    module._iterationEnd = function() {
         if (!isInitialized) {
             return;
         }

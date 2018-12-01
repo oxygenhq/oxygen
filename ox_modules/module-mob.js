@@ -115,6 +115,11 @@ module.exports = function (options, context, rs, logger) {
         }
     };
     
+    module._iterationStart = function() {
+        // clear transaction name saved in previous iteration if any
+        global._lastTransactionName = null;
+    };
+    
     helpers._assertArgument = utils.assertArgument;
     helpers._assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
     helpers._assertArgumentNumber = utils.assertArgumentNumber;
