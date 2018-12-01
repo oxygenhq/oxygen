@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.35.5 (2018-12-01)
+* Fix invalid transaction name in reports in certain situations when executing multiple iterations.
+
 ## v0.35.4 (2018-11-28)
 * User friendly error messages on invalid parameter files.
 
