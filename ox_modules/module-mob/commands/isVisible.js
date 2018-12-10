@@ -17,7 +17,7 @@
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, timeout) {
-    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    this.helpers._assertArgumentTimeout(timeout, 'timeout');
     timeout = timeout || this.DEFAULT_WAIT_TIMEOUT;
 
     if (typeof locator === 'object' && locator.waitForVisible) {
