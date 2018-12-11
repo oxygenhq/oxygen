@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,9 +13,9 @@
 module.exports = function () {
     return {
         _type: null,
-        _subtype: null,
         _message: null,
         _details: null,
+        _line: null,
         data: null
     };
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,8 +8,8 @@
  */
  
 /*
- * Oxygen Error class extension 
- */ 
+ * Oxygen Error class extension
+ */
 var util = require('util');
 util.inherits(OxygenError, Error);
 
@@ -17,7 +17,6 @@ function OxygenError(type, message, innerError, isFatal) {
     this.innerError = innerError || null;
     this.type = type || this.type || null;
     this.message = message || this.message || null;
-    this.subtype = this.subtype || null;
     this.data = this.data || null;
     this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
     
