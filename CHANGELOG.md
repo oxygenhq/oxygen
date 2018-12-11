@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.36.0 (2018-12-11)
+* Add `web.back`.
+* Fix `mob.isVisible`.
+* Better handling of error caused by lack of Mono installation on MacOS, when generating HTML report.
+
 ## v0.35.5 (2018-12-01)
 * Fix invalid transaction name in reports in certain situations when executing multiple iterations.
 
