@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.36.1 (2018-12-17)
+* Fix error's line number not saved in step result.
+
 ## v0.36.0 (2018-12-11)
 * Add `web.back`.
 * Fix `mob.isVisible`.
