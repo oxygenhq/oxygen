@@ -31,7 +31,7 @@ module.exports = function() {
     /**
      * @summary Returns a future or a past date
      * @function fromNow
-     * @param {Integer} unit - Unit type. See http://momentjs.com/docs/#/manipulating/add/
+     * @param {String} unit - Unit type. See http://momentjs.com/docs/#/manipulating/add/
      * @param {Integer} value - Number of minutes/days/months/etc to add or subtract from the current date.
      * @param {String} format - Format string.
      * @return {String} Date formatted according to the specified format string.
