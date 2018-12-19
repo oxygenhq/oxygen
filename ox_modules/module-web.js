@@ -113,7 +113,7 @@ module.exports = function (options, context, rs, logger) {
         }
         // TODO: should clear transactions to avoid duplicate names across iterations
         // also should throw on duplicate names.
-        if (opts.recordHAR) {
+        if (opts.recordHAR && _this.caps.browserName === 'chrome') {
             // there might be no transactions set if test fails before web.transaction command
             if (global._lastTransactionName) {
                 transactions[global._lastTransactionName] = harGet();
@@ -309,7 +309,7 @@ module.exports = function (options, context, rs, logger) {
         if (global._lastTransactionName) {
             transactions[global._lastTransactionName] = null;
 
-            if (opts.recordHAR && isInitialized) {
+            if (opts.recordHAR && isInitialized && _this.caps.browserName === 'chrome') {
                 transactions[global._lastTransactionName] = harGet();
             }
         }
