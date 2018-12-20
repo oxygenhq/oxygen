@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.37.0 (2018-12-20)
+* Ignore delay for transaction commands.
+* Fix `date.fromNow` documentation.
+* Add authentication support for `soap`.
+
 ## v0.36.1 (2018-12-17)
 * Fix error's line number not saved in step result.
 
