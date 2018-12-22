@@ -29,17 +29,19 @@
     "url": "https://github.com/oxygenhq/oxygen/issues"
   },
   "devDependencies": {
+    "doctrine": "2.1.0",
     "grunt": "1.0.3",
-    "grunt-eslint": "20.2.0",
-    "doctrine": "2.1.0"
+    "grunt-eslint": "20.2.0"
   },
   "dependencies": {
     "async": "2.6.1",
     "chai": "4.2.0",
+    "chrome-har": "0.5.0",
     "chrome-remote-interface": "git+https://github.com/oxygenhq/chrome-remote-interface.git",
     "config": "2.0.2",
     "deasync": "0.1.13",
     "easyxml": "2.0.1",
+    "esm": "^3.0.84",
     "fibers": "3.0.0",
     "glob-to-regexp": "0.4.0",
     "globule": "1.2.1",
@@ -56,8 +58,7 @@
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.0",
     "when": "3.7.8",
-    "xlsx": "0.14.1",
-    "chrome-har": "0.5.0"
+    "xlsx": "0.14.1"
   },
   "optionalDependencies": {
     "odbc": "1.4.5"
