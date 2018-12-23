@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.38.0 (2018-12-23)
+* Allow to access Oxygen modules and context from external modules.
+* Add ES6 support to the test script imported modules.
+* Fix commented out parameters being reported as undefined.
+* Other internal fixes.
+
 ## v0.37.0 (2018-12-20)
 * Ignore delay for transaction commands.
 * Fix `date.fromNow` documentation.
