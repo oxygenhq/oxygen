@@ -24,6 +24,16 @@ module.exports = function() {
         return _config !== undefined;
     };
 
+    /**
+     * @summary Set email connection details.
+     * @function init
+     * @param {String} user - Username (e.g. 'your@email.address').
+     * @param {String} password - Password.
+     * @param {String} host - Host name (e.g. 'imap.gmail.com').
+     * @param {Number} port - Port number (e.g. 993).
+     * @param {Boolean} tls - true to use TLS, false otherwise.
+     * @param {Number} authTimeout - Authentication timeout.
+     */
     module.init = function(user, password, host, port, tls, authTimeout) {
         _config = {
             imap: {
