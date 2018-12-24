@@ -23,6 +23,12 @@ module.exports = function() {
         return _client !== undefined;
     };
 
+    /**
+     * @summary Set Twilio authentication details.
+     * @function init
+     * @param {String} accountSid - Account SID.
+     * @param {String} authToken - Authentication token.
+     */
     module.init = function(accountSid, authToken) {
         _client = require('twilio')(accountSid, authToken);
     };
