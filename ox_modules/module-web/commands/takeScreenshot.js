@@ -15,5 +15,13 @@
  */
 module.exports = function() {
     var response = this.driver.screenshot();
-    return response.value || null;
+    // sometimes execution on IE fails with the following error:
+    // "Unable to determine type from: E. Last 1 characters read: E"
+    // it's unclear what this error means and why it happens
+    // but when it happens screenshot() will return empty array instead of null for some reason
+    // so we return response.value only if it's a string
+    if (typeof response.value === 'string' || response.value instanceof String) {
+        return response.value;
+    }
+    return null;
 };
