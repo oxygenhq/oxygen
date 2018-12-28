@@ -9,7 +9,7 @@
  
 /**
  * @summary Send a sequence of key strokes to an element (clears value before).
- * @description Refer to <a href="https://w3c.github.io/webdriver/#keyboard-actions">Key Codes</a>
+ * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
  *              for the list of supported raw keyboard key codes.
  * @function type
  * @param {String|WebElement} locator - An element locator.

@@ -200,7 +200,6 @@ module.exports = function (options, context, rs, logger) {
     /**
      * @function init
      * @summary Initializes new Selenium session.
-     * @description Initializes new Selenium session with provided desired capabilities.
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
      * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
      */

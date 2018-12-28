@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,19 +10,18 @@
 /**
  * @summary Makes hidden element visible.
  * @description This a workaround command for situations which require manipulation of hidden
- *              elements, such as when using <code>web.type</code> command for file input
- *              fields which tend to be hidden.<br/>
- *              Specifically <code>makeVisible</code> will apply following styles to the
- *              specified element:
- *              <ul>
- *              <li>visibility = 'visible'</li>
- *              <li>height = '1px'</li>
- *              <li>width = '1px'</li>
- *              <li>opacity = 1</li>
- *              <li>display='block'</li>
- *              </ul>
+ *              elements, such as when using `web.type` command for file input fields which tend
+ *              to be hidden.  
+ *              Specifically `makeVisible` will apply following styles to the
+ *              specified element:  
+ *              - visibility = 'visible'  
+ *              - height = '1px'  
+ *              - width = '1px'  
+ *              - opacity = 1  
+ *              - display='block'  
  * @function makeVisible
- * @param {String} locator - An element locator. If multiple elements match the locator, visibility is applied to all.
+ * @param {String} locator - An element locator. If multiple elements match the locator, visibility
+ *                           is applied to all.
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator); 

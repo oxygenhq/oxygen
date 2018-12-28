@@ -11,8 +11,8 @@
  * @summary Points the mouse cursor over the specified element.
  * @function point
  * @param {String} locator - An element locator.
- * @param {Integer=} xoffset - X offset from the element.
- * @param {Integer=} yoffset - Y offset from the element.
+ * @param {Number=} xoffset - X offset from the element.
+ * @param {Number=} yoffset - Y offset from the element.
  */
 module.exports = function(locator, xoffset, yoffset) {
     var wdloc = this.helpers.getWdioLocator(locator);

@@ -11,7 +11,7 @@
  * @summary Wait for an element for the provided amount of milliseconds to be visible.
  * @function waitForVisible
  * @param {String|WebElement} locator - Element locator.
- * @param {Integer=} wait - Time in milliseconds to wait for the element. Default is 60 seconds.
+ * @param {Number=} wait - Time in milliseconds to wait for the element. Default is 60 seconds.
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, wait) {

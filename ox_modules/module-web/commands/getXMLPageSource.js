@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,8 +8,7 @@
  */
  
 /**
- * @summary Gets the source of the currently active window which displays <code>text/xml</code>
- *          page.
+ * @summary Gets the source of the currently active window which displays `text/xml` page.
  * @function getXMLPageSource
  * @return {String} The XML page source.
  */
@@ -28,5 +27,5 @@ module.exports = function() {
             return src.replace(/<span\s*.*?>.*?<span\s*.*?>.*?<\/span>.*?<\/span>/g, '');
         default:
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'This command is not supported on ' + browser + ' yet.');
-    } 
+    }
 };

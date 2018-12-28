@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,11 +9,11 @@
  
 /**
  * @summary Asserts whether alert matches the specified pattern and dismisses it.
- * @description Text pattern can be any of the supported <a href="#patterns">
- *              string matching patterns</a>.
+ * @description Text pattern can be any of the supported 
+ *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
  * @function assertAlert
  * @param {String} pattern - Text pattern.
- * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(pattern, timeout) {
     var self = this;

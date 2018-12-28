@@ -10,8 +10,8 @@
 /**
  * @summary Hides device keyboard.
  * @function hideKeyboard
- * @param {String=} strategy - Strategy to use for closing the keyboard - <code>tapOutside</code> or <code>pressDone</code>.
- *                             Default is tapOutside.
+ * @param {String=} strategy - Strategy to use for closing the keyboard - `tapOutside` or 
+ *                             `pressDone`. Default is `tapOutside`.
  * @for android, hybrid, web
  */
 module.exports = function(strategy) {

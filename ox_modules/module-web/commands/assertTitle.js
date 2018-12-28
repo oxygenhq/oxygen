@@ -9,11 +9,11 @@
  
 /**
  * @summary Asserts the page title.
- * @description Assertion pattern can be any of the supported <a href="#patterns">
- *              string matching patterns</a>.
+ * @description Assertion pattern can be any of the supported 
+ *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
  * @function assertTitle
  * @param {String} pattern - The assertion pattern.
- * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(pattern, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

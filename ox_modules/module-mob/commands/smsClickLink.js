@@ -9,10 +9,10 @@
 
 /**
  * @summary Clicks SMS message URL.
- * @description <code>SMSPopup</code> application must be installed and running on the device to use this command.
+ * @description `SMSPopup` application must be installed and running on the device to use this command.
  *              https://github.com/oxygenhq/android-smspopup/releases
  * @function smsClickLink
- * @param {Integer=} wait - Time in milliseconds to wait for sms popup. Default is 60 seconds.
+ * @param {Number=} wait - Time in milliseconds to wait for sms popup. Default is 60 seconds.
  * @for android
 */
 module.exports = function(wait) {

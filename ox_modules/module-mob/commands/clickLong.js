@@ -11,7 +11,7 @@
  * @summary Performs a long click/touch on an element.
  * @function clickLong
  * @param {String|WebElement} locator - Element locator.
- * @param {Integer} duration - Touch duration in milliseconds.
+ * @param {Number} duration - Touch duration in milliseconds.
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, duration) {

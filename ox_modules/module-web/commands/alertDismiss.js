@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,7 +9,7 @@
  
 /**
  * @summary Dismisses an alert or a confirmation dialog.
- * @description In case of an alert box this command is identical to <code>alertAccept</code>.
+ * @description In case of an alert box this command is identical to `alertAccept`.
  * @function alertDismiss
  */
 module.exports = function() {

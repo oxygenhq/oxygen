@@ -12,7 +12,7 @@
  *          within the specified timeout.
  * @function isExist
  * @param {String} locator - An element locator.
- * @param {Integer=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
+ * @param {Number=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found. False otherwise.
  */
 module.exports = function(locator, timeout) {

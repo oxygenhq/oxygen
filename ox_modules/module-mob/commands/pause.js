@@ -10,7 +10,7 @@
 /**
  * @summary Pauses test execution for given amount of milliseconds.
  * @function pause
- * @param {Integer} ms - milliseconds to pause the execution.
+ * @param {Number} ms - milliseconds to pause the execution.
  * @for android, ios, hybrid, web
  */
 module.exports = function(ms) {

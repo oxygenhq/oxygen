@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -24,7 +24,7 @@ module.exports = function() {
      * @summary Asserts that two values are equal.
      * @function equal
      * @param {String} actual - Actual value.
-     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with 'regex:'.
+     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with `regex:`.
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.equal = function(actual, expected, message) {
@@ -47,7 +47,7 @@ module.exports = function() {
      * @summary Asserts that two values are not equal.
      * @function notEqual
      * @param {String} actual - Actual value.
-     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with 'regex:'.
+     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with `regex:`.
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.notEqual = function(actual, expected, message) {

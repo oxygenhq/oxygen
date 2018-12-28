@@ -9,17 +9,14 @@
  
 /**
  * @summary Selects a frame or an iframe within the current window.
- * @description Available frame locators:
- *              <ul>
- *              <li><code>'parent'</code> - Select parent frame.</li>
- *              <li><code>'top'</code> - Select top window.</li>
- *              <li><code>NUMBER</code> - Select frame by its 0-based index.</li>
- *              <li><code>LOCATOR</code> - Locator identifying the frame (relative to the top 
-                    window). Multiple locators can be passed in order to switch between nested 
-                    frames.</li>
- *              </ul>
+ * @description Available frame locators:  
+ *              - `'parent'` - Select parent frame.  
+ *              - `'top'` - Select top window.  
+ *              - `NUMBER` - Select frame by its 0-based index.  
+ *              - `LOCATOR` - Locator identifying the frame (relative to the top window).
+ *              Multiple locators can be passed in order to switch between nested frames.
  * @function selectFrame
- * @param {...String|Number} frameLocators - A locator identifying the frame or iframe. Or a series 
+ * @param {...String|Number} frameLocator - A locator identifying the frame or iframe. Or a series 
  *         of locators.
  */
 module.exports = function(frameLocator) {

@@ -8,7 +8,6 @@
  */
 
 /**
- * (consider improving. write into test results)
  * @function takeScreenshot
  * @summary Take a screenshot of the current page or screen and return it as base64 encoded string.
  * @return {String} Screenshot image encoded as a base64 string.

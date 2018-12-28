@@ -140,7 +140,6 @@ module.exports = function (options, context, rs, logger) {
     /**
      * @function init
      * @summary Initializes a new Appium session.
-     * @description Initializes a new Appium session with provided desired capabilities and optional host name and port.
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
      * @param {String=} host - Appium server host name or Selenium Grid full URL (default: localhost).
      * @param {Number=} port - Appium server port (default: 4723). If full URL is specified in the host parameter, port parameter must not be specified.
@@ -252,10 +251,10 @@ module.exports = function (options, context, rs, logger) {
                 return 'android=new UiSelector().descriptionContains("' + locator.substr('desc-contains='.length) + '")';
             else if (locator.indexOf('scrollable') === 0)
                 return 'android=new UiSelector().scrollable(true)';
-            else if (locator.indexOf('~') === 0)    // accessibility id                    
+            else if (locator.indexOf('~') === 0)    // accessibility id
                 return locator;
         } else if (this.appContext === 'NATIVE_APP' && platform === 'ios') {
-            if (locator.indexOf('~') === 0) // accessibility id                    
+            if (locator.indexOf('~') === 0) // accessibility id
                 return locator;
         } else if (this.appContext !== 'NATIVE_APP') {            // Hybrid or Web application
             if (locator.indexOf('id=') === 0)

@@ -9,12 +9,10 @@
  
 /**
  * @summary Scrolls the page to the location of the specified element.
- * @description <i>yOffset</i> determines the offset from the specified element where to scroll
- *              to. It can be either a positive or a negative value.
  * @function scrollToElement
  * @param {String} locator - An element locator.
- * @param {Integer} xoffset - X offset from the element.
- * @param {Integer} yoffset - Y offset from the element.
+ * @param {Number} xoffset - X offset from the element. Can be either a positive or negative value.
+ * @param {Number} yoffset - Y offset from the element. Can be either a positive or negative value.
  */
 module.exports = function(locator, xoffset, yoffset) {
     var wdloc = this.helpers.getWdioLocator(locator);

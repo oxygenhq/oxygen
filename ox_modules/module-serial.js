@@ -56,7 +56,7 @@ module.exports = function() {
      * @function open
      * @param {String} port - Path to serial port. E.g. '/dev/tty-usbserial1', 'COM5', etc.
      * @param {Object} opts - Port properties.
-     * @param {Integer=} bufferSize - Size of the input data buffer. Default is 65536 bytes.
+     * @param {Number=} bufferSize - Size of the input data buffer. Default is 65536 bytes.
      * @return {SerialPort} SerialPort object.
      * @example <caption>[json] Serial port properties with default values</caption>
      * {
@@ -100,11 +100,11 @@ module.exports = function() {
 
     /**
      * @summary Waits for text to appear in the input data buffer.
-     * @description Text pattern can be any of the supported <a href="#patterns">
-     *              string matching patterns</a>.
+     * @description Text pattern can be any of the supported 
+     *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
      * @function waitForText
      * @param {String} pattern - Text pattern.
-     * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+     * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
      */
     module.waitForText = function(pattern, timeout = 60000) {
         var now = (new Date).getTime();

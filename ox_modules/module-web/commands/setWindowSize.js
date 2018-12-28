@@ -10,8 +10,8 @@
 /**
  * @summary Sets the size of the outer browser window.
  * @function setWindowSize
- * @param {Integer} width - Width in pixels.
- * @param {Integer} height - Height in pixels.
+ * @param {Number} width - Width in pixels.
+ * @param {Number} height - Height in pixels.
  */
 module.exports = function(width, height) {
     this.helpers.assertArgumentNumberNonNegative(width);

@@ -9,16 +9,14 @@
  
 /**
  * @summary Selects window. Once window has been selected, all commands go to that window.
- * @description <code>windowLocator</code> can be:
- *              <ul>
- *              <li><code>title=TITLE</code> - Switch to the first window which matches the
- *                  specified title. TITLE can be any of the supported <a href="#patterns">
- *                  string matching patterns</a>. When using title locator, this command will wait
- *                  for the window to appear first similarly to waitForWindow command.
- *              </li>
- *              <li><code>windowHandle</code> - Switch to a window using its unique handle.</li>
- *              <li><code>unspecified</code> - Switch to the last opened window.</li>
- *              </ul>
+ * @description `windowLocator` can be:  
+ *              - `title=TITLE` - Switch to the first window which matches the specified title.
+ *                TITLE can be any of the supported 
+ *                [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns). 
+ *                When using title locator, this command will wait for the window to appear first 
+ *                similarly to waitForWindow command.  
+ *              - `windowHandle` - Switch to a window using its unique handle.  
+ *              - `unspecified` - Switch to the last opened window.
  * @function selectWindow
  * @param {String=} windowLocator - Window locator.
  * @return {String} windowHandle of the previously selected window.

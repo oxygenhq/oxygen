@@ -9,12 +9,12 @@
  
 /**
  * @summary Asserts element's value.
- * @description Value pattern can be any of the supported <a href="#patterns">
- *              string matching patterns</a>.
+ * @description Value pattern can be any of the supported 
+ *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
  * @function assertValue
  * @param {String} locator - An element locator.
  * @param {String} pattern - Value pattern.
- * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(locator, pattern, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

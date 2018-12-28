@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +32,7 @@ module.exports = function() {
      * @summary Returns a future or a past date
      * @function fromNow
      * @param {String} unit - Unit type. See http://momentjs.com/docs/#/manipulating/add/
-     * @param {Integer} value - Number of minutes/days/months/etc to add or subtract from the current date.
+     * @param {Number} value - Number of minutes/days/months/etc to add or subtract from the current date.
      * @param {String} format - Format string.
      * @return {String} Date formatted according to the specified format string.
      */

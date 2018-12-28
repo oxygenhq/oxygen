@@ -12,9 +12,9 @@
  * @function scrollIntoElement
  * @param {String} scrollElmLocator - View element to scroll.
  * @param {String} findElmLocator - Target element to find in the view.
- * @param {Integer=} xoffset - Indicates the size in pixels of the horizontal scroll step (positive - scroll right, negative - scroll left). Default is 0.
- * @param {Integer=} yoffset - Indicates the size in pixels of the vertical scroll step (positive - scroll up, negative - scroll down). Default is -30.
- * @param {Integer=} retries - Indicates the number of scroll retries before giving up if element not found. Default is 50.
+ * @param {Number=} xoffset - Indicates the size in pixels of the horizontal scroll step (positive - scroll right, negative - scroll left). Default is 0.
+ * @param {Number=} yoffset - Indicates the size in pixels of the vertical scroll step (positive - scroll up, negative - scroll down). Default is -30.
+ * @param {Number=} retries - Indicates the number of scroll retries before giving up if element not found. Default is 50.
  * @for android, ios, hybrid, web
 */
 module.exports = function(scrollElmLocator, findElmLocator, xoffset, yoffset, retries) {

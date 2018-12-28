@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,16 +9,13 @@
  
  /**
   * @summary Waits for a window to appear, but doesn't actually switches to it.
-  * @description <code>windowLocator</code> can be:
-  *              <ul>
-  *              <li><code>title=TITLE</code> - Wait for the first window which matches the
-  *                  specified title. TITLE can be any of the supported <a href="#patterns">
-  *                  string matching patterns</a>.
-  *              </li>
-  *              </ul>
+  * @description `windowLocator` can be:  
+  *              - `title=TITLE` - Wait for the first window which matches the specified title.
+  *                TITLE can be any of the supported 
+  *                [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
   * @function waitForWindow
   * @param {String} windowLocator - A window locator.
-  * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
   */
 module.exports = function(windowLocator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

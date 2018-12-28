@@ -9,14 +9,13 @@
  
 /**
  * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
- * @description This includes the <code>open</code> command, <code>waitFor*</code> commands, and
- *              all other commands which wait for elements to appear or become visible before
- *              operating on them.<br/>
+ * @description This includes the `open` command, `waitFor*` commands, and all other commands which
+ *              wait for elements to appear or become visible before operating on them.  
  *              If command wasn't able to complete within the specified period it will fail the
- *              test.<br/>
+ *              test.  
  *              The default time-out is 60 seconds.
  * @function setTimeout
- * @param {Integer} timeout - A time-out in milliseconds.
+ * @param {Number} timeout - A time-out in milliseconds.
  */
 module.exports = function(timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

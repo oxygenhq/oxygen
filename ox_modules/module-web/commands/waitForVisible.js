@@ -11,7 +11,7 @@
  * @summary Waits for element to become visible.
  * @function waitForVisible
  * @param {String} locator - An element locator.
- * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

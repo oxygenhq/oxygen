@@ -11,7 +11,7 @@
  * @summary Performs tap on an element multiple times in quick succession.
  * @function clickMultipleTimes
  * @param {String|WebElement} locator - Element locator.
- * @param {Integer} taps - Number of taps.
+ * @param {Number} taps - Number of taps.
  * @for android, ios, hybrid, web
  */
 module.exports = function(locator, taps) {

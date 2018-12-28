@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,8 +11,8 @@
  * @summary Unlocks a pattern lock
  * @function unlockPattern
  * @param {String} locator - Element locator for the pattern lock.
- * @param {Integer} cols - Number of columns in the pattern.
- * @param {Integer} rows - Number of rows in the pattern.
+ * @param {Number} cols - Number of columns in the pattern.
+ * @param {Number} rows - Number of rows in the pattern.
  * @param {String} pattern - Pattern sequence. Pins are hexadecimal and case sensitive. See example.
  * @example <caption>Pattern pins are treated similarly as the numbers of a phone dial. E.g. 3x4 pattern:</caption>
  * 1 2 3
@@ -21,7 +21,7 @@
  * a b c
  * @for android
  */
-module.exports = function(locator, cols, rows, pattern) {   
+module.exports = function(locator, cols, rows, pattern) {
     this.helpers._assertArgument(locator, 'locator');
     this.helpers._assertArgumentNumberNonNegative(cols, 'cols');
     this.helpers._assertArgumentNumberNonNegative(rows, 'rows');

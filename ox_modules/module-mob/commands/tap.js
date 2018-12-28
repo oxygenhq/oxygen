@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,8 +10,8 @@
 /**
  * @summary Perform tap at the specified coordinate.
  * @function tap
- * @param {Integer} x - x offset.
- * @param {Integer} y - y offset.
+ * @param {Number} x - x offset.
+ * @param {Number} y - y offset.
  * @for android, ios
  */
 module.exports = function(x, y) {

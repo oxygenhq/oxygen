@@ -37,9 +37,9 @@ module.exports = function() {
      * @summary Retrieves last SMS message.
      * @function getLastSms
      * @param {Boolean} removeOnRead - Specifies whether to delete the message after reading it.
-     * @param {Integer} timeout - Timeout in milliseconds for waiting for the message to arrive.
-     * @param {Integer=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms).
-     *                                  Default is 4 minutes.
+     * @param {Number} timeout - Timeout in milliseconds for waiting for the message to arrive.
+     * @param {Number=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms).
+     *                                 Default is 4 minutes.
      * @return {String} SMS text.
      */
     module.getLastSms = function(removeOnRead, timeout, notOlderThan) {

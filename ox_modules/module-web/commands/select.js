@@ -10,12 +10,10 @@
 /**
  * @summary Selects an option from a drop-down list using an option locator. This command works
  *          with multiple-choice lists as well.
- * @description Option locator can be one of the following (No prefix is same as label matching):
- *              <ul>
- *              <li><code>label=STRING</code> - Matches option based on the visible text.</li>
- *              <li><code>value=STRING</code> - Matches option based on its value.</li>
- *              <li><code>index=STRING</code> - Matches option based on its index. The index is 0-based.</li>
- *              </ul>
+ * @description Option locator can be one of the following (No prefix is same as label matching):  
+ *              - `label=STRING` - Matches option based on the visible text.  
+ *              - `value=STRING` - Matches option based on its value.  
+ *              - `index=STRING` - Matches option based on its index. The index is 0-based.
  * @function select
  * @param {String} selectLocator - An element locator identifying a drop-down menu.
  * @param {String} optionLocator - An option locator.

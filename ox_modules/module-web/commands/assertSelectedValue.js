@@ -9,15 +9,15 @@
  
 /**
  * @summary Asserts value of the currently selected option in a drop-down list.
- * @description Assertion pattern can be any of the supported <a href="#patterns">
- *              string matching patterns</a>.
+ * @description Assertion pattern can be any of the supported 
+ *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
  * @function assertSelectedValue
  * @param {String} locator - An element locator.
  * @param {String} pattern - The assertion pattern.
- * @param {Integer=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
 module.exports = function(locator, pattern, timeout) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
+    var wdloc = this.helpers.getWdioLocator(locator);
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.waitForVisible(locator, timeout);
 
