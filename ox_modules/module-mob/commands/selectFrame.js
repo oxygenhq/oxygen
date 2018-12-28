@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,35 +8,30 @@
  */
  
 /**
- * @summary Selects a frame within the current window.
- * @description Available frame locators:
- *              <ul>
- *              <li><code>relative=parent</code> - Select parent frame.</li>
- *              <li><code>relative=top</code> - Select top window.</li>
- *              <li><code>index=0</code> - Select frame by its 0-based index.</li>
- *              <li><code>//XPATH</code> - XPath expression relative to the top window which
- *                  identifies the frame. Multiple XPaths can be concatenated using
- *                  <code>;;</code> to switch between nested frames.</li>
- *              </ul>
+ * @summary Selects a frame or an iframe within the current window.
+ * @description Available frame locators:  
+ *              - `'parent'` - Select parent frame.  
+ *              - `'top'` - Select top window.  
+ *              - `NUMBER` - Select frame by its 0-based index.  
+ *              - `LOCATOR` - Locator identifying the frame (relative to the top window).
+ *              Multiple locators can be passed in order to switch between nested frames.
  * @function selectFrame
- * @param {String} frameLocator - A locator identifying a frame or an iframe.
+ * @param {...String|Number} frameLocator - A locator identifying the frame or iframe. Or a series 
+ *         of locators.
  */
 module.exports = function(frameLocator) {
-    if (frameLocator === 'relative=parent') {
+    if (frameLocator === 'parent') {
         this.driver.frameParent();
-    } else if (frameLocator === 'relative=top') {
+    } else if (frameLocator === 'top') {
         this.driver.frame(null);
-    } else if (frameLocator.indexOf('index=') === 0) {
-        this.driver.frame(parseInt(frameLocator.substring('index='.length)));
-    } else if (frameLocator.indexOf('//') === 0) {
-        this.driver.frame(null);
-        var frames = frameLocator.split(';;');
-        frames.forEach((locator) => {
-            this.driver.waitForExist(locator, this.waitForTimeout);
-            var el = this.driver.element(locator);
-            this.driver.frame(el.value);
-        });
+    } else if (!isNaN(frameLocator)) {
+        this.driver.frame(frameLocator);
     } else {
-        throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - frameLocator.');
+        this.driver.frame(null);
+        for (var i = 0; i < arguments.length; i++) {
+            var locator = arguments[i];
+            var el = this.driver.element(this.helpers.getWdioLocator(locator));
+            this.driver.frame(el.value);
+        }
     }
 };
