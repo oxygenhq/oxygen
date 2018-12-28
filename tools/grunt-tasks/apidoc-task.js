@@ -17,7 +17,7 @@ var MD = '---\n' +
         'currentMenu: api-{0}\n' +
         '---\n';
 
-var DESC_MAIN = '<div class="desc-module">{0}</div>';
+var DESC_MAIN = '<div class="desc-module" markdown="1">{0}</div>';
 
 var INDEX_HEADER = '<h3 class="methods">Methods</h3>';
 var INDEX = '<div class="index">' +
@@ -41,7 +41,7 @@ var SIGNATURE_IOS = '<div class="apple" title="Native iOS applications"></div>';
 var SIGNATURE_HYB = '<div class="hybrid" title="Hybrid applications on Android/iOS"></div>';       
 var SIGNATURE_WEB = '<div class="web" title="Web applications on Android/iOS"></div>';
 
-var DESCRIPTION = '<div class="description">{0}</div>';
+var DESCRIPTION = '<div class="description" markdown="1">{0}</div>';
 
 var DEPRECATED = '<div class="deprecated">{0}</div><br/>';
 
@@ -155,7 +155,7 @@ module.exports = function(grunt) {
                         for (var tag of this.tags)
                         {
                             if (tag.title === 'description') {
-                                return tag.description.replace(/(\r\n|\n)/gm,''); 
+                                return tag.description.replace(/(?<!  )(\r\n|\n)/gm,''); 
                             }
                         }
                     };
