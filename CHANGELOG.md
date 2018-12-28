@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.39.0 (2018-12-28)
+* **[Breaking change]** `mob.selectFrame` behavior changed to match `web.selectFrame`.
+* Fix documentation.
+* Other internal fixes.
+
 ## v0.38.0 (2018-12-23)
 * Allow to access Oxygen modules and context from external modules.
 * Add ES6 support to the test script imported modules.
