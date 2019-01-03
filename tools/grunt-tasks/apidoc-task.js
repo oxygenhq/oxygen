@@ -238,7 +238,7 @@ module.exports = function(grunt) {
 
                     comments.push(commentParsed);
                 }
-                return { description: description.replace(/(\r\n|\n)/gm,''), methods: comments };
+                return { description: description.replace(/(?<!  )(\r\n|\n)/gm, ''), methods: comments };
             } catch (exc) {       
                 grunt.log.error("Unable to load/parse " + file, exc);
             }

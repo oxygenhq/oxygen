@@ -11,8 +11,8 @@
  * Provides methods for browser automation.
  * <br /><br />
  * <b><i>Notes:</i></b><br />
- * Commands which operate on elements such as click, assert, waitFor, type, select, and others will
- * automatically wait for a period of time for the element to appear in DOM and become visible. By
+ * Commands which operate on elements such as click, assert, waitFor, type, select, and others will 
+ * automatically wait for a period of time for the element to appear in DOM and become visible. By 
  * default this period equals to 60 seconds, but can be changed using the <code>setTimeout</code>
  * command.
  * <br /><br />
@@ -29,7 +29,7 @@
  *  <li><code>PATTERN</code> - Same as glob matching.</li>
  *  </ul>
  * </div>
- * <div id="patterns">Commands which expect an element locator in their arguments, support
+ * <div id="locators">Commands which expect an element locator in their arguments, support
  *  following locator types unless specified otherwise:
  *  <ul>
  *  <li><code>id=ID</code> - Locates element by its ID attribute.</li>
@@ -37,8 +37,8 @@
  *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>
  *  <li><code>link-contains=TEXT</code> - Locates link element whose visible text contains the given string.</li>
  *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</code></li>
- *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</code></li>
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
+ *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</li>
  *  </ul>
  * </div>
  */
