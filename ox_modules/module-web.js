@@ -52,6 +52,7 @@ module.exports = function (options, context, rs, logger) {
 
     var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
+    var util = require('util');
     var _ = require('lodash');
     const { harFromMessages } = require('chrome-har');
     var utils = require('./utils');
@@ -278,7 +279,7 @@ module.exports = function (options, context, rs, logger) {
         try {
             _this.driver.windowHandleMaximize('current');
         } catch (err) {
-            throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message);
+            throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
 
         isInitialized = true;

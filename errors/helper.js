@@ -12,6 +12,7 @@
  */
 
 var OxError = require('../errors/OxygenError');
+var util = require('util');
 
 const ERROR_CODES = {
     SCRIPT_ERROR: 'SCRIPT_ERROR',
@@ -115,7 +116,7 @@ module.exports = {
         // try to resolve WDIO RuntimeError-s having seleniumStack
         if (errType === 'RuntimeError' && err.seleniumStack) {
             oxErrorCode = WDIO_ERROR_CODES[err.seleniumStack.type];
-            if (err.message === 'unknown error: NoSuchElement') { // 
+            if (err.message === 'unknown error: NoSuchElement') {
                 return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, null, null);
             } else if (oxErrorCode) {
                 return new OxError(oxErrorCode, err.message, null);
@@ -133,7 +134,7 @@ module.exports = {
             return new OxError(oxErrorCode, err.message, null);
         }
         
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getSeleniumInitError: function(err) {
         if (err.type === 'RuntimeError') {
@@ -145,7 +146,7 @@ module.exports = {
                 return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't resolve Selenium server address");
             }
         }
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAppiumInitError: function(err) {
         if (err.type === 'RuntimeError') {
@@ -160,7 +161,7 @@ module.exports = {
                 return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
             }
         }
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, null);
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     
     errorCode: ERROR_CODES
