@@ -52,11 +52,24 @@ module.exports = function(locator) {
             "message": "An element command could not be completed because the element is not visible on the page.",
             "orgStatusMessage": "element not interactable\n  (Session info: chrome=70.0.3538.110)\n  (Driver info: chromedriver=2.44.609538 (b655c5a60b0b544917107a59d4153d4bf78e1b90),platform=Windows NT 10.0.16299 x86_64)"
           }
-        }*/
+        }
+        
+        // Internet Explorer specific
+        {
+         message: 'Element is not displayed\nBuild info: version: \'3.141.5\', revision: \'d54ebd709a\', time: \'2018-11-06T11:58:47\'\nSystem info: host: \'HQIT16112\', ip: \'10.11.105.1\', os.name: \'Windows 7\', os.arch: \'x86\', os.version: \'6.1\', java.version:\'1.8.0_73\'\nDriver info: driver.version: unknown',
+         type: 'RuntimeError',
+         seleniumStack: {
+           type: 'Unknown',
+           message: 'Remote end send an unknown status code.',
+           orgStatusMessage: 'Element is not displayed\nBuild info: version: \'3.141.5\', revision: \'d54ebd709a\', time: \'2018-11-06T11:58:47\'\nSystem info: host: \'HQIT16112\', ip: \'10.11.105.1\', os.name: \'Windows 7\', os.arch: \'x86\', os.version: \'6.1\', java.version: \'1.8.0_73\'\nDriver info: driver.version: unknown' 
+         }
+        }
+        */
         if (e.message &&
             (e.message.includes('is not clickable at point')
                 || e.message === 'element not visible'
-                || e.message === 'element not interactable')) {
+                || e.message === 'element not interactable')
+                || e.message.startsWith('Element is not displayed')) {
             this.clickHidden(locator);
         } else {
             throw e;

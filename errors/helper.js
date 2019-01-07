@@ -118,6 +118,8 @@ module.exports = {
             oxErrorCode = WDIO_ERROR_CODES[err.seleniumStack.type];
             if (err.message === 'unknown error: NoSuchElement') {
                 return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, null, null);
+            } else if (err.message && err.message.startsWith('Element is not displayed')) { // IE specific
+                return new OxError(ERROR_CODES.ELEMENT_NOT_VISIBLE, null, null);
             } else if (oxErrorCode) {
                 return new OxError(oxErrorCode, err.message, null);
             }
