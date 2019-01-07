@@ -13,11 +13,10 @@
 var util = require('util');
 util.inherits(OxygenError, Error);
 
-function OxygenError(type, message, innerError, isFatal) {
-    this.innerError = innerError || null;
+function OxygenError(type, message, data, isFatal) {
     this.type = type || this.type || null;
     this.message = message || this.message || null;
-    this.data = this.data || null;
+    this.data = data || null;
     this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
     
     var self = this;
@@ -31,7 +30,7 @@ function OxygenError(type, message, innerError, isFatal) {
     };
     
     // don't generate stacktrace if OxygenError is used indirectly through inheritance
-    if (type || message || innerError) {
+    if (type || message) {
         this.captureStackTrace();
     }
 }
