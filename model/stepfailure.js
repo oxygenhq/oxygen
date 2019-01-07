@@ -16,6 +16,6 @@ module.exports = function () {
         _message: null,
         _details: null,
         _line: null,
-        data: null
+        _data: null
     };
 };
