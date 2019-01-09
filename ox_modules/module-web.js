@@ -229,7 +229,8 @@ module.exports = function (options, context, rs, logger) {
         }
         // FIXME: shall we throw an exception if browserName is not specified, neither in caps nor in options?!
         if (!_this.caps.browserName) {
-            throw new Error('Cannot initialize web module - browserName must be specified.');
+            throw new _this.OxError(_this.errHelper.errorCode.INVALID_CAPABILITIES,
+                'Failed to initialize `web` module - browserName must be specified.');
         }
         // webdriver expects lower case names
         _this.caps.browserName = _this.caps.browserName.toLowerCase();
