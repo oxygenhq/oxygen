@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.40.0 (2019-01-15)
+* Add `web.refresh`.
+* Handle element not displayed errors from IE driver.
+* Produce proper error when browserName is not specified for `web.init`.
+* Fix documentation.
+* Other internal fixes.
+
 ## v0.39.0 (2018-12-28)
 * **[Breaking change]** `mob.selectFrame` behavior changed to match `web.selectFrame`.
 * Fix documentation.
