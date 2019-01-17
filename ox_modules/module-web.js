@@ -327,7 +327,7 @@ module.exports = function (options, context, rs, logger) {
             try {
                 _this.driver.end();
             } catch (e) {
-                logger.error(e);    // ignore any errors at disposal stage
+                logger.error('Failed to dispose the driver.', e.message);    // ignore any errors at disposal stage
             }
             isInitialized = false;
         }
