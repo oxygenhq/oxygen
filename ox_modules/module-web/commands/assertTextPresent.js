@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-2019 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,11 +12,21 @@
  *          element containing this text exists on the page.
  * @function assertTextPresent
  * @param {String} text - Text.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(text) {
+module.exports = function(text, timeout) {
     this.helpers.assertArgumentNonEmptyString(text, 'text');
-    var count = this.driver.elements('//*[contains(text(),"' + text + '")]').value.length;
-    if (count === 0) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    
+    var self = this;
+    try {
+        this.driver.waitUntil(() => {
+            return self.driver.elements('//*[contains(text(),"' + text + '")]').then((els) => {
+                return els.value.length !== 0;
+            });
+        },
+        (!timeout ? this.waitForTimeout : timeout));
+    } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR);
     }
 };
