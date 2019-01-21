@@ -17,19 +17,20 @@ Oxygen is an open source framework and tool-set built on top of Appium, Webdrive
 npm install -g oxygen-cli
 ```
 
-## Requirements
+## OS Specific requirements for building:
 
-#### Windows
-* Windows SDK
+#### Windows:
+* WiX Toolset installed and added to the %PATH%. 
+* ```npm --add-python-to-path='true' --debug install --global windows-build-tools``` from ```cmd``` with admin rights.
+* [Optional.  Required for DB support] Windows SDK
 
 #### Linux
-* unixodbc binaries and development libraries:  
-Debian/Ubuntu - sudo apt-get install unixodbc unixodbc-dev  
-RedHat/CentOS - sudo yum install unixODBC unixODBC-devel
+* [Optional.  Required for DB support] unixodbc binaries and development libraries:  
+Debian/Ubuntu - `sudo apt-get install unixodbc unixodbc-dev`  
+RedHat/CentOS - `sudo dnf install unixODBC unixODBC-devel`
 
 #### OS X
-
-* unixodbc binaries and development libraries: brew install unixodbc
+* [Optional.  Required for DB support] unixodbc binaries and development libraries: `brew install unixodbc`
 
 
 ## Getting Started
