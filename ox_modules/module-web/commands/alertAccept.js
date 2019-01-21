@@ -8,7 +8,7 @@
  */
  
 /**
- * @summary Accepts an alert or a confirmation dialog.
+ * @summary Accepts an alert or a confirmation dialog. 
  * @description In case of an alert box this command is identical to `alertDismiss`.
  * @function alertAccept
  */
