@@ -22,9 +22,9 @@ module.exports = function(locator, xoffset, yoffset, speed) {
     this.helpers._assertArgumentNumber(yoffset, 'yoffset');
 
     speed = typeof speed === 'number' ? speed : 30;
-    if (arguments.length === 2 && typeof locator === 'number' && typeof xoffset === 'number') {
-        xoffset = locator;
+    if (typeof locator === 'number' && typeof xoffset === 'number') {
         yoffset = xoffset;
+        xoffset = locator;
         locator = null;
     }
     if (locator != null) {
