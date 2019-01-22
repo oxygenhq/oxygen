@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-2019 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * @function dragAndDrop
  * @param {String|WebElement} locator - Element locator on which to perform the initial tap.
  * @param {Number} xoffset - Horizontal offset. Positive for right direction; Negative for left.
- * @param {Number} yoffset - Vertical offset. Negative for up direction; Positive for down.
+ * @param {Number} yoffset - Vertical offset. Negative for down direction; Positive for up.
  * @for android, ios
  */
 module.exports = function(locator, xoffset, yoffset) {
