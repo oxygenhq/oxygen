@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-2019 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,12 +20,17 @@ module.exports = function(locator, wait) {
     this.helpers._assertArgumentTimeout(wait, 'wait');
     wait = wait || this.DEFAULT_WAIT_TIMEOUT;
 
-    var retval = null;
-    if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object
-        retval = locator.waitForExist(wait);
-    } else {                                                    // when locator is string
-        locator = this.helpers.getWdioLocator.call(this, locator);
-        retval = this.driver.waitForExist(locator, wait);
+    try {
+        if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object
+            locator.waitForExist(wait);
+        } else {                                                    // when locator is string
+            locator = this.helpers.getWdioLocator.call(this, locator);
+            this.driver.waitForExist(locator, wait);
+        }
+    } catch (e) {
+        if (e.type === 'WaitUntilTimeoutError') {
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+        }
+        throw e;
     }
-    return retval;
 };
