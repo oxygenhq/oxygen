@@ -11,6 +11,10 @@
  * @summary Gets handles of currently open windows.
  * @function getWindowHandles
  * @return {String[]} Array of all available window handles.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.getWindowHandles();//Gets the window handles of currently open windows.
  */
 module.exports = function() {
     return this.driver.windowHandles().value;

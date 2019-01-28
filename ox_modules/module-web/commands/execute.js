@@ -14,6 +14,15 @@
  * @param {(String|Function)} script - The JavaScript to execute.
  * @param {...Object} arg - Optional script arguments.
  * @return {Object} The return value.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web. execute (function() 
+ * {
+ * angular.element(“.password”).trigger(“ng-click”).click()
+ * }
+ * );//Executes/injects JavaScript code.
+ 
  */
 module.exports = function(script) {
     var args = Array.prototype.splice.call(arguments, 0);

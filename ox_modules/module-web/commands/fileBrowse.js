@@ -12,6 +12,10 @@
  * @function fileBrowse
  * @param {String} locator - Locator for a `input type=file` element.
  * @param {String} filepath - Path to a local file.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.fileBrowse(“id=ProfilePicture”,”C:/ProgramFiles/picture.jpg”);//Uploads a file to an element.
  */
 module.exports = function(locator, filepath) {
     var wdloc = this.helpers.getWdioLocator(locator);

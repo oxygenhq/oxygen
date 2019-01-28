@@ -11,6 +11,10 @@
  * @summary Return true if alert dialog is currently present on the screen.
  * @function isAlertPresent
  * @return {Boolean} True if alert is present, false otherwise.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.isAlertPresent ();//Returns true if  the alert dialog is displayed.
  */
 module.exports = function() {
     try {

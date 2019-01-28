@@ -13,6 +13,10 @@
  * @param {String} locator - An element locator.
  * @param {Number=} xoffset - X offset from the element.
  * @param {Number=} yoffset - Y offset from the element.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.point(“id=Selection”);//Hovers a mouse over an element.
  */
 module.exports = function(locator, xoffset, yoffset) {
     var wdloc = this.helpers.getWdioLocator(locator);

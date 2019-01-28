@@ -11,6 +11,10 @@
  * @summary Gets the source of the currently active window which displays `text/xml` page.
  * @function getXMLPageSource
  * @return {String} The XML page source.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.getXMLPageSource();//Gets the source of currently open page which displays in text/xml.
  */
 module.exports = function() {
     var browser = this.options.browserName;

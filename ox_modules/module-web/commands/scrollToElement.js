@@ -13,6 +13,10 @@
  * @param {String} locator - An element locator.
  * @param {Number} xoffset - X offset from the element. Can be either a positive or negative value.
  * @param {Number} yoffset - Y offset from the element. Can be either a positive or negative value.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.scrollToElement(“id=Button”);// Scrolls to an element. 
  */
 module.exports = function(locator, xoffset, yoffset) {
     var wdloc = this.helpers.getWdioLocator(locator);

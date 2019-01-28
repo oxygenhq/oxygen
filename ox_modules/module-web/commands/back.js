@@ -10,6 +10,12 @@
 /**
  * @summary Navigate backwards in the browser history.
  * @function back
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.click(“id=NextPage”);//Clicks on next page link.
+ * web.back();//Navigate back to previous page.
+ 
  */
 module.exports = function() {
     this.driver.back();

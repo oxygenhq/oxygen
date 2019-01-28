@@ -16,6 +16,10 @@
  * @function deselect
  * @param {String} selectLocator - An element locator identifying a drop-down menu.
  * @param {String} optionLocator - An option locator.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.deselect(“id=Selection”,”label=United States”);//Deselect option from multiple choice drop down list.
  */
 module.exports = function(selectLocator, optionLocator) {
     // FIXME: this method is identical to select and should be removed in the future.

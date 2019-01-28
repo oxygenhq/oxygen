@@ -13,6 +13,10 @@
  *              proceeding.
  * @function clickHidden
  * @param {String} locator - An element locator.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.clickHidden(“id=HiddenLink”);//Clicks on a hidden / invisible element.
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator);

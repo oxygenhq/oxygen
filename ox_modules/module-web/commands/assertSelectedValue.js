@@ -15,6 +15,10 @@
  * @param {String} locator - An element locator.
  * @param {String} pattern - The assertion pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.assertSelectedValue (“id=Selection”,”value=3”);// Asserts if an element’s value is selected in the drop down list.
  */
 module.exports = function(locator, pattern, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

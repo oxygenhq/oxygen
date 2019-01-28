@@ -10,6 +10,10 @@
 /**
  * @summary Causes the browser to reload the page.
  * @function refresh
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.refresh();//Reloads the page
  */
 module.exports = function() {
     this.driver.refresh();
