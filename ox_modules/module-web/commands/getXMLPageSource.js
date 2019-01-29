@@ -13,7 +13,7 @@
  * @return {String} The XML page source.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.open("www.yourwebsite.com");// Opens a website.
  * web.getXMLPageSource();//Gets the source of currently open page which displays in text/xml.
  */
 module.exports = function() {

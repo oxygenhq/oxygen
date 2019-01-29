@@ -14,8 +14,8 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.assertExist (“id=Username”);// Asserts if an element exists in the DOM.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.assertExist ("id=Username");// Asserts if an element exists in the DOM.
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

@@ -16,8 +16,8 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.assertTitle (“title=Your websites title!”);// Asserts if the title of the page.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.assertTitle ("title=Your websites title!");// Asserts if the title of the page.
  */
 module.exports = function(pattern, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

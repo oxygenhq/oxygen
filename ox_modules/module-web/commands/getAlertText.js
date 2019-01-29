@@ -13,7 +13,7 @@
  * @return {String} The alert's text.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.open("www.yourwebsite.com");// Opens a website.
  * web.getAlertText();//Gets the text in the alert dialog.
  */
 module.exports = function() {

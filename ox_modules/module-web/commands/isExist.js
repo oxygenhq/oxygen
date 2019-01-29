@@ -16,8 +16,8 @@
  * @return {Boolean} True if element was found. False otherwise.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.isExist(“id=SaveButton”);// Returns true if  the element exists in page. 
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.isExist("id=SaveButton");// Returns true if  the element exists in page. 
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

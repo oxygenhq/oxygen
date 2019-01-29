@@ -13,8 +13,8 @@
  * @param {String} locator - An element locator.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.doubleClick(“id=Mark”);//Double clicks on a element.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.doubleClick("id=Mark");//Double clicks on a element.
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator);

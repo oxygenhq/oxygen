@@ -14,8 +14,8 @@
  * @return {Number} Element count or 0 if no elements were found.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.getElementCount(“//*[@class=Title]”);//Gets the amount of elements.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.getElementCount("//*[@class=Title]");//Gets the amount of elements.
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator);

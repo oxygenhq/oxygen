@@ -15,8 +15,8 @@
  * @return {String} CSS property value.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.getCssValue(“id=UserName”,”color”);//Gets a CSS value from an element.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.getCssValue("id=UserName","color");//Gets a CSS value from an element.
  */
 module.exports = function(locator, propertyName) {
     var wdloc = this.helpers.getWdioLocator(locator);

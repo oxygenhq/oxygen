@@ -18,8 +18,8 @@
  * @param {String} optionLocator - An option locator.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.deselect(“id=Selection”,”label=United States”);//Deselect option from multiple choice drop down list.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.deselect("id=Selection","label=United States");//Deselect option from multiple choice drop down list.
  */
 module.exports = function(selectLocator, optionLocator) {
     // FIXME: this method is identical to select and should be removed in the future.

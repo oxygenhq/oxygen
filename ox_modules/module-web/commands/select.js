@@ -19,8 +19,8 @@
  * @param {String} optionLocator - An option locator.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.select(“id=Selection”,”label=United States”);// Selects an element from a list. 
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.select("id=Selection","label=United States");// Selects an element from a list. 
  */
 module.exports = function(selectLocator, optionLocator) {
     var wdloc = this.helpers.getWdioLocator(selectLocator);

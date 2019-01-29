@@ -13,7 +13,7 @@
  * @return {String} The page URL.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.open("www.yourwebsite.com");// Opens a website.
  * web.getUrl();//Gets the url from the current page.
  */
 module.exports = function() {
