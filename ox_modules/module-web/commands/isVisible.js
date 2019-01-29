@@ -14,6 +14,10 @@
  * @param {String} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found and it was visible. False otherwise.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.isVisible(“id=SaveButton”);// Returns true if  the element is displayed in page. 
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

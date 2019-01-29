@@ -12,6 +12,10 @@
  * @function getText
  * @param {String} locator - An element locator.
  * @return {String} The element's text.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.getText(“id=Title”);//Gets the text from an element.
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator);

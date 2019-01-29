@@ -13,6 +13,10 @@
  * @function assertTextPresent
  * @param {String} text - Text.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.assertTextPresent (“John Doe”);// Asserts if a text is presented somewhere on the page.
  */
 module.exports = function(text, timeout) {
     this.helpers.assertArgumentNonEmptyString(text, 'text');

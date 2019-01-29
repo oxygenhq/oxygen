@@ -22,6 +22,10 @@
  * @function makeVisible
  * @param {String} locator - An element locator. If multiple elements match the locator, visibility
  *                           is applied to all.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.makeVisible(“id=SaveButton”);// Makes an invisible/hidden element to become visible. 
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator); 

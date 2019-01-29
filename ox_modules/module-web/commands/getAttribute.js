@@ -13,6 +13,10 @@
  * @param {String} locator - An element locator.
  * @param {String} attribute - The name of the attribute to retrieve.
  * @return {String} The attribute's value.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.getAttribute(“id=UserName”,”value”);//Gets an attribute from an element.
  */
 module.exports = function(locator, attribute) {
     var wdloc = this.helpers.getWdioLocator(locator);

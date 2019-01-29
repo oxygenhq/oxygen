@@ -11,6 +11,9 @@
  * @summary Pauses test execution for given amount of milliseconds.
  * @function pause
  * @param {Number} ms - milliseconds to pause the execution.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.pause(10000);//Waits amount of milliseconds untill the next command executes
  */
 module.exports = function(ms) {
     this.helpers.assertArgumentNumber(ms);

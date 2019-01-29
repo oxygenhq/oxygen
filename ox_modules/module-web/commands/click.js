@@ -13,6 +13,10 @@
  *              proceeding.
  * @function click
  * @param {String} locator - An element locator.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.click(“id=NextPage”);//Clicks on next page link.
  */
 module.exports = function(locator) {
     try {

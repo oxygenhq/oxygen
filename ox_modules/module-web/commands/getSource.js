@@ -11,6 +11,10 @@
  * @summary Gets the source of the currently active window.
  * @function getSource
  * @return {String} The page source.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.getSource();//Gets the source of the page.
  */
 module.exports = function() {
     return this.driver.getSource();

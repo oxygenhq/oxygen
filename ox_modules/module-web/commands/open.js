@@ -12,6 +12,9 @@
  * @description The `open` command waits for the page to load before proceeding.
  * @function open
  * @param {String} url - The URL to open; may be relative or absolute.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
  */
 module.exports = function(url) {
     this.helpers.assertArgumentNonEmptyString(url);

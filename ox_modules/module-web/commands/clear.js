@@ -11,6 +11,12 @@
  * @summary Clear the value of an input field.
  * @function clear
  * @param {String} locator - An element locator.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.type(“id=Password”, “Password”);//Types a password to a field.
+ * web.clear(“id=Password”);//Clears the characters from the field of an element.
+ 
  */
 module.exports = function(locator) {
     var wdloc = this.helpers.getWdioLocator(locator);

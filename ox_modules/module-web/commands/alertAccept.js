@@ -8,9 +8,14 @@
  */
  
 /**
- * @summary Accepts an alert or a confirmation dialog.
+ * @summary Accepts an alert or a confirmation dialog. 
  * @description In case of an alert box this command is identical to `alertDismiss`.
  * @function alertAccept
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.click(“id=SaveButton”);//Clicks on save – an alert would pop up 
+ * web.alertAccept();//Clicks on “OK” in the alert dialog.
  */
 module.exports = function() {
     return this.driver.alertAccept();

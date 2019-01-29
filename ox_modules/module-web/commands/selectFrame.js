@@ -18,6 +18,11 @@
  * @function selectFrame
  * @param {...String|Number} frameLocator - A locator identifying the frame or iframe. Or a series 
  *         of locators.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.selectFrame(“//iframe[@id=’frame1’]”);// Selects an iframe in the page and enters it. 
+ * web.click(“id=SaveButton”);//Clicks on save that exists in an iframe
  */
 module.exports = function(frameLocator) {
     if (frameLocator === 'parent') {
