@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.41.0 (2019-01-29)
+* Add `web.assertTextNotPresent`.
+* Add timeout to `web.assertTextPresent`.
+* Fix `mob.swipe` when used without locator.
+* Generate proper oxygen error on element not found in `mob.waitForExist`.
+* Fix documentation.
+* Use dependencies only from npm repo.
+
 ## v0.40.0 (2019-01-15)
 * Add `web.refresh`.
 * Handle element not displayed errors from IE driver.
