@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.41.1 (2019-01-30)
+* Internal fixes.
+
 ## v0.41.0 (2019-01-29)
 * Add `web.assertTextNotPresent`.
 * Add timeout to `web.assertTextPresent`.
