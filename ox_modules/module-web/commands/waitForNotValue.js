@@ -15,6 +15,10 @@
  * @param {String} locator - An element locator.
  * @param {String} pattern - Value pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.waitForNotValue(“id=UserName”,”User”);//Waits for an element’s value to not match to expected string.
  */
 module.exports = function(locator, pattern, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

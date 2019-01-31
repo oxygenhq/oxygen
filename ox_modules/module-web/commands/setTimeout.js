@@ -16,6 +16,10 @@
  *              The default time-out is 60 seconds.
  * @function setTimeout
  * @param {Number} timeout - A time-out in milliseconds.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.setTimeout(60000);//Sets the time out to amount of milliseconds .
  */
 module.exports = function(timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

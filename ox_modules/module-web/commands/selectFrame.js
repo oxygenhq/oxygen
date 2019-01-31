@@ -21,7 +21,7 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.selectFrame(“//iframe[@id=’frame1’]”);// Selects an iframe in the page and enters it. 
+ * web.selectFrame(“@id=frame1”);// Selects an iframe in the page and enters it. 
  * web.click(“id=SaveButton”);//Clicks on save that exists in an iframe
  */
 module.exports = function(frameLocator) {
