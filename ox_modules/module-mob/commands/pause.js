@@ -12,6 +12,9 @@
  * @function pause
  * @param {Number} ms - milliseconds to pause the execution.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.pause(5000);//Waits amount of miliseconds till performs the next command.
  */
 module.exports = function(ms) {
     this.helpers._assertArgumentNumber(ms, 'ms');

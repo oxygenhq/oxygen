@@ -14,6 +14,9 @@
  * @param {Number} xoffset - Horizontal offset. Positive for right direction; Negative for left.
  * @param {Number} yoffset - Vertical offset. Negative for up direction; Positive for down.
  * @for android, ios
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.dragAndDrop(“id=Mark”,-80,100);// Tap on an element, drag by the specified offset, and release.
  */
 module.exports = function(locator, xoffset, yoffset) {
     this.helpers._assertArgument(locator, 'locator');

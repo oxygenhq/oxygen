@@ -15,6 +15,9 @@
  * @param {Number} yoffset - Vertical offset. Negative value indicates swipe down and positive indicates swipe up direction.
  * @param {Number=} speed - The speed of swiping in pixels per second. Default is 30.
  * @for android, ios
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.swipe("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
 */
 module.exports = function(locator, xoffset, yoffset, speed) {
     this.helpers._assertArgument(locator, 'locator');

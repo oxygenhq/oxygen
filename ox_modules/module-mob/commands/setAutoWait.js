@@ -14,6 +14,9 @@
  *              other commands which receive optional timeout parameter.
  * @function setAutoWait
  * @param {Boolean} enable - true to enable automatic waiting, false to disable.
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.setAutoWait(true);//Specifies whether commands should automatically wait till element appear before executing.
  */
 module.exports = function(enable) {
     this.helpers._assertArgumentBool(enable, 'enable');

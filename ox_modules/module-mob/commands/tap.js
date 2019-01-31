@@ -13,6 +13,9 @@
  * @param {Number} x - x offset.
  * @param {Number} y - y offset.
  * @for android, ios
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.tap(60,300);//Perform tap at the specified coordinate.
  */
 module.exports = function(x, y) {
     this.helpers._assertArgumentNumberNonNegative(x, 'x');

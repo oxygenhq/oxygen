@@ -13,6 +13,9 @@
  * @param {String|WebElement} locator - Element locator.
  * @return {Boolean} - true if element is checked. false otherwise.
  * @for android
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.isChecked("id=checkBox");//Determines if checkbox or radio element is checked.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');

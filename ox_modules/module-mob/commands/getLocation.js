@@ -12,6 +12,9 @@
  * @function getLocation
  * @param {String|WebElement} locator - Element locator.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * var a = mob.getLocation("id=Element");//Get element's location.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');

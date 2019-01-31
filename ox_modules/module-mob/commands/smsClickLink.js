@@ -14,6 +14,10 @@
  * @function smsClickLink
  * @param {Number=} wait - Time in milliseconds to wait for sms popup. Default is 60 seconds.
  * @for android
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.click("id=sendSmS");// Clicks an element.
+ * mob.smsClickLink(60000);//Clicks SMS message URL.
 */
 module.exports = function(wait) {
     this.helpers._assertArgumentTimeout(wait, 'wait'); 

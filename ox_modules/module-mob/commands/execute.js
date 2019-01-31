@@ -15,6 +15,11 @@
  * @param {...Object} arg - Optional script arguments.
  * @return {Object} The return value.
  * @for hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.execute(function(){
+ * angular.element("#closeBtn").trigger('ng-click').click()
+ * });//Executes / injects a javascript functions.
  */
 module.exports = function(js) {
     var args = Array.prototype.splice.call(arguments, 0);

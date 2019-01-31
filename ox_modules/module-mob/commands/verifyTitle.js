@@ -13,6 +13,9 @@
  * @param {String} pattern - Assertion text or pattern.
  * @param {String=} message - Message to generate in case of verification failure.
  * @for hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.verifyTitle('Website Title','The Title does not match the expected text');//Verifies the page title.
  */
 const chai = require('chai');
 const assert = chai.assert;

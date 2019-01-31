@@ -13,6 +13,9 @@
  * @param {String|WebElement} locator - Element locator.
  * @return {Boolean} - true if element is selected. false otherwise.
  * @for android
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.isExist("id=Selection");//Determines if element is selected.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');

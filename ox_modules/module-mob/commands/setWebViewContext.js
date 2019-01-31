@@ -11,6 +11,9 @@
  * @summary Sets context to the first available WEBVIEW or CHROMIUM (Crosswalk WebView) view.
  * @function setWebViewContext
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.setWebViewContext();//Sets context to the first available WEBVIEW or CHROMIUM (Crosswalk WebView) view.
  */
 module.exports = function() {
     var response = this.driver.contexts();

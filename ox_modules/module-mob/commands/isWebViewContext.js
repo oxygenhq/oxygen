@@ -12,6 +12,9 @@
  * @function isWebViewContext
  * @return {Boolean} - true if the context name is WEBVIEW or CHROMIUM.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.isWebViewContext();//Checks if the current context is of WebView type.
  */
 module.exports = function() {
     var context = this.driver.context().value;

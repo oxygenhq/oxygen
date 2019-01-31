@@ -12,6 +12,11 @@
  * @function clear
  * @param {String|WebElement} locator - Element locator.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.type(“id=Password”, “Password”);//Types a password to a field.
+ * mob.clear(“id=Password”);//Clears the characters from the field of an element.
+ 
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');

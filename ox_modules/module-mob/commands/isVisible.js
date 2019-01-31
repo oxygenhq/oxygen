@@ -15,6 +15,9 @@
  * @param {Number=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found and it was visible. False otherwise.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.isVisible("id=Selection");//Determines if element is visible.
  */
 module.exports = function(locator, timeout) {
     this.helpers._assertArgumentTimeout(timeout, 'timeout');
