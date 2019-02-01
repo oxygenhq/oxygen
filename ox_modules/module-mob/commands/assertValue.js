@@ -15,7 +15,7 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.assertValue (“id=UserName”, “value=John Doe”);// Asserts if the value of an element.
+ * mob.assertValue ("id=UserName", "value=John Doe");// Asserts if the value of an element.
  */
 const chai = require('chai');
 const assert = chai.assert;

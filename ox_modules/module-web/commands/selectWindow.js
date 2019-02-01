@@ -22,8 +22,8 @@
  * @return {String} windowHandle of the previously selected window.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.selectWindow(“title=Website”);// Selects and focus a window. 
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.selectWindow("title=Website");// Selects and focus a window. 
  */
 module.exports = function(windowLocator) {
     var currentHandle;

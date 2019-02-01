@@ -14,7 +14,7 @@
  * @param {Number} height - Height in pixels.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.open("www.yourwebsite.com");// Opens a website.
  * web.setWindowSize(100,40);//Sets the window size (width and height) in pixels.
  */
 module.exports = function(width, height) {

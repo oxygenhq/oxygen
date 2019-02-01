@@ -17,7 +17,7 @@
  * @param {Boolean} enable - true to enable automatic waiting, false to disable.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.open("www.yourwebsite.com");// Opens a website.
  * web.setAutoWait(‘enable’);//Enables/disables auto wait to element in DOM
  */
 module.exports = function(enable) {

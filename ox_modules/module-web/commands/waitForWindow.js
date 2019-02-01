@@ -18,8 +18,8 @@
   * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
   * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.waitForWindow(“title=Website”);//Waits for a window to appear.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.waitForWindow("title=Website");//Waits for a window to appear.
   */
 module.exports = function(windowLocator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

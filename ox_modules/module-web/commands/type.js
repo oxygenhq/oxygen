@@ -16,8 +16,8 @@
  * @param {String} value - The value to type.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.type(“id=UserName”,”User1”);//Types a string to field.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.type("id=UserName","User1");//Types a string to field.
  */
 module.exports = function(locator, value) {
     var wdloc = this.helpers.getWdioLocator(locator);

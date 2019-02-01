@@ -13,7 +13,7 @@
  * @for android, ios, hybrid, web 
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.click(“id=Submit”);// Clicks an element and opens an alert.
+ * mob.click("id=Submit");// Clicks an element and opens an alert.
  * mob.alertAccept();//Automatically press on 'OK' button in the alert pop-up. 
 
 */

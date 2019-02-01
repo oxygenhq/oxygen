@@ -14,8 +14,8 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.waitForVisible(“id=Title”);//Waits for an element to  be visible.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.waitForVisible("id=Title");//Waits for an element to  be visible.
  */
 module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

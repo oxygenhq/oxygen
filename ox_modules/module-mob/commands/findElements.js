@@ -15,7 +15,7 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.findElement(“//div[@class='Headers']”,“id=divHeaders); //Finds elements.
+ * mob.findElement("//div[@class='Headers']","id=divHeaders); //Finds elements.
 */
 module.exports = function(locator, parent) {
     this.helpers._assertArgument(locator, 'locator');

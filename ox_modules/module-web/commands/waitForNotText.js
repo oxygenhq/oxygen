@@ -17,8 +17,8 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
- * web.waitForNotText(“id=Title”,”Website”);//Waits for an element’s text to not match to expected string.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.waitForNotText("id=Title","Website");//Waits for an element’s text to not match to expected string.
  */
 module.exports = function(locator, pattern, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);

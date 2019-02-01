@@ -14,7 +14,7 @@
  * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.assertTitle (“title=Your websites title!”);// Asserts if the title of the page.
+ * mob.assertTitle ("title=Your websites title!");// Asserts if the title of the page.
  */
 const chai = require('chai');
 const assert = chai.assert;

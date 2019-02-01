@@ -15,7 +15,7 @@
  * @param {String} value - Sequence of key strokes to send.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.open("www.yourwebsite.com");// Opens a website.
  * web.sendKeys(‘\uE03B’);//Types keys by reference to a key code.
 */
 module.exports = function(value) {

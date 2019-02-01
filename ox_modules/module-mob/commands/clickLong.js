@@ -15,7 +15,7 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.clickLong(“id=Mark”,6000);// Clicks an element for a certain duration.
+ * mob.clickLong("id=Mark",6000);// Clicks an element for a certain duration.
  */
 module.exports = function(locator, duration) {
     this.helpers._assertArgument(locator, 'locator');

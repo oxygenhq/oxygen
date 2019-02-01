@@ -15,7 +15,7 @@
  * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.clickHidden(“id=hiddenContent);// Clicks an hidden element.
+ * mob.clickHidden("id=hiddenContent);// Clicks an hidden element.
 */
 module.exports = function(locator, clickParent) {
     this.helpers._assertArgument(locator, 'locator');

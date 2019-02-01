@@ -14,7 +14,7 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.click(“id=Submit”);// Clicks an element.
+ * mob.click("id=Submit");// Clicks an element.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');
