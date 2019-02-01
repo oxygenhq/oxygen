@@ -15,6 +15,10 @@
  * @param {Number=} wait - Time in milliseconds to wait for sms popup. Default is 60 seconds.
  * @return {String} - SMS text.
  * @for android
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.click("id=sendSmS");// Clicks an element.
+ * var a = mob.smsGetText(60000);//Gets SMS text on Android phone.
 */
 module.exports = function(wait) {
     this.helpers._assertArgumentTimeout(wait, 'wait');

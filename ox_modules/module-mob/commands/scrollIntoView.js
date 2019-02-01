@@ -13,6 +13,9 @@
  * @param {String} locator - Element locator.
  * @param {Boolean=} alignToTop - Indicates whether to align the element to the top. Element is centered otherwise.
  * @for hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.scrollIntoElement('id=bottomPanel',true);//Scrolls the element into the visible area of the browser window.
 */
 module.exports = function(locator, alignToTop) {
     this.helpers._assertArgument(locator);

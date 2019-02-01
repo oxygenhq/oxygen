@@ -14,8 +14,10 @@
  * @function type
  * @param {String} locator - An element locator.
  * @param {String} value - The value to type.
- * @example <caption>[javascript] Example of typing a sequence of characters and pressing Enter afterwards.</caption>
- * web.type('id=someElement', 'hello world\uE007');
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.type(“id=UserName”,”User1”);//Types a string to field.
  */
 module.exports = function(locator, value) {
     var wdloc = this.helpers.getWdioLocator(locator);

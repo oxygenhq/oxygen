@@ -13,6 +13,9 @@
  * @param {String|WebElement} locator - Element locator.
  * @return {Boolean} - true if element is clickable. false otherwise.
  * @for android
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.isClickable("id=Element");//Determines if element is clickable.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');

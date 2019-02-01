@@ -12,6 +12,9 @@
  * @summary Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
  * @param {String} context - The context name.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.setContext(NATIVE_APP);//Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
  */
 module.exports = function(context) {
     this.helpers._assertArgumentNonEmptyString(context, 'context');

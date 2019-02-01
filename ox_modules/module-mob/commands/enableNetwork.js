@@ -13,6 +13,9 @@
  * @param {Boolean} wifi - Enable (true) or disable (false) wifi.
  * @param {Boolean} data - Enable (true) or disable (false) data.
  * @for android
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.enableNetwork(true,false);//Enable or disable wifi or data.
  */
 module.exports = function(wifi, data) {
     this.helpers._assertArgumentBool(wifi, 'wifi');

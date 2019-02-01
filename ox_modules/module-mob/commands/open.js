@@ -12,6 +12,9 @@
  * @function open
  * @param {String} url - The URL to open.
  * @for web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.open('www.yourwebsite.com');//Opens an URL.
  */
 module.exports = function(url) {
     this.helpers._assertArgumentNonEmptyString(url, 'url');

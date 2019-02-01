@@ -14,6 +14,9 @@
  * @param {Object=} parent - Optional parent element for relative search.
  * @return {WebElement} - A WebElement object.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.findElement(“id=Password”,“id=divPass”);//Finds an element.
 */
 module.exports = function(locator, parent) {
     this.helpers._assertArgument(locator, 'locator');

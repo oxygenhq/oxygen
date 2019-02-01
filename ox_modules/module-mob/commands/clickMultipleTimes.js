@@ -13,6 +13,9 @@
  * @param {String|WebElement} locator - Element locator.
  * @param {Number} taps - Number of taps.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.clickMultipleTimes(“id=Mark”,4);// Clicks an element certain amount of times.
  */
 module.exports = function(locator, taps) {
     this.helpers._assertArgument(locator, 'locator');

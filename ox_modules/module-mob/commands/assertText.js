@@ -14,6 +14,9 @@
  * @param {String} pattern - Assertion text or pattern.
  * @param {String=} message - Message to generate in case of assert failure.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.assertText(“id=UserName”,”John Doe”);// Asserts if an element’s text is as expected.
  */
 const chai = require('chai');
 const assert = chai.assert;

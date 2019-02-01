@@ -11,6 +11,10 @@
  * @function takeScreenshot
  * @summary Take a screenshot of the current page or screen and return it as base64 encoded string.
  * @return {String} Screenshot image encoded as a base64 string.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open(“www.yourwebsite.com”);// Opens a website.
+ * web.takeScreenshot();//Takes screenshot and return it base64 encoded string.
  */
 module.exports = function() {
     var response = this.driver.screenshot();

@@ -15,8 +15,9 @@
  * @param {String|WebElement} locator - An element locator.
  * @param {String} value - The value to type.
  * @for android, ios, hybrid, web
- * @example <caption>[javascript] Example of typing a sequence of characters and pressing Enter afterwards.</caption>
- * mob.type('id=someElement', 'hello world\uE007');
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.type('id=TextArea', 'hello world\uE007');
  */
 module.exports = function(locator, value) {
     this.helpers._assertArgument(locator, 'locator');

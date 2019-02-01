@@ -18,6 +18,9 @@
  * @function selectFrame
  * @param {...String|Number} frameLocator - A locator identifying the frame or iframe. Or a series 
  *         of locators.
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.selectFrame('id=iFrame');//Selects a frame or an iframe within the current window.
  */
 module.exports = function(frameLocator) {
     if (frameLocator === 'parent') {

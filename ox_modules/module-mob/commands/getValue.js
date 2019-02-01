@@ -13,6 +13,9 @@
  * @param {String|WebElement} locator - Element locator.
  * @return {String} - Element's value.
  * @for android, ios, hybrid, web
+ * @example <caption>[javascript] Usage example</caption>
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * var a = mob.getText("id=ValueArea");//Gets the value from an element.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');
