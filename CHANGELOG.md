@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.41.2 (2019-02-01)
+* Fix possible crash in `web.click`.
+
 ## v0.41.1 (2019-01-30)
 * Internal fixes.
 
