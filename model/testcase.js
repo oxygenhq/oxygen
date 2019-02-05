@@ -13,7 +13,10 @@ module.exports = function () {
         id: null,
         format: null,
         content: null,
-        iterationCount: 1,
+        iterationCount: 1,      // if iterationCount is 0 in load testing mode, then run the test until maxDuration is reached
+        rampup: 0,              // ramp up time to maximum concurrency (only relevant in load testing mode)
+        parallel: 1,            // amount of concurrent threads to run the case (only relevant in load testing mode)
+        maxDuration: null,      // maximum test case duration when multiple iterations are specified (only relevant in load testing mode)
         paramManager: null,
         poManager: null
     };
