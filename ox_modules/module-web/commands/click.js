@@ -65,11 +65,12 @@ module.exports = function(locator) {
          }
         }
         */
-        if (e.message &&
-            (e.message.includes('is not clickable at point')
-                || e.message === 'element not visible'
-                || e.message === 'element not interactable')
-                || e.message.startsWith('Element is not displayed')) {
+        if (e.message && (
+                    e.message.includes('is not clickable at point')
+                ||  e.message === 'element not visible'
+                ||  e.message === 'element not interactable'
+                ||  e.message.startsWith('Element is not displayed')
+            )) {
             this.clickHidden(locator);
         } else {
             throw e;
