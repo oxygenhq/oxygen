@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.42.0 (2019-02-25)
+* Add `shell` module.
+
 ## v0.41.2 (2019-02-01)
 * Fix possible crash in `web.click`.
 
