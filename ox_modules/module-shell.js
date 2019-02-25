@@ -17,7 +17,7 @@ module.exports = function() {
 
     module.exec = function(command, options = {}) {
         const { spawnSync } = require('child_process');
-        options = { cwd: ox.ctx.cwd, ...options };
+        options = { cwd: global.ox.ctx.cwd, ...options };
         const result = spawnSync(command, options);
         if (result.error) {
             throw new Error(result.error);
