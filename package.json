@@ -53,7 +53,7 @@
     "oxygen-logger": "0.3.0",
     "request": "2.88.0",
     "serialport": "7.1.4",
-    "soap": "0.25.0",
+    "soap": "0.26.0",
     "strip-comments": "1.0.2",
     "twilio": "3.26.0",
     "wdio-sync": "0.7.3",
