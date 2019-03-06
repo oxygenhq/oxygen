@@ -14,6 +14,8 @@ module.exports = function () {
     return {
         _name: null,
         _status: null,
+        _startTime: null,
+        _endTime: null,
         _duration: null,
         _transaction: null,
         _action: null,  // true / false

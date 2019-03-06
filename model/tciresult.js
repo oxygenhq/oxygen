@@ -15,6 +15,7 @@ module.exports = function () {
         _iterationNum: null,
         context: null,
         steps: null,            // type of stepresult.js
+        logs: null,
         har: null
     };
 };

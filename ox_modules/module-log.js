@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,8 +10,10 @@
 /**
  * Provides methods for printing user defined messages to test results.
  */
+module.exports = function (options, context, rs, logger) {
+    var _this = module._this = this;
+    this.logger = logger;
 
-module.exports = function() {
     module._isInitialized = function() {
         return true;
     };
@@ -21,25 +23,25 @@ module.exports = function() {
      * @function info
      * @param {String} msg - Message to print.
      */
-    module.info = function(msg) { process.send({ event: 'ui-log-add', level: 'INFO', msg: msg }); };
+    module.info = function(msg) { _this.logger.info(msg); };
     /**
      * @summary Print an ERROR message.
      * @function error
      * @param {String} msg - Message to print.
      */
-    module.error = function(msg) { process.send({ event: 'ui-log-add', level: 'ERROR', msg: msg }); };
+    module.error = function(msg) { _this.logger.error(msg); };
     /**
      * @summary Print a DEBUG message.
      * @function debug
      * @param {String} msg - Message to print.
      */
-    module.debug = function(msg) { process.send({ event: 'ui-log-add', level: 'DEBUG', msg: msg }); };
+    module.debug = function(msg) { _this.logger.debug(msg); };
     /**
      * @summary Print a WARN message.
      * @function warn
      * @param {String} msg - Message to print.
      */
-    module.warn = function(msg) { process.send({ event: 'ui-log-add', level: 'WARN', msg: msg }); };
+    module.warn = function(msg) { _this.logger.warn(msg); };
 
     return module;
 };
