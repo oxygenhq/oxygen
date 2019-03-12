@@ -31,7 +31,7 @@ module.exports = function (options, context, rs, logger) {
      * @function error
      * @param {String} msg - Message to print.
      */
-    module.error = function(msg) { _this.logger.error(msg, DEFAULT_ISSUER); };
+    module.error = function(msg) { _this.logger.error(msg, null, DEFAULT_ISSUER); };
     /**
      * @summary Print a DEBUG message.
      * @function debug
