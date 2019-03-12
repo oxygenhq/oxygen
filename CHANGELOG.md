@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.42.1 (2019-03-12)
+* Internal fixes.
+
 ## v0.42.0 (2019-02-25)
 * Add `shell` module.
 
