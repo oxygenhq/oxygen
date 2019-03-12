@@ -14,6 +14,8 @@ module.exports = function (options, context, rs, logger) {
     var _this = module._this = this;
     this.logger = logger;
 
+    const DEFAULT_ISSUER = 'user';
+
     module._isInitialized = function() {
         return true;
     };
@@ -23,25 +25,25 @@ module.exports = function (options, context, rs, logger) {
      * @function info
      * @param {String} msg - Message to print.
      */
-    module.info = function(msg) { _this.logger.info(msg); };
+    module.info = function(msg) { _this.logger.info(msg, DEFAULT_ISSUER); };
     /**
      * @summary Print an ERROR message.
      * @function error
      * @param {String} msg - Message to print.
      */
-    module.error = function(msg) { _this.logger.error(msg); };
+    module.error = function(msg) { _this.logger.error(msg, DEFAULT_ISSUER); };
     /**
      * @summary Print a DEBUG message.
      * @function debug
      * @param {String} msg - Message to print.
      */
-    module.debug = function(msg) { _this.logger.debug(msg); };
+    module.debug = function(msg) { _this.logger.debug(msg, DEFAULT_ISSUER); };
     /**
      * @summary Print a WARN message.
      * @function warn
      * @param {String} msg - Message to print.
      */
-    module.warn = function(msg) { _this.logger.warn(msg); };
+    module.warn = function(msg) { _this.logger.warn(msg, DEFAULT_ISSUER); };
 
     return module;
 };
