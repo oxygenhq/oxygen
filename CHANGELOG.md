@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.42.2 (2019-03-13)
+* Fix `web.scrollToElement`.
+
 ## v0.42.1 (2019-03-12)
 * Internal fixes.
 
