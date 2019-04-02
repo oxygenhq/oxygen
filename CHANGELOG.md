@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.42.3 (2019-04-02)
+* Fix encoding issue when reading CSVs without BOM.
+* Bump dependencies
+
 ## v0.42.2 (2019-03-13)
 * Fix `web.scrollToElement`.
 
