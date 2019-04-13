@@ -1,6 +1,19 @@
 /**
+ * 
  * http://usejsdoc.org/
  */
+
+/**
+ * @summary Send a sequence of key strokes to the active window or element.
+ * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
+ *              for the list of supported raw keyboard key codes.
+ * @function sendKeys with any value 
+ * @param {String} value - Sequence of key strokes to send.
+ * @example <caption>[javascript] Usage example</caption>
+ * web.init();//Opens browser session.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.sendKeys(‘Enter’);//Types keys with value from keyboard.
+*/
 module.exports = function(value) {
 
 	var wdloc = this.helpers.getWdioLocator(locator);
