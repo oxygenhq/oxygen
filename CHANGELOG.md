@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.42.4 (2019-04-16)
+* Fix date values not being parsed correctly when reading a CSV.
+* Bump dependencies
+
 ## v0.42.3 (2019-04-02)
 * Fix encoding issue when reading CSVs without BOM.
 * Bump dependencies
