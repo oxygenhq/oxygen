@@ -47,7 +47,8 @@ const ERROR_CODES = {
     VALUE_DOESNT_MATCH_ERROR: 'VALUE_DOESNT_MATCH_ERROR',
     DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND',
     PARAMETERS_ERROR: 'PARAMETERS_ERROR',
-    INVALID_CAPABILITIES: 'INVALID_CAPABILITIES'
+    INVALID_CAPABILITIES: 'INVALID_CAPABILITIES',
+    BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR'
 };
 
 // WebdriverIO to Oxygen error codes mapping
@@ -149,6 +150,14 @@ module.exports = {
                 return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't resolve Selenium server address");
             }
         }
+
+        if (err.message) {
+            var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
+            if (ieZoomErrorMsg) {
+                return new OxError(ERROR_CODES.BROWSER_CONFIGURATION_ERROR, ieZoomErrorMsg.toString());
+            }
+        }
+
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAppiumInitError: function(err) {
