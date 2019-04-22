@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-2019 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,9 +12,10 @@
  * @summary Take a screenshot of the current page or screen and return it as base64 encoded string.
  * @return {String} Screenshot image encoded as a base64 string.
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.takeScreenshot();//Takes screenshot and return it base64 encoded string.
+ * web.init();
+ * web.open("www.yourwebsite.com");
+ * var ss = web.takeScreenshot();
+ * require("fs").writeFileSync("c:\\screenshot.png", base64Data, 'base64');
  */
 module.exports = function() {
     var response = this.driver.screenshot();
