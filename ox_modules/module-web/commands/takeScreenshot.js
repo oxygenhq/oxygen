@@ -15,7 +15,7 @@
  * web.init();
  * web.open("www.yourwebsite.com");
  * var ss = web.takeScreenshot();
- * require("fs").writeFileSync("c:\\screenshot.png", base64Data, 'base64');
+ * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
  */
 module.exports = function() {
     var response = this.driver.screenshot();
