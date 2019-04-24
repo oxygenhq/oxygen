@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.42.6 (2019-04-24)
+* Better error message on invalid IE zoom level.
+* Internal fixes.
+
 ## v0.42.4 (2019-04-16)
 * Fix date values not being parsed correctly when reading a CSV.
 * Bump dependencies
