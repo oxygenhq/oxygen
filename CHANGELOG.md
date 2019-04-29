@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.42.7 (2019-04-29)
+* Fix --ro command line switch.
+
 ## v0.42.6 (2019-04-24)
 * Better error message on invalid IE zoom level.
 * Internal fixes.
