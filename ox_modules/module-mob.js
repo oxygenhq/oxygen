@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-2019 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -157,16 +157,9 @@ module.exports = function (options, context, rs, logger) {
             }
         }
 
-        // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
-        _this.caps = {};
+        _this.caps = _.extend({}, caps ? caps : {}, ctx.caps);
 
-        if (ctx.caps) {
-            _.extend(_this.caps, ctx.caps);
-        }
-        if (caps) {
-            _.extend(_this.caps, caps);
-        }
         // populate WDIO options
         var wdioOpts = {
             host: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
