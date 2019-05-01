@@ -160,6 +160,11 @@ module.exports = function (options, context, rs, logger) {
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
         _this.caps = _.extend({}, caps ? caps : {}, ctx.caps);
 
+        // if both browserName and appPackage were specified - remove browserName
+        if (_this.caps.browserName && _this.caps.appPackage) {
+            delete _this.caps.browserName;
+        }
+
         // populate WDIO options
         var wdioOpts = {
             host: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
