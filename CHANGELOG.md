@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.42.8 (2019-05-05)
+* Remove browserName if both browserName and appPackage were specified.
+* Override script specified caps for mob tests with context caps.
+
 ## v0.42.7 (2019-04-29)
 * Fix --ro command line switch.
 
