@@ -20,7 +20,6 @@ npm install -g oxygen-cli
 ## OS Specific requirements for building:
 
 #### Windows:
-* WiX Toolset installed and added to the %PATH%. 
 * ```npm --add-python-to-path='true' --debug install --global windows-build-tools``` from ```cmd``` with admin rights.
 * [Optional.  Required for DB support] Windows SDK
 
