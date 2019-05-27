@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-2019 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -26,5 +26,5 @@
  */
 module.exports = function(script) {
     var args = Array.prototype.splice.call(arguments, 0);
-    return this.driver.execute.apply(script, args);
+    return this.driver.execute.apply(script, args).value;
 };
