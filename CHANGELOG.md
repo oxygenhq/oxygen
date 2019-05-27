@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.43.0 (2019-05-27)
+* Add `web.getTitle`.
+* Unwrap the return value returned by `web.execute` and `mob.execute`.
+* Internal fixes.
+
 ## v0.42.8 (2019-05-05)
 * Remove browserName if both browserName and appPackage were specified.
 * Override script specified caps for mob tests with context caps.
