@@ -41,7 +41,6 @@
     "config": "3.1.0",
     "deasync": "0.1.14",
     "easyxml": "2.0.1",
-    "esm": "3.2.22",
     "fibers": "3.1.1",
     "glob-to-regexp": "0.4.1",
     "globule": "1.2.1",
