@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.44.0 (2019-05-29)
+* Remove support for using ECMAScript modules from `require`.
+
 ## v0.43.0 (2019-05-27)
 * Add `web.getTitle`.
 * Unwrap the return value returned by `web.execute` and `mob.execute`.
