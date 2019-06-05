@@ -23,10 +23,16 @@ module.exports = function(pattern, message) {
     this.helpers._assertArgument(pattern, 'pattern');
 
     var title = this.driver.getTitle();
-    if (pattern.indexOf('regex:') == 0) {
-        var regex = new RegExp(pattern.substring('regex:'.length));
-        assert.match(title, regex, message);
-    } else {
-        assert.equal(title, pattern, message);
+    // throw ASSERT_ERROR error if chai error is raised
+    try {
+        if (pattern.indexOf('regex:') == 0) {
+            var regex = new RegExp(pattern.substring('regex:'.length));
+            assert.match(title, regex, message);
+        } else {
+            assert.equal(title, pattern, message);
+        }
     }
+    catch (e) {
+        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, e.message);
+    }        
 };

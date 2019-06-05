@@ -48,10 +48,16 @@ module.exports = function(locator, pattern, message) {
         }
         throw e;
     }
-    if (pattern.indexOf('regex:') == 0) {
-        var regex = new RegExp(pattern.substring('regex:'.length));
-        assert.match(actualValue, regex, message);
-    } else {
-        assert.equal(actualValue, pattern, message);
+    // throw ASSERT_ERROR error if chai error is raised
+    try {
+        if (pattern.indexOf('regex:') == 0) {
+            var regex = new RegExp(pattern.substring('regex:'.length));
+            assert.match(actualValue, regex, message);
+        } else {
+            assert.equal(actualValue, pattern, message);
+        }
     }
+    catch (e) {
+        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, e.message);
+    }       
 };

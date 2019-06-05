@@ -13,7 +13,7 @@
 
 const chai = require('chai');
 const OxError = require('../errors/OxygenError');
-var errHelper = require('../errors/helper');
+const errHelper = require('../errors/helper');
 
 module.exports = function() {
     module._isInitialized = function() {
@@ -28,19 +28,24 @@ module.exports = function() {
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.equal = function(actual, expected, message) {
-        if (expected && typeof expected === 'string' && expected.indexOf('regex:') === 0) {
-            var regex = new RegExp(expected.substring('regex:'.length));
-            chai.assert.match(actual, regex, message);
-        } else {
-            // check if both values are string that can be converted to number
-            // if yes, convert them to number first and then compare
-            if (typeof actual === 'string' && !isNaN(actual)) {
-                actual = parseInt(actual);
+        try {
+            if (expected && typeof expected === 'string' && expected.indexOf('regex:') === 0) {
+                var regex = new RegExp(expected.substring('regex:'.length));
+                chai.assert.match(actual, regex, message);
+            } else {
+                // check if both values are string that can be converted to number
+                // if yes, convert them to number first and then compare
+                if (typeof actual === 'string' && !isNaN(actual)) {
+                    actual = parseInt(actual);
+                }
+                if (typeof expected === 'string' && !isNaN(expected)) {
+                    expected = parseInt(expected);
+                }
+                chai.assert.equal(actual, expected, message);
             }
-            if (typeof expected === 'string' && !isNaN(expected)) {
-                expected = parseInt(expected);
-            }
-            chai.assert.equal(actual, expected, message);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
     };
     /**
@@ -51,11 +56,16 @@ module.exports = function() {
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.notEqual = function(actual, expected, message) {
-        if (expected.indexOf('regex:') === 0) {
-            var regex = new RegExp(expected.substring('regex:'.length));
-            chai.assert.notMatch(actual, regex, message);
-        } else {
-            chai.assert.notEqual(actual, expected, message);
+        try {
+            if (expected.indexOf('regex:') === 0) {
+                var regex = new RegExp(expected.substring('regex:'.length));
+                chai.assert.notMatch(actual, regex, message);
+            } else {
+                chai.assert.notEqual(actual, expected, message);
+            }
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
     };
     /**
