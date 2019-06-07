@@ -37,7 +37,6 @@
     "async": "2.6.2",
     "chai": "4.2.0",
     "chrome-har": "0.10.0",
-    "ox-chrome-remote-interface": "0.27.0",
     "config": "3.1.0",
     "deasync": "0.1.14",
     "easyxml": "2.0.1",
@@ -49,6 +48,7 @@
     "lodash": "4.17.11",
     "minimist": "1.2.0",
     "moment": "2.24.0",
+    "ox-chrome-remote-interface": "0.27.0",
     "oxygen-logger": "0.3.0",
     "request": "2.88.0",
     "serialport": "7.1.4",
@@ -58,7 +58,8 @@
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.4",
     "when": "3.7.8",
-    "xlsx": "0.14.2"
+    "xlsx": "0.14.2",
+    "xslt-processor": "^0.11.5"
   },
   "optionalDependencies": {
     "odbc": "1.4.5"
