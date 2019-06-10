@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.44.1 (2019-06-10)
+* Fix CSV parameters parsing.
+* Fix UNKOWN_ERROR being thrown for assertion errors.
+
 ## v0.44.0 (2019-05-29)
 * Remove support for using ECMAScript modules from `require`.
 
