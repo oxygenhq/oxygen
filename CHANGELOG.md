@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.45.0 (2019-06-11)
+* Add `web.sendKeyboardActions` (on behalf of Alexei Mikheev).
+* Fix `mob.swipe` to throw proper error when element not found.
+* Fix commands failing with cryptic error when passed null as a locator.
+* Bump dependencies.
+
 ## v0.44.1 (2019-06-10)
 * Fix CSV parameters parsing.
 * Fix UNKOWN_ERROR being thrown for assertion errors.
