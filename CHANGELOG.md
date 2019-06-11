@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.45.1 (2019-06-11)
+* Move `web.sendKeyboardActions` functionality to `web.sendKeys`.
+
 ## v0.45.0 (2019-06-11)
 * Add `web.sendKeyboardActions` (on behalf of Alexei Mikheev).
 * Fix `mob.swipe` to throw proper error when element not found.
