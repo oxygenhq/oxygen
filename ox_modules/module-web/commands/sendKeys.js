@@ -8,7 +8,7 @@
  */
 
 /**
- * @summary Send a sequence of key strokes to the active window or element.
+ * @summary Send a sequence of keyboard strokes to the active window or element.
  * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
  *              for the list of supported raw keyboard key codes.
  * @function sendKeys
@@ -20,5 +20,43 @@
 */
 module.exports = function(value) {
     this.helpers.assertArgument(value);
+
+    // process special keys
+    switch(value){
+        case 'PageUp':
+            value='\uE054';
+            break;
+        case 'PageDown':
+            value='\uE055';
+            break;
+        case 'End':
+            value='\uE056';
+            break;
+        case 'Home':
+            value='\uE057';
+            break;
+        case 'ArrowLeft':
+            value='\uE058';
+            break;
+        case 'ArrowUp':
+            value='\uE059';
+            break;
+        case 'ArrowRight':
+            value='\uE05A';
+            break;
+        case 'ArrowDown':
+            value='\uE05B';
+            break;
+        case 'Insert':
+            value='\uE05C';
+            break;
+        case 'Delete':
+            value='\uE05D';
+            break;
+        case 'Enter':
+            value='\uE007';
+            break;
+    }
+
     this.driver.keys(value);
 };
