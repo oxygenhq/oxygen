@@ -338,7 +338,7 @@
 					</h2>
 					<xsl:for-each select="./iterations">
 						<xsl:variable name="globalIndex">
-							<!-- <xsl:number level="any" /> -->
+							<xsl:number level="any" />
 						</xsl:variable>
 						<xsl:apply-templates select=".">
 							<xsl:with-param name="globalIndex" select="$globalIndex" />
@@ -459,7 +459,7 @@
 													</td>
 												</xsl:when>
 												<xsl:otherwise>
-													<!-- <td><xsl:number count="steps[not(contains(@name, '.transaction')) and not(contains(@name, 'log.'))]" /></td> -->
+													<td><xsl:number count="steps[not(contains(@name, '.transaction')) and not(contains(@name, 'log.'))]" /></td>
 													<td style="word-wrap: break-word; width: 100%;">
 														<xsl:value-of select="@name"/>
 													</td>
