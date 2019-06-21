@@ -89,7 +89,7 @@ module.exports = function (options, context, rs, logger) {
     var opts = options;
     var helpers = this.helpers;
     var isInitialized = false;
-    var rs = rs;    // reference to the result store
+    var results = rs;    // reference to the result store
 
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
@@ -153,7 +153,7 @@ module.exports = function (options, context, rs, logger) {
                 const logs = module.getDeviceLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
-                        rs.logs.push(module._adjustAppiumLog(log, 'device'));
+                        results.logs.push(module._adjustAppiumLog(log, 'device'));
                     }                    
                 }                
             }
@@ -167,8 +167,8 @@ module.exports = function (options, context, rs, logger) {
             try {
                 const logs = module.getAppiumLogs();
                 if (logs && Array.isArray(logs)) {
-                    for (var log of logs) {
-                        rs.logs.push(module._adjustAppiumLog(log, 'appium'));
+                    for (var logEntry of logs) {
+                        results.logs.push(module._adjustAppiumLog(logEntry, 'appium'));
                     }                    
                 }
             }
