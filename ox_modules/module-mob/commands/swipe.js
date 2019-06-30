@@ -36,6 +36,9 @@ module.exports = function(locator, xoffset, yoffset, speed) {
             elm = locator;
         } else {
             elm = this.findElement(locator);
+            if (!elm) {
+                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+            }
         }
 
         return elm.swipe(xoffset, yoffset, speed);

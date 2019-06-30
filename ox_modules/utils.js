@@ -35,7 +35,7 @@ module.exports = {
     },
 
     assertArgument: function(arg, name) {
-        if (arg === undefined) {
+        if (arg === undefined || arg === null) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
         }
     },

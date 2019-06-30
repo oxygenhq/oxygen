@@ -21,7 +21,7 @@
 module.exports = function(locator, wait) {
     this.helpers._assertArgument(locator, 'locator');
     this.helpers._assertArgumentTimeout(wait, 'wait');
-    wait = wait || this.DEFAULT_WAIT_TIMEOUT;
+    wait = wait || this.waitForTimeout;
 
     try {
         if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object

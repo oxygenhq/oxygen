@@ -76,11 +76,12 @@ module.exports = function (options, context, rs, logger) {
     this.driver = null;
     this.helpers = {};
     this.logger = logger;
-    this.DEFAULT_WAIT_TIMEOUT = 60000;
+    this.DEFAULT_WAIT_TIMEOUT = 60 * 1000;          // default 60s wait timeout
     this.POOLING_INTERVAL = 5000;
     this.sessionId = null;                          // current session id
     this.appContext = 'NATIVE_APP';
     this.caps = null;                               // save driver capabilities for later use when error occures
+    this.waitForTimeout = this.DEFAULT_WAIT_TIMEOUT;     // current timeout value, set by setTimout method        
     this.autoWait = true;
     
     // local variables
@@ -88,11 +89,13 @@ module.exports = function (options, context, rs, logger) {
     var opts = options;
     var helpers = this.helpers;
     var isInitialized = false;
+    var results = rs;    // reference to the result store
 
     const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
     const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
     const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
     const NO_SCREENSHOT_COMMANDS = ['init'];
+    const NO_LOGS_COMMANDS = [];
     const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
     
     // expose wdio driver for debugging purposes
@@ -114,10 +117,66 @@ module.exports = function (options, context, rs, logger) {
             return module.takeScreenshot();
         }
     };
+
+    module._getLogs = function(name) {
+        if (!NO_LOGS_COMMANDS.includes(name)) {
+            return module.getLogs();
+        }
+    };
+
+    module._adjustAppiumLog = function(log, src) {
+        if (!log || typeof log !== 'object') {
+            return null;
+        }
+        // TODO: convert log.timestamp from the device time zone to the local one (so we can later correlate between steps and logs)        
+        return {
+            time: log.timestamp,
+            msg: log.message,
+            level: log.level,
+            src: src
+        };
+    };
     
     module._iterationStart = function() {
         // clear transaction name saved in previous iteration if any
         global._lastTransactionName = null;
+    };
+
+    module._iterationEnd = function() {
+        // ignore the rest if mob module is not initialized
+        if (!isInitialized) {
+            return;
+        }
+        // collect all the device logs for this session
+        if (opts.collectDeviceLogs) {
+            try {
+                const logs = module.getDeviceLogs();
+                if (logs && Array.isArray(logs)) {
+                    for (var log of logs) {
+                        results.logs.push(module._adjustAppiumLog(log, 'device'));
+                    }                    
+                }                
+            }
+            catch (e) {
+                // ignore errors
+                console.error('Cannot retrieve device logs.', e);  
+            }
+        }
+        // collect all Appium logs for this session
+        if (opts.collectAppiumLogs) {
+            try {
+                const logs = module.getAppiumLogs();
+                if (logs && Array.isArray(logs)) {
+                    for (var logEntry of logs) {
+                        results.logs.push(module._adjustAppiumLog(logEntry, 'appium'));
+                    }                    
+                }
+            }
+            catch (e) {
+                // ignore errors
+                console.error('Cannot retrieve Appium logs.', e);  
+            }
+        }
     };
     
     helpers._assertArgument = utils.assertArgument;
@@ -160,11 +219,15 @@ module.exports = function (options, context, rs, logger) {
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
         _this.caps = _.extend({}, caps ? caps : {}, ctx.caps);
 
+        // make sure to clear the existing device logs, if collectDeviceLogs option is true (we want to include logs only relevant for this session)
+        if (opts.collectDeviceLogs) {
+            _this.caps.clearDeviceLogsOnStart = true;
+        }
+
         // if both browserName and appPackage were specified - remove browserName
         if (_this.caps.browserName && _this.caps.appPackage) {
             delete _this.caps.browserName;
         }
-
         // populate WDIO options
         var wdioOpts = {
             host: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
@@ -186,9 +249,19 @@ module.exports = function (options, context, rs, logger) {
         _this.driver = wdio.remote(wdioOpts);
         wdioSync.wrapCommands(_this.driver);
         try {
-            _this.driver.init();
+            _this.driver.init();            
         } catch (err) {
             throw _this.errHelper.getAppiumInitError(err);
+        }
+        // clear logs if auto collect logs option is enabled
+        if (opts.collectDeviceLogs) {
+            try {
+                // simply call this to clear the previous logs and start the test with the clean logs
+                module.getDeviceLogs();     
+            }
+            catch (e) {
+                console.error('Cannot retrieve device logs.', e);  
+            }
         }
         isInitialized = true;
     };

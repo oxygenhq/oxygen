@@ -103,6 +103,20 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
+    module._adjustBrowserLog = function(log) {
+        if (!log || typeof log !== 'object') {
+            return null;
+        }
+        // TODO: convert log.timestamp from the browser time zone to the local one (so we can later correlate between steps and logs)        
+        return {
+            time: log.timestamp,
+            msg: log.message,
+            // convert SEVERE log level to ERROR 
+            level: log.level === 'SEVERE' ? 'ERROR' : log.level,
+            src: 'browser'
+        };
+    };
+
     module._iterationStart = function() {
         // clear transaction name saved in previous iteration if any
         global._lastTransactionName = null;
@@ -111,6 +125,21 @@ module.exports = function (options, context, rs, logger) {
     module._iterationEnd = function() {
         if (!isInitialized) {
             return;
+        }
+        // collect browser logs for this session
+        if (opts.collectBrowserLogs) {
+            try {
+                const logs = module.getBrowserLogs();
+                if (logs && Array.isArray(logs)) {
+                    for (var log of logs) {
+                        rs.logs.push(module._adjustBrowserLog(log));
+                    }                    
+                }                
+            }
+            catch (e) {
+                // ignore errors
+                console.error('Cannot retrieve browser logs.', e);  
+            }
         }
         // TODO: should clear transactions to avoid duplicate names across iterations
         // also should throw on duplicate names.
@@ -276,7 +305,17 @@ module.exports = function (options, context, rs, logger) {
         } catch (err) {
             throw _this.errHelper.getSeleniumInitError(err);
         }
-
+        // reset browser logs if auto collect logs option is enabled
+        if (opts.collectBrowserLogs) {
+            try {
+                // simply call this to clear the previous logs and start the test with the clean logs
+                module.getBrowserLogs();     
+            }
+            catch (e) {
+                console.error('Cannot retrieve browser logs.', e);  
+            }
+        }
+        // maximize browser window
         try {
             _this.driver.windowHandleMaximize('current');
         } catch (err) {

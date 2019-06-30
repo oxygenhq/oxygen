@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "0.44.0",
+  "version": "0.45.2",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./lib/oxygen.js",
   "bin": {
@@ -38,6 +38,7 @@
     "chai": "4.2.0",
     "chrome-har": "0.10.0",
     "config": "3.1.0",
+    "csv-parse": "4.4.3",
     "deasync": "0.1.14",
     "easyxml": "2.0.1",
     "fibers": "3.1.1",
@@ -52,18 +53,18 @@
     "oxygen-logger": "0.3.0",
     "prettify-html": "0.0.2",
     "request": "2.88.0",
-    "serialport": "7.1.4",
-    "soap": "0.26.0",
+    "serialport": "7.1.5",
+    "soap": "0.28.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.30.1",
+    "twilio": "3.33.0",
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.4",
     "when": "3.7.8",
-    "xlsx": "0.14.2",
-    "xslt-processor": "^0.11.5"
+    "xlsx": "0.14.3",
+    "xslt-processor": "0.11.5"
   },
   "optionalDependencies": {
-    "odbc": "1.4.5"
+    "odbc": "1.4.6"
   },
   "scripts": {
     "prepublishOnly": "grunt eslint && grunt dos2unix",
