@@ -60,8 +60,7 @@
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.4",
     "when": "3.7.8",
-    "xlsx": "0.14.3",
-    "xslt-processor": "0.11.5"
+    "xlsx": "0.14.3"
   },
   "optionalDependencies": {
     "odbc": "1.4.6"
