@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.45.2 (2019-06-17)
+* Internal fixes.
+
 ## v0.45.1 (2019-06-11)
 * Move `web.sendKeyboardActions` functionality to `web.sendKeys`.
 

@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "0.45.1",
+  "version": "0.45.2",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./lib/oxygen.js",
   "bin": {
@@ -52,11 +52,12 @@
     "ox-chrome-remote-interface": "0.27.0",
     "oxygen-logger": "0.3.0",
     "pdfreader": "^1.0.4",
+    "prettify-html": "0.0.2",
     "request": "2.88.0",
     "serialport": "7.1.5",
-    "soap": "0.27.1",
+    "soap": "0.28.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.31.1",
+    "twilio": "3.33.0",
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.4",
     "when": "3.7.8",
