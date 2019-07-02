@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2019-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  */
 
 /**
- * Provides generic pdf methods.
+ * Provides generic methods for working with PDF files.
  */
 
 const OxError = require('../errors/OxygenError');
@@ -22,7 +22,7 @@ function checkRows(searchStr, rows) {
     Object.keys(rows) // => array of y-positions (type: float)
         .sort((y1, y2) => parseFloat(y1) - parseFloat(y2)) // sort float positions
         .some(y => {
-            var line = (rows[y] || []).join("");
+            var line = (rows[y] || []).join('');
 
             var inludes = line.includes(searchStr);
             
@@ -38,13 +38,13 @@ function checkRows(searchStr, rows) {
 function assertion(path, text, invert = false){
     let rows = {}; // indexed by y-position
 
-    return new Promise(function(resolve, reject) {    
+    return new Promise(function(resolve, reject) {
         if(!path || !text){
             reject(`Bad params, path and text required, now path: ${path}, text: ${text}`);
         }
     
         const srcFilePath = path;
-        const searchStr = text.split(" ").join("");
+        const searchStr = text.split(' ').join('');
 
         if(srcFilePath){
             new pdfreader.PdfReader().parseFileItems(srcFilePath, function(
@@ -77,11 +77,11 @@ function assertion(path, text, invert = false){
                         resolve(false);
                     }
                 }
-            })
+            });
         } else {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Error when try to get full path fron path: ${path}`);
         }
-    })
+    });
 }
 
 
@@ -91,10 +91,10 @@ module.exports = function() {
     };
 
     /**
-     * @summary Asserts that text are in pdf file
+     * @summary Asserts that text is present in a PDF file
      * @function assert
-     * @param {String} path - Absolute path to pdf file.
-     * @param {String} text - Expected value. Either a verbatim string
+     * @param {String} path - Absolute path to the PDF file.
+     * @param {String} text - Text to assert.
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.assert = function(path, text, message) {
@@ -109,7 +109,7 @@ module.exports = function() {
                     error => {
                         throw new OxError(errHelper.errorCode.ASSERT_ERROR, error.message || error);
                     }
-                  )
+                );
                 
                 deasync.loopWhile(() => { return typeof actual !== 'boolean'; });
 
@@ -150,10 +150,10 @@ module.exports = function() {
     
     
     /**
-     * @summary Asserts that text are not in pdf file
+     * @summary Asserts that text is not present in a PDF file
      * @function assert
-     * @param {String} path - Absolute path to pdf file.
-     * @param {String} text - Expected value. Either a verbatim string
+     * @param {String} path - Absolute path to the pdf file.
+     * @param {String} text - Text to assert.
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.assertNot = function(path, text, message) {
@@ -168,7 +168,7 @@ module.exports = function() {
                     error => {
                         throw new OxError(errHelper.errorCode.ASSERT_ERROR, error.message || error);
                     }
-                  )
+                );
                 
                 deasync.loopWhile(() => typeof actual !== 'boolean');
                 
@@ -208,4 +208,4 @@ module.exports = function() {
     };
 
     return module;
-}
+};
