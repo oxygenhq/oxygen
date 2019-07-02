@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.46.0 (2019-07-02)
+* Add `mob.getAppiumLogs`.
+* Add `mob.getDeviceLogs`.
+* Add `mob.getDeviceTime`.
+* Add `mob.setTimeout`.
+* Add `web.getBrowserLogs`.
+* Add `pdf` module.
+* Remove dependency on Mono for Linux & OS X.
+
 ## v0.45.2 (2019-06-17)
 * Internal fixes.
 
