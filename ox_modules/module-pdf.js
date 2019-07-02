@@ -62,12 +62,7 @@ function assertion(path, text, invert = false){
     
                 if (item && item.page) {
                     // end of file, or page
-                    let result = checkRows(searchStr, rows);              
-    
-                    if(item && item.page){
-                        // console.log('---');
-                        // console.log("PAGE:", item.page);
-                    }
+                    let result = checkRows(searchStr, rows);
 
                     if(result){
                         resolve(true);
@@ -116,8 +111,7 @@ module.exports = function() {
                     }
                   )
                 
-                deasync.loopWhile(() => typeof actual !== 'boolean');
-                deasync.sleep(500);
+                deasync.loopWhile(() => { return typeof actual !== 'boolean'; });
 
                 if(actual === expected){
                     // ignore;
@@ -165,6 +159,7 @@ module.exports = function() {
     module.assertNot = function(path, text, message) {
         try {
             if(path && text){
+                let actual = null;
                 const expected = false;
                 assertion(path, text).then(
                     result => {
@@ -176,8 +171,6 @@ module.exports = function() {
                   )
                 
                 deasync.loopWhile(() => typeof actual !== 'boolean');
-                deasync.sleep(500);
-
                 
                 if(actual === expected){
                     // ignore;
