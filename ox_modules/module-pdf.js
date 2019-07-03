@@ -22,8 +22,8 @@ function checkRows(searchStr, rows) {
     Object.keys(rows) // => array of y-positions (type: float)
         .sort((y1, y2) => parseFloat(y1) - parseFloat(y2)) // sort float positions
         .some(y => {
-            var line = (rows[y] || []).join('');
 
+            var line = (rows[y] || []).join('').replace(/\s/g, '');
             var inludes = line.includes(searchStr);
             
             if(inludes){
@@ -44,7 +44,7 @@ function assertion(path, text, invert = false){
         }
     
         const srcFilePath = path;
-        const searchStr = text.split(' ').join('');
+        const searchStr = text.replace(/\s/g, '');
 
         if(srcFilePath){
             new pdfreader.PdfReader().parseFileItems(srcFilePath, function(
@@ -73,7 +73,14 @@ function assertion(path, text, invert = false){
                     // accumulate text items into rows object, per line
                     (rows[item.y] = rows[item.y] || []).push(item.text);
                 } else {
-                    if(typeof item === 'undefined'){
+                    if(typeof item === 'undefined'){ // end of file
+                        //check again the last page, looks like in the last page previous mechanism of checking rows don't work
+                        let result = checkRows(searchStr, rows);
+                        
+                        if(result){
+                            resolve(true);
+                        }
+                        
                         resolve(false);
                     }
                 }
