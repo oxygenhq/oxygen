@@ -158,7 +158,7 @@ module.exports = function() {
     
     /**
      * @summary Asserts that text is not present in a PDF file
-     * @function assert
+     * @function assertNot
      * @param {String} path - Absolute path to the pdf file.
      * @param {String} text - Text to assert.
      * @param {String=} message - Message to throw if assertion fails.
