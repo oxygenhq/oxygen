@@ -22,8 +22,8 @@ function checkRows(searchStr, rows) {
     Object.keys(rows) // => array of y-positions (type: float)
         .sort((y1, y2) => parseFloat(y1) - parseFloat(y2)) // sort float positions
         .some(y => {
-            var line = (rows[y] || []).join('');
 
+            var line = (rows[y] || []).join('').replace(/\s/g, '');
             var inludes = line.includes(searchStr);
             
             if(inludes){
@@ -44,7 +44,7 @@ function assertion(path, text, invert = false){
         }
     
         const srcFilePath = path;
-        const searchStr = text.split(' ').join('');
+        const searchStr = text.replace(/\s/g, '');
 
         if(srcFilePath){
             new pdfreader.PdfReader().parseFileItems(srcFilePath, function(
