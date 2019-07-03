@@ -73,7 +73,14 @@ function assertion(path, text, invert = false){
                     // accumulate text items into rows object, per line
                     (rows[item.y] = rows[item.y] || []).push(item.text);
                 } else {
-                    if(typeof item === 'undefined'){
+                    if(typeof item === 'undefined'){ // end of file
+                        //check again the last page, looks like in the last page previous mechanism of checking rows don't work
+                        let result = checkRows(searchStr, rows);
+                        
+                        if(result){
+                            resolve(true);
+                        }
+                        
                         resolve(false);
                     }
                 }
