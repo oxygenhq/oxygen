@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -72,7 +72,7 @@ module.exports = function() {
         var resultClient = null;
         var result = null;
 
-        soap.createClient(wsdlUrl, (err, client) => {
+        soap.createClient(wsdlUrl, { wsdl_options: { rejectUnauthorized: false }}, (err, client) => {
             if (client === undefined) {
                 var msg =  'Error creating client';
                 if (err.message) {
@@ -107,7 +107,7 @@ module.exports = function() {
                 }
 
                 result = res;
-            });
+            }, { rejectUnauthorized: false });
         });
 
         deasync.loopWhile(() => !resultClient);
@@ -132,7 +132,7 @@ module.exports = function() {
     module.describe = function(wsdlUrl) {
         var resultClient = null;
 
-        soap.createClient(wsdlUrl, (err, client) => {
+        soap.createClient(wsdlUrl,{ wsdl_options: { rejectUnauthorized: false }}, (err, client) => {
             if (client === undefined) {
                 var msg =  'Error creating client';
                 if (err.message) {
