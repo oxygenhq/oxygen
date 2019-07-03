@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.46.1 (2019-07-03)
+* Fix `soap` module to work with HTTPS which uses self-signed certificates.
+* Fix `http` module to work with HTTPS which uses self-signed certificates.
+* Fix `pdf.assert` not working properly with certain words having spaces in them.
+
 ## v0.46.0 (2019-07-02)
 * Add `mob.getAppiumLogs`.
 * Add `mob.getDeviceLogs`.
