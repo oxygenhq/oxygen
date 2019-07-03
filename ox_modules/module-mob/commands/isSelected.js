@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,13 @@
  * @return {Boolean} - true if element is selected. false otherwise.
  * @for android
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.isExist("id=Selection");//Determines if element is selected.
+ * mob.init(caps);
+ * var a = mob.isSelected("id=Selection");
+ * if (a) {
+ *   ...
+ * } else {
+ *   ...
+ * }
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');

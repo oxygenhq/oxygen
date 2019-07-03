@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * @return {String} - Element's value.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var a = mob.getText("id=ValueArea");//Gets the value from an element.
+ * mob.init(caps);
+ * var a = mob.getValue("id=ValueArea");//Gets the value from an element.
  */
 module.exports = function(locator) {
     this.helpers._assertArgument(locator, 'locator');
