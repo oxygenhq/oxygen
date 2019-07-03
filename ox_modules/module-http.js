@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +37,8 @@ module.exports = function() {
             url: url,
             method: 'GET',
             json: true,
-            timeout: _responseTimeout
+            timeout: _responseTimeout,
+            rejectUnauthorized: false
         };
 
         request(options, (err, res, body) => { result = err || res; });
@@ -66,6 +67,7 @@ module.exports = function() {
             method: 'POST',
             json: true,
             timeout: _responseTimeout,
+            rejectUnauthorized: false,
             body: data
         };
 
@@ -95,6 +97,7 @@ module.exports = function() {
             method: 'PUT',
             json: true,
             timeout: _responseTimeout,
+            rejectUnauthorized: false,
             body: data
         };
 
@@ -121,7 +124,8 @@ module.exports = function() {
             url: url,
             method: 'DELETE',
             json: true,
-            timeout: _responseTimeout
+            timeout: _responseTimeout,
+            rejectUnauthorized: false
         };
 
         request(options, (err, res, body) => { result = err || res; });
@@ -134,7 +138,7 @@ module.exports = function() {
     };
 
     /**
-     * @summary Returns response headers 
+     * @summary Returns response headers
      * @function getResponseHeaders
      * @param {String} url - URL.
      * @return {Object} Response headers.
@@ -146,7 +150,8 @@ module.exports = function() {
             url: url,
             method: 'GET',
             followRedirect: false,
-            timeout: _responseTimeout
+            timeout: _responseTimeout,
+            rejectUnauthorized: false
         };
 
         request(options, (err, res, body) => { result = err || res; });
