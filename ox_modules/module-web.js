@@ -285,11 +285,12 @@ module.exports = function (options, context, rs, logger) {
         var URL = require('url');
         var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
         var host = url.hostname;
-        var port = parseInt(url.port);
+        var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
         var path = url.pathname;
         var protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
 
         var wdioOpts = {
+            ...opts.wdioOpts || {},
             protocol: protocol,
             host: host,
             port: port,
