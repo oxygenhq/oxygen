@@ -48,7 +48,10 @@ const ERROR_CODES = {
     DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND',
     PARAMETERS_ERROR: 'PARAMETERS_ERROR',
     INVALID_CAPABILITIES: 'INVALID_CAPABILITIES',
-    BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR'
+    BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR',
+    APPIUM_RUNTIME_ERROR: 'APPIUM_RUNTIME_ERROR',
+    SELENIUM_RUNTIME_ERROR: 'SELENIUM_RUNTIME_ERROR',
+    RUNTIME_ERROR: 'RUNTIME_ERROR'
 };
 
 // WebdriverIO to Oxygen error codes mapping
@@ -126,6 +129,14 @@ module.exports = {
                 return new OxError(oxErrorCode, err.message, null);
             }
         }
+        // handle various types of RuntimeError(s)
+        else if (errType === 'RuntimeError' && err.message) {
+            const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
+            if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
+                const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+                return new OxError(ERROR_CODES.RUNTIME_ERROR, originalError, null);
+            }
+        }
 
         // try to resolve Chai error code
         oxErrorCode = CHAI_ERROR_CODES[errType];
@@ -141,6 +152,13 @@ module.exports = {
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getSeleniumInitError: function(err) {
+        if (err.message) {
+            var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
+            if (ieZoomErrorMsg) {
+                return new OxError(ERROR_CODES.BROWSER_CONFIGURATION_ERROR, ieZoomErrorMsg.toString());
+            }
+        }
+
         if (err.type === 'RuntimeError') {
             if (err.message != null && err.message.indexOf('cannot find Chrome binary') > -1) {
                 return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
@@ -149,15 +167,11 @@ module.exports = {
             } else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
                 return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't resolve Selenium server address");
             }
-        }
-
-        if (err.message) {
-            var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
-            if (ieZoomErrorMsg) {
-                return new OxError(ERROR_CODES.BROWSER_CONFIGURATION_ERROR, ieZoomErrorMsg.toString());
+            else {
+                return new OxError(ERROR_CODES.SELENIUM_RUNTIME_ERROR, err.message, null);
             }
         }
-
+        
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAppiumInitError: function(err) {
@@ -171,6 +185,16 @@ module.exports = {
             } else if (err.seleniumStack && err.seleniumStack.orgStatusMessage 
                 && err.seleniumStack.orgStatusMessage.indexOf('Could not find a connected Android device') > -1) {
                 return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
+            }
+            else {
+                const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
+                if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
+                    const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+                    return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, originalError, null);
+                }
+                else {
+                    return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, err.message, null);
+                }
             }
         }
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
