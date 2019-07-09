@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.46.2 (2019-07-09)
+* Support external webdriverio options.
+* Improve error handling for RuntimeError.
+
 ## v0.46.1 (2019-07-03)
 * Fix `soap` module to work with HTTPS which uses self-signed certificates.
 * Fix `http` module to work with HTTPS which uses self-signed certificates.
