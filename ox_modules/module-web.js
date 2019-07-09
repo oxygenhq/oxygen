@@ -329,6 +329,12 @@ module.exports = function (options, context, rs, logger) {
     function harGet() {
         var logs = _this.driver.log('performance');
 
+        // in one instance, logs.value was not iterable for some reason - hence the following check:
+        if (!logs.value || typeof logs.value[Symbol.iterator] !== 'function') {
+            console.error('harGet: logs.value not iterable: ' + JSON.stringify(logs));  
+            return null;
+        }
+
         var events = [];
         for (var log of logs.value) {
             var msgObj = JSON.parse(log.message);   // returned as string
