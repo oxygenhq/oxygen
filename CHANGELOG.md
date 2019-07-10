@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.46.3 (2019-07-10)
+* Fix number of issues with HTML reports.
+
 ## v0.46.2 (2019-07-09)
 * Support external webdriverio options.
 * Improve error handling for RuntimeError.
