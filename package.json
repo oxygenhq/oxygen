@@ -29,6 +29,7 @@
     "url": "https://github.com/oxygenhq/oxygen/issues"
   },
   "devDependencies": {
+    "@babel/core": "^7.4.0",
     "doctrine": "2.1.0",
     "grunt": "1.0.4",
     "grunt-eslint": "20.2.0"
@@ -61,13 +62,18 @@
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.4",
     "when": "3.7.8",
-    "xlsx": "0.14.3"
+    "xlsx": "0.14.3",
+    "@babel/cli": "^7.2.3",
+    "@babel/plugin-proposal-export-default-from": "^7.5.2",
+    "@babel/preset-env": "^7.4.2",
+    "@babel/register": "^7.4.0"
   },
   "optionalDependencies": {
     "odbc": "1.4.6"
   },
   "scripts": {
     "prepublishOnly": "grunt eslint && grunt dos2unix",
-    "postpublish": "grunt unix2dos"
+    "postpublish": "grunt unix2dos",
+    "dev": "./node_modules/.bin/babel-node ./lib/cli.1.js"
   }
 }
