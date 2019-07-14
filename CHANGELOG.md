@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.46.4 (2019-07-14)
+* Fix invalid breakpoint handling in debugger.
+
 ## v0.46.3 (2019-07-10)
 * Fix number of issues with HTML reports.
 
