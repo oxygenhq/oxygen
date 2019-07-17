@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.46.5 (2019-07-17)
+* Add support for adding breakpoints after the test has started.
+* Bump dependencies.
+
 ## v0.46.4 (2019-07-14)
 * Fix invalid breakpoint handling in debugger.
 
