@@ -52,7 +52,6 @@
     "ox-chrome-remote-interface": "0.27.0",
     "oxygen-logger": "0.3.0",
     "pdfreader": "1.0.4",
-    "prettify-html": "0.0.2",
     "request": "2.88.0",
     "serialport": "7.1.5",
     "soap": "0.28.0",
