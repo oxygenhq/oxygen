@@ -61,12 +61,16 @@ module.exports = function() {
      * @param {String} method - Method name (case sensitive).
      * @param {Object=} args - Object containing the arguments.
      * @return {Object} The response object.
-     * @example <caption>[json] Example of args object for a method call which expects to receive 
-     * two arguments - foo and baz.</caption>
-     * {
-     *   foo: "bar",
-     *   baz: 1
-     * }
+     * @example <caption>[javascript] Usage example</caption>
+     * // get SOAP service description, so we can understand what methods it provides,
+     * // what input parameters it expects, and what is the output structure.
+     * var serviceUrl = 'http://www.dataaccess.com/webservicesserver/numberconversion.wso?WSDL';
+     * var serviceDescription = soap.describe(serviceUrl);
+     * log.info(serviceDescription);
+     * 
+     * // NumberToWords method in this service converts number to words.
+     * var result = soap.get(serviceUrl, 'NumberToWords', { 'ubiNum': 2019 });
+     * log.info(result.NumberToWordsResult);
      */
     module.get = function(wsdlUrl, method, args) {
         var resultClient = null;
