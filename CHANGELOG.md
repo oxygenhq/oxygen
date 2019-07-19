@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.46.6 (2019-07-19)
+* Improve performance of HTML report generation.
+* Bump dependencies.
+
 ## v0.46.5 (2019-07-17)
 * Add support for adding breakpoints after the test has started.
 * Bump dependencies.
