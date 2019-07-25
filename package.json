@@ -36,7 +36,7 @@
   "dependencies": {
     "async": "2.6.3",
     "chai": "4.2.0",
-    "chrome-har": "0.10.0",
+    "chrome-har": "0.11.0",
     "config": "3.1.0",
     "csv-parse": "4.4.3",
     "deasync": "0.1.14",
@@ -56,11 +56,11 @@
     "serialport": "7.1.5",
     "soap": "0.28.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.33.1",
+    "twilio": "3.33.2",
     "wdio-sync": "0.7.3",
     "webdriverio": "4.14.4",
     "when": "3.7.8",
-    "xlsx": "0.14.3"
+    "xlsx": "0.14.4"
   },
   "optionalDependencies": {
     "odbc": "1.4.6"
