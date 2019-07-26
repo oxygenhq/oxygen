@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.47.0 (2019-07-26)
+* Add `web.dragAndDrop`.
+* Internal changes - fix breakpoint processing and make oxygen work with VS Code debugger.
+* Bump dependencies.
+
 ## v0.46.6 (2019-07-19)
 * Improve performance of HTML report generation.
 * Bump dependencies.
