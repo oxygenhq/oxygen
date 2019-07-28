@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.47.2 (2019-07-28)
+* Internal fixes.
+
 ## v0.47.1 (2019-07-28)
 * Internal fixes.
 
