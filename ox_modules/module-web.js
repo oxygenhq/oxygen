@@ -341,8 +341,13 @@ module.exports = function (options, context, rs, logger) {
             events.push(msgObj.message);
         }
 
-        const har = harFromMessages(events);
-        return JSON.stringify(har);
+        try {
+            const har = harFromMessages(events);
+            return JSON.stringify(har);
+        } catch (e) {
+            console.error('Unable to fetch HAR: ' + e.toString());
+            return null;
+        }
     }
 
     /**
