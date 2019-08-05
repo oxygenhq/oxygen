@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.47.3 (2019-08-05)
+* Internal fixes: Fix HAR fetching on ChromeDriver >= v75
+
 ## v0.47.2 (2019-07-28)
 * Internal fixes.
 
