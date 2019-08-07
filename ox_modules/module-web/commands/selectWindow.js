@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -19,58 +19,56 @@
  *              - `unspecified` - Switch to the last opened window.
  * @function selectWindow
  * @param {String=} windowLocator - Window locator.
+ * @param {Number=} timeout - Timeout in milliseconds when using 'title' window locating strategy. 
+ *                             Default is 60 seconds.
  * @return {String} windowHandle of the previously selected window.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.selectWindow("title=Website");// Selects and focus a window. 
  */
-module.exports = function(windowLocator) {
+module.exports = function(windowLocator, timeout) {
     var currentHandle;
 
-    // windowHandle() could possibly fail if there is no active window,
+    // getWindowHandle() could possibly fail if there is no active window,
     // so we select the last opened one in such case
     try {
-        currentHandle = this.driver.windowHandle().value;
+        currentHandle = this.driver.getWindowHandle();
     } catch (err) {
-        var wnds = this.driver.windowHandles().value;
-        this.driver.window(wnds[wnds.length - 1]);
-        currentHandle = this.driver.windowHandle().value;
+        var wnds = this.driver.getWindowHandles();
+        this.driver.switchToWindow(wnds[wnds.length - 1]);
+        currentHandle = this.driver.getWindowHandle();
     }
 
     var windowHandles;
     if (!windowLocator) {
-        windowHandles = this.driver.windowHandles().value;
-        this.driver.window(windowHandles[windowHandles.length - 1]);
+        windowHandles = this.driver.getWindowHandles();
+        this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
     } else if (windowLocator.indexOf('title=') === 0) {
         var pattern = windowLocator.substring('title='.length);
         var start = (new Date()).getTime();
-        var windowFound = false;
-        wait:
-        while ((new Date()).getTime() - start < this.waitForTimeout) {
-            windowHandles = this.driver.windowHandles();
-            for (var i = 0; i < windowHandles.value.length; i++) {
-                var handle = windowHandles.value[i];
+        timeout = !timeout ? this.waitForTimeout : timeout;
+        while ((new Date()).getTime() - start < timeout) {
+            windowHandles = this.driver.getWindowHandles();
+            for (var i = 0; i < windowHandles.length; i++) {
+                var handle = windowHandles[i];
                 try {
-                    this.driver.window(handle);
+                    this.driver.switchToWindow(handle);
                 } catch (err) { // in case window was closed
                     continue;
                 }
-                var title = this.driver.title();
-                if (this.helpers.matchPattern(title.value, pattern)) {
-                    windowFound = true;
-                    break wait;
+                var title = this.driver.getTitle();
+                if (this.helpers.matchPattern(title, pattern)) {
+                    return currentHandle;
                 }
             }
-            this.pause(500);
+            this.pause(600);
         }
         // if window not found - switch to original one and throw
-        if (!windowFound) {
-            this.driver.window(currentHandle);
-            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
-        }
+        this.driver.switchToWindow(currentHandle);
+        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
     } else {
-        this.driver.window(windowLocator);
+        this.driver.switchToWindow(windowLocator);
     }
 
     return currentHandle;

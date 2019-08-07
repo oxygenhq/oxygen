@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -55,14 +55,6 @@
  */
 
 module.exports = function (options, context, rs, logger) {
-    // this needs to be defined for wdio to work in sync mode
-    global.browser = {
-        options: {
-            sync: true
-        }
-    };
-
-    var wdioSync = require('wdio-sync');
     var wdio = require('webdriverio');
     var _ = require('lodash');
     

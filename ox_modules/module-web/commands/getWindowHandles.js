@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,5 +17,5 @@
  * web.getWindowHandles();//Gets the window handles of currently open windows.
  */
 module.exports = function() {
-    return this.driver.windowHandles().value;
+    return this.driver.getWindowHandles();
 };

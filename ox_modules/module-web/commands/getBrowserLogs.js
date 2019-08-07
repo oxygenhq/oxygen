@@ -10,13 +10,12 @@
 /**
  * @function getBrowserLogs
  * @summary Collects logs from the browser console.
- * @return {String} A list of logs.
+ * @return {Object[]} An array of browser console logs.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.getBrowserLogs(); //Collects logs from the browser console 
+ * var logs = web.getBrowserLogs(); //Collects logs from the browser console 
  */
 module.exports = function() {
-    var response = this.driver.log('browser');
-    return response.value || null;
+    return this.driver.getLogs('browser');
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,19 +10,25 @@
 /**
  * @summary Returns the value of a CSS property of an element.
  * @function getCssValue
- * @param {String} locator - An element locator.
+ * @param {String|Element} locator - An element locator.
  * @param {String} propertyName - CSS property name.
- * @return {String} CSS property value.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @return {String} CSS property value or null if no such property.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getCssValue("id=UserName","color");//Gets a CSS value from an element.
  */
-module.exports = function(locator, propertyName) {
-    var wdloc = this.helpers.getWdioLocator(locator);
+module.exports = function(locator, propertyName, timeout) {
     this.helpers.assertArgumentNonEmptyString(propertyName, 'propertyName');
-    if (this.autoWait) {
-        this.waitForExist(locator);
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+
+    var el = this.helpers.getElement(locator, false, timeout);
+
+    var css = el.getCSSProperty(propertyName);
+    if (css) {
+        return css.value.trim().replace(/\s+/g, ' ');
     }
-    return this.driver.getCssProperty(wdloc, propertyName).value.trim().replace(/\s+/g, ' ');
+
+    return css;
 };

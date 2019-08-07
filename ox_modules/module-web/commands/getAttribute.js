@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,23 +10,25 @@
 /**
  * @summary Returns the element's attribute.
  * @function getAttribute
- * @param {String} locator - An element locator.
+ * @param {String|Element} locator - An element locator.
  * @param {String} attribute - The name of the attribute to retrieve.
- * @return {String} The attribute's value.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @return {String} The attribute's value or null if no such attribute.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getAttribute("id=UserName","value");//Gets an attribute from an element.
  */
-module.exports = function(locator, attribute) {
-    var wdloc = this.helpers.getWdioLocator(locator);
+module.exports = function(locator, attribute, timeout) {
     this.helpers.assertArgumentNonEmptyString(attribute, 'attribute');
-    if (this.autoWait) {
-        this.waitForVisible(locator);
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+
+    var el = this.helpers.getElement(locator, false, timeout);
+
+    var attrValue = el.getAttribute(attribute);
+    if (attrValue) {
+        attrValue = attrValue.trim().replace(/\s+/g, ' ');
     }
-    var ret = this.driver.getAttribute(wdloc, attribute);
-    if (ret.constructor === Array) {
-        throw new this.OxError(this.errHelper.errorCode.LOCATOR_MATCHES_MULTIPLE_ELEMENTS);
-    }
-    return ret.trim().replace(/\s+/g, ' ');
+
+    return attrValue;
 };

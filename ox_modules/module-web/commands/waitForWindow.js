@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,14 +25,14 @@ module.exports = function(windowLocator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     var currentHandle;
 
-    // windowHandle() could possibly fail if there is no active window,
+    // getWindowHandle() could possibly fail if there is no active window,
     // so we select the last opened one in such case
     try {
-        currentHandle = this.driver.windowHandle().value;
+        currentHandle = this.driver.getWindowHandle();
     } catch (err) {
-        var wnds = this.driver.windowHandles().value;
+        var wnds = this.driver.getWindowHandles();
         this.driver.window(wnds[wnds.length - 1]);
-        currentHandle = this.driver.windowHandle().value;
+        currentHandle = this.driver.getWindowHandle();
     }
 
     if (windowLocator.indexOf('title=') === 0) {
@@ -40,26 +40,26 @@ module.exports = function(windowLocator, timeout) {
         timeout = !timeout ? this.waitForTimeout : timeout;
         var start = (new Date()).getTime();
         while ((new Date()).getTime() - start < timeout) {
-            var windowHandles = this.driver.windowHandles();
-            for (var i = 0; i < windowHandles.value.length; i++) {
-                var handle = windowHandles.value[i];
+            var windowHandles = this.driver.getWindowHandles();
+            for (var i = 0; i < windowHandles.length; i++) {
+                var handle = windowHandles[i];
                 try {
-                    this.driver.window(handle);
+                    this.driver.switchToWindow(handle);
                 } catch (err) { // in case window was closed
                     continue;
                 }
-                var title = this.driver.title();
-                if (this.helpers.matchPattern(title.value, pattern)) {
+                var title = this.driver.getTitle();
+                if (this.helpers.matchPattern(title, pattern)) {
                     try {
-                        this.driver.window(currentHandle);  // return to original window
+                        this.driver.switchToWindow(currentHandle);  // return to original window
                     } catch (err) {
-                        windowHandles = this.driver.windowHandles().value;
-                        this.driver.window(windowHandles[windowHandles.length - 1]);
+                        windowHandles = this.driver.getWindowHandles();
+                        this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
                     }
                     return;
                 }
             }
-            this.pause(500);
+            this.pause(600);
         }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
     } else {

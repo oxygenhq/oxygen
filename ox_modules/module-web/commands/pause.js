@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,9 +13,9 @@
  * @param {Number} ms - milliseconds to pause the execution.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.pause(10000);//Waits amount of milliseconds untill the next command executes
+ * web.pause(10*1000);//Pauses the execution for 10 seconds (10000ms)
  */
 module.exports = function(ms) {
-    this.helpers.assertArgumentNumber(ms);
+    this.helpers.assertArgumentNumberNonNegative(ms, 'ms');
     this.driver.pause(ms);
 };

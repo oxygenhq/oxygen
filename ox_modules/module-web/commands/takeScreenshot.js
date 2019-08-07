@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,14 @@
  * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
  */
 module.exports = function() {
-    var response = this.driver.screenshot();
+    var response = this.driver.takeScreenshot();
     // sometimes execution on IE fails with the following error:
     // "Unable to determine type from: E. Last 1 characters read: E"
     // it's unclear what this error means and why it happens
     // but when it happens screenshot() will return empty array instead of null for some reason
-    // so we return response.value only if it's a string
-    if (typeof response.value === 'string' || response.value instanceof String) {
-        return response.value;
+    // so we return response only if it's a string
+    if (typeof response === 'string' || response instanceof String) {
+        return response;
     }
     return null;
 };

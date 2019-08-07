@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,23 +20,23 @@
  *         of locators.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.selectFrame("//iframe[@id='frame1']");// Selects an iframe in the page and enters it. 
- * web.click("id=SaveButton");//Clicks on save that exists in an iframe
+ * web.open("www.yourwebsite.com");
+ * web.selectFrame("//iframe[@id='frame1']", "//iframe[@id='nested_frame']");
+ * web.click("id=SaveButton");//Clicks on element that exists in the second iframe
  */
 module.exports = function(frameLocator) {
-    if (frameLocator === 'parent') {
-        this.driver.frameParent();
-    } else if (frameLocator === 'top') {
-        this.driver.frame(null);
-    } else if (!isNaN(frameLocator)) {
-        this.driver.frame(frameLocator);
-    } else {
-        this.driver.frame(null);
+    if (frameLocator === 'parent') {                // parent
+        this.driver.switchToParentFrame();
+    } else if (frameLocator === 'top') {            // top
+        this.driver.switchToFrame(null);
+    } else if (!isNaN(frameLocator)) {              // frame index
+        this.driver.switchToFrame(frameLocator);
+    } else {                                        // frame locator(s)
+        this.driver.switchToFrame(null);
         for (var i = 0; i < arguments.length; i++) {
             var locator = arguments[i];
-            var el = this.driver.element(this.helpers.getWdioLocator(locator));
-            this.driver.frame(el.value);
+            var el = this.helpers.getElement(locator);
+            this.driver.switchToFrame(el);
         }
     }
 };

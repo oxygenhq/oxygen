@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,51 +12,31 @@
  * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
  *              for the list of supported raw keyboard key codes.
  * @function sendKeys
- * @param {String} value - Sequence of key strokes to send.
+ * @param {(String|String[])} value - Sequence of key strokes to send. Can be either a string or an 
+ *                                  array of strings for sending raw key codes.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.sendKeys(‘\uE03B’);//Types keys by reference to a key code.
+ * web.sendKeys("Hello World");
+ * web.sendKeys(["Backspace", "Backspace", "Enter"]); // send two Backspace key codes and Enter.
+ * // Unicode representation can be used directly as well:
+ * web.sendKeys("Hello World\uE003\uE003\uE007");
 */
 module.exports = function(value) {
     this.helpers.assertArgument(value);
 
-    // process special keys
-    switch(value){
-        case 'PageUp':
-            value='\uE054';
-            break;
-        case 'PageDown':
-            value='\uE055';
-            break;
-        case 'End':
-            value='\uE056';
-            break;
-        case 'Home':
-            value='\uE057';
-            break;
-        case 'ArrowLeft':
-            value='\uE058';
-            break;
-        case 'ArrowUp':
-            value='\uE059';
-            break;
-        case 'ArrowRight':
-            value='\uE05A';
-            break;
-        case 'ArrowDown':
-            value='\uE05B';
-            break;
-        case 'Insert':
-            value='\uE05C';
-            break;
-        case 'Delete':
-            value='\uE05D';
-            break;
-        case 'Enter':
-            value='\uE007';
-            break;
+    var valArray = [];
+    if (Array.isArray(value)) {             // array
+        // `instanceof Array` behaves strange when executed through vm.runInNewContext,
+        // it returns false for arrays and `driver.keys()` tests for arrays using `instaceof Array`
+        // thus we recreate the array.
+        // https://github.com/felixge/node-sandboxed-module/issues/13#issuecomment-299585213
+        for (var val of value) {
+            valArray.push(val);
+        }
+        this.driver.keys(valArray);
+        return;
+    } else {                                // string
+        this.driver.keys(value);
     }
-
-    this.driver.keys(value);
 };

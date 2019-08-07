@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -44,15 +44,15 @@ const ERROR_CODES = {
     HTTP_ERROR: 'HTTP_ERROR',
     EMAIL_ERROR: 'EMAIL_ERROR',
     MODULE_NOT_INITIALIZED_ERROR: 'MODULE_NOT_INITIALIZED_ERROR',
-    TEXT_DOESNT_MATCH_ERROR: 'TEXT_DOESNT_MATCH_ERROR',
-    VALUE_DOESNT_MATCH_ERROR: 'VALUE_DOESNT_MATCH_ERROR',
+    WAIT_FOR_TIMEOUT: 'WAIT_FOR_TIMEOUT',
     DEVICE_NOT_FOUND: 'DEVICE_NOT_FOUND',
     PARAMETERS_ERROR: 'PARAMETERS_ERROR',
     INVALID_CAPABILITIES: 'INVALID_CAPABILITIES',
     BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR',
     APPIUM_RUNTIME_ERROR: 'APPIUM_RUNTIME_ERROR',
     SELENIUM_RUNTIME_ERROR: 'SELENIUM_RUNTIME_ERROR',
-    RUNTIME_ERROR: 'RUNTIME_ERROR'
+    RUNTIME_ERROR: 'RUNTIME_ERROR',
+    OPTION_NOT_FOUND: 'OPTION_NOT_FOUND'
 };
 
 // WebdriverIO to Oxygen error codes mapping
@@ -200,6 +200,9 @@ module.exports = {
         }
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
-    
+    getAssertError: function(expected, actual) {
+        actual = actual.replace(/\n/g, '\\n');
+        return new OxError(ERROR_CODES.ASSERT_ERROR, `Expected: "${expected}". Got: "${actual}"`);
+    },
     errorCode: ERROR_CODES
 };

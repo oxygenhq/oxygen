@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -42,20 +42,16 @@
  *  </ul>
  * </div>
  */
-module.exports = function (options, context, rs, logger) {
-    // this needs to be defined for wdio to work in sync mode
-    global.browser = {
-        options: {
-            sync: true
-        }
-    };
 
-    var wdioSync = require('wdio-sync');
+
+module.exports = function (options, context, rs, logger) {
     var wdio = require('webdriverio');
     var util = require('util');
     var _ = require('lodash');
+    var URL = require('url');
     const { harFromMessages } = require('chrome-har');
     var utils = require('./utils');
+    var deasync = require('deasync');
 
     var _this = module._this = this;
 
@@ -67,7 +63,6 @@ module.exports = function (options, context, rs, logger) {
     this.logger = logger;
     this.caps = null; 
     this.waitForTimeout = 60 * 1000;            // default 60s wait timeout
-    this.autoWait = true;
 
     // module's constructor scoped variables
     var helpers = this.helpers;
@@ -187,26 +182,23 @@ module.exports = function (options, context, rs, logger) {
             // it means we are still on the same page and don't need to record load/domContentLoaded times
             try {
                 _this.driver.waitUntil(() => {
-                    var timingsJS = 'return {' +
-                                   'navigationStart: window.performance.timing.navigationStart, ' +
-                                   'domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart, ' +
-                                   'loadEventStart: window.performance.timing.loadEventStart}';
+                    /*global window*/
+                    var timings = _this.driver.execute(function() {
+                        return {
+                            navigationStart: window.performance.timing.navigationStart,
+                            domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
+                            loadEventStart: window.performance.timing.loadEventStart
+                        };});
 
-                    // FIXME: there seems to be a bug in IE driver or WDIO. if execute is called on closed window (e.g. 
-                    // clicking button in a popup that clsoes said popup) a number of exceptions gets thrown and 
-                    // continues to be thrown for any future commands.
-                    return _this.driver.execute(timingsJS).then((result) => {
-                        var timings = result.value;
-                        var navigationStart = timings.navigationStart;
-                        var domContentLoadedEventStart = timings.domContentLoadedEventStart;
-                        var loadEventStart = timings.loadEventStart;
+                    var navigationStart = timings.navigationStart;
+                    var domContentLoadedEventStart = timings.domContentLoadedEventStart;
+                    var loadEventStart = timings.loadEventStart;
 
-                        domContentLoaded = domContentLoadedEventStart - navigationStart;
-                        load = loadEventStart - navigationStart;
+                    domContentLoaded = domContentLoadedEventStart - navigationStart;
+                    load = loadEventStart - navigationStart;
 
-                        return domContentLoadedEventStart > 0 && loadEventStart > 0;
-                    }).catch(() => true);
-                }, 
+                    return domContentLoadedEventStart > 0 && loadEventStart > 0;
+                },
                 90 * 1000);
             } catch (e) {
                 // couldn't get timings.
@@ -286,48 +278,53 @@ module.exports = function (options, context, rs, logger) {
         }
 
         // populate WDIO options
-        var URL = require('url');
         var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
         var host = url.hostname;
-        var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
+        var port = parseInt(url.port);
         var path = url.pathname;
-        var protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
 
         var wdioOpts = {
             ...opts.wdioOpts || {},
-            protocol: protocol,
-            host: host,
+            hostname: host,
             port: port,
             path: path,
-            desiredCapabilities: _this.caps
+            logLevel: 'debug',
+            capabilities: _this.caps
         };
 
-        // initialize driver with either default or custom appium/selenium grid address
-        _this.driver = wdio.remote(wdioOpts);
-        wdioSync.wrapCommands(_this.driver);
-        try {
-            _this.driver.init();
-        } catch (err) {
-            throw _this.errHelper.getSeleniumInitError(err);
+        var initError = null;
+        wdio.remote(wdioOpts)
+            .then((driver => {
+                _this.driver = driver;
+                isInitialized = true;
+            }))
+            .catch(err => {
+                initError = err;
+            });
+
+        deasync.loopWhile(() => !isInitialized && !initError);
+
+        if (initError) {
+            throw _this.errHelper.getSeleniumInitError(initError);
         }
+
+        _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
+        
         // reset browser logs if auto collect logs option is enabled
         if (opts.collectBrowserLogs) {
             try {
                 // simply call this to clear the previous logs and start the test with the clean logs
-                module.getBrowserLogs();     
-            }
-            catch (e) {
-                console.error('Cannot retrieve browser logs.', e);  
+                module.getBrowserLogs();
+            } catch (e) {
+                console.error('Cannot retrieve browser logs.', e);
             }
         }
         // maximize browser window
         try {
-            _this.driver.windowHandleMaximize('current');
+            _this.driver.maximizeWindow();
         } catch (err) {
             throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
-
-        isInitialized = true;
     };
 
     function harGet() {
@@ -380,9 +377,9 @@ module.exports = function (options, context, rs, logger) {
     module.dispose = function() {
         if (_this.driver && isInitialized) {
             try {
-                _this.driver.end();
+                _this.driver.deleteSession();
             } catch (e) {
-                logger.error(e);    // ignore any errors at disposal stage
+                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
             isInitialized = false;
         }
@@ -410,12 +407,15 @@ module.exports = function (options, context, rs, logger) {
     };
 
     helpers.matchPattern = utils.matchPattern;
-    
+    helpers.getElement = utils.getElement;
+    helpers.setTimeoutImplicit = utils.setTimeoutImplicit;
+    helpers.restoreTimeoutImplicit = utils.restoreTimeoutImplicit;
     helpers.assertArgument = utils.assertArgument;
     helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
     helpers.assertArgumentNumber = utils.assertArgumentNumber;
     helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
     helpers.assertArgumentBool = utils.assertArgumentBool;
+    helpers.assertArgumentBoolOptional = utils.assertArgumentBoolOptional;
     helpers.assertArgumentTimeout = utils.assertArgumentTimeout;
 
     return module;

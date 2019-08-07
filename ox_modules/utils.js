@@ -34,6 +34,59 @@ module.exports = {
         }
     },
 
+    getElement: function(locator, waitForVisible, timeout) {
+        if (timeout) {
+            module.exports.setTimeoutImplicit.call(this, timeout);
+        }
+        
+        var el;
+        if (locator && locator.constructor && locator.constructor.name === 'Element') {
+            el = locator;
+        } else {
+            locator = this.helpers.getWdioLocator(locator);
+            el = this.driver.$(locator);
+        }
+
+        if (el.error && el.error.error === 'no such element') {
+            if (timeout) {
+                module.exports.restoreTimeoutImplicit.call(this);
+            }
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+        }
+
+        if (waitForVisible) {
+            try {
+                el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
+            } catch (e) {
+                if (timeout) {
+                    module.exports.restoreTimeoutImplicit.call(this);
+                }
+                if (e.message && e.message.includes('still not displayed')) {
+                    throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                }
+                throw e;
+            }
+        }
+
+        if (timeout) {
+            module.exports.restoreTimeoutImplicit.call(this);
+        }
+
+        return el;
+    },
+
+    setTimeoutImplicit: function(timeout) {
+        var timeouts = this.driver.getTimeouts();
+        this._prevImplicitTimeout = timeouts.implicit;
+        this.driver.setTimeout({ 'implicit': timeout });
+    },
+
+    restoreTimeoutImplicit: function() {
+        if (this._prevImplicitTimeout) {
+            this.driver.setTimeout({ 'implicit': this._prevImplicitTimeout });
+        }
+    },
+
     assertArgument: function(arg, name) {
         if (arg === undefined || arg === null) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
@@ -62,7 +115,13 @@ module.exports = {
         if (typeof(arg) != typeof(true)) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
         }
-    }, 
+    },
+
+    assertArgumentBoolOptional: function(arg, name) {
+        if (typeof(arg) !== 'undefined' && typeof(arg) != typeof(true)) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
+        }
+    },
 
     assertArgumentTimeout: function(arg, name) {
         if (arg && (typeof(arg) !== 'number' || arg < 0)) {

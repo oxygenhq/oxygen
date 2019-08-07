@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * @description Text pattern can be any of the supported 
  *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
  * @function waitForText
- * @param {String} locator - An element locator.
+ * @param {String|Element} locator - An element locator.
  * @param {String} pattern - Text pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
@@ -21,25 +21,20 @@
  * web.waitForText("id=Title","Website");//Waits for an element’s text to  match to expected string.
  */
 module.exports = function(locator, pattern, timeout) {
-    var wdloc = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    this.waitForExist(locator);
 
-    var self = this;
-    var elTxt;
+    var el = this.helpers.getElement(locator, false, timeout);
+    
+    var text;
     try {
         this.driver.waitUntil(() => {
-            return self.driver.getText(wdloc).then((txt) => {
-                elTxt = txt;
-                return self.helpers.matchPattern(txt, pattern);
-            });
+            text = el.getText();
+            return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
-        if (e.type === 'WaitUntilTimeoutError') {
-            throw new this.OxError(this.errHelper.errorCode.TEXT_DOESNT_MATCH_ERROR,
-                'Expected text: ' + pattern + ", Element's text: " + elTxt);
-        }
-        throw e;
+        text = text.replace(/\n/g, '\\n');
+        throw new this.OxError(this.errHelper.errorCode.WAIT_FOR_TIMEOUT, `Expected: "${pattern}". Got: "${text}"`);
     }
 };

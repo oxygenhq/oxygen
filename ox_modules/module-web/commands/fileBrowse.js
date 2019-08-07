@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,17 +8,23 @@
  */
  
 /**
- * @summary Uploads a local file.
+ * @summary Uploads a local file
  * @function fileBrowse
- * @param {String} locator - Locator for a `input type=file` element.
+ * @param {String|Element} locator - Locator for a `input type=file` element.
  * @param {String} filepath - Path to a local file.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.fileBrowse("id=ProfilePicture","C:/ProgramFiles/picture.jpg");//Uploads a file to an element.
+ * web.fileBrowse("id=ProfilePicture","C:\\picture.jpg");//Uploads a file to an element.
  */
-module.exports = function(locator, filepath) {
-    var wdloc = this.helpers.getWdioLocator(locator);
-    this.waitForExist(locator);
-    this.driver.chooseFile(wdloc, filepath);
+module.exports = function(locator, filepath, timeout) {
+    this.helpers.assertArgumentNonEmptyString(filepath, 'filepath');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+
+    var el = this.helpers.getElement(locator, false, timeout);
+
+    var remoteFilePath = this.driver.uploadFile(filepath);
+
+    el.setValue(remoteFilePath);
 };

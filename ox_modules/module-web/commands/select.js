@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,25 +17,32 @@
  * @function select
  * @param {String} selectLocator - An element locator identifying a drop-down menu.
  * @param {String} optionLocator - An option locator.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.select("id=Selection","label=United States");// Selects an element from a list. 
+ * web.select("id=Selection","label=United States");// Selects an option from a list. 
  */
-module.exports = function(selectLocator, optionLocator) {
-    var wdloc = this.helpers.getWdioLocator(selectLocator);
+module.exports = function(selectLocator, optionLocator, timeout) {
     this.helpers.assertArgumentNonEmptyString(optionLocator, 'optionLocator');
-    if (this.autoWait) {
-        this.waitForExist(selectLocator);
-    }
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    if (optionLocator.indexOf('value=') === 0) {
-        this.driver.selectByValue(wdloc, optionLocator.substring('value='.length));
-    } else if (optionLocator.indexOf('index=') === 0) {
-        this.driver.selectByIndex(wdloc, optionLocator.substring('index='.length));
-    } else if (optionLocator.indexOf('label=') === 0) {
-        this.driver.selectByVisibleText(wdloc, optionLocator.substring('label='.length));
-    } else {
-        this.driver.selectByVisibleText(wdloc, optionLocator);
+    var el = this.helpers.getElement(selectLocator, false, timeout);
+
+    try {
+        if (optionLocator.indexOf('value=') === 0) {
+            el.selectByAttribute('value', optionLocator.substring('value='.length));
+        } else if (optionLocator.indexOf('index=') === 0) {
+            el.selectByIndex(optionLocator.substring('index='.length));
+        } else if (optionLocator.indexOf('label=') === 0) {
+            el.selectByVisibleText(optionLocator.substring('label='.length));
+        } else {
+            el.selectByVisibleText(optionLocator);
+        }
+    } catch (e) {
+        if (e.message && e.message.startsWith('Option with ')) {
+            throw new this.OxError(this.errHelper.errorCode.OPTION_NOT_FOUND, e.message);
+        }
+        throw e;
     }
 };

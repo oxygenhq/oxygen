@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,8 +14,8 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.getAlertText();//Gets the text in the alert dialog.
+ * var text = web.getAlertText();//Gets the text in the alert dialog.
  */
 module.exports = function() {
-    return this.driver.alertText();
+    return this.driver.getAlertText();
 };
