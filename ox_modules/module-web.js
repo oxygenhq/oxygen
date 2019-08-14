@@ -43,14 +43,8 @@
  * </div>
  */
 module.exports = function (options, context, rs, logger) {
-    // this needs to be defined for wdio to work in sync mode
-    global.browser = {
-        options: {
-            sync: true
-        }
-    };
-
-    var wdioSync = require('wdio-sync');
+    var deasync = require('deasync');
+    var wdioSync = require('@wdio/sync');
     var wdio = require('webdriverio');
     var util = require('util');
     var _ = require('lodash');
@@ -295,17 +289,31 @@ module.exports = function (options, context, rs, logger) {
             host: host,
             port: port,
             path: path,
-            desiredCapabilities: _this.caps
+            //logLevel: 'debug',
+            capabilities: _this.caps
         };
 
         // initialize driver with either default or custom appium/selenium grid address
-        _this.driver = wdio.remote(wdioOpts);
-        wdioSync.wrapCommands(_this.driver);
-        try {
-            _this.driver.init();
-        } catch (err) {
-            throw _this.errHelper.getSeleniumInitError(err);
+        var initError = null;
+        wdio.remote(wdioOpts)
+            .then((driver => {
+                _this.driver = driver;
+                isInitialized = true;
+            }))
+            .catch(err => {
+                initError = err;
+            });
+
+        deasync.loopWhile(() => !isInitialized && !initError);
+
+        if (initError) {
+            throw _this.errHelper.getSeleniumInitError(initError);
         }
+
+        //wdioSync.wrapCommands(_this.driver);
+
+        _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
+
         // reset browser logs if auto collect logs option is enabled
         if (opts.collectBrowserLogs) {
             try {
@@ -318,7 +326,7 @@ module.exports = function (options, context, rs, logger) {
         }
         // maximize browser window
         try {
-            _this.driver.windowHandleMaximize('current');
+            _this.driver.maximizeWindow();
         } catch (err) {
             throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
@@ -371,9 +379,9 @@ module.exports = function (options, context, rs, logger) {
     module.dispose = function() {
         if (_this.driver && isInitialized) {
             try {
-                _this.driver.end();
+                _this.driver.deleteSession();
             } catch (e) {
-                logger.error(e);    // ignore any errors at disposal stage
+                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
             isInitialized = false;
         }

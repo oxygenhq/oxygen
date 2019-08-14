@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,18 +8,20 @@
  */
  
 /*
- * Test Case Results
+ * Test Result
  */
 module.exports = function () {
     return {
-        summary: {
-            _name: null,
-            _status: null,
-            _startTime: null,
-            _endTime: null,
-            _duration: null,
-            failure: null
-        },
-        iterations: []    // type of tsiresult.js
+        name: null,
+        status: null,
+        startTime: null,
+        endTime: null,
+        duration: null,
+        totalCases: null,
+        failure: null,
+        environment: null,
+        capabilities: null,
+        options: null,
+        suites: []    // type of suite-result.js
     };
 };

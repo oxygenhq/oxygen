@@ -18,8 +18,36 @@ var errHelper = require('../errors/helper');
 function ScriptError(err) {
     ScriptError.super_.call(this);
     this.stacktrace = err.stack;
-    this.type = errHelper.errorCode.SCRIPT_ERROR;
+    this.type = 'SCRIPT_ERROR';
+    this.subtype = err.type
     this.message = err.message;
+    this.location = getErrorLocation(err.stack)
+}
+
+function getErrorLocation(stack) {
+    if (!stack) {
+        return null
+    }
+    if (typeof stack === 'string') {
+        return extractLocationFromStringStack(stack)
+    }
+    else {
+        const call = stack[0]
+        if (call) {
+            return `${call.getFileName()}${call.getLineNumber()}`
+        }
+    }
+}
+
+function extractLocationFromStringStack(stack) {
+    if (typeof stack !== 'string') {
+        return null
+    }
+    const calls = stack.split('\n')
+    if (calls.length < 2) {
+        return null
+    }
+    return calls[1].substring(calls[1].indexOf('(') + 1, calls[1].indexOf(')'))
 }
 
 module.exports = ScriptError;

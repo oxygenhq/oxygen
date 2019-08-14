@@ -21,17 +21,22 @@ function OxygenError(type, message, data, isFatal) {
     
     var self = this;
     this.captureStackTrace = function() {
-        var orig = Error.prepareStackTrace;
-        Error.prepareStackTrace = function (_, stack) { return stack; };
-        var err = new Error();
-        Error.captureStackTrace(err, arguments.callee.caller);
-        self.stacktrace = err.stack;
-        Error.prepareStackTrace = orig;
+        try {
+            var orig = Error.prepareStackTrace;
+            Error.prepareStackTrace = function (_, stack) { return stack; };
+            var err = new Error();
+            Error.captureStackTrace(err, arguments.callee.caller);
+            self.stacktrace = err.stack;
+            Error.prepareStackTrace = orig;
+        }
+        catch (e) {
+            console.error(e.message)
+        }
     };
     
     // don't generate stacktrace if OxygenError is used indirectly through inheritance
     if (type || message) {
-        this.captureStackTrace();
+        //this.captureStackTrace();
     }
 }
 

@@ -10,5 +10,6 @@
 module.exports = {
     FAILED: 'failed',
     PASSED: 'passed',
-    WARNING: 'warning'
+    WARNING: 'warning',
+    SKIPPED: 'skipped'
 };

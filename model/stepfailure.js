@@ -12,10 +12,11 @@
  */
 module.exports = function () {
     return {
-        _type: null,
-        _message: null,
-        _details: null,
-        _line: null,
-        _data: null
+        type: null,
+        message: null,
+        details: null,
+        location: null,
+        line: null,     // depricated!
+        data: null
     };
 };

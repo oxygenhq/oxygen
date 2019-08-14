@@ -12,10 +12,14 @@
  */
 module.exports = function () {
     return {
-        _iterationNum: null,
+        iterationNum: 1,
+        startTime: null,
+        endTime: null,
+        duration: null,
+        failure: null,
         context: null,
-        steps: null,            // type of stepresult.js
-        logs: null,
+        steps: [],            // type of stepresult.js
+        logs: [],
         har: null
     };
 };

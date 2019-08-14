@@ -62,7 +62,7 @@ module.exports = function (options, context, rs, logger) {
         }
     };
 
-    var wdioSync = require('wdio-sync');
+    var wdioSync = require('@wdio/sync');
     var wdio = require('webdriverio');
     var _ = require('lodash');
     

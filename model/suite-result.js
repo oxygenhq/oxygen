@@ -8,17 +8,16 @@
  */
  
 /*
- * Test Case Results
+ * Test Suite Result
  */
 module.exports = function () {
     return {
         name: null,
-        location: null,
         startTime: null,
         endTime: null,
         duration: null,
         status: null,
         isFatal: false,
-        iterations: []    // type of tciresult.js
+        iterations: []    // type of tsiresult.js
     };
 };

@@ -12,6 +12,8 @@
  */
 
 var OxError = require('../errors/OxygenError');
+var OxScriptError = require('../errors/ScriptError');
+var Failure = require('../model/stepfailure');
 var util = require('util');
 
 const ERROR_CODES = {
@@ -93,18 +95,34 @@ const WDIO_ERROR_CODES = {
     WaitUntilTimeoutError: ERROR_CODES.TIMEOUT
 };
 
+const JS_ERRORS_MAPPING = {
+    ReferenceError: ERROR_CODES.SCRIPT_ERROR
+};
+
 // Chai to Oxygen error codes mapping
-const CHAI_ERROR_CODES = {
+const CHAI_ERRORS_MAPPING = {
     AssertionError: ERROR_CODES.ASSERT
 };
 
 module.exports = {
+    getFailureFromError: function(err) {
+        if (!(err instanceof OxError)) {
+            err = this.getOxygenError(err)            
+        }
+        return {
+            type: err.type,
+            message: err.message,
+            data: err.data,
+            location: err.location || null,
+        }
+    },
     getOxygenError: function(err, module, cmd, args) {
         // return the error as is if it has been already processed
         if (err instanceof OxError) {
             return err;
         }
-        
+        // if error occured in module's init method, mark it as fatal because we can't continue with the test
+        let isFatal = cmd === 'init';
         var errType = err.type || err.name || typeof err;
         
         // try to resolve WDIO error code 
@@ -115,18 +133,18 @@ module.exports = {
                 err.message.indexOf('Promise was rejected with the following reason: ') === 0) {
                 err.message = err.message.substring('Promise was rejected with the following reason: '.length);
             }
-            return new OxError(oxErrorCode, err.message, null);
+            return new OxError(oxErrorCode, err.message, null, isFatal);
         }
 
         // try to resolve WDIO RuntimeError-s having seleniumStack
         if (errType === 'RuntimeError' && err.seleniumStack) {
             oxErrorCode = WDIO_ERROR_CODES[err.seleniumStack.type];
             if (err.message === 'unknown error: NoSuchElement') {
-                return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, null, null);
+                return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, null, null, isFatal);
             } else if (err.message && err.message.startsWith('Element is not displayed')) { // IE specific
-                return new OxError(ERROR_CODES.ELEMENT_NOT_VISIBLE, null, null);
+                return new OxError(ERROR_CODES.ELEMENT_NOT_VISIBLE, null, null, isFatal);
             } else if (oxErrorCode) {
-                return new OxError(oxErrorCode, err.message, null);
+                return new OxError(oxErrorCode, err.message, null, isFatal);
             }
         }
         // handle various types of RuntimeError(s)
@@ -134,22 +152,31 @@ module.exports = {
             const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
             if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
                 const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-                return new OxError(ERROR_CODES.RUNTIME_ERROR, originalError, null);
+                return new OxError(ERROR_CODES.RUNTIME_ERROR, originalError, null, isFatal);
             }
         }
 
         // try to resolve Chai error code
-        oxErrorCode = CHAI_ERROR_CODES[errType];
+        oxErrorCode = CHAI_ERRORS_MAPPING[errType];
         if (oxErrorCode) {
             // throw non-fatal error if it's a "verify" module or method 
             if (oxErrorCode === ERROR_CODES.ASSERT && 
-				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
+				(module && cmd && (module === 'verify' || cmd.indexOf('verify') === 0))) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
-            return new OxError(oxErrorCode, err.message, null);
+            return new OxError(oxErrorCode, err.message, null, isFatal);
+        }
+
+        // try to resolve general JavaScript errors
+        oxErrorCode = JS_ERRORS_MAPPING[errType];
+        if (oxErrorCode) {
+            if (oxErrorCode == ERROR_CODES.SCRIPT_ERROR) {
+                return new OxScriptError(err)
+            }
+            return new OxError(oxErrorCode, err.message, null, isFatal);
         }
         
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err), isFatal);
     },
     getSeleniumInitError: function(err) {
         if (err.message) {
