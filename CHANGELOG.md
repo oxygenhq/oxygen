@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v0.47.3 (2019-08-05)
+* Internal fixes: Fix HAR fetching on ChromeDriver >= v75
+
+## v0.47.2 (2019-07-28)
+* Internal fixes.
+
+## v0.47.1 (2019-07-28)
+* Internal fixes.
+
+## v0.47.0 (2019-07-26)
+* Add `web.dragAndDrop`.
+* Internal changes - fix breakpoint processing and make oxygen work with VS Code debugger.
+* Bump dependencies.
+
+## v0.46.6 (2019-07-19)
+* Improve performance of HTML report generation.
+* Bump dependencies.
+
+## v0.46.5 (2019-07-17)
+* Add support for adding breakpoints after the test has started.
+* Bump dependencies.
+
+## v0.46.4 (2019-07-14)
+* Fix invalid breakpoint handling in debugger.
+
+## v0.46.3 (2019-07-10)
+* Fix number of issues with HTML reports.
+
 ## v0.46.2 (2019-07-09)
 * Support external webdriverio options.
 * Improve error handling for RuntimeError.
