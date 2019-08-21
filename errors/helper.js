@@ -13,7 +13,7 @@
 
 const OxError = require('../errors/OxygenError');
 const OxScriptError = require('../errors/ScriptError');
-const Failure = require('../model/stepfailure');
+const Failure = require('../model/failure');
 const util = require('util');
 const stackTrace = require('stack-trace');
 

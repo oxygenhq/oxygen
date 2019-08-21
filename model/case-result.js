@@ -13,12 +13,16 @@
 module.exports = function () {
     return {
         name: null,
+        iterationNum: 1,
         location: null,
         startTime: null,
         endTime: null,
         duration: null,
         status: null,
-        isFatal: false,
-        iterations: []    // type of tciresult.js
+        steps: [],    // array of step-result.js
+        logs: [],
+        har: null,
+        failure: null,
+        context: null
     };
 };

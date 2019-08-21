@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-2018 CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,18 +8,15 @@
  */
  
 /*
- * Test Case Iteration Results
+ * Test, Case, Suite and Step failure details
  */
 module.exports = function () {
     return {
-        iterationNum: 1,
-        startTime: null,
-        endTime: null,
-        duration: null,
-        failure: null,
-        context: null,
-        steps: [],            // type of stepresult.js
-        logs: [],
-        har: null
+        type: null,
+        message: null,
+        details: null,
+        location: null,
+        data: null,
+        fatal: false,
     };
 };

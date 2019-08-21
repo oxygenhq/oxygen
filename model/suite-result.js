@@ -13,11 +13,11 @@
 module.exports = function () {
     return {
         name: null,
+        iterationNum: 1,
         startTime: null,
         endTime: null,
         duration: null,
         status: null,
-        isFatal: false,
-        iterations: []    // type of tsiresult.js
+        cases: []    // array of case-result.js
     };
 };
