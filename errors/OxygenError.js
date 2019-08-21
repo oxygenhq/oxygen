@@ -13,7 +13,7 @@
 var util = require('util');
 util.inherits(OxygenError, Error);
 
-function OxygenError(type, message, data, isFatal) {
+function OxygenError(type, message, data, isFatal, orgErr = null) {
     this.type = type || this.type || null;
     this.message = message || this.message || null;
     this.data = data || null;
@@ -21,22 +21,27 @@ function OxygenError(type, message, data, isFatal) {
     
     var self = this;
     this.captureStackTrace = function() {
-        try {
-            var orig = Error.prepareStackTrace;
-            Error.prepareStackTrace = function (_, stack) { return stack; };
-            var err = new Error();
-            Error.captureStackTrace(err, arguments.callee.caller);
-            self.stacktrace = err.stack;
-            Error.prepareStackTrace = orig;
+        if (orgErr && orgErr.stack) {
+            self.stack = orgErr.stack;
         }
-        catch (e) {
-            console.error(e.message)
-        }
+        else {
+            try {
+                var orig = Error.prepareStackTrace;
+                Error.prepareStackTrace = function (_, stack) { return stack; };
+                var err = new Error();
+                Error.captureStackTrace(err, OxygenError);
+                self.stack = err.stack;
+                Error.prepareStackTrace = orig;
+            }
+            catch (e) {
+                console.error(e.message)
+            }
+        }        
     };
     
     // don't generate stacktrace if OxygenError is used indirectly through inheritance
     if (type || message) {
-        //this.captureStackTrace();
+        this.captureStackTrace();
     }
 }
 

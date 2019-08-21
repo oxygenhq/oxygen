@@ -17,14 +17,14 @@
  * mob.findElement("//div[@class='Headers']","id=divHeaders); //Finds elements.
 */
 module.exports = function(locator, parent) {
-    this.helpers._assertArgument(locator, 'locator');
+    this.helpers.assertArgument(locator, 'locator');
     locator = this.helpers.getWdioLocator(locator);
     var retval = null;
 
-    if (parent && typeof parent === 'object' && parent.elements) {
-        retval = parent.elements(locator);
+    if (parent && typeof parent === 'object' && parent.$$) {
+        retval = parent.$$(locator);
     } else {
-        retval = this.driver.elements(locator);
+        retval = this.driver.$$(locator);
     }
     // check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
     if (retval && retval.value) {

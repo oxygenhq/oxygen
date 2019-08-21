@@ -21,7 +21,8 @@ module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     try {
-        this.driver.waitForVisible(wdloc, (!timeout ? this.waitForTimeout : timeout));
+        const elm = this.driver.$(wdloc);
+        elm.waitForDisplayed((!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
         if (e.type === 'WaitUntilTimeoutError') {
             // check if the element exists and if doesn't then thow ELEMENT_NOT_FOUND instead

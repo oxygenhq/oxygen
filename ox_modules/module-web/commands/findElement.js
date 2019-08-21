@@ -18,18 +18,14 @@
  * mob.findElement("id=Password","id=divPass");//Finds an element.
 */
 module.exports = function(locator, parent) {
-    this.helpers._assertArgument(locator, 'locator');
+    this.helpers.assertArgument(locator, 'locator');
     locator = this.helpers.getWdioLocator(locator);
 
-    var retval = null;
-    if (parent && typeof parent === 'object' && parent.element) {
-        retval = parent.element(locator);
+    let elm = null;
+    if (parent && typeof parent === 'object' && parent.$) {
+        elm = parent.$(locator);
     } else {
-        retval = this.driver.element(locator);
+        elm = this.driver.$(locator);
     }
-    // check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
-    if (retval && retval.value == null) {
-        return null;
-    }
-    return retval;
+    return elm;
 };

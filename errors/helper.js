@@ -11,10 +11,11 @@
  * Helper module for handling and converting various error types
  */
 
-var OxError = require('../errors/OxygenError');
-var OxScriptError = require('../errors/ScriptError');
-var Failure = require('../model/stepfailure');
-var util = require('util');
+const OxError = require('../errors/OxygenError');
+const OxScriptError = require('../errors/ScriptError');
+const Failure = require('../model/stepfailure');
+const util = require('util');
+const stackTrace = require('stack-trace');
 
 const ERROR_CODES = {
     SCRIPT_ERROR: 'SCRIPT_ERROR',
@@ -96,12 +97,13 @@ const WDIO_ERROR_CODES = {
 };
 
 const JS_ERRORS_MAPPING = {
-    ReferenceError: ERROR_CODES.SCRIPT_ERROR
+    ReferenceError: ERROR_CODES.SCRIPT_ERROR,
+    TypeError: ERROR_CODES.SCRIPT_ERROR
 };
 
 // Chai to Oxygen error codes mapping
 const CHAI_ERRORS_MAPPING = {
-    AssertionError: ERROR_CODES.ASSERT
+    AssertionError: ERROR_CODES.ASSERT_ERROR
 };
 
 module.exports = {
@@ -113,7 +115,25 @@ module.exports = {
             type: err.type,
             message: err.message,
             data: err.data,
-            location: err.location || null,
+            location: this.getFailureLocation(err)
+        }
+    },
+    getFailureLocation(err) {
+        if (err.location) {
+            return err.location;
+        }
+        else if (!err.stack) {
+            return null;
+        }
+        let stack = err.stack;
+        // check if err.stack is a string or an object
+        if (typeof stack === 'string') {
+            // convert string-based stack to CallSite object array
+            stack = stackTrace.parse(err);
+        }
+        if (stack && stack.length && stack.length > 0) {
+            // assume that the error occured in the top call of the stack trace array 
+            return `${stack[0].getFileName()}:${stack[0].getLineNumber()}:${stack[0].getColumnNumber()}`;
         }
     },
     getOxygenError: function(err, module, cmd, args) {
@@ -162,9 +182,9 @@ module.exports = {
             // throw non-fatal error if it's a "verify" module or method 
             if (oxErrorCode === ERROR_CODES.ASSERT && 
 				(module && cmd && (module === 'verify' || cmd.indexOf('verify') === 0))) { // verify.*, *.verify*
-                return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
+                return new OxError(ERROR_CODES.VERIFY, err.message, null, false, err);
             }
-            return new OxError(oxErrorCode, err.message, null, isFatal);
+            return new OxError(oxErrorCode, err.message, null, isFatal, err);
         }
 
         // try to resolve general JavaScript errors

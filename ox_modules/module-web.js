@@ -44,7 +44,7 @@
  */
 module.exports = function (options, context, rs, logger) {
     var deasync = require('deasync');
-    var wdioSync = require('@wdio/sync');
+    //var wdioSync = require('@wdio/sync');
     var wdio = require('webdriverio');
     var util = require('util');
     var _ = require('lodash');
@@ -76,6 +76,11 @@ module.exports = function (options, context, rs, logger) {
 
     // expose wdio driver for debugging purposes
     module.driver = function() {
+        return _this.driver;
+    };
+
+    // expose wdio driver 
+    module.getDriver = function() {
         return _this.driver;
     };
 
