@@ -31,7 +31,7 @@
   "devDependencies": {
     "doctrine": "2.1.0",
     "grunt": "1.0.4",
-    "grunt-eslint": "20.2.0"
+    "grunt-eslint": "22.0.0"
   },
   "dependencies": {
     "@wdio/sync": "5.12.3",
