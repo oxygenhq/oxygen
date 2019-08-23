@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,24 +10,16 @@
 /**
  * @summary Clicks on an element.
  * @function click
- * @param {String|WebElement} locator - Element locator.
+ * @param {String|Element} locator - Element locator.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.click("id=Submit");// Clicks an element.
  */
-module.exports = function(locator) {
-    this.helpers._assertArgument(locator, 'locator');
-
-    // when locator is an element object
-    if (typeof locator === 'object' && locator.click) {
-        return locator.click();
-    }
-
-    // when locator is string
-    if (this.autoWait) {
-        this.waitForExist(locator);
-    }
-    locator = this.helpers.getWdioLocator(locator);
-    return this.driver.click(locator);
+module.exports = function(locator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    
+    var el = this.helpers.getElement(locator, false, timeout);
+    el.click();
 };

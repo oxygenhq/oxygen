@@ -52,7 +52,8 @@ const ERROR_CODES = {
     APPIUM_RUNTIME_ERROR: 'APPIUM_RUNTIME_ERROR',
     SELENIUM_RUNTIME_ERROR: 'SELENIUM_RUNTIME_ERROR',
     RUNTIME_ERROR: 'RUNTIME_ERROR',
-    OPTION_NOT_FOUND: 'OPTION_NOT_FOUND'
+    OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
+    ATTRIBUTE_NOT_FOUND: 'ATTRIBUTE_NOT_FOUND'
 };
 
 // WebdriverIO to Oxygen error codes mapping
@@ -201,7 +202,7 @@ module.exports = {
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAssertError: function(expected, actual) {
-        actual = actual.replace(/\n/g, '\\n');
+        actual = actual.toString().replace(/\n/g, '\\n');
         return new OxError(ERROR_CODES.ASSERT_ERROR, `Expected: "${expected}". Got: "${actual}"`);
     },
     errorCode: ERROR_CODES

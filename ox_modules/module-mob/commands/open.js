@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,14 +9,15 @@
  
 /**
  * @summary Opens an URL.
+ * @description The `open` command waits for the page to load before proceeding.
  * @function open
- * @param {String} url - The URL to open.
+ * @param {String} url - The URL to open; may be relative or absolute.
  * @for web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.open('www.yourwebsite.com');//Opens an URL.
  */
 module.exports = function(url) {
-    this.helpers._assertArgumentNonEmptyString(url, 'url');
+    this.helpers.assertArgumentNonEmptyString(url);
     this.driver.url(url);
 };

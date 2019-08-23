@@ -57,7 +57,8 @@
 module.exports = function (options, context, rs, logger) {
     var wdio = require('webdriverio');
     var _ = require('lodash');
-    
+    var URL = require('url');
+    var deasync = require('deasync');
     var utils = require('./utils');
 
     var _this = module._this = this;
@@ -146,8 +147,8 @@ module.exports = function (options, context, rs, logger) {
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
                         results.logs.push(module._adjustAppiumLog(log, 'device'));
-                    }                    
-                }                
+                    }
+                }
             }
             catch (e) {
                 // ignore errors
@@ -161,7 +162,7 @@ module.exports = function (options, context, rs, logger) {
                 if (logs && Array.isArray(logs)) {
                     for (var logEntry of logs) {
                         results.logs.push(module._adjustAppiumLog(logEntry, 'appium'));
-                    }                    
+                    }
                 }
             }
             catch (e) {
@@ -170,13 +171,6 @@ module.exports = function (options, context, rs, logger) {
             }
         }
     };
-    
-    helpers._assertArgument = utils.assertArgument;
-    helpers._assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
-    helpers._assertArgumentNumber = utils.assertArgumentNumber;
-    helpers._assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
-    helpers._assertArgumentBool = utils.assertArgumentBool;
-    helpers._assertArgumentTimeout = utils.assertArgumentTimeout;
 
     /**
      * @function getCaps
@@ -223,40 +217,48 @@ module.exports = function (options, context, rs, logger) {
         // populate WDIO options
         var wdioOpts = {
             ...opts.wdioOpts || {},
-            host: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
+            hostname: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
             port: port || opts.port || DEFAULT_APPIUM_PORT,
-            desiredCapabilities: _this.caps
+            logLevel: 'debug',
+            capabilities: _this.caps
         };
 
         // if host parameter includes a full URL to the hub, then divide it into separate parts to pass to WDIO
-        if ((arguments.length == 2 && host.indexOf('http') == 0)
-            || (wdioOpts.host && wdioOpts.host.indexOf('http') == 0)) {
-            var URL = require('url');
+        if ((arguments.length == 2 && host.indexOf('http') == 0) ||
+            (wdioOpts.host && wdioOpts.host.indexOf('http') == 0)) {
             var url = URL.parse(host || wdioOpts.host);
-            wdioOpts.host = url.hostname;
+            wdioOpts.hostname = url.hostname;
             wdioOpts.port = parseInt(url.port || DEFAULT_GRID_PORT);
             wdioOpts.path = url.pathname;
-            wdioOpts.protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
         }
-        // initialize driver with either default or custom appium/selenium grid address
-        _this.driver = wdio.remote(wdioOpts);
-        wdioSync.wrapCommands(_this.driver);
-        try {
-            _this.driver.init();            
-        } catch (err) {
-            throw _this.errHelper.getAppiumInitError(err);
+
+        var initError = null;
+        wdio.remote(wdioOpts)
+            .then((driver => {
+                _this.driver = driver;
+                isInitialized = true;
+            }))
+            .catch(err => {
+                initError = err;
+            });
+
+        deasync.loopWhile(() => !isInitialized && !initError);
+
+        if (initError) {
+            throw _this.errHelper.getSeleniumInitError(initError);
         }
+
+        _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
+        
         // clear logs if auto collect logs option is enabled
         if (opts.collectDeviceLogs) {
             try {
                 // simply call this to clear the previous logs and start the test with the clean logs
-                module.getDeviceLogs();     
-            }
-            catch (e) {
-                console.error('Cannot retrieve device logs.', e);  
+                module.getDeviceLogs();
+            } catch (e) {
+                console.error('Cannot retrieve device logs.', e);
             }
         }
-        isInitialized = true;
     };
 
     /**
@@ -280,9 +282,9 @@ module.exports = function (options, context, rs, logger) {
         if (_this.driver && isInitialized) {
             isInitialized = false;
             try {
-                _this.driver.end();
+                _this.driver.deleteSession();
             } catch (e) {
-                // ignore errors
+                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
         }
     };
@@ -335,6 +337,18 @@ module.exports = function (options, context, rs, logger) {
         
         return locator;
     };
+
+    helpers.matchPattern = utils.matchPattern;
+    helpers.getElement = utils.getElement;
+    helpers.setTimeoutImplicit = utils.setTimeoutImplicit;
+    helpers.restoreTimeoutImplicit = utils.restoreTimeoutImplicit;
+    helpers.assertArgument = utils.assertArgument;
+    helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
+    helpers.assertArgumentNumber = utils.assertArgumentNumber;
+    helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
+    helpers.assertArgumentBool = utils.assertArgumentBool;
+    helpers.assertArgumentBoolOptional = utils.assertArgumentBoolOptional;
+    helpers.assertArgumentTimeout = utils.assertArgumentTimeout;
 
     return module;
 };
