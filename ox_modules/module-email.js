@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  */
 
 /**
- * Provides methods for working with email.
+ * Provides methods for working with email via IMAP.
  */
 
 const OxError = require('../errors/OxygenError');
@@ -32,7 +32,7 @@ module.exports = function() {
      * @param {String} host - Host name (e.g. 'imap.gmail.com').
      * @param {Number} port - Port number (e.g. 993).
      * @param {Boolean} tls - true to use TLS, false otherwise.
-     * @param {Number} authTimeout - Authentication timeout.
+     * @param {Number} authTimeout - Authentication timeout in milliseconds.
      */
     module.init = function(user, password, host, port, tls, authTimeout) {
         _config = {
@@ -52,8 +52,12 @@ module.exports = function() {
      * @function getLastEmail
      * @param {Number} sinceMinutes - Search for emails received since the specified amount of minutes into past.
      * @param {String|Regex} subject - Return email matching the specified subject.
-     * @param {String} timeout - Timeout for waiting for the message to arrive.
+     * @param {String} timeout - Timeout (in milliseconds) for waiting for the message to arrive.
      * @return {Object} Email body and TO, FROM, SUBJECT, DATE headers.
+     * @example <caption>[javascript] Usage example</caption>
+     * email.init('[YOUR_EMAIL]@gmail.com', 'password', 'imap.gmail.com', 993, true, 3000);
+     * var mail = email.getLastEmail(60, 'email subject', 5000);
+     * log.info(JSON.stringify(mail, null, 2));
      */
     module.getLastEmail = function(sinceMinutes, subject, timeout) {
         var mail;

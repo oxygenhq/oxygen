@@ -269,7 +269,11 @@ module.exports = function (options, context, rs, logger) {
         }
 
         if (opts.recordHAR && _this.caps.browserName === 'chrome') {
-            _this.caps.loggingPrefs = {
+            _this.caps['goog:loggingPrefs'] = {     // for ChromeDriver >= 75
+                browser: 'ALL',
+                performance: 'ALL'
+            };
+            _this.caps.loggingPrefs = {             // for ChromeDriver < 75
                 browser: 'ALL',
                 performance: 'ALL'
             };
@@ -341,8 +345,13 @@ module.exports = function (options, context, rs, logger) {
             events.push(msgObj.message);
         }
 
-        const har = harFromMessages(events);
-        return JSON.stringify(har);
+        try {
+            const har = harFromMessages(events);
+            return JSON.stringify(har);
+        } catch (e) {
+            console.error('Unable to fetch HAR: ' + e.toString());
+            return null;
+        }
     }
 
     /**
