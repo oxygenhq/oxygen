@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,25 +12,17 @@
  * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
  *              for the list of supported raw keyboard key codes.
  * @function type
- * @param {String|WebElement} locator - An element locator.
+ * @param {String|Element} locator - An element locator.
  * @param {String} value - The value to type.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.type('id=TextArea', 'hello world\uE007');
  */
-module.exports = function(locator, value) {
-    this.helpers._assertArgument(locator, 'locator');
-    this.helpers._assertArgument(value, 'value');
+module.exports = function(locator, value, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    // when locator is an element object
-    if (typeof locator === 'object' && locator.setValue) {
-        return locator.setValue(value);
-    }
-
-    if (this.autoWait) {
-        this.waitForExist(locator);
-    }
-    locator = this.helpers.getWdioLocator(locator);
-    return this.driver.setValue(locator, value);
+    var el = this.helpers.getElement(locator, true, timeout);
+    el.setValue(value.toString());
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,26 +11,20 @@
  * @summary Finds an element.
  * @function findElement
  * @param {String} locator - Element locator.
- * @param {Object=} parent - Optional parent element for relative search.
- * @return {WebElement} - A WebElement object.
+ * @param {Element=} parent - Optional parent element for relative search.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @return {Element} - A Element object.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.findElement("id=Password","id=divPass");//Finds an element.
+ * var el = mob.findElement("id=Password");//Finds an element.
 */
-module.exports = function(locator, parent) {
-    this.helpers._assertArgument(locator, 'locator');
-    locator = this.helpers.getWdioLocator(locator);
+module.exports = function(locator, parent, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var retval = null;
-    if (parent && typeof parent === 'object' && parent.element) {
-        retval = parent.element(locator);
+    if (parent) {
+        return this.helpers.getChildElement(locator, parent, false, timeout);
     } else {
-        retval = this.driver.element(locator);
+        return this.helpers.getElement(locator, false, timeout);
     }
-    // check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
-    if (retval && retval.value == null) {
-        return null;
-    }
-    return retval;
 };

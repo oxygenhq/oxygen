@@ -71,11 +71,9 @@ module.exports = function (options, context, rs, logger) {
     this.logger = logger;
     this.DEFAULT_WAIT_TIMEOUT = 60 * 1000;          // default 60s wait timeout
     this.POOLING_INTERVAL = 5000;
-    this.sessionId = null;                          // current session id
     this.appContext = 'NATIVE_APP';
     this.caps = null;                               // save driver capabilities for later use when error occures
-    this.waitForTimeout = this.DEFAULT_WAIT_TIMEOUT;     // current timeout value, set by setTimout method        
-    this.autoWait = true;
+    this.waitForTimeout = this.DEFAULT_WAIT_TIMEOUT;     // current timeout value, set by setTimout method
     
     // local variables
     var ctx = context;

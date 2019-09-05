@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,29 +11,14 @@
  * @summary Wait for an element for the provided amount of milliseconds to exist in DOM.
  * @description The element is not necessary needs to be visible.
  * @function waitForExist
- * @param {String|WebElement} locator - Element locator.
- * @param {Number=} wait - Time in milliseconds to wait for the element. Default is 60 seconds.
+ * @param {String|Element} locator - Element locator.
+ * @param {Number=} timeout - Time in milliseconds to wait for the element. Default is 60 seconds.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.waitForExist('id=Element');//Wait for an element for the provided amount of milliseconds to exist in DOM.
  */
-module.exports = function(locator, wait) {
-    this.helpers._assertArgument(locator, 'locator');
-    this.helpers._assertArgumentTimeout(wait, 'wait');
-    wait = wait || this.waitForTimeout;
-
-    try {
-        if (typeof locator === 'object' && locator.waitForExist) {  // when locator is an element object
-            locator.waitForExist(wait);
-        } else {                                                    // when locator is string
-            locator = this.helpers.getWdioLocator.call(this, locator);
-            this.driver.waitForExist(locator, wait);
-        }
-    } catch (e) {
-        if (e.type === 'WaitUntilTimeoutError') {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-        }
-        throw e;
-    }
+module.exports = function(locator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    this.helpers.getElement(locator, false, timeout);
 };

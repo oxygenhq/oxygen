@@ -10,7 +10,7 @@
 /**
  * @function getDeviceLogs
  * @summary Collects logs from the mobile device.
- * @return {String} A list of logs.
+ * @return {Object[]} A list of logs.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
@@ -19,8 +19,7 @@
 module.exports = function() {
     // currently supports only Android logs
     if (this.caps && this.caps.platformName && this.caps.platformName === 'Android') {
-        var response = this.driver.log('logcat');
-        return response.value || null;
+        return this.driver.getLogs('logcat');
     }
-    return null;    
+    return null;
 };

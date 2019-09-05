@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,10 +14,10 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.setContext(NATIVE_APP);//Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
+ * mob.setContext('NATIVE_APP');//Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
  */
 module.exports = function(context) {
-    this.helpers._assertArgumentNonEmptyString(context, 'context');
-    this.driver.context(context);
+    this.helpers.assertArgumentNonEmptyString(context, 'context');
+    this.driver.switchContext(context);
     this.appContext = context;
 };

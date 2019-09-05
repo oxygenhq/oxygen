@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,5 +17,5 @@
  * var a = mob.getSource();//Gets the source code of the page.
  */
 module.exports = function() {
-    return this.driver.source();
+    return this.driver.getPageSource();
 };

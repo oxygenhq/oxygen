@@ -75,6 +75,87 @@ module.exports = {
         return el;
     },
 
+    getElements: function(locator, timeout) {
+        if (timeout) {
+            module.exports.setTimeoutImplicit.call(this, timeout);
+        }
+        
+        var els = this.driver.$$(this.helpers.getWdioLocator(locator));
+
+        if (els.error && els.error.error === 'no such element') {
+            if (timeout) {
+                module.exports.restoreTimeoutImplicit.call(this);
+            }
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+        }
+
+        if (timeout) {
+            module.exports.restoreTimeoutImplicit.call(this);
+        }
+
+        return els;
+    },
+
+    getChildElement: function(locator, parentElement, waitForVisible, timeout) {
+        if (timeout) {
+            module.exports.setTimeoutImplicit.call(this, timeout);
+        }
+        
+        locator = this.helpers.getWdioLocator(locator);
+
+        var el = parentElement.$(locator);
+
+        if (el.error && el.error.error === 'no such element') {
+            if (timeout) {
+                module.exports.restoreTimeoutImplicit.call(this);
+            }
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+        }
+
+        if (waitForVisible) {
+            try {
+                el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
+            } catch (e) {
+                if (timeout) {
+                    module.exports.restoreTimeoutImplicit.call(this);
+                }
+                if (e.message && e.message.includes('still not displayed')) {
+                    throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                }
+                throw e;
+            }
+        }
+
+        if (timeout) {
+            module.exports.restoreTimeoutImplicit.call(this);
+        }
+
+        return el;
+    },
+
+    getChildElements: function(locator, parentElement, timeout) {
+        if (timeout) {
+            module.exports.setTimeoutImplicit.call(this, timeout);
+        }
+        
+        locator = this.helpers.getWdioLocator(locator);
+
+        var els = parentElement.$$(locator);
+
+        if (els.error && els.error.error === 'no such element') {
+            if (timeout) {
+                module.exports.restoreTimeoutImplicit.call(this);
+            }
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+        }
+
+        if (timeout) {
+            module.exports.restoreTimeoutImplicit.call(this);
+        }
+
+        return els;
+    },
+
     setTimeoutImplicit: function(timeout) {
         var timeouts = this.driver.getTimeouts();
         this._prevImplicitTimeout = timeouts.implicit;

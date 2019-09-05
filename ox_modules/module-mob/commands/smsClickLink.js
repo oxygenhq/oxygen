@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,15 +12,15 @@
  * @description `SMSPopup` application must be installed and running on the device to use this command.
  *              https://github.com/oxygenhq/android-smspopup/releases
  * @function smsClickLink
- * @param {Number=} wait - Time in milliseconds to wait for sms popup. Default is 60 seconds.
+ * @param {Number=} timeout - Time in milliseconds to wait for sms popup. Default is 60 seconds.
  * @for android
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.click("id=sendSmS");// Clicks an element.
  * mob.smsClickLink(60000);//Clicks SMS message URL.
 */
-module.exports = function(wait) {
-    this.helpers._assertArgumentTimeout(wait, 'wait'); 
-    this.waitForExist('id=android:id/message', wait);
+module.exports = function(timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout'); 
+    this.waitForExist('id=android:id/message', timeout);
     this.click('id=android:id/button1');
 };

@@ -10,7 +10,8 @@
 /**
  * @summary Determines if an element is selected.
  * @function isSelected
- * @param {String|WebElement} locator - Element locator.
+ * @param {String|Element} locator - Element locator.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is selected. false otherwise.
  * @for android
  * @example <caption>[javascript] Usage example</caption>
@@ -22,13 +23,9 @@
  *   ...
  * }
  */
-module.exports = function(locator) {
-    this.helpers._assertArgument(locator, 'locator');
+module.exports = function(locator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    if (typeof locator === 'object' && locator.getAttribute) {
-        return locator.getAttribute('selected') == 'true';
-    }
-    
-    locator = this.helpers.getWdioLocator(locator);
-    return this.driver.getAttribute(locator, 'selected') == 'true';
+    var el = this.helpers.getElement(locator, false, timeout);
+    return el.getAttribute('selected') == 'true';
 };

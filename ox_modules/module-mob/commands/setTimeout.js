@@ -9,8 +9,8 @@
  
 /**
  * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
- * @description This includes the `open` command, `waitFor*` commands, and all other commands which
- *              wait for elements to appear or become visible before operating on them.  
+ * @description This includes the `open` command, `waitFor*` commands, and commands which wait
+ *              for elements to appear in DOM or become visible before operating on them.  
  *              If command wasn't able to complete within the specified period it will fail the
  *              test.  
  *              The default time-out is 60 seconds.
@@ -21,6 +21,6 @@
  * mob.setTimeout(60000);//Sets the time out to amount of milliseconds .
  */
 module.exports = function(timeout) {
-    this.helpers._assertArgumentTimeout(timeout, 'timeout');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     return this.waitForTimeout = timeout;
 };

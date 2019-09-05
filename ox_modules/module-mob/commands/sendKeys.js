@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,18 +8,36 @@
  */
 
 /**
- * @summary Send a sequence of key strokes to the active window or element.
+ * @summary Send a sequence of keyboard strokes to the active window or element.
  * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
  *              for the list of supported raw keyboard key codes.
  * @function sendKeys
- * @param {String} value - Sequence of key strokes to send.
+ * @param {(String|String[])} value - Sequence of key strokes to send. Can be either a string or an 
+ *                                  array of strings for sending raw key codes.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.sendKeys (‘\uE03B’);//Types keys by reference to a key code.
+ * web.init();//Opens browser session.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.sendKeys("Hello World");
+ * web.sendKeys(["Backspace", "Backspace", "Enter"]); // send two Backspace key codes and Enter.
+ * // Unicode representation can be used directly as well:
+ * web.sendKeys("Hello World\uE003\uE003\uE007");
 */
 module.exports = function(value) {
-    this.helpers._assertArgument(value);
-    this.driver.keys(value);
-};
+    this.helpers.assertArgument(value);
 
+    var valArray = [];
+    if (Array.isArray(value)) {             // array
+        // `instanceof Array` behaves strange when executed through vm.runInNewContext,
+        // it returns false for arrays and `driver.keys()` tests for arrays using `instaceof Array`
+        // thus we recreate the array.
+        // https://github.com/felixge/node-sandboxed-module/issues/13#issuecomment-299585213
+        for (var val of value) {
+            valArray.push(val);
+        }
+        this.driver.keys(valArray);
+        return;
+    } else {                                // string
+        this.driver.keys(value);
+    }
+};

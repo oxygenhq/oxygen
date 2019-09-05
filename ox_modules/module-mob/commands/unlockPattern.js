@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,10 +10,11 @@
 /**
  * @summary Unlocks a pattern lock
  * @function unlockPattern
- * @param {String} locator - Element locator for the pattern lock.
+ * @param {String|Element} locator - Element locator for the pattern lock.
  * @param {Number} cols - Number of columns in the pattern.
  * @param {Number} rows - Number of rows in the pattern.
  * @param {String} pattern - Pattern sequence. Pins are hexadecimal and case sensitive. See example.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>Pattern pins are treated similarly as the numbers of a phone dial. E.g. 3x4 pattern:</caption>
  * 1 2 3
  * 4 5 6
@@ -21,27 +22,20 @@
  * a b c
  * @for android
  */
-module.exports = function(locator, cols, rows, pattern) {
-    this.helpers._assertArgument(locator, 'locator');
-    this.helpers._assertArgumentNumberNonNegative(cols, 'cols');
-    this.helpers._assertArgumentNumberNonNegative(rows, 'rows');
-    this.helpers._assertArgumentNonEmptyString(pattern, 'pattern');
+module.exports = function(locator, cols, rows, pattern, timeout) {
+    this.helpers.assertArgument(locator, 'locator');
+    this.helpers.assertArgumentNumberNonNegative(cols, 'cols');
+    this.helpers.assertArgumentNumberNonNegative(rows, 'rows');
+    this.helpers.assertArgumentNonEmptyString(pattern, 'pattern');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    if (this.autoWait) {
-        this.waitForExist(locator);
-    }
+    var el = this.helpers.getElement(locator, false, timeout);
 
-    var wdloc = this.helpers.getWdioLocator(locator);
-    var el = this.driver.element(wdloc);
-    if (!el.value) {
-        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-    }
+    var loc = el.getLocation();
+    var locX = loc.x;
+    var locY = loc.y;
 
-    var loc = this.driver.elementIdLocation(el.value.ELEMENT);
-    var locX = loc.value.x;
-    var locY = loc.value.y;
-
-    var cellSize = this.driver.getElementSize(wdloc);
+    var cellSize = el.getSize();
     var cellW = Math.round(cellSize.width / cols);
     var cellH = Math.round(cellSize.height / rows);
 

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,7 +8,7 @@
  */
 
 /**
- * @summary Gets alert text.
+ * @summary Gets the text displayed by an alert or confirm dialog.
  * @function alertText
  * @return {String} - Alert's text.
  * @for android, ios, hybrid, web
@@ -18,5 +18,5 @@
  * var a = mob.alertText();//Gets alert text.
  */
 module.exports = function() {
-    return this.driver.alertText();
+    return this.driver.getAlertText();
 };

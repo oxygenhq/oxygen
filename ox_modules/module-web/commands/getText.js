@@ -8,7 +8,7 @@
  */
  
 /**
- * @summary Returns the text (rendered text shown to the user) of an element.
+ * @summary Returns the text (rendered text shown to the user; whitespace-trimmed) of an element.
  * @function getText
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.

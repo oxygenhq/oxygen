@@ -15,7 +15,7 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.waitForVisible("id=Title");//Waits for an element to  be visible.
+ * web.waitForVisible("id=Title", 45*1000);//Waits for an element to  be visible.
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

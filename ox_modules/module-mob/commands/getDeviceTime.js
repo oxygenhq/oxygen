@@ -17,6 +17,5 @@
  * mob.getDeviceTime(); //Gets the device time
  */
 module.exports = function() { 
-    const response = this.driver.getDeviceTime();
-    return response.value || null;
+    return this.driver.getDeviceTime();
 };
