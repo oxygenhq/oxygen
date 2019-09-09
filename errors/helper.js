@@ -75,11 +75,16 @@ module.exports = {
         // handle various types of 'Original error'
         if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
             const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+
+            console.log('Error details:');
+            console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+            console.log(util.inspect(err));
+
             return new OxError(ERROR_CODES.UNKNOWN_ERROR, originalError, util.inspect(err));
         }
 
         // try to resolve Chai error code
-        oxErrorCode = CHAI_ERROR_CODES[errType];
+        var oxErrorCode = CHAI_ERROR_CODES[errType];
         if (oxErrorCode) {
             // throw non-fatal error if it's a "verify" module or method 
             if (oxErrorCode === ERROR_CODES.ASSERT && 
@@ -89,6 +94,10 @@ module.exports = {
             return new OxError(oxErrorCode, err.message, null);
         }
         
+        console.log('Error details:');
+        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+        console.log(util.inspect(err));
+
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getSeleniumInitError: function(err) {
@@ -105,7 +114,11 @@ module.exports = {
             return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
         }
 
-        return new OxError(ERROR_CODES.SELENIUM_RUNTIME_ERROR, err.type + ': ' + err.message, util.inspect(err));
+        console.log('Error details:');
+        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+        console.log(util.inspect(err));
+
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAppiumInitError: function(err) {
         if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
@@ -116,11 +129,15 @@ module.exports = {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
         }
 
+        console.log('Error details:');
+        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+        console.log(util.inspect(err));
+
         if (err.message && err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
             const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-            return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, originalError, util.inspect(err));
+            return new OxError(ERROR_CODES.UNKNOWN_ERROR, originalError, util.inspect(err));
         } else {
-            return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, err.message, util.inspect(err));
+            return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
     },
     getAssertError: function(expected, actual) {
