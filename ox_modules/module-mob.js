@@ -243,7 +243,7 @@ module.exports = function (options, context, rs, logger) {
         deasync.loopWhile(() => !isInitialized && !initError);
 
         if (initError) {
-            throw _this.errHelper.getSeleniumInitError(initError);
+            throw _this.errHelper.getAppiumInitError(initError);
         }
 
         _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });

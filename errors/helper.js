@@ -56,49 +56,12 @@ const ERROR_CODES = {
     ATTRIBUTE_NOT_FOUND: 'ATTRIBUTE_NOT_FOUND'
 };
 
-// WebdriverIO to Oxygen error codes mapping
-// https://github.com/webdriverio/webdriverio/blob/master/lib/helpers/constants.js
-// https://github.com/webdriverio/webdriverio/blob/master/lib/utils/ErrorHandler.js
-// TODO: codes not directly mapped to ERROR_CODES need to be reviewed specificly their behaviour in web/mob modes.
-const WDIO_ERROR_CODES = {
-    // selenium error codes https://w3c.github.io/webdriver/webdriver-spec.html#dfn-error-code
-    Unknown: ERROR_CODES.UNKNOWN_ERROR,
-    NoSuchDriver: 'NO_SUCH_DRIVER',
-    NoSuchElement: ERROR_CODES.ELEMENT_NOT_FOUND,
-    NoSuchFrame: ERROR_CODES.FRAME_NOT_FOUND,
-    UnknownCommand: ERROR_CODES.UNKNOWN_COMMAND_ERROR,
-    StaleElementReference: ERROR_CODES.STALE_ELEMENT_REFERENCE,
-    ElementNotVisible: ERROR_CODES.ELEMENT_NOT_VISIBLE,
-    InvalidElementState: 'INVALID_ELEMENT_STATE',
-    UnknownError: ERROR_CODES.UNKNOWN_ERROR,
-    ElementIsNotSelectable: 'ELEMENT_IS_NOT_SELECTABLE',
-    JavaScriptError: ERROR_CODES.BROWSER_JS_EXECUTE_ERROR,
-    XPathLookupError: ERROR_CODES.NO_SUCH_ELEMENT,
-    Timeout: ERROR_CODES.TIMEOUT,
-    NoSuchWindow: ERROR_CODES.WINDOW_NOT_FOUND,
-    InvalidCookieDomain: 'INVALID_COOKIE_DOMAIN',
-    UnableToSetCookie: 'UNABLE_TO_SET_COOKIE',
-    UnexpectedAlertOpen: ERROR_CODES.UNEXPECTED_ALERT_OPEN,
-    NoAlertOpenError: ERROR_CODES.NO_ALERT_OPEN_ERROR,
-    ScriptTimeout: ERROR_CODES.UNKNOWN_ERROR,                       // FIXME
-    InvalidElementCoordinates: 'INVALID_ELEMENT_COORDINATES',
-    IMENotAvailable: 'IME_NOT_AVAILABLE',
-    IMEEngineActivationFailed: 'IME_ENGINE_ACTIVATION_FAILED',
-    InvalidSelector: 'INVALID_SELECTOR',
-    SessionNotCreatedException: 'SESSION_NOT_CREATED_EXCEPTION',
-    ElementNotScrollable: 'ELEMENT_NOT_SCROLLABLE',
-    // WebdriverIO specific error codes
-    SelectorTimeoutError: 'SELECTOR_TIMEOUT_ERROR',
-    NoSessionIdError: 'NO_SESSION_ID_ERROR',
-    GridApiError: 'GRID_API_ERROR',
-    WaitForTimeoutError: ERROR_CODES.TIMEOUT,
-    WaitUntilTimeoutError: ERROR_CODES.TIMEOUT
-};
-
 // Chai to Oxygen error codes mapping
 const CHAI_ERROR_CODES = {
     AssertionError: ERROR_CODES.ASSERT
 };
+
+const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
 
 module.exports = {
     getOxygenError: function(err, module, cmd, args) {
@@ -109,35 +72,10 @@ module.exports = {
         
         var errType = err.type || err.name || typeof err;
         
-        // try to resolve WDIO error code 
-        var oxErrorCode = WDIO_ERROR_CODES[errType];
-        if (oxErrorCode) {
-            // remove "Promise rejected..." from errors produced by waitUntil
-            if (errType === 'WaitUntilTimeoutError' && 
-                err.message.indexOf('Promise was rejected with the following reason: ') === 0) {
-                err.message = err.message.substring('Promise was rejected with the following reason: '.length);
-            }
-            return new OxError(oxErrorCode, err.message, null);
-        }
-
-        // try to resolve WDIO RuntimeError-s having seleniumStack
-        if (errType === 'RuntimeError' && err.seleniumStack) {
-            oxErrorCode = WDIO_ERROR_CODES[err.seleniumStack.type];
-            if (err.message === 'unknown error: NoSuchElement') {
-                return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, null, null);
-            } else if (err.message && err.message.startsWith('Element is not displayed')) { // IE specific
-                return new OxError(ERROR_CODES.ELEMENT_NOT_VISIBLE, null, null);
-            } else if (oxErrorCode) {
-                return new OxError(oxErrorCode, err.message, null);
-            }
-        }
-        // handle various types of RuntimeError(s)
-        else if (errType === 'RuntimeError' && err.message) {
-            const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
-            if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
-                const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-                return new OxError(ERROR_CODES.RUNTIME_ERROR, originalError, null);
-            }
+        // handle various types of 'Original error'
+        if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
+            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+            return new OxError(ERROR_CODES.UNKNOWN_ERROR, originalError, util.inspect(err));
         }
 
         // try to resolve Chai error code
@@ -161,45 +99,29 @@ module.exports = {
             }
         }
 
-        if (err.type === 'RuntimeError') {
-            if (err.message != null && err.message.indexOf('cannot find Chrome binary') > -1) {
-                return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
-            } else if (err.message != null && err.message.indexOf('ECONNREFUSED') > -1) {
-                return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
-            } else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
-                return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't resolve Selenium server address");
-            }
-            else {
-                return new OxError(ERROR_CODES.SELENIUM_RUNTIME_ERROR, err.message, null);
-            }
+        if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
+            return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
+        } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND') {
+            return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
         }
-        
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
+
+        return new OxError(ERROR_CODES.SELENIUM_RUNTIME_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAppiumInitError: function(err) {
-        if (err.type === 'RuntimeError') {
-            if (err.message != null && err.message.indexOf('cannot find Chrome binary') > -1) {
-                return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
-            } else if (err.message != null && err.message.indexOf('ECONNREFUSED') > -1) {
-                return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
-            } else if (err.message != null && err.message.indexOf('ENOTFOUND') > -1) {
-                return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't resolve Appium server address");
-            } else if (err.seleniumStack && err.seleniumStack.orgStatusMessage 
-                && err.seleniumStack.orgStatusMessage.indexOf('Could not find a connected Android device') > -1) {
-                return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
-            }
-            else {
-                const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
-                if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
-                    const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-                    return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, originalError, null);
-                }
-                else {
-                    return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, err.message, null);
-                }
-            }
+        if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
+            return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
+        } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND') {
+            return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
+        } else if (err.message && err.message.indexOf('Could not find a connected Android device') > -1) {
+            return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
         }
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
+
+        if (err.message && err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
+            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+            return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, originalError, util.inspect(err));
+        } else {
+            return new OxError(ERROR_CODES.APPIUM_RUNTIME_ERROR, err.message, util.inspect(err));
+        }
     },
     getAssertError: function(expected, actual) {
         actual = actual.toString().replace(/\n/g, '\\n');
