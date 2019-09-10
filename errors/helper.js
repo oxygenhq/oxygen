@@ -108,6 +108,9 @@ const CHAI_ERRORS_MAPPING = {
 
 module.exports = {
     getFailureFromError: function(err) {
+        if (!err) {
+            return null;
+        }
         if (!(err instanceof OxError)) {
             err = this.getOxygenError(err)            
         }

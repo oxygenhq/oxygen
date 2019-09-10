@@ -298,7 +298,7 @@ module.exports = function (options, context, rs, logger) {
             host: host,
             port: port,
             path: path,
-            //logLevel: 'debug',
+            logLevel: 'silent',
             capabilities: _this.caps
         };
 

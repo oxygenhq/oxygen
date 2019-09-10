@@ -21,7 +21,8 @@ module.exports = function(locator, timeout) {
     var wdloc = this.helpers.getWdioLocator(locator);
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     try {
-        this.driver.waitForExist(wdloc, (!timeout ? this.waitForTimeout : timeout));
+        const elm = this.driver.$(wdloc);
+        elm.waitForExist(!timeout ? this.waitForTimeout : timeout);
     } catch (e) {
         if (e.type === 'WaitUntilTimeoutError') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);

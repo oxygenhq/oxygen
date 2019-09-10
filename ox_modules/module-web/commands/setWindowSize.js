@@ -20,7 +20,7 @@
 module.exports = function(width, height) {
     this.helpers.assertArgumentNumberNonNegative(width);
     this.helpers.assertArgumentNumberNonNegative(height);
-    this.driver.setViewportSize({
+    this.driver.setWindowSize({
         width: width,
         height: height
     }, false);

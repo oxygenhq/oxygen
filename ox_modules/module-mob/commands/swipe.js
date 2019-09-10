@@ -8,40 +8,26 @@
  */
  
 /**
- * @summary Perform a swipe on the screen or an element.
+ * @summary Perform coordinate-based swipe on the screen.
  * @function swipe
- * @param {String=} locator - Locator of the element to swipe on.
- * @param {Number} xoffset - Horizontal offset.
- * @param {Number} yoffset - Vertical offset. Negative value indicates swipe down and positive indicates swipe up direction.
- * @param {Number=} speed - The speed of swiping in pixels per second. Default is 30.
+ * @param {Number} x1 - Swipe start X coordinate.
+ * @param {Number} y1 - Swipe start Y coordinate.
+ * @param {Number} x2 - Swipe end X coordinate.
+ * @param {Number} y2 - Swipe end Y coordinate.
  * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.swipe("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
+ * mob.swipe(100, 100, 300, 100);//Perform a swipe on the provided coordinates.
 */
 module.exports = function(locator, xoffset, yoffset, speed) {
-    this.helpers._assertArgument(locator, 'locator');
-    this.helpers._assertArgumentNumber(xoffset, 'xoffset');
-    this.helpers._assertArgumentNumber(yoffset, 'yoffset');
+    this.helpers._assertArgumentNumber(x1, 'x1');
+    this.helpers._assertArgumentNumber(x2, 'x2');
+    this.helpers._assertArgumentNumber(x1, 'y1');
+    this.helpers._assertArgumentNumber(x2, 'y2');
 
-    speed = typeof speed === 'number' ? speed : 30;
-    if (typeof locator === 'number' && typeof xoffset === 'number') {
-        yoffset = xoffset;
-        xoffset = locator;
-        locator = null;
-    }
-    if (locator != null) {
-        var elm = null;
-        if (typeof locator === 'object') {
-            elm = locator;
-        } else {
-            elm = this.findElement(locator);
-            if (!elm) {
-                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-            }
-        }
-
-        return elm.swipe(xoffset, yoffset, speed);
-    }
-    return this.driver.swipe(xoffset, yoffset);
+    return this.driver.touchAction([
+        {action: 'press', x: x1, y: y1},
+        {action: 'moveTo', x: x2, y: y2},
+        'release'
+    ]);
 };

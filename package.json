@@ -39,10 +39,11 @@
     "grunt-eslint": "20.2.0"
   },
   "dependencies": {
+    "@applitools/eyes-webdriverio": "^5.7.2",
     "@babel/cli": "^7.2.3",
-    "async": "2.6.3",
     "@babel/plugin-proposal-export-default-from": "^7.5.2",
     "@wdio/sync": "^5.12.0",
+    "async": "2.6.3",
     "chai": "^4.2.0",
     "chrome-har": "0.11.0",
     "config": "3.1.0",
@@ -79,7 +80,8 @@
   "scripts": {
     "prepublishOnly": "grunt eslint && grunt dos2unix",
     "postpublish": "grunt unix2dos",
-    "dev": "babel-node --presets @babel/preset-env ./lib/cli.1.js",
+    "dev": "DEBUG=false babel-node --presets @babel/preset-env ./lib/cli.1.js",
+    "debug": "DEBUG=false babel-node --inspect-brk --presets @babel/preset-env ./lib/cli.1.js",
     "dev1": "cross-env NODE_ENV=development BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register --presets @babel/env ./lib/cli.1.js"
   }
 }

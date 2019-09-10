@@ -18,19 +18,21 @@
  * web.waitForVisible("id=Title");//Waits for an element to  be visible.
  */
 module.exports = function(locator, timeout) {
-    var wdloc = this.helpers.getWdioLocator(locator);
+    let wdloc = this.helpers.getWdioLocator(locator);
+    let elm = null;
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     try {
-        const elm = this.driver.$(wdloc);
+        elm = this.driver.$(wdloc);
         elm.waitForDisplayed((!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
         if (e.type === 'WaitUntilTimeoutError') {
             // check if the element exists and if doesn't then thow ELEMENT_NOT_FOUND instead
             // since ELEMENT_NOT_VISIBLE is slightly confusing if element doesn't actually exist 
-            if (!this.driver.isExisting(wdloc)) {
-                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-            } else {
+            if (elm && elm.isExisting()) {
                 throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                
+            } else {
+                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
             }
         }
         throw e;

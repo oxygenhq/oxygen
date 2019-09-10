@@ -12,7 +12,7 @@ module.exports = function () {
         name: null,
         id: null,
         iterationCount: 1,
-        testcases: [],
+        cases: [],
         paramManager: null,
         poManager: null
     };

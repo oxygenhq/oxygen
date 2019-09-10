@@ -17,6 +17,7 @@ function OxygenError(type, message, data, isFatal, orgErr = null) {
     this.type = type || this.type || null;
     this.message = message || this.message || null;
     this.data = data || null;
+    this.screenshot = null;
     this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
     
     var self = this;

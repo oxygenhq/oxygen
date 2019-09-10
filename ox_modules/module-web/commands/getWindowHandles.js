@@ -17,5 +17,5 @@
  * web.getWindowHandles();//Gets the window handles of currently open windows.
  */
 module.exports = function() {
-    return this.driver.windowHandles().value;
+    return this.driver.getWindowHandles();
 };
