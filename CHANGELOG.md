@@ -1,5 +1,8 @@
 # CHANGELOG
 
+## v0.47.4 (2019-09-12)
+* Fix parameter handling for CSVs produced by OS X Excel.
+
 ## v0.47.3 (2019-08-05)
 * Internal fixes: Fix HAR fetching on ChromeDriver >= v75
 
