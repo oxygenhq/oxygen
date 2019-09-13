@@ -23,5 +23,8 @@ module.exports = function(locator, timeout) {
 
     var el = this.helpers.getElement(locator, true, timeout);
     var val = el.getValue();
-    return val.trim().replace(/\s+/g, ' ');
+    if (val) {
+        return val.trim().replace(/\s+/g, ' ');
+    }
+    return val;
 };

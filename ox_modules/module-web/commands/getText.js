@@ -23,5 +23,8 @@ module.exports = function(locator, timeout) {
 
     var el = this.helpers.getElement(locator, true, timeout);
     var text = el.getText();
-    return text.trim().replace(/\s+/g, ' ');
+    if (text) {
+        return text.trim().replace(/\s+/g, ' ');
+    }
+    return text;
 };
