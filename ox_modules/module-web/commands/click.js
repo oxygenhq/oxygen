@@ -30,9 +30,9 @@ module.exports = function(locator, timeout) {
         if (e.message &&
             (e.message.includes('is not clickable at point')
                 || e.message === 'element not visible'
-                || e.message === 'element not interactable'                 // chrome
-                || e.message === 'Element is not displayed')                // ie
-                || e.message.includes('could not be scrolled into view')) { // firefox
+                || e.message === 'element not interactable'                     // chrome
+                || e.message === 'Element is not displayed'                     // ie
+                || e.message.includes('could not be scrolled into view'))) {    // firefox
             this.clickHidden(locator);
         } else {
             throw e;
