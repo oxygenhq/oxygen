@@ -23,5 +23,13 @@ module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     
     var el = this.helpers.getElement(locator, false, timeout);
-    el.clearValue();
+    
+    try {
+        el.clearValue();
+    } catch (e) {
+        if (e.name === 'invalid element state') {
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);
+        }
+        throw e;
+    }
 };
