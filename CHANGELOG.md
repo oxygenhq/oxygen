@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.48.1 (2019-09-19)
+
+#### :nail_care: Polish
+* Improved error handling.
+
 ## v0.48.0 (2019-09-19)
 
 #### :tada: New Feature
