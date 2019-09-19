@@ -54,7 +54,8 @@ const ERROR_CODES = {
     RUNTIME_ERROR: 'RUNTIME_ERROR',
     OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
     ATTRIBUTE_NOT_FOUND: 'ATTRIBUTE_NOT_FOUND',
-    ELEMENT_STATE_ERROR: 'ELEMENT_STATE_ERROR'
+    ELEMENT_STATE_ERROR: 'ELEMENT_STATE_ERROR',
+    MOBILE_CONTEXT_ERROR: 'MOBILE_CONTEXT_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
@@ -72,7 +73,15 @@ module.exports = {
         }
         
         var errType = err.type || err.name || typeof err;
-        
+
+        // handle "invalid argument: Unsupported locator strategy: -android uiautomator" for mobile.
+        // usually due to not using the correct context
+        if (err.message && err.message.includes('Unsupported locator strategy')) {
+            var matches = err.message.match(/invalid argument: (.*)/i);
+            return new OxError(ERROR_CODES.MOBILE_CONTEXT_ERROR, (matches.length === 2 ? matches[1] : err.message) +
+                '. Make sure you are using the correct mobile context. See mob.setNativeContext and mob.setWebViewContext.');
+        }
+
         // handle various types of 'Original error'
         if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
             const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
