@@ -35,7 +35,7 @@ const ERROR_CODES = {
     MAILINATOR_ERROR: 'MAILINATOR_ERROR',
     APPIUM_UNREACHABLE_ERROR: 'APPIUM_UNREACHABLE_ERROR',
     SELENIUM_UNREACHABLE_ERROR: 'SELENIUM_UNREACHABLE_ERROR',
-    CHROME_BINARY_NOT_FOUND: 'CHROME_BINARY_NOT_FOUND',
+    CHROMEDRIVER_ERROR: 'CHROMEDRIVER_ERROR',
     DB_CONNECTION_ERROR: 'DB_CONNECTION_ERROR',
     DB_QUERY_ERROR: 'DB_QUERY_ERROR',
     SOAP_ERROR: 'SOAP_ERROR',
@@ -109,7 +109,7 @@ module.exports = {
         }
 
         if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
-            return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, 'Cannot find Chrome binary');
         } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND') {
             return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
         }
@@ -122,11 +122,14 @@ module.exports = {
     },
     getAppiumInitError: function(err) {
         if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
-            return new OxError(ERROR_CODES.CHROME_BINARY_NOT_FOUND, 'Cannot find Chrome binary');
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, 'Cannot find Chrome binary');
         } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND') {
             return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
         } else if (err.message && err.message.indexOf('Could not find a connected Android device') > -1) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
+        } else if (err.message && err.message.indexOf('Unable to automate Chrome version') > -1) {
+            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, originalError);
         }
 
         console.log('Error details:');
