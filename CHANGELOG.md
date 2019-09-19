@@ -1,5 +1,37 @@
 # CHANGELOG
 
+## v0.48.0 (2019-09-19)
+
+#### :tada: New Feature
+* Support for Node.js 12.
+* New web commands: `web.isSelected`.
+* New mob commands: `mob.closeApp`, `mob.installApp`, `mob.removeApp`, `mob.launchApp`, `mob.resetApp`, `mob.getCurrentAcitivity`, `mob.getCurrentPackage`.
+* New pdf commands: `pdf.count`.
+* Optional `pageNum` argument for `pdf.assert` and `pdf.assertNot`.
+* Optional `timeout` argument for all `mob` and `web` commands. Can be used to set timeouts per command.
+* Optional `clickParent` argument for `web.clickHidden`.
+
+#### :boom: Breaking Change
+* `mob.verifyTitle`, `mob.verifyTitle`, `mob.verifyValue` removed since those command worked exactly like their `assert*` counterparts.
+* `mob.swipe` has been split into two separate commands: `mob.swipe` and `mob.swipeScreen`.
+* `mob.hideKeyboard` accepts different arguments and supports more strategies.
+* `mob.scrollToElement` accepts different arguments.
+* `mob.setAutoWait` and `web.setAutoWait` removed.
+* Optional `message` argument has been removed from relevant `mob` commands.
+
+#### :beetle: Bug Fix
+* `web.makeVisible` will keep the original element dimensions if non 0.
+
+#### :nail_care: Polish
+* Error handling has been significantly improved.
+
+#### :book: Documentation
+* Various documentation fixes.
+
+#### :house: Internal
+* Upgrade to WebDriverIO v5.
+* Bump dependencies.
+
 ## v0.47.4 (2019-09-12)
 * Fix parameter handling for CSVs produced by OS X Excel.
 
