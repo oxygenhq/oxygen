@@ -217,7 +217,6 @@ module.exports = function (options, context, rs, logger) {
             ...opts.wdioOpts || {},
             hostname: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
             port: port || opts.port || DEFAULT_APPIUM_PORT,
-            logLevel: 'debug',
             capabilities: _this.caps
         };
 
@@ -228,6 +227,7 @@ module.exports = function (options, context, rs, logger) {
             wdioOpts.hostname = url.hostname;
             wdioOpts.port = parseInt(url.port || DEFAULT_GRID_PORT);
             wdioOpts.path = url.pathname;
+            wdioOpts.protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
         }
 
         var initError = null;

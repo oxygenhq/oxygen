@@ -279,16 +279,17 @@ module.exports = function (options, context, rs, logger) {
 
         // populate WDIO options
         var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
+        var protocol = url.protocol.replace(/:$/, '');
         var host = url.hostname;
-        var port = parseInt(url.port);
+        var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
         var path = url.pathname;
 
         var wdioOpts = {
             ...opts.wdioOpts || {},
+            protocol: protocol,
             hostname: host,
             port: port,
             path: path,
-            logLevel: 'debug',
             capabilities: _this.caps
         };
 
