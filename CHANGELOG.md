@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.48.2 (2019-09-21)
+
+#### :beetle: Bug Fix
+* Fix handling of selenium and appium hub addresses.
+
 ## v0.48.1 (2019-09-19)
 
 #### :nail_care: Polish
