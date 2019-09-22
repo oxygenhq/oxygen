@@ -82,9 +82,7 @@ module.exports = function (options, context, rs, logger) {
     var isInitialized = false;
     var results = rs;    // reference to the result store
 
-    const DEFAULT_APPIUM_PORT = this.DEFAULT_APPIUM_PORT = 4723;
-    const DEFAULT_APPIUM_HOST = this.DEFAULT_APPIUM_HOST = '127.0.0.1';
-    const DEFAULT_GRID_PORT = this.DEFAULT_GRID_PORT = 4444;
+    const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
     const NO_SCREENSHOT_COMMANDS = ['init'];
     const NO_LOGS_COMMANDS = [];
     const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
@@ -184,10 +182,9 @@ module.exports = function (options, context, rs, logger) {
      * @function init
      * @summary Initializes a new Appium session.
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
-     * @param {String=} host - Appium server host name or Selenium Grid full URL (default: localhost).
-     * @param {Number=} port - Appium server port (default: 4723). If full URL is specified in the host parameter, port parameter must not be specified.
+     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
      */
-    module.init = function(caps, host, port) {
+    module.init = function(caps, appiumUrl) {
         // if reopenSession is true - reinitilize the module
         if (isInitialized) {
             if (opts.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
@@ -212,23 +209,21 @@ module.exports = function (options, context, rs, logger) {
         if (_this.caps.browserName && _this.caps.appPackage) {
             delete _this.caps.browserName;
         }
-        // populate WDIO options
+
+        var url = URL.parse(appiumUrl || DEFAULT_APPIUM_URL);
+        var protocol = url.protocol.replace(/:$/, '');
+        var host = url.hostname;
+        var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
+        var path = url.pathname;
+
         var wdioOpts = {
             ...opts.wdioOpts || {},
-            hostname: host || opts.host || opts.appiumUrl || DEFAULT_APPIUM_HOST,
-            port: port || opts.port || DEFAULT_APPIUM_PORT,
+            protocol: protocol,
+            hostname: host,
+            port: port,
+            path: path,
             capabilities: _this.caps
         };
-
-        // if host parameter includes a full URL to the hub, then divide it into separate parts to pass to WDIO
-        if ((arguments.length == 2 && host.indexOf('http') == 0) ||
-            (wdioOpts.host && wdioOpts.host.indexOf('http') == 0)) {
-            var url = URL.parse(host || wdioOpts.host);
-            wdioOpts.hostname = url.hostname;
-            wdioOpts.port = parseInt(url.port || DEFAULT_GRID_PORT);
-            wdioOpts.path = url.pathname;
-            wdioOpts.protocol = url.protocol.substr(0, url.protocol.length - 1);    // remove ':' character
-        }
 
         var initError = null;
         wdio.remote(wdioOpts)
