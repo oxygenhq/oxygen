@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v0.48.3 (2019-09-22)
+
+#### :beetle: Bug Fix
+* Issue with wrong WDIO dependency versions being pulled on new installs.
+* Fix handling of user specified Appium server URLs in `mob.init`.
+
+#### :nail_care: Polish
+* Don't print WDIO info level logs.
+
 ## v0.48.2 (2019-09-21)
 
 #### :beetle: Bug Fix
