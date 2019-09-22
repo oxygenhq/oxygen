@@ -222,7 +222,8 @@ module.exports = function (options, context, rs, logger) {
             hostname: host,
             port: port,
             path: path,
-            capabilities: _this.caps
+            capabilities: _this.caps,
+            logLevel: 'warn'
         };
 
         var initError = null;
