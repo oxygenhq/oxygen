@@ -35,6 +35,7 @@
   },
   "dependencies": {
     "@wdio/sync": "5.12.3",
+    "@wdio/utils": "5.12.1",
     "async": "2.6.3",
     "chai": "4.2.0",
     "chrome-har": "0.11.1",
@@ -58,6 +59,7 @@
     "soap": "0.29.0",
     "strip-comments": "1.0.2",
     "twilio": "3.34.0",
+    "webdriver": "5.12.1",
     "webdriverio": "5.12.5",
     "when": "3.7.8",
     "xlsx": "0.15.1"
