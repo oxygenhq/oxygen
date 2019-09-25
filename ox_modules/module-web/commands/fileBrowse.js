@@ -26,5 +26,12 @@ module.exports = function(locator, filepath, timeout) {
 
     var remoteFilePath = this.driver.uploadFile(filepath);
 
-    el.setValue(remoteFilePath);
+    try {
+        el.setValue(remoteFilePath);
+    } catch (e) {
+        if (e.name === 'invalid element state') {
+            throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);
+        }
+        throw e;
+    }
 };
