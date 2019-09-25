@@ -17,10 +17,12 @@
  * var src = web.getXMLPageSource();//Gets the source of currently active window which displays `text/xml` page.
  */
 module.exports = function() {
-    var browser = this.options.browserName;
+    var browser = this.caps.browserName;
     switch (browser) {
         case 'chrome':
-            return this.driver.execute('return document.getElementById("webkit-xml-viewer-source-xml").innerHTML;');
+            return this.driver.execute(
+                `var xmlEl = document.getElementById("webkit-xml-viewer-source-xml");
+                return xmlEl ? xmlEl.innerHTML : null;`);
         case 'ie':
             var src = this.driver.getPageSource();
             src = src.replace(/<head>(.|\n)*?<\/head>/g, '');
