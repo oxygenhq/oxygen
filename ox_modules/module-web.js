@@ -265,6 +265,8 @@ module.exports = function (options, context, rs, logger) {
                 browser: 'ALL',
                 performance: 'ALL'
             };
+            /*
+            // specifying this leads Chrome 77+ to refuse loading
             _this.caps.loggingPrefs = {             // for ChromeDriver < 75
                 browser: 'ALL',
                 performance: 'ALL'
@@ -275,6 +277,7 @@ module.exports = function (options, context, rs, logger) {
                     enablePage: false
                 }
             };
+            */
         }
 
         // populate WDIO options
