@@ -22,6 +22,7 @@
  * web.setTimeout(60000);//Sets the time out to amount of milliseconds .
  */
 module.exports = function(timeout) {
-    this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    return this.waitForTimeout = timeout;
+    this.helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
+    this.waitForTimeout = timeout;
+    this.helpers.setTimeoutImplicit(timeout);
 };
