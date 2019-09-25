@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v0.48.5 (2019-09-25)
+
+#### :beetle: Bug Fix
+* `web.getXMLPageSource` not working as expected.
+* `web.setTimeout` and `mob.setTimeout` not setting the global timeout.
+
 ## v0.48.4 (2019-09-25)
 
 #### :nail_care: Polish
