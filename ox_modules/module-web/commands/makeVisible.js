@@ -39,5 +39,6 @@ module.exports = function(locator) {
         }
         domEl.style.opacity = 1;
         domEl.style.display = 'block';
+        domEl.disabled = false;
     }, el);
 };
