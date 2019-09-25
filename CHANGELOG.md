@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.48.4 (2019-09-25)
+
+#### :nail_care: Polish
+* Don't print WDIO warn level logs.
+* Produce proper error if `web.fileBrowse` fails due to the element not being interactable.
+* `web.makeVisible` will set `disabled` attribute to false.
+
+#### :house: Internal
+* Update chrome-har dependency.
+
 ## v0.48.3 (2019-09-22)
 
 #### :beetle: Bug Fix
