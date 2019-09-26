@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.48.6 (2019-09-26)
+
+#### :house: Internal
+* Fix HAR not working on Chrome 77 and higher.
+
 ## v0.48.5 (2019-09-25)
 
 #### :beetle: Bug Fix
