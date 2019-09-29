@@ -82,6 +82,11 @@ module.exports = {
                 '. Make sure you are using the correct mobile context. See mob.setNativeContext and mob.setWebViewContext.');
         }
 
+        if (err.message && err.message.includes('Unable to automate Chrome version')) {
+            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, originalError);
+        }
+
         // handle various types of 'Original error'
         if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
             const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
