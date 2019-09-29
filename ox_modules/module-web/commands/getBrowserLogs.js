@@ -11,11 +11,18 @@
  * @function getBrowserLogs
  * @summary Collects logs from the browser console.
  * @return {Object[]} An array of browser console logs.
+ * @for chrome
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  * var logs = web.getBrowserLogs(); //Collects logs from the browser console 
  */
 module.exports = function() {
-    return this.driver.getLogs('browser');
+    var browser = this.caps.browserName;
+    if (browser === 'chrome') {
+        return this.driver.getLogs('browser');
+    } else {
+        console.warn(`getBrowserLogs is not supported on "${browser}"`);
+        return null;
+    }
 };
