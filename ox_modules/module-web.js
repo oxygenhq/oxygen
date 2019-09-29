@@ -122,18 +122,17 @@ module.exports = function (options, context, rs, logger) {
             return;
         }
         // collect browser logs for this session
-        if (opts.collectBrowserLogs) {
+        if (opts.collectBrowserLogs && _this.caps.browserName === 'chrome') {
             try {
                 const logs = module.getBrowserLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
                         rs.logs.push(module._adjustBrowserLog(log));
-                    }                    
-                }                
-            }
-            catch (e) {
+                    }
+                }
+            } catch (e) {
                 // ignore errors
-                console.error('Cannot retrieve browser logs.', e);  
+                console.error('Cannot retrieve browser logs.', e);
             }
         }
         // TODO: should clear transactions to avoid duplicate names across iterations
@@ -316,7 +315,7 @@ module.exports = function (options, context, rs, logger) {
         _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
         
         // reset browser logs if auto collect logs option is enabled
-        if (opts.collectBrowserLogs) {
+        if (opts.collectBrowserLogs && _this.caps.browserName === 'chrome') {
             try {
                 // simply call this to clear the previous logs and start the test with the clean logs
                 module.getBrowserLogs();
