@@ -30,8 +30,7 @@
   },
   "devDependencies": {
     "doctrine": "3.0.0",
-    "eslint": "6.5.0",
-    "grunt": "1.0.4"
+    "eslint": "6.5.0"
   },
   "dependencies": {
     "@wdio/sync": "5.12.3",
@@ -68,8 +67,9 @@
     "odbc": "1.4.6"
   },
   "scripts": {
-    "prepublishOnly": "npm run eslint && grunt dos2unix",
-    "postpublish": "grunt unix2dos",
-    "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\""
+    "prepublishOnly": "npm run eslint && node tools/dos2unix lib/cli.js",
+    "postpublish": "node tools/unix2dos lib/cli.js",
+    "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
+    "apidoc": "node tools/apidoc"
   }
 }
