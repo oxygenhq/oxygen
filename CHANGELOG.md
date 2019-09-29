@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v0.48.7 (2019-09-29)
+
+#### :nail_care: Polish
+* Produce proper error when trying to use `web.getBrowserLogs` on unsupported browsers.
+* Produce proper error mobile os version mismatch.
+* Produce proper error on ChromeDriver version mismatch during context switch.
+
+#### :house: Internal
+* Remove Grunt dependency.
+
 ## v0.48.6 (2019-09-26)
 
 #### :house: Internal
