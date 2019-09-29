@@ -140,6 +140,9 @@ module.exports = {
         } else if (err.message && err.message.indexOf('Unable to automate Chrome version') > -1) {
             const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, originalError);
+        } else if (err.message && err.message.indexOf('Unable to find an active device or emulator with') > -1) {
+            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
+            return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, originalError);
         }
 
         console.log('Error details:');
