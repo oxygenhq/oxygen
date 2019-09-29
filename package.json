@@ -30,8 +30,8 @@
   },
   "devDependencies": {
     "doctrine": "3.0.0",
-    "grunt": "1.0.4",
-    "grunt-eslint": "22.0.0"
+    "eslint": "6.5.0",
+    "grunt": "1.0.4"
   },
   "dependencies": {
     "@wdio/sync": "5.12.3",
@@ -68,7 +68,8 @@
     "odbc": "1.4.6"
   },
   "scripts": {
-    "prepublishOnly": "grunt eslint && grunt dos2unix",
-    "postpublish": "grunt unix2dos"
+    "prepublishOnly": "npm run eslint && grunt dos2unix",
+    "postpublish": "grunt unix2dos",
+    "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\""
   }
 }
