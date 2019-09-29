@@ -37,9 +37,12 @@ var SIGNATURE = '<div style="position:relative;">' +
                 '</div>';
                 
 var SIGNATURE_AND = '<div class="android" title="Native Android applications"></div>';
-var SIGNATURE_IOS = '<div class="apple" title="Native iOS applications"></div>'; 
-var SIGNATURE_HYB = '<div class="hybrid" title="Hybrid applications on Android/iOS"></div>';       
+var SIGNATURE_IOS = '<div class="apple" title="Native iOS applications"></div>';
+var SIGNATURE_HYB = '<div class="hybrid" title="Hybrid applications on Android/iOS"></div>';
 var SIGNATURE_WEB = '<div class="web" title="Web applications on Android/iOS"></div>';
+var SIGNATURE_CHROME = '<div class="chrome" title="Chrome"></div>';
+var SIGNATURE_FIREFOX = '<div class="firefox" title="Firefox"></div>';
+var SIGNATURE_IE = '<div class="ie" title="Internet Explorer"></div>';
 
 var DESCRIPTION = '<div class="description" markdown="1">{0}</div>';
 
@@ -303,7 +306,7 @@ module.exports = function(grunt) {
                 var params = method.getParams();
                 
                 var paramConcat = [];
-                for (var param of params) {           
+                for (var param of params) {
                     paramConcat.push(param.name);
                 }
                 
@@ -316,20 +319,22 @@ module.exports = function(grunt) {
                     platforms.forEach(function(item){
                         switch(item) {
                             case 'android':
-                                platformSignature += SIGNATURE_AND;
-                                break;
+                                platformSignature += SIGNATURE_AND; break;
                             case 'ios':
-                                platformSignature += SIGNATURE_IOS;
-                                break;
+                                platformSignature += SIGNATURE_IOS; break;
                             case 'hybrid':
-                                platformSignature += SIGNATURE_HYB;
-                                break;
+                                platformSignature += SIGNATURE_HYB; break;
                             case 'web':
-                                platformSignature += SIGNATURE_WEB;
-                                break;
+                                platformSignature += SIGNATURE_WEB; break;
+                            case 'firefox':
+                                platformSignature += SIGNATURE_FIREFOX; break;
+                            case 'ie':
+                                platformSignature += SIGNATURE_IE; break;
+                            case 'chrome':
+                                platformSignature += SIGNATURE_CHROME; break;
                             default:
                                 grunt.fail.fatal("Unknown value '" + item + "' in @for attribute.");
-                        } 
+                        }
                     });
                 }
                 
