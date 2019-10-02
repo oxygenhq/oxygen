@@ -188,11 +188,12 @@ module.exports = function (options, context, rs, logger) {
         // if reopenSession is true - reinitilize the module
         if (isInitialized) {
             if (opts.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
-                logger.debug('reopenSession is true - disposing mob module before re-initialization.');
-                module.dispose();
-                isInitialized = false;
+                logger.debug('reopenSession is true - reloading the session...');
+                _this.driver.reloadSession();
+                deasync.sleep(1000);
+                isInitialized = true;
             } else {
-                logger.debug('mob.init() was called for already initialized module. reopenSession is false so the call is ignored.');
+                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
                 return;
             }
         }
@@ -226,20 +227,22 @@ module.exports = function (options, context, rs, logger) {
             logLevel: 'error'
         };
 
-        var initError = null;
-        wdio.remote(wdioOpts)
-            .then((driver => {
-                _this.driver = driver;
-                isInitialized = true;
-            }))
-            .catch(err => {
-                initError = err;
-            });
+        if (!isInitialized) {
+            var initError = null;
+            wdio.remote(wdioOpts)
+                .then((driver => {
+                    _this.driver = driver;
+                    isInitialized = true;
+                }))
+                .catch(err => {
+                    initError = err;
+                });
 
-        deasync.loopWhile(() => !isInitialized && !initError);
+            deasync.loopWhile(() => !isInitialized && !initError);
 
-        if (initError) {
-            throw _this.errHelper.getAppiumInitError(initError);
+            if (initError) {
+                throw _this.errHelper.getAppiumInitError(initError);
+            }
         }
 
         _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
