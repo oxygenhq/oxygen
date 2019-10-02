@@ -55,15 +55,14 @@ const ERROR_CODES = {
     OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
     ATTRIBUTE_NOT_FOUND: 'ATTRIBUTE_NOT_FOUND',
     ELEMENT_STATE_ERROR: 'ELEMENT_STATE_ERROR',
-    MOBILE_CONTEXT_ERROR: 'MOBILE_CONTEXT_ERROR'
+    MOBILE_CONTEXT_ERROR: 'MOBILE_CONTEXT_ERROR',
+    APPLICATION_NOT_FOUND_ERROR: 'APPLICATION_NOT_FOUND_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
 const CHAI_ERROR_CODES = {
     AssertionError: ERROR_CODES.ASSERT
 };
-
-const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
 
 module.exports = {
     getOxygenError: function(err, module, cmd, args) {
@@ -83,19 +82,16 @@ module.exports = {
         }
 
         if (err.message && err.message.includes('Unable to automate Chrome version')) {
-            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, originalError);
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         }
 
         // handle various types of 'Original error'
         if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
-            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-
             console.log('Error details:');
             console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
             console.log(util.inspect(err));
 
-            return new OxError(ERROR_CODES.UNKNOWN_ERROR, originalError, util.inspect(err));
+            return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
         }
 
         // try to resolve Chai error code
@@ -143,11 +139,11 @@ module.exports = {
         } else if (err.message && err.message.indexOf('Could not find a connected Android device') > -1) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
         } else if (err.message && err.message.indexOf('Unable to automate Chrome version') > -1) {
-            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, originalError);
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         } else if (err.message && err.message.indexOf('Unable to find an active device or emulator with') > -1) {
-            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-            return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, originalError);
+            return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, extractOriginalError(err.message));
+        } else if (err.message && err.message.indexOf('is not installed on device') > -1) {
+            return new OxError(ERROR_CODES.APPLICATION_NOT_FOUND_ERROR, extractOriginalError(err.message));
         }
 
         console.log('Error details:');
@@ -155,8 +151,7 @@ module.exports = {
         console.log(util.inspect(err));
 
         if (err.message && err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
-            const originalError = err.message.substring(err.message.indexOf(ORIGINAL_ERROR_MESSAGE) + ORIGINAL_ERROR_MESSAGE.length);
-            return new OxError(ERROR_CODES.UNKNOWN_ERROR, originalError, util.inspect(err));
+            return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
         } else {
             return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
@@ -167,3 +162,26 @@ module.exports = {
     },
     errorCode: ERROR_CODES
 };
+
+const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
+const UNKNOWN_ERROR_MESSAGE = 'unknown error: ';
+
+function extractOriginalError(msg) {
+    var errorIndex1 = msg.indexOf(ORIGINAL_ERROR_MESSAGE);
+    if (errorIndex1 === -1) {
+        return msg;
+    }
+
+    // there could anothe nested "original error"
+    var errorIndex2 = msg.indexOf(ORIGINAL_ERROR_MESSAGE, errorIndex1 + ORIGINAL_ERROR_MESSAGE.length);
+
+    msg = msg.substring((errorIndex2 > -1 ? errorIndex2 : errorIndex1)  + ORIGINAL_ERROR_MESSAGE.length);
+
+    // strip 'unknown error:'
+    var unknownErrorIndex = msg.indexOf(UNKNOWN_ERROR_MESSAGE);
+    if (unknownErrorIndex > -1) {
+        return msg.substring(unknownErrorIndex + UNKNOWN_ERROR_MESSAGE.length);
+    }
+
+    return msg;
+}
