@@ -81,7 +81,8 @@ module.exports = {
                 '. Make sure you are using the correct mobile context. See mob.setNativeContext and mob.setWebViewContext.');
         }
 
-        if (err.message && err.message.includes('Unable to automate Chrome version')) {
+        if (err.message && (err.message.includes('Unable to automate Chrome version') ||
+            err.message.includes('No Chromedriver found that can automate'))) {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         }
 
@@ -138,7 +139,9 @@ module.exports = {
             return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
         } else if (err.message && err.message.indexOf('Could not find a connected Android device') > -1) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
-        } else if (err.message && err.message.indexOf('Unable to automate Chrome version') > -1) {
+        } else if (err.message && err.message.indexOf('Unable to automate Chrome version') > -1) {          // appium <= 1.14
+            return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
+        } else if (err.message && err.message.indexOf('No Chromedriver found that can automate') > -1) {    // appium >= 1.15
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         } else if (err.message && err.message.indexOf('Unable to find an active device or emulator with') > -1) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, extractOriginalError(err.message));
