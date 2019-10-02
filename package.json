@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "doctrine": "3.0.0",
-    "eslint": "6.5.0"
+    "eslint": "6.5.1"
   },
   "dependencies": {
     "@wdio/sync": "5.12.3",
@@ -39,7 +39,7 @@
     "chai": "4.2.0",
     "chrome-har": "0.11.2",
     "config": "3.2.2",
-    "csv-parse": "4.4.5",
+    "csv-parse": "4.4.7",
     "deasync": "0.1.15",
     "easyxml": "2.0.1",
     "fibers": "4.0.1",
@@ -57,7 +57,7 @@
     "serialport": "7.1.5",
     "soap": "0.29.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.34.0",
+    "twilio": "3.35.0",
     "webdriver": "5.12.1",
     "webdriverio": "5.12.5",
     "when": "3.7.8",
