@@ -190,7 +190,6 @@ module.exports = function (options, context, rs, logger) {
             if (opts.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
                 logger.debug('reopenSession is true - reloading the session...');
                 _this.driver.reloadSession();
-                deasync.sleep(1000);
                 isInitialized = true;
             } else {
                 logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
