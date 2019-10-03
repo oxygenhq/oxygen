@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,12 +10,12 @@
 /**
  * Provides methods for working with Twilio service.
  */
-
-const OxError = require('../errors/OxygenError');
-var errHelper = require('../errors/helper');
-
 module.exports = function() {
-    var deasync = require('deasync');
+    const deasync = require('deasync');
+    const utils = require('./utils');
+    const OxError = this.OxError = require('../errors/OxygenError');
+    const errHelper = this.errHelper = require('../errors/helper');
+    const helpers = this.helpers = {};
 
     var _client;
     
@@ -43,6 +43,9 @@ module.exports = function() {
      * @return {String} SMS text.
      */
     module.getLastSms = function(removeOnRead, timeout, notOlderThan) {
+        helpers.assertArgumentBool(removeOnRead, 'removeOnRead');
+        helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
+
         if (!notOlderThan) {
             notOlderThan = 4*60*1000;
         }
@@ -78,7 +81,7 @@ module.exports = function() {
         }
 
         if (!msg) {
-            throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get the SMS within " + timeout + 'ms.');
+            throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't get the SMS within " + timeout + 'ms.');
         }
 
         var removed;
@@ -89,6 +92,57 @@ module.exports = function() {
 
         return msg.body;
     };
+
+    /**
+     * @summary Send an SMS.
+     * @function sendSms
+     * @param {String} from - Phone number to send from.
+     * @param {String} to - Phone number to send to.
+     * @param {String} message - Message to send.
+     * @return {String} Message SID.
+     * @example <caption>[javascript] Usage example</caption>
+     * twilio.init('Account Sid', 'Account Token');
+     * twilio.sendSms('+1xxxxxxxxxx', '+972xxxxxxxxx', 'Hello World!');
+     */
+    module.sendSms = function(from, to, message) {
+        helpers.assertArgumentNonEmptyString(from, 'from');
+        helpers.assertArgumentNonEmptyString(to, 'to');
+        helpers.assertArgumentNonEmptyString(message, 'message');
+
+        var response = null;
+
+        _client.messages.create({
+            body: message,
+            from: from,
+            to: to
+        }).then(message => {
+            response = message.sid;
+        }).catch(err => {
+            response = err;
+        });
+
+        deasync.loopWhile(() => !response);
+
+        if (response.message) {
+            var msg = response.message;
+            if (response.moreInfo) {
+                msg += ' For more info: ' + response.moreInfo;
+            } else if (response.code) {
+                msg = 'Unable to connect to Twilio: ' + msg;
+            }
+            throw new OxError(errHelper.errorCode.TWILIO_ERROR, msg);
+        }
+
+        return response;
+    };
+
+    helpers.assertArgument = (val, name) => utils.assertArgument.call(this, val, name);
+    helpers.assertArgumentNonEmptyString = (val, name) => utils.assertArgumentNonEmptyString.call(this, val, name);
+    helpers.assertArgumentNumber = (val, name) => utils.assertArgumentNumber.call(this, val, name);
+    helpers.assertArgumentNumberNonNegative = (val, name) => utils.assertArgumentNumberNonNegative.call(this, val, name);
+    helpers.assertArgumentBool = (val, name) => utils.assertArgumentBool.call(this, val, name);
+    helpers.assertArgumentBoolOptional = (val, name) => utils.assertArgumentBoolOptional.call(this, val, name);
+    helpers.assertArgumentTimeout = (val, name) => utils.assertArgumentTimeout.call(this, val, name);
 
     return module;
 };
