@@ -47,7 +47,9 @@ module.exports = {
             el = this.driver.$(locator);
         }
 
-        if (el.error && el.error.error === 'no such element') {
+        if (el.error && (
+            el.error.error === 'no such element' ||
+            (el.error.message && el.error.message.startsWith('no such element')))) {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
