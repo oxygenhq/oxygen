@@ -153,11 +153,7 @@ module.exports = {
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
         console.log(util.inspect(err));
 
-        if (err.message && err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
-            return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
-        } else {
-            return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.message, util.inspect(err));
-        }
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
     },
     getAssertError: function(expected, actual) {
         actual = actual.toString().replace(/\n/g, '\\n');
@@ -170,6 +166,10 @@ const ORIGINAL_ERROR_MESSAGE = 'Original error: ';
 const UNKNOWN_ERROR_MESSAGE = 'unknown error: ';
 
 function extractOriginalError(msg) {
+    if (!msg) {
+        return '';
+    }
+
     var errorIndex1 = msg.indexOf(ORIGINAL_ERROR_MESSAGE);
     if (errorIndex1 === -1) {
         return msg;
