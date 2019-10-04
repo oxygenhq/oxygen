@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v0.49.0 (2019-10-04)
+
+#### :tada: New Feature
+* Add `twilio.sendSms`.
+
+#### :beetle: Bug Fix
+* Environment not being read from suite json definition.
+
+#### :nail_care: Polish
+* Add handling for 'application is not installed on device' error.
+* Handle ChromeDriver version mismatch errors for Appium 1.15+.
+* Handle additional 'element not found' errors.
+
+#### :house: Internal
+* Use reloadSession instead of manually deleting and creating new sessions.
+* Bump dependencies.
+
 ## v0.48.7 (2019-09-29)
 
 #### :nail_care: Polish
