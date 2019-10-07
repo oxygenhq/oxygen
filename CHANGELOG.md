@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.50.0 (2019-10-07)
+
+#### :tada: New Feature
+* Add support for authentication details in Selenium and Appium HUB URLs.
+
 ## v0.49.0 (2019-10-04)
 
 #### :tada: New Feature
