@@ -286,6 +286,15 @@ module.exports = function (options, context, rs, logger) {
         var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
         var path = url.pathname;
 
+        // auth is needed mostly for cloud providers such as LambdaTest
+        if (url.auth) {
+            var auth = url.auth.split(':');
+            opts.wdioOpts = {
+                user: auth[0],
+                key: auth[1]
+            };
+        }
+
         var wdioOpts = {
             ...opts.wdioOpts || {},
             protocol: protocol,

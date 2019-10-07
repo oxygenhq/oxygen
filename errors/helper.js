@@ -49,8 +49,8 @@ const ERROR_CODES = {
     PARAMETERS_ERROR: 'PARAMETERS_ERROR',
     INVALID_CAPABILITIES: 'INVALID_CAPABILITIES',
     BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR',
-    APPIUM_RUNTIME_ERROR: 'APPIUM_RUNTIME_ERROR',
-    SELENIUM_RUNTIME_ERROR: 'SELENIUM_RUNTIME_ERROR',
+    APPIUM_CONNECTION_ERROR: 'APPIUM_CONNECTION_ERROR',
+    SELENIUM_CONNECTION_ERROR: 'SELENIUM_CONNECTION_ERROR',
     RUNTIME_ERROR: 'RUNTIME_ERROR',
     OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
     ATTRIBUTE_NOT_FOUND: 'ATTRIBUTE_NOT_FOUND',
@@ -125,6 +125,9 @@ module.exports = {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, 'Cannot find Chrome binary');
         } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND') {
             return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
+        } else if (err.message === 'All minutes for this organization has been exausted' ||
+            err.message === '401 Unauthorized') {
+            return new OxError(ERROR_CODES.SELENIUM_CONNECTION_ERROR, err.message);
         }
 
         console.log('Error details:');
@@ -148,6 +151,9 @@ module.exports = {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, extractOriginalError(err.message));
         } else if (err.message && err.message.indexOf('is not installed on device') > -1) {
             return new OxError(ERROR_CODES.APPLICATION_NOT_FOUND_ERROR, extractOriginalError(err.message));
+        } else if (err.message === 'All minutes for this organization has been exausted' ||
+            err.message === '401 Unauthorized') {
+            return new OxError(ERROR_CODES.APPIUM_CONNECTION_ERROR, err.message);
         }
 
         console.log('Error details:');
