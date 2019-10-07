@@ -423,7 +423,7 @@ module.exports = function (options, context, rs, logger) {
     };
 
     helpers.matchPattern = utils.matchPattern;
-    
+    helpers.getElement = utils.getElement;
     helpers.assertArgument = utils.assertArgument;
     helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
     helpers.assertArgumentNumber = utils.assertArgumentNumber;

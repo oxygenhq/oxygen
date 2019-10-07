@@ -135,9 +135,14 @@ module.exports = {
             stack = stackTrace.parse(err);
         }
         if (stack && stack.length && stack.length > 0) {
-            // assume that the error occured in the top call of the stack trace array 
-            return `${stack[0].getFileName()}:${stack[0].getLineNumber()}:${stack[0].getColumnNumber()}`;
+            for (let call of stack) {
+                if (call.getFileName().indexOf('oxygen-node/errors/helper.js') > 0) {
+                    continue;
+                }
+                return `${call.getFileName()}:${call.getLineNumber()}:${call.getColumnNumber()}`;
+            }            
         }
+        return null;
     },
     getOxygenError: function(err, module, cmd, args) {
         // return the error as is if it has been already processed
@@ -203,6 +208,9 @@ module.exports = {
     },
     getSeleniumInitError: function(err) {
         if (err.message) {
+            if (err.message === 'socket hang up') {
+                return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
+            }
             var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
             if (ieZoomErrorMsg) {
                 return new OxError(ERROR_CODES.BROWSER_CONFIGURATION_ERROR, ieZoomErrorMsg.toString());

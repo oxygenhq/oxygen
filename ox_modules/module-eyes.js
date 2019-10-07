@@ -18,6 +18,13 @@ export default class ApplitoolsModule extends OxygenModule {
         // this module doesn't require calling init() method
         this.isInitialized = true;
     }
+    async wait(ms) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                resolve();
+            }, ms);
+        });
+    }
     /**
      * @summary Preform visual validation for a certain target.
      * @function check
