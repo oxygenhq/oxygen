@@ -33,6 +33,9 @@
     "eslint": "6.5.1"
   },
   "dependencies": {
+    "@wdio/config": "5.12.1",
+    "@wdio/logger": "5.12.1",
+    "@wdio/repl": "5.12.1",
     "@wdio/sync": "5.12.3",
     "@wdio/utils": "5.12.1",
     "async": "2.6.3",
