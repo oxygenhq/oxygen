@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.50.1 (2019-10-08)
+
+#### :beetle: Bug Fix
+* Fixed invalid WDIO dependencies being pulled on install.
+
 ## v0.50.0 (2019-10-07)
 
 #### :tada: New Feature
