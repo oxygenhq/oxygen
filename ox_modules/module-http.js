@@ -28,9 +28,10 @@ module.exports = function() {
      * @summary Performs HTTP GET
      * @function get
      * @param {String} url - URL.
+     * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
      */
-    module.get = function(url) {
+    module.get = function(url, headers) {
         var result = null;
 
         var options = {
@@ -38,7 +39,8 @@ module.exports = function() {
             method: 'GET',
             json: true,
             timeout: _responseTimeout,
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            headers: headers || {}
         };
 
         request(options, (err, res, body) => { result = err || res; });
@@ -57,9 +59,10 @@ module.exports = function() {
      * @function post
      * @param {String} url - URL.
      * @param {Object} data - Data.
+     * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
      */
-    module.post = function(url, data) {
+    module.post = function(url, data, headers) {
         var result = null;
 
         var options = {
@@ -68,7 +71,8 @@ module.exports = function() {
             json: true,
             timeout: _responseTimeout,
             rejectUnauthorized: false,
-            body: data
+            body: data,
+            headers: headers || {}
         };
 
         request(options, (err, res, body) => { result = err || res; });
@@ -87,9 +91,10 @@ module.exports = function() {
      * @function put
      * @param {String} url - URL.
      * @param {Object} data - Data.
+     * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
      */
-    module.put = function(url, data) {
+    module.put = function(url, data, headers) {
         var result = null;
 
         var options = {
@@ -98,7 +103,8 @@ module.exports = function() {
             json: true,
             timeout: _responseTimeout,
             rejectUnauthorized: false,
-            body: data
+            body: data,
+            headers: headers || {}
         };
 
         request(options, (err, res, body) => { result = err || res; });
@@ -116,8 +122,9 @@ module.exports = function() {
      * @summary Performs HTTP DELETE
      * @function delete
      * @param {String} url - URL.
+     * @param {Object=} headers - HTTP headers.
      */
-    module.delete = function(url) {
+    module.delete = function(url, headers) {
         var result = null;
 
         var options = {
@@ -125,7 +132,8 @@ module.exports = function() {
             method: 'DELETE',
             json: true,
             timeout: _responseTimeout,
-            rejectUnauthorized: false
+            rejectUnauthorized: false,
+            headers: headers || {}
         };
 
         request(options, (err, res, body) => { result = err || res; });
