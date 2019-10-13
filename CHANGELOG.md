@@ -1,5 +1,117 @@
 # CHANGELOG
 
+## v0.50.1 (2019-10-08)
+
+#### :beetle: Bug Fix
+* Fixed invalid WDIO dependencies being pulled on install.
+
+## v0.50.0 (2019-10-07)
+
+#### :tada: New Feature
+* Add support for authentication details in Selenium and Appium HUB URLs.
+
+## v0.49.0 (2019-10-04)
+
+#### :tada: New Feature
+* Add `twilio.sendSms`.
+
+#### :beetle: Bug Fix
+* Environment not being read from suite json definition.
+
+#### :nail_care: Polish
+* Add handling for 'application is not installed on device' error.
+* Handle ChromeDriver version mismatch errors for Appium 1.15+.
+* Handle additional 'element not found' errors.
+
+#### :house: Internal
+* Use reloadSession instead of manually deleting and creating new sessions.
+* Bump dependencies.
+
+## v0.48.7 (2019-09-29)
+
+#### :nail_care: Polish
+* Produce proper error when trying to use `web.getBrowserLogs` on unsupported browsers.
+* Produce proper error mobile os version mismatch.
+* Produce proper error on ChromeDriver version mismatch during context switch.
+
+#### :house: Internal
+* Remove Grunt dependency.
+
+## v0.48.6 (2019-09-26)
+
+#### :house: Internal
+* Fix HAR not working on Chrome 77 and higher.
+
+## v0.48.5 (2019-09-25)
+
+#### :beetle: Bug Fix
+* `web.getXMLPageSource` not working as expected.
+* `web.setTimeout` and `mob.setTimeout` not setting the global timeout.
+
+## v0.48.4 (2019-09-25)
+
+#### :nail_care: Polish
+* Don't print WDIO warn level logs.
+* Produce proper error if `web.fileBrowse` fails due to the element not being interactable.
+* `web.makeVisible` will set `disabled` attribute to false.
+
+#### :house: Internal
+* Update chrome-har dependency.
+
+## v0.48.3 (2019-09-22)
+
+#### :beetle: Bug Fix
+* Issue with wrong WDIO dependency versions being pulled on new installs.
+* Fix handling of user specified Appium server URLs in `mob.init`.
+
+#### :nail_care: Polish
+* Don't print WDIO info level logs.
+
+## v0.48.2 (2019-09-21)
+
+#### :beetle: Bug Fix
+* Fix handling of selenium and appium hub addresses.
+
+## v0.48.1 (2019-09-19)
+
+#### :nail_care: Polish
+* Improved error handling.
+
+## v0.48.0 (2019-09-19)
+
+#### :tada: New Feature
+* Support for Node.js 12.
+* New web commands: `web.isSelected`.
+* New mob commands: `mob.closeApp`, `mob.installApp`, `mob.removeApp`, `mob.launchApp`, `mob.resetApp`, `mob.getCurrentAcitivity`, `mob.getCurrentPackage`.
+* New pdf commands: `pdf.count`.
+* Optional `pageNum` argument for `pdf.assert` and `pdf.assertNot`.
+* Optional `timeout` argument for all `mob` and `web` commands. Can be used to set timeouts per command.
+* Optional `clickParent` argument for `web.clickHidden`.
+
+#### :boom: Breaking Change
+* `mob.verifyTitle`, `mob.verifyTitle`, `mob.verifyValue` removed since those command worked exactly like their `assert*` counterparts.
+* `mob.swipe` has been split into two separate commands: `mob.swipe` and `mob.swipeScreen`.
+* `mob.hideKeyboard` accepts different arguments and supports more strategies.
+* `mob.scrollToElement` accepts different arguments.
+* `mob.setAutoWait` and `web.setAutoWait` removed.
+* Optional `message` argument has been removed from relevant `mob` commands.
+
+#### :beetle: Bug Fix
+* `web.makeVisible` will keep the original element dimensions if non 0.
+
+#### :nail_care: Polish
+* Error handling has been significantly improved.
+
+#### :book: Documentation
+* Various documentation fixes.
+
+#### :house: Internal
+* Upgrade to WebDriverIO v5.
+* Bump dependencies.
+
+## v0.47.4 (2019-09-12)
+* Fix parameter handling for CSVs produced by OS X Excel.
+
 ## v0.47.3 (2019-08-05)
 * Internal fixes: Fix HAR fetching on ChromeDriver >= v75
 

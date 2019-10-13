@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2019 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11,17 +11,16 @@
  * @summary Executes JavaScript in the context of the currently selected frame or window.
  * @description If return value is null or there is no return value, `null` is returned.
  * @function execute
- * @param {(String|Function)} script - The JavaScript to execute.
- * @param {...Object} arg - Optional script arguments.
+ * @param {String|Function} script - The JavaScript to execute.
+ * @param {...Object} arg - Optional arguments to be passed to the JavaScript function.
  * @return {Object} The return value.
  * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.execute(function(){
- * angular.element("#closeBtn").trigger('ng-click').click()
+ *    angular.element("#closeBtn").trigger('ng-click').click()
  * });//Executes / injects a javascript functions.
  */
-module.exports = function(js) {
-    var args = Array.prototype.splice.call(arguments, 0);
-    return this.driver.execute.apply(js, args).value;
+module.exports = function(...args) {
+    return this.driver.execute(...args);
 };

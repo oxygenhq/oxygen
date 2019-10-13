@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Closes the currently open app.
  * @function closeApp
@@ -17,5 +17,5 @@
  * mob.closeApp(); // Close the app.
 */
 module.exports = function() {
-    return this.driver.close_app();
+    this.driver.closeApp();
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -12,7 +12,7 @@
  * @description `SMSPopup` application must be installed and running on the device to use this command.
  *              https://github.com/oxygenhq/android-smspopup/releases
  * @function smsGetText
- * @param {Number=} wait - Time in milliseconds to wait for sms popup. Default is 60 seconds.
+ * @param {Number=} timeout - Time in milliseconds to wait for sms popup. Default is 60 seconds.
  * @return {String} - SMS text.
  * @for android
  * @example <caption>[javascript] Usage example</caption>
@@ -20,13 +20,13 @@
  * mob.click("id=sendSmS");// Clicks an element.
  * var a = mob.smsGetText(60000);//Gets SMS text on Android phone.
 */
-module.exports = function(wait) {
-    this.helpers._assertArgumentTimeout(wait, 'wait');
+module.exports = function(timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var locSms = 'id=android:id/message';
     var locSmsClose = 'id=android:id/button2';
 
-    this.waitForExist(locSms, wait);
+    this.waitForExist(locSms, timeout);
 
     var sms = this.findElement(locSms);
 
@@ -34,8 +34,7 @@ module.exports = function(wait) {
     if (sms) {
         text = sms.getText();
     }
-    // timeout doesn't really matter here since if popup is open close button will
-    // always exist
+    // timeout doesn't really matter here since if popup is open close button will always exist
     this.waitForExist(locSmsClose);
     this.click(locSmsClose);
     return text;

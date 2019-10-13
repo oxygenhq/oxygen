@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,20 +10,17 @@
 /**
  * @summary Determines if checkbox or radio element is checkable.
  * @function isCheckable
- * @param {String|WebElement} locator - Element locator.
+ * @param {String|Element} locator - Element locator.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is checkable. false otherwise.
  * @for android
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isCheckable("id=checkBox");//Determines if checkbox or radio element is checkable.
  */
-module.exports = function(locator) {
-    this.helpers._assertArgument(locator, 'locator');
+module.exports = function(locator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    if (typeof locator === 'object' && locator.getAttribute) {
-        return locator.getAttribute('checkable');
-    }
-
-    locator = this.helpers.getWdioLocator(locator);
-    return this.driver.getAttribute(locator, 'checkable') == 'true';
+    var el = this.helpers.getElement(locator, false, timeout);
+    return el.getAttribute('checkable') == 'true';
 };

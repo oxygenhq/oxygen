@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,15 +14,17 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.getXMLPageSource();//Gets the source of currently open page which displays in text/xml.
+ * var src = web.getXMLPageSource();//Gets the source of currently active window which displays `text/xml` page.
  */
 module.exports = function() {
-    var browser = this.options.browserName;
+    var browser = this.caps.browserName;
     switch (browser) {
         case 'chrome':
-            return this.driver.execute('return document.getElementById("webkit-xml-viewer-source-xml").innerHTML;').value;
+            return this.driver.execute(
+                `var xmlEl = document.getElementById("webkit-xml-viewer-source-xml");
+                return xmlEl ? xmlEl.innerHTML : null;`);
         case 'ie':
-            var src = this.driver.getSource();
+            var src = this.driver.getPageSource();
             src = src.replace(/<head>(.|\n)*?<\/head>/g, '');
             src = src.replace(/<a\s*.*?>&lt;.*?<\/a>/g, '');
             src = src.replace(/<div\s*.*?>.*?<\/div>/g, '');

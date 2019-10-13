@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,11 +15,11 @@
  * @for android
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.enableNetwork(true,false);//Enable or disable wifi or data.
+ * mob.enableNetwork(true,false);//Enable wifi and disable data.
  */
 module.exports = function(wifi, data) {
-    this.helpers._assertArgumentBool(wifi, 'wifi');
-    this.helpers._assertArgumentBool(data, 'data');
+    this.helpers.assertArgumentBool(wifi, 'wifi');
+    this.helpers.assertArgumentBool(data, 'data');
 
     /* According to Appium docs (https://appium.io/docs/en/writing-running-appium/other/network-connection/):
         Real Devices

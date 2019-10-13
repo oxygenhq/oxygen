@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,9 +14,9 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.pause(5000);//Waits amount of miliseconds till performs the next command.
+ * mob.pause(10*1000);//Pauses the execution for 10 seconds (10000ms)
  */
 module.exports = function(ms) {
-    this.helpers._assertArgumentNumber(ms, 'ms');
-    return this.driver.pause(ms);
+    this.helpers.assertArgumentNumberNonNegative(ms, 'ms');
+    this.driver.pause(ms);
 };

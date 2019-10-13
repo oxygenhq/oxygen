@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,12 +15,12 @@
  *              Specifically `makeVisible` will apply following styles to the
  *              specified element:  
  *              - visibility = 'visible'  
- *              - height = '1px'  
- *              - width = '1px'  
+ *              - height = '1px' if current height is 0  
+ *              - width = '1px' if current width is 0  
  *              - opacity = 1  
  *              - display='block'  
  * @function makeVisible
- * @param {String} locator - An element locator. If multiple elements match the locator, visibility
+ * @param {String|Element} locator - An element locator. If multiple elements match the locator, visibility
  *                           is applied to all.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
@@ -28,14 +28,17 @@
  * web.makeVisible("id=SaveButton");// Makes an invisible/hidden element to become visible. 
  */
 module.exports = function(locator) {
-    var wdloc = this.helpers.getWdioLocator(locator); 
-    this.driver.selectorExecute(wdloc, function (els) {
-        els.forEach(function(el) {
-            el.style.visibility = 'visible';
-            el.style.height = '1px';
-            el.style.width = '1px';
-            el.style.opacity = 1;
-            el.style.display = 'block';
-        });
-    });
+    var el = this.helpers.getElement(locator);
+    this.driver.execute(function (domEl) {
+        domEl.style.visibility = 'visible';
+        if (domEl.style.height === '0px') {
+            domEl.style.height = '1px';
+        }
+        if (domEl.style.width === '0px') {
+            domEl.style.width = '1px';
+        }
+        domEl.style.opacity = 1;
+        domEl.style.display = 'block';
+        domEl.disabled = false;
+    }, el);
 };

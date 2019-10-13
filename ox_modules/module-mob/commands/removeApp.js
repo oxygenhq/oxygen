@@ -16,8 +16,8 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * mob.removeApp('com.android.calculator2'); // Remove the calculator app from the device.
  */
-module.exports = function(locator) {
-    this.helpers._assertArgument(app, 'app');
+module.exports = function(app) {
+    this.helpers.assertArgument(app, 'app');
 
-    return this.driver.removeApp(app);
+    this.driver.removeApp(app);
 };

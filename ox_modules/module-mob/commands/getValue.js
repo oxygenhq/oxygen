@@ -8,27 +8,36 @@
  */
 
 /**
- * @summary Gets element's value.
+ * @summary Gets element's value (whitespace-trimmed).
  * @function getValue
- * @param {String|WebElement} locator - Element locator.
+ * @param {String|Element} locator - Element locator.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {String} - Element's value.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);
  * var a = mob.getValue("id=ValueArea");//Gets the value from an element.
  */
-module.exports = function(locator) {
-    this.helpers._assertArgument(locator, 'locator');
+module.exports = function(locator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    // when locator is an element object
-    if (typeof locator === 'object' && locator.getAttribute) {
-        return locator.getAttribute('value');
-    }
+    var el = this.helpers.getElement(locator, false, timeout);
 
-    // when locator is string
-    if (this.autoWait) {
-        this.waitForExist(locator);
+    try {
+        var text = el.getValue();
+        // uiautomator1 simply returns an error if element not found
+        if (text.error) {
+            if (text.error === 'no such element') {
+                throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
+            }
+            throw text;
+        }
+        return text;
+    } catch (e) {   // uiautomator2 will throw instead
+        if (e.name === 'unknown command') {
+            throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
+        }
+        throw e;
+        // TODO: add support for XCUITest
     }
-    locator = this.helpers.getWdioLocator(locator);
-    return this.driver.getAttribute(locator, 'value');
 };

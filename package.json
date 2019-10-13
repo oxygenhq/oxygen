@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "0.47.3",
+  "version": "0.50.1",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./lib/oxygen.js",
   "bin": {
@@ -29,27 +29,30 @@
     "url": "https://github.com/oxygenhq/oxygen/issues"
   },
   "devDependencies": {
-    "@babel/core": "^7.5.5",
-    "@babel/node": "^7.5.5",
-    "@babel/plugin-transform-modules-commonjs": "^7.5.0",
-    "@babel/preset-env": "^7.5.5",
-    "@babel/register": "^7.5.5",
-    "doctrine": "2.1.0",
-    "grunt": "1.0.4",
-    "grunt-eslint": "20.2.0"
+    "@babel/core": "7.5.5",
+    "@babel/node": "7.5.5",
+    "@babel/plugin-transform-modules-commonjs": "7.5.0",
+    "@babel/preset-env": "7.5.5",
+    "@babel/register": "7.5.5",
+    "cross-env": "6.0.3",
+    "doctrine": "3.0.0",
+    "eslint": "6.5.1"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "^5.7.2",
-    "@babel/cli": "^7.2.3",
-    "@babel/plugin-proposal-export-default-from": "^7.5.2",
-    "@wdio/sync": "^5.12.0",
+    "@applitools/eyes-webdriverio": "5.7.2",
+    "@babel/cli": "7.2.3",
+    "@babel/plugin-proposal-export-default-from": "7.5.2",
+    "@wdio/config": "5.12.1",
+    "@wdio/logger": "5.12.1",
+    "@wdio/repl": "5.12.1",
+    "@wdio/sync": "5.12.3",
+    "@wdio/utils": "5.12.1",
     "async": "2.6.3",
     "chai": "^4.2.0",
-    "chrome-har": "0.11.0",
-    "config": "3.1.0",
-    "csv-parse": "4.4.3",
+    "chrome-har": "0.11.2",
+    "config": "3.2.2",
+    "csv-parse": "4.4.7",
     "cucumber": "^5.1.0",
-    "deasync": "0.1.14",
     "easyxml": "2.0.1",
     "fibers": "4.0.1",
     "glob": "^7.1.4",
@@ -57,8 +60,8 @@
     "globule": "1.2.1",
     "imap-simple": "4.3.0",
     "is-glob": "^4.0.1",
-    "junit-report-builder": "1.3.2",
-    "lodash": "4.17.14",
+    "junit-report-builder": "1.3.3",
+    "lodash": "4.17.15",
     "minimist": "1.2.0",
     "mockery": "^2.1.0",
     "moment": "2.24.0",
@@ -67,21 +70,22 @@
     "pdfreader": "1.0.4",
     "request": "2.88.0",
     "serialport": "7.1.5",
-    "soap": "0.28.0",
+    "soap": "0.29.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.33.2",
-    "webdriverio": "^5.11.14",
+    "twilio": "3.35.0",
+    "webdriver": "5.12.1",
+    "webdriverio": "5.12.5",
     "when": "3.7.8",
-    "xlsx": "0.14.4"
+    "xlsx": "0.15.1"
   },
   "optionalDependencies": {
     "odbc": "1.4.6"
   },
   "scripts": {
-    "prepublishOnly": "grunt eslint && grunt dos2unix",
-    "postpublish": "grunt unix2dos",
-    "dev": "DEBUG=false babel-node --presets @babel/preset-env ./lib/cli.1.js",
-    "debug": "DEBUG=false babel-node --inspect-brk --presets @babel/preset-env ./lib/cli.1.js",
+    "prepublishOnly": "npm run eslint && node tools/dos2unix lib/cli.js",
+    "postpublish": "node tools/unix2dos lib/cli.js",
+    "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
+    "apidoc": "node tools/apidoc",
     "dev1": "cross-env NODE_ENV=development BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register --presets @babel/env ./lib/cli.1.js"
   }
 }

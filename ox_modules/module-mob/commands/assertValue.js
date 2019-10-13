@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,55 +9,50 @@
 /**
  * @summary Asserts element's value.
  * @function assertValue
- * @param {String|WebElement} locator - Element locator.
- * @param {String} pattern - Assertion text or pattern.
- * @param {String=} message - Message to generate in case of assert failure.
+ * @param {String|Element} locator - Element locator.
+ * @param {String} pattern - Value pattern.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.assertValue ("id=UserName", "value=John Doe");// Asserts if the value of an element.
+ * mob.assertValue("id=UserName", "John Doe");// Asserts if the value of an element.
  */
-const chai = require('chai');
-const assert = chai.assert;
+module.exports = function(locator, pattern, timeout) {
+    this.helpers.assertArgument(pattern, 'pattern');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-module.exports = function(locator, pattern, message) {
-    this.helpers._assertArgument(locator, 'locator');
-    
-    var elm = null;
-    // when locator is an element object
-    if (typeof locator === 'object' && locator.getText) {
-        elm = locator;
-    } else {
-        if (this.autoWait) {
-            this.waitForExist(locator);
-        }
-        elm = this.findElement(locator);
-    }
-    
-    if (!elm) {
-        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-    }
-    // not every element has "value" attribute, make sure to handle this case
-    var actualValue = null;
+    var el = this.helpers.getElement(locator, false, timeout);
+
+    var text;
+    var actualError;
     try {
-        actualValue = elm.getValue();
+        this.driver.waitUntil(() => {
+            try {
+                text = el.getValue();
+                // uiautomator1 simply returns an error if element not found
+                if (text.error) {
+                    actualError = text;
+                    text = '';
+                    return false;
+                }
+            } catch (e) {
+                // uiautomator2 will throw instead
+                actualError = e;
+                return false;
+
+                // TODO: add support for XCUITest
+            }
+            return this.helpers.matchPattern(text, pattern);
+        },
+        (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {
-        // check if the error was due to missing value attribute (in this case NoSuchElement will be received)
-        if (e.type && e.type === 'RuntimeError' && e.seleniumStack && e.seleniumStack.type && e.seleniumStack.type === 'NoSuchElement') {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+        if (actualError) {
+            if (actualError.error === 'no such element' /*uiautomator1*/ ||
+                actualError.name === 'unknown command' /*uiautomator2*/) {
+                throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
+            }
         }
-        throw e;
+
+        throw this.errHelper.getAssertError(pattern, text);
     }
-    // throw ASSERT_ERROR error if chai error is raised
-    try {
-        if (pattern.indexOf('regex:') == 0) {
-            var regex = new RegExp(pattern.substring('regex:'.length));
-            assert.match(actualValue, regex, message);
-        } else {
-            assert.equal(actualValue, pattern, message);
-        }
-    }
-    catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, e.message);
-    }       
 };

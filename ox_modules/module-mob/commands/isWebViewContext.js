@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,6 +17,6 @@
  * mob.isWebViewContext();//Checks if the current context is of WebView type.
  */
 module.exports = function() {
-    var context = this.driver.context().value;
+    var context = this.driver.getContext();
     return (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf('CHROMIUM') > -1));
 };

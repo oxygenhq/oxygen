@@ -10,13 +10,12 @@
 /**
  * @function getAppiumLogs
  * @summary Collects logs from the Appium server.
- * @return {String} A list of logs.
+ * @return {Object[]} A list of logs.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getAppiumLogs(); //Collects logs from the Appium server
  */
 module.exports = function() {
-    var response = this.driver.log('server');
-    return response.value || null;
+    return this.driver.getLogs('server');
 };

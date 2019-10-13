@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,15 +8,23 @@
  */
  
 /**
- * @summary Accepts an alert or a confirmation dialog. 
+ * @summary Accepts an alert or a confirmation dialog.
  * @description In case of an alert box this command is identical to `alertDismiss`.
  * @function alertAccept
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.click("id=SaveButton");//Clicks on save – an alert would pop up 
+ * web.click("id=SaveButton");//Clicks on save – an alert would pop up
  * web.alertAccept();//Clicks on "OK" in the alert dialog.
  */
 module.exports = function() {
-    return this.driver.alertAccept();
+    try {
+        this.driver.acceptAlert();
+    } catch (e) {
+        if (e.name === 'no such alert') {
+            throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR);
+        } else {
+            throw e;
+        }
+    }
 };

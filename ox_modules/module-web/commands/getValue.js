@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,20 +8,23 @@
  */
  
 /**
- * @summary Returns the (whitespace-trimmed) value of an input field. For checkbox/radio
- *          elements, the value will be "on" or "off".
+ * @summary Returns the (whitespace-trimmed) value of an input field.
  * @function getValue
- * @param {String} locator - An element locator.
+ * @param {String|Element} locator - An element locator.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {String} The value.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getValue("id=UserName");//Gets the value from an element.
  */
-module.exports = function(locator) {
-    var wdloc = this.helpers.getWdioLocator(locator);
-    if (this.autoWait) {
-        this.waitForVisible(locator);
+module.exports = function(locator, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+
+    var el = this.helpers.getElement(locator, true, timeout);
+    var val = el.getValue();
+    if (val) {
+        return val.trim().replace(/\s+/g, ' ');
     }
-    return this.driver.getValue(wdloc);
+    return val;
 };

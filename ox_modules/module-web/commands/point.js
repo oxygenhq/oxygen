@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,18 +10,20 @@
 /**
  * @summary Points the mouse cursor over the specified element.
  * @function point
- * @param {String} locator - An element locator.
- * @param {Number=} xoffset - X offset from the element.
- * @param {Number=} yoffset - Y offset from the element.
+ * @param {String|Element} locator - An element locator. If the element is not visible, it will be scrolled into view.
+ * @param {Number=} xoffset - X offset to move to, relative to the top-left corner of the element.
+                              If not specified, the mouse will move to the middle of the element.
+ * @param {Number=} yoffset - Y offset to move to, relative to the top-left corner of the element.
+                              If not specified, the mouse will move to the middle of the element.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.point("id=Selection");//Hovers a mouse over an element.
  */
-module.exports = function(locator, xoffset, yoffset) {
-    var wdloc = this.helpers.getWdioLocator(locator);
-    if (this.autoWait) {
-        this.waitForVisible(locator);
-    }
-    return this.driver.moveToObject(wdloc, xoffset, yoffset);
+module.exports = function(locator, xoffset, yoffset, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+
+    var el = this.helpers.getElement(locator, false, timeout);
+    el.moveTo(xoffset, yoffset);
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,31 +10,14 @@
 /**
  * @summary Waits for element to become visible.
  * @function waitForVisible
- * @param {String} locator - An element locator.
+ * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
- * web.waitForVisible("id=Title");//Waits for an element to  be visible.
+ * web.waitForVisible("id=Title", 45*1000);//Waits for an element to  be visible.
  */
 module.exports = function(locator, timeout) {
-    let wdloc = this.helpers.getWdioLocator(locator);
-    let elm = null;
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    try {
-        elm = this.driver.$(wdloc);
-        elm.waitForDisplayed((!timeout ? this.waitForTimeout : timeout));
-    } catch (e) {
-        if (e.type === 'WaitUntilTimeoutError') {
-            // check if the element exists and if doesn't then thow ELEMENT_NOT_FOUND instead
-            // since ELEMENT_NOT_VISIBLE is slightly confusing if element doesn't actually exist 
-            if (elm && elm.isExisting()) {
-                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
-                
-            } else {
-                throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-            }
-        }
-        throw e;
-    }
+    this.helpers.getElement(locator, true, timeout);
 };

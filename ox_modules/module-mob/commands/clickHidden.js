@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,9 +8,9 @@
  */
  
 /**
- * @summary Clicks hidden element.
+ * @summary Clicks on a non-visible element.
  * @function clickHidden
- * @param {String|WebElement} locator - Element locator.
+ * @param {String|Element} locator - Element locator.
  * @param {Boolean=} clickParent - If true, then parent of the element is clicked.
  * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
@@ -18,36 +18,18 @@
  * mob.clickHidden("id=hiddenContent);// Clicks an hidden element.
 */
 module.exports = function(locator, clickParent) {
-    this.helpers._assertArgument(locator, 'locator');
-    clickParent = typeof clickParent === 'boolean' ? clickParent : false;
-    // click hidden function
-    var func = function(elms, clickParent) {
-        var elm = elms && elms.length > 0 ? elms[0] : null;
-        if (!elm) {
-            return;
-        }
-        /*global document*/
-        var clck_ev = document.createEvent('MouseEvent');
-        clck_ev.initEvent('click', true, true);
-        if (clickParent) {
-            elm.parentElement.dispatchEvent(clck_ev);
-        } else {
-            elm.dispatchEvent(clck_ev);
-        }
-    };
-    // when locator is an element object
-    if (typeof locator === 'object' && locator.selectorExecute) {
-        return locator.selectorExecute(
-            func,
-            clickParent
-        );
-    }
-    // when locator is string
-    locator = this.helpers.getWdioLocator(locator);
+    this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
 
-    this.driver.selectorExecute(
-        locator,
-        func,
-        clickParent
-    );
+    var el = this.helpers.getElement(locator);
+    // NOTE: adding comments inside the passed function is not allowed!
+    /*global document*/
+    this.driver.execute(function (domEl, clickParent) {
+        var clckEv = document.createEvent('MouseEvent');
+        clckEv.initEvent('click', true, true);
+        if (clickParent) {
+            domEl.parentElement.dispatchEvent(clckEv);
+        } else {
+            domEl.dispatchEvent(clckEv);
+        }
+    }, el, clickParent);
 };

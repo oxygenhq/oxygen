@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Gets current Android app's activity name.
  * @function getCurrentActivity
@@ -16,5 +16,5 @@
  * let activity = mob.getCurrentActivity(); // Gets current Android activity.
 */
 module.exports = function() {
-    return this.driver.currentActivity();
+    return this.driver.getCurrentActivity();
 };

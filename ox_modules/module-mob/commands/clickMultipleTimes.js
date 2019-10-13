@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,41 +10,24 @@
 /**
  * @summary Performs tap on an element multiple times in quick succession.
  * @function clickMultipleTimes
- * @param {String|WebElement} locator - Element locator.
+ * @param {String|Element} locator - Element locator.
  * @param {Number} taps - Number of taps.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.clickMultipleTimes("id=Mark",4);// Clicks an element certain amount of times.
  */
-module.exports = function(locator, taps) {
-    this.helpers._assertArgument(locator, 'locator');
-    this.helpers._assertArgumentNumberNonNegative(taps, 'taps');
+module.exports = function(locator, taps, timeout) {
+    this.helpers.assertArgumentNumberNonNegative(taps, 'taps');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el;
-    if (typeof locator === 'object' && el.value) {  // when locator is an element object
-        el = locator;
-    } else {
-        if (this.autoWait) {
-            this.waitForExist(locator);
-        }
-        el = this.driver.element(this.helpers.getWdioLocator(locator));
-        if (!el.value) {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-        }
-    }
+    var el = this.helpers.getElement(locator, false, timeout);
 
     var actions = [];
-
     for (var i = 0; i < taps; i++) {
-        var action = {
-            action: 'tap',
-            options: {
-                element: el.value.ELEMENT,
-            }
-        };
-        actions.push(action);
+        actions.push('tap');
     }
 
-    this.driver.touchPerform(actions);
+    el.touchAction(actions);
 };

@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Launches the app defined in the current session's capabilities.
  * @function launchApp
@@ -16,5 +16,5 @@
  * mob.launchApp(); // Launch the app defined in the session's capabilities.
 */
 module.exports = function() {
-    return this.driver.launch();
+    this.driver.launchApp();
 };

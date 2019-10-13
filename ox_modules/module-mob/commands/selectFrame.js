@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,23 +18,24 @@
  * @function selectFrame
  * @param {...String|Number} frameLocator - A locator identifying the frame or iframe. Or a series 
  *         of locators.
+ * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.selectFrame('id=iFrame');//Selects a frame or an iframe within the current window.
+ * mob.selectFrame("//iframe[@id='frame1']", "//iframe[@id='nested_frame']");
  */
 module.exports = function(frameLocator) {
-    if (frameLocator === 'parent') {
-        this.driver.frameParent();
-    } else if (frameLocator === 'top') {
-        this.driver.frame(null);
-    } else if (!isNaN(frameLocator)) {
-        this.driver.frame(frameLocator);
-    } else {
-        this.driver.frame(null);
+    if (frameLocator === 'parent') {                // parent
+        this.driver.switchToParentFrame();
+    } else if (frameLocator === 'top') {            // top
+        this.driver.switchToFrame(null);
+    } else if (!isNaN(frameLocator)) {              // frame index
+        this.driver.switchToFrame(frameLocator);
+    } else {                                        // frame locator(s)
+        this.driver.switchToFrame(null);
         for (var i = 0; i < arguments.length; i++) {
             var locator = arguments[i];
-            var el = this.driver.element(this.helpers.getWdioLocator(locator));
-            this.driver.frame(el.value);
+            var el = this.helpers.getElement(locator);
+            this.driver.switchToFrame(el);
         }
     }
 };

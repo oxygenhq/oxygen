@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -20,8 +20,5 @@
 module.exports = function(width, height) {
     this.helpers.assertArgumentNumberNonNegative(width);
     this.helpers.assertArgumentNumberNonNegative(height);
-    this.driver.setWindowSize({
-        width: width,
-        height: height
-    }, false);
+    this.driver.setWindowSize(width, height);
 };

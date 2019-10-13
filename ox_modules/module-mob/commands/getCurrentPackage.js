@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Gets current Android app's package name.
  * @function getCurrentPackage
@@ -16,5 +16,5 @@
  * let package = mob.getCurrentPackage(); // Gets current Android package.
 */
 module.exports = function() {
-    return this.driver.currentPackage();
+    return this.driver.getCurrentPackage();
 };

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,31 +8,28 @@
  */
 /**
  * @summary Asserts the page title.
+ * @description Assertion pattern can be any of the supported 
+ *  [string matching patterns](http://docs.oxygenhq.org/api-mob.html#patterns).
  * @function assertTitle
  * @param {String} pattern - Assertion text or pattern.
- * @param {String=} message - Message to generate in case of assert failure.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.assertTitle ("title=Your websites title!");// Asserts if the title of the page.
+ * mob.assertTitle("Your websites title!");// Asserts if the title of the page.
  */
-const chai = require('chai');
-const assert = chai.assert;
+module.exports = function(pattern, timeout) {
+    this.helpers.assertArgument(pattern, 'pattern');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-module.exports = function(pattern, message) {
-    this.helpers._assertArgument(pattern, 'pattern');
-
-    var title = this.driver.getTitle();
-    // throw ASSERT_ERROR error if chai error is raised
+    var title;
     try {
-        if (pattern.indexOf('regex:') == 0) {
-            var regex = new RegExp(pattern.substring('regex:'.length));
-            assert.match(title, regex, message);
-        } else {
-            assert.equal(title, pattern, message);
-        }
+        this.driver.waitUntil(() => {
+            title = this.driver.getTitle();
+            return this.helpers.matchPattern(title, pattern);
+        },
+        (!timeout ? this.waitForTimeout : timeout));
+    } catch (e) {
+        throw this.errHelper.getAssertError(pattern, title);
     }
-    catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, e.message);
-    }        
 };

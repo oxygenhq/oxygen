@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -18,14 +18,12 @@
  * mob.tap(60,300);//Perform tap at the specified coordinate.
  */
 module.exports = function(x, y) {
-    this.helpers._assertArgumentNumberNonNegative(x, 'x');
-    this.helpers._assertArgumentNumberNonNegative(y, 'y');
+    this.helpers.assertArgumentNumberNonNegative(x, 'x');
+    this.helpers.assertArgumentNumberNonNegative(y, 'y');
 
-    this.driver.touchPerform([{
+    this.driver.touchAction({
         action: 'tap',
-        options: {
-            x: x,
-            y: y
-        }
-    }]);
+        x: x,
+        y: y
+    });
 };

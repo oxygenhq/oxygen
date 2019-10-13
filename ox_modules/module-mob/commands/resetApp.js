@@ -8,16 +8,13 @@
  */
 
 /**
- * @summary Reset app's state (e.g. local settings) on the device.
+ * @summary Reset the currently running app's state (e.g. local settings) on the device.
  * @function resetApp
- * @param {String} app - App's ID.
  * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
- * mob.resetApp('com.android.calculator2'); // Reset Calculator app's state.
+ * mob.resetApp(); // Reset curently running app
  */
-module.exports = function(locator) {
-    this.helpers._assertArgument(app, 'app');
-
-    return this.driver.resetApp(app);
+module.exports = function() {
+    this.driver.reset();
 };

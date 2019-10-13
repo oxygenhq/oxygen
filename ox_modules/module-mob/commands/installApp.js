@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Install an app on the remote device.
  * @function installApp
@@ -17,7 +17,7 @@
  * mob.installApp('/mylocalappfile.apk'); // Install the app.
 */
 module.exports = function(appLocalPath) {
-    this.helpers._assertArgument(appLocalPath, 'appLocalPath');
+    this.helpers.assertArgumentNonEmptyString(appLocalPath, 'appLocalPath');
 
-    return this.driver.installApp(appLocalPath);
+    this.driver.installApp(appLocalPath);
 };

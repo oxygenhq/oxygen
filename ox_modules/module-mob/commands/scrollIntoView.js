@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,34 +8,22 @@
  */
  
 /**
- * @summary Scrolls the element into the visible area of the browser window.
+ * @summary Scrolls the page or a container element to the location of the specified element.
  * @function scrollIntoView
- * @param {String} locator - Element locator.
- * @param {Boolean=} alignToTop - Indicates whether to align the element to the top. Element is centered otherwise.
+ * @param {String|Element} locator - An element locator.
+ * @param {Boolean=} alignToTop - If true, the top of the element will be aligned to the top of the 
+ *                                visible area of the scrollable ancestor. This is the default.
+ *                                If false, the bottom of the element will be aligned to the bottom 
+ *                                of the visible area of the scrollable ancestor. 
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.scrollIntoElement('id=bottomPanel',true);//Scrolls the element into the visible area of the browser window.
+ * mob.scrollIntoView('id=bottomPanel',true);//Scrolls the element into the visible area of the browser window.
 */
-module.exports = function(locator, alignToTop) {
-    this.helpers._assertArgument(locator);
-    alignToTop = typeof alignToTop === 'boolean' ? alignToTop : true;
+module.exports = function(locator, alignToTop = true, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    if (this.autoWait) {
-        this.waitForExist(locator);
-    }
-
-    locator = this.helpers.getWdioLocator(locator);
-
-    this.driver.selectorExecute(
-        locator,
-        function(elms, alignToTop) {
-            var elm = elms && elms.length > 0 ? elms[0] : null;
-            if (!elm) {
-                return;
-            }
-            elm.scrollIntoView(alignToTop);
-        },
-        alignToTop
-    );
+    var el = this.helpers.getElement(locator, false, timeout);
+    el.scrollIntoView(alignToTop);
 };

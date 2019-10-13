@@ -8,18 +8,24 @@
  */
 
 /**
- * @summary Clicks on an element.
- * @function click
+ * @summary Determines if an element is selected.
+ * @function isSelected
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
+ * @return {Boolean} - true if element is selected. false otherwise.
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.click("id=Submit");// Clicks an element.
+ * web.init();
+ * web.open('http://www.wikipedia.org');
+ * var a = web.isSelected("id=Selection");
+ * if (a) {
+ *   ...
+ * } else {
+ *   ...
+ * }
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     var el = this.helpers.getElement(locator, false, timeout);
-    el.click();
+    return el.getAttribute('selected') == 'true';
 };

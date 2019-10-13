@@ -8,25 +8,25 @@
  */
  
 /**
- * @summary Perform a swipe on an element.
- * @function swipe
- * @param {String|Element} locator - Locator of the element to swipe on.
+ * @summary Perform a swipe on the screen.
+ * @function swipeScreen
+ * @param {Number} x - Starting X position.
+ * @param {Number} y - Starting Y position.
  * @param {Number} xoffset - Horizontal offset.
  * @param {Number} yoffset - Vertical offset. Negative value indicates swipe down and positive indicates swipe up direction.
- * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.swipe("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
+ * mob.swipe(0, 20, 0, -70);//Perform a swipe on the screen
 */
-module.exports = function(locator, xoffset, yoffset, timeout) {
+module.exports = function(x, y, xoffset, yoffset) {
+    this.helpers.assertArgumentNumber(x, 'x');
+    this.helpers.assertArgumentNumber(y, 'y');
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
-    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    el.touchAction([
-        'press',
+    this.driver.touchAction([
+        { action: 'press', x: x, y: y },
         { action: 'moveTo', x: xoffset, y: yoffset },
         'release'
     ]);
