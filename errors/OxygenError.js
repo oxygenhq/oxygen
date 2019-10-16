@@ -15,6 +15,9 @@ util.inherits(OxygenError, Error);
 
 function OxygenError(type, message, data, isFatal, orgErr = null) {
     this.type = type || this.type || null;
+    // subtype allows to specify more particular error for a general Oxygen error type
+    // for example, specify TypeError as subtype for a general SCRIPT_ERROR Oxygen type
+    this.subtype = typeof orgErr === 'string' && type !== orgErr ? orgErr : null;
     this.message = message || this.message || null;
     this.data = data || null;
     this.screenshot = null;

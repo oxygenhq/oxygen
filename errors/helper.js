@@ -68,6 +68,11 @@ const CHAI_ERROR_CODES = {
     AssertionError: ERROR_CODES.ASSERT
 };
 
+// General JavaScript error codes mapping
+const SCRIPT_ERROR_CODES = {
+    TypeError: ERROR_CODES.SCRIPT_ERROR
+};
+
 module.exports = {
     getFailureFromError: function(err) {
         if (!err) {
@@ -111,7 +116,6 @@ module.exports = {
         if (err instanceof OxError) {
             return err;
         }
-        
         var errType = err.type || err.name || typeof err;
 
         // handle "invalid argument: Unsupported locator strategy: -android uiautomator" for mobile.
@@ -128,11 +132,7 @@ module.exports = {
         }
 
         // handle various types of 'Original error'
-        if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
-            console.log('Error details:');
-            console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
-            console.log(util.inspect(err));
-
+        if (err.message && err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
             return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
         }
 
@@ -144,14 +144,22 @@ module.exports = {
 				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
-            return new OxError(oxErrorCode, err.message, null);
+            return new OxError(oxErrorCode, err.message, null, true, errType);
+        }
+
+        // try to resolve JavaScript error code
+        oxErrorCode = SCRIPT_ERROR_CODES[errType];
+        if (oxErrorCode) {
+            // throw non-fatal error if it's a "verify" module or method 
+            if (oxErrorCode === ERROR_CODES.ASSERT && 
+				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
+                return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
+            }
+            return new OxError(oxErrorCode, err.message || null, null, true, errType);
         }
         
-        console.log('Error details:');
-        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
-        console.log(util.inspect(err));
-
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
+        const errMessage = err.message ? `${errType}: ${err.message}` : `${errType}`;
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err));
     },
     getSeleniumInitError: function(err) {
         if (err.message) {
@@ -170,7 +178,7 @@ module.exports = {
             return new OxError(ERROR_CODES.SELENIUM_CONNECTION_ERROR, err.message);
         }
 
-        console.log('Error details:');
+        console.log('=== Error Details ===');
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
         console.log(util.inspect(err));
 
@@ -196,7 +204,7 @@ module.exports = {
             return new OxError(ERROR_CODES.APPIUM_CONNECTION_ERROR, err.message);
         }
 
-        console.log('Error details:');
+        console.log('=== Error Details ===');
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
         console.log(util.inspect(err));
 
