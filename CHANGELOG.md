@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.50.2 (2019-10-16)
+
+#### :tada: New Feature
+* Add support for setting HTTP headers in `http` module commands.
+
 ## v0.50.1 (2019-10-08)
 
 #### :beetle: Bug Fix
