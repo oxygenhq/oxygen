@@ -87,6 +87,7 @@
     "postpublish": "node tools/unix2dos lib/cli.js",
     "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
-    "dev1": "cross-env NODE_ENV=development BABEL_DISABLE_CACHE=1 node --trace-warnings -r babel-register --presets @babel/env ./lib/cli.1.js"
+    "dev": "DEBUG=false babel-node --presets @babel/preset-env ./lib/cli.1.js",
+    "debug": "DEBUG=false babel-node --inspect-brk --presets @babel/preset-env ./lib/cli.1.js"
   }
 }
