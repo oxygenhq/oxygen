@@ -421,6 +421,9 @@ module.exports = function (options, context, rs, logger) {
 
     helpers.matchPattern = utils.matchPattern;
     helpers.getElement = utils.getElement;
+    helpers.getElements = utils.getElements;
+    helpers.getChildElement = utils.getChildElement;
+    helpers.getChildElements = utils.getChildElements;
     helpers.setTimeoutImplicit = utils.setTimeoutImplicit;
     helpers.restoreTimeoutImplicit = utils.restoreTimeoutImplicit;
     helpers.assertArgument = utils.assertArgument;
