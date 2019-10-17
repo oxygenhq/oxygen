@@ -169,12 +169,12 @@ module.exports = function (options, context, rs, logger) {
     };
 
     /**
-     * @function getCaps
+     * @function getCapabilities
      * @summary Returns currently defined device capabilities.
      * @return {Object} capabilities - Current capabilities object.
      * @for android, ios, hybrid, web
      */
-    module.getCaps = function() {
+    module.getCapabilities = function() {
         return _this.caps || ctx.caps;
     };
 
