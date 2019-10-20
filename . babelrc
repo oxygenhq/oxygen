@@ -8,6 +8,12 @@
     }],
     "@babel/env"
   ],
+  "env": {
+    "debug": {
+      "sourceMaps": "inline",
+      "retainLines": true
+    }
+  }
   "plugins": [
     "@babel/plugin-transform-modules-commonjs"
   ]

@@ -6,7 +6,7 @@
   "bin": {
     "oxygen": "./lib/cli.js"
   },
-  "preferGlobal": "true",
+  "preferGlobal": true,
   "repository": {
     "type": "git",
     "url": "git://github.com/oxygenhq/oxygen.git"
@@ -87,7 +87,7 @@
     "postpublish": "node tools/unix2dos lib/cli.js",
     "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
-    "dev": "cross-env DEBUG=false babel-node --presets @babel/preset-env ./lib/cli.1.js",
-    "debug": "cross-env DEBUG=false babel-node --inspect-brk --presets @babel/preset-env ./lib/cli.1.js"
+    "dev": "cross-env DEBUG=true babel-node --presets @babel/preset-env ./lib/cli.js",
+    "debug": "cross-env DEBUG=true babel-node --debug=5858 --presets @babel/preset-env ./lib/cli.js"
   }
 }

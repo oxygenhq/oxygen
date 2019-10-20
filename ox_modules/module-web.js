@@ -391,13 +391,14 @@ module.exports = function (options, context, rs, logger) {
      * @function dispose
      * @summary Ends the current session.
      */
-    module.dispose = function() {
+    module.dispose = async function() {
         if (_this.driver && isInitialized) {
             try {
-                _this.driver.deleteSession();
+                await _this.driver.deleteSession();
             } catch (e) {
                 logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
+            _this.driver = null;
             isInitialized = false;
         }
     };

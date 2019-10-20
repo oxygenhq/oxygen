@@ -13,7 +13,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import FileReporterBase from '../reporter-file-base';
+import FileReporterBase from '../lib/reporter/FileReporterBase';
 
 export default class JSONReporter extends FileReporterBase {
     constructor(options) {
@@ -24,7 +24,7 @@ export default class JSONReporter extends FileReporterBase {
         const resultFilePath = this.createFolderStructureAndFilePath('.json');
         const resultFolderPath = path.dirname(resultFilePath);
 
-        this.replaceScreenshotsWithFiles(resultFolderPath);
+        this.replaceScreenshotsWithFiles(results, resultFolderPath);
         fs.writeFileSync(resultFilePath, JSON.stringify(results, null, 4));
 
         return resultFilePath;

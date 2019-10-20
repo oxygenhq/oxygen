@@ -1,4 +1,8 @@
 [{
+	"header": "Suite Name",
+	"value": "${suite.name}"
+},
+{
 	"header": "Suite Iteration",
 	"value": "${suite.iteration}"
 },
@@ -7,12 +11,12 @@
 	"value": "${suite.status}"
 },
 {
-	"header": "Case Iteration",
-	"value": "${case.iteration}"
-},
-{
 	"header": "Case Name",
 	"value": "${case.name}"
+},
+{
+	"header": "Case Iteration",
+	"value": "${case.iteration}"
 },
 {
 	"header": "Case Status",
@@ -31,8 +35,8 @@
 	"value": "${failure.message}"
 },
 {
-	"header": "Failure Line",
-	"value": "${failure.line}"
+	"header": "Failure Location",
+	"value": "${failure.location}"
 },
 {
 	"header": "",

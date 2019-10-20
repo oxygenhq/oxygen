@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -13,9 +13,8 @@
 import path from 'path';
 import _ from 'lodash';
 import xlsx from 'xlsx';
-import util from 'util';
 
-import FileReporterBase from '../reporter-file-base';
+import FileReporterBase from '../lib/reporter/FileReporterBase';
 
 const DEFAULT_TEMPLATE_PATH = './excel/template.json';
 const DEFAULT_SHEET_NAME = 'Sheet1';
@@ -32,15 +31,11 @@ export default class ExcelReporter extends FileReporterBase {
         var resultFolderPath = path.dirname(resultFilePath);
         var rows = [];
 
-        this.replaceScreenshotsWithFiles(resultFolderPath);
-        // the 'results' object can contain a single test suite result or an array of multiple parallel test results
-        if (results instanceof Array) {
-            // go through multiple results
-            _.each(this.results, function(resultSet) {
-                generateRowsForSingleResult(resultSet, rows);
-            });
-        } else {
-            generateRowsForSingleResult(results, rows);
+        this.replaceScreenshotsWithFiles(results, resultFolderPath);
+        for (let result of results) {
+            for (let suiteResult of result.suites) {
+                generateRowsForSuite(suiteResult, rows);
+            }
         }
         // generate workbook based on either user-defined or default template
         var templatePath = this.options.template || DEFAULT_TEMPLATE_PATH;
@@ -52,24 +47,20 @@ export default class ExcelReporter extends FileReporterBase {
     }
 }
 
-function generateRowsForSingleResult(result, rows) {
-    _.each(result.iterations, function(outerIt) {
-        _.each(outerIt.testcases, function(testcase) {
-            _.each(testcase.iterations, function(innerIt) {
-                var lastFailedStep = null;
-                _.each(innerIt.steps, function(step) {
-                    if (step._status === 'failed') {
-                        lastFailedStep = step;
-                    }
-                    else {
-                        lastFailedStep = null;
-                    }
-                });
-                // convert each iteration to a row in Excel file
-                rows.push(addValues(outerIt, testcase, innerIt, lastFailedStep));
-            });
-        });
-    });
+function generateRowsForSuite(suiteResult, rows) {
+    for (let caseResult of suiteResult.cases) {
+        let lastFailedStep = null;
+        for (let step of caseResult.steps) {
+            if (step.status === 'failed') {
+                lastFailedStep = step;
+            }
+            else {
+                lastFailedStep = null;
+            }
+        }
+        // convert each iteration to a row in Excel file
+        rows.push(addValues(suiteResult, caseResult, lastFailedStep));
+    }
 }
 
 function generateWorksheetFromTemplate(templatePath, rows, options) {
@@ -188,38 +179,39 @@ function substractParameter(valueDef, data) {
     return valueDef;
 }
 
-function addValues(outerIt, testcase, innerIt, lastFailedStep) {
+function addValues(suiteResult, caseResult, lastFailedStep) {
     var values = {};
-    values['suite.iteration'] = outerIt._iterationNum;
-    values['suite.status'] = outerIt._status;
-    values['case.iteration'] = innerIt._iterationNum;
-    values['case.name'] = testcase._name;
-    values['case.status'] = innerIt._status;
+    values['suite.name'] = suiteResult.name;
+    values['suite.iteration'] = suiteResult.iterationNum;
+    values['suite.status'] = suiteResult.status;
+    values['case.name'] = caseResult.name;
+    values['case.iteration'] = caseResult.iterationNum;    
+    values['case.status'] = caseResult.status;
 
     if (lastFailedStep) {
-        values['failure.step'] = lastFailedStep._name;
+        values['failure.step'] = lastFailedStep.name;
         if (lastFailedStep._screenshotFile) {
-            values['failure.screenshot'] = lastFailedStep._screenshotFile;
+            values['failure.screenshot'] = lastFailedStep.screenshotFile;
         }
         if (lastFailedStep.failure) {
-            values['failure.message'] = lastFailedStep.failure._message;
-            values['failure.type'] = lastFailedStep.failure._type;
-            if (lastFailedStep.failure._line) {
-                values['failure.line'] = lastFailedStep.failure._line;
+            values['failure.message'] = lastFailedStep.failure.message;
+            values['failure.type'] = lastFailedStep.failure.type;
+            if (lastFailedStep.failure.location) {
+                values['failure.location'] = lastFailedStep.failure.location;
             }
         }
 
     }
     values.param = {};
-    _.each(innerIt.context.params, function(value, key) {
+    _.each(caseResult.context.params, function(value, key) {
         values.param[key] = value;
     });
     values.var = {};
-    _.each(innerIt.context.vars, function(value, key) {
+    _.each(caseResult.context.vars, function(value, key) {
         values.var[key] = value;
     });
     values.cap = {};
-    _.each(innerIt.context.caps, function(value, key) {
+    _.each(caseResult.context.caps, function(value, key) {
         values.cap[key] = value;
     });
 

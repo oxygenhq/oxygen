@@ -13,7 +13,7 @@
 import path from 'path';
 import fs from 'fs';
 import moment from 'moment';
-import FileReporterBase from '../reporter-file-base';
+import FileReporterBase from '../lib/reporter/FileReporterBase';
 
 const htmlStart = fs.readFileSync(path.join(__dirname, 'html', 'index.html'), 'utf8');
 

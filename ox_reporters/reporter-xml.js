@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +14,7 @@ var EasyXml = require('easyxml');
 var path = require('path');
 var fs = require('fs');
 
-var ReporterFileBase = require('../reporter-file-base');
+var ReporterFileBase = require('../lib/reporter-file-base');
 var util = require('util');
 util.inherits(XmlReporter, ReporterFileBase);
 
