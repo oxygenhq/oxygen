@@ -70,7 +70,8 @@ const CHAI_ERROR_CODES = {
 
 // General JavaScript error codes mapping
 const SCRIPT_ERROR_CODES = {
-    TypeError: ERROR_CODES.SCRIPT_ERROR
+    TypeError: ERROR_CODES.SCRIPT_ERROR,
+    SyntaxError: ERROR_CODES.SCRIPT_ERROR,
 };
 
 module.exports = {
