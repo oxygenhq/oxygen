@@ -1,5 +1,17 @@
 # CHANGELOG
 
+
+## v0.51.0 (2019-10-23)
+
+#### :tada: New Feature
+* Add `web.findElement` and `web.findElements`.
+
+#### :boom: Breaking Change
+* `mob.getCaps` renamed to `mob.getCapabilities`.
+
+#### :beetle: Bug Fix
+* Number of issues with `mob.findElement` and `mob.findElements`.
+
 ## v0.50.2 (2019-10-16)
 
 #### :tada: New Feature
