@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -8,45 +8,75 @@
  */
  
 /*
- * Oxygen Error class extension
+ * Oxygen Error class
  */
-var util = require('util');
-util.inherits(OxygenError, Error);
 
-function OxygenError(type, message, data, isFatal, orgErr = null) {
-    this.type = type || this.type || null;
-    // subtype allows to specify more particular error for a general Oxygen error type
-    // for example, specify TypeError as subtype for a general SCRIPT_ERROR Oxygen type
-    this.subtype = typeof orgErr === 'string' && type !== orgErr ? orgErr : null;
-    this.message = message || this.message || null;
-    this.data = data || null;
-    this.screenshot = null;
-    this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
+import StackTrace from 'stack-trace';
+
+const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(module.js', '(internal/module.js'];
+
+export default class OxygenError extends Error {
+    constructor(type, message, data, isFatal, orgErr = null) {
+        super(message || null);
+        this.type = type || this.type || null;
+        // subtype allows to specify more particular error for a general Oxygen error type
+        // for example, specify TypeError as subtype for a general SCRIPT_ERROR Oxygen type
+        this.subtype = typeof orgErr === 'string' && type !== orgErr ? orgErr : null;
+        this.message = message || this.message || null;
+        this.orgError = orgErr;
+        this.data = data || null;
+        this.screenshot = null;
+        this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
+        if (this.orgError && this.orgError.stack) {
+            this.stack = orgError.stack;
+        }
+
+        // don't generate stacktrace if OxygenError is used indirectly through inheritance
+        if (type || message) {
+            this.captureStackTrace();
+            this.filterStackTrace();
+            this.generateLocation();
+        }
+    }
     
-    var self = this;
-    this.captureStackTrace = function() {
-        if (orgErr && orgErr.stack) {
-            self.stack = orgErr.stack;
+    filterStackTrace() {
+        if (!this.stack) {
+            this.captureStackTrace();
+        }
+        this.stack = this.stack.split('\n').filter(this._stackTraceFilterFn).join('\n');
+    }
+
+    _stackTraceFilterFn(value) {
+        return !STACKTRACE_FILTERS.some(filter => value.includes(filter))
+    }
+
+    generateLocation() {
+        const stackTrace = StackTrace.parse(this) || [];
+        if (stackTrace.length > 0) {
+            const call = stackTrace[0];
+            this.location = `${call.getFileName()}:${call.getLineNumber()}:${call.getColumnNumber()}`;
         }
         else {
+            this.location = null;
+        }
+    }
+
+    captureStackTrace() {
+        if (this.stack) {
+            return;
+        }        
+        else {
             try {
-                var orig = Error.prepareStackTrace;
-                Error.prepareStackTrace = function (_, stack) { return stack; };
+                //var orig = Error.prepareStackTrace;
+                //Error.prepareStackTrace = function (_, stack) { return stack; };
                 var err = new Error();
                 Error.captureStackTrace(err, OxygenError);
-                self.stack = err.stack;
-                Error.prepareStackTrace = orig;
+                this.stack = err.stack;
+                //Error.prepareStackTrace = orig;
             }
             catch (e) {
                 console.error(e.message)
             }
         }        
-    };
-    
-    // don't generate stacktrace if OxygenError is used indirectly through inheritance
-    if (type || message) {
-        this.captureStackTrace();
-    }
+    }      
 }
-
-module.exports = OxygenError;

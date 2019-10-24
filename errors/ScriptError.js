@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -10,44 +10,19 @@
 /*
  * Used to denote JavaScript level errors in user's script: TypeError, SyntaxError, etc.
  */ 
-var OxygenError = require('./OxygenError');
-var util = require('util');
-util.inherits(ScriptError, OxygenError);
-var errHelper = require('../errors/helper');
+import OxygenError from './OxygenError';
 
-function ScriptError(err) {
-    ScriptError.super_.call(this);
-    this.stacktrace = err.stack;
-    this.type = 'SCRIPT_ERROR';
-    this.subtype = err.type
-    this.message = err.message;
-    this.location = getErrorLocation(err.stack)
-}
-
-function getErrorLocation(stack) {
-    if (!stack) {
-        return null
-    }
-    if (typeof stack === 'string') {
-        return extractLocationFromStringStack(stack)
-    }
-    else {
-        const call = stack[0]
-        if (call) {
-            return `${call.getFileName()}${call.getLineNumber()}`
-        }
+export default class ScriptError extends OxygenError {
+    constructor(err) {
+        super();
+        if (!err) {
+            throw new Error('"err" argument cannot be null');
+        }        
+        this.type = 'SCRIPT_ERROR';
+        this.stack = err.stack;
+        this.subtype = err.type
+        this.message = err.message;
+        this.filterStackTrace();
+        this.generateLocation();
     }
 }
-
-function extractLocationFromStringStack(stack) {
-    if (typeof stack !== 'string') {
-        return null
-    }
-    const calls = stack.split('\n')
-    if (calls.length < 2) {
-        return null
-    }
-    return calls[1].substring(calls[1].indexOf('(') + 1, calls[1].indexOf(')'))
-}
-
-module.exports = ScriptError;

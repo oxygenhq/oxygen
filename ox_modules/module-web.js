@@ -55,7 +55,7 @@ module.exports = function (options, context, rs, logger) {
     var _this = module._this = this;
 
     // properties exposed to external commands
-    this.OxError = require('../errors/OxygenError');
+    this.OxError = require('../errors/OxygenError').default;
     this.errHelper = require('../errors/helper');
     this.driver = null;
     this.helpers = {};

@@ -26,7 +26,7 @@ export default class HtmlReporter extends FileReporterBase {
         const resultFilePath = this.createFolderStructureAndFilePath('.xml');
         const resultFolderPath = path.dirname(resultFilePath);
     
-        this.replaceScreenshotsWithFiles(resultFolderPath);
+        this.replaceScreenshotsWithFiles(results, resultFolderPath);
     
         var close = `
             </div>

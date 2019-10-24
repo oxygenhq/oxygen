@@ -11,8 +11,8 @@
  * Helper module for handling and converting various error types
  */
  
-const OxError = require('../errors/OxygenError');
-const OxScriptError = require('../errors/ScriptError');
+const OxError = require('../errors/OxygenError').default;
+const OxScriptError = require('../errors/ScriptError').default;
 const Failure = require('../model/failure');
 const util = require('util');
 const stackTrace = require('stack-trace');
@@ -86,31 +86,8 @@ module.exports = {
             type: err.type,
             message: err.message,
             data: err.data,
-            location: this.getFailureLocation(err)
+            location: err.location
         }
-    },
-    getFailureLocation(err) {
-        if (err.location) {
-            return err.location;
-        }
-        else if (!err.stack) {
-            return null;
-        }
-        let stack = err.stack;
-        // check if err.stack is a string or an object
-        if (typeof stack === 'string') {
-            // convert string-based stack to CallSite object array
-            stack = stackTrace.parse(err);
-        }
-        if (stack && stack.length && stack.length > 0) {
-            for (let call of stack) {
-                if (call.getFileName().indexOf('oxygen-node/errors/helper.js') > 0) {
-                    continue;
-                }
-                return `${call.getFileName()}:${call.getLineNumber()}:${call.getColumnNumber()}`;
-            }
-        }
-        return null;
     },
     getOxygenError: function(err, module, cmd, args) {
         // return the error as is if it has been already processed

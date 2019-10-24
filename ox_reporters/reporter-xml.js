@@ -23,7 +23,7 @@ function XmlReporter(results, options) {
     XmlReporter.super_.call(this, results, options);
 }
 
-XmlReporter.prototype.generate = function() {
+XmlReporter.prototype.generate = function(results) {
     var resultFilePath = this.createFolderStructureAndFilePath('.xml');
     var resultFolderPath = path.dirname(resultFilePath);
 
@@ -37,7 +37,7 @@ XmlReporter.prototype.generate = function() {
         filterNulls: true
     });
 
-    this.replaceScreenshotsWithFiles(resultFolderPath);
+    this.replaceScreenshotsWithFiles(results, resultFolderPath);
     // serialize test results to XML and save to file
     var xml = serializer.render(this.results);
     fs.writeFileSync(resultFilePath, xml);

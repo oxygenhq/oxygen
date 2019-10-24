@@ -23,12 +23,12 @@ function PdfReporter(results, options) {
     PdfReporter.super_.call(this, results, options);
 }
 
-PdfReporter.prototype.generate = function() {
+PdfReporter.prototype.generate = function(results) {
     var resultFilePath = this.createFolderStructureAndFilePath('.xml');
     var resultFolderPath = path.dirname(resultFilePath);
-    this.replaceScreenshotsWithFiles(resultFolderPath);
+    this.replaceScreenshotsWithFiles(results, resultFolderPath);
     
-    var reporter = new HtmlReporter(this.results, this.options);
+    var reporter = new HtmlReporter(results, this.options);
     var htmlPath = reporter.generate();
 
     return convertToPdf(htmlPath);
