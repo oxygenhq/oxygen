@@ -69,6 +69,7 @@ module.exports = function (options, context, rs, logger) {
     var opts = options;                         // startup options
     var isInitialized = false;
     var transactions = {};                      // transaction->har dictionary
+    var lastNavigationStartTime = null;
 
     const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
     const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
@@ -177,8 +178,10 @@ module.exports = function (options, context, rs, logger) {
      */
     module._getStats = function (commandName) {
         if (opts.fetchStats && isInitialized && module._isAction(commandName)) {
+            var navigationStart;
             var domContentLoaded = 0;
             var load = 0;
+            var samePage = false;
 
             // TODO: handle following situation:
             // if navigateStart equals to the one we got from previous attempt (we need to save it)
@@ -192,8 +195,8 @@ module.exports = function (options, context, rs, logger) {
                             domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
                             loadEventStart: window.performance.timing.loadEventStart
                         };});
-
-                    var navigationStart = timings.navigationStart;
+                    samePage = lastNavigationStartTime && lastNavigationStartTime == timings.navigationStart;
+                    navigationStart = lastNavigationStartTime = timings.navigationStart;
                     var domContentLoadedEventStart = timings.domContentLoadedEventStart;
                     var loadEventStart = timings.loadEventStart;
 
@@ -206,7 +209,10 @@ module.exports = function (options, context, rs, logger) {
             } catch (e) {
                 // couldn't get timings.
             }
-
+            lastNavigationStartTime = navigationStart;
+            if (samePage) {
+                return {};
+            }
             return { DomContentLoadedEvent: domContentLoaded, LoadEvent: load };
         }
 
