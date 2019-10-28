@@ -312,7 +312,8 @@ module.exports = function (options, context, rs, logger) {
             port: port,
             path: path,
             capabilities: _this.caps,
-            logLevel: 'error'
+            //logLevel: 'error',
+            runner: 'repl'
         };
 
         var initError = null;
