@@ -16,12 +16,12 @@
  *                                  array of strings for sending raw key codes.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.sendKeys("Hello World");
- * web.sendKeys(["Backspace", "Backspace", "Enter"]); // send two Backspace key codes and Enter.
+ * mob.init();//Opens browser session.
+ * mob.open("www.yourwebsite.com");// Opens a website.
+ * mob.sendKeys("Hello World");
+ * mob.sendKeys(["Backspace", "Backspace", "Enter"]); // send two Backspace key codes and Enter.
  * // Unicode representation can be used directly as well:
- * web.sendKeys("Hello World\uE003\uE003\uE007");
+ * mob.sendKeys("Hello World\uE003\uE003\uE007");
 */
 module.exports = function(value) {
     this.helpers.assertArgument(value);
