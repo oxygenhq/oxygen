@@ -130,6 +130,10 @@
       tr {
       page-break-inside: avoid;
       }
+      th.device-browser,
+      td.device-browser {
+        width: 200px;
+      }
     </style>
     <script type="text/javascript">
       /*! jQuery v3.2.0 -ajax,-ajax/jsonp,-ajax/load,-ajax/parseXML,-ajax/script,-ajax/var/location,-ajax/var/nonce,-ajax/var/rquery,-ajax/xhr,-manipulation/_evalUrl,-event/ajax,-effects,-effects/Tween,-effects/animatedSelector | (c) JS Foundation and other contributors | jquery.org/license */
@@ -151,3 +155,9 @@
   </head>
   <body>
     <div class="container" role="main">
+        <%- include('summary', {summary: summary}); %>
+        <%- include('tests-devices-browsers', {results: results}); %>
+        <%- include('tests-details', {results: results}); %>
+    </div>
+  </body>
+  </html>

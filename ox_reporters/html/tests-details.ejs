@@ -1,0 +1,74 @@
+<%
+    const PASSED_LABEL = `<span class="label label-success label-sm">PASSED</span>`;
+    const FAILED_LABEL = `<span class="label label-danger label-sm">FAILED</span>`;
+%>
+<div class="row">
+    <div class="col-md-12 summary">
+        <h1 class="page-header">Detailed Results</h1>
+        <% results.forEach(function(result, resultIndex) { %>
+            <% result.suites.forEach(function(suiteResult, suiteIndex) { %>
+                <h2><%= suiteResult.name %></h2>
+                <% suiteResult.cases.forEach(function(caseResult, caseIndex) { %>
+                <div class="panel-group" id="accordion-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>">
+                    <div class="panel panel-default iteration">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">
+                            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>">
+                                <%= caseResult.name %> (Iteration #<%= caseResult.iterationNum %>)</a>
+                                <%- caseResult.status === 'passed' ? PASSED_LABEL : FAILED_LABEL %>             
+                            </h3>
+                        </div>
+                        <div id="collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>" class="panel-collapse collapse in">
+                            <div class="panel-body">    
+                                <% if (caseResult.failure) { %>
+                                <pre style="background-color: #fcacac"><b><%= caseResult.failure.type %></b><br><%= caseResult.failure.message %></pre>
+                                <% } %>
+                                <h4>Steps</h4>
+                                <table class="table table-bordered" style="width: 100%; table-layout: fixed;">
+                                    <thead>
+                                        <tr>
+                                            <th style="width: 3%;">#</th>
+                                            <th style="width: 55%;">Step</th>
+                                            <th style="width: 10%;">Duration</th>
+                                            <th style="width: 10%;">Status</th>
+                                            <th>Details</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>			
+                                        <% if (caseResult.steps.length == 0) { %>
+                                            <tr>
+                                                <td colspan="5">- No steps defined -</td>
+                                            </tr>
+                                        <% } %>
+                                        <% caseResult.steps.forEach(function(stepResult, index) { %>
+                                            <%
+                                                const duration = (stepResult.duration / 100).toFixed(1);
+                                            %>
+                                            <tr>
+                                                <td><%= index + 1 %></td>
+                                                <td><%= stepResult.name %></td>
+                                                <td><%= duration %> sec</td>
+                                                <td>
+                                                    <%- stepResult.status === 'passed' ? PASSED_LABEL : FAILED_LABEL %>
+                                                </td>
+                                                <td>
+                                                    <% if (stepResult.failure) { %>
+                                                        <%= stepResult.failure.type %>
+                                                    <% } %>
+                                                    <% if (stepResult.screenshotFile) { %>
+                                                        <a href="<%= stepResult.screenshotFile %>">Screenshot</a>
+                                                    <% } %>
+                                                </td>
+                                            </tr>
+                                        <% }); %>
+                                    </tbody>
+                                </table>                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <% }); %>
+            <% }); %>
+        <% }); %>
+    </div>
+</div>

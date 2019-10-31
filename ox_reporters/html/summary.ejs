@@ -1,0 +1,78 @@
+<div class="row">
+    <div class="col-md-12 summary">
+        <h1 class="page-header">Tests Summary</h1>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Status</span>
+            <div class="value">
+                <%= summary.status.toUpperCase() %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Start Date</span>
+            <div class="value"><%= summary.startDate %></div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Start / End Time</span>
+            <div class="value">
+                <%= summary.startTime %>
+                -
+                <%= summary.endTime %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Total Duration</span>
+            <div class="value">
+                <%= summary.duration %> sec
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Total Tests</span>
+            <div class="value">
+                <%= summary.totalCases %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Passed Tests</span>
+            <div class="value passed">
+                <%= summary.passedCases %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Failed Tests</span>
+            <div class="value failed">
+                <%= summary.failedCases %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Skipped Tests</span>
+            <div class="value warning">
+                <%= summary.skippedCases %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Total Steps</span>
+            <div class="value">
+                <%= summary.totalSteps %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Passed Steps</span>
+            <div class="value passed">
+                <%= summary.passedSteps %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Failed Steps</span>
+            <div class="value failed">
+                <%= summary.failedSteps %>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-3 col-xs-6 counter">
+            <span>Skipped Steps</span>
+            <div class="value warning">
+                <%= summary.skippedSteps %>
+            </div>
+        </div>
+    </div>
+</div>
+        

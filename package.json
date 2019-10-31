@@ -51,6 +51,7 @@
     "cucumber": "^5.1.0",
     "deasync": "0.1.15",
     "easyxml": "2.0.1",
+    "ejs": "^2.7.1",
     "fibers": "4.0.1",
     "glob": "^7.1.4",
     "glob-to-regexp": "0.4.1",

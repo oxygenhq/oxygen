@@ -1,0 +1,56 @@
+<div class="row">
+    <div class="col-md-12 summary">
+        <h1 class="page-header">Tests / Devices / Browsers</h1>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Test Name</th>
+                    <th class="device-browser">Device / Browser</th>
+                    <th>Platform</th>
+                    <th>Pass/Failed Cases</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+            <% results.forEach(function(result){ %>
+                <% 
+                    let browserName = result.capabilities && result.capabilities.browserName ? result.capabilities.browserName : null; 
+                    if (browserName && browserName.length > 0) {
+                        browserName = browserName.charAt(0).toUpperCase() + browserName.slice(1); 
+                    }
+                    let deviceName = result.capabilities && result.capabilities.deviceName ? result.capabilities.deviceName : null; 
+                    if (deviceName && deviceName.length > 0) {
+                        deviceName = deviceName.charAt(0).toUpperCase() + deviceName.slice(1); 
+                    }
+                    let deviceBrowserName = (deviceName ? `${deviceName} / ` : '') + (browserName ? browserName : ''); 
+                    let platformName = result.capabilities && result.capabilities.platformName ? result.capabilities.platformName : '';
+                    result.suites.forEach(function(suiteResult){ 
+                        const passedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'passed' ? 1:0), 0);
+                        const failedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'failed' ? 1:0), 0);
+                        const totalCases = suiteResult.cases.length;
+                        const passedCasesRatio = ((passedCases / totalCases) * 100).toFixed(0) + '%';
+                        const failedCasesRatio = ((failedCases / totalCases) * 100).toFixed(0) + '%';
+                %>                    
+                <tr>
+                    <td><%= suiteResult.name %></td>
+                    <td class="device-browser"><%= deviceBrowserName %></td>
+                    <td><%= platformName %></td>
+                    <td>
+                        
+                        <div class="progress">
+                            <div class="progress-bar progress-bar-success" style="width: <%= passedCasesRatio %>">
+                                <span><%= passedCasesRatio %> (<%= passedCases %>)</span>
+                            </div>
+                            <div class="progress-bar progress-bar-danger" style="width: <%= failedCasesRatio %>">
+                                <span><%= failedCasesRatio %> (<%= failedCases %>)</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td><%= suiteResult.status.toUpperCase() %></td>
+                </tr>
+                <% }); %>
+            <% }); %>
+            </tbody>
+        </table>
+    </div>
+</div>
