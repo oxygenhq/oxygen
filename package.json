@@ -4,7 +4,7 @@
   "description": "Automation framework for Web & Mobile applications",
   "main": "./lib/oxygen.js",
   "bin": {
-    "oxygen": "./lib/cli.js"
+    "oxygen": "./build/lib/cli.js"
   },
   "preferGlobal": true,
   "repository": {
@@ -31,19 +31,25 @@
   "devDependencies": {
     "@babel/core": "7.5.5",
     "@babel/node": "7.5.5",
+    "@babel/plugin-proposal-class-properties": "^7.5.5",
+    "@babel/plugin-proposal-export-default-from": "^7.5.2",
+    "@babel/plugin-proposal-function-bind": "^7.2.0",
+    "@babel/plugin-proposal-optional-catch-binding": "^7.2.0",
     "@babel/plugin-transform-modules-commonjs": "7.5.0",
     "@babel/preset-env": "7.5.5",
     "@babel/register": "7.5.5",
+    "babel-plugin-source-map-support": "^2.1.1",
+    "source-map-support": "^0.5.16",
     "cross-env": "6.0.3",
     "doctrine": "3.0.0",
-    "eslint": "6.5.1"
+    "eslint": "6.5.1",
+    "npm-run-all": "^4.1.5"
   },
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.7.2",
     "@babel/cli": "7.2.3",
-    "@babel/plugin-proposal-export-default-from": "7.5.2",
     "@wdio/sync": "5.15.1",
-    "async": "2.6.3",
+    "async": "^3.1.0",
     "chai": "^4.2.0",
     "chrome-har": "0.11.2",
     "config": "3.2.2",
@@ -79,11 +85,18 @@
     "odbc": "1.4.6"
   },
   "scripts": {
+    "build": "run-s clean compile",
+    "clean": "rimraf ./build",
+    "compile": "babel src/ -d build/ --config-file ./babel.config.js",
+    "test": "run-s test:*",
+    "test:eslint": "eslint src test",
+    "test:unit": "jest",
     "prepublishOnly": "npm run eslint && node tools/dos2unix lib/cli.js",
-    "postpublish": "node tools/unix2dos lib/cli.js",
-    "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
+    "postpublish": "node tools/unix2dos src/lib/cli.js",
+    "eslint": "eslint \"Gruntfile.js\" \"src/lib/**/*.js\" \"src/errors/**/*.js\" \"src/model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
-    "dev": "cross-env DEBUG=true babel-node --presets @babel/preset-env ./lib/cli.js",
+    "prod": "node ./build/lib/cli.js",
+    "dev": "cross-env DEBUG=true babel-node --config-file ./babel.config.js ./src/lib/cli.js",
     "debug": "cross-env DEBUG=true babel-node --debug=5858 --presets @babel/preset-env ./lib/cli.js"
   }
 }

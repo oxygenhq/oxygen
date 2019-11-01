@@ -13,7 +13,7 @@
 
 import StackTrace from 'stack-trace';
 
-const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(module.js', '(internal/module.js'];
+const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(module.js', '(internal/module.js', 'at <anonymous>'];
 
 export default class OxygenError extends Error {
     constructor(type, message, data, isFatal, orgErr = null) {
@@ -23,12 +23,11 @@ export default class OxygenError extends Error {
         // for example, specify TypeError as subtype for a general SCRIPT_ERROR Oxygen type
         this.subtype = typeof orgErr === 'string' && type !== orgErr ? orgErr : null;
         this.message = message || this.message || null;
-        this.orgError = orgErr;
         this.data = data || null;
         this.screenshot = null;
         this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;
-        if (this.orgError && this.orgError.stack) {
-            this.stack = orgError.stack;
+        if (orgErr && orgErr.stack) {
+            this.stack = orgErr.stack;
         }
 
         // don't generate stacktrace if OxygenError is used indirectly through inheritance

@@ -1,9 +1,9 @@
-import TestSuiteResult from '../../../model/suite-result'
-import TestCaseResult from '../../../model/case-result'
-import TestStepResult from '../../../model/step-result'
-import Status from '../../../model/status'
-import oxutil from '../../util'
-import errorHelper from '../../../errors/helper'
+import TestSuiteResult from '../../model/suite-result'
+import TestCaseResult from '../../model/case-result'
+import TestStepResult from '../../model/step-result'
+import Status from '../../model/status'
+import oxutil from '../../lib/util'
+import errorHelper from '../../errors/helper'
 
 export default class CucumberReporter {
     constructor(runnerId, cucumberEventListener, oxygenEventListener, mainReporter, options) {

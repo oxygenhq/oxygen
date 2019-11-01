@@ -10,17 +10,17 @@
 /*
  * Report aggregator
  */
-import TestResult from '../../model/test-result';
-import oxutil from '../util';
-import logger from '../logger';
+import TestResult from '../model/test-result';
+import oxutil from '../lib/util';
+import logger from '../lib/logger';
 
 // import all built-in reporters
-import JsonReporter from '../../ox_reporters/reporter-json';
-import JUnitReporter from '../../ox_reporters/reporter-junit';
-import HtmlReporter from '../../ox_reporters/reporter-html';
-import ExcelReporter from '../../ox_reporters/reporter-excel';
-import errorHelper from '../../errors/helper';
-import Status from '../../model/status';
+import JsonReporter from '../ox_reporters/reporter-json';
+import JUnitReporter from '../ox_reporters/reporter-junit';
+import HtmlReporter from '../ox_reporters/reporter-html';
+import ExcelReporter from '../ox_reporters/reporter-excel';
+import errorHelper from '../errors/helper';
+import Status from '../model/status';
 
 const Reporters = {
     json: JsonReporter,
@@ -101,18 +101,16 @@ export default class ReportAggregator {
     }
 
     onSuiteStart(rid, suiteId, suite) {
-        //console.log('onSuiteStart', suite)
         console.log(`Suite "${suite.name}" has started...`);
     }
 
     onSuiteEnd(rid, suiteId, suiteResult) {
-        //console.log('onSuiteEnd', JSON.stringify(suiteResult, null, 4))
         const testResult = this.results.find(x => x.rid === rid)
         if (!testResult) {
             return;
         }
         testResult.suites.push(suiteResult);
-        console.log(`Suite "${suite.name}" has ended with status: ${suiteResult.status}.`);
+        console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
     }
 
     onCaseStart(rid, suiteId, caseId, caseDef) {
@@ -120,7 +118,7 @@ export default class ReportAggregator {
     }
 
     onCaseEnd(rid, suiteId, caseId, caseResult) {
-        console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status}.`);
+        console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
     }
 
     onStepStart(rid, suiteId, caseId, step) {

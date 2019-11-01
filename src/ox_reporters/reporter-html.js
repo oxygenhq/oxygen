@@ -14,7 +14,7 @@ const ejs = require('ejs');
 import path from 'path';
 import fs from 'fs';
 import moment from 'moment';
-import FileReporterBase from '../lib/reporter/FileReporterBase';
+import FileReporterBase from '../reporter/FileReporterBase';
 
 export default class HtmlReporter extends FileReporterBase {
     constructor(options) {
@@ -36,6 +36,7 @@ export default class HtmlReporter extends FileReporterBase {
             }
             fs.writeFileSync(resultFilePath, html);
         });
+        return resultFilePath;
     }
 }
 

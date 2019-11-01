@@ -13,7 +13,7 @@
 import builder from 'junit-report-builder';
 import path from 'path';
 
-import FileReporterBase from '../lib/reporter/FileReporterBase';
+import FileReporterBase from '../reporter/FileReporterBase';
 
 export default class JUnitXmlReporter extends FileReporterBase {
     constructor(options) {

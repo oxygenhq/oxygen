@@ -15,24 +15,12 @@ import { isFunctionAsync } from '@wdio/utils';
 import { hasWdioSyncSupport, runFnInFiberContext } from '@wdio/config';
 
 
-import StepResult from '../../model/step-result';
+import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
-import oxutil from '../util';
-import OxError from '../../errors/OxygenError';
-import errorHelper from '../../errors/helper';
-import STATUS from '../../model/status.js';
-
-require('@babel/register')({
-    // Find babel.config.js up the folder structure.
-    //rootMode: 'upward',
-  
-    // Since babel ignores all files outside the cwd, it does not compile sibling packages
-    // So rewrite the ignore list to only include node_modules
-    ignore: [__dirname + '/../../node_modules'],
-    //presets: [['@babel/preset-env', {targets: {node: 'current'}, useBuiltIns: 'entry'}]],
-    presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
-    plugins: ["@babel/plugin-transform-modules-commonjs"]
-  });
+import oxutil from '../lib/util';
+import OxError from '../errors/OxygenError';
+import errorHelper from '../errors/helper';
+import STATUS from '../model/status.js';
 
 /*global __stack*/
 Object.defineProperty(global, '__stack', {
@@ -130,8 +118,7 @@ export default class Oxygen extends OxygenEvents {
         this.services = {};
         this.capabilities = null;
         this.opts = null;
-        this.oxBaseDir = path.join(__dirname, `${path.sep}..${path.sep}..${path.sep}`);
-        //const homeDir = path.join(path.dirname(require.main.filename), '../../../');
+        this.oxBaseDir = path.join(__dirname, `../`);
     }
 
     async init(options, caps, ctx = {}, results = {}) {

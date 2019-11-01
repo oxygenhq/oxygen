@@ -8,25 +8,23 @@
  */
 
 import _ from 'lodash';
-import Runners from './runners';
-var defer = require('when').defer;
-var async = require('async');
+import Runners from '../runners';
+import { defer } from 'when';
+import queue from 'async/queue';
 
 export default class Launcher { 
     constructor(config, reporter) {
         this._config = config;
         this.reporter = reporter;
-        this._finished = defer();
         this._results = [];
         this._queue = null;
-        this._launchTest = this._launchTest.bind(this);
-        this._endRun = this._endRun.bind(this);
     }
 
-    run(capabilitiesSets) {
-        this._queue = async.queue(this._launchTest, this._config.parallel || 1);
-        this._queue.drain = this._endRun;
-        this._queue.error = this._endRun;
+    async run(capabilitiesSets) {
+        this._queue = queue((task, cb) => this._launchTest(task, cb), this._config.parallel || 1);
+        this._queue.error((err, task) => {
+            console.log('Error in queue:', err);
+        });
 
         // if no capabilities are specified, run single instance with default arguments
         if (!capabilitiesSets) {
@@ -38,8 +36,7 @@ export default class Launcher {
                 _this._queue.push(caps);
             });
         }
-
-        return this._finished.promise;
+        await this._queue.drain();
     }
 
     /*********************************
@@ -56,6 +53,9 @@ export default class Launcher {
     }
 
     async _launchTest(caps, callback) {
+        if (!callback) {
+            return;
+        }
         const runner = this._instantiateRunner(caps);
         if (!runner) {
             const framework = this._config.framework;
@@ -86,18 +86,9 @@ export default class Launcher {
                     errMsg = err.toString();
                 callback(new Error(errMsg));
             }
-            else
+            else {
                 callback(e);    // call back with the original exception
+            }
         }
-    }
-
-    _endRun(fatalError) {
-        if (fatalError) {
-            this._finished.reject(fatalError);
-        }
-        else {
-            this._finished.resolve(this._results);
-        }
-
     }
 }

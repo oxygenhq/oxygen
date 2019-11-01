@@ -12,7 +12,7 @@
  */
 import { Eyes, Target } from '@applitools/eyes-webdriverio';
 
-import OxygenModule from '../lib/core/OxygenModule';
+import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
 
@@ -37,6 +37,9 @@ export default class ApplitoolsModule extends OxygenModule {
      */
     async init(module, apiKey = null) {
         this._eyesConfig = this.options.applitoolsOpts;
+        if (!this.options.applitoolsOpts) {
+            throw new Error('Applitools settings are missing.');
+        }
         this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {})
         this._apiKey = apiKey || this.options.applitoolsKey || this._eyesConfig.key || process.env.APPLITOOLS_KEY || null;        
 

@@ -14,7 +14,7 @@ import path from 'path';
 import _ from 'lodash';
 import xlsx from 'xlsx';
 
-import FileReporterBase from '../lib/reporter/FileReporterBase';
+import FileReporterBase from '../reporter/FileReporterBase';
 
 const DEFAULT_TEMPLATE_PATH = './excel/template.json';
 const DEFAULT_SHEET_NAME = 'Sheet1';

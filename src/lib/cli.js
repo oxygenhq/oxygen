@@ -12,8 +12,7 @@ import path from 'path';
 import fs from 'fs';
 import oxutil from './util';
 import Launcher from './launcher';
-import ReportAggregator from './reporter/ReportAggregator';
-//var Launcher = require('./launcher');
+import ReportAggregator from '../reporter/ReportAggregator';
 
 process.on('SIGINT', handleSigInt);
 

@@ -6,19 +6,6 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
-/*require('@babel/register')({
-    // Find babel.config.js up the folder structure.
-    //rootMode: 'upward',
-  
-    // Since babel ignores all files outside the cwd, it does not compile sibling packages
-    // So rewrite the ignore list to only include node_modules
-    ignore: ['node_modules'],
-    //presets: [['@babel/preset-env', {targets: {node: 'current'}, useBuiltIns: 'entry'}]],
-    presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
-    plugins: ["@babel/plugin-transform-modules-commonjs"]
-  });*/
-
 import path from 'path';
 
 // explicitly set the config dir, otherwise if oxygen is globally installed it will use cwd
@@ -37,17 +24,17 @@ import { EventEmitter } from 'events';
 import _  from 'lodash';
 import { defer } from 'when';
 
-import TestSuiteResult from '../../../model/suite-result';
-import TestCaseResult from '../../../model/case-result';
-import TestResult from '../../../model/test-result';
-import Status from '../../../model/status';
-import oxutil from '../../util';
-import errorHelper from '../../../errors/helper';
+import TestSuiteResult from '../../model/suite-result';
+import TestCaseResult from '../../model/case-result';
+import TestResult from '../../model/test-result';
+import Status from '../../model/status';
+import oxutil from '../../lib/util';
+import errorHelper from '../../errors/helper';
 const FATAL_ERROR_TYPES = [
     errorHelper.errorCode.SCRIPT_ERROR
 ];
 
-import ParameterManager from '../../param-manager.js';
+import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
 
 export default class OxygenRunner extends EventEmitter {
@@ -209,6 +196,9 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _runSuite(suite) {
+        if (!suite) {
+            console.log('suite is null!!!')
+        }
         // ignore suite with missing mandatory properties
         if (!suite.name && !suite.path) {
             return [];
@@ -295,7 +285,6 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.location = caze.path;
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
-            
             caseResult.endTime = oxutil.getTimeStamp();
             caseResult.duration = caseResult.endTime - caseResult.startTime;
             caseResult.context = context;

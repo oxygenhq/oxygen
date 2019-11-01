@@ -11,8 +11,8 @@
  * Helper module for handling and converting various error types
  */
  
-const OxError = require('../errors/OxygenError').default;
-const OxScriptError = require('../errors/ScriptError').default;
+const OxError = require('./OxygenError').default;
+const OxScriptError = require('./ScriptError').default;
 const Failure = require('../model/failure');
 const util = require('util');
 const stackTrace = require('stack-trace');
@@ -72,6 +72,7 @@ const CHAI_ERROR_CODES = {
 const SCRIPT_ERROR_CODES = {
     TypeError: ERROR_CODES.SCRIPT_ERROR,
     SyntaxError: ERROR_CODES.SCRIPT_ERROR,
+    ReferenceError: ERROR_CODES.SCRIPT_ERROR,
 };
 
 module.exports = {
@@ -122,7 +123,7 @@ module.exports = {
 				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
-            return new OxError(oxErrorCode, err.message, null, true, errType);
+            return new OxError(oxErrorCode, err.message, null, true, err);
         }
 
         // try to resolve JavaScript error code
@@ -133,13 +134,14 @@ module.exports = {
 				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
-            return new OxError(oxErrorCode, err.message || null, null, true, errType);
+            return new OxError(oxErrorCode, err.message || null, null, true, err);
         }
         
         const errMessage = err.message ? `${errType}: ${err.message}` : `${errType}`;
-        return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err));
+        return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err), true, err);
     },
     getSeleniumInitError: function(err) {
+        console.log('getSeleniumInitError')
         if (err.message) {
             var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
             if (ieZoomErrorMsg) {

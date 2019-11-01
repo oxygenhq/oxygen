@@ -33,25 +33,10 @@ import CucumberReporter from './reporter'
 import Oxygen from '../../core/OxygenCore'
 
 require('@babel/register')({
-    // Find babel.config.js up the folder structure.
-    //rootMode: 'upward',
-  
     // Since babel ignores all files outside the cwd, it does not compile sibling packages
     // So rewrite the ignore list to only include node_modules
-    ignore: ['node_modules'],
-    //presets: [['@babel/preset-env', {targets: {node: 'current'}, useBuiltIns: 'entry'}]],
-    presets: [['@babel/preset-env', {targets: {node: 'current'}}]],
-    plugins: ["@babel/plugin-transform-modules-commonjs"]
-  });
-/*require('@babel/register')({
-    presets: [ "@babel/preset-env" ]
-})*/
-/*require("@babel/register")({
-    //presets: [["env", {"modules": false}]], //"commonjs"
-    presets: [['@babel/preset-env', {targets: {node: 'current'}, useBuiltIns: 'entry'}]],
-    plugins: ["@babel/plugin-transform-modules-commonjs"]
+    ignore: [__dirname + '/../../../node_modules'],
 });
-require('@babel/polyfill');*/
 
 const DEFAULT_TIMEOUT = 30000
 const DEFAULT_OPTS = {
@@ -73,15 +58,6 @@ const DEFAULT_OPTS = {
     timeout: DEFAULT_TIMEOUT // <number> timeout for step definitions in milliseconds
 }
 
-class LoggingEventEmitter extends CucumberEventListener {
-    constructor(eventBroadcaster) {
-        super(eventBroadcaster)
-    }
-    emit(type, ...args) {
-        //console.log(`Event: ${type}`, JSON.stringify(args, null, 4))
-        //super.emit(type, ...args)
-    }
-}
 export default class CucumberRunner {
     constructor () {
         this.isInitialized = false

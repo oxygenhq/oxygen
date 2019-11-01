@@ -3,8 +3,8 @@ import { EventEmitter } from 'events';
 import { defer } from 'when';
 import path from 'path';
 
-import Debugger from '../../debugger';
-import logger from '../../logger';
+import Debugger from '../../lib/debugger';
+import logger from '../../lib/logger';
 
 // setup logger
 const log = logger('WorkerProcess');

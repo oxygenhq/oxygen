@@ -13,7 +13,7 @@
 import path from 'path';
 import fs from 'fs';
 
-import FileReporterBase from '../lib/reporter/FileReporterBase';
+import FileReporterBase from '../reporter/FileReporterBase';
 
 export default class JSONReporter extends FileReporterBase {
     constructor(options) {
