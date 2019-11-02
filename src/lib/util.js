@@ -15,8 +15,13 @@ const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
 const moment = require('moment');
+const crypto = require('crypto');
 
 var self = module.exports = {
+
+    generateUniqueId: function() {
+        return crypto.randomBytes(4).toString('hex');
+    },
 
     getTimeStamp: function() {
         return moment.utc().valueOf();

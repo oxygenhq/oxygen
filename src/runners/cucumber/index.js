@@ -23,14 +23,13 @@ import {
     executeSync,
     executeAsync
 } from '@wdio/sync' //'wdio-sync';
-import { isFunctionAsync } from '@wdio/utils';
-import { hasWdioSyncSupport, runFnInFiberContext } from '@wdio/config';
-
+import { isFunctionAsync, hasWdioSyncSupport, runFnInFiberContext } from '@wdio/utils';
 import { EventEmitter } from 'events'
 
 import CucumberEventListener from './cucumber-event-listener'
 import CucumberReporter from './reporter'
 import Oxygen from '../../core/OxygenCore'
+import oxutil from '../../lib/util';
 
 require('@babel/register')({
     // Since babel ignores all files outside the cwd, it does not compile sibling packages
@@ -58,19 +57,22 @@ const DEFAULT_OPTS = {
     timeout: DEFAULT_TIMEOUT // <number> timeout for step definitions in milliseconds
 }
 
+// mockup globbal.browser object for internal WDIO functions to work properly
+global.browser = {};
+
 export default class CucumberRunner {
     constructor () {
-        this.isInitialized = false
-        this.cucumberEventListener = null
-        this.cucumberReporter = null
-        this.oxygen = null
+        this.isInitialized = false;
+        this.cucumberEventListener = null;
+        this.cucumberReporter = null;
+        this.oxygen = null;
 
-        this.id = (new Date()).getTime()
-        this.beforeCommandHandler = this.beforeCommandHandler.bind(this)
-        this.afterCommandHandler = this.afterCommandHandler.bind(this)
-        this.onBeforeFeature = this.onBeforeFeature.bind(this)
-        this.onAfterFeature = this.onAfterFeature.bind(this)
-        this.onTestEnd = this.onTestEnd.bind(this)
+        this.id = oxutil.generateUniqueId();
+        this.beforeCommandHandler = this.beforeCommandHandler.bind(this);
+        this.afterCommandHandler = this.afterCommandHandler.bind(this);
+        this.onBeforeFeature = this.onBeforeFeature.bind(this);
+        this.onAfterFeature = this.onAfterFeature.bind(this);
+        this.onTestEnd = this.onTestEnd.bind(this);
     }
 
     init(config, caps, reporter) {
@@ -130,14 +132,13 @@ export default class CucumberRunner {
                 order: this.cucumberOpts.order,
                 pickleFilter
             })
-            //console.log('getTestCasesFromFilesystem - testCases', testCases)
             const runtime = new Cucumber.Runtime({
                 eventBroadcaster,
                 options: this.cucumberOpts,
                 supportCodeLibrary,
                 testCases
             })
-    
+            
             const beforeHookRetval = await executeHooksWithArgs(this.config.before, [this.capabilities, this.specs])
             // if beforeHookRetval contains some value, then this is an error thrown by 'before' method
             if (beforeHookRetval && Array.isArray(beforeHookRetval) && beforeHookRetval.length > 0 && beforeHookRetval[0]) {
@@ -145,12 +146,13 @@ export default class CucumberRunner {
             }
             
             const result = await runtime.start() ? 0 : 1
+
             const afterHookRetval = await executeHooksWithArgs(this.config.after, [result, this.capabilities, this.specs])
             // if afterHookRetval contains some value, then this is an error thrown by 'after' method
             if (afterHookRetval && Array.isArray(afterHookRetval) && afterHookRetval.length > 0 && afterHookRetval[0]) {
                 throw afterHookRetval[0]
             }
-    
+
             await this.disposeOxygenCore()
     
             this.reporter.onRunnerEnd(this.id, null)

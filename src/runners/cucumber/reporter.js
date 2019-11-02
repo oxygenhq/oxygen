@@ -100,7 +100,7 @@ export default class CucumberReporter {
         cases.push(caseResult)
 
         if (this.mainReporter.onCaseStart && typeof this.mainReporter.onCaseStart === 'function') {
-            this.mainReporter.onCaseStart(this.runnerId, uri, caseId)
+            this.mainReporter.onCaseStart(this.runnerId, uri, caseId, scenario)
         }        
     }
 
@@ -152,7 +152,8 @@ export default class CucumberReporter {
         stepResult.duration = stepResult.endTime - stepResult.startTime
         stepResult.status = result.status
         // get failure details if error was thrown in the step
-        if (result.exception) {            
+        if (result.exception) {         
+            //console.log('result.exception', result.exception)   
             stepResult.failure = errorHelper.getFailureFromError(result.exception)
         }        
 

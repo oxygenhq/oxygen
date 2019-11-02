@@ -41,7 +41,7 @@ export default class OxygenRunner extends EventEmitter {
     constructor() {
         super();
         // class variables
-        this._id = oxutil.getTimeStamp();
+        this._id = oxutil.generateUniqueId();
         this._isRunning = false;
         this._isInitializing = false;
         this._isDisposing = false;
