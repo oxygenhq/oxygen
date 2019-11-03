@@ -12,7 +12,6 @@
  */
 import TestResult from '../model/test-result';
 import oxutil from '../lib/util';
-import logger from '../lib/logger';
 
 // import all built-in reporters
 import JsonReporter from '../ox_reporters/reporter-json';
@@ -28,9 +27,6 @@ const Reporters = {
     html: HtmlReporter,
     excel: ExcelReporter
 };
-
-// setup logger
-const log = logger('ReportAggregator');
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
 
@@ -50,7 +46,7 @@ export default class ReportAggregator {
                 // ignore reporters that do not have 'name' property as it's essential to load the corresponding Reporter class
                 continue;
             }
-            
+
             const reporterName = typeof reporter === 'string' ? reporter : reporter.name;
             const reporterOpts = typeof reporter === 'object' ? reporter : generalReportingOpts;
 

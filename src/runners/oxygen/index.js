@@ -19,7 +19,6 @@ loggerFactory.init(config.get('logger'));
 const logger = loggerFactory.get('oxygen');
 const DEFAULT_ISSUER = 'user';
 
-//import util from 'util';
 import { EventEmitter } from 'events';
 import _  from 'lodash';
 import { defer } from 'when';
@@ -30,10 +29,6 @@ import TestResult from '../../model/test-result';
 import Status from '../../model/status';
 import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
-const FATAL_ERROR_TYPES = [
-    errorHelper.errorCode.SCRIPT_ERROR
-];
-
 import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
 
@@ -143,7 +138,7 @@ export default class OxygenRunner extends EventEmitter {
         if (this.debugMode && this._worker) {
             this._worker.debugger.continue();
         }
-    };
+    }
 
     setBreakpoint(line) {
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {
@@ -151,13 +146,13 @@ export default class OxygenRunner extends EventEmitter {
             logger.debug('oxygen.setBreakpoint: ' + (line + this._scriptContentLineOffset));
             this._worker.debugger.setBreakpoint(tc.name, line + this._scriptContentLineOffset);
         }
-    };
+    }
 
     clearBreakpoint(line) {
         if (this.debugMode && this._worker && this._worker.debugger) {
             this._worker.debugger.clearBreakpoint(line + this._scriptContentLineOffset, null);
         }
-    };
+    }
 
     /*********************************
      * Private methods
@@ -182,14 +177,14 @@ export default class OxygenRunner extends EventEmitter {
         result.endTime = oxutil.getTimeStamp();
         result.duration = result.endTime - result.startTime;
         const hasFailedSuites = result.suites.some(x => x.status === Status.FAILED);
-        result.status = hasFailedSuites ? Status.FAILED : Status.PASSED;        
+        result.status = hasFailedSuites ? Status.FAILED : Status.PASSED;
         result.environment = this._env;
         result.capabilities = JSON.parse(JSON.stringify(this._caps));    // assign a copy of _caps object
         result.options = JSON.parse(JSON.stringify(this._options));  // assign a copy of _options object
 
         // if error occured, add it to the summary
         if (error) {
-            result.failure = errorHelper.getFailureFromError(error); 
+            result.failure = errorHelper.getFailureFromError(error);
             result.status = Status.FAILED;
         }
         return result;
@@ -360,11 +355,11 @@ export default class OxygenRunner extends EventEmitter {
         const _this = this;
         this._worker.on('error', (payload) => {
             const { error } = payload;
-            logger.error('error: ', args.error);
-            _this._workerProcLastError = args.error;
+            logger.error('error: ', error);
+            _this._workerProcLastError = error;
         });
         this._worker.on('exit', (payload) => {
-            const { exitCode, signal } = payload;
+            const { exitCode } = payload;
             
             if (exitCode && exitCode !== 0) {
                 // if the test is running or is being disposed and the child process has died,
@@ -412,7 +407,7 @@ export default class OxygenRunner extends EventEmitter {
             } else if (msg.event && msg.event === 'dispose:success') {
                 _this._whenDisposed.resolve(null);
                 _this._resetGlobalVariables();
-            } else if (msg.event && msg.event === 'dispose:failed') {                
+            } else if (msg.event && msg.event === 'dispose:failed') {
                 _this._whenDisposed.reject(msg.err);
                 _this._resetGlobalVariables();
             } else if (msg.event && msg.event === 'line-update') {
@@ -429,12 +424,12 @@ export default class OxygenRunner extends EventEmitter {
                 let breakpointData = null;
                 // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
                 if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
-                    breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);                    
+                    breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
                 }
                 // otherwise, get the line from breakpoint.callFrames[0] object (but then we won't have file path, but scriptId instead)
                 else {
                     breakpointData = breakpoint.callFrames[0].location;
-                }                
+                }
                 _this.emit('breakpoint', breakpointData, ts.testcases[tcindex]);
             }
         });
@@ -449,7 +444,7 @@ export default class OxygenRunner extends EventEmitter {
         this.__whenTestCaseFinished = null;
         this._whenEngineInitFinished = defer();
         this._whenDisposed = defer();
-    }    
+    }
 
     _processWorkerResults(msg) {
         // if test was killed before any results were generated, then just finalize the test without processing results

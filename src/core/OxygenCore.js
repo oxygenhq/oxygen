@@ -25,46 +25,6 @@ Object.defineProperty(global, '__stack', {
     }
 });
 
-/*global __line*/
-Object.defineProperty(global, '__line', {
-    get: function () {
-        const scriptContentLineOffset = 1;
-        const scriptPath = null;
-        if (scriptPath) {
-            for (var call of __stack) {
-                if (call.getFileName() === scriptPath) {
-                    return call.getLineNumber() - scriptContentLineOffset - 1;
-                }
-            }
-        }
-        return __stack[1].getLineNumber() - scriptContentLineOffset - 1;
-    }
-});
-
-/* global __lineStack */
-Object.defineProperty(global, '__lineStack', {
-    get: function () {
-        const lines = [];
-        const scriptPath = null;
-        for (var call of __stack) {
-            const callFileName = call.getFileName();
-            if (callFileName && callFileName.indexOf('script-boilerplate.js') === -1) {
-                let line = call.getLineNumber();
-                // adjust the file line if the call is made from the main script file (due to Fiber code wrap)
-                if (scriptPath && callFileName === scriptPath) {
-                    line = line - scriptContentLineOffset - 1;
-                }
-                lines.push({
-                    line: line,
-                    file: callFileName,
-                });
-            }
-        }
-        return lines;
-    }
-});
-
-
 const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_OPTS = {
     backtrace: false, // <boolean> show full backtrace for errors
@@ -120,7 +80,7 @@ export default class Oxygen extends OxygenEvents {
         
         // define 'ox' object in global JS scope
         // we will use this object to access Oxygen modules and test context from modules used in the test (if any)
-        global.ox = { 
+        global.ox = {
             modules: this.modules,
             ctx: this.ctx,
             options: this.opts,
@@ -142,8 +102,8 @@ export default class Oxygen extends OxygenEvents {
         catch (e) {
             this.isInitialized = false;
             console.error('Failed to dispose: ', e);
-            throw e;    
-        }        
+            throw e;
+        }
     }
 
     /*
@@ -154,7 +114,6 @@ export default class Oxygen extends OxygenEvents {
         const serviceFiles = globule.find('service-*.js', { srcBase: oxServicesDirPath });
         // initialize all services
         logger.debug('Loading services...');
-        let err = null;
         
         for (var i = 0; i < serviceFiles.length; i++) {
             const serviceFileName = serviceFiles[i];
@@ -169,7 +128,7 @@ export default class Oxygen extends OxygenEvents {
             } catch (e) {
                 logger.error('Error initializing service "' + serviceName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
             }
-        }        
+        }
     }
     _loadService(servicePath, opts) {
         let ServiceClass = require(servicePath);
@@ -179,12 +138,12 @@ export default class Oxygen extends OxygenEvents {
         }
         return new ServiceClass(this.opts, this.ctx, this.resultStore, logger);
     }
+
     _loadModules() {
         const oxModulesDirPath = path.resolve(this.oxBaseDir, './ox_modules');
         const moduleFiles = globule.find('module-*.js', { srcBase: oxModulesDirPath });
         // initialize all modules
         logger.debug('Loading modules...');
-        let err = null;
         let moduleName;
         for (var i = 0; i < moduleFiles.length; i++) {
             let moduleFileName = moduleFiles[i];
@@ -199,22 +158,21 @@ export default class Oxygen extends OxygenEvents {
                 // ignore any module that failed to load, except Web and Mob modules
                 // without Mob and Web modules loaded, the initialization process shall fail
                 if (moduleName === 'web' || moduleName === 'mob') {
-                    err = e;
                     break;
                 }
             }
-        }        
+        }
     }
 
     _loadModule(moduleName, moduleFileName, oxModulesDirPath) {
-        let ModuleClass = require(path.join(oxModulesDirPath, moduleFileName));    
+        let ModuleClass = require(path.join(oxModulesDirPath, moduleFileName));
         if (ModuleClass.default) {
             ModuleClass = ModuleClass.default;
-        }        
-        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, logger, this.services);   
+        }
+        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, logger, this.services);
         if (!mod.name) {
             mod.name = moduleName;
-        } 
+        }
         // load external commands
         const cmdDir = path.join(oxModulesDirPath, 'module-' + moduleName, 'commands');
         if (fs.existsSync(cmdDir)) {
@@ -259,7 +217,7 @@ export default class Oxygen extends OxygenEvents {
         const wrapper = {
             name: name
         };
-        const _this = this;        
+        const _this = this;
         let moduleMethods = Object.keys(module);
         if (!moduleMethods.some(x => x=== 'exports')) {
             moduleMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(module));
@@ -291,7 +249,7 @@ export default class Oxygen extends OxygenEvents {
                 wrapper[methodName] = (...args) => {
                     try {
                         return _this._commandWrapper(methodName, args, module, name);
-                    }                    
+                    }
                     catch (e) {
                         if (e instanceof OxError) {
                             //console.log('Throwing again:', e)
@@ -303,7 +261,7 @@ export default class Oxygen extends OxygenEvents {
             }
         }
         return wrapper;
-    }    
+    }
 
     _commandWrapper(cmdName, cmdArgs, module, moduleName) {
         let retval = null;
@@ -334,14 +292,14 @@ export default class Oxygen extends OxygenEvents {
             this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
         }
 
-        logger.debug('Executing: ' + this._getMethodSignature(moduleName, cmdName, cmdArgs));        
+        logger.debug('Executing: ' + this._getMethodSignature(moduleName, cmdName, cmdArgs));
         
         try {
             // emit before events
             if (cmdName === 'dispose') {
                 this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
                 //this._callServicesOnModuleWillDispose(module);
-            }            
+            }
             retval = this._wrapAsync(module[cmdName]).apply(module._this, cmdArgs);
             //retval = module[cmdName].apply(module._this, cmdArgs);
             if (cmdName === 'init') {
@@ -390,7 +348,7 @@ export default class Oxygen extends OxygenEvents {
                     }
                     break;
                 }
-            }      
+            }
           // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
             if (!Fiber.current) {
                 const retval = fn.apply(self, args);
@@ -445,13 +403,8 @@ export default class Oxygen extends OxygenEvents {
 
     _getStepResult(module, moduleName, methodName, args, startTime, endTime, retval, err) {
         var step = new StepResult();
-        // convert method arguments to string
-        var methodArgs = '()';
-        if (args) {
-            var argsStr = JSON.stringify(args);
-            methodArgs = '(' + argsStr.slice(1, -1) + ')';
-        }
-        step.name = this._getMethodSignature(moduleName, methodName, args); // moduleName + '.' + methodName + methodArgs;
+
+        step.name = this._getMethodSignature(moduleName, methodName, args);
         step.transaction = global._lastTransactionName;                    // FIXME: why is this here if it's already populated in rs?
         // determine step status
         if (err) {

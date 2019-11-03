@@ -5,12 +5,10 @@
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * Based on:
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
-
-
 
 import * as Cucumber from 'cucumber';
 import mockery from 'mockery';
@@ -82,7 +80,7 @@ export default class CucumberRunner {
         this.capabilities = caps;
         this.reporter = reporter;
         this.isInitialized = true;
-        this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);        
+        this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);
     }
 
     dispose() {
@@ -106,7 +104,7 @@ export default class CucumberRunner {
             Cucumber.setDefaultTimeout(this.cucumberOpts.timeout);
             const supportCodeLibrary = Cucumber.supportCodeLibraryBuilder.finalize();
     
-            const eventBroadcaster = new EventEmitter();    
+            const eventBroadcaster = new EventEmitter();
             this.hookInCucumberEvents(eventBroadcaster);
             this.cucumberReporter = new CucumberReporter(this.id, this.cucumberEventListener, this.oxygen, this.reporter, this.config);
             // eslint-disable-next-line no-new
@@ -169,7 +167,7 @@ export default class CucumberRunner {
         if (!this.oxygen) {
             this.oxygen = new Oxygen();
             await this.oxygen.init(this.config, this.capabilities);
-        }        
+        }
     }
 
     async disposeOxygenCore() {
@@ -210,7 +208,7 @@ export default class CucumberRunner {
     resolveSpecFiles (specs) {
         if (!Array.isArray(specs)) {
             return [];
-        }        
+        }
         return specs.reduce((files, specFile) => {
             const absolutePath = this.getAbsolutePath(specFile);
             if (isGlob(absolutePath)) {
@@ -222,7 +220,6 @@ export default class CucumberRunner {
     }
 
     getAbsolutePath(p) {
-        let absolutePath;
         if (path.isAbsolute(p)) {
             return p;
         } else {

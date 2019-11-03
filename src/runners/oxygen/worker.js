@@ -28,23 +28,19 @@ const DEFAULT_LOGGER_ISSUER = 'system';
 var logger = {
     info: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        //resultStore.logs.push({ time: ts, level: 'INFO', msg: stringify(message), src });
-        processSend({ time: ts, event: 'log-add', level: 'INFO', msg: message, src });
+        processSend({ time: ts, event: 'log-add', level: 'INFO', msg: stringify(message), src });
     },
     debug: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        //resultStore.logs.push({ time: ts, level: 'DEBUG', msg: stringify(message), src });
-        processSend({ time: ts, event: 'log-add', level: 'DEBUG', msg: message, src });
+        processSend({ time: ts, event: 'log-add', level: 'DEBUG', msg: stringify(message), src });
     },
     error: function(message, err = null, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        //resultStore.logs.push({ time: ts, level: 'ERROR', msg: stringify(message), src });
-        processSend({ time: ts, event: 'log-add', level: 'ERROR', msg: message, src, err: err });
+        processSend({ time: ts, event: 'log-add', level: 'ERROR', msg: stringify(message), src, err: err });
     },
     warn: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        //resultStore.logs.push({ time: ts, level: 'WARN', msg: stringify(message), src });
-        processSend({ time: ts, event: 'log-add', level: 'WARN', msg: message, src });
+        processSend({ time: ts, event: 'log-add', level: 'WARN', msg: stringify(message), src });
     }
 };
 
@@ -67,7 +63,7 @@ async function init(options, caps) {
     if (!_oxygen) {
         try {
             _oxygen = new Oxygen();
-            _oxygen.on('command:before', handleAfterCommand);
+            _oxygen.on('command:before', handleBeforeCommand);
             _oxygen.on('command:after', handleAfterCommand);
             await _oxygen.init(options, caps);
             makeModulesGlobal(options);
@@ -127,11 +123,10 @@ async function run(scriptName, scriptPath, context) {
     if (_cwd && !path.isAbsolute(scriptPath)) {
         scriptPath = path.resolve(_cwd, scriptPath);
     }
-    let scriptFunc = null;
     // load the test script
     try {
         await runFnInFiberContext(() => {
-            scriptFunc = require(scriptPath);
+            require(scriptPath);
         });
     } catch (e) {
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });

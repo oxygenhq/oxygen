@@ -53,7 +53,7 @@ export default class CucumberReporter {
         }
     }
 
-    onBeforeFeature(uri, feature) {        
+    onBeforeFeature(uri, feature) {
         const location = `${uri}:${feature.location.line}`;
         const suiteResult = this.suites[location] = new TestSuiteResult();
         suiteResult.name = feature.name;
@@ -63,7 +63,7 @@ export default class CucumberReporter {
 
         if (this.mainReporter.onSuiteStart && typeof this.mainReporter.onSuiteStart === 'function') {
             this.mainReporter.onSuiteStart(this.runnerId, uri, suiteResult);
-        }        
+        }
         if (this.options && typeof this.options.beforeSuite === 'function') {
             this.options.beforeSuite(suiteResult);
         }
@@ -83,11 +83,11 @@ export default class CucumberReporter {
 
         if (this.mainReporter.onSuiteEnd && typeof this.mainReporter.onSuiteEnd === 'function') {
             this.mainReporter.onSuiteEnd(this.runnerId, uri, suiteResult);
-        }        
+        }
     }
 
     onBeforeScenario(uri, feature, scenario) {
-        const suiteId = `${uri}:${feature.location.line}`;        
+        const suiteId = `${uri}:${feature.location.line}`;
         const caseLocation = scenario.locations.length > 0 ? scenario.locations[0] : { line: 1 };
         const caseId = `${uri}:${caseLocation.line}`;
         const suiteResult = this.suites[suiteId];
@@ -101,7 +101,7 @@ export default class CucumberReporter {
 
         if (this.mainReporter.onCaseStart && typeof this.mainReporter.onCaseStart === 'function') {
             this.mainReporter.onCaseStart(this.runnerId, uri, caseId, scenario);
-        }        
+        }
     }
 
     onAfterScenario(uri, feature, scenario, sourceLocation) {
@@ -124,7 +124,6 @@ export default class CucumberReporter {
     onBeforeStep(uri, feature, scenario, step, sourceLocation) {
         const suiteId = `${uri}:${feature.location.line}`;
         const caseId = `${uri}:${sourceLocation.line}`;
-        const stepId = `${uri}:${step.location.line}`;
         const suiteResult = this.suites[suiteId];
         const cases = suiteResult.cases;
         const caseResult = cases.find(x => x.location === caseId);
