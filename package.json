@@ -93,7 +93,7 @@
     "test": "run-s test:*",
     "test:eslint": "eslint src test",
     "test:unit": "jest",
-    "prepublishOnly": "npm run eslint && node tools/dos2unix src/lib/cli.js",
+    "prepublishOnly": "npm run eslint && npm run build &&node tools/dos2unix src/lib/cli.js",
     "postpublish": "node tools/unix2dos src/lib/cli.js",
     "eslint": "eslint \"Gruntfile.js\" \"src/lib/**/*.js\" \"src/errors/**/*.js\" \"src/model/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
