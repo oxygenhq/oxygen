@@ -25,6 +25,9 @@ const errorHelper = require('../../errors/helper');
 
 const DEFAULT_LOGGER_ISSUER = 'system';
 
+// mockup globbal.browser object for internal WDIO functions to work properly
+global.browser = {};
+
 var logger = {
     info: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
