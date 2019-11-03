@@ -46,7 +46,7 @@ export default class OxygenError extends Error {
     }
 
     _stackTraceFilterFn(value) {
-        return !STACKTRACE_FILTERS.some(filter => value.includes(filter))
+        return !STACKTRACE_FILTERS.some(filter => value.includes(filter));
     }
 
     generateLocation() {
@@ -63,7 +63,7 @@ export default class OxygenError extends Error {
     captureStackTrace() {
         if (this.stack) {
             return;
-        }        
+        }
         else {
             try {
                 //var orig = Error.prepareStackTrace;
@@ -74,8 +74,8 @@ export default class OxygenError extends Error {
                 //Error.prepareStackTrace = orig;
             }
             catch (e) {
-                console.error(e.message)
+                console.error(e.message);
             }
-        }        
-    }      
+        }
+    }
 }

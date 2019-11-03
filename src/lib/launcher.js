@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,7 +9,6 @@
 
 import _ from 'lodash';
 import Runners from '../runners';
-import { defer } from 'when';
 import queue from 'async/queue';
 
 export default class Launcher { 
@@ -43,8 +42,8 @@ export default class Launcher {
      * Private methods
      *********************************/
     _instantiateRunner(caps) {
-        if (this._config.framework && typeof this._config.framework === 'string') {
-            if (Runners.hasOwnProperty(this._config.framework)) {
+        if (this._config.framework && typeof this._config.framework === 'string') {        
+            if (Object.prototype.hasOwnProperty.call(Runners, this._config.framework)) {
                 return new Runners[this._config.framework]();
             }
             return null;

@@ -7,7 +7,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-import _ from 'lodash';
+
 import path from 'path';
 import fs from 'fs';
 import oxutil from './util';
@@ -133,7 +133,7 @@ async function prepareTestConfig(targetFile, config) {
     } 
     // validate that we got a file that Oxygen can support
     else if (targetFile.extension !== '.js' && targetFile.extension !== '.json') {
-        console.error('Unsupported file format: ' + fileExt);
+        console.error('Unsupported file format: ' + targetFile.extension);
         process.exit(1);
     }
     let testsuite = {};
@@ -202,7 +202,7 @@ async function prepareAndStartTheTest(config) {
         const launcher = new Launcher(config, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
-        reporter.generateReports()
+        reporter.generateReports();
     }
     catch (e) {
         console.error('Fatal error', e);

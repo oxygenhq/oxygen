@@ -9,7 +9,7 @@
  
 /*
  * Used to denote JavaScript level errors in user's script: TypeError, SyntaxError, etc.
- */ 
+ */
 import OxygenError from './OxygenError';
 
 export default class ScriptError extends OxygenError {
@@ -17,10 +17,10 @@ export default class ScriptError extends OxygenError {
         super();
         if (!err) {
             throw new Error('"err" argument cannot be null');
-        }        
+        }
         this.type = 'SCRIPT_ERROR';
         this.stack = err.stack;
-        this.subtype = err.type
+        this.subtype = err.type;
         this.message = err.message;
         this.filterStackTrace();
         this.generateLocation();

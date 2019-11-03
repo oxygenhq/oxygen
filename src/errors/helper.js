@@ -12,10 +12,7 @@
  */
  
 const OxError = require('./OxygenError').default;
-const OxScriptError = require('./ScriptError').default;
-const Failure = require('../model/failure');
 const util = require('util');
-const stackTrace = require('stack-trace');
 
 const ERROR_CODES = {
     SCRIPT_ERROR: 'SCRIPT_ERROR',
@@ -88,7 +85,7 @@ module.exports = {
             message: err.message,
             data: err.data,
             location: err.location
-        }
+        };
     },
     getOxygenError: function(err, module, cmd, args) {
         // return the error as is if it has been already processed
@@ -141,7 +138,7 @@ module.exports = {
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err), true, err);
     },
     getSeleniumInitError: function(err) {
-        console.log('getSeleniumInitError')
+        console.log('getSeleniumInitError');
         if (err.message) {
             var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
             if (ieZoomErrorMsg) {
