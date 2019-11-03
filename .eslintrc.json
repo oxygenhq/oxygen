@@ -11,7 +11,8 @@
         "quotes": ["error", "single", { "avoidEscape": true }],
         "semi": ["error", "always"],
         "semi-spacing": ["error", {"before": false, "after": true}],
-        "no-unused-vars": ["error", {"args": "none"}]
+        "no-unused-vars": ["error", {"args": "none"}],
+        "require-atomic-updates": "off"
     },
     "parserOptions": {
         "ecmaVersion": 2018,

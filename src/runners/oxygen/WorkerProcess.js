@@ -27,7 +27,7 @@ export default class WorkerProcess extends EventEmitter {
     async start() {
         const env = Object.assign(process.env, {
             OX_WORKER: true
-        })
+        });
 
         log.info(`Starting worker process ${this._pid}.`);
         let forkOpts = { 
@@ -132,7 +132,7 @@ export default class WorkerProcess extends EventEmitter {
             whenDebuggerReady.resolve();
         });
         this._debugger.on('error', function(err) {
-            this.emit('debugger:error', Object.assign(error, { pid: this._pid }));
+            this.emit('debugger:error', Object.assign(err, { pid: this._pid }));
             // reject the promise only if we got an error right after _debugger.connect() call below - we need this to indicate debugger initialization error
             if (!whenDebuggerReady.isResolved) {
                 whenDebuggerReady.reject(err);

@@ -1,8 +1,8 @@
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'events';
 
 export default class OxygenEvents extends EventEmitter {
     constructor () {
-        super()
+        super();
     }
 
     emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, ctx, location, startTime) {

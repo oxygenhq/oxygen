@@ -67,23 +67,23 @@ async function init(options, caps) {
     if (!_oxygen) {
         try {
             _oxygen = new Oxygen();
-            _oxygen.on('command:before', handleAfterCommand)
-            _oxygen.on('command:after', handleAfterCommand)
+            _oxygen.on('command:before', handleAfterCommand);
+            _oxygen.on('command:after', handleAfterCommand);
             await _oxygen.init(options, caps);
             makeModulesGlobal(options);
             logger.debug('Oxygen initialization completed');
-            processSend({ event: 'init:success', msg: 'Modules initialized' });            
+            processSend({ event: 'init:success', msg: 'Modules initialized' });
         }
         catch (e) {
             processSend({ event: 'init:failed', err: { message: e.message, stack: e.stack } });
         }
-    }        
+    }
 }
 
 async function dispose() {
     if (_oxygen) {
         try {
-            await _oxygen.dispose();         
+            await _oxygen.dispose();
             processSend({ event: 'dispose:success' });
         }
         catch (e) {
@@ -114,10 +114,10 @@ process.on('message', async function (msg) {
 async function runFnInFiberContext (fn) {
     return new Promise((resolve, reject) => Fiber(() => {
         try {
-            const result = fn.apply(this)
-            return resolve(result)
+            const result = fn.apply(this);
+            return resolve(result);
         } catch (err) {
-            return reject(err)
+            return reject(err);
         }
     }).run());
 }
@@ -129,12 +129,11 @@ async function run(scriptName, scriptPath, context) {
     }
     let scriptFunc = null;
     // load the test script
-    try {        
+    try {
         await runFnInFiberContext(() => {
             scriptFunc = require(scriptPath);
         });
-    }
-    catch (e) {
+    } catch (e) {
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
         return;
     }

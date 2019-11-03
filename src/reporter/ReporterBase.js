@@ -12,7 +12,7 @@
  */
 export default class ReporterBase {
     constructor(options) {
-        this.options = options
+        this.options = options;
     }
     generate(results) {
         throw new Error('Abstract class, method not implemented');

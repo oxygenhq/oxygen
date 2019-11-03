@@ -66,11 +66,11 @@ export default class OxygenRunner extends EventEmitter {
      * Public methods
      *********************************/
     async init(options, caps, reporter) {
-        this._options = options
-        this._cwd = this._options.cwd || process.cwd()
-        this._capabilities = caps
-        this._reporter = reporter
-        this._isInitialized = true
+        this._options = options;
+        this._cwd = this._options.cwd || process.cwd();
+        this._capabilities = caps;
+        this._reporter = reporter;
+        this._isInitialized = true;
 
         this._env = _.clone(options.envVars) || {};   // assign environment variables for later use
         this._caps = _.clone(options.caps) || {}; // assign caps for later use
@@ -88,7 +88,7 @@ export default class OxygenRunner extends EventEmitter {
         this._localTime = (this._options && this._options.localTime) || this._localTime;
         await this._startWorkerProcess();
         await this._worker_InitEngine();
-    };
+    }
 
     async dispose() {
         this._isDisposing = true;
@@ -100,7 +100,7 @@ export default class OxygenRunner extends EventEmitter {
         catch (e) {
             // ignore errors during the dispose
         }
-    };
+    }
 
     async run() {
         if (this._isInitializing) {
@@ -137,7 +137,7 @@ export default class OxygenRunner extends EventEmitter {
         if (this._worker) {
             this._worker.stop();
         }
-    };
+    }
 
     debugContinue() {
         if (this.debugMode && this._worker) {
@@ -197,7 +197,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _runSuite(suite) {
         if (!suite) {
-            console.log('suite is null!!!')
+            console.log('suite is null!!!');
         }
         // ignore suite with missing mandatory properties
         if (!suite.name && !suite.path) {
@@ -240,12 +240,12 @@ export default class OxygenRunner extends EventEmitter {
                         suiteResult.status = Status.FAILED;
                         break;
                     }
-                }     
+                }
             }
             suiteResult.endTime = oxutil.getTimeStamp();
             suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
-            this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult)
-        }        
+            this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult);
+        }
         return suiteIterations;
     }
 
@@ -296,17 +296,13 @@ export default class OxygenRunner extends EventEmitter {
             var failedSteps = _.find(resultStore.steps, {status: Status.FAILED});
             caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
             if (error) {
-                caseResult.failure = error; 
+                caseResult.failure = error;
                 caseResult.status = Status.FAILED;
-            }    
+            }
             result = caseResult;
-        }        
-        catch (e) {
-            throw e;
-        }
-        finally {
+        } finally {
             this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, result);
-        }        
+        }
         return result;
     }
     
@@ -481,7 +477,7 @@ export default class OxygenRunner extends EventEmitter {
             delete msg.ctx.test;
         // remove test options from the context as it already appears in TestResult node
         if (msg.context && msg.context.options)
-        delete msg.context.options;
+            delete msg.context.options;
 
         return {
             resultStore: msg.resultStore,

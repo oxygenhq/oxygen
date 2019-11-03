@@ -23,7 +23,7 @@ const EXCEL_COLUMNS = generateExcelColumns();
 
 export default class ExcelReporter extends FileReporterBase {
     constructor(options) {
-        super(options)
+        super(options);
     }
 
     generate(results) {

@@ -17,7 +17,7 @@ import FileReporterBase from '../reporter/FileReporterBase';
 
 export default class JUnitXmlReporter extends FileReporterBase {
     constructor(options) {
-        super(options)
+        super(options);
     }
 
     generate(results) {        

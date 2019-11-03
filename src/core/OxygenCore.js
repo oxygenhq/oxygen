@@ -5,16 +5,6 @@ import deasync from 'deasync';
 import Future from 'fibers/future';
 import Fiber from 'fibers';
 import { EOL } from 'os';
-// wdio async
-import {
-    executeHooksWithArgs,
-    executeSync,
-    executeAsync
-} from '@wdio/sync' //'wdio-sync';
-import { isFunctionAsync } from '@wdio/utils';
-import { hasWdioSyncSupport, runFnInFiberContext } from '@wdio/config';
-
-
 import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
@@ -56,8 +46,8 @@ Object.defineProperty(global, '__lineStack', {
     get: function () {
         const lines = [];
         const scriptPath = null;
-        for (var call of __stack) {           
-            const callFileName = call.getFileName(); 
+        for (var call of __stack) {
+            const callFileName = call.getFileName();
             if (callFileName && callFileName.indexOf('script-boilerplate.js') === -1) {
                 let line = call.getLineNumber();
                 // adjust the file line if the call is made from the main script file (due to Fiber code wrap)
@@ -69,13 +59,13 @@ Object.defineProperty(global, '__lineStack', {
                     file: callFileName,
                 });
             }
-        }        
+        }
         return lines;
     }
 });
 
 
-const DEFAULT_TIMEOUT = 30000
+const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_OPTS = {
     backtrace: false, // <boolean> show full backtrace for errors
     compiler: [], // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -93,7 +83,7 @@ const DEFAULT_OPTS = {
     tagExpression: '', // <string> (expression) only execute the features or scenarios with tags matching the expression
     tagsInTitle: false, // <boolean> add cucumber tags to feature or scenario name
     timeout: DEFAULT_TIMEOUT // <number> timeout for step definitions in milliseconds
-}
+};
 const MODULE_NAME_MATCH_REGEX = /^module-(.+?)\.js$/;
 const SERVICE_NAME_MATCH_REGEX = /^service-(.+?)\.js$/;
 const logger = console;
@@ -110,7 +100,7 @@ const DEFAULT_RESULT_STORE = {
 
 export default class Oxygen extends OxygenEvents {
     constructor () {
-        super()
+        super();
         this.isInitialized = false;
         this.resultStore = { ...DEFAULT_RESULT_STORE };
         this.ctx = { ...DEFAULT_CTX };
@@ -118,7 +108,7 @@ export default class Oxygen extends OxygenEvents {
         this.services = {};
         this.capabilities = null;
         this.opts = null;
-        this.oxBaseDir = path.join(__dirname, `../`);
+        this.oxBaseDir = path.join(__dirname, '../');
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -140,7 +130,7 @@ export default class Oxygen extends OxygenEvents {
         this._loadServices();
         this._loadModules();
 
-        this.isInitialized = true
+        this.isInitialized = true;
     }
 
     async dispose() {
@@ -151,7 +141,7 @@ export default class Oxygen extends OxygenEvents {
         }
         catch (e) {
             this.isInitialized = false;
-            console.error('Failed to dispose: ', e)
+            console.error('Failed to dispose: ', e);
             throw e;    
         }        
     }
@@ -204,7 +194,7 @@ export default class Oxygen extends OxygenEvents {
             try {
                 this._loadModule(moduleName, moduleFileName, oxModulesDirPath, this.opts);
             } catch (e) {
-                console.error(e)
+                console.error(e);
                 logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
                 // without Mob and Web modules loaded, the initialization process shall fail
@@ -309,7 +299,7 @@ export default class Oxygen extends OxygenEvents {
                         }
                         throw errorHelper.getOxygenError(e, name, methodName, args);
                     }
-                }
+                };
             }
         }
         return wrapper;
@@ -388,26 +378,26 @@ export default class Oxygen extends OxygenEvents {
 
     _wrapAsync (fn, context) {
         return function (...args) {
-          var self = context || this;
-          var callback;
+            var self = context || this;
+            var callback;
       
-          for (let i = args.length - 1; i >= 0; --i) {
-            const arg = args[i];
-            const type = typeof arg;
-            if (type !== "undefined") {
-              if (type === "function") {
-                callback = arg;
-              }
-              break;
-            }
-          }      
+            for (let i = args.length - 1; i >= 0; --i) {
+                const arg = args[i];
+                const type = typeof arg;
+                if (type !== 'undefined') {
+                    if (type === 'function') {
+                        callback = arg;
+                    }
+                    break;
+                }
+            }      
           // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
-          if (!Fiber.current) {
-            const retval = fn.apply(self, args);
-            let done = false;
-            let error = null;
-            let finalVal = null;
-            Promise.resolve(retval)
+            if (!Fiber.current) {
+                const retval = fn.apply(self, args);
+                let done = false;
+                let error = null;
+                let finalVal = null;
+                Promise.resolve(retval)
                 .then((val) => {
                     finalVal = val;
                     done = true;
@@ -417,23 +407,23 @@ export default class Oxygen extends OxygenEvents {
                     done = true;
                 });
 
-            deasync.loopWhile(() => !done && !error);
+                deasync.loopWhile(() => !done && !error);
 
-            if (!error) {
-                return finalVal;
+                if (!error) {
+                    return finalVal;
+                }
+                throw error;
             }
-            throw error;
-          }
           // otherwise, if we are inside the Fiber context, then use Fiber's Future
-          const future = new Future();
-          var result = fn.apply(self, args);
-          if (result && typeof result.then === 'function') {
-            result.then((val) => future.return(val), (err) => future.throw(err));
-            return future.wait();
-          }           
-          return result;
+            const future = new Future();
+            var result = fn.apply(self, args);
+            if (result && typeof result.then === 'function') {
+                result.then((val) => future.return(val), (err) => future.throw(err));
+                return future.wait();
+            }
+            return result;
         };
-    };
+    }
 
     // retrieve current line and function name from the call stack
     _getCommandLocation() {
@@ -448,7 +438,7 @@ export default class Oxygen extends OxygenEvents {
             break;
         }
         if (caller) {
-            return `${caller.getFileName()}:${caller.getLineNumber()}:${caller.getColumnNumber()}`
+            return `${caller.getFileName()}:${caller.getLineNumber()}:${caller.getColumnNumber()}`;
         }
         return null;
     }

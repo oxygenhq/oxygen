@@ -38,22 +38,24 @@ export default class ReportAggregator {
     constructor(options) {
         // results hash table based on runner id key
         this.results = [];
-        this.options = options
-        this.instantiateReporters()
+        this.options = options;
+        this.instantiateReporters();
     }
 
     instantiateReporters() {
         this.reporters = [];
         const generalReportingOpts = this.options.reporting || {};
         for (let reporter of generalReportingOpts.reporters || []) {
-            if (typeof reporter !== 'string' && !reporter.hasOwnProperty('name')) {
+            if (typeof reporter !== 'string' && !Object.prototype.hasOwnProperty.call(reporter, 'name')) {
                 // ignore reporters that do not have 'name' property as it's essential to load the corresponding Reporter class
                 continue;
             }
+            
             const reporterName = typeof reporter === 'string' ? reporter : reporter.name;
             const reporterOpts = typeof reporter === 'object' ? reporter : generalReportingOpts;
-            if (Reporters.hasOwnProperty(reporterName)) {
-                this.reporters.push(new Reporters[reporterName](this.options, reporterOpts))
+
+            if (Object.prototype.hasOwnProperty.call(Reporters, reporterName)) {
+                this.reporters.push(new Reporters[reporterName](this.options, reporterOpts));
             }
         }
     }
@@ -71,9 +73,9 @@ export default class ReportAggregator {
 
     onRunnerStart(rid, opts, caps) {
         if (!rid) {
-            throw new Error('"rid" cannot be empty.')
-        }        
-        const testResult = new TestResult();        
+            throw new Error('"rid" cannot be empty.');
+        }
+        const testResult = new TestResult();
         testResult.rid = rid;
         testResult.name = opts.name || DEFAULT_TEST_NAME;
         testResult.startTime = oxutil.getTimeStamp();
@@ -88,14 +90,14 @@ export default class ReportAggregator {
         const testResult = this.results.find(x => x.rid === rid);
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
-            testResult.duration = testResult.endTime - testResult.startTime;            
+            testResult.duration = testResult.endTime - testResult.startTime;
             testResult.status = fatalError ? Status.FAILED : (testResult.suites.some(x => x.status === Status.FAILED)) ? Status.FAILED : Status.PASSED;
             if (testResult.status === Status.FAILED) {
                 testResult.failure = fatalError ? errorHelper.getFailureFromError(fatalError) : this._getFirstFailure(testResult);
             }
             if (testResult.failure) {
                 console.log(`Error: ${testResult.failure.type} at ${testResult.failure.location}.`);
-            }            
+            }
         }
         console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
     }
@@ -105,7 +107,7 @@ export default class ReportAggregator {
     }
 
     onSuiteEnd(rid, suiteId, suiteResult) {
-        const testResult = this.results.find(x => x.rid === rid)
+        const testResult = this.results.find(x => x.rid === rid);
         if (!testResult) {
             return;
         }

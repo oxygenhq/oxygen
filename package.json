@@ -95,7 +95,7 @@
     "test:unit": "jest",
     "prepublishOnly": "npm run eslint && npm run build && node tools/dos2unix src/lib/cli.js",
     "postpublish": "node tools/unix2dos src/lib/cli.js",
-    "eslint": "eslint \"Gruntfile.js\" \"src/lib/**/*.js\" \"src/errors/**/*.js\" \"src/model/**/*.js\" \"tools/**/*.js\"",
+    "eslint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
     "prod": "node ./build/lib/cli.js",
     "dev": "cross-env DEBUG=true babel-node --config-file ./babel.config.js ./src/lib/cli.js",

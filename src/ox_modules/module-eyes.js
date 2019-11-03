@@ -40,14 +40,14 @@ export default class ApplitoolsModule extends OxygenModule {
         if (!this.options.applitoolsOpts) {
             throw new Error('Applitools settings are missing.');
         }
-        this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {})
+        this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {});
         this._apiKey = apiKey || this.options.applitoolsKey || this._eyesConfig.key || process.env.APPLITOOLS_KEY || null;        
 
         if (!this._apiKey) {
-            throw new Error('API key is missing. To use Applitools service, you must specify Applitools API key.')
+            throw new Error('API key is missing. To use Applitools service, you must specify Applitools API key.');
         }
         if (typeof module === 'string') {
-            if (this.modules.hasOwnProperty(module)) {
+            if (Object.prototype.hasOwnProperty.call(this.modules, module)) {
                 module = this.modules[module];
             }
             else {

@@ -21,7 +21,7 @@ const REPORT_FILE_NAME = 'report';
 
 export default class FileReporterBase extends ReporterBase {
     constructor(options) {
-        super(options)
+        super(options);
     }
     createFolderStructureAndFilePath(fileExtension) {
         if (!fileExtension || typeof fileExtension !== 'string' || fileExtension.length == 0) {

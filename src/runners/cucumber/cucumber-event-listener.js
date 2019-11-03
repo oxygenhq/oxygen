@@ -10,19 +10,19 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
-import { EventEmitter } from 'events'
+import { EventEmitter } from 'events';
 
 export default class CucumberEventListener extends EventEmitter {
     constructor (eventBroadcaster) {
-        super()
+        super();
 
-        this.features = {}
-        this.gherkinDocEvents = []
-        this.acceptedPickles = []
-        this.currentPickle = null
-        this.currentFeature = null
-        this.currentFeatureUri = null
-        this.testCasePreparedEvents = []
+        this.features = {};
+        this.gherkinDocEvents = [];
+        this.acceptedPickles = [];
+        this.currentPickle = null;
+        this.currentFeature = null;
+        this.currentFeatureUri = null;
+        this.testCasePreparedEvents = [];
         // attachEventLogger(eventBroadcaster)
 
         eventBroadcaster
@@ -34,7 +34,7 @@ export default class CucumberEventListener extends EventEmitter {
             .on('test-step-finished', this.onTestStepFinished.bind(this))
             .on('test-case-finished', this.onTestCaseFinished.bind(this))
             .on('test-run-started', this.onTestRunStarted.bind(this))
-            .on('test-run-finished', this.onTestRunFinished.bind(this))
+            .on('test-run-finished', this.onTestRunFinished.bind(this));
     }
 
     // gherkinDocEvent = {
@@ -77,13 +77,13 @@ export default class CucumberEventListener extends EventEmitter {
             this.emit('feature:after', this.currentFeatureUri, this.currentFeature)
         }*/
 
-        this.gherkinDocEvents.push(gherkinDocEvent)
+        this.gherkinDocEvents.push(gherkinDocEvent);
 
-        const uri = gherkinDocEvent.uri
-        const doc = gherkinDocEvent.document
-        const feature = doc.feature
+        const uri = gherkinDocEvent.uri;
+        const doc = gherkinDocEvent.document;
+        const feature = doc.feature;
 
-        this.emit('feature:ready', uri, feature)
+        this.emit('feature:ready', uri, feature);
     }
 
     // pickleEvent = {
@@ -101,34 +101,34 @@ export default class CucumberEventListener extends EventEmitter {
     // }
     onPickleAccepted (pickleEvent) {
         // because 'pickle-accepted' events are emitted together in forEach loop
-        this.acceptedPickles.push(pickleEvent)
+        this.acceptedPickles.push(pickleEvent);
     }
 
     // testCaseStartedEvent = {
     //     sourceLocation: { uri: string, line: 0 }
     // }
     onTestCaseStarted (testCaseStartedEvent) {
-        const pickleEvent = this.acceptedPickles.shift()
-        const uri = pickleEvent.uri
-        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document
-        const feature = doc.feature
-        const scenario = pickleEvent.pickle
+        const pickleEvent = this.acceptedPickles.shift();
+        const uri = pickleEvent.uri;
+        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document;
+        const feature = doc.feature;
+        const scenario = pickleEvent.pickle;
 
-        this.currentPickle = scenario
+        this.currentPickle = scenario;
 
         if (this.currentFeatureUri && this.currentFeatureUri !== uri) {
-            this.emit('feature:after', this.currentFeatureUri, this.currentFeature)
-            this.currentFeatureUri = uri
-            this.currentFeature = feature
-            this.emit('feature:before', this.currentFeatureUri, this.currentFeature)
+            this.emit('feature:after', this.currentFeatureUri, this.currentFeature);
+            this.currentFeatureUri = uri;
+            this.currentFeature = feature;
+            this.emit('feature:before', this.currentFeatureUri, this.currentFeature);
         }
         else if (!this.currentFeature) {
-            this.currentFeature = feature
-            this.currentFeatureUri = uri
-            this.emit('feature:before', this.currentFeatureUri, this.currentFeature)
+            this.currentFeature = feature;
+            this.currentFeatureUri = uri;
+            this.emit('feature:before', this.currentFeatureUri, this.currentFeature);
         }
 
-        this.emit('scenario:before', uri, feature, scenario)
+        this.emit('scenario:before', uri, feature, scenario);
     }
 
     // testStepStartedEvent = {
@@ -138,15 +138,15 @@ export default class CucumberEventListener extends EventEmitter {
     //     }
     // }
     onTestStepStarted (testStepStartedEvent) {
-        const sourceLocation = testStepStartedEvent.testCase.sourceLocation
-        const uri = sourceLocation.uri
+        const sourceLocation = testStepStartedEvent.testCase.sourceLocation;
+        const uri = sourceLocation.uri;
 
-        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document
-        const feature = doc.feature
-        const scenario = feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation))
-        const step = getStepFromFeature(feature, this.currentPickle, testStepStartedEvent.index, sourceLocation)
+        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document;
+        const feature = doc.feature;
+        const scenario = feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation));
+        const step = getStepFromFeature(feature, this.currentPickle, testStepStartedEvent.index, sourceLocation);
 
-        this.emit('step:before', uri, feature, scenario, step, sourceLocation)
+        this.emit('step:before', uri, feature, scenario, step, sourceLocation);
     }
 
     // testCasePreparedEvent = {
@@ -161,30 +161,30 @@ export default class CucumberEventListener extends EventEmitter {
     //     ]
     // }
     onTestCasePrepared (testCasePreparedEvent) {
-        this.testCasePreparedEvents.push(testCasePreparedEvent)
-        const sourceLocation = testCasePreparedEvent.sourceLocation
-        const uri = sourceLocation.uri
+        this.testCasePreparedEvents.push(testCasePreparedEvent);
+        const sourceLocation = testCasePreparedEvent.sourceLocation;
+        const uri = sourceLocation.uri;
 
-        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document
-        const scenario = doc.feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation))
+        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document;
+        const scenario = doc.feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation));
 
-        const scenarioHasHooks = scenario.steps.filter((step) => step.type === 'Hook').length > 0
+        const scenarioHasHooks = scenario.steps.filter((step) => step.type === 'Hook').length > 0;
         if (scenarioHasHooks) {
-            return
+            return;
         }
-        const allSteps = testCasePreparedEvent.steps
+        const allSteps = testCasePreparedEvent.steps;
         allSteps.forEach((step, idx) => {
             if (!step.sourceLocation) {
-                step.sourceLocation = { line: step.actionLocation.line, column: 0, uri: step.actionLocation.uri }
+                step.sourceLocation = { line: step.actionLocation.line, column: 0, uri: step.actionLocation.uri };
                 const hook = {
                     type: 'Hook',
                     location: step.sourceLocation,
                     keyword: 'Hook',
                     text: ''
-                }
-                scenario.steps.splice(idx, 0, hook)
+                };
+                scenario.steps.splice(idx, 0, hook);
             }
-        })
+        });
     }
 
     // testStepFinishedEvent = {
@@ -195,16 +195,16 @@ export default class CucumberEventListener extends EventEmitter {
     //     }
     // }
     onTestStepFinished (testStepFinishedEvent) {
-        const sourceLocation = testStepFinishedEvent.testCase.sourceLocation
-        const uri = sourceLocation.uri
+        const sourceLocation = testStepFinishedEvent.testCase.sourceLocation;
+        const uri = sourceLocation.uri;
 
-        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document
-        const feature = doc.feature
-        const scenario = feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation))
-        const step = getStepFromFeature(feature, this.currentPickle, testStepFinishedEvent.index, sourceLocation)
-        const result = testStepFinishedEvent.result
+        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document;
+        const feature = doc.feature;
+        const scenario = feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation));
+        const step = getStepFromFeature(feature, this.currentPickle, testStepFinishedEvent.index, sourceLocation);
+        const result = testStepFinishedEvent.result;
 
-        this.emit('step:after', uri, feature, scenario, step, result, sourceLocation)
+        this.emit('step:after', uri, feature, scenario, step, result, sourceLocation);
     }
 
     // testCaseFinishedEvent = {
@@ -212,20 +212,20 @@ export default class CucumberEventListener extends EventEmitter {
     //     sourceLocation: { uri: string, line: 0 }
     // }
     onTestCaseFinished (testCaseFinishedEvent) {
-        const sourceLocation = testCaseFinishedEvent.sourceLocation
-        const uri = sourceLocation.uri
+        const sourceLocation = testCaseFinishedEvent.sourceLocation;
+        const uri = sourceLocation.uri;
 
-        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document
-        const feature = doc.feature
-        const scenario = feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation))
+        const doc = this.gherkinDocEvents.find(gde => gde.uri === uri).document;
+        const feature = doc.feature;
+        const scenario = feature.children.find((child) => compareScenarioLineWithSourceLine(child, sourceLocation));
 
-        this.emit('scenario:after', uri, feature, scenario, sourceLocation)
+        this.emit('scenario:after', uri, feature, scenario, sourceLocation);
 
-        this.currentPickle = null        
+        this.currentPickle = null;        
     }
 
     onTestRunStarted (testRunStartedEvent) {
-        this.emit('test:start')
+        this.emit('test:start');
     }
     // testRunFinishedEvent = {
     //     result: { duration: 4004, success: true }
@@ -233,11 +233,11 @@ export default class CucumberEventListener extends EventEmitter {
     onTestRunFinished (testRunFinishedEvent) {
         // emit 'feature:after' event before the next feature is proceeded
         if (this.currentFeature) {
-            this.emit('feature:after', this.currentFeatureUri, this.currentFeature)
-            this.currentFeature = null
+            this.emit('feature:after', this.currentFeatureUri, this.currentFeature);
+            this.currentFeature = null;
         }
         
-        this.emit('test:end', testRunFinishedEvent.result)
+        this.emit('test:end', testRunFinishedEvent.result);
     }
 }
 
@@ -260,40 +260,40 @@ function attachEventLogger (eventBroadcaster) {
         'test-step-finished',
         'test-case-finished',
         'test-run-finished'
-    ]
+    ];
     EVENTS.forEach(e => {
         eventBroadcaster.on(e, x => {
-            console.log('\n-----' + e + ' -----\n' + JSON.stringify(x, null, 2))
-        })
-    })
+            console.log('\n-----' + e + ' -----\n' + JSON.stringify(x, null, 2));
+        });
+    });
 }
 
 export function compareScenarioLineWithSourceLine (scenario, sourceLocation) {
     if (scenario.type.indexOf('ScenarioOutline') > -1) {
-        return scenario.examples.some((example) => example.tableBody.some((tableEntry) => tableEntry.location.line === sourceLocation.line))
+        return scenario.examples.some((example) => example.tableBody.some((tableEntry) => tableEntry.location.line === sourceLocation.line));
     } else {
-        return scenario.location.line === sourceLocation.line
+        return scenario.location.line === sourceLocation.line;
     }
 }
 
 export function getStepFromFeature (feature, pickle, stepIndex, sourceLocation) {
-    let combinedSteps = []
+    let combinedSteps = [];
     feature.children.forEach((child) => {
         if (child.type.indexOf('Scenario') > -1 && !compareScenarioLineWithSourceLine(child, sourceLocation)) {
-            return
+            return;
         }
-        combinedSteps = combinedSteps.concat(child.steps)
-    })
-    const targetStep = combinedSteps[stepIndex]
+        combinedSteps = combinedSteps.concat(child.steps);
+    });
+    const targetStep = combinedSteps[stepIndex];
 
     if (targetStep.type === 'Step') {
-        const stepLine = targetStep.location.line
-        const pickleStep = pickle.steps.find(s => s.locations.some(loc => loc.line === stepLine))
+        const stepLine = targetStep.location.line;
+        const pickleStep = pickle.steps.find(s => s.locations.some(loc => loc.line === stepLine));
 
         if (pickleStep) {
-            return { ...targetStep, text: pickleStep.text }
+            return { ...targetStep, text: pickleStep.text };
         }
     }
 
-    return targetStep
+    return targetStep;
 }
