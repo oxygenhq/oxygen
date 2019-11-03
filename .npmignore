@@ -1,3 +1,5 @@
 node_modules/*
 apidocs/*
 npm-debug.log
+.vscode/*
+.gitattributes
