@@ -3,3 +3,4 @@ apidocs/*
 npm-debug.log
 .vscode/*
 .gitattributes
+src/*
