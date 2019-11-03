@@ -37,7 +37,6 @@
     "@babel/plugin-proposal-optional-catch-binding": "7.2.0",
     "@babel/plugin-transform-modules-commonjs": "7.5.0",
     "@babel/preset-env": "7.5.5",
-    "@babel/register": "7.5.5",
     "babel-plugin-source-map-support": "2.1.1",
     "source-map-support": "0.5.16",
     "cross-env": "6.0.3",
@@ -48,6 +47,7 @@
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.7.2",
     "@babel/cli": "7.2.3",
+    "@babel/register": "7.5.5",
     "@wdio/config": "5.15.3",
     "@wdio/sync": "5.15.7",
     "@wdio/utils": "5.15.1",
