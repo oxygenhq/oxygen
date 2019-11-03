@@ -29,7 +29,6 @@
     "url": "https://github.com/oxygenhq/oxygen/issues"
   },
   "devDependencies": {
-    "@babel/core": "7.5.5",
     "@babel/node": "7.5.5",
     "@babel/plugin-proposal-class-properties": "7.5.5",
     "@babel/plugin-proposal-export-default-from": "7.5.2",
@@ -47,6 +46,7 @@
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.7.2",
     "@babel/cli": "7.2.3",
+    "@babel/core": "7.5.5",
     "@babel/register": "7.5.5",
     "@wdio/config": "5.15.3",
     "@wdio/sync": "5.15.7",
