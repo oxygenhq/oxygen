@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var doctrine = require('doctrine');
-var modPath = path.resolve(__dirname, '../ox_modules');
+var modPath = path.resolve(__dirname, '../build/ox_modules');
 
 if (!String.prototype.format) {
     String.prototype.format = function() {
