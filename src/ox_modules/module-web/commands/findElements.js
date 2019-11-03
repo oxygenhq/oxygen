@@ -10,25 +10,23 @@
  * @summary Finds elements.
  * @function findElements
  * @param {String} locator - Element locator.
- * @param {Object=} parent - Optional parent element for relative search.
- * @return {Array<WebElement>} - Collection of WebElement JSON objects.
+ * @param {Element=} parent - Optional parent element for relative search.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @return {Element[]} - Collection of Element objects.
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.findElement("//div[@class='Headers']","id=divHeaders); //Finds elements.
+ * web.open('https://www.wikipedia.org');
+ * var els = web.findElements("//div");
+ * for (let el of els) {
+ *   var text = web.getText(el);
+ *   log.info(text);
+ * }
 */
-module.exports = function(locator, parent) {
-    this.helpers.assertArgument(locator, 'locator');
-    locator = this.helpers.getWdioLocator(locator);
-    var retval = null;
+module.exports = function(locator, parent, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    if (parent && typeof parent === 'object' && parent.$$) {
-        retval = parent.$$(locator);
+    if (parent) {
+        return this.helpers.getChildElements(locator, parent, timeout);
     } else {
-        retval = this.driver.$$(locator);
+        return this.helpers.getElements(locator, timeout);
     }
-    // check if return value is of org.openqa.selenium.remote.Response type, then return 'value' attribute
-    if (retval && retval.value) {
-        retval = retval.value;
-    }
-    return retval;
 };

@@ -17,7 +17,8 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var el = mob.findElement("id=Password");//Finds an element.
+ * var el = mob.findElement("id=Password");
+ * mob.click(el);
 */
 module.exports = function(locator, parent, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

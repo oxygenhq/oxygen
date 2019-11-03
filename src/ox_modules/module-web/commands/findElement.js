@@ -11,21 +11,20 @@
  * @summary Finds an element.
  * @function findElement
  * @param {String} locator - Element locator.
- * @param {Object=} parent - Optional parent element for relative search.
- * @return {WebElement} - A WebElement object.
+ * @param {Element=} parent - Optional parent element for relative search.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @return {Element} - A Element object.
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.findElement("id=Password","id=divPass");//Finds an element.
+ * web.open('https://www.wikipedia.org');
+ * var el = web.findElement("id=js-link-box-en");
+ * web.click(el);
 */
-module.exports = function(locator, parent) {
-    this.helpers.assertArgument(locator, 'locator');
-    locator = this.helpers.getWdioLocator(locator);
+module.exports = function(locator, parent, timeout) {
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    let elm = null;
-    if (parent && typeof parent === 'object' && parent.$) {
-        elm = parent.$(locator);
+    if (parent) {
+        return this.helpers.getChildElement(locator, parent, false, timeout);
     } else {
-        elm = this.driver.$(locator);
+        return this.helpers.getElement(locator, false, timeout);
     }
-    return elm;
 };
