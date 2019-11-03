@@ -107,17 +107,7 @@ export default class CucumberRunner {
             const eventBroadcaster = new EventEmitter();
             this.hookInCucumberEvents(eventBroadcaster);
             this.cucumberReporter = new CucumberReporter(this.id, this.cucumberEventListener, this.oxygen, this.reporter, this.config);
-            // eslint-disable-next-line no-new
-            //new HookRunner(eventBroadcaster, this.config)
-    
-            const reporterOptions = {
-                capabilities: this.capabilities,
-                ignoreUndefinedDefinitions: Boolean(this.cucumberOpts.ignoreUndefinedDefinitions),
-                failAmbiguousDefinitions: Boolean(this.cucumberOpts.failAmbiguousDefinitions),
-                tagsInTitle: Boolean(this.cucumberOpts.tagsInTitle)
-            };
-            const reporter = null; // new CucumberReporter(eventBroadcaster, reporterOptions, this.cid, this.specs)
-    
+        
             const pickleFilter = new Cucumber.PickleFilter({
                 featurePaths: this.specs,
                 names: this.cucumberOpts.name,
@@ -158,7 +148,7 @@ export default class CucumberRunner {
             return result;
         }
         catch (e) {
-            console.log('Fatal error in Cucumber runner.', e);
+            console.log('Fatal error in Cucumber runner:', e);
             this.reporter.onRunnerEnd(this.id, e);
         }
     }
@@ -176,7 +166,7 @@ export default class CucumberRunner {
                 await this.oxygen.dispose();
             }
             catch (e) {
-                console.error('Failed to dispose Oxygen modules.', e);
+                console.error('Failed to dispose Oxygen modules:', e);
             }
             this.oxygen = null;
         }
@@ -263,7 +253,6 @@ export default class CucumberRunner {
      */
     wrapSteps () {
         const wrapStep = this.wrapStep.bind(this);
-        const cid = this.cid;
         const config = this.config;
         const id = this.id;
 

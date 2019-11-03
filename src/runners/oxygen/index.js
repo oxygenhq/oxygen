@@ -141,17 +141,19 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     setBreakpoint(line) {
+        /*
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {
             const tc = this._suite.testcases[tcindex];
             logger.debug('oxygen.setBreakpoint: ' + (line + this._scriptContentLineOffset));
             this._worker.debugger.setBreakpoint(tc.name, line + this._scriptContentLineOffset);
-        }
+        }*/
     }
 
     clearBreakpoint(line) {
+        /*
         if (this.debugMode && this._worker && this._worker.debugger) {
             this._worker.debugger.clearBreakpoint(line + this._scriptContentLineOffset, null);
-        }
+        }*/
     }
 
     /*********************************
@@ -420,7 +422,7 @@ export default class OxygenRunner extends EventEmitter {
         });
         this._worker.on('debugger:break', (breakpoint) => {
             // assume we always send breakpoint of the top call frame
-            if (breakpoint.callFrames && breakpoint.callFrames.length > 0 && ts) {
+            if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
                 let breakpointData = null;
                 // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
                 if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
@@ -430,7 +432,8 @@ export default class OxygenRunner extends EventEmitter {
                 else {
                     breakpointData = breakpoint.callFrames[0].location;
                 }
-                _this.emit('breakpoint', breakpointData, ts.testcases[tcindex]);
+                // TODO: fix the line below
+                _this.emit('breakpoint', breakpointData, null /*ts.testcases[tcindex]*/);
             }
         });
     }

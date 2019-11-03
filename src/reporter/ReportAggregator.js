@@ -134,7 +134,7 @@ export default class ReportAggregator {
     _getFirstFailure(testResult) {
         if (testResult.status === Status.FAILED) {
             if (testResult.failure) {
-                return suiteResult.failure;
+                return testResult.failure;
             }
             for (let suiteResult of testResult.suites) {
                 if (suiteResult.status !== Status.FAILED) {

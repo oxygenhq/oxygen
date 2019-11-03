@@ -337,19 +337,7 @@ export default class Oxygen extends OxygenEvents {
     _wrapAsync (fn, context) {
         return function (...args) {
             var self = context || this;
-            var callback;
-      
-            for (let i = args.length - 1; i >= 0; --i) {
-                const arg = args[i];
-                const type = typeof arg;
-                if (type !== 'undefined') {
-                    if (type === 'function') {
-                        callback = arg;
-                    }
-                    break;
-                }
-            }
-          // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
+            // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
             if (!Fiber.current) {
                 const retval = fn.apply(self, args);
                 let done = false;
@@ -372,7 +360,7 @@ export default class Oxygen extends OxygenEvents {
                 }
                 throw error;
             }
-          // otherwise, if we are inside the Fiber context, then use Fiber's Future
+            // otherwise, if we are inside the Fiber context, then use Fiber's Future
             const future = new Future();
             var result = fn.apply(self, args);
             if (result && typeof result.then === 'function') {

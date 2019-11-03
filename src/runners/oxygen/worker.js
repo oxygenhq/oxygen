@@ -132,9 +132,11 @@ async function run(scriptName, scriptPath, context) {
             require(scriptPath);
         });
     } catch (e) {
+        // eslint-disable-next-line no-undef
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
         return;
     }
+    // eslint-disable-next-line no-undef
     processSend({ event: 'run:success', ctx: ox.ctx, resultStore: { steps: _steps } });
     _steps = null;
 }
