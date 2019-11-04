@@ -1,5 +1,9 @@
 # CHANGELOG
 
+## v0.51.1 (2019-11-04)
+
+#### :house: Internal
+* Fix network timings.
 
 ## v0.51.0 (2019-10-23)
 
