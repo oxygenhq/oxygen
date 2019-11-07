@@ -7,9 +7,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-
-import path from 'path';
-import fs from 'fs';
+import cliutil from './cli-util';
 import oxutil from './util';
 import Launcher from './launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
@@ -28,104 +26,28 @@ if (argv.v || argv.version) {
     printUsage();
     process.exit(1);
 }
-const targetFile = processTargetPath(argv._[0]);
+const targetFile = cliutil.processTargetPath(argv._[0]);
 
 if (targetFile == null) {
     printUsage();
     process.exit(1);
 }
 
-function processTargetPath(targetPath) {
-    // get current working directory if user has not provided path
-    if (typeof(targetPath) === 'undefined') {
-        targetPath = process.cwd();
-    }
-    // user's path might be relative to the current working directory - make sure the relative path will work
-    else {
-        targetPath = oxutil.resolvePath(targetPath, process.cwd());
-    }
-    const stats = fs.lstatSync(targetPath);
-    const isDirector = stats.isDirectory();
-    if (isDirector) {
-        // append oxygen config file name to the directory, if no test case file was provided
-        let configFilePath = path.join(targetPath, OXYGEN_CONFIG_FILE_NAME + '.js');
-        if (!fs.existsSync(configFilePath)) {
-            configFilePath = path.join(targetPath, OXYGEN_CONFIG_FILE_NAME + '.json');
-            if (!fs.existsSync(configFilePath)) {
-                return null;
-            }
-        }
-        targetPath = configFilePath;
-    }
-    if (!fs.existsSync(targetPath)) {
-        return null;
-    }
-    return {
-        // path to the config or .js file
-        path: targetPath,
-        // working directory
-        cwd: path.dirname(targetPath),
-        // name of the target file without extension
-        name: oxutil.getFileNameWithoutExt(targetPath),        
-        // name including extension
-        fullName: path.basename(targetPath),
-        // parent folder's name
-        baseName: path.basename(path.dirname(targetPath)),
-        // target file extension
-        extension: path.extname(targetPath)
-    };
-}
-
-let startup = {
-    cwd: targetFile.cwd,
-    target: targetFile,
-    browserName : argv.b || argv.browser || 'chrome',
-    seleniumUrl : argv.s || argv.server || 'http://localhost:4444/wd/hub',
-    host: argv.host || 'localhost',
-    port: argv.port || 4723,
-    reopenSession: argv.reopen ? argv.reopen === 'true' : false,
-    iterations : argv.i ? parseInt(argv.i) : (argv.iter ? parseInt(argv.iter) : null),
-    debugPort: argv.dbgport || null,
-    delay: argv.delay || null,
-    collectDeviceLogs: false,
-    collectAppiumLogs: false,
-    collectBrowserLogs: false,
-    reporting: {
-        localTime: true,
-        outputDir: argv.ro || null,
-        reporters: [argv.rf || 'html'],
-    },    
-    ext: {                                      // TODO: document this
-        browserStack: {
-            user: argv.bsUser || null,
-            key: argv.bsKey || null,
-            project: argv.bsProject || null,
-            build: argv.bsBuild || null,
-            browserName: argv.bsBrowser || null,
-            browserVer: argv.bsBrowserVer || null,
-            osName: argv.bsOS || null,
-            osVer: argv.bsOSVer || null,
-            resolution: argv.bsRes || null,
-            platform: argv.bsPlatform || null,
-            device: argv.bsDevice || null
-        }
+const config = cliutil.getConfigurations(targetFile, argv);
+const options = cliutil.generateTestOptions(config);
+const promise = prepareAndStartTheTest(options);
+promise.then(
+    () => {
+        console.log('Done!');
+        process.exit(0);
     },
-    parameters : {
-        file: argv.p || argv.param || null,
-        mode: argv.pm || 'seq'
-    },
-    require : {
-        allow: argv.req ? argv.req === 'true' : true
+    (e) => {
+        console.error('Test failed: ', e);
+        process.exit(1);
     }
-};
+);
 
-async function prepareTestConfig(targetFile, config) {
-    // determine test name
-    let name = config.name;
-    if (!name) {
-        name = targetFile.name !== OXYGEN_CONFIG_FILE_NAME ? targetFile.name : targetFile.baseName;
-    }
-    
+async function prepareTestOptions(targetFile, config) {
     // if the target is oxygen config file, merge its content with the default options
     if (targetFile.name === OXYGEN_CONFIG_FILE_NAME && (targetFile.extension === '.js' || targetFile.extension === '.json')) {
         const moreOpts = require(targetFile.path);
@@ -173,33 +95,23 @@ function validateAndCompleteConfigFile(config) {
     return config;
 }
 
-prepareTestConfig(targetFile, startup).then( (testConfig) => {
-    const promise = prepareAndStartTheTest(testConfig);
-    promise.then(
-        () => {
-            console.log('Done!');
-            process.exit(0);
-        },
-        (e) => {
-            console.error('Test failed: ', e);
-            process.exit(1);
-        }
-    );
+prepareTestConfig(targetFile, config).then( (testConfig) => {
+    
 });
 
-async function prepareAndStartTheTest(config) {
-    if (config.framework === 'oxygen' && (!config.suites || !Array.isArray(config.suites))) {
+async function prepareAndStartTheTest(options) {
+    if (options.framework === 'oxygen' && (!options.suites || !Array.isArray(options.suites))) {
         throw new Error('Cannot start the test - no suites are specified.');
     }
-    let capsArr = config.capabilities || [{}];
+    let capsArr = options.capabilities || [{}];
     // check if capabilities object is an array or a hashtable
     if (!(capsArr instanceof Array)) {
         capsArr = [capsArr];
     }
     // start launcher
     try {
-        const reporter = new ReportAggregator(config);
-        const launcher = new Launcher(config, reporter);
+        const reporter = new ReportAggregator(options);
+        const launcher = new Launcher(options, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();

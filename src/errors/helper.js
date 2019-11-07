@@ -138,11 +138,16 @@ module.exports = {
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err), true, err);
     },
     getSeleniumInitError: function(err) {
-        console.log('getSeleniumInitError');
         if (err.message) {
             var ieZoomErrorMsg = err.message.match(/(Unexpected error launching Internet Explorer\. Browser zoom level was set to \d+%\. It should be set to \d+%)/gm);
             if (ieZoomErrorMsg) {
                 return new OxError(ERROR_CODES.BROWSER_CONFIGURATION_ERROR, ieZoomErrorMsg.toString());
+            }
+            else if (err.message.indexOf('Unable to create new service: ChromeDriverService') > -1) {
+                return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, err.message, null, true, err);
+            }
+            else if (err.message.indexOf('Unable to create new service:') > -1) {
+                return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, err.message, null, true, err);
             }
         }
 
