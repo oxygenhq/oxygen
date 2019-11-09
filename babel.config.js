@@ -22,5 +22,8 @@ module.exports = {
         test: '**/src/ox_modules/**/*.js',
         comments: true
     }],
+    ignore: [
+        '**/src/lib/logger.js'
+    ],
     comments: false
 }
