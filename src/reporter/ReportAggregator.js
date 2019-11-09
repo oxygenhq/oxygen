@@ -10,6 +10,8 @@
 /*
  * Report aggregator
  */
+import { EventEmitter } from 'events';
+
 import TestResult from '../model/test-result';
 import oxutil from '../lib/util';
 
@@ -30,8 +32,9 @@ const Reporters = {
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
 
-export default class ReportAggregator {
+export default class ReportAggregator extends EventEmitter {
     constructor(options) {
+        super();
         // results hash table based on runner id key
         this.results = [];
         this.options = options;
@@ -80,6 +83,11 @@ export default class ReportAggregator {
         testResult.options = opts;
         this.results.push(testResult);
         console.log(`Test ${rid} has started...`);
+        this.emit('runner:start', {
+            rid,
+            opts,
+            caps
+        });
     }
 
     onRunnerEnd(rid, fatalError) {
@@ -96,10 +104,19 @@ export default class ReportAggregator {
             }
         }
         console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
+        this.emit('runner:end', {
+            rid,
+            result: testResult,
+        });
     }
 
     onSuiteStart(rid, suiteId, suite) {
         console.log(`Suite "${suite.name}" has started...`);
+        this.emit('suite:start', {
+            rid,
+            suiteId: suiteId,
+            suite: suite,
+        });
     }
 
     onSuiteEnd(rid, suiteId, suiteResult) {
@@ -109,22 +126,45 @@ export default class ReportAggregator {
         }
         testResult.suites.push(suiteResult);
         console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
+        this.emit('suite:end', {
+            rid,
+            suiteId,
+            result: suiteResult,
+        });
     }
 
     onCaseStart(rid, suiteId, caseId, caseDef) {
         console.log(`- Case "${caseDef.name}" has started...`);
+        this.emit('case:start', {
+            rid,
+            suiteId,
+            caseId,
+            case: caseDef,
+        });
     }
 
     onCaseEnd(rid, suiteId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
+        this.emit('suite:end', {
+            rid,
+            suiteId,
+            caseId,
+            result: caseResult,
+        });
     }
 
-    onStepStart(rid, suiteId, caseId, step) {
-
+    onStepStart(rid, step) {
+        this.emit('step:start', {
+            rid,
+            step: step,
+        });
     }
 
-    onStepEnd(rid, suiteId, caseId, step) {
-        //console.log('onStepEnd', step)
+    onStepEnd(rid, step) {
+        this.emit('step:end', {
+            rid,
+            step: step,
+        });
     }
 
     /**

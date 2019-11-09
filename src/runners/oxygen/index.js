@@ -412,6 +412,10 @@ export default class OxygenRunner extends EventEmitter {
             } else if (msg.event && msg.event === 'dispose:failed') {
                 _this._whenDisposed.reject(msg.err);
                 _this._resetGlobalVariables();
+            } else if (msg.event && msg.event === 'command:before') {
+                _this._reporter && _this._reporter.onStepStart(this._id, msg.command);
+            } else if (msg.event && msg.event === 'command:after') {
+                _this._reporter && _this._reporter.onStepEnd(this._id, msg.command);
             } else if (msg.event && msg.event === 'line-update') {
                 _this.emit('line-update', msg.line, msg.stack, msg.time);
             } else if (msg.event && msg.event === 'result-update') {

@@ -142,7 +142,7 @@ async function run(scriptName, scriptPath, context) {
 }
 
 function handleBeforeCommand(e) {
-    if (!e || !e.result) {
+    if (!e) {
         return;
     }
     processSend({ event: 'command:before', command: e });

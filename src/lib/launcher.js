@@ -19,19 +19,21 @@ export default class Launcher {
         this._queue = null;
     }
 
-    async run(capabilitiesSets) {
+    async run(capsSet) {
         this._queue = queue((task, cb) => this._launchTest(task, cb), this._config.parallel || 1);
         this._queue.error((err, task) => {
             console.log('Error in queue:', err);
         });
 
         // if no capabilities are specified, run single instance with default arguments
-        if (!capabilitiesSets) {
+        if (!capsSet) {
             this._queue.push(null);
         }
         else {
+            // make sure capsSet is an array 
+            capsSet = Array.isArray(capsSet) ? capsSet : [capsSet];
             const _this = this;
-            _.each(capabilitiesSets, function(caps) {
+            _.each(capsSet, function(caps) {
                 _this._queue.push(caps);
             });
         }
