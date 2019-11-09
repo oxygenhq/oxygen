@@ -18,5 +18,9 @@ module.exports = {
 //            plugins: ['source-map-support']
         }
     },
+    overrides: [{
+        test: '**/src/ox_modules/**/*.js',
+        comments: true
+    }],
     comments: false
 }
