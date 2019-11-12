@@ -62,7 +62,7 @@ module.exports = function(windowLocator, timeout) {
                     return currentHandle;
                 }
             }
-            this.pause(600);
+            this.pause(1000);
         }
         // if window not found - switch to original one and throw
         this.driver.switchToWindow(currentHandle);
