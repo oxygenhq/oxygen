@@ -61,6 +61,9 @@ export default class OxygenRunner extends EventEmitter {
      * Public methods
      *********************************/
     async init(options, caps, reporter) {
+
+        console.log('oxygen init options', options);
+
         this._options = options;
         this._cwd = this._options.cwd || process.cwd();
         this._capabilities = caps;
@@ -120,6 +123,9 @@ export default class OxygenRunner extends EventEmitter {
         this._reporter.onRunnerEnd(this._id, error);
 
         this._isRunning = false;
+        if (this._worker) {
+            this._worker.stop();
+        }
 
         if (error) {
             throw error;
@@ -141,6 +147,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     setBreakpoint(line) {
+        console.log('setBreakpoint', line);
         /*
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {
             const tc = this._suite.testcases[tcindex];
@@ -150,6 +157,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     clearBreakpoint(line) {
+        console.log('clearBreakpoint', line);
         /*
         if (this.debugMode && this._worker && this._worker.debugger) {
             this._worker.debugger.clearBreakpoint(line + this._scriptContentLineOffset, null);
@@ -394,6 +402,7 @@ export default class OxygenRunner extends EventEmitter {
                 if (msg.src === DEFAULT_ISSUER) {
                     _this.emit('log-add', msg.level, msg.msg, msg.time);
                 }
+                _this._reporter && _this._reporter.logAdd('general', msg.msg, msg.time);
             } else if (msg.event && msg.event === 'init:success') {
                 _this._isInitializing = false;
                 _this._whenEngineInitFinished.resolve(null);
@@ -425,6 +434,7 @@ export default class OxygenRunner extends EventEmitter {
             }
         });
         this._worker.on('debugger:break', (breakpoint) => {
+            console.log('this._worker.on debugger:break', breakpoint);
             // assume we always send breakpoint of the top call frame
             if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
                 let breakpointData = null;

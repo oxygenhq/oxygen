@@ -160,6 +160,12 @@ export default class ReportAggregator extends EventEmitter {
         });
     }
 
+    logAdd(level, msg, time){
+        this.emit('log-add', {
+            level, msg, time
+        });
+    }
+
     onStepEnd(rid, step) {
         this.emit('step:end', {
             rid,

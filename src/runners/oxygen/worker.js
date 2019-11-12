@@ -134,10 +134,12 @@ async function run(scriptName, scriptPath, context) {
     } catch (e) {
         // eslint-disable-next-line no-undef
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
+        processSend({ event: 'log-add', level: 'general', msg: 'Test finished with status --> failed', time: oxutil.getTimeStamp() });
         return;
     }
     // eslint-disable-next-line no-undef
     processSend({ event: 'run:success', ctx: ox.ctx, resultStore: { steps: _steps } });
+    processSend({ event: 'log-add',  level: 'general', msg: 'Test finished with status --> success', time: oxutil.getTimeStamp() });
     _steps = null;
 }
 

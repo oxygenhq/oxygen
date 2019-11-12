@@ -52,10 +52,12 @@ export default class WorkerProcess extends EventEmitter {
         this._isRunning = true;
         return this._childProc;
     }
+
     async stop() {
         if (!this._childProc) {
             return false;
         }
+        
         if (this._debugger) {
             await this._debugger.close();
         }
@@ -103,8 +105,10 @@ export default class WorkerProcess extends EventEmitter {
         this.emit('error', Object.assign(error, { pid: this._pid }));
     }
     _handleChildExit(exitCode, signal) {
-        log.debug(`Worker ${this._pid} finished with exit code ${exitCode} and signal ${signal}.`);        
-        this._childProc.kill('SIGTERM');
+        log.debug(`Worker ${this._pid} finished with exit code ${exitCode} and signal ${signal}.`);      
+        if(this._childProc && this._childProc.kill){
+            this._childProc.kill('SIGTERM');
+        }
         this._reset();
         this.emit('exit', { pid: this._pid, exitCode, signal });
     }
