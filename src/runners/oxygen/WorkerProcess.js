@@ -23,6 +23,13 @@ export default class WorkerProcess extends EventEmitter {
         this._pid = pid;
         this._debugMode = debugMode;
         this._debugPort = debugPort;
+
+        // setInterval(() => {
+        //     console.log('---');
+        //     console.log('!!this._debugger', !!this._debugger);
+        //     console.log('_pid', this._pid);
+        //     console.log('--- \n');
+        // }, 5000);
     }
     async start() {
         const env = Object.assign(process.env, {
@@ -54,14 +61,14 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async stop() {
-        if (!this._childProc) {
-            return false;
-        }
-        
         if (this._debugger) {
             await this._debugger.close();
         }
         this._reset();
+
+        if (!this._childProc) {
+            return false;
+        }
     }
 
     send(message) {
@@ -105,7 +112,7 @@ export default class WorkerProcess extends EventEmitter {
         this.emit('error', Object.assign(error, { pid: this._pid }));
     }
     _handleChildExit(exitCode, signal) {
-        log.debug(`Worker ${this._pid} finished with exit code ${exitCode} and signal ${signal}.`);      
+        log.debug(`Worker ${this._pid} finished with exit code ${exitCode} and signal ${signal}.`);
         if(this._childProc && this._childProc.kill){
             this._childProc.kill('SIGTERM');
         }
@@ -114,6 +121,12 @@ export default class WorkerProcess extends EventEmitter {
     }
     _handleChildDisconnect() {
         log.debug(`Worker ${this._pid} disconnected.`);
+        if (this._debugger) {
+            log.debug(`Close Debugger`);
+            this._debugger.close();
+        } else {
+            log.debug(`Looks like Debugger closed`);
+        }
     }
     _handleChildUncaughtException(error) {
         log.debug(`Worker ${this._pid} thrown an uncaught error: ${error}.`);
@@ -126,7 +139,7 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async _initializeDebugger() {
-        this._debugger = new Debugger();
+        this._debugger = new Debugger(this._pid);
         let whenDebuggerReady = defer();
         const _this = this;
         // handle debugger events     
@@ -145,8 +158,18 @@ export default class WorkerProcess extends EventEmitter {
         this._debugger.on('break', function(breakpoint) {
             this.emit('debugger:break', Object.assign(breakpoint, { pid: this._pid }));
         });
-        // connect to Chrome debugger
-        await this._debugger.connect(this._debugPort, '127.0.0.1');
+
+        try{
+            // connect to Chrome debugger
+            await this._debugger.connect(this._debugPort, '127.0.0.1');
+            await snooze(10000);
+            await this._debugger.connect(this._debugPort, '127.0.0.1');
+        } catch(e){
+            console.log('connect to Chrome debugger error', e);
+            throw e;
+        }
+
+
         return whenDebuggerReady.promise;
     }
 }

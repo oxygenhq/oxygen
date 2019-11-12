@@ -135,6 +135,9 @@ async function run(scriptName, scriptPath, context) {
         // eslint-disable-next-line no-undef
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
         processSend({ event: 'log-add', level: 'general', msg: 'Test finished with status --> failed', time: oxutil.getTimeStamp() });
+        if(e && e.message){
+            processSend({ event: 'log-add', level: 'general', msg: e.message});
+        }
         return;
     }
     // eslint-disable-next-line no-undef

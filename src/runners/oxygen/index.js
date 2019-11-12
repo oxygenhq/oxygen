@@ -56,6 +56,15 @@ export default class OxygenRunner extends EventEmitter {
         this._whenEngineInitFinished = defer();
         this._whenDisposed = defer();
         this._whenTestCaseFinished = null;
+
+        // setInterval(() => {
+        //     console.log('---');
+        //     console.log('OxygenRunner');
+        //     console.log('this._worker', !!this._worker);
+        //     console.log('this._id', this._id);
+        //     console.log('--- \n');
+        // }, 5000);
+
     }
     /*********************************
      * Public methods
@@ -141,13 +150,58 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     debugContinue() {
-        if (this.debugMode && this._worker) {
+        if (this._debugMode && this._worker) {
             this._worker.debugger.continue();
+        } else {
+            console.log('in else');
+        }
+    }
+
+    updateBreakpoints(breakpoints, filePath){
+
+        try {
+            // var tc;
+
+            // if (ts && ts.testcases && ts.testcases[tcindex]) {
+            //     tc = ts.testcases[tcindex];
+            // }
+
+            if (this._debugMode && this._worker.debugger /* && tc */) {
+                let promises = [];
+
+                // // adjust breakpoint line numbers
+                // breakpoints = breakpoints.map((bp) => {
+                //     // for primary file we add offset due to script-boilerplate code
+                //     // for secondary files just reduce by 1 since BP indices are 0-based
+                //     return (tc.path === filePath ? bp + module.getScriptContentLineOffset: bp - 1);
+                // });
+
+                const tsBreakpoints = this._worker.debugger.getBreakpoints(filePath);
+
+                // add new breakpoints
+                for (var userSetBp of breakpoints) {
+                    if (!tsBreakpoints.includes(userSetBp)) {
+                        promises.push(this._worker.debugger.setBreakpoint(filePath, userSetBp));
+                    }
+                }
+
+                // remove deleted breakpoints
+                for (var actualCurrentBp of tsBreakpoints) {
+                    if (!breakpoints.includes(actualCurrentBp)) {
+                        promises.push(this._worker.debugger.removeBreakpointByValue(filePath, actualCurrentBp));
+                    }
+                }
+
+                Promise.all(promises).then(() => {
+                    console.log('updateBreakpoints finished');
+                });
+            }
+        } catch(e){
+            logger.error('Debugger error', e);
         }
     }
 
     setBreakpoint(line) {
-        console.log('setBreakpoint', line);
         /*
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {
             const tc = this._suite.testcases[tcindex];
@@ -157,7 +211,6 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     clearBreakpoint(line) {
-        console.log('clearBreakpoint', line);
         /*
         if (this.debugMode && this._worker && this._worker.debugger) {
             this._worker.debugger.clearBreakpoint(line + this._scriptContentLineOffset, null);
@@ -274,10 +327,13 @@ export default class OxygenRunner extends EventEmitter {
                 // editor index starts from 1, but we need zero based index
                 let line = caze.breakpoints[i].line;
                 let file = caze.breakpoints[i].file;
-                // if test case's script file is the same as the file with breakpoint, add extra boilerplate's wrapper lines
-                if (caze.path === file) {
-                    line = this._scriptContentLineOffset + line;
-                }
+
+                // // if test case's script file is the same as the file with breakpoint, add extra boilerplate's wrapper lines
+                // if (caze.path === file) {
+                //     line = this._scriptContentLineOffset + line;
+                // }
+
+
                 await this._worker.debugger.setBreakpoint(file, line);
             }
         }
@@ -351,6 +407,10 @@ export default class OxygenRunner extends EventEmitter {
         this._worker.send({
             type: 'dispose',
         });
+
+        this._worker.debugger.close();
+        this._worker = null;
+
         return this._whenDisposed.promise;
     }
 
@@ -434,7 +494,23 @@ export default class OxygenRunner extends EventEmitter {
             }
         });
         this._worker.on('debugger:break', (breakpoint) => {
-            console.log('this._worker.on debugger:break', breakpoint);
+            // assume we always send breakpoint of the top call frame
+            if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
+                let breakpointData = null;
+                // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
+                if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
+                    breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
+                }
+                // otherwise, get the line from breakpoint.callFrames[0] object (but then we won't have file path, but scriptId instead)
+                else {
+                    breakpointData = breakpoint.callFrames[0].location;
+                }
+                // TODO: fix the line below
+                _this.emit('breakpoint', breakpointData, null /*ts.testcases[tcindex]*/);
+            }
+        });
+
+        this._worker.debugger.on('debugger:break', (breakpoint) => {
             // assume we always send breakpoint of the top call frame
             if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
                 let breakpointData = null;

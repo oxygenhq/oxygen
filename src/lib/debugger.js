@@ -17,15 +17,24 @@ const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
 
 class Debugger extends EventEmitter {
-    constructor() {
+    constructor(pid) {
         super();
 
+        this._pid = pid;
         this._port = undefined;
         this._host = undefined;
         this._breakpoints = undefined;
         this._pendingBP = undefined;
         this._paused = false;
+        this._client = null;
         this.reset();
+
+        // setInterval(() => {
+        //     console.log('---');
+        //     console.log('!!this._client', !!this._client);
+        //     console.log('_pid', this._pid);
+        //     console.log('--- \n');
+        // }, 5000);
     }
     reset() {
         if (this._client) {
@@ -35,14 +44,8 @@ class Debugger extends EventEmitter {
         }
         this._breakpoints = [];
     }
-    /**
-     * Connects to a debugger. Does nothing if already connected.
-     * @param {Integer} Debugger port.
-     */
-    async connect(port, host) {
-        this._port = port;
-        this._host = host || 'localhost';
-        this._client = await CDP({ port: port, host: this._host });
+
+    async continueConnect(){
         //this._client.on('Debugger.scriptParsed', async (m) => await this._handleParsedScript(m));
         this._client.on('Debugger.paused', (e) => {
             this._paused = true;
@@ -75,6 +78,7 @@ class Debugger extends EventEmitter {
                 }
             }
         });
+
         const { Debugger, Runtime } = this._client;
         this._Debugger = Debugger;
         Runtime.enable();
@@ -87,6 +91,25 @@ class Debugger extends EventEmitter {
         // await for the first breakpoint which is placed by the debugger automatically 
         await this._Debugger.paused();
         this.emit('ready');
+    }
+    /**
+     * Connects to a debugger. Does nothing if already connected.
+     * @param {Integer} Debugger port.
+     */
+    
+    async connect(port, host) {
+        this._port = port;
+        this._host = host || 'localhost';
+
+        try{
+            this._client = await CDP({ port: port, host: this._host });
+        } catch(e){
+            console.log('~~~ ignore CDP', e);
+        }
+
+        if(this._client){
+            await this.continueConnect();
+        }
     }
     /**
      * Set breakpoint for a particular script.
