@@ -1,0 +1,39 @@
+{
+// Use IntelliSense to learn about possible attributes.
+// Hover to view descriptions of existing attributes.
+// For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+"version": "0.2.0",
+"configurations": [
+{
+"type": "node",
+"request": "launch",
+"name": "Main",
+"cwd": "${workspaceFolder}",
+"runtimeExecutable": "npm",
+"runtimeArgs": [
+    "run", "debug",
+    "C:/Users/rom/Desktop/snir.js",
+    "--dbgport=10000",
+    "serve:debug",
+    "--"
+], 
+"protocol": "inspector",
+"stopOnEntry": false,
+"console": "integratedTerminal",
+"trace": true
+},
+{
+    "type": "node",
+    "request": "attach",
+    "protocol": "inspector",
+    "name": "Child",
+    "port": 10000
+}
+],
+"compounds": [
+{
+"name": "Debug Oxygen",
+"configurations": ["Main","Child"]
+}
+],
+}
