@@ -7,7 +7,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-import cliutil from './cli-util';
+import * as cliutil from './cli-util';
 import oxutil from './util';
 import Launcher from './launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
@@ -26,6 +26,7 @@ if (argv.v || argv.version) {
     printUsage();
     process.exit(1);
 }
+
 const targetFile = cliutil.processTargetPath(argv._[0]);
 
 if (targetFile == null) {
@@ -34,16 +35,18 @@ if (targetFile == null) {
 }
 
 const config = cliutil.getConfigurations(targetFile, argv);
-const options = cliutil.generateTestOptions(config);
-const promise = prepareAndStartTheTest(options);
-promise.then(
-    () => {
-        console.log('Done!');
-        process.exit(0);
-    },
-    (e) => {
-        console.error('Test failed: ', e);
-        process.exit(1);
+cliutil.generateTestOptions(config, argv).then(
+    (options) => {
+        prepareAndStartTheTest(options).then(
+            () => {
+                console.log('Done!');
+                process.exit(0);
+            },
+            (e) => {
+                console.error('Test failed: ', e);
+                process.exit(1);
+            }
+        );
     }
 );
 
@@ -94,10 +97,6 @@ function validateAndCompleteConfigFile(config) {
     }
     return config;
 }
-
-prepareTestConfig(targetFile, config).then( (testConfig) => {
-    
-});
 
 async function prepareAndStartTheTest(options) {
     if (options.framework === 'oxygen' && (!options.suites || !Array.isArray(options.suites))) {

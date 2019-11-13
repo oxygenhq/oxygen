@@ -8,7 +8,7 @@
  */
 
 import _ from 'lodash';
-import Runners from '../runners';
+import * as Runners from '../runners';
 import queue from 'async/queue';
 
 export default class Launcher { 

@@ -22,8 +22,7 @@ const path = require('path');
 const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
-
-const DEFAULT_LOGGER_ISSUER = 'system';
+const { LEVELS, ISSUERS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
 
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
@@ -31,19 +30,19 @@ global.browser = {};
 var logger = {
     info: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        processSend({ time: ts, event: 'log-add', level: 'INFO', msg: stringify(message), src });
+        processSend({ time: ts, event: 'log', level: LEVELS.INFO, msg: stringify(message), src });
     },
     debug: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        processSend({ time: ts, event: 'log-add', level: 'DEBUG', msg: stringify(message), src });
+        processSend({ time: ts, event: 'log', level: LEVELS.DEBUG, msg: stringify(message), src });
     },
     error: function(message, err = null, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        processSend({ time: ts, event: 'log-add', level: 'ERROR', msg: stringify(message), src, err: err });
+        processSend({ time: ts, event: 'log', level: LEVELS.ERROR, msg: stringify(message), src, err: err });
     },
     warn: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
-        processSend({ time: ts, event: 'log-add', level: 'WARN', msg: stringify(message), src });
+        processSend({ time: ts, event: 'log', level: LEVELS.WARN, msg: stringify(message), src });
     }
 };
 
@@ -134,15 +133,15 @@ async function run(scriptName, scriptPath, context) {
     } catch (e) {
         // eslint-disable-next-line no-undef
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
-        processSend({ event: 'log-add', level: 'general', msg: 'Test finished with status --> failed', time: oxutil.getTimeStamp() });
+        processSend({ event: 'log', level: LEVELS.INFO, src: DEFAULT_LOGGER_ISSUER, msg: 'Test finished with status --> failed', time: oxutil.getTimeStamp() });
         if(e && e.message){
-            processSend({ event: 'log-add', level: 'general', msg: e.message});
+            processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: e.message});
         }
         return;
     }
     // eslint-disable-next-line no-undef
     processSend({ event: 'run:success', ctx: ox.ctx, resultStore: { steps: _steps } });
-    processSend({ event: 'log-add',  level: 'general', msg: 'Test finished with status --> success', time: oxutil.getTimeStamp() });
+    processSend({ event: 'log',  level: LEVELS.INFO, src: DEFAULT_LOGGER_ISSUER, msg: 'Test finished with status --> success', time: oxutil.getTimeStamp() });
     _steps = null;
 }
 

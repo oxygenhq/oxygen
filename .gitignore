@@ -3,3 +3,5 @@ apidocs/*
 bin/*
 build/*
 npm-debug.log
+.vscode/launch.json
+.vscode/settings.json

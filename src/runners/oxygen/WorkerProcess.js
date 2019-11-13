@@ -105,6 +105,7 @@ export default class WorkerProcess extends EventEmitter {
         this._childProc.on('SIGINT', this._handleChildSigInt.bind(this));
     }
     _handleChildMessage(message) {
+        //log.debug(`Worker ${this._pid} got a message: ${message}.`);
         this.emit('message', Object.assign(message, { pid: this._pid }));
     }
     _handleChildError(error) {

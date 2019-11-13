@@ -22,6 +22,22 @@ exports.default = function logger(name) {
     return loggerFactory.get(name);
 };
 
-const DEFAULT_ISSUER = 'user';
-exports.DEFAULT_ISSUER = DEFAULT_ISSUER;
+const LEVEL_INFO = 'info';
+const LEVEL_DEBUG = 'debug';
+const LEVEL_ERROR = 'error';
+const LEVEL_WARN = 'warn';
+const ISSUER_SYSTEM = 'system';
+const ISSUER_USER = 'user';
+exports.DEFAULT_ISSUER = ISSUER_USER;
+exports.ISSUERS = {
+    SYSTEM: ISSUER_SYSTEM,
+    USER: ISSUER_USER
+};
+exports.LEVELS = {
+    INFO: LEVEL_INFO,
+    DEBUG: LEVEL_DEBUG,
+    ERROR: LEVEL_ERROR,
+    WARN: LEVEL_WARN
+};
+exports.DEFAULT_LOGGER_ISSUER = ISSUER_SYSTEM;
 

@@ -14,9 +14,8 @@ process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../../../', 'config');
 const config = require('config');
 process.env.NODE_CONFIG_DIR = originalNodeCfgDir;
 // setup logger
-const loggerFactory = require('oxygen-logger');
-loggerFactory.init(config.get('logger'));
-const logger = loggerFactory.get('oxygen');
+import logger from '../../lib/logger';
+const log = logger('OxygenRunner');
 const DEFAULT_ISSUER = 'user';
 
 import { EventEmitter } from 'events';
@@ -70,9 +69,6 @@ export default class OxygenRunner extends EventEmitter {
      * Public methods
      *********************************/
     async init(options, caps, reporter) {
-
-        console.log('oxygen init options', options);
-
         this._options = options;
         this._cwd = this._options.cwd || process.cwd();
         this._capabilities = caps;
@@ -152,13 +148,10 @@ export default class OxygenRunner extends EventEmitter {
     debugContinue() {
         if (this._debugMode && this._worker) {
             this._worker.debugger.continue();
-        } else {
-            console.log('in else');
-        }
+        } 
     }
 
     updateBreakpoints(breakpoints, filePath){
-
         try {
             // var tc;
 
@@ -193,11 +186,11 @@ export default class OxygenRunner extends EventEmitter {
                 }
 
                 Promise.all(promises).then(() => {
-                    console.log('updateBreakpoints finished');
+                    log.debug('updateBreakpoints() done.');
                 });
             }
         } catch(e){
-            logger.error('Debugger error', e);
+            log.error('Debugger error', e);
         }
     }
 
@@ -205,7 +198,7 @@ export default class OxygenRunner extends EventEmitter {
         /*
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {
             const tc = this._suite.testcases[tcindex];
-            logger.debug('oxygen.setBreakpoint: ' + (line + this._scriptContentLineOffset));
+            log.debug('oxygen.setBreakpoint: ' + (line + this._scriptContentLineOffset));
             this._worker.debugger.setBreakpoint(tc.name, line + this._scriptContentLineOffset);
         }*/
     }
@@ -255,7 +248,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _runSuite(suite) {
         if (!suite) {
-            console.log('suite is null!!!');
+            log.error('suite is null in _runSuite()!!!');
         }
         // ignore suite with missing mandatory properties
         if (!suite.name && !suite.path) {
@@ -425,7 +418,7 @@ export default class OxygenRunner extends EventEmitter {
         const _this = this;
         this._worker.on('error', (payload) => {
             const { error } = payload;
-            logger.error('error: ', error);
+            log.error('Worker process error: ', error);
             _this._workerProcLastError = error;
         });
         this._worker.on('exit', (payload) => {
@@ -448,21 +441,19 @@ export default class OxygenRunner extends EventEmitter {
             }
         });
         this._worker.on('message', function (msg) {
-            if (msg.event && msg.event === 'log-add') {
+            if (msg.event && msg.event === 'log') {
                 if (msg.level === 'DEBUG') {
-                    logger.debug(msg.msg);
+                    log.debug(msg.msg);
                 } else if (msg.level === 'INFO') {
-                    logger.info(msg.msg);
+                    log.info(msg.msg);
                 } else if (msg.level === 'ERROR') {
-                    logger.error(msg.msg, msg.err);
+                    log.error(msg.msg, msg.err);
                 } else if (msg.level === 'WARN') {
-                    logger.warn(msg.msg);
+                    log.warn(msg.msg);
                 }
 
-                if (msg.src === DEFAULT_ISSUER) {
-                    _this.emit('log-add', msg.level, msg.msg, msg.time);
-                }
-                _this._reporter && _this._reporter.logAdd('general', msg.msg, msg.time);
+                _this.emit('log', msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
+                _this._reporter && _this._reporter.onLogEntry(msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
             } else if (msg.event && msg.event === 'init:success') {
                 _this._isInitializing = false;
                 _this._whenEngineInitFinished.resolve(null);
@@ -510,7 +501,7 @@ export default class OxygenRunner extends EventEmitter {
             }
         });
 
-        this._worker.debugger.on('debugger:break', (breakpoint) => {
+        this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpoint) => {
             // assume we always send breakpoint of the top call frame
             if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
                 let breakpointData = null;

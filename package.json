@@ -99,6 +99,6 @@
     "apidoc": "node tools/apidoc",
     "prod": "node ./build/lib/cli.js",
     "dev": "cross-env DEBUG=true babel-node --config-file ./babel.config.js ./src/lib/cli.js",
-    "debug": "cross-env DEBUG=true babel-node --debug=5858 --presets @babel/preset-env ./lib/cli.js"
+    "debug": "cross-env DEBUG=true babel-node --debug=5858 --presets @babel/preset-env ./src/lib/cli.js"
   }
 }

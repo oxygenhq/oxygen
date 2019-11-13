@@ -154,22 +154,26 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onStepStart(rid, step) {
+        console.log(`  - Step "${step.name}" has started...`);
         this.emit('step:start', {
             rid,
             step: step,
         });
     }
 
-    logAdd(level, msg, time){
-        this.emit('log-add', {
-            level, msg, time
-        });
-    }
-
     onStepEnd(rid, step) {
+        const status = step.result.status.toUpperCase();
+        const duration = step.result.duration ? (step.result.duration / 1000).toFixed(2) : 0;
+        console.log(`  - Step "${step.name}" has ended in ${duration}s with status: ${status}.`);
         this.emit('step:end', {
             rid,
             step: step,
+        });
+    }
+
+    onLogEntry(time, level, msg, src = null) {
+        this.emit('log', {
+            level, msg, time, src
         });
     }
 

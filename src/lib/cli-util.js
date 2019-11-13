@@ -5,23 +5,27 @@ import oxutil from './util';
 export const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 export const OXYGEN_ENV_FILE_NAME = 'oxygen.env';
 
-export function generateTestOptions(config, argv) {
+export async function generateTestOptions(config, argv) {
     const options = { ...config };
     options.env = loadEnvironmentVariables(config, argv);
-    options.suites = loadSuites(config, argv);
-
+    options.suites = await loadSuites(config, argv);
     return options;
 }
 
 export async function loadSuites(config, argv) {
-    const { target } = config;
-    const suites = [];
-    if (target.extension === '.js') {
-        suites.push(await oxutil.generateTestSuiteFromJSFile(target.path, config.parameters.file, config.parameters.mode));
-    }
-    else if (targetFile.extension === '.json') {
-        suites.push(await oxutil.generateTestSuiteFromJsonFile(target.path, config.parameters.file, config.parameters.mode, config));
-    }
+    const { target } = config;    
+    const isConfigFile = target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0;
+    let suites = [];
+    // if an individual script or suite file was passed
+    if (!isConfigFile) {
+        if (target.extension === '.js') {
+            suites.push(await oxutil.generateTestSuiteFromJSFile(target.path, config.parameters.file, config.parameters.mode));
+        }
+        else if (targetFile.extension === '.json') {
+            suites.push(await oxutil.generateTestSuiteFromJsonFile(target.path, config.parameters.file, config.parameters.mode, config));
+        }
+    }    
+    // if a folder or a configuration file was passed
     else {
         if (config.suites && Array.isArray(config.suites)) {
             suites = config.suites;

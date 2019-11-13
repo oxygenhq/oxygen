@@ -1,4 +1,5 @@
 import { EventEmitter } from 'events';
+import oxutil from '../lib/util';
 
 export default class OxygenEvents extends EventEmitter {
     constructor () {
@@ -10,6 +11,7 @@ export default class OxygenEvents extends EventEmitter {
             name: cmdName,
             module: moduleName, 
             args: cmdArgs,
+            signature: oxutil.getMethodSignature(moduleName, cmdName, cmdArgs),
             ctx: ctx,
             time: startTime,
             location: location,
@@ -21,6 +23,7 @@ export default class OxygenEvents extends EventEmitter {
             name: cmdName,
             module: moduleName, 
             args: cmdArgs,
+            signature: oxutil.getMethodSignature(moduleName, cmdName, cmdArgs),
             ctx: ctx,
             time: endTime,
             location: location,
