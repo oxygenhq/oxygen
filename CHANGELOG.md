@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v0.51.2 (2019-11-13)
+
+#### :nail_care: Polish
+* Try scrolling the element into viewport before clicking it.
+
+#### :house: Internal
+* Add support for variables inspection in debugger.
+
 ## v0.51.1 (2019-11-04)
 
 #### :house: Internal
