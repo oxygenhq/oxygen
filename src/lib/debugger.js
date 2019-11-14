@@ -13,6 +13,10 @@
 
 'use strict';
 
+// setup logger
+import logger from '../lib/logger';
+const log = logger('Debugger');
+
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
 
@@ -104,7 +108,8 @@ class Debugger extends EventEmitter {
         try{
             this._client = await CDP({ port: port, host: this._host });
         } catch(e){
-            console.log('~~~ ignore CDP', e);
+            log.error('Failed to connect to the debugger: ', e);
+            //console.log('~~~ ignore CDP', e);
         }
 
         if(this._client){
@@ -175,7 +180,7 @@ class Debugger extends EventEmitter {
                         }
                     }
                 } catch (e) {
-                    console.error('Failed when work with breakpoint data:', e);
+                    log.error('Failed when work with breakpoint data:', e);
                     return null;
                 }
 

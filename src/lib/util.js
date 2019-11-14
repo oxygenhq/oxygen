@@ -219,5 +219,10 @@ var self = module.exports = {
             methodArgsStr = '(' + argsStringified.slice(1, -1) + ')';
         }
         return moduleName + '.' + methodName + methodArgsStr;
+    },
+
+    isInDebugMode: function() {
+        const argv = process.execArgv.join();
+        return process.debugPort || argv.includes('inspect') || argv.includes('inspect-brk') || argv.includes('debug');
     }
 };

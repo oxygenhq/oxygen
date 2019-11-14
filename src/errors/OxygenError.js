@@ -11,6 +11,7 @@
  * Oxygen Error class
  */
 
+import oxutil from '../lib/util';
 import StackTrace from 'stack-trace';
 
 const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(module.js', '(internal/module.js', 'at <anonymous>'];
@@ -53,7 +54,9 @@ export default class OxygenError extends Error {
         const stackTrace = StackTrace.parse(this) || [];
         if (stackTrace.length > 0) {
             const call = stackTrace[0];
-            this.location = `${call.getFileName()}:${call.getLineNumber()}:${call.getColumnNumber()}`;
+            // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
+            const extraLine = oxutil.isInDebugMode() ? 1 : 0;
+            this.location = `${call.getFileName()}:${call.getLineNumber() + extraLine}:${call.getColumnNumber()}`;
         }
         else {
             this.location = null;

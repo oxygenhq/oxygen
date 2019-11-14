@@ -33,7 +33,8 @@ export default class WorkerProcess extends EventEmitter {
     }
     async start() {
         const env = Object.assign(process.env, {
-            OX_WORKER: true
+            OX_WORKER: true,
+            DEBUG: !isNaN(this._debugPort)
         });
 
         log.info(`Starting worker process ${this._pid}.`);
@@ -163,10 +164,10 @@ export default class WorkerProcess extends EventEmitter {
         try{
             // connect to Chrome debugger
             await this._debugger.connect(this._debugPort, '127.0.0.1');
-            await snooze(10000);
-            await this._debugger.connect(this._debugPort, '127.0.0.1');
+            /*await snooze(10000);
+            await this._debugger.connect(this._debugPort, '127.0.0.1');*/
         } catch(e){
-            console.log('connect to Chrome debugger error', e);
+            log.error('Cannot connect to the debugger: ', e);
             throw e;
         }
 

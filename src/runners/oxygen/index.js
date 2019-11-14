@@ -594,24 +594,26 @@ function extractBreakpointData(bpStr) {
     if (!bpStr || typeof bpStr !== 'string') {
         return null;
     }
-
     const parts = bpStr.split(':');
     try {
-        if (process.platform === 'win32' && parts.length === 4) { // path may contain a Drive letter on win32
+        // path may contain a drive letter on win32
+        if (process.platform === 'win32' && parts.length === 4) { 
             return {
                 fileName: parts[0] + ':' + parts[1],
                 lineNumber: parseInt(parts[2]),
                 columnNumber: parseInt(parts[3]),
             };
-        } else {                                                // otherwise it's Unix or UNC on win32
+        } 
+        // otherwise it's Unix or UNC on win32
+        else {                                                
             return {
-                fileName: parts[0],
+                fileName: parts[3],
                 lineNumber: parseInt(parts[1]),
                 columnNumber: parseInt(parts[2]),
             };
         }
     } catch (e) {
-        console.error(`Failed to extract breakpoint data: ${bpStr}`);
+        log.error(`Failed to extract breakpoint data: ${bpStr}`);
         return null;
     }
 }

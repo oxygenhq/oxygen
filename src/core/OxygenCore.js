@@ -110,6 +110,11 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
+    get adjustScriptLine() {
+        // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
+        return oxutil.isInDebugMode ? 1 : 0;
+    }
+
     /*
      * Private Methods
      */
@@ -388,7 +393,7 @@ export default class Oxygen extends OxygenEvents {
             break;
         }
         if (caller) {
-            return `${caller.getFileName()}:${caller.getLineNumber()}:${caller.getColumnNumber()}`;
+            return `${caller.getFileName()}:${caller.getLineNumber() + this.adjustScriptLine}:${caller.getColumnNumber()}`;
         }
         return null;
     }
