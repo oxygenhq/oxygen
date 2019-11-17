@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.3",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./build/index.js",
   "bin": {
@@ -38,7 +38,7 @@
     "source-map-support": "0.5.16"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.7.2",
+    "@applitools/eyes-webdriverio": "5.8.3",
     "@babel/cli": "7.2.3",
     "@babel/core": "7.5.5",
     "@babel/register": "7.5.5",
@@ -73,7 +73,7 @@
     "moment": "2.24.0",
     "ox-chrome-remote-interface": "0.27.2",
     "oxygen-logger": "0.3.0",
-    "pdfreader": "1.0.6",
+    "pdfreader": "1.0.4",
     "request": "2.88.0",
     "serialport": "8.0.5",
     "soap": "0.30.0",
@@ -94,7 +94,6 @@
     "test:eslint": "eslint src test",
     "test:unit": "jest",
     "prepublishOnly": "npm run build && node tools/dos2unix src/lib/cli.js",
-    "postinstall": "npm run build",
     "postpublish": "node tools/unix2dos src/lib/cli.js",
     "eslint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",

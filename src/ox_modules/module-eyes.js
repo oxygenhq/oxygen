@@ -14,6 +14,7 @@ import { Eyes, Target } from '@applitools/eyes-webdriverio';
 
 import OxygenModule from '../core/OxygenModule';
 import ModuleError from '../errors/ModuleError';
+import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
 
 const DEFAULT_VIEWPORT = {
@@ -41,7 +42,7 @@ export default class ApplitoolsModule extends OxygenModule {
             throw new ModuleError('Applitools settings are missing.');
         }
         this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {});
-        this._apiKey = apiKey || this.options.applitoolsKey || this._eyesConfig.key || process.env.APPLITOOLS_KEY || null;        
+        this._apiKey = apiKey || this.options.applitoolsKey || this._eyesConfig.key || process.env.APPLITOOLS_KEY || null;
 
         if (!this._apiKey) {
             throw new ModuleError('API key is missing. To use Applitools service, you must specify Applitools API key.');
@@ -101,7 +102,7 @@ export default class ApplitoolsModule extends OxygenModule {
             return true;
         }
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, null);
-    }    
+    }
 
     /**
      * @summary Takes a snapshot of the application under test and matches it with

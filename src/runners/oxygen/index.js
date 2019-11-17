@@ -6,9 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-import path from 'path';
 
-// setup logger
 import logger from '../../lib/logger';
 const log = logger('OxygenRunner');
 const DEFAULT_ISSUER = 'user';

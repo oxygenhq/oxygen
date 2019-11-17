@@ -8,13 +8,13 @@
  * (at your option) any later version.
  */
 import * as cliutil from './cli-util';
-import oxutil from './util';
+//import oxutil from './util';
 import Launcher from './launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
 
 process.on('SIGINT', handleSigInt);
 
-const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
+//const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 
 // parse command line arguments
 const argv = require('minimist')(process.argv.slice(2));
@@ -49,13 +49,13 @@ cliutil.generateTestOptions(config, argv).then(
         );
     }
 );
-
+/*
 async function prepareTestOptions(targetFile, config) {
     // if the target is oxygen config file, merge its content with the default options
     if (targetFile.name === OXYGEN_CONFIG_FILE_NAME && (targetFile.extension === '.js' || targetFile.extension === '.json')) {
         const moreOpts = require(targetFile.path);
-        return validateAndCompleteConfigFile({ name: name, ...config, ...moreOpts });
-    } 
+        return validateAndCompleteConfigFile({ name: targetFile.name, ...config, ...moreOpts });
+    }
     // validate that we got a file that Oxygen can support
     else if (targetFile.extension !== '.js' && targetFile.extension !== '.json') {
         console.error('Unsupported file format: ' + targetFile.extension);
@@ -74,10 +74,11 @@ async function prepareTestOptions(targetFile, config) {
     }
     return {
         ...config,
-        name: name,
+        name: targetFile.name,
         suites: [ testsuite ]
     };
 }
+
 function validateAndCompleteConfigFile(config) {
     if (!config.framework) {
         config.framework = 'oxygen';
@@ -97,7 +98,7 @@ function validateAndCompleteConfigFile(config) {
     }
     return config;
 }
-
+*/
 async function prepareAndStartTheTest(options) {
     if (options.framework === 'oxygen' && (!options.suites || !Array.isArray(options.suites))) {
         throw new Error('Cannot start the test - no suites are specified.');
