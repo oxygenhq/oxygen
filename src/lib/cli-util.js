@@ -13,7 +13,7 @@ export async function generateTestOptions(config, argv) {
 }
 
 export async function loadSuites(config, argv) {
-    const { target } = config;    
+    const { target } = config;
     const isConfigFile = target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0;
     let suites = [];
     // if an individual script or suite file was passed
@@ -21,10 +21,10 @@ export async function loadSuites(config, argv) {
         if (target.extension === '.js') {
             suites.push(await oxutil.generateTestSuiteFromJSFile(target.path, config.parameters.file, config.parameters.mode));
         }
-        else if (targetFile.extension === '.json') {
+        else if (target.extension === '.json') {
             suites.push(await oxutil.generateTestSuiteFromJsonFile(target.path, config.parameters.file, config.parameters.mode, config));
         }
-    }    
+    }
     // if a folder or a configuration file was passed
     else {
         if (config.suites && Array.isArray(config.suites)) {
@@ -40,7 +40,7 @@ export async function loadSuites(config, argv) {
                     suites = suites.filter(x => selectedSuiteNames.contains(x.name));
                 }
             }
-        }        
+        }
     }
     return suites;
 }
@@ -56,7 +56,7 @@ export function loadEnvironmentVariables(config, argv) {
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
     if (fs.existsSync(defaultEnvFile)) {
         const env = require(defaultEnvFile);
-        if (env && typeof env === 'object' && env.hasOwnProperty(envName)) {
+        if (env && typeof env === 'object' && Object.prototype.hasOwnProperty.call(env, envName)) {
             return env[envName];
         }
     }
@@ -107,7 +107,7 @@ export function getConfigurations(target, argv) {
         name = target.name !== OXYGEN_CONFIG_FILE_NAME ? target.name : target.baseName;
     }
 
-    return { name: name, ...startupOpts, ...moreOpts }
+    return { name: name, ...startupOpts, ...moreOpts };
 }
 
 export function processTargetPath(targetPath) {

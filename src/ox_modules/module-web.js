@@ -401,7 +401,7 @@ module.exports = function (options, context, rs, logger) {
     module.dispose = async function() {
         if (_this.driver && isInitialized) {
             try {
-                logger.debug('Calling deleteSession()')
+                logger.debug('Calling deleteSession()');
                 await _this.driver.deleteSession();
             } catch (e) {
                 logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage

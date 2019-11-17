@@ -10,8 +10,6 @@
 /*
  * Oxygen Error class
  */
-
-import oxutil from '../lib/util';
 import StackTrace from 'stack-trace';
 
 const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(module.js', '(internal/module.js', 'at <anonymous>'];

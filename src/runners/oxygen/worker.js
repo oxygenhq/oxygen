@@ -22,7 +22,7 @@ const path = require('path');
 const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
-const { LEVELS, ISSUERS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
+const { LEVELS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
 
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};

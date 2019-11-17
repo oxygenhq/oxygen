@@ -271,8 +271,6 @@ module.exports = function (options, context, rs, logger) {
         if (locator.indexOf('/') === 0)
             return locator; // leave xpath locator as is
         
-        var platform = this.caps && this.caps.platformName ? this.caps.platformName.toLowerCase() : null;
-        
         return locator;
     };
 
