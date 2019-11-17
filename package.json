@@ -94,6 +94,7 @@
     "test:eslint": "eslint src test",
     "test:unit": "jest",
     "prepublishOnly": "npm run build && node tools/dos2unix src/lib/cli.js",
+    "postinstall": "npm run build",
     "postpublish": "node tools/unix2dos src/lib/cli.js",
     "eslint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
