@@ -19,18 +19,15 @@ export default class WorkerProcess extends EventEmitter {
     constructor(pid, debugMode, debugPort) {
         super();
         this._isRunning = false;
+        this._isOxygenInitialized = false;
         this._stoppedByUser = true;
         this._pid = pid;
         this._childProc = null;
         this._debugMode = debugMode;
         this._debugPort = debugPort;
-
-        // setInterval(() => {
-        //     console.log('---');
-        //     console.log('!!this._debugger', !!this._debugger);
-        //     console.log('_pid', this._pid);
-        //     console.log('--- \n');
-        // }, 5000);
+        // promises
+        this._whenOxygenInitialized = null;
+        this._whenOxygenDisposed = null;
     }
     async start() {
         const env = Object.assign(process.env, {
@@ -40,7 +37,7 @@ export default class WorkerProcess extends EventEmitter {
 
         log.info(`Starting worker process ${this._pid}.`);
         let forkOpts = { 
-            cwd: process.cwd(), //__dirname,
+            cwd: process.cwd(), 
             env,
             execArgv: [],
             //silent: true
@@ -72,6 +69,23 @@ export default class WorkerProcess extends EventEmitter {
         this._reset();
     }
 
+    async initOxygen(options) {
+        this._childProc && this._childProc.send({
+            type: 'init',
+            options: options
+        });
+        this._whenOxygenInitialized = defer();
+        return this._whenOxygenInitialized.promise;
+    }
+
+    async disposeOxygen() {
+        this._childProc && this._childProc.send({
+            type: 'dispose',
+        });
+        this._whenOxygenDisposed = defer();
+        return this._whenOxygenDisposed.promise;
+    }
+
     send(message) {
         if (!this._childProc) {
             return false;
@@ -87,6 +101,10 @@ export default class WorkerProcess extends EventEmitter {
     get isRunning () {
         return this._isRunning;
     }
+    
+    get isOxygenInitialized() {
+        return this._isOxygenInitialized;
+    }
 
     _reset() {
         this._childProc = null;
@@ -94,6 +112,8 @@ export default class WorkerProcess extends EventEmitter {
         this._isRunning = false;
         this._debugMode = null;
         this._debugPort = null;
+        this._whenOxygenDisposed = null;
+        this._whenOxygenInitialized = null;
     }
 
     _hookChildProcEvents() {
@@ -107,9 +127,30 @@ export default class WorkerProcess extends EventEmitter {
         this._childProc.on('uncaughtException', this._handleChildUncaughtException.bind(this));
         this._childProc.on('SIGINT', this._handleChildSigInt.bind(this));
     }
-    _handleChildMessage(message) {
-        //log.debug(`Worker ${this._pid} got a message: ${message}.`);
-        this.emit('message', Object.assign(message, { pid: this._pid }));
+    _handleChildMessage(msg) {
+        if (msg.event) {
+            switch (msg.event) {
+                case 'dispose:success':
+                    this._whenOxygenDisposed.resolve(null);
+                    this._isOxygenInitialized = false;
+                    break;
+                case 'dispose:failed':
+                    this._whenOxygenDisposed.reject(msg.err);
+                    this._isOxygenInitialized = false;
+                    break;
+                case 'init:success':
+                    this._whenOxygenInitialized.resolve(null);
+                    this._isOxygenInitialized = true;
+                    break;
+                case 'init:failed':
+                    this._whenOxygenInitialized.reject(msg.err);
+                    this._isOxygenInitialized = false;
+                    break;
+            }
+        }
+        /*const prettyMsg = JSON.stringify(msg, null, 4);
+        log.debug(`Worker ${this._pid} got a message:\n${prettyMsg}`);*/
+        this.emit('message', Object.assign(msg, { pid: this._pid }));
     }
     _handleChildError(error) {
         log.debug(`Worker ${this._pid} thrown an error: ${error}.`);

@@ -92,12 +92,12 @@ async function dispose() {
             _steps = null;
         }
     }
-    process.exit(0);
 }
 
-process.on('SIGINT', function() {
+process.on('SIGINT', async function() {
     logger.debug('SIGINT received');
-    dispose();
+    await dispose();
+    process.exit(0);
 });
 
 process.on('message', async function (msg) {
@@ -138,7 +138,6 @@ async function run(scriptName, scriptPath, context) {
     } catch (e) {
         // eslint-disable-next-line no-undef
         processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
-        processSend({ event: 'log', level: LEVELS.INFO, src: DEFAULT_LOGGER_ISSUER, msg: 'Test finished with status --> failed', time: oxutil.getTimeStamp() });
         if(e && e.message){
             processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: e.message});
         }
@@ -146,7 +145,6 @@ async function run(scriptName, scriptPath, context) {
     }
     // eslint-disable-next-line no-undef
     processSend({ event: 'run:success', ctx: ox.ctx, resultStore: { steps: _steps } });
-    processSend({ event: 'log',  level: LEVELS.INFO, src: DEFAULT_LOGGER_ISSUER, msg: 'Test finished with status --> success', time: oxutil.getTimeStamp() });
     _steps = null;
 }
 

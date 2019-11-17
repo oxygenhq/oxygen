@@ -51,15 +51,6 @@ export default class OxygenRunner extends EventEmitter {
         this._whenEngineInitFinished = defer();
         this._whenDisposed = defer();
         this._whenTestCaseFinished = null;
-
-        // setInterval(() => {
-        //     console.log('---');
-        //     console.log('OxygenRunner');
-        //     console.log('this._worker', !!this._worker);
-        //     console.log('this._id', this._id);
-        //     console.log('--- \n');
-        // }, 5000);
-
     }
     /*********************************
      * Public methods
@@ -86,19 +77,22 @@ export default class OxygenRunner extends EventEmitter {
         options.scriptContentLineOffset = this._scriptContentLineOffset;
         this._localTime = (this._options && this._options.localTime) || this._localTime;
         await this._startWorkerProcess();
-        await this._worker_InitEngine();
+        await this._worker_InitOxygen();
     }
 
     async dispose() {
         this._isDisposing = true;
         try {
             if (!this._testKilled) {
-                await this._worker_DisposeEngine();
+                await this._worker_DisposeOxygen();
+                await this._worker.stop();
             }
         }
         catch (e) {
             // ignore errors during the dispose
+            log.warn('Error when disposing Runner:', e)
         }
+        this._resetGlobalVariables();
     }
 
     async run() {
@@ -279,6 +273,7 @@ export default class OxygenRunner extends EventEmitter {
                 for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
                     const caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
                     if (!caseResult) {
+                        log.warn('_runCase returned null');
                         continue;
                     }
                     suiteResult.cases.push(caseResult);
@@ -334,9 +329,11 @@ export default class OxygenRunner extends EventEmitter {
             const caseResult = new TestCaseResult();
             caseResult.name = caze.name;
             caseResult.location = caze.path;
+            await (!this._worker.isOxygenInitialized && this._worker_InitOxygen());
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
             caseResult.endTime = oxutil.getTimeStamp();
+            await (this._worker.isOxygenInitialized && this._worker_DisposeOxygen());
             caseResult.duration = caseResult.endTime - caseResult.startTime;
             caseResult.context = context;
             caseResult.steps = resultStore.steps;
@@ -351,7 +348,11 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.status = Status.FAILED;
             }
             result = caseResult;
-        } finally {
+        } 
+        catch (e) {
+            log.error('_worker_Run() thrown an error:', e)
+        }
+        finally {
             this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, result);
         }
         return result;
@@ -360,6 +361,10 @@ export default class OxygenRunner extends EventEmitter {
     async _worker_Run(suite, caze, suiteIteration, caseIteration, params) {
         // define a promise
         this._whenTestCaseFinished = defer();
+        if (!this._worker) {
+            log.error('_worker is null but not suppose to!');
+            this._whenTestCaseFinished.reject(new Error('_worker is null'));
+        }
         // send the message to the worker process
         this._worker.send({
             type: 'run',
@@ -385,23 +390,12 @@ export default class OxygenRunner extends EventEmitter {
         return this._whenTestCaseFinished.promise;
     }
 
-    async _worker_InitEngine() {
-        this._worker.send({
-            type: 'init',
-            options: this._options
-        });
-        return this._whenEngineInitFinished.promise;
+    async _worker_InitOxygen() {
+        await (this._worker && this._worker.initOxygen(this._options));
     }
 
-    async _worker_DisposeEngine() {
-        this._worker.send({
-            type: 'dispose',
-        });
-
-        this._worker.debugger.close();
-        this._worker = null;
-
-        return this._whenDisposed.promise;
+    async _worker_DisposeOxygen() {
+        await (this._worker && this._worker.disposeOxygen());
     }
 
     async _startWorkerProcess() {
@@ -463,13 +457,13 @@ export default class OxygenRunner extends EventEmitter {
             } else if (msg.event && msg.event === 'run:failed') {
                 _this._whenTestCaseFinished.resolve(_this._processWorkerResults(msg));
                 _this._whenTestCaseFinished = null;
-            } else if (msg.event && msg.event === 'dispose:success') {
+            } /*else if (msg.event && msg.event === 'dispose:success') {
                 _this._whenDisposed.resolve(null);
                 _this._resetGlobalVariables();
             } else if (msg.event && msg.event === 'dispose:failed') {
                 _this._whenDisposed.reject(msg.err);
                 _this._resetGlobalVariables();
-            } else if (msg.event && msg.event === 'command:before') {
+            } */else if (msg.event && msg.event === 'command:before') {
                 _this._reporter && _this._reporter.onStepStart(this._id, msg.command);
             } else if (msg.event && msg.event === 'command:after') {
                 _this._reporter && _this._reporter.onStepEnd(this._id, msg.command);
