@@ -50,7 +50,7 @@ const DEFAULT_OPTS = {
 };
 const MODULE_NAME_MATCH_REGEX = /^module-(.+?)\.js$/;
 const SERVICE_NAME_MATCH_REGEX = /^service-(.+?)\.js$/;
-//const logger = console;
+
 const DEFAULT_CTX = {
     params: {},
     vars: {},
@@ -112,7 +112,7 @@ export default class Oxygen extends OxygenEvents {
 
     get adjustScriptLine() {
         // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
-        return oxutil.isInDebugMode ? 1 : 0;
+        return oxutil.isInDebugMode ? -1 : 0;
     }
 
     /*
@@ -131,7 +131,7 @@ export default class Oxygen extends OxygenEvents {
             const serviceName = result[1];
     
             try {
-                const service = this._loadService(serviceFilePath);
+                const service = this._loadService(serviceName, serviceFilePath);
                 service.init();
                 this.services[serviceName] = service;
             } catch (e) {
@@ -139,13 +139,14 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     }
-    _loadService(servicePath, opts) {
+    _loadService(serviceName, servicePath) {
         let ServiceClass = require(servicePath);
         // ES6 class will be under 'default' property
         if (ServiceClass.default) {
             ServiceClass = ServiceClass.default;
         }
-        return new ServiceClass(this.opts, this.ctx, this.resultStore, logger);
+        const serviceLogger = logger(`OxService:${serviceName}`);
+        return new ServiceClass(this.opts, this.ctx, this.resultStore, serviceLogger);
     }
 
     _loadModules() {
@@ -178,7 +179,8 @@ export default class Oxygen extends OxygenEvents {
         if (ModuleClass.default) {
             ModuleClass = ModuleClass.default;
         }
-        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, logger, this.services);
+        const moduleLogger = logger(`OxModule:${moduleName}`);
+        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, moduleLogger, this.services);
         if (!mod.name) {
             mod.name = moduleName;
         }

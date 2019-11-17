@@ -95,6 +95,11 @@ async function dispose() {
     process.exit(0);
 }
 
+process.on('SIGINT', function() {
+    logger.debug('SIGINT received');
+    dispose();
+});
+
 process.on('message', async function (msg) {
     if (!msg.type) {
         return;

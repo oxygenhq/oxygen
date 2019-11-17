@@ -14,7 +14,7 @@ module.exports = {
     ],
     env: {
         development: {
-            sourceMaps: 'inline',
+            sourceMaps: true, //'inline',
 //            plugins: ['source-map-support']
         }
     },

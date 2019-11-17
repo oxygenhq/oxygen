@@ -121,7 +121,7 @@ module.exports = function (options, context, rs, logger) {
             }
             catch (e) {
                 // ignore errors
-                console.error('Cannot retrieve device logs.', e);  
+                logger.error('Cannot retrieve device logs.', e);  
             }
         }
         // collect all Appium logs for this session
@@ -234,7 +234,7 @@ module.exports = function (options, context, rs, logger) {
                 // simply call this to clear the previous logs and start the test with the clean logs
                 module.getDeviceLogs();
             } catch (e) {
-                console.error('Cannot retrieve device logs.', e);
+                logger.error('Cannot retrieve device logs.', e);
             }
         }
     };

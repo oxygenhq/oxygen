@@ -137,7 +137,7 @@ module.exports = function (options, context, rs, logger) {
                 }
             } catch (e) {
                 // ignore errors
-                console.error('Cannot retrieve browser logs.', e);
+                logger.error('Cannot retrieve browser logs.', e);
             }
         }
         // TODO: should clear transactions to avoid duplicate names across iterations
@@ -340,7 +340,7 @@ module.exports = function (options, context, rs, logger) {
                 // simply call this to clear the previous logs and start the test with the clean logs
                 module.getBrowserLogs();
             } catch (e) {
-                console.error('Cannot retrieve browser logs.', e);
+                logger.error('Cannot retrieve browser logs.', e);
             }
         }
         // maximize browser window
@@ -356,7 +356,7 @@ module.exports = function (options, context, rs, logger) {
 
         // in one instance, logs was not iterable for some reason - hence the following check:
         if (!logs || typeof logs[Symbol.iterator] !== 'function') {
-            console.error('harGet: logs not iterable: ' + JSON.stringify(logs));
+            logger.error('harGet: logs not iterable: ' + JSON.stringify(logs));
             return null;
         }
 
@@ -370,7 +370,7 @@ module.exports = function (options, context, rs, logger) {
             const har = harFromMessages(events);
             return JSON.stringify(har);
         } catch (e) {
-            console.error('Unable to fetch HAR: ' + e.toString());
+            logger.error('Unable to fetch HAR: ' + e.toString());
             return null;
         }
     }
@@ -401,6 +401,7 @@ module.exports = function (options, context, rs, logger) {
     module.dispose = async function() {
         if (_this.driver && isInitialized) {
             try {
+                logger.debug('Calling deleteSession()')
                 await _this.driver.deleteSession();
             } catch (e) {
                 logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage

@@ -8,11 +8,6 @@
  */
 import path from 'path';
 
-// explicitly set the config dir, otherwise if oxygen is globally installed it will use cwd
-const originalNodeCfgDir = process.env.NODE_CONFIG_DIR;
-process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../../../', 'config');
-const config = require('config');
-process.env.NODE_CONFIG_DIR = originalNodeCfgDir;
 // setup logger
 import logger from '../../lib/logger';
 const log = logger('OxygenRunner');
@@ -30,6 +25,7 @@ import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
 import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
+import { DEBUG_LINE_ADJUSTMENT } from '../../lib/debugger';
 
 export default class OxygenRunner extends EventEmitter {
     constructor() {
@@ -143,6 +139,7 @@ export default class OxygenRunner extends EventEmitter {
         if (this._worker) {
             this._worker.stop();
         }
+        this._resetGlobalVariables();
     }
 
     debugContinue() {
@@ -484,22 +481,6 @@ export default class OxygenRunner extends EventEmitter {
                 }
             }
         });
-        this._worker.on('debugger:break', (breakpoint) => {
-            // assume we always send breakpoint of the top call frame
-            if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
-                let breakpointData = null;
-                // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
-                if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
-                    breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
-                }
-                // otherwise, get the line from breakpoint.callFrames[0] object (but then we won't have file path, but scriptId instead)
-                else {
-                    breakpointData = breakpoint.callFrames[0].location;
-                }
-                // TODO: fix the line below
-                _this.emit('breakpoint', breakpointData, null /*ts.testcases[tcindex]*/);
-            }
-        });
 
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpoint) => {
             // assume we always send breakpoint of the top call frame
@@ -513,8 +494,12 @@ export default class OxygenRunner extends EventEmitter {
                 else {
                     breakpointData = breakpoint.callFrames[0].location;
                 }
-                // TODO: fix the line below
-                _this.emit('breakpoint', breakpointData, null /*ts.testcases[tcindex]*/);
+                if (breakpointData) {
+                    // we need to substract DEBUG_LINE_ADJUSTMENT value 
+                    // as it was previously added in the Debugger class
+                    breakpointData.lineNumber -= DEBUG_LINE_ADJUSTMENT;
+                }
+                _this.emit('breakpoint', breakpointData);
             }
         });
     }

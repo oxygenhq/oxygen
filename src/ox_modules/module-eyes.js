@@ -13,7 +13,7 @@
 import { Eyes, Target } from '@applitools/eyes-webdriverio';
 
 import OxygenModule from '../core/OxygenModule';
-import OxError from '../errors/OxygenError';
+import ModuleError from '../errors/ModuleError';
 import errHelper from '../errors/helper';
 
 const DEFAULT_VIEWPORT = {
@@ -38,24 +38,24 @@ export default class ApplitoolsModule extends OxygenModule {
     async init(module, apiKey = null) {
         this._eyesConfig = this.options.applitoolsOpts;
         if (!this.options.applitoolsOpts) {
-            throw new Error('Applitools settings are missing.');
+            throw new ModuleError('Applitools settings are missing.');
         }
         this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {});
         this._apiKey = apiKey || this.options.applitoolsKey || this._eyesConfig.key || process.env.APPLITOOLS_KEY || null;        
 
         if (!this._apiKey) {
-            throw new Error('API key is missing. To use Applitools service, you must specify Applitools API key.');
+            throw new ModuleError('API key is missing. To use Applitools service, you must specify Applitools API key.');
         }
         if (typeof module === 'string') {
             if (Object.prototype.hasOwnProperty.call(this.modules, module)) {
                 module = this.modules[module];
             }
             else {
-                throw new Error(`Module not found: ${module}.`);
+                throw new ModuleError(`Module not found: ${module}.`);
             }
         }
         if (typeof module.getDriver !== 'function') {
-            throw new Error(`The module "${module}" does not have "getDriver" function implemented.`);
+            throw new ModuleError(`The module "${module}" does not have "getDriver" function implemented.`);
         }
         const driver = module.getDriver();
         this._eyes = new Eyes();

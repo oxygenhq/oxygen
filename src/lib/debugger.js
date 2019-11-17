@@ -20,7 +20,9 @@ const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
 
-class Debugger extends EventEmitter {
+export const DEBUG_LINE_ADJUSTMENT = -2;
+
+export default class Debugger extends EventEmitter {
     constructor(pid) {
         super();
 
@@ -124,7 +126,7 @@ class Debugger extends EventEmitter {
     async setBreakpoint(scriptPath, lineNumber) {
         let breakpoint = await this._Debugger.setBreakpointByUrl({
             url: scriptPath,
-            lineNumber: lineNumber,
+            lineNumber: lineNumber + DEBUG_LINE_ADJUSTMENT,
             columnNumber: 0
         }).catch(e => {
             // ignore error when trying to set an laready existing breakpoint
@@ -158,6 +160,7 @@ class Debugger extends EventEmitter {
 
     async removeBreakpointByValue(filePath, line) {
         const self = this;
+        line += DEBUG_LINE_ADJUSTMENT;
 
         if (this._breakpoints) {
             for (let b of this._breakpoints) {
@@ -225,14 +228,9 @@ class Debugger extends EventEmitter {
             }
 
             if (fileName === filePath) {
-                bps.push(lineNumber);
+                bps.push(lineNumber - DEBUG_LINE_ADJUSTMENT);
             }
         }
         return bps;
     }
-
-    async _handleParsedScript(script) {
-    }
 }
-
-module.exports = Debugger;

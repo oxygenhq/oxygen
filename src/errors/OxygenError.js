@@ -55,8 +55,8 @@ export default class OxygenError extends Error {
         if (stackTrace.length > 0) {
             const call = stackTrace[0];
             // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
-            const extraLine = oxutil.isInDebugMode() ? 1 : 0;
-            this.location = `${call.getFileName()}:${call.getLineNumber() + extraLine}:${call.getColumnNumber()}`;
+            //const extraLine = oxutil.isInDebugMode() ? 1 : 0;
+            this.location = `${call.getFileName()}:${call.getLineNumber()}:${call.getColumnNumber()}`;
         }
         else {
             this.location = null;

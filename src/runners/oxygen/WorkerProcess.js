@@ -3,11 +3,11 @@ import { EventEmitter } from 'events';
 import { defer } from 'when';
 import path from 'path';
 
-import Debugger from '../../lib/debugger';
-import logger from '../../lib/logger';
-
 // setup logger
+import logger from '../../lib/logger';
 const log = logger('WorkerProcess');
+
+import Debugger from '../../lib/debugger';
 
 // snooze function - async wrapper around setTimeout function
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -21,6 +21,7 @@ export default class WorkerProcess extends EventEmitter {
         this._isRunning = false;
         this._stoppedByUser = true;
         this._pid = pid;
+        this._childProc = null;
         this._debugMode = debugMode;
         this._debugPort = debugPort;
 
@@ -62,14 +63,13 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async stop() {
-        if (this._debugger) {
+        if (this._childProc) {
+            this._childProc.kill('SIGINT');
+        }        
+        if (this._debugger) {                        
             await this._debugger.close();
         }
         this._reset();
-
-        if (!this._childProc) {
-            return false;
-        }
     }
 
     send(message) {
@@ -92,6 +92,8 @@ export default class WorkerProcess extends EventEmitter {
         this._childProc = null;
         this._debugger = null;
         this._isRunning = false;
+        this._debugMode = null;
+        this._debugPort = null;
     }
 
     _hookChildProcEvents() {
@@ -115,20 +117,11 @@ export default class WorkerProcess extends EventEmitter {
     }
     _handleChildExit(exitCode, signal) {
         log.debug(`Worker ${this._pid} finished with exit code ${exitCode} and signal ${signal}.`);
-        if(this._childProc && this._childProc.kill){
-            this._childProc.kill('SIGTERM');
-        }
         this._reset();
         this.emit('exit', { pid: this._pid, exitCode, signal });
     }
     _handleChildDisconnect() {
         log.debug(`Worker ${this._pid} disconnected.`);
-        if (this._debugger) {
-            log.debug(`Close Debugger`);
-            this._debugger.close();
-        } else {
-            log.debug(`Looks like Debugger closed`);
-        }
     }
     _handleChildUncaughtException(error) {
         log.debug(`Worker ${this._pid} thrown an uncaught error: ${error}.`);
