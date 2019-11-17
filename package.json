@@ -84,6 +84,7 @@
     "xlsx": "0.15.1"
   },
   "optionalDependencies": {
+    "canvas": "^2.6.0",
     "odbc": "1.4.6"
   },
   "scripts": {
