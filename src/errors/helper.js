@@ -50,6 +50,7 @@ const ERROR_CODES = {
     INVALID_CAPABILITIES: 'INVALID_CAPABILITIES',
     BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR',
     APPIUM_CONNECTION_ERROR: 'APPIUM_CONNECTION_ERROR',
+    APPIUM_SESSION_ERROR: 'APPIUM_SESSION_ERROR',
     SELENIUM_CONNECTION_ERROR: 'SELENIUM_CONNECTION_ERROR',
     RUNTIME_ERROR: 'RUNTIME_ERROR',
     OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
@@ -184,6 +185,8 @@ module.exports = {
         } else if (err.message === 'All minutes for this organization has been exausted' ||
             err.message === '401 Unauthorized') {
             return new OxError(ERROR_CODES.APPIUM_CONNECTION_ERROR, err.message);
+        } else if (err.message && err.message.indexOf('A new session could not be created.') > -1) {
+            return new OxError(ERROR_CODES.APPIUM_SESSION_ERROR, extractOriginalError(err.message), null, true);
         }
 
         console.log('=== Error Details ===');
