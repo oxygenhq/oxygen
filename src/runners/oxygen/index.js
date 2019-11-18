@@ -56,12 +56,11 @@ export default class OxygenRunner extends EventEmitter {
     async init(options, caps, reporter) {
         this._options = options;
         this._cwd = this._options.cwd || process.cwd();
-        this._capabilities = caps;
         this._reporter = reporter;
         this._isInitialized = true;
 
         this._env = _.clone(options.envVars) || {};   // assign environment variables for later use
-        this._caps = _.clone(options.caps) || {}; // assign caps for later use
+        this._caps = _.clone(caps) || {}; // assign caps for later use
         this._suites = _.clone(options.suites) || { cases: [] };
         // make sure at least one test suite is defined
         if (!options.suites) {
@@ -102,7 +101,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         this._isRunning = true;
 
-        this._reporter.onRunnerStart(this._id, this._options, this._capabilities);
+        this._reporter.onRunnerStart(this._id, this._options, this._caps);
 
         let error = null;
         let result = null;
@@ -389,7 +388,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_InitOxygen() {
-        await (this._worker && this._worker.initOxygen(this._options));
+        await (this._worker && this._worker.initOxygen(this._options, this._caps));
     }
 
     async _worker_DisposeOxygen() {
@@ -518,8 +517,6 @@ export default class OxygenRunner extends EventEmitter {
         }        
         // store 'vars' part of the context for a later use
         this._vars = msg.ctx.vars || this._vars;
-        // store caps for later (passing it to the final results)
-        this._caps = msg.ctx.caps || this._caps;
         
         // clean up context from internal elements, not need in the report:
         // remove caps from the context as it already appears in TestResult node

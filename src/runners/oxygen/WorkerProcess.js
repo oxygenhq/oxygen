@@ -69,10 +69,11 @@ export default class WorkerProcess extends EventEmitter {
         this._reset();
     }
 
-    async initOxygen(options) {
+    async initOxygen(options, caps = {}) {
         this._childProc && this._childProc.send({
             type: 'init',
-            options: options
+            options: options,
+            caps: caps,
         });
         this._whenOxygenInitialized = defer();
         return this._whenOxygenInitialized.promise;
