@@ -50,7 +50,7 @@
     "lodash": "4.17.15",
     "minimist": "1.2.0",
     "moment": "2.24.0",
-    "ox-chrome-remote-interface": "0.27.2",
+    "ox-chrome-remote-interface": "0.28.0",
     "oxygen-logger": "0.3.0",
     "pdfreader": "1.0.4",
     "request": "2.88.0",
