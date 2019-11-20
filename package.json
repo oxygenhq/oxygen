@@ -30,7 +30,7 @@
   },
   "devDependencies": {
     "doctrine": "3.0.0",
-    "eslint": "6.5.1"
+    "eslint": "6.6.0"
   },
   "dependencies": {
     "@wdio/devtools-service": "5.16.5",
@@ -54,13 +54,13 @@
     "oxygen-logger": "0.3.0",
     "pdfreader": "1.0.4",
     "request": "2.88.0",
-    "serialport": "7.1.5",
-    "soap": "0.29.0",
+    "serialport": "8.0.5",
+    "soap": "0.30.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.35.0",
+    "twilio": "3.37.1",
     "webdriverio": "5.16.7",
     "when": "3.7.8",
-    "xlsx": "0.15.1"
+    "xlsx": "0.15.2"
   },
   "optionalDependencies": {
     "odbc": "1.4.6"
