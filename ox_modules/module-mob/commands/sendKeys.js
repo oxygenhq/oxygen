@@ -23,21 +23,52 @@
  * // Unicode representation can be used directly as well:
  * mob.sendKeys("Hello World\uE003\uE003\uE007");
 */
+var checkUnicode = require('webdriverio/build/utils').checkUnicode;
+
 module.exports = function(value) {
     this.helpers.assertArgument(value);
 
-    var valArray = [];
-    if (Array.isArray(value)) {             // array
+    let keySequence = [];
+
+    // WDIO implmentation of keys command invokes 'releaseActions' for W3C.
+    // However ' DELETE /wd/hub/session/*/actions' is not implmeneted at the very least in uiatomator2
+    // and `keys` crashes.
+    // thus, do same thing as WDIO except releaseActions
+
+    /**
+     * replace key with corresponding unicode character
+     */
+    if (typeof value === 'string') {
+        keySequence = checkUnicode(value);
+    } else if (Array.isArray(value)) {
         // `instanceof Array` behaves strange when executed through vm.runInNewContext,
         // it returns false for arrays and `driver.keys()` tests for arrays using `instaceof Array`
-        // thus we recreate the array.
+        // thus we test using Array.isArray instead
         // https://github.com/felixge/node-sandboxed-module/issues/13#issuecomment-299585213
-        for (var val of value) {
-            valArray.push(val);
+        for (const charSet of value) {
+            keySequence = keySequence.concat(checkUnicode(charSet));
         }
-        this.driver.keys(valArray);
-        return;
-    } else {                                // string
-        this.driver.keys(value);
+    } else {
+        throw new Error('"keys" command requires a string or array of strings as parameter');
     }
+
+    /**
+     * JsonWireProtocol action
+     */
+    if (!this.driver.isW3C) {
+        this.driver.sendKeys(keySequence);
+        return;
+    }
+
+    /**
+     * W3C way of handle it key actions
+     */
+    const keyDownActions = keySequence.map((value) => ({ type: 'keyDown', value }));
+    const keyUpActions = keySequence.map((value) => ({ type: 'keyUp', value }));
+
+    this.driver.performActions([{
+        type: 'key',
+        id: 'keyboard',
+        actions: [...keyDownActions, ...keyUpActions]
+    }]);
 };
