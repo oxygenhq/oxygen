@@ -342,7 +342,7 @@ module.exports = function (options, context, rs, logger) {
             global.browser = _this.driver;
             devTools.before();
             _this.driver.on('Network.responseReceived', (params) => {
-                if (_this.networkRecord) {
+                if (_this.networkCollect) {
                     _this.networkRequests.push(params.response);
                 }
             });
@@ -367,12 +367,29 @@ module.exports = function (options, context, rs, logger) {
 
     /**
      * @summary Begin collecting network requests.
-     * @description Any previously collected requests, if any, will be discarded.
+     * @description Any previously collected requests will be discarded. Network request collection is supported only on Chrome 63 and later.
      * @function networkCollectStart
+     * @example <caption>[javascript] Usage example</caption>
+     * web.init();
+     * web.networkCollectStart();
+     * web.open("https://www.yourwebsite.com");
+     * // print the collected request so far:
+     * let requests = web.networkGetRequests();
+     * for (let req of requests) {
+     *   log.info(JSON.stringify(req, null, 2));
+     * }
+     * // wait for a request using a verbatim URL match:
+     * web.networkWaitForUrl('https://www.yourwebsite.com/foo/bar');
+     * // wait for a request using a regular expression URL match:
+     * web.networkWaitForUrl(/https:\/\/.*\/foo\/bar/);
+     * // wait for a request using a custom matcher:
+     * web.networkWaitFor(function (request) {
+     *   return request.statusText === 'OK' && request.url === 'https://www.yourwebsite.com/foo/bar';
+     * });
      */
     module.networkCollectStart = function () {
         _this.networkRequests = [];
-        _this.networkRecord = true;
+        _this.networkCollect = true;
     };
 
     /**
@@ -380,7 +397,7 @@ module.exports = function (options, context, rs, logger) {
      * @function networkCollectStop
      */
     module.networkCollectStop = function () {
-        _this.networkRecord = false;
+        _this.networkCollect = false;
     };
 
     /**
@@ -424,7 +441,7 @@ module.exports = function (options, context, rs, logger) {
             }
             _this.driver.pause(500);
         }
-        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `No request found using the provided matcher`);
+        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher');
     };
 
     /**
