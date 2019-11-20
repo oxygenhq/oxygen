@@ -81,14 +81,18 @@ module.exports = {
             return new OxError(ERROR_CODES.MOBILE_CONTEXT_ERROR, (matches.length === 2 ? matches[1] : err.message) +
                 '. Make sure you are using the correct mobile context. See mob.setNativeContext and mob.setWebViewContext.');
         }
-
-        if (err.message && (err.message.includes('Unable to automate Chrome version') ||
+        // handle "invalid selector: Unable to locate an element with the xpath expression"
+        // usually due to invalid xpath
+        else if (err.message && err.message.includes('invalid selector: Unable to locate an element with the xpath expression')) {
+            var matches = err.message.match(/(The string '.*' is not a valid XPath expression.)/i);
+            return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches.length === 2 ? matches[1] : err.message));
+        }
+        else if (err.message && (err.message.includes('Unable to automate Chrome version') ||
             err.message.includes('No Chromedriver found that can automate'))) {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         }
-
         // handle various types of 'Original error'
-        if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
+        else if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
             console.log('Error details:');
             console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
             console.log(util.inspect(err));
