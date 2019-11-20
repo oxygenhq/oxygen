@@ -77,14 +77,14 @@ module.exports = {
         // handle "invalid argument: Unsupported locator strategy: -android uiautomator" for mobile.
         // usually due to not using the correct context
         if (err.message && err.message.includes('Unsupported locator strategy')) {
-            var matches = err.message.match(/invalid argument: (.*)/i);
+            let matches = err.message.match(/invalid argument: (.*)/i);
             return new OxError(ERROR_CODES.MOBILE_CONTEXT_ERROR, (matches.length === 2 ? matches[1] : err.message) +
                 '. Make sure you are using the correct mobile context. See mob.setNativeContext and mob.setWebViewContext.');
         }
         // handle "invalid selector: Unable to locate an element with the xpath expression"
         // usually due to invalid xpath
         else if (err.message && err.message.includes('invalid selector: Unable to locate an element with the xpath expression')) {
-            var matches = err.message.match(/(The string '.*' is not a valid XPath expression.)/i);
+            let matches = err.message.match(/(The string '.*' is not a valid XPath expression.)/i);
             return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches.length === 2 ? matches[1] : err.message));
         }
         else if (err.message && (err.message.includes('Unable to automate Chrome version') ||
