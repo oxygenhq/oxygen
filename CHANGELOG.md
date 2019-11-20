@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v0.52.0 (2019-11-20)
+
+#### :tada: New Feature
+* Add `web.network*` commands for working with network requests in Chrome.
+
+#### :beetle: Bug Fix
+* Fix `mob.sendKeys` to work with W3C drivers.
+
+#### :nail_care: Polish
+* Process 'invalid selector' errors.
+
+#### :book: Documentation
+* Fix `mob.swipeScreen` documentation.
+
+#### :house: Internal
+* WebdriverIO@5.16.7
+* Bump dependencies.
+
 ## v0.51.2 (2019-11-13)
 
 #### :nail_care: Polish
