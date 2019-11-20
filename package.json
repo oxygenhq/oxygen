@@ -33,6 +33,7 @@
     "eslint": "6.5.1"
   },
   "dependencies": {
+    "@wdio/devtools-service": "5.16.5",
     "@wdio/sync": "5.16.5",
     "async": "2.6.3",
     "chai": "4.2.0",
