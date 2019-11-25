@@ -411,7 +411,7 @@ module.exports = function (options, context, rs, logger) {
         this.helpers.assertArgument(pattern, 'pattern');
         this.helpers.assertArgumentTimeout(timeout, 'timeout');
         var start = Date.now();
-        while (Date.now() - start < 60*1000) {
+        while (Date.now() - start < timeout) {
             for (var req of _this.networkRequests) {
                 if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
                     return req;
@@ -433,7 +433,7 @@ module.exports = function (options, context, rs, logger) {
         this.helpers.assertArgument(matcher, 'matcher');
         this.helpers.assertArgumentTimeout(timeout, 'timeout');
         var start = Date.now();
-        while (Date.now() - start < 60*1000) {
+        while (Date.now() - start < timeout) {
             for (var req of _this.networkRequests) {
                 if (matcher(req)) {
                     return req;
