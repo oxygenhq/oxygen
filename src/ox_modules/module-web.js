@@ -45,7 +45,6 @@
 
 module.exports = function (options, context, rs, logger) {
     var wdio = require('webdriverio');
-    var DevToolsService = require('@wdio/devtools-service').default;
     var util = require('util');
     var _ = require('lodash');
     var URL = require('url');
@@ -339,18 +338,11 @@ module.exports = function (options, context, rs, logger) {
 
         _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
 
-        // initialize DevTools service. this is used to collect network requests
-        var devTools = new DevToolsService();
-        devTools.beforeSession(null, _this.driver.capabilities);
-        if (devTools.isSupported) {
-            global.browser = _this.driver;
-            devTools.before();
-            _this.driver.on('Network.responseReceived', (params) => {
-                if (_this.networkCollect) {
-                    _this.networkRequests.push(params.response);
-                }
-            });
-        }
+        _this.driver.on('Network.responseReceived', (params) => {
+            if (_this.networkCollect) {
+                _this.networkRequests.push(params.response);
+            }
+        });
 
         // reset browser logs if auto collect logs option is enabled
         if (opts.collectBrowserLogs && _this.caps.browserName === 'chrome') {
