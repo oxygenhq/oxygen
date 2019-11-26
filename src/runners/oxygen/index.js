@@ -84,10 +84,9 @@ export default class OxygenRunner extends EventEmitter {
                 await this._worker_DisposeOxygen();
                 await this._worker.stop();
             }
-        }
-        catch (e) {
+        } catch (e) {
             // ignore errors during the dispose
-            log.warn('Error when disposing Runner:', e)
+            log.warn('Error when disposing Runner:', e);
         }
         this._resetGlobalVariables();
     }
@@ -345,11 +344,9 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.status = Status.FAILED;
             }
             result = caseResult;
-        } 
-        catch (e) {
-            log.error('_worker_Run() thrown an error:', e)
-        }
-        finally {
+        } catch (e) {
+            log.error('_worker_Run() thrown an error:', e);
+        } finally {
             this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, result);
         }
         return result;

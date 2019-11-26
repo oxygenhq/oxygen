@@ -10,24 +10,24 @@
 /**
  * @summary Perform a swipe on the screen.
  * @function swipeScreen
- * @param {Number} x - Starting X position.
- * @param {Number} y - Starting Y position.
- * @param {Number} xoffset - Horizontal offset.
- * @param {Number} yoffset - Vertical offset. Negative value indicates swipe down and positive indicates swipe up direction.
+ * @param {Number} x1 - Starting X position (top-left screen corner is the origin)
+ * @param {Number} y1 - Starting Y position.
+ * @param {Number} x1 - Ending X position.
+ * @param {Number} y1 - Ending Y position.
  * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.swipe(0, 20, 0, -70);//Perform a swipe on the screen
+ * mob.swipeScreen(100, 20, 300, 500);//Perform a swipe on the screen
 */
-module.exports = function(x, y, xoffset, yoffset) {
-    this.helpers.assertArgumentNumber(x, 'x');
-    this.helpers.assertArgumentNumber(y, 'y');
-    this.helpers.assertArgumentNumber(xoffset, 'xoffset');
-    this.helpers.assertArgumentNumber(yoffset, 'yoffset');
+module.exports = function(x1, y1, x2, y2) {
+    this.helpers.assertArgumentNumber(x1, 'x1');
+    this.helpers.assertArgumentNumber(y1, 'y1');
+    this.helpers.assertArgumentNumber(x2, 'x2');
+    this.helpers.assertArgumentNumber(y2, 'y2');
 
     this.driver.touchAction([
-        { action: 'press', x: x, y: y },
-        { action: 'moveTo', x: xoffset, y: yoffset },
+        { action: 'press', x: x1, y: y1 },
+        { action: 'moveTo', x: x2, y: y2 },
         'release'
     ]);
 };

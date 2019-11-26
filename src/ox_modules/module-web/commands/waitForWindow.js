@@ -59,7 +59,7 @@ module.exports = function(windowLocator, timeout) {
                     return;
                 }
             }
-            this.pause(600);
+            this.pause(1000);
         }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
     } else {

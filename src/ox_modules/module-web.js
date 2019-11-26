@@ -45,6 +45,7 @@
 
 module.exports = function (options, context, rs, logger) {
     var wdio = require('webdriverio');
+    var DevToolsService = require('@wdio/devtools-service').default;
     var util = require('util');
     var _ = require('lodash');
     var URL = require('url');
@@ -60,7 +61,7 @@ module.exports = function (options, context, rs, logger) {
     this.driver = null;
     this.helpers = {};
     this.logger = logger;
-    this.caps = null; 
+    this.caps = null;
     this.waitForTimeout = 60 * 1000;            // default 60s wait timeout
 
     // module's constructor scoped variables
@@ -107,7 +108,7 @@ module.exports = function (options, context, rs, logger) {
         if (!log || typeof log !== 'object') {
             return null;
         }
-        // TODO: convert log.timestamp from the browser time zone to the local one (so we can later correlate between steps and logs)        
+        // TODO: convert log.timestamp from the browser time zone to the local one (so we can later correlate between steps and logs)
         return {
             time: log.timestamp,
             msg: log.message,
@@ -195,6 +196,7 @@ module.exports = function (options, context, rs, logger) {
                             domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
                             loadEventStart: window.performance.timing.loadEventStart
                         };});
+
                     samePage = lastNavigationStartTime && lastNavigationStartTime == timings.navigationStart;
                     navigationStart = lastNavigationStartTime = timings.navigationStart;
                     var domContentLoadedEventStart = timings.domContentLoadedEventStart;
@@ -209,6 +211,7 @@ module.exports = function (options, context, rs, logger) {
             } catch (e) {
                 // couldn't get timings.
             }
+            
             lastNavigationStartTime = navigationStart;
             if (samePage) {
                 return {};
@@ -238,6 +241,8 @@ module.exports = function (options, context, rs, logger) {
         if (isInitialized) {
             return;
         }
+
+        _this.networkRequests = [];
 
         if (!seleniumUrl) {
             seleniumUrl = opts.seleniumUrl;
@@ -333,7 +338,20 @@ module.exports = function (options, context, rs, logger) {
         }
 
         _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
-        
+
+        // initialize DevTools service. this is used to collect network requests
+        var devTools = new DevToolsService();
+        devTools.beforeSession(null, _this.driver.capabilities);
+        if (devTools.isSupported) {
+            global.browser = _this.driver;
+            devTools.before();
+            _this.driver.on('Network.responseReceived', (params) => {
+                if (_this.networkCollect) {
+                    _this.networkRequests.push(params.response);
+                }
+            });
+        }
+
         // reset browser logs if auto collect logs option is enabled
         if (opts.collectBrowserLogs && _this.caps.browserName === 'chrome') {
             try {
@@ -349,6 +367,94 @@ module.exports = function (options, context, rs, logger) {
         } catch (err) {
             throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
+    };
+
+    /**
+     * @summary Begin collecting network requests.
+     * @description Any previously collected requests will be discarded. Network request collection is supported only on Chrome 63 and later.
+     * @function networkCollectStart
+     * @example <caption>[javascript] Usage example</caption>
+     * web.init();
+     * web.networkCollectStart();
+     * web.open("https://www.yourwebsite.com");
+     * // print the collected request so far:
+     * let requests = web.networkGetRequests();
+     * for (let req of requests) {
+     *   log.info(JSON.stringify(req, null, 2));
+     * }
+     * // wait for a request using a verbatim URL match:
+     * web.networkWaitForUrl('https://www.yourwebsite.com/foo/bar');
+     * // wait for a request using a regular expression URL match:
+     * web.networkWaitForUrl(/https:\/\/.*\/foo\/bar/);
+     * // wait for a request using a custom matcher:
+     * web.networkWaitFor(function (request) {
+     *   return request.statusText === 'OK' && request.url === 'https://www.yourwebsite.com/foo/bar';
+     * });
+     */
+    module.networkCollectStart = function () {
+        _this.networkRequests = [];
+        _this.networkCollect = true;
+    };
+
+    /**
+     * @summary Stop collecting network requests.
+     * @function networkCollectStop
+     */
+    module.networkCollectStop = function () {
+        _this.networkCollect = false;
+    };
+
+    /**
+     * @summary Wait for a network request matching the specified URL.
+     * @function networkWaitForUrl
+     * @param {String|RegExp} pattern - An URL to match verbatim or a RegExp.
+     * @param {Number=} timeout - Timeout. Default is 60 seconds.
+     * @return {Object} Network request details if the network request was found.
+     */
+    module.networkWaitForUrl = function (pattern, timeout = 60*1000) {
+        this.helpers.assertArgument(pattern, 'pattern');
+        this.helpers.assertArgumentTimeout(timeout, 'timeout');
+        var start = Date.now();
+        while (Date.now() - start < timeout) {
+            for (var req of _this.networkRequests) {
+                if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
+                    return req;
+                }
+            }
+            _this.driver.pause(500);
+        }
+        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `No request matching the ${pattern} URL was found.`);
+    };
+
+    /**
+     * @summary Wait for a network request.
+     * @function networkWaitFor
+     * @param {Function} matcher - Matching function. Should return true on match, or false otherwise.
+     * @param {Number=} timeout - Timeout. Default is 60 seconds.
+     * @return {Object} Network request details if the network request was found.
+     */
+    module.networkWaitFor = function (matcher, timeout = 60*1000) {
+        this.helpers.assertArgument(matcher, 'matcher');
+        this.helpers.assertArgumentTimeout(timeout, 'timeout');
+        var start = Date.now();
+        while (Date.now() - start < timeout) {
+            for (var req of _this.networkRequests) {
+                if (matcher(req)) {
+                    return req;
+                }
+            }
+            _this.driver.pause(500);
+        }
+        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher');
+    };
+
+    /**
+     * @summary Return all the collected network requests so far.
+     * @function networkGetRequests
+     * @return {Object[]} Array containing network requests.
+     */
+    module.networkGetRequests = function () {
+        return _this.networkRequests;
     };
 
     function harGet() {

@@ -1,5 +1,47 @@
 # CHANGELOG
 
+## v0.52.1 (2019-11-26)
+
+#### :beetle: Bug Fix
+* Fix timeout argument being ignored in `web.network*`.
+* Fix failures in certain commands (regression from v0.52.0).
+
+#### :nail_care: Polish
+* Handle "Failed to create session" init error.
+
+#### :house: Internal
+* WebdriverIO@5.16.9.
+
+## v0.52.0 (2019-11-20)
+
+#### :tada: New Feature
+* Add `web.network*` commands for working with network requests in Chrome.
+
+#### :beetle: Bug Fix
+* Fix `mob.sendKeys` to work with W3C drivers.
+
+#### :nail_care: Polish
+* Process 'invalid selector' errors.
+
+#### :book: Documentation
+* Fix `mob.swipeScreen` documentation.
+
+#### :house: Internal
+* WebdriverIO@5.16.7
+* Bump dependencies.
+
+## v0.51.2 (2019-11-13)
+
+#### :nail_care: Polish
+* Try scrolling the element into viewport before clicking it.
+
+#### :house: Internal
+* Add support for variables inspection in debugger.
+
+## v0.51.1 (2019-11-04)
+
+#### :house: Internal
+* Fix network timings.
 
 ## v0.51.0 (2019-10-23)
 

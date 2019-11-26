@@ -48,9 +48,8 @@
     "@babel/plugin-proposal-optional-catch-binding": "7.2.0",
     "@babel/plugin-transform-modules-commonjs": "7.5.0",
     "@babel/preset-env": "7.5.5",
-    "@wdio/config": "5.15.3",
-    "@wdio/sync": "5.15.7",
-    "@wdio/utils": "5.15.1",
+    "@wdio/devtools-service": "5.16.5",
+    "@wdio/sync": "5.16.9",
     "async": "3.1.0",
     "chai": "4.2.0",
     "chrome-har": "0.11.2",
@@ -71,17 +70,17 @@
     "minimist": "1.2.0",
     "mockery": "2.1.0",
     "moment": "2.24.0",
-    "ox-chrome-remote-interface": "0.27.2",
+    "ox-chrome-remote-interface": "0.28.0",
     "oxygen-logger": "0.3.0",
     "pdfreader": "1.0.4",
     "request": "2.88.0",
     "serialport": "8.0.5",
     "soap": "0.30.0",
     "strip-comments": "1.0.2",
-    "twilio": "3.37.0",
-    "webdriverio": "5.15.6",
+    "twilio": "3.37.1",
+    "webdriverio": "5.16.9",
     "when": "3.7.8",
-    "xlsx": "0.15.1"
+    "xlsx": "0.15.2"
   },
   "optionalDependencies": {
     "odbc": "1.4.6"
