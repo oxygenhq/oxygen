@@ -2,3 +2,4 @@ node_modules/*
 apidocs/*
 bin/*
 npm-debug.log
+.vscode
