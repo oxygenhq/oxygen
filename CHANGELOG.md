@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v0.52.1 (2019-11-26)
+
+#### :beetle: Bug Fix
+* Fix timeout argument being ignored in `web.network*`.
+* Fix failures in certain commands (regression from v0.52.0).
+
+#### :nail_care: Polish
+* Handle "Failed to create session" init error.
+
+#### :house: Internal
+* WebdriverIO@5.16.9.
+
 ## v0.52.0 (2019-11-20)
 
 #### :tada: New Feature
