@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.52.3 (2019-11-26)
+
+#### :house: Internal
+* Remove erroneously published folder.
+
 ## v0.52.2 (2019-11-26)
 
 #### :nail_care: Polish
