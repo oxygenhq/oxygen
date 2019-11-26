@@ -143,7 +143,7 @@ module.exports = {
     getAppiumInitError: function(err) {
         if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, 'Cannot find Chrome binary');
-        } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND') {
+        } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND' || err.message === 'Failed to create session.\nsocket hang up') {
             return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
         } else if (err.message && err.message.indexOf('Could not find a connected Android device') > -1) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
