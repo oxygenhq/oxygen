@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v0.52.2 (2019-11-26)
+
+#### :nail_care: Polish
+* Handle "Failed to create session" init error in web tests.
+
 ## v0.52.1 (2019-11-26)
 
 #### :beetle: Bug Fix
