@@ -23,7 +23,6 @@ import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
 import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
-import { DEBUG_LINE_ADJUSTMENT } from '../../lib/debugger';
 
 export default class OxygenRunner extends EventEmitter {
     constructor() {
@@ -391,7 +390,9 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_DisposeOxygen() {
-        await (this._worker && this._worker.disposeOxygen());
+        if(this._worker && this._worker.disposeOxygen){
+            const worketDisposeOxygen = this._worker.disposeOxygen();
+        }
     }
 
     async _startWorkerProcess() {
@@ -427,7 +428,7 @@ export default class OxygenRunner extends EventEmitter {
                 _this._resetGlobalVariables();
             }
         });
-        this._worker.on('message', function (msg) {
+        this._worker.on('message', (msg) => {
             if (msg.event && msg.event === 'log') {
                 if (msg.level === 'DEBUG') {
                     log.debug(msg.msg);
@@ -460,6 +461,10 @@ export default class OxygenRunner extends EventEmitter {
                 _this._whenDisposed.reject(msg.err);
                 _this._resetGlobalVariables();
             } */else if (msg.event && msg.event === 'command:before') {
+                if(!this._id){
+                    throw new Error('this._id is not exist');
+                }
+
                 _this._reporter && _this._reporter.onStepStart(this._id, msg.command);
             } else if (msg.event && msg.event === 'command:after') {
                 _this._reporter && _this._reporter.onStepEnd(this._id, msg.command);
@@ -483,11 +488,6 @@ export default class OxygenRunner extends EventEmitter {
                 // otherwise, get the line from breakpoint.callFrames[0] object (but then we won't have file path, but scriptId instead)
                 else {
                     breakpointData = breakpoint.callFrames[0].location;
-                }
-                if (breakpointData) {
-                    // we need to substract DEBUG_LINE_ADJUSTMENT value 
-                    // as it was previously added in the Debugger class
-                    breakpointData.lineNumber -= DEBUG_LINE_ADJUSTMENT;
                 }
 
                 if(variables){
@@ -574,22 +574,23 @@ function extractBreakpointData(bpStr) {
     }
     const parts = bpStr.split(':');
     try {
-        // path may contain a drive letter on win32
-        if (process.platform === 'win32' && parts.length === 4) { 
-            return {
-                fileName: parts[0] + ':' + parts[1],
-                lineNumber: parseInt(parts[2]),
-                columnNumber: parseInt(parts[3]),
-            };
-        } 
-        // otherwise it's Unix or UNC on win32
-        else {                                                
-            return {
-                fileName: parts[3],
-                lineNumber: parseInt(parts[1]),
-                columnNumber: parseInt(parts[2]),
-            };
+        
+        let fileName;
+        let lineNumber;
+
+        if (process.platform === 'win32') { // path may contain a Drive letter on win32
+            fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
+            lineNumber = parseInt(parts[1]);
+        } else {
+            fileName = parts[parts.length-1];
+            lineNumber = parseInt(parts[1]);
         }
+    
+        return {
+            fileName: fileName,
+            lineNumber: lineNumber
+        };
+
     } catch (e) {
         log.error(`Failed to extract breakpoint data: ${bpStr}`);
         return null;

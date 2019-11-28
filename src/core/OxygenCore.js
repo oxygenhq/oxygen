@@ -111,8 +111,10 @@ export default class Oxygen extends OxygenEvents {
     }
 
     get adjustScriptLine() {
+        const isInDebugMode = oxutil.isInDebugMode();
         // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
-        return oxutil.isInDebugMode ? -1 : 0;
+        const result = isInDebugMode ? -1 : 0;
+        return result;
     }
 
     /*
