@@ -82,7 +82,9 @@ export default class OxygenRunner extends EventEmitter {
         try {
             if (!this._testKilled) {
                 await this._worker_DisposeOxygen();
-                await this._worker.stop();
+                if(this._worker){
+                    await this._worker.stop();
+                }
             }
         } catch (e) {
             // ignore errors during the dispose
@@ -470,7 +472,7 @@ export default class OxygenRunner extends EventEmitter {
             }
         });
 
-        this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpoint) => {
+        this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpoint, variables) => {
             // assume we always send breakpoint of the top call frame
             if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
                 let breakpointData = null;
@@ -487,6 +489,11 @@ export default class OxygenRunner extends EventEmitter {
                     // as it was previously added in the Debugger class
                     breakpointData.lineNumber -= DEBUG_LINE_ADJUSTMENT;
                 }
+
+                if(variables){
+                    breakpointData.variables = variables;
+                }
+                
                 _this.emit('breakpoint', breakpointData);
             }
         });
