@@ -126,6 +126,12 @@ async function runFnInFiberContext (fn) {
 }
 
 async function run(scriptName, scriptPath, context) {
+    // assign up to date context to Oxygen Core to reflect new parameters and other context data
+    if (!_oxygen) {
+        processSend({ event: 'run:failed', ctx: context, resultStore: null, err: errorHelper.getFailureFromError(new Error('_oxygen is null')) });
+        return;
+    }
+    _oxygen.context = context;
     _steps = [];
     if (_cwd && !path.isAbsolute(scriptPath)) {
         scriptPath = path.resolve(_cwd, scriptPath);
@@ -137,14 +143,14 @@ async function run(scriptName, scriptPath, context) {
         });
     } catch (e) {
         // eslint-disable-next-line no-undef
-        processSend({ event: 'run:failed', ctx: ox.ctx, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
+        processSend({ event: 'run:failed', ctx: _oxygen.context, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
         if(e && e.message){
             processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: e.message});
         }
         return;
     }
     // eslint-disable-next-line no-undef
-    processSend({ event: 'run:success', ctx: ox.ctx, resultStore: { steps: _steps } });
+    processSend({ event: 'run:success', ctx: _oxygen.context, resultStore: { steps: _steps } });
     _steps = null;
 }
 

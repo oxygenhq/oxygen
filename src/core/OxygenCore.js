@@ -111,8 +111,18 @@ export default class Oxygen extends OxygenEvents {
     }
 
     get adjustScriptLine() {
+        const isInDebugMode = oxutil.isInDebugMode();
         // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
-        return oxutil.isInDebugMode ? -1 : 0;
+        const result = isInDebugMode ? -1 : 0;
+        return result;
+    }
+
+    get context() {
+        return this.ctx;
+    }
+
+    set context(ctx) {
+        this.ctx = ctx;
     }
 
     /*
@@ -292,7 +302,9 @@ export default class Oxygen extends OxygenEvents {
         if (!module._isInitialized && !module.isInitialized && publicMethod && cmdName !== 'init' && cmdName !== 'transaction') {
             throw new OxError(errorHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, 'Missing ' + moduleName + '.init()');
         }
-
+        // replace parameters in method arguments with corresponding values
+        cmdArgs = this._populateParametersValue(cmdArgs);
+        // start measuring method execution time
         const startTime = oxutil.getTimeStamp();
         
         // add command location information (e.g. file name and command line)
@@ -524,5 +536,38 @@ export default class Oxygen extends OxygenEvents {
                 log.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
             }
         }
+    }
+    _populateParametersValue(args) {
+        if (!args || !Array.isArray(args) || args.length == 0) {
+            return args;
+        }
+        const _newArgs = [];
+        for (let arg of args) {
+            _newArgs.push(this._replaceParameterInArgument(arg));
+        }
+        return _newArgs;
+    }
+    _replaceParameterInArgument(arg) {
+        if (!arg || typeof arg !== 'string') {
+            return arg;
+        }
+        // replace user parameters with values
+        // note: user parameter with the same name takes precedence over environment variable
+        for (let paramName in this.ctx.params) {
+            if (this.ctx.params.hasOwnProperty(paramName))
+            {    
+                const paramValue = this.ctx.params[paramName];
+                arg = arg.replace(new RegExp('\\${' + paramName + '}', 'g'), paramValue);
+            }
+        }
+        // replace environment variables with values
+        for (let envName in this.ctx.env) {
+            if (this.ctx.env.hasOwnProperty(envName))
+            {
+                const envValue = this.ctx.env[envName];
+                arg = arg.replace(new RegExp('\\${' + envName + '}', 'g'), envValue);
+            }
+        }
+        return arg;        
     }
 }

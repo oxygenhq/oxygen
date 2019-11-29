@@ -80,11 +80,18 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async disposeOxygen() {
-        this._childProc && this._childProc.send({
-            type: 'dispose',
-        });
+        if(this._childProc){
+                
+            this._childProc.send({
+                type: 'dispose'
+            });
+        }
+
         this._whenOxygenDisposed = defer();
-        return this._whenOxygenDisposed.promise;
+
+        const whenOxygenDisposedPromise = this._whenOxygenDisposed.promise;
+        
+        return whenOxygenDisposedPromise;
     }
 
     send(message) {

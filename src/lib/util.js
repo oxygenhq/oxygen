@@ -222,7 +222,16 @@ var self = module.exports = {
     },
 
     isInDebugMode: function() {
-        const argv = process.execArgv.join();
-        return process.debugPort || argv.includes('inspect') || argv.includes('inspect-brk') || argv.includes('debug');
+        // this always true;
+        // const argv = process.execArgv.join();
+        
+        // console.log('process.debugPort', process.debugPort);
+        // console.log("argv.includes('inspect')", argv.includes('inspect'));
+        // console.log("argv.includes('inspect-brk')", argv.includes('inspect-brk'));
+        // console.log("argv.includes('debug')", argv.includes('debug'));
+
+        // return process.debugPort || argv.includes('inspect') || argv.includes('inspect-brk') || argv.includes('debug');
+
+        return false;
     }
 };

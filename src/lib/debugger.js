@@ -19,7 +19,7 @@ const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
 
-const MAX_DEPTH = 10;
+const MAX_DEPTH = 5;
 let maxFindedDepth = 0;
 
 const deleteValues = (arr, depth) => {
@@ -49,8 +49,6 @@ const deleteValues = (arr, depth) => {
     return result;
 };
 
-export const DEBUG_LINE_ADJUSTMENT = -2;
-
 export default class Debugger extends EventEmitter {
     constructor(pid) {
         super();
@@ -63,13 +61,6 @@ export default class Debugger extends EventEmitter {
         this._paused = false;
         this._client = null;
         this.reset();
-
-        // setInterval(() => {
-        //     console.log('---');
-        //     console.log('!!this._client', !!this._client);
-        //     console.log('_pid', this._pid);
-        //     console.log('--- \n');
-        // }, 5000);
     }
     reset() {
         if (this._client) {
@@ -184,10 +175,6 @@ export default class Debugger extends EventEmitter {
         let scopeChainResult = await scopeChain.map(async (chain) => {
             if(chain && chain.object && chain.object.objectId){
                 if(typeof chain.object.objectId === 'string' && chain.type !== 'global'){
-                    if(!this.waitPropertiesResult){
-                        this.waitPropertiesResult = true;
-                    }
-                    
                     const getPropertiesResult = await this.getProperties(chain.object.objectId, depth);
                     
                     return getPropertiesResult;
@@ -252,25 +239,24 @@ export default class Debugger extends EventEmitter {
 
                             const callFrames = e.callFrames.filter((item) => {
 
-                                if(item && item.functionName === ''){
-                                    return true;
+                                if(item && item.url){
+
+                                    const finded = this._breakpoints.find((breakpoint) => breakpoint.breakpointId.endsWith(item.url));
+
+                                    return finded;
                                 } else {
                                     return false;
                                 }
                             });
 
-
-                            console.log('callFrames', callFrames);
-                            console.log('callFrames[0]', callFrames[0]);
-                            console.log('callFrames[0].location.scriptId', callFrames[0].location.scriptId);
-                            
-                            try {
-                                const scriptSource = await this.getScriptSource(callFrames[0].location.scriptId);
+                            // to see how debbuger see script
+                            // try {
+                            //     const scriptSource = await this.getScriptSource(callFrames[0].location.scriptId);
     
-                                console.log('scriptSource', scriptSource);
-                            } catch(e){
-                                console.log('getScriptSource e', e);
-                            }
+                            //     console.log('scriptSource', scriptSource);
+                            // } catch(e){
+                            //     console.log('getScriptSource e', e);
+                            // }
 
                             let callFramesMapResult = await this.processCallFrames(callFrames, initialDepth);
 
@@ -301,11 +287,6 @@ export default class Debugger extends EventEmitter {
                     console.log('breakpointsMapResult res reason' , reason);
                 }); 
 
-                if(this.waitPropertiesResult){
-                    // ignore
-                } else {
-                    this.continue();
-                }
             }
         });
 
@@ -360,7 +341,7 @@ export default class Debugger extends EventEmitter {
     async setBreakpoint(scriptPath, lineNumber) {
         let breakpoint = await this._Debugger.setBreakpointByUrl({
             url: scriptPath,
-            lineNumber: lineNumber + DEBUG_LINE_ADJUSTMENT,
+            lineNumber: lineNumber,
             columnNumber: 0
         }).catch(e => {
             // ignore error when trying to set an laready existing breakpoint
@@ -394,7 +375,6 @@ export default class Debugger extends EventEmitter {
 
     async removeBreakpointByValue(filePath, line) {
         const self = this;
-        line += DEBUG_LINE_ADJUSTMENT;
 
         if (this._breakpoints) {
             for (let b of this._breakpoints) {
@@ -462,7 +442,7 @@ export default class Debugger extends EventEmitter {
             }
 
             if (fileName === filePath) {
-                bps.push(lineNumber - DEBUG_LINE_ADJUSTMENT);
+                bps.push(lineNumber);
             }
         }
         return bps;
