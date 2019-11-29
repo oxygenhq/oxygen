@@ -239,25 +239,24 @@ export default class Debugger extends EventEmitter {
 
                             const callFrames = e.callFrames.filter((item) => {
 
-                                if(item && item.functionName === ''){
-                                    return true;
+                                if(item && item.url){
+
+                                    const finded = this._breakpoints.find((breakpoint) => breakpoint.breakpointId.endsWith(item.url));
+
+                                    return finded;
                                 } else {
                                     return false;
                                 }
                             });
 
-
-                            console.log('callFrames', callFrames);
-                            console.log('callFrames[0]', callFrames[0]);
-                            console.log('callFrames[0].location.scriptId', callFrames[0].location.scriptId);
-                            
-                            try {
-                                const scriptSource = await this.getScriptSource(callFrames[0].location.scriptId);
+                            // to see how debbuger see script
+                            // try {
+                            //     const scriptSource = await this.getScriptSource(callFrames[0].location.scriptId);
     
-                                console.log('scriptSource', scriptSource);
-                            } catch(e){
-                                console.log('getScriptSource e', e);
-                            }
+                            //     console.log('scriptSource', scriptSource);
+                            // } catch(e){
+                            //     console.log('getScriptSource e', e);
+                            // }
 
                             let callFramesMapResult = await this.processCallFrames(callFrames, initialDepth);
 

@@ -468,6 +468,18 @@ export default class OxygenRunner extends EventEmitter {
                 _this._reporter && _this._reporter.onStepStart(this._id, msg.command);
             } else if (msg.event && msg.event === 'command:after') {
                 _this._reporter && _this._reporter.onStepEnd(this._id, msg.command);
+
+                if(
+                    msg && 
+                    msg.command && 
+                    msg.command.module && 
+                    msg.command.module === 'log' &&
+                    msg.command.args && 
+                    msg.command.name
+                ){
+                    _this._reporter && _this._reporter.onLogEntry(msg.time, msg.command.name, msg.command.args.join(), DEFAULT_ISSUER);
+                }
+
             } else if (msg.event && msg.event === 'line-update') {
                 _this.emit('line-update', msg.line, msg.stack, msg.time);
             } else if (msg.event && msg.event === 'result-update') {
