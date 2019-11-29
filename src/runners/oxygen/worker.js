@@ -27,7 +27,7 @@ const { LEVELS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
 
-var logger = {
+const logger = {
     info: function(message, src = DEFAULT_LOGGER_ISSUER) {
         const ts = oxutil.getTimeStamp();
         processSend({ time: ts, event: 'log', level: LEVELS.INFO, msg: stringify(message), src });
