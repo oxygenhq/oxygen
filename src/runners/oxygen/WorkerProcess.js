@@ -139,19 +139,19 @@ export default class WorkerProcess extends EventEmitter {
         if (msg.event) {
             switch (msg.event) {
                 case 'dispose:success':
-                    this._whenOxygenDisposed.resolve(null);
+                    this._whenOxygenDisposed && this._whenOxygenDisposed.resolve(null);
                     this._isOxygenInitialized = false;
                     break;
                 case 'dispose:failed':
-                    this._whenOxygenDisposed.reject(msg.err);
+                    this._whenOxygenDisposed && this._whenOxygenDisposed.reject(msg.err);
                     this._isOxygenInitialized = false;
                     break;
                 case 'init:success':
-                    this._whenOxygenInitialized.resolve(null);
+                    this._whenOxygenDisposed && this._whenOxygenInitialized.resolve(null);
                     this._isOxygenInitialized = true;
                     break;
                 case 'init:failed':
-                    this._whenOxygenInitialized.reject(msg.err);
+                    this._whenOxygenDisposed && this._whenOxygenInitialized.reject(msg.err);
                     this._isOxygenInitialized = false;
                     break;
             }
