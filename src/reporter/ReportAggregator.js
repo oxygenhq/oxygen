@@ -31,6 +31,7 @@ const Reporters = {
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
+const DEFAULT_REPORTERS = [];
 
 export default class ReportAggregator extends EventEmitter {
     constructor(options) {
@@ -44,7 +45,7 @@ export default class ReportAggregator extends EventEmitter {
     instantiateReporters() {
         this.reporters = [];
         const generalReportingOpts = this.options.reporting || {};
-        for (let reporter of generalReportingOpts.reporters || []) {
+        for (let reporter of generalReportingOpts.reporters || DEFAULT_REPORTERS) {
             if (typeof reporter !== 'string' && !Object.prototype.hasOwnProperty.call(reporter, 'name')) {
                 // ignore reporters that do not have 'name' property as it's essential to load the corresponding Reporter class
                 continue;

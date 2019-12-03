@@ -32,7 +32,7 @@ export default class FileReporterBase extends ReporterBase {
             fileExtension = `.${fileExtension}`;
         }
         if (!this.options || !this.options.target || !this.options.reporting) {
-            throw new Error('ReporterBase is not properly initialized');
+            throw new Error('FileReporterBase is not properly initialized');
         }
         let resultsBaseFolder = null;
         // produce report at the specified path. will overwrite any existing reports.

@@ -89,6 +89,9 @@ export function getConfigurations(target, argv) {
         collectDeviceLogs: false,
         collectAppiumLogs: false,
         collectBrowserLogs: false,
+        reporting: {
+            reporters: ['html']
+        },
         parameters : {
             file: argv.p || argv.param || null,
             mode: argv.pm || 'seq'
