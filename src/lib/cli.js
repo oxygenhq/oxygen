@@ -20,7 +20,7 @@ process.on('SIGINT', handleSigInt);
 const argv = require('minimist')(process.argv.slice(2));
 
 if (argv.v || argv.version) {
-    console.log(require('../package.json').version);
+    console.log(require('../../package.json').version);
     process.exit(0);
 } else if (typeof(argv._[0]) === 'undefined' || argv.help) {
     printUsage();
