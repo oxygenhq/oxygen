@@ -20,7 +20,7 @@ module.exports = function() {
 
     var _config;
 
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return _config !== undefined;
     };
 

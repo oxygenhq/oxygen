@@ -19,7 +19,7 @@ module.exports = function() {
     var soap = require('soap');
     var auth = null;
 
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
 

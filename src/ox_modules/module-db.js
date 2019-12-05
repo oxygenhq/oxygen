@@ -26,7 +26,7 @@ var errHelper = require('../errors/helper');
 
 module.exports = function() {
     // FIXME: change setConnectionString to init and add hadnling in here
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
 

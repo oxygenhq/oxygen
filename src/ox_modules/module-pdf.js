@@ -233,7 +233,7 @@ function validateMessage(arg, name) {
 }
 
 module.exports = function() {
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
 

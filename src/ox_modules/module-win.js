@@ -65,7 +65,7 @@ module.exports = function (options, context, rs, logger) {
         return _this.driver;
     };
 
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return isInitialized;
     };
 

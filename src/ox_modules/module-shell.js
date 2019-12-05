@@ -11,7 +11,7 @@
 * Provides methods for working with operating system shell.
 */
 module.exports = function() {
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
 

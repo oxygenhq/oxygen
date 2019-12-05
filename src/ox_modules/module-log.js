@@ -16,7 +16,7 @@ module.exports = function (options, context, rs, logger) {
 
     const DEFAULT_ISSUER = 'user';
 
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
     

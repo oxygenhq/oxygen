@@ -16,7 +16,7 @@ const OxError = require('../errors/OxygenError');
 const errHelper = require('../errors/helper');
 
 module.exports = function() {
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
 

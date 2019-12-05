@@ -77,7 +77,7 @@ module.exports = function() {
         return result.body;
     }
 
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return _token !== undefined;
     };
 

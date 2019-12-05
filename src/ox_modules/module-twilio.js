@@ -19,7 +19,7 @@ module.exports = function() {
 
     var _client;
     
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return _client !== undefined;
     };
 

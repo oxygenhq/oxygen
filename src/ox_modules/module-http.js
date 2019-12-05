@@ -20,7 +20,7 @@ module.exports = function() {
 
     const _responseTimeout = 1000 * 30;   // in ms
     
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return true;
     };
 

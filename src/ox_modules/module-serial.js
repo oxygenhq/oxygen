@@ -21,7 +21,7 @@ module.exports = function() {
     var serialPort;
     var stringBuffer;
 
-    module._isInitialized = function() {
+    module.isInitialized = function() {
         return serialPort !== undefined;
     };
 
