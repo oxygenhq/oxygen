@@ -71,7 +71,7 @@ export default class Debugger extends EventEmitter {
         this._breakpoints = [];
     }
 
-    async getPropertiesByObjectId(objectId, depth){
+    async getPropertiesByObjectId(objectId, depth, elm){
         let data = {};
 
         try{
@@ -79,7 +79,8 @@ export default class Debugger extends EventEmitter {
                 objectId : objectId
             });
         } catch(e){
-            console.log('getProperties e', e);
+            // console.log('getProperties elm', elm);
+            // console.log('getProperties e', e);
         }
         let clone = Object.assign({}, data);
         
@@ -104,17 +105,17 @@ export default class Debugger extends EventEmitter {
         return promiseAllPromise;
     }
 
-    async getProperties(objectId, depth){
+    async getProperties(objectId, depth, elm){
         const promises = [];
 
-        const getPropertiesResult = await this.getPropertiesByObjectId(objectId, depth);
+        const getPropertiesResult = await this.getPropertiesByObjectId(objectId, depth, elm);
             
         if(getPropertiesResult){
             if(getPropertiesResult && getPropertiesResult.result && Array.isArray(getPropertiesResult.result)){
 
                 const mapResult = getPropertiesResult.result.map(async (item) => {
                     if(item && item.value && item.value.objectId){
-                        const getPropertiesInnerResult = await this.getProperties(item.value.objectId, depth+1);
+                        const getPropertiesInnerResult = await this.getProperties(item.value.objectId, depth+1, item);
 
                         if(item.scopeItem){
                             return null;
@@ -238,7 +239,6 @@ export default class Debugger extends EventEmitter {
                         if(e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0){
 
                             const callFrames = e.callFrames.filter((item) => {
-
                                 if(item && item.url){
 
                                     const finded = this._breakpoints.find((breakpoint) => breakpoint.breakpointId.endsWith(item.url));
