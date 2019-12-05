@@ -7,6 +7,9 @@
  * (at your option) any later version.
  */
 
+const errHelper = require('../errors/helper');
+const OxError = require('../errors/OxygenError').default;
+
 module.exports = {
     matchPattern: function(val, pattern) {
         if (!val && !pattern) {
@@ -53,7 +56,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
 
         if (waitForVisible) {
@@ -64,7 +67,7 @@ module.exports = {
                     module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
-                    throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE);
                 }
                 throw e;
             }
@@ -88,7 +91,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
 
         if (timeout) {
@@ -111,7 +114,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
 
         if (waitForVisible) {
@@ -122,7 +125,7 @@ module.exports = {
                     module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
-                    throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE);
                 }
                 throw e;
             }
@@ -148,7 +151,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
 
         if (timeout) {
@@ -172,49 +175,49 @@ module.exports = {
 
     assertArgument: function(arg, name) {
         if (arg === undefined || arg === null) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
         }
     },
 
     assertArgumentNonEmptyString: function(arg, name) {
         if (!arg || typeof arg !== 'string') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
         }
     },
 
     assertArgumentNumber: function(arg, name) {
         if (typeof(arg) !== 'number') {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a number.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a number.");
         }
     },
 
     assertArgumentNumberNonNegative: function(arg, name) {
         if (typeof(arg) !== 'number' || arg < 0) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
         }
     },
 
     assertArgumentBool: function(arg, name) {
         if (typeof(arg) != typeof(true)) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
         }
     },
 
     assertArgumentBoolOptional: function(arg, name) {
         if (typeof(arg) !== 'undefined' && typeof(arg) != typeof(true)) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
         }
     },
 
     assertArgumentTimeout: function(arg, name) {
         if (arg && (typeof(arg) !== 'number' || arg < 0)) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
         }
     },
 
     getWdioLocator: function(locator) {
         if (!locator)
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         else if (typeof locator === 'object')
             return locator;
         else if (locator.indexOf('/') === 0)

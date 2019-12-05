@@ -67,6 +67,9 @@ export default class WebModule extends WebDriverModule {
         this.networkRequests = null;
         this.helpers = {};
         this._loadHelperFunctions();
+        // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
+        this.OxError = OxError;
+        this.errHelper = errHelper;
     }
 
     get name() {
