@@ -27,7 +27,6 @@ export default class ApplitoolsModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
         // this module doesn't require calling init() method
-        this.isInitialized = false;
         this._eyes = null;
     }
     get name() {
@@ -67,7 +66,7 @@ export default class ApplitoolsModule extends OxygenModule {
         this._eyes.setApiKey(this._apiKey);
         const appName = this.options.appName || this.options.name;
         await driver.call(() => this._eyes.open(driver, this.options.name, appName, this._viewport));
-        this.isInitialized = true;
+        super.init();
     }
     /**
      * @summary Closes Applitools Eyes session, terminates the sequence of checkpoints, and then waits for and returns the test results.
@@ -86,7 +85,7 @@ export default class ApplitoolsModule extends OxygenModule {
             this._eyes.abortIfNotClosed(); 
         }
         this._eyes = null;
-        this.isInitialized = false;
+        super.dispose();
 
         return results;
     }
