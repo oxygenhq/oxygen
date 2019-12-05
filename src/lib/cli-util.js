@@ -19,7 +19,7 @@ export async function loadSuites(config, argv) {
     // if an individual script or suite file was passed
     if (!isConfigFile) {
         if (target.extension === '.js') {
-            suites.push(await oxutil.generateTestSuiteFromJSFile(target.path, config.parameters.file, config.parameters.mode));
+            suites.push(await oxutil.generateTestSuiteFromJSFile(target.path, config.parameters.file, config.parameters.mode, false, config.iterations || 1));
         }
         else if (target.extension === '.json') {
             suites.push(await oxutil.generateTestSuiteFromJsonFile(target.path, config.parameters.file, config.parameters.mode, config));

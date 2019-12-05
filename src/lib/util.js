@@ -27,7 +27,7 @@ var self = module.exports = {
         return moment.utc().valueOf();
     },
     
-    generateTestSuiteFromJSFile: function (filePath, paramFile, paramMode, noParamAutoSearch) {
+    generateTestSuiteFromJSFile: function (filePath, paramFile, paramMode, noParamAutoSearch, iterationCount = 1) {
         var fileNameNoExt = self.getFileNameWithoutExt(filePath);
         var _done = defer();
 
@@ -40,6 +40,7 @@ var self = module.exports = {
         var suite = new require('../model/testsuite.js')();
         suite.name = testcase.name;
         suite.id = testcase.id;
+        suite.iterationCount = iterationCount;
         suite.cases.push(testcase);
         if (testcase.reopenSession) {
             suite.reopenSession = testcase.reopenSession;
@@ -97,7 +98,7 @@ var self = module.exports = {
         // create test suite object
         var suite = new require('../model/testsuite.js')();
         suite.name = fileNameNoExt;
-        suite.iterationCount = conf.iterations || 1;
+        suite.iterationCount = conf.iterations || options.iterations || 1;
         suite.capabilities = conf.capabilities || {};
         suite.environment = conf.environment || null;
         suite.options = conf.options || null;
