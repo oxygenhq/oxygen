@@ -7,43 +7,52 @@
  * (at your option) any later version.
  */
 
+import OxygenModule from '../core/OxygenModule';
+
+const MODULE_NAME = 'log';
+
 /**
  * Provides methods for printing user defined messages to test results.
  */
-module.exports = function (options, context, rs, logger) {
-    var _this = module._this = this;
-    this.logger = logger;
-
-    const DEFAULT_ISSUER = 'user';
-
-    module.isInitialized = function() {
-        return true;
-    };
-    
+export default class LogModule extends OxygenModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        // this module doesn't need to be expicitly initialized, so we will just call super.init() to set the right state
+        super.init();
+    }
+    get name() {
+        return MODULE_NAME;
+    }
     /**
      * @summary Print an INFO message.
      * @function info
      * @param {String} msg - Message to print.
      */
-    module.info = function(msg) { _this.logger.info(msg, DEFAULT_ISSUER); };
+    info(msg) { 
+        this.logger.userInfo(msg); 
+    }
     /**
      * @summary Print an ERROR message.
      * @function error
      * @param {String} msg - Message to print.
      */
-    module.error = function(msg) { _this.logger.error(msg, null, DEFAULT_ISSUER); };
+    error(msg) { 
+        this.logger.userError(msg); 
+    }
     /**
      * @summary Print a DEBUG message.
      * @function debug
      * @param {String} msg - Message to print.
      */
-    module.debug = function(msg) { _this.logger.debug(msg, DEFAULT_ISSUER); };
+    debug(msg) { 
+        this.logger.userDebug(msg); 
+    }
     /**
      * @summary Print a WARN message.
      * @function warn
      * @param {String} msg - Message to print.
      */
-    module.warn = function(msg) { _this.logger.warn(msg, DEFAULT_ISSUER); };
-
-    return module;
-};
+    warn(msg) { 
+        this.logger.userWarn(msg); 
+    }
+}

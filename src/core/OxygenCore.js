@@ -13,9 +13,8 @@ import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
 
 // setup logger
-import logger from '../lib/logger';
+import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
 import { OxygenSubModule } from './OxygenSubModule';
-const log = logger('Oxygen');
 
 /*global __stack*/
 Object.defineProperty(global, '__stack', {
@@ -74,7 +73,8 @@ export default class Oxygen extends OxygenEvents {
         this.services = {};
         this.capabilities = null;
         this.opts = null;
-        this.oxBaseDir = path.join(__dirname, '../');        
+        this.oxBaseDir = path.join(__dirname, '../');
+        this.logger = this._wrapLogger(logger('Oxygen'));
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -97,6 +97,16 @@ export default class Oxygen extends OxygenEvents {
         this._loadModules();
 
         this.isInitialized = true;
+    }
+
+    async disposeModules() {
+        try {
+            await this._disposeModules();
+        }
+        catch (e) {
+            console.error('Failed to dispose modules: ', e);
+            throw e;
+        }
     }
 
     async dispose() {
@@ -127,6 +137,10 @@ export default class Oxygen extends OxygenEvents {
         this.ctx = ctx;
     }
 
+    get results() {
+        return this.resultStore;
+    }
+
     resetResults() {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
@@ -144,11 +158,44 @@ export default class Oxygen extends OxygenEvents {
     /*
      * Private Methods
      */
+    _wrapLogger(_logger) {
+        const loggerWrap = {
+            info: (...args) => this._log(_logger, 'info', args),
+            debug: (...args) => this._log(_logger, 'debug', args),
+            error: (...args) => this._log(_logger, 'error', args),
+            warn: (...args) => this._log(_logger, 'warn', args),
+            userInfo: (...args) => this._log(_logger, 'info', args, ISSUERS.USER),
+            userDebug: (...args) => this._log(_logger, 'debug', args, ISSUERS.USER),
+            userError: (...args) => this._log(_logger, 'error', args, ISSUERS.USER),
+            userWarn: (...args) => this._log(_logger, 'warn', args, ISSUERS.USER),
+        };
+        return loggerWrap;
+    }    
+    _log(_logger, level, args, src = DEFAULT_LOGGER_ISSUER) {
+        if (!_logger[level]) {
+            return;
+        }
+        _logger[level].apply(_logger, args);
+        const message = args && args.length > 0 && typeof args[0] === 'string' ? args[0] : null;
+        const time = oxutil.getTimeStamp();
+        // add the log entry to the result store
+        if (level !== 'debug' && this.resultStore && this.resultStore.logs) {
+            this.resultStore.logs.push({
+                time: time,
+                level: level.toUpperCase(),
+                msg: message,                
+                src: src
+            });
+        }
+        // remove first argument, if it's a message
+        args = message ? args.shift() : args;
+        this.emitLog(time, level, message, args, src);
+    }
     _loadServices() {
         const oxServicesDirPath = path.resolve(this.oxBaseDir, './ox_services');
         const serviceFiles = globule.find('service-*.js', { srcBase: oxServicesDirPath });
         // initialize all services
-        log.debug('Loading services...');
+        this.logger.debug('Loading services...');
         
         for (var i = 0; i < serviceFiles.length; i++) {
             const serviceFileName = serviceFiles[i];
@@ -161,7 +208,7 @@ export default class Oxygen extends OxygenEvents {
                 service.init();
                 this.services[serviceName] = service;
             } catch (e) {
-                log.error('Error initializing service "' + serviceName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
+                this.logger.error('Error initializing service "' + serviceName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
             }
         }
     }
@@ -171,26 +218,32 @@ export default class Oxygen extends OxygenEvents {
         if (ServiceClass.default) {
             ServiceClass = ServiceClass.default;
         }
-        const serviceLogger = logger(`OxService:${serviceName}`);
+        const serviceLogger = this._wrapLogger(logger(`Service:${serviceName}`));
         return new ServiceClass(this.opts, this.ctx, this.resultStore, serviceLogger);
     }
 
     _loadModules() {
         const oxModulesDirPath = path.resolve(this.oxBaseDir, './ox_modules');
-        const moduleFiles = globule.find('module-*.js', { srcBase: oxModulesDirPath });
+        let moduleFiles = [];
+        // if particular module names are defined in the config, then load only these modules
+        if (Array.isArray(this.opts.modules) && this.opts.modules.length > 0) {
+            this.opts.modules.forEach(moduleName => moduleFiles.push(`module-${moduleName}.js`));
+        }
+        // otherwise, load all available modules (might be more time consuming)
+        else {
+            moduleFiles = globule.find('module-*.js', { srcBase: oxModulesDirPath });
+        }
         // initialize all modules
-        log.debug('Loading modules...');
+        this.logger.debug('Loading modules...');
         let moduleName;
-        for (var i = 0; i < moduleFiles.length; i++) {
-            let moduleFileName = moduleFiles[i];
-            let result = moduleFileName.match(MODULE_NAME_MATCH_REGEX);
-            moduleName = result[1];
+        for (let moduleFileName of moduleFiles) {
+            // extract name from the module file name based on module name pattern
+            const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
     
             try {
                 this._loadModule(moduleName, moduleFileName, oxModulesDirPath, this.opts);
             } catch (e) {
-                console.error(e);
-                log.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
+                this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
                 // without Mob and Web modules loaded, the initialization process shall fail
                 if (moduleName === 'web' || moduleName === 'mob') {
@@ -205,7 +258,7 @@ export default class Oxygen extends OxygenEvents {
         if (ModuleClass.default) {
             ModuleClass = ModuleClass.default;
         }
-        const moduleLogger = logger(`Module:${moduleName}`);
+        const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
         // load external commands
         const cmdDir = path.join(oxModulesDirPath, 'module-' + moduleName, 'commands');
         if (fs.existsSync(cmdDir)) {
@@ -227,8 +280,8 @@ export default class Oxygen extends OxygenEvents {
                     }
                 }
             } catch (e) {
-                log.error("Can't load command '" + commandName + ': ' + e.message);
-                log.debug(e.stack);
+                this.logger.error("Can't load command '" + commandName + ': ' + e.message);
+                this.logger.debug(e.stack);
             }
         }
         const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, moduleLogger, this.services);
@@ -245,7 +298,7 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     
-        log.debug('Loading module: ' + moduleName);
+        this.logger.debug('Loading module: ' + moduleName);
         this._callServicesOnModuleLoaded(mod);
         this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
     }
@@ -281,7 +334,7 @@ export default class Oxygen extends OxygenEvents {
                 wrapper[methodName] = function() {
                     var args = Array.prototype.slice.call(arguments);
                         
-                    log.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
+                    _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
     
                     try {
                         return module[methodName].apply(module, args);
@@ -342,7 +395,7 @@ export default class Oxygen extends OxygenEvents {
             this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
         }
 
-        log.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
+        this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
         
         try {
             // emit before events
@@ -527,7 +580,7 @@ export default class Oxygen extends OxygenEvents {
                 module._iterationStart && module._iterationStart();
             }
             catch (e) {
-                log.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
+                this.logger.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
             }
         }
     }
@@ -542,7 +595,7 @@ export default class Oxygen extends OxygenEvents {
                 module._iterationEnd && module._iterationEnd();
             }
             catch (e) {
-                log.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
+                this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
             }
         }
     }
@@ -559,7 +612,7 @@ export default class Oxygen extends OxygenEvents {
                 service.onModuleLoaded(module);
             }
             catch (e) {
-                log.error(`Failed to call "onModuleLoaded" method of ${serviceName} service.`, e);
+                this.logger.error(`Failed to call "onModuleLoaded" method of ${serviceName} service.`, e);
             }
         }
     }
@@ -573,7 +626,7 @@ export default class Oxygen extends OxygenEvents {
                 await service.onModuleInitialized(module);
             }
             catch (e) {
-                log.error(`Failed to call "onModuleInitialized" method of ${serviceName} service.`, e);
+                this.logger.error(`Failed to call "onModuleInitialized" method of ${serviceName} service.`, e);
             }
         }
     }
@@ -590,7 +643,7 @@ export default class Oxygen extends OxygenEvents {
                 await service.onModuleWillDispose && service.onModuleWillDispose(module);
             }
             catch (e) {
-                log.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
+                this.logger.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
             }
         }
     }

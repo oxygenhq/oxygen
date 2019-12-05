@@ -67,6 +67,7 @@ async function init(options, caps) {
             _oxygen = new Oxygen();
             _oxygen.on('command:before', handleBeforeCommand);
             _oxygen.on('command:after', handleAfterCommand);
+            _oxygen.on('log', handleLogEntry);
             await _oxygen.init(options, caps);
             makeModulesGlobal(options);
             logger.debug('Oxygen initialization completed');
@@ -94,6 +95,21 @@ async function dispose() {
     }
 }
 
+async function disposeModules() {
+    if (_oxygen) {
+        try {
+            await _oxygen.disposeModules();
+            processSend({ event: 'dispose-modules:success' });
+        }
+        catch (e) {
+            processSend({ event: 'dispose-modules:failed', err: { message: e.message, stack: e.stack } });
+        }
+        finally {
+            _oxygen.resetResults();
+        }
+    }
+}
+
 process.on('SIGINT', async function() {
     logger.debug('SIGINT received');
     await dispose();
@@ -104,13 +120,14 @@ process.on('message', async function (msg) {
     if (!msg.type) {
         return;
     }
-
     if (msg.type === 'init') {
         await init(msg.options, msg.caps);
     } else if (msg.type === 'run') {
         run(msg.scriptName, msg.scriptPath, msg.context);
     } else if (msg.type === 'dispose') {
         dispose();
+    } else if (msg.type === 'dispose-modules') {
+        disposeModules();
     }
 });
 
@@ -142,6 +159,8 @@ async function run(scriptName, scriptPath, context) {
         await runFnInFiberContext(() => {
             _oxygen.onBeforeCase && _oxygen.onBeforeCase(context);
             try {
+                // make sure to clear require cache so the script will be executed on each iteration
+                require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
                 require(scriptPath);
             }
             catch (e) {
@@ -154,14 +173,14 @@ async function run(scriptName, scriptPath, context) {
     }    
     if (error) {
         // eslint-disable-next-line no-undef
-        processSend({ event: 'run:failed', ctx: _oxygen.context, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(error) });
+        processSend({ event: 'run:failed', ctx: _oxygen.context, resultStore: _oxygen.results, err: errorHelper.getFailureFromError(error) });
         if(error.message){
             processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: error.message});
         }
     }    
     else {
         // eslint-disable-next-line no-undef
-        processSend({ event: 'run:success', ctx: _oxygen.context, resultStore: ox.resultStore });
+        processSend({ event: 'run:success', ctx: _oxygen.context, resultStore: _oxygen.results });
     }    
     // reset steps and other result data
     _oxygen.resetResults();
@@ -181,6 +200,13 @@ function handleAfterCommand(e) {
     }
     _steps.push(e.result);
     processSend({ event: 'command:after', command: e });
+}
+
+function handleLogEntry(e) {
+    if (!e || !e.level || !e.message) {
+        return;
+    }
+    logger[e.level](e.message, e.src);
 }
 
 function processSend(msg) {

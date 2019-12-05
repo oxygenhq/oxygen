@@ -30,4 +30,14 @@ export default class OxygenEvents extends EventEmitter {
             result: result,
         });
     }
+
+    emitLog(time, level, msg, args, src) {
+        this.emit('log', {
+            time: time,
+            level: level,
+            message: msg,
+            args: args,
+            src: src,
+        });
+    }
 }

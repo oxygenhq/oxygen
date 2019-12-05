@@ -28,6 +28,7 @@ export default class WorkerProcess extends EventEmitter {
         // promises
         this._whenOxygenInitialized = null;
         this._whenOxygenDisposed = null;
+        this._whenModulesDisposed = null;
     }
     async start() {
         const env = Object.assign(process.env, {
@@ -89,9 +90,20 @@ export default class WorkerProcess extends EventEmitter {
 
         this._whenOxygenDisposed = defer();
 
-        const whenOxygenDisposedPromise = this._whenOxygenDisposed.promise;
+        return this._whenOxygenDisposed.promise;
+    }
+
+    async disposeModules() {
+        if(this._childProc){
+                
+            this._childProc.send({
+                type: 'dispose-modules'
+            });
+        }
+
+        this._whenModulesDisposed = defer();
         
-        return whenOxygenDisposedPromise;
+        return this._whenModulesDisposed.promise;
     }
 
     send(message) {
@@ -122,6 +134,7 @@ export default class WorkerProcess extends EventEmitter {
         this._debugPort = null;
         this._whenOxygenDisposed = null;
         this._whenOxygenInitialized = null;
+        this._whenModulesDisposed = null;
     }
 
     _hookChildProcEvents() {
@@ -145,6 +158,12 @@ export default class WorkerProcess extends EventEmitter {
                 case 'dispose:failed':
                     this._whenOxygenDisposed && this._whenOxygenDisposed.reject(msg.err);
                     this._isOxygenInitialized = false;
+                    break;
+                case 'dispose-modules:success':
+                    this._whenModulesDisposed && this._whenModulesDisposed.resolve(null);
+                    break;
+                case 'dispose-modules:failed':
+                    this._whenModulesDisposed && this._whenModulesDisposed.reject(msg.err);
                     break;
                 case 'init:success':
                     this._whenOxygenInitialized && this._whenOxygenInitialized.resolve(null);

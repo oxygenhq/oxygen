@@ -278,7 +278,6 @@ export default class OxygenRunner extends EventEmitter {
                     // stop iterating over it and move to the next test case
                     if (caseResult.status === Status.FAILED) {
                         suiteResult.status = Status.FAILED;
-                        break;
                     }
                 }
             }
@@ -330,15 +329,15 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
             caseResult.endTime = oxutil.getTimeStamp();
-            await (this._worker.isOxygenInitialized && this._worker_DisposeOxygen());
+            await (this._worker.isOxygenInitialized && this._worker_DisposeModules());
             caseResult.duration = caseResult.endTime - caseResult.startTime;
             caseResult.context = context;
-            caseResult.steps = resultStore.steps;
-            caseResult.logs = resultStore.logs;
-            caseResult.har = resultStore.har;
+            caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
+            caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
+            caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
 
             // determine test case iteration status - mark it as failed if any step has failed
-            var failedSteps = _.find(resultStore.steps, {status: Status.FAILED});
+            var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
             caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
             if (error) {
                 caseResult.failure = error;
@@ -391,7 +390,13 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_DisposeOxygen() {
         if(this._worker && this._worker.disposeOxygen){
-            const worketDisposeOxygen = this._worker.disposeOxygen();
+            await this._worker.disposeOxygen();
+        }
+    }
+
+    async _worker_DisposeModules() {
+        if(this._worker && this._worker.disposeModules){
+            await this._worker.disposeModules();
         }
     }
 
