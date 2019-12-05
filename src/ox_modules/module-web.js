@@ -42,68 +42,239 @@
  *  </ul>
  * </div>
  */
+import { harFromMessages } from 'chrome-har';
+import deasync from 'deasync';
+import URL from 'url';
+import * as wdio from 'webdriverio';
+import WebDriverModule from '../core/WebDriverModule';
 
-module.exports = function (options, context, rs, logger) {
-    var wdio = require('webdriverio');
-    var util = require('util');
-    var _ = require('lodash');
-    var URL = require('url');
-    const { harFromMessages } = require('chrome-har');
-    var utils = require('./utils');
-    var deasync = require('deasync');
+import modUtils from './utils';
+import errHelper from '../errors/helper';
+import OxError from '../errors/OxygenError';
 
-    var _this = module._this = this;
+const MODULE_NAME = 'web';
+const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
+const DEFAULT_BROWSER_NAME = 'chrome';
+const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
+const ACTION_COMMANDS = ['open', 'click'];
+const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 
-    // properties exposed to external commands
-    this.OxError = require('../errors/OxygenError').default;
-    this.errHelper = require('../errors/helper');
-    this.driver = null;
-    this.helpers = {};
-    this.logger = logger;
-    this.caps = null;
-    this.waitForTimeout = 60 * 1000;            // default 60s wait timeout
+export default class WebModule extends WebDriverModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this.transactions = {};                      // transaction->har dictionary
+        this.lastNavigationStartTime = null;
+        this.networkRequests = null;
+        this.helpers = {};
+        this._loadHelperFunctions();
+    }
 
-    // module's constructor scoped variables
-    var helpers = this.helpers;
-    var ctx = context;                          // context variables
-    var opts = options;                         // startup options
-    var isInitialized = false;
-    var transactions = {};                      // transaction->har dictionary
-    var lastNavigationStartTime = null;
+    get name() {
+        return MODULE_NAME;
+    }
 
-    const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
-    const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
-    const ACTION_COMMANDS = ['open', 'click'];
-
-    // expose wdio driver for debugging purposes
-    module.driver = function() {
-        return _this.driver;
+    /**
+     * @function getCapabilities
+     * @summary Returns currently defined capabilities.
+     * @return {Object} capabilities - Current capabilities object.
+     */
+    getCapabilities() {
+        return super.getCapabilities();
     };
 
-    // expose wdio driver 
-    module.getDriver = function() {
-        return _this.driver;
-    };
+    /**
+     * @function init
+     * @summary Initializes new Selenium session.
+     * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
+     * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
+     */
+    init(caps, seleniumUrl) {
+        if (this.isInitialized) {
+            return;
+        }
 
-    module._isInitialized = function() {
-        return isInitialized;
-    };
+        this.networkRequests = [];
 
-    module._isAction = function(name) {
-        return ACTION_COMMANDS.includes(name);
-    };
+        if (!seleniumUrl) {
+            seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
+        }
 
-    module._takeScreenshot = function(name) {
-        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+        // take capabilities either from init method argument or from context parameters passed in the constructor
+        // merge capabilities from context and from init function argument, give preference to context-passed capabilities
+        this.caps = {};
+        if (this.ctx.caps) {
+            this.caps = { ...this.ctx.caps };
+        }
+        if (caps) {
+            this.caps = { ...this.caps, caps };
+        }
+
+        // populate browserName caps from options. FIXME: why is this even needed?
+        if (!this.caps.browserName) {
+            this.caps.browserName = this.options.browserName || DEFAULT_BROWSER_NAME;
+        }
+        // FIXME: shall we throw an exception if browserName is not specified, neither in caps nor in options?!
+        if (!this.caps.browserName) {
+            throw new OxError(errHelper.errorCode.INVALID_CAPABILITIES,
+                'Failed to initialize `web` module - browserName must be specified.');
+        }
+        // webdriver expects lower case names
+        this.caps.browserName = this.caps.browserName.toLowerCase();
+        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
+        if (this.caps.browserName === 'ie') {
+            this.caps.browserName = 'internet explorer';
+        }
+        // adjust capabilities to enable collecting browser and performance stats in Chrome 
+        if (this.options.recordHAR && this.caps.browserName === 'chrome') {
+            this.caps['goog:loggingPrefs'] = {     // for ChromeDriver >= 75
+                browser: 'ALL',
+                performance: 'ALL'
+            };
+            /*
+            // specifying this leads Chrome 77+ to refuse loading
+            this.caps.loggingPrefs = {             // for ChromeDriver < 75
+                browser: 'ALL',
+                performance: 'ALL'
+            };
+            this.caps.chromeOptions = {
+                perfLoggingPrefs: {
+                    enableNetwork: true,
+                    enablePage: false
+                }
+            };
+            */
+        }
+
+        // populate WDIO options
+        const url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
+        const protocol = url.protocol.replace(/:$/, '');
+        const host = url.hostname;
+        const port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
+        const path = url.pathname;
+
+        // auth is needed mostly for cloud providers such as LambdaTest
+        if (url.auth) {
+            const auth = url.auth.split(':');
+            this.options.wdioOpts = {
+                user: auth[0],
+                key: auth[1]
+            };
+        }
+
+        const wdioOpts = {
+            ...this.options.wdioOpts || {},
+            protocol: protocol,
+            hostname: host,
+            port: port,
+            path: path,
+            capabilities: this.caps,
+            logLevel: 'error',
+            runner: 'repl'
+        };
+
+        let initError = null;
+        const _this = this;
+        wdio.remote(wdioOpts)
+            .then((driver => {
+                _this.driver = driver;
+                _this._isInitialized = true;
+            }))
+            .catch(err => {
+                initError = err;
+            });
+
+        deasync.loopWhile(() => !_this.isInitialized && !initError);
+
+        if (initError) {
+            throw errHelper.getSeleniumInitError(initError);
+        }
+
+        this.driver.setTimeout({ 'implicit': DEFAULT_WAIT_TIMEOUT });
+
+        // reset browser logs if auto collect logs option is enabled
+        if (this.options.collectBrowserLogs && this.caps.browserName === 'chrome') {
             try {
-                return module.takeScreenshot();
+                // simply call this to clear the previous logs and start the test with the clean logs
+                this.getBrowserLogs();
             } catch (e) {
-                throw _this.errHelper.getOxygenError(e);
+                logger.error('Cannot retrieve browser logs.', e);
             }
         }
+        // maximize browser window
+        try {
+            this.driver.maximizeWindow();
+        } catch (err) {
+            throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
+        }
+        super.init();
+    }
+    /**
+     * @function dispose
+     * @summary Ends the current session.
+     */
+    async dispose() {
+        if (this.driver && this.isInitialized) {
+            try {
+                logger.debug('Calling deleteSession()');
+                await this.driver.deleteSession();
+            } catch (e) {
+                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
+            }
+            this.driver = null;
+            super.dispose();
+        }
+    }
+
+    _iterationStart() {
+        // clear transaction name saved in previous iteration if any
+        global._lastTransactionName = null;
     };
 
-    module._adjustBrowserLog = function(log) {
+    _iterationEnd() {
+        if (!this.isInitialized) {
+            return;
+        }
+        // collect browser logs for this session
+        if (this.options.collectBrowserLogs && this.caps.browserName === 'chrome') {
+            try {
+                const logs = this.getBrowserLogs();
+                if (logs && Array.isArray(logs)) {
+                    for (var log of logs) {
+                        this.rs.logs.push(module._adjustBrowserLog(log));
+                    }
+                }
+            } catch (e) {
+                // ignore errors
+                this.logger.error('Cannot retrieve browser logs.', e);
+            }
+        }
+        // TODO: should clear transactions to avoid duplicate names across iterations
+        // also should throw on duplicate names.
+        if (this.options.recordHAR && this.caps.browserName === 'chrome') {
+            // there might be no transactions set if test fails before web.transaction command
+            if (global._lastTransactionName) {
+                this.transactions[global._lastTransactionName] = harGet();
+            }
+        }
+
+        this.rs.har = this.transactions;
+    }
+
+    _isAction(name) {
+        return ACTION_COMMANDS.includes(name);
+    }
+
+    _takeScreenshot(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            try {
+                return this.takeScreenshot();
+            } catch (e) {
+                throw errHelper.getOxygenError(e);
+            }
+        }
+    }
+
+    _adjustBrowserLog(log) {
         if (!log || typeof log !== 'object') {
             return null;
         }
@@ -115,42 +286,7 @@ module.exports = function (options, context, rs, logger) {
             level: log.level === 'SEVERE' ? 'ERROR' : log.level,
             src: 'browser'
         };
-    };
-
-    module._iterationStart = function() {
-        // clear transaction name saved in previous iteration if any
-        global._lastTransactionName = null;
-    };
-
-    module._iterationEnd = function() {
-        if (!isInitialized) {
-            return;
-        }
-        // collect browser logs for this session
-        if (opts.collectBrowserLogs && _this.caps.browserName === 'chrome') {
-            try {
-                const logs = module.getBrowserLogs();
-                if (logs && Array.isArray(logs)) {
-                    for (var log of logs) {
-                        rs.logs.push(module._adjustBrowserLog(log));
-                    }
-                }
-            } catch (e) {
-                // ignore errors
-                logger.error('Cannot retrieve browser logs.', e);
-            }
-        }
-        // TODO: should clear transactions to avoid duplicate names across iterations
-        // also should throw on duplicate names.
-        if (opts.recordHAR && _this.caps.browserName === 'chrome') {
-            // there might be no transactions set if test fails before web.transaction command
-            if (global._lastTransactionName) {
-                transactions[global._lastTransactionName] = harGet();
-            }
-        }
-
-        rs.har = transactions;
-    };
+    }    
 
     /*
      * FIXME: There is a bug with IE. See the comment within function body.
@@ -176,8 +312,8 @@ module.exports = function (options, context, rs, logger) {
      *  8. loadEventStart               - The browser have finished loading all the resources like images, swf, etc.
      *  9. loadEventEnd                 - The load event callback, if any, finished executing.
      */
-    module._getStats = function (commandName) {
-        if (opts.fetchStats && isInitialized && module._isAction(commandName)) {
+    _getStats(commandName) {
+        if (this.options.fetchStats && this.isInitialized && this._isAction(commandName)) {
             var navigationStart;
             var domContentLoaded = 0;
             var load = 0;
@@ -187,9 +323,9 @@ module.exports = function (options, context, rs, logger) {
             // if navigateStart equals to the one we got from previous attempt (we need to save it)
             // it means we are still on the same page and don't need to record load/domContentLoaded times
             try {
-                _this.driver.waitUntil(() => {
+                this.driver.waitUntil(() => {
                     /*global window*/
-                    var timings = _this.driver.execute(function() {
+                    var timings = this.driver.execute(function() {
                         return {
                             navigationStart: window.performance.timing.navigationStart,
                             domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
@@ -219,259 +355,7 @@ module.exports = function (options, context, rs, logger) {
         }
 
         return {};
-    };
-
-    /**
-     * @function getCapabilities
-     * @summary Returns currently defined capabilities.
-     * @return {Object} capabilities - Current capabilities object.
-     */
-    module.getCapabilities = function() {
-        return _this.caps;
-    };
-
-    /**
-     * @function init
-     * @summary Initializes new Selenium session.
-     * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
-     * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
-     */
-    module.init = function(caps, seleniumUrl) {
-        if (isInitialized) {
-            return;
-        }
-
-        _this.networkRequests = [];
-
-        if (!seleniumUrl) {
-            seleniumUrl = opts.seleniumUrl;
-        }
-
-        // take capabilities either from init method argument or from context parameters passed in the constructor
-        // merge capabilities from context and from init function argument, give preference to context-passed capabilities
-        _this.caps = {};
-        if (ctx.caps) {
-            _.extend(_this.caps, ctx.caps);
-        }
-        if (caps) {
-            _.extend(_this.caps, caps);
-        }
-
-        // populate browserName caps from options. FIXME: why is this even needed?
-        if (!_this.caps.browserName) {
-            _this.caps.browserName = opts.browserName;
-        }
-        // FIXME: shall we throw an exception if browserName is not specified, neither in caps nor in options?!
-        if (!_this.caps.browserName) {
-            throw new _this.OxError(_this.errHelper.errorCode.INVALID_CAPABILITIES,
-                'Failed to initialize `web` module - browserName must be specified.');
-        }
-        // webdriver expects lower case names
-        _this.caps.browserName = _this.caps.browserName.toLowerCase();
-        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
-        if (_this.caps.browserName === 'ie') {
-            _this.caps.browserName = 'internet explorer';
-        }
-
-        if (opts.recordHAR && _this.caps.browserName === 'chrome') {
-            _this.caps['goog:loggingPrefs'] = {     // for ChromeDriver >= 75
-                browser: 'ALL',
-                performance: 'ALL'
-            };
-            /*
-            // specifying this leads Chrome 77+ to refuse loading
-            _this.caps.loggingPrefs = {             // for ChromeDriver < 75
-                browser: 'ALL',
-                performance: 'ALL'
-            };
-            _this.caps.chromeOptions = {
-                perfLoggingPrefs: {
-                    enableNetwork: true,
-                    enablePage: false
-                }
-            };
-            */
-        }
-
-        // populate WDIO options
-        var url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
-        var protocol = url.protocol.replace(/:$/, '');
-        var host = url.hostname;
-        var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
-        var path = url.pathname;
-
-        // auth is needed mostly for cloud providers such as LambdaTest
-        if (url.auth) {
-            var auth = url.auth.split(':');
-            opts.wdioOpts = {
-                user: auth[0],
-                key: auth[1]
-            };
-        }
-
-        var wdioOpts = {
-            ...opts.wdioOpts || {},
-            protocol: protocol,
-            hostname: host,
-            port: port,
-            path: path,
-            capabilities: _this.caps,
-            logLevel: 'error',
-            runner: 'repl'
-        };
-
-        var initError = null;
-        wdio.remote(wdioOpts)
-            .then((driver => {
-                _this.driver = driver;
-                isInitialized = true;
-            }))
-            .catch(err => {
-                initError = err;
-            });
-
-        deasync.loopWhile(() => !isInitialized && !initError);
-
-        if (initError) {
-            throw _this.errHelper.getSeleniumInitError(initError);
-        }
-
-        _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
-
-        _this.driver.on('Network.responseReceived', (params) => {
-            if (_this.networkCollect) {
-                _this.networkRequests.push(params.response);
-            }
-        });
-
-        // reset browser logs if auto collect logs option is enabled
-        if (opts.collectBrowserLogs && _this.caps.browserName === 'chrome') {
-            try {
-                // simply call this to clear the previous logs and start the test with the clean logs
-                module.getBrowserLogs();
-            } catch (e) {
-                logger.error('Cannot retrieve browser logs.', e);
-            }
-        }
-        // maximize browser window
-        try {
-            _this.driver.maximizeWindow();
-        } catch (err) {
-            throw new _this.OxError(_this.errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
-        }
-    };
-
-    /**
-     * @summary Begin collecting network requests.
-     * @description Any previously collected requests will be discarded. Network request collection is supported only on Chrome 63 and later.
-     * @function networkCollectStart
-     * @example <caption>[javascript] Usage example</caption>
-     * web.init();
-     * web.networkCollectStart();
-     * web.open("https://www.yourwebsite.com");
-     * // print the collected request so far:
-     * let requests = web.networkGetRequests();
-     * for (let req of requests) {
-     *   log.info(JSON.stringify(req, null, 2));
-     * }
-     * // wait for a request using a verbatim URL match:
-     * web.networkWaitForUrl('https://www.yourwebsite.com/foo/bar');
-     * // wait for a request using a regular expression URL match:
-     * web.networkWaitForUrl(/https:\/\/.*\/foo\/bar/);
-     * // wait for a request using a custom matcher:
-     * web.networkWaitFor(function (request) {
-     *   return request.statusText === 'OK' && request.url === 'https://www.yourwebsite.com/foo/bar';
-     * });
-     */
-    module.networkCollectStart = function () {
-        _this.networkRequests = [];
-        _this.networkCollect = true;
-    };
-
-    /**
-     * @summary Stop collecting network requests.
-     * @function networkCollectStop
-     */
-    module.networkCollectStop = function () {
-        _this.networkCollect = false;
-    };
-
-    /**
-     * @summary Wait for a network request matching the specified URL.
-     * @function networkWaitForUrl
-     * @param {String|RegExp} pattern - An URL to match verbatim or a RegExp.
-     * @param {Number=} timeout - Timeout. Default is 60 seconds.
-     * @return {Object} Network request details if the network request was found.
-     */
-    module.networkWaitForUrl = function (pattern, timeout = 60*1000) {
-        this.helpers.assertArgument(pattern, 'pattern');
-        this.helpers.assertArgumentTimeout(timeout, 'timeout');
-        var start = Date.now();
-        while (Date.now() - start < timeout) {
-            for (var req of _this.networkRequests) {
-                if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
-                    return req;
-                }
-            }
-            _this.driver.pause(500);
-        }
-        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `No request matching the ${pattern} URL was found.`);
-    };
-
-    /**
-     * @summary Wait for a network request.
-     * @function networkWaitFor
-     * @param {Function} matcher - Matching function. Should return true on match, or false otherwise.
-     * @param {Number=} timeout - Timeout. Default is 60 seconds.
-     * @return {Object} Network request details if the network request was found.
-     */
-    module.networkWaitFor = function (matcher, timeout = 60*1000) {
-        this.helpers.assertArgument(matcher, 'matcher');
-        this.helpers.assertArgumentTimeout(timeout, 'timeout');
-        var start = Date.now();
-        while (Date.now() - start < timeout) {
-            for (var req of _this.networkRequests) {
-                if (matcher(req)) {
-                    return req;
-                }
-            }
-            _this.driver.pause(500);
-        }
-        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher');
-    };
-
-    /**
-     * @summary Return all the collected network requests so far.
-     * @function networkGetRequests
-     * @return {Object[]} Array containing network requests.
-     */
-    module.networkGetRequests = function () {
-        return _this.networkRequests;
-    };
-
-    function harGet() {
-        var logs = _this.driver.getLogs('performance');
-
-        // in one instance, logs was not iterable for some reason - hence the following check:
-        if (!logs || typeof logs[Symbol.iterator] !== 'function') {
-            logger.error('harGet: logs not iterable: ' + JSON.stringify(logs));
-            return null;
-        }
-
-        var events = [];
-        for (var log of logs) {
-            var msgObj = JSON.parse(log.message);   // returned as string
-            events.push(msgObj.message);
-        }
-
-        try {
-            const har = harFromMessages(events);
-            return JSON.stringify(har);
-        } catch (e) {
-            logger.error('Unable to fetch HAR: ' + e.toString());
-            return null;
-        }
-    }
+    }    
 
     /**
      * @summary Opens new transaction.
@@ -480,70 +364,57 @@ module.exports = function (options, context, rs, logger) {
      * @function transaction
      * @param {String} name - The transaction name.
      */
-    module.transaction = function (name) {
+    transaction(name) {
         if (global._lastTransactionName) {
-            transactions[global._lastTransactionName] = null;
+            this.transactions[global._lastTransactionName] = null;
 
-            if (opts.recordHAR && isInitialized && _this.caps.browserName === 'chrome') {
-                transactions[global._lastTransactionName] = harGet();
+            if (this.options.recordHAR && this.isInitialized && this.caps.browserName === 'chrome') {
+                this.transactions[global._lastTransactionName] = harGet();
             }
         }
 
         global._lastTransactionName = name;
-    };
-    
-    /**
-     * @function dispose
-     * @summary Ends the current session.
-     */
-    module.dispose = async function() {
-        if (_this.driver && isInitialized) {
-            try {
-                logger.debug('Calling deleteSession()');
-                await _this.driver.deleteSession();
-            } catch (e) {
-                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
-            }
-            _this.driver = null;
-            isInitialized = false;
-        }
-    };
+    }
 
-    helpers.getWdioLocator = function(locator) {
-        if (!locator)
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
-        else if (typeof locator === 'object')
-            return locator;
-        else if (locator.indexOf('/') === 0)
-            return locator;                                 // leave xpath locator as is
-        else if (locator.indexOf('id=') === 0)
-            return '//*[@id="' + locator.substr('id='.length) + '"]';   // convert 'id=' to xpath (# wouldn't work if id contains colons)
-        else if (locator.indexOf('name=') === 0)
-            return '//*[@name="' + locator.substr('name='.length) + '"]';
-        else if (locator.indexOf('link=') === 0)
-            return '=' + locator.substr('link='.length);
-        else if (locator.indexOf('link-contains=') === 0)
-            return '*=' + locator.substr('link='.length);
-        else if (locator.indexOf('css=') === 0)
-            return locator.substr('css='.length);           // in case of css, just remove css= prefix
- 
-        return locator;
-    };
+    _loadHelperFunctions() {
+        this.helpers.getWdioLocator = modUtils.getWdioLocator;
+        this.helpers.matchPattern = modUtils.matchPattern;
+        this.helpers.getElement = modUtils.getElement;
+        this.helpers.getElements = modUtils.getElements;
+        this.helpers.getChildElement = modUtils.getChildElement;
+        this.helpers.getChildElements = modUtils.getChildElements;
+        this.helpers.setTimeoutImplicit = modUtils.setTimeoutImplicit;
+        this.helpers.restoreTimeoutImplicit = modUtils.restoreTimeoutImplicit;
+        this.helpers.assertArgument = modUtils.assertArgument;
+        this.helpers.assertArgumentNonEmptyString = modUtils.assertArgumentNonEmptyString;
+        this.helpers.assertArgumentNumber = modUtils.assertArgumentNumber;
+        this.helpers.assertArgumentNumberNonNegative = modUtils.assertArgumentNumberNonNegative;
+        this.helpers.assertArgumentBool = modUtils.assertArgumentBool;
+        this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
+        this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
+    }
+}
 
-    helpers.matchPattern = utils.matchPattern;
-    helpers.getElement = utils.getElement;
-    helpers.getElements = utils.getElements;
-    helpers.getChildElement = utils.getChildElement;
-    helpers.getChildElements = utils.getChildElements;
-    helpers.setTimeoutImplicit = utils.setTimeoutImplicit;
-    helpers.restoreTimeoutImplicit = utils.restoreTimeoutImplicit;
-    helpers.assertArgument = utils.assertArgument;
-    helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
-    helpers.assertArgumentNumber = utils.assertArgumentNumber;
-    helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
-    helpers.assertArgumentBool = utils.assertArgumentBool;
-    helpers.assertArgumentBoolOptional = utils.assertArgumentBoolOptional;
-    helpers.assertArgumentTimeout = utils.assertArgumentTimeout;
+function harGet() {
+    var logs = this.driver.getLogs('performance');
 
-    return module;
-};
+    // in one instance, logs was not iterable for some reason - hence the following check:
+    if (!logs || typeof logs[Symbol.iterator] !== 'function') {
+        logger.error('harGet: logs not iterable: ' + JSON.stringify(logs));
+        return null;
+    }
+
+    var events = [];
+    for (var log of logs) {
+        var msgObj = JSON.parse(log.message);   // returned as string
+        events.push(msgObj.message);
+    }
+
+    try {
+        const har = harFromMessages(events);
+        return JSON.stringify(har);
+    } catch (e) {
+        logger.error('Unable to fetch HAR: ' + e.toString());
+        return null;
+    }
+}

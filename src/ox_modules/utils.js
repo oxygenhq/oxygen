@@ -210,5 +210,26 @@ module.exports = {
         if (arg && (typeof(arg) !== 'number' || arg < 0)) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
         }
+    },
+
+    getWdioLocator: function(locator) {
+        if (!locator)
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        else if (typeof locator === 'object')
+            return locator;
+        else if (locator.indexOf('/') === 0)
+            return locator;                                 // leave xpath locator as is
+        else if (locator.indexOf('id=') === 0)
+            return '//*[@id="' + locator.substr('id='.length) + '"]';   // convert 'id=' to xpath (# wouldn't work if id contains colons)
+        else if (locator.indexOf('name=') === 0)
+            return '//*[@name="' + locator.substr('name='.length) + '"]';
+        else if (locator.indexOf('link=') === 0)
+            return '=' + locator.substr('link='.length);
+        else if (locator.indexOf('link-contains=') === 0)
+            return '*=' + locator.substr('link='.length);
+        else if (locator.indexOf('css=') === 0)
+            return locator.substr('css='.length);           // in case of css, just remove css= prefix
+ 
+        return locator;
     }
 };

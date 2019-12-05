@@ -97,6 +97,11 @@ export function getConfigurations(target, argv) {
             mode: argv.pm || 'seq'
         },
     };
+    // set reporters if set by user through comnand line (--rf switch)
+    if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
+        const reporters = argv.rf.split(',');
+        startupOpts.reporting.reporters = reporters;
+    }
 
     // if the target is oxygen config file, merge its content with the default options
     let moreOpts = {};

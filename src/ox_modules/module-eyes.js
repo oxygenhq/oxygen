@@ -21,6 +21,7 @@ const DEFAULT_VIEWPORT = {
     width: 1440,
     height: 900
 };
+const MODULE_NAME = 'eyes';
 
 export default class ApplitoolsModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -28,6 +29,9 @@ export default class ApplitoolsModule extends OxygenModule {
         // this module doesn't require calling init() method
         this.isInitialized = false;
         this._eyes = null;
+    }
+    get name() {
+        return MODULE_NAME;
     }
     /**
      * @summary Initializes Applitools Eyes session.

@@ -19,6 +19,9 @@ export default class OxygenService {
     onModuleInitialized(module) {
 
     }
+    onModuleWillDispose(module) {
+        
+    }
     onTestStart(test) {
 
     }

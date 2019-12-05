@@ -93,6 +93,11 @@ module.exports = {
         if (err instanceof OxError) {
             return err;
         }
+
+        /*console.log('=== Error Details ===');
+        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+        console.log(util.inspect(err));*/
+
         var errType = err.type || err.name || typeof err;
 
         // handle "invalid argument: Unsupported locator strategy: -android uiautomator" for mobile.

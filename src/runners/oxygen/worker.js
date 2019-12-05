@@ -136,21 +136,35 @@ async function run(scriptName, scriptPath, context) {
     if (_cwd && !path.isAbsolute(scriptPath)) {
         scriptPath = path.resolve(_cwd, scriptPath);
     }
-    // load the test script
+    let error = null;
+    // load and run the test script
     try {
         await runFnInFiberContext(() => {
-            require(scriptPath);
+            _oxygen.onBeforeCase && _oxygen.onBeforeCase(context);
+            try {
+                require(scriptPath);
+            }
+            catch (e) {
+                error = e;
+            }
+            _oxygen.onAfterCase && _oxygen.onAfterCase(error);
         });
     } catch (e) {
+        error = e;
+    }    
+    if (error) {
         // eslint-disable-next-line no-undef
-        processSend({ event: 'run:failed', ctx: _oxygen.context, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(e) });
-        if(e && e.message){
-            processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: e.message});
+        processSend({ event: 'run:failed', ctx: _oxygen.context, resultStore: ox.resultStore, err: errorHelper.getFailureFromError(error) });
+        if(error.message){
+            processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: error.message});
         }
-        return;
-    }
-    // eslint-disable-next-line no-undef
-    processSend({ event: 'run:success', ctx: _oxygen.context, resultStore: { steps: _steps } });
+    }    
+    else {
+        // eslint-disable-next-line no-undef
+        processSend({ event: 'run:success', ctx: _oxygen.context, resultStore: ox.resultStore });
+    }    
+    // reset steps and other result data
+    _oxygen.resetResults();
     _steps = null;
 }
 
@@ -170,8 +184,15 @@ function handleAfterCommand(e) {
 }
 
 function processSend(msg) {
-    // add utc timestamp
-    process.send({ time: oxutil.getTimeStamp(), ...msg });
+    // wrap process.send with try/catch as sometimes we might call process.send 
+    // when parent process is already disconnected (when use kills the main process)
+    try {
+        // add utc timestamp
+        process.send({ time: oxutil.getTimeStamp(), ...msg });
+    }
+    catch (e) {
+        // ignore
+    }
 }
 
 function makeModulesGlobal(options) {
