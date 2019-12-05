@@ -200,7 +200,7 @@ export default class WebModule extends WebDriverModule {
                 // simply call this to clear the previous logs and start the test with the clean logs
                 this.getBrowserLogs();
             } catch (e) {
-                logger.error('Cannot retrieve browser logs.', e);
+                this.logger.error('Cannot retrieve browser logs.', e);
             }
         }
         // maximize browser window
@@ -218,12 +218,12 @@ export default class WebModule extends WebDriverModule {
     async dispose() {
         if (this.driver && this.isInitialized) {
             try {
-                logger.debug('Calling deleteSession()');
                 await this.driver.deleteSession();
             } catch (e) {
-                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
+                this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
             this.driver = null;
+            this.lastNavigationStartTime = null;
             super.dispose();
         }
     }
@@ -238,12 +238,12 @@ export default class WebModule extends WebDriverModule {
             return;
         }
         // collect browser logs for this session
-        if (this.options.collectBrowserLogs && this.caps.browserName === 'chrome') {
-            try {
+        if (this.options.collectBrowserLogs === true && this.caps.browserName === 'chrome') {            
+            try {                
                 const logs = this.getBrowserLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
-                        this.rs.logs.push(module._adjustBrowserLog(log));
+                        this.rs.logs.push(this._adjustBrowserLog(log));
                     }
                 }
             } catch (e) {
@@ -256,7 +256,7 @@ export default class WebModule extends WebDriverModule {
         if (this.options.recordHAR && this.caps.browserName === 'chrome') {
             // there might be no transactions set if test fails before web.transaction command
             if (global._lastTransactionName) {
-                this.transactions[global._lastTransactionName] = harGet();
+                this.transactions[global._lastTransactionName] = this._getHAR();
             }
         }
 
@@ -335,8 +335,8 @@ export default class WebModule extends WebDriverModule {
                             loadEventStart: window.performance.timing.loadEventStart
                         };});
 
-                    samePage = lastNavigationStartTime && lastNavigationStartTime == timings.navigationStart;
-                    navigationStart = lastNavigationStartTime = timings.navigationStart;
+                    samePage = this.lastNavigationStartTime && this.lastNavigationStartTime == timings.navigationStart;
+                    navigationStart = this.lastNavigationStartTime = timings.navigationStart;
                     var domContentLoadedEventStart = timings.domContentLoadedEventStart;
                     var loadEventStart = timings.loadEventStart;
 
@@ -350,7 +350,7 @@ export default class WebModule extends WebDriverModule {
                 // couldn't get timings.
             }
             
-            lastNavigationStartTime = navigationStart;
+            this.lastNavigationStartTime = navigationStart;
             if (samePage) {
                 return {};
             }
@@ -372,7 +372,7 @@ export default class WebModule extends WebDriverModule {
             this.transactions[global._lastTransactionName] = null;
 
             if (this.options.recordHAR && this.isInitialized && this.caps.browserName === 'chrome') {
-                this.transactions[global._lastTransactionName] = harGet();
+                this.transactions[global._lastTransactionName] = this._getHAR();
             }
         }
 
@@ -396,28 +396,29 @@ export default class WebModule extends WebDriverModule {
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
     }
+
+    _getHAR() {
+        const logs = this.driver.getLogs('performance');
+    
+        // in one instance, logs was not iterable for some reason - hence the following check:
+        if (!logs || typeof logs[Symbol.iterator] !== 'function') {
+            this.logger.error('getHAR: logs not iterable: ' + JSON.stringify(logs));
+            return null;
+        }
+    
+        const events = [];
+        for (let log of logs) {
+            const msgObj = JSON.parse(log.message);   // returned as string
+            events.push(msgObj.message);
+        }
+    
+        try {
+            const har = harFromMessages(events);
+            return JSON.stringify(har);
+        } catch (e) {
+            this.logger.error('Unable to fetch HAR: ' + e.toString());
+            return null;
+        }
+    }
 }
 
-function harGet() {
-    var logs = this.driver.getLogs('performance');
-
-    // in one instance, logs was not iterable for some reason - hence the following check:
-    if (!logs || typeof logs[Symbol.iterator] !== 'function') {
-        logger.error('harGet: logs not iterable: ' + JSON.stringify(logs));
-        return null;
-    }
-
-    var events = [];
-    for (var log of logs) {
-        var msgObj = JSON.parse(log.message);   // returned as string
-        events.push(msgObj.message);
-    }
-
-    try {
-        const har = harFromMessages(events);
-        return JSON.stringify(har);
-    } catch (e) {
-        logger.error('Unable to fetch HAR: ' + e.toString());
-        return null;
-    }
-}
