@@ -132,6 +132,8 @@ module.exports = {
         } else if (err.message === 'All minutes for this organization has been exausted' ||
             err.message === '401 Unauthorized') {
             return new OxError(ERROR_CODES.SELENIUM_CONNECTION_ERROR, err.message);
+        } else if (err.message.includes('Unable to create new service:')) {
+            return new OxError(ERROR_CODES.SELENIUM_CONNECTION_ERROR, err.message + '\n\nThis is probably due to missing ChromeDriver/IEDriverServer/GeckoDriver binary.\n');
         }
 
         console.log('Error details:');
