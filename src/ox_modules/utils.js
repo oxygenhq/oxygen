@@ -56,7 +56,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (waitForVisible) {
@@ -67,7 +67,7 @@ module.exports = {
                     module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
-                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
                 }
                 throw e;
             }
@@ -91,7 +91,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (timeout) {
@@ -114,7 +114,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (waitForVisible) {
@@ -125,7 +125,7 @@ module.exports = {
                     module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
-                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
                 }
                 throw e;
             }
@@ -151,7 +151,7 @@ module.exports = {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND);
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (timeout) {

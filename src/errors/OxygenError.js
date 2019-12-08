@@ -16,12 +16,12 @@ const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(modul
 
 export default class OxygenError extends Error {
     constructor(type, message, data, isFatal, orgErr = null) {
-        super(message || null);
+        super(message || undefined);
         this.type = type || this.type || null;
         // subtype allows to specify more particular error for a general Oxygen error type
         // for example, specify TypeError as subtype for a general SCRIPT_ERROR Oxygen type
         this.subtype = typeof orgErr === 'string' && type !== orgErr ? orgErr : null;
-        this.message = message || this.message || null;
+        this.message = message || null;
         this.data = data || null;
         this.screenshot = null;
         this.isFatal = (typeof isFatal === 'undefined') ? true : isFatal;

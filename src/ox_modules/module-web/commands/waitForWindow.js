@@ -61,7 +61,7 @@ module.exports = function(windowLocator, timeout) {
             }
             this.pause(1000);
         }
-        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND);
+        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else {
         throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - windowLocator.');
     }
