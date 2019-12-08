@@ -41,6 +41,7 @@ export default class WorkerProcess extends EventEmitter {
             cwd: process.cwd(), 
             env,
             execArgv: [],
+            detached: true,
             //silent: true
         };
         if (this._debugPort) {
@@ -63,6 +64,7 @@ export default class WorkerProcess extends EventEmitter {
     async stop() {
         if (this._childProc) {
             this._childProc.kill('SIGINT');
+            await snooze(100);
         }        
         if (this._debugger) {                        
             await this._debugger.close();
@@ -71,26 +73,26 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async initOxygen(options, caps = {}) {
-        this._childProc && this._childProc.send({
-            type: 'init',
-            options: options,
-            caps: caps,
-        });
-        this._whenOxygenInitialized = defer();
-        return this._whenOxygenInitialized.promise;
+        if (!this._isOxygenInitialized) {
+            this._childProc && this._childProc.send({
+                type: 'init',
+                options: options,
+                caps: caps,
+            });
+            this._whenOxygenInitialized = defer();
+            return this._whenOxygenInitialized.promise;
+        }        
     }
 
     async disposeOxygen() {
-        if(this._childProc){
-                
+        if(this._isOxygenInitialized && this._childProc){                
             this._childProc.send({
                 type: 'dispose'
             });
+            this._whenOxygenDisposed = defer();
+
+            return this._whenOxygenDisposed.promise;    
         }
-
-        this._whenOxygenDisposed = defer();
-
-        return this._whenOxygenDisposed.promise;
     }
 
     async disposeModules() {
