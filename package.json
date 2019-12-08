@@ -33,8 +33,8 @@
     "eslint": "6.6.0"
   },
   "dependencies": {
-    "@wdio/devtools-service": "5.16.5",
-    "@wdio/sync": "5.16.9",
+    "@wdio/devtools-service": "5.16.10",
+    "@wdio/sync": "5.16.14",
     "async": "2.6.3",
     "chai": "4.2.0",
     "chrome-har": "0.11.2",
@@ -58,7 +58,7 @@
     "soap": "0.30.0",
     "strip-comments": "1.0.2",
     "twilio": "3.37.1",
-    "webdriverio": "5.16.9",
+    "webdriverio": "5.16.13",
     "when": "3.7.8",
     "xlsx": "0.15.2"
   },
