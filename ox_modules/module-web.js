@@ -47,6 +47,7 @@
 module.exports = function (options, context, rs, logger) {
     var wdio = require('webdriverio');
     var DevToolsService = require('@wdio/devtools-service').default;
+    var WDIOLogger = require('@wdio/logger').default;
     var util = require('util');
     var _ = require('lodash');
     var URL = require('url');
@@ -339,6 +340,10 @@ module.exports = function (options, context, rs, logger) {
         var devTools = new DevToolsService();
         devTools.beforeSession(null, _this.driver.capabilities);
         if (devTools.isSupported) {
+            // prevent devtools-service from generating logs
+            // this should be done in a different, more proper, way, but for now just init the logger used by devtools-service:CommandHandler
+            // so it cannot be inited by the service itself.
+            WDIOLogger('@wdio/devtools-service:CommandHandler');
             global.browser = _this.driver;
             devTools.before();
             _this.driver.on('Network.responseReceived', (params) => {
