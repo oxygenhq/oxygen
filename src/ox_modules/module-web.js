@@ -64,7 +64,6 @@ export default class WebModule extends WebDriverModule {
         super(options, context, rs, logger, modules, services);
         this.transactions = {};                      // transaction->har dictionary
         this.lastNavigationStartTime = null;
-        this.networkRequests = null;
         this.helpers = {};
         this._loadHelperFunctions();
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
@@ -96,8 +95,6 @@ export default class WebModule extends WebDriverModule {
             return;
         }
 
-        this.networkRequests = [];
-
         if (!seleniumUrl) {
             seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
         }
@@ -109,7 +106,7 @@ export default class WebModule extends WebDriverModule {
             this.caps = { ...this.ctx.caps };
         }
         if (caps) {
-            this.caps = { ...this.caps, caps };
+            this.caps = { ...this.caps, ...caps };
         }
 
         // populate browserName caps from options. FIXME: why is this even needed?
@@ -171,7 +168,7 @@ export default class WebModule extends WebDriverModule {
             port: port,
             path: path,
             capabilities: this.caps,
-            logLevel: 'error',
+            logLevel: 'silent',
             runner: 'repl'
         };
 

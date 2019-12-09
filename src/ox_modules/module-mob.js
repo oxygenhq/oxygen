@@ -53,67 +53,219 @@
  *  </ul>
  * </div>
  */
+import deasync from 'deasync';
+import URL from 'url';
+import * as wdio from 'webdriverio';
 
-module.exports = function (options, context, rs, logger) {
-    var wdio = require('webdriverio');
-    var _ = require('lodash');
-    var URL = require('url');
-    var deasync = require('deasync');
-    var utils = require('./utils');
+import WebDriverModule from '../core/WebDriverModule';
+import modUtils from './utils';
+import errHelper from '../errors/helper';
+import OxError from '../errors/OxygenError';
 
-    var _this = module._this = this;
-
-    // public properties
-    this.OxError = require('../errors/OxygenError');
-    this.errHelper = require('../errors/helper');
-    this.driver = null;
-    this.helpers = {};
-    this.logger = logger;
-    this.DEFAULT_WAIT_TIMEOUT = 60 * 1000;          // default 60s wait timeout
-    this.POOLING_INTERVAL = 5000;
-    this.appContext = 'NATIVE_APP';
-    this.caps = null;                               // save driver capabilities for later use when error occures
-    this.waitForTimeout = this.DEFAULT_WAIT_TIMEOUT;     // current timeout value, set by setTimout method
+const MODULE_NAME = 'mob';
+const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
+const DEFAULT_BROWSER_NAME = 'default';
+const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
+const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
+const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
     
-    // local variables
-    var ctx = context;
-    var opts = options;
-    var helpers = this.helpers;
-    var isInitialized = false;
-    var results = rs;    // reference to the result store
 
-    const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
-    const NO_SCREENSHOT_COMMANDS = ['init'];
-    const NO_LOGS_COMMANDS = [];
-    const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
-    
-    // expose wdio driver for debugging purposes
-    module.driver = function() {
-        return _this.driver;
+export default class MobileModule extends WebDriverModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this.transactions = {};                      
+        this.lastNavigationStartTime = null;
+        this.networkRequests = null;
+        this.helpers = {};
+        this.appContext = 'NATIVE_APP';
+        this._loadHelperFunctions();
+        // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
+        this.OxError = OxError;
+        this.errHelper = errHelper;
+    }
+
+
+    get name() {
+        return MODULE_NAME;
+    }
+
+    /**
+     * @function getCapabilities
+     * @summary Returns currently defined capabilities.
+     * @return {Object} capabilities - Current capabilities object.
+     */
+    getCapabilities() {
+        return super.getCapabilities();
+    }
+
+    /**
+     * @function init
+     * @summary Initializes a new Appium session.
+     * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
+     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
+     */
+    init(caps, appiumUrl) {
+        // if reopenSession is true - reinitilize the module
+        if (this.isInitialized) {
+            if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
+                logger.debug('reopenSession is true - reloading the session...');
+                this.driver.reloadSession();
+                this._isInitialized = true;
+            } else {
+                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');                
+            }
+            return;
+        }
+
+        if (!appiumUrl) {
+            appiumUrl = this.options.appiumUrl || DEFAULT_APPIUM_URL;
+        }
+
+        // merge capabilities from context and from init function argument, give preference to context-passed capabilities
+        this.caps = {};
+        if (this.ctx.caps) {
+            this.caps = { ...this.ctx.caps };
+        }
+        if (caps) {
+            this.caps = { ...this.caps, ...caps };
+        }
+
+        // make sure to clear the existing device logs, if collectDeviceLogs option is true (we want to include logs only relevant for this session)
+        if (this.options.collectDeviceLogs) {
+            this.caps.clearDeviceLogsOnStart = true;
+        }
+
+        // if both browserName and appPackage were specified - remove browserName
+        if (this.caps.browserName && (this.caps.appPackage || this.caps.app)) {
+            delete this.caps.browserName;
+        }
+        // if no appPackage nor app capability, not browserName are defined, assume we want to run the test against default browser
+        else if (!this.caps.browserName && !this.caps.appPackage && !this.caps.app) {
+            this.caps.browserName = DEFAULT_BROWSER_NAME;
+        }
+        // webdriver expects lower case names
+        if (this.caps.browserName && typeof this.caps.browserName === 'string') {
+            this.caps.browserName = this.caps.browserName.toLowerCase();
+        }  
+        // adjust capabilities to enable collecting browser and performance stats in Chrome 
+        if (this.options.recordHAR && this.caps.browserName === 'chrome') {
+            this.caps['goog:loggingPrefs'] = {     // for ChromeDriver >= 75
+                browser: 'ALL',
+                performance: 'ALL'
+            };
+        }      
+        // populate WDIO options
+        const url = URL.parse(appiumUrl);
+        const protocol = url.protocol.replace(/:$/, '');
+        const host = url.hostname;
+        const port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
+        const path = url.pathname;
+
+        // auth is needed mostly for cloud providers such as LambdaTest
+        if (url.auth) {
+            const auth = url.auth.split(':');
+            this.options.wdioOpts = {
+                user: auth[0],
+                key: auth[1]
+            };
+        }
+
+        var wdioOpts = {
+            ...this.options.wdioOpts || {},
+            protocol: protocol,
+            hostname: host,
+            port: port,
+            path: path,
+            capabilities: this.caps,
+            logLevel: 'silent',
+            runner: 'repl'
+        };
+
+        let initError = null;
+        const _this = this;
+        wdio.remote(wdioOpts)
+            .then((driver => {
+                _this.driver = driver;
+                _this._isInitialized = true;
+            }))
+            .catch(err => {
+                initError = err;
+            });
+
+        deasync.loopWhile(() => !_this.isInitialized && !initError);
+
+        if (initError) {
+            throw errHelper.getAppiumInitError(initError);
+        }
+
+        this.driver.setTimeout({ 'implicit': DEFAULT_WAIT_TIMEOUT });
+        
+        // clear logs if auto collect logs option is enabled
+        if (this.options.collectDeviceLogs) {
+            try {
+                // simply call this to clear the previous logs and start the test with the clean logs
+                this.getDeviceLogs();
+            } catch (e) {
+                this.logger.error('Cannot retrieve device logs.', e);
+            }
+        }
+        super.init();
+    }
+
+    /**
+     * @function dispose
+     * @summary Ends the current session.
+     */
+    async dispose() {
+        if (this.driver && this.isInitialized) {
+            try {
+                await this.driver.deleteSession();
+            } catch (e) {
+                this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
+            }
+            this.driver = null;
+            this.lastNavigationStartTime = null;
+            super.dispose();
+        }
+    }
+
+    /**
+     * @summary Opens new transaction.
+     * @description The transaction will persist till a new one is opened. Transaction names must be
+     *              unique.
+     * @function transaction
+     * @param {String} name - The transaction name.
+     * @for android, ios, hybrid, web
+     */
+    transaction(name) {
+        global._lastTransactionName = name;
     };
 
-    module.isInitialized = function() {
-        return isInitialized;
-    };
+    /*
+     * Private
+     */
 
-    // TODO: pending deprecation
-    module._isAction = function(name) {
+    _isAction(name) {
         return ACTION_COMMANDS.includes(name);
-    };
+    }
 
-    module._takeScreenshot = function(name) {
+    _takeScreenshot(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
-            return module.takeScreenshot();
+            try {
+                return this.takeScreenshot();
+            } catch (e) {
+                throw errHelper.getOxygenError(e);
+            }
         }
-    };
+    }
 
-    module._getLogs = function(name) {
+    _getLogs(name) {
         if (!NO_LOGS_COMMANDS.includes(name)) {
-            return module.getLogs();
+            return this.getLogs();
         }
-    };
+    }
 
-    module._adjustAppiumLog = function(log, src) {
+    _adjustAppiumLog(log, src) {
         if (!log || typeof log !== 'object') {
             return null;
         }
@@ -124,182 +276,58 @@ module.exports = function (options, context, rs, logger) {
             level: log.level,
             src: src
         };
-    };
-    
-    module._iterationStart = function() {
+    }
+
+    _iterationStart() {
         // clear transaction name saved in previous iteration if any
         global._lastTransactionName = null;
-    };
+    }
 
-    module._iterationEnd = function() {
+    _iterationEnd() {
         // ignore the rest if mob module is not initialized
-        if (!isInitialized) {
+        if (!this.isInitialized) {
             return;
         }
         // collect all the device logs for this session
-        if (opts.collectDeviceLogs) {
+        if (this.options.collectDeviceLogs) {
             try {
-                const logs = module.getDeviceLogs();
+                const logs = this.getDeviceLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
-                        results.logs.push(module._adjustAppiumLog(log, 'device'));
+                        this.rs.logs.push(this._adjustAppiumLog(log, 'device'));
                     }
                 }
             }
             catch (e) {
                 // ignore errors
-                console.error('Cannot retrieve device logs.', e);  
+                this.logger.error('Cannot retrieve device logs.', e);  
             }
         }
         // collect all Appium logs for this session
-        if (opts.collectAppiumLogs) {
+        if (this.options.collectAppiumLogs) {
             try {
-                const logs = module.getAppiumLogs();
+                const logs = this.getAppiumLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var logEntry of logs) {
-                        results.logs.push(module._adjustAppiumLog(logEntry, 'appium'));
+                        this.rs.logs.push(this._adjustAppiumLog(logEntry, 'appium'));
                     }
                 }
             }
             catch (e) {
                 // ignore errors
-                console.error('Cannot retrieve Appium logs.', e);  
+                this.logger.error('Cannot retrieve Appium logs.', e);  
             }
         }
-    };
+    }
 
-    /**
-     * @function getCapabilities
-     * @summary Returns currently defined device capabilities.
-     * @return {Object} capabilities - Current capabilities object.
-     * @for android, ios, hybrid, web
-     */
-    module.getCapabilities = function() {
-        return _this.caps || ctx.caps;
-    };
-
-    /**
-     * @function init
-     * @summary Initializes a new Appium session.
-     * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
-     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
-     */
-    module.init = function(caps, appiumUrl) {
-        // if reopenSession is true - reinitilize the module
-        if (isInitialized) {
-            if (opts.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
-                logger.debug('reopenSession is true - reloading the session...');
-                _this.driver.reloadSession();
-                isInitialized = true;
-            } else {
-                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
-                return;
-            }
+    _getWdioLocator(locator) {
+        if (!locator || typeof locator !== 'string') {
+            return locator;
         }
-
-        // merge capabilities from context and from init function argument, give preference to context-passed capabilities
-        _this.caps = _.extend({}, caps ? caps : {}, ctx.caps);
-
-        // make sure to clear the existing device logs, if collectDeviceLogs option is true (we want to include logs only relevant for this session)
-        if (opts.collectDeviceLogs) {
-            _this.caps.clearDeviceLogsOnStart = true;
-        }
-
-        // if both browserName and appPackage were specified - remove browserName
-        if (_this.caps.browserName && _this.caps.appPackage) {
-            delete _this.caps.browserName;
-        }
-
-        var url = URL.parse(appiumUrl || DEFAULT_APPIUM_URL);
-        var protocol = url.protocol.replace(/:$/, '');
-        var host = url.hostname;
-        var port = parseInt(url.port || (protocol === 'https' ? 443 : 80));
-        var path = url.pathname;
-
-        // auth is needed mostly for cloud providers such as LambdaTest
-        if (url.auth) {
-            var auth = url.auth.split(':');
-            opts.wdioOpts = {
-                user: auth[0],
-                key: auth[1]
-            };
-        }
-
-        var wdioOpts = {
-            ...opts.wdioOpts || {},
-            protocol: protocol,
-            hostname: host,
-            port: port,
-            path: path,
-            capabilities: _this.caps,
-            logLevel: 'error',
-            runner: 'repl'
-        };
-
-        if (!isInitialized) {
-            var initError = null;
-            wdio.remote(wdioOpts)
-                .then((driver => {
-                    _this.driver = driver;
-                    isInitialized = true;
-                }))
-                .catch(err => {
-                    initError = err;
-                });
-
-            deasync.loopWhile(() => !isInitialized && !initError);
-
-            if (initError) {
-                throw _this.errHelper.getAppiumInitError(initError);
-            }
-        }
-
-        _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
-        
-        // clear logs if auto collect logs option is enabled
-        if (opts.collectDeviceLogs) {
-            try {
-                // simply call this to clear the previous logs and start the test with the clean logs
-                module.getDeviceLogs();
-            } catch (e) {
-                console.error('Cannot retrieve device logs.', e);
-            }
-        }
-    };
-
-    /**
-     * @summary Opens new transaction.
-     * @description The transaction will persist till a new one is opened. Transaction names must be
-     *              unique.
-     * @function transaction
-     * @param {String} name - The transaction name.
-     * @for android, ios, hybrid, web
-     */
-    module.transaction = function (name) {
-        global._lastTransactionName = name;
-    };
-    
-    /**
-     * @function dispose
-     * @summary Ends the current session.
-     * @for android, ios
-     */
-    module.dispose = function() {
-        if (_this.driver && isInitialized) {
-            isInitialized = false;
-            try {
-                _this.driver.deleteSession();
-            } catch (e) {
-                logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
-            }
-        }
-    };
-
-    helpers.getWdioLocator = function(locator) {
-        if (locator.indexOf('/') === 0)
+        if (locator.indexOf('/') === 0) {
             return locator; // leave xpath locator as is
-        
-        var platform = this.caps && this.caps.platformName ? this.caps.platformName.toLowerCase() : null;
+        }
+        const platform = this.caps && this.caps.platformName ? this.caps.platformName.toLowerCase() : null;
         
         if (this.appContext === 'NATIVE_APP' && platform === 'android') {
             if (locator.indexOf('id=') === 0) {
@@ -342,22 +370,23 @@ module.exports = function (options, context, rs, logger) {
         }
         
         return locator;
-    };
+    }
 
-    helpers.matchPattern = utils.matchPattern;
-    helpers.getElement = utils.getElement;
-    helpers.getElements = utils.getElements;
-    helpers.getChildElement = utils.getChildElement;
-    helpers.getChildElements = utils.getChildElements;
-    helpers.setTimeoutImplicit = utils.setTimeoutImplicit;
-    helpers.restoreTimeoutImplicit = utils.restoreTimeoutImplicit;
-    helpers.assertArgument = utils.assertArgument;
-    helpers.assertArgumentNonEmptyString = utils.assertArgumentNonEmptyString;
-    helpers.assertArgumentNumber = utils.assertArgumentNumber;
-    helpers.assertArgumentNumberNonNegative = utils.assertArgumentNumberNonNegative;
-    helpers.assertArgumentBool = utils.assertArgumentBool;
-    helpers.assertArgumentBoolOptional = utils.assertArgumentBoolOptional;
-    helpers.assertArgumentTimeout = utils.assertArgumentTimeout;
-
-    return module;
-};
+    _loadHelperFunctions() {  
+        this.helpers.getWdioLocator = this._getWdioLocator;      
+        this.helpers.matchPattern = modUtils.matchPattern;
+        this.helpers.getElement = modUtils.getElement;
+        this.helpers.getElements = modUtils.getElements;
+        this.helpers.getChildElement = modUtils.getChildElement;
+        this.helpers.getChildElements = modUtils.getChildElements;
+        this.helpers.setTimeoutImplicit = modUtils.setTimeoutImplicit;
+        this.helpers.restoreTimeoutImplicit = modUtils.restoreTimeoutImplicit;
+        this.helpers.assertArgument = modUtils.assertArgument;
+        this.helpers.assertArgumentNonEmptyString = modUtils.assertArgumentNonEmptyString;
+        this.helpers.assertArgumentNumber = modUtils.assertArgumentNumber;
+        this.helpers.assertArgumentNumberNonNegative = modUtils.assertArgumentNumberNonNegative;
+        this.helpers.assertArgumentBool = modUtils.assertArgumentBool;
+        this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
+        this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
+    }
+}

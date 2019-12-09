@@ -259,9 +259,10 @@ export default class Oxygen extends OxygenEvents {
             ModuleClass = ModuleClass.default;
         }
         const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
-        // load external commands
+        // load external commands for this module, if defined
         const cmdDir = path.join(oxModulesDirPath, 'module-' + moduleName, 'commands');
-        if (fs.existsSync(cmdDir)) {
+        // ModuleClass.prototype.name => make sure this is ES6 module
+        if (ModuleClass.prototype.name && fs.existsSync(cmdDir)) {
             var commandName = null;
             try {
                 const files = fs.readdirSync(cmdDir);
@@ -270,13 +271,6 @@ export default class Oxygen extends OxygenEvents {
                     if (commandName.indexOf('.') !== 0) {   // ignore possible hidden files (i.e. starting with '.')
                         var cmdFunc = require(path.join(cmdDir, commandName));
                         ModuleClass.prototype[commandName] = cmdFunc;
-                        // bind function's "this" to module's "this"
-                        //var fnc = cmdFunc.bind(mod._this || mod);
-                        //mod[commandName] = fnc;
-                        // since commands have access only to _this, reference all
-                        // commands on it, so commands could have access to each other.
-                        // note that command defined in the main module won't be referenced.
-                        //mod._this[commandName] = fnc;
                     }
                 }
             } catch (e) {
