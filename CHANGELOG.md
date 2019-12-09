@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.0.0-beta.8 (2019-12-09)
+
+#### :house: Internal
+* Disable devtools-service logging
+
 ## v1.0.0-beta.7 (2019-12-08)
 
 **Due a mishap which happened when publishing new version, version number has been increased to 1.0.0-beta.x.  
