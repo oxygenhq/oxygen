@@ -565,7 +565,13 @@ export default class Oxygen extends OxygenEvents {
         for (let key in this.services) {
             const service = this.services[key];
             if (service.dispose) {
-                await service.dispose();
+                try {
+                    await service.dispose();
+                }
+                catch (e) {
+                    // ignore service disposal error
+                    this.logger.error(`Failed to dispose service '${key}':`, e);
+                }
             }
         }
         return true;
@@ -577,8 +583,14 @@ export default class Oxygen extends OxygenEvents {
         }
         for (let key in this.modules) {
             const mod = this.modules[key];
-            if (mod.dispose) {                
-                await mod.dispose();
+            if (mod.dispose) {      
+                try {
+                    await mod.dispose();
+                }    
+                catch (e) {
+                    // ignore module disposal error 
+                    this.logger.error(`Failed to dispose module '${key}': `, e);
+                }      
             }
         }
         return true;
