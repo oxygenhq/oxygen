@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v1.0.0-beta.8 (2019-12-09)
+
+#### :house: Internal
+* Disable devtools-service logging
+
+## v1.0.0-beta.7 (2019-12-08)
+
+**Due a mishap which happened when publishing new version, version number has been increased to 1.0.0-beta.x.  
+This version number change doesn't reflect any actual changes in the stable branch of oxygen-cli.  
+Version numbers will normalize once the real 1.0.0 is released.**
+
+#### :nail_care: Polish
+* Handle "Unable to create new service" init error.
+
+#### :house: Internal
+* WebdriverIO@5.16.13.
+
 ## v0.52.3 (2019-11-26)
 
 #### :house: Internal
