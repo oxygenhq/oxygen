@@ -171,16 +171,17 @@ async function run(scriptName, scriptPath, context) {
     } catch (e) {
         error = e;
     }    
+    const moduleCaps = _oxygen.getModulesCapabilities();
     if (error) {
         // eslint-disable-next-line no-undef
-        processSend({ event: 'run:failed', ctx: _oxygen.context, resultStore: _oxygen.results, err: errorHelper.getFailureFromError(error) });
+        processSend({ event: 'run:failed', ctx: { ..._oxygen.context, moduleCaps: moduleCaps }, resultStore: _oxygen.results, err: errorHelper.getFailureFromError(error) });
         if(error.message){
             processSend({ event: 'log', level: LEVELS.ERROR, src: DEFAULT_LOGGER_ISSUER, msg: error.message});
         }
     }    
-    else {
+    else {        
         // eslint-disable-next-line no-undef
-        processSend({ event: 'run:success', ctx: _oxygen.context, resultStore: _oxygen.results });
+        processSend({ event: 'run:success', ctx: { ..._oxygen.context, moduleCaps: moduleCaps }, resultStore: _oxygen.results });
     }    
     // reset steps and other result data
     _oxygen.resetResults();

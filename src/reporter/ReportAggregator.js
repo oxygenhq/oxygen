@@ -91,7 +91,7 @@ export default class ReportAggregator extends EventEmitter {
         });
     }
 
-    onRunnerEnd(rid, fatalError) {
+    onRunnerEnd(rid, finalResult, fatalError) {
         const testResult = this.results.find(x => x.rid === rid);
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
@@ -99,6 +99,9 @@ export default class ReportAggregator extends EventEmitter {
             testResult.status = fatalError ? Status.FAILED : (testResult.suites.some(x => x.status === Status.FAILED)) ? Status.FAILED : Status.PASSED;
             if (testResult.status === Status.FAILED) {
                 testResult.failure = fatalError ? errorHelper.getFailureFromError(fatalError) : this._getFirstFailure(testResult);
+            }
+            if (finalResult && finalResult.capabilities) {
+                testResult.capabilities = finalResult.capabilities;
             }
             if (testResult.failure) {
                 console.log(`Error: ${testResult.failure.type} at ${testResult.failure.location}.`);

@@ -81,7 +81,7 @@ export default class WebModule extends WebDriverModule {
      * @return {Object} capabilities - Current capabilities object.
      */
     getCapabilities() {
-        return super.getCapabilities();
+        return this.caps || super.getCapabilities();
     };
 
     /**

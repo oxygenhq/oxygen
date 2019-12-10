@@ -40,6 +40,7 @@ export default class OxygenRunner extends EventEmitter {
         this._envVars = {};  // environment variables passed at the beginning of the test
         this._vars = {};     // user-defined variables that are shared between different scripts
         this._caps = {}; // desired capabilities that are passed to each module
+        this._modCaps = {};
         this._options = null;
         this._localTime = false;
         this._testKilled = false;
@@ -109,7 +110,7 @@ export default class OxygenRunner extends EventEmitter {
         catch (e) {
             error = e;
         }
-        this._reporter.onRunnerEnd(this._id, error);
+        this._reporter.onRunnerEnd(this._id, result, error);
         this._isRunning = false;
         if (this._worker) {
             await this._worker.stop();
@@ -217,9 +218,10 @@ export default class OxygenRunner extends EventEmitter {
         result.duration = result.endTime - result.startTime;
         const hasFailedSuites = result.suites.some(x => x.status === Status.FAILED);
         result.status = hasFailedSuites ? Status.FAILED : Status.PASSED;
-        result.environment = this._env;
-        result.capabilities = JSON.parse(JSON.stringify(this._caps));    // assign a copy of _caps object
-        result.options = JSON.parse(JSON.stringify(this._options));  // assign a copy of _options object
+        result.environment = { ...this._env };
+        // combine test defined caps and per module capabilities, that were passed by user in each module's init function
+        result.capabilities = { ...this._caps, ...this._modCaps };;    // assign a copy of _caps object
+        result.options = { ...this._options };  // assign a copy of _options object
 
         // if error occured, add it to the summary
         if (error) {
@@ -512,6 +514,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     _resetGlobalVariables() {
+        this._modCaps = {};
         this._worker = null;
         this._isRunning = false;
         this._isDisposing = false;
@@ -533,7 +536,8 @@ export default class OxygenRunner extends EventEmitter {
         }        
         // store 'vars' part of the context for a later use
         this._vars = msg.ctx.vars || this._vars;
-        
+        // store 'modCaps' part of the context for a later use
+        this._modCaps = { ...this._modCaps, ...msg.ctx.moduleCaps || {} };
         // clean up context from internal elements, not need in the report:
         // remove caps from the context as it already appears in TestResult node
         if (msg.ctx && msg.ctx.caps)

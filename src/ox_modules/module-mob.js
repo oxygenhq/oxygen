@@ -95,7 +95,7 @@ export default class MobileModule extends WebDriverModule {
      * @return {Object} capabilities - Current capabilities object.
      */
     getCapabilities() {
-        return super.getCapabilities();
+        return this.caps || super.getCapabilities();
     }
 
     /**
@@ -287,7 +287,7 @@ export default class MobileModule extends WebDriverModule {
         // ignore the rest if mob module is not initialized
         if (!this.isInitialized) {
             return;
-        }
+        }        
         // collect all the device logs for this session
         if (this.options.collectDeviceLogs) {
             try {

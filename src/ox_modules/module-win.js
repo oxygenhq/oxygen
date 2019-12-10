@@ -68,7 +68,7 @@ export default class WindowsModule extends WebDriverModule {
      * @return {Object} capabilities - Current capabilities object.
      */
     getCapabilities() {
-        return super.getCapabilities();
+        return this.caps || super.getCapabilities();
     }
 
     /**

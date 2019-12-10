@@ -141,6 +141,24 @@ export default class Oxygen extends OxygenEvents {
         return this.resultStore;
     }
 
+    getModulesCapabilities() {
+        if (!this.modules) {
+            return null;
+        }
+        const modCaps = {};
+        for (let moduleName in this.modules) {
+            const module = this.modules[moduleName];
+            if (module.name && module._getCapabilities && typeof module._getCapabilities === 'function') {                
+                const caps = module._getCapabilities();
+                // store only non-empty caps per module that has this.caps property
+                if (caps && typeof caps === 'object' && Object.keys(caps).length > 0) {                    
+                    modCaps[module.name] = caps;
+                }                
+            }
+        }
+        return modCaps;
+    }
+
     resetResults() {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
@@ -338,6 +356,11 @@ export default class Oxygen extends OxygenEvents {
                 };
             }
             else {
+                // create an internal _getCapabilities method for internal Oxygen Core use
+                // calling _getCapabilities method won't be visible in the test results
+                if (methodName === 'getCapabilities') {
+                    wrapper['_getCapabilities'] = method.bind(module);
+                }
                 wrapper[methodName] = (...args) => {
                     try {
                         return _this._commandWrapper(methodName, args, module, name);

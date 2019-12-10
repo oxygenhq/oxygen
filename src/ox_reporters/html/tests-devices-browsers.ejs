@@ -15,15 +15,37 @@
             <% results.forEach(function(result){ %>
                 <% 
                     let browserName = result.capabilities && result.capabilities.browserName ? result.capabilities.browserName : null; 
+                    // if browserName is null but we have browserName capability used locally in mob or web modules, use it in the report
+                    if (!browserName && result.capabilities) {
+                        if (result.capabilities.mob && result.capabilities.mob.browserName) {
+                            browserName = result.capabilities.mob.browserName;
+                        }
+                        else if (result.capabilities.web && result.capabilities.web.browserName) {
+                            browserName = result.capabilities.web.browserName;
+                        }
+                    }
                     if (browserName && browserName.length > 0) {
                         browserName = browserName.charAt(0).toUpperCase() + browserName.slice(1); 
                     }
                     let deviceName = result.capabilities && result.capabilities.deviceName ? result.capabilities.deviceName : null; 
+                    // if deviceName is null but we have deviceName capability used locally in mob module, use it in the report
+                    if (!deviceName && result.capabilities && result.capabilities.mob && result.capabilities.mob.deviceName) {
+                            deviceName = result.capabilities.mob.deviceName;
+                    }
                     if (deviceName && deviceName.length > 0) {
                         deviceName = deviceName.charAt(0).toUpperCase() + deviceName.slice(1); 
                     }
-                    let deviceBrowserName = (deviceName ? `${deviceName} / ` : '') + (browserName ? browserName : ''); 
+                    let deviceBrowserName = (deviceName ? `${deviceName} / ` : '') + (browserName ? browserName : 'N/A'); 
                     let platformName = result.capabilities && result.capabilities.platformName ? result.capabilities.platformName : '';
+                    // if platformName is null but we have platformName capability used locally in mob module, use it in the report
+                    if (!platformName && result.capabilities) {
+                        if (result.capabilities.mob && result.capabilities.mob.platformName) {
+                            platformName = result.capabilities.mob.platformName;
+                        }
+                        else if (result.capabilities.web && result.capabilities.web.platformName) {
+                            platformName = result.capabilities.web.platformName;
+                        }
+                    }
                     result.suites.forEach(function(suiteResult){ 
                         const passedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'passed' ? 1:0), 0);
                         const failedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'failed' ? 1:0), 0);
