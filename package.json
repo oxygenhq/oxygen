@@ -38,7 +38,7 @@
     "source-map-support": "0.5.16"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.8.3",
+    "@applitools/eyes-webdriverio": "5.8.4",
     "@babel/cli": "7.2.3",
     "@babel/core": "7.5.5",
     "@babel/register": "7.5.5",
@@ -49,9 +49,9 @@
     "@babel/plugin-transform-modules-commonjs": "7.5.0",
     "@babel/preset-env": "7.5.5",
     "@babel/runtime": "7.7.6",
-    "@wdio/devtools-service": "5.16.5",
-    "@wdio/cli": "5.16.9",
-    "@wdio/sync": "5.16.9",
+    "@wdio/devtools-service": "5.16.10",
+    "@wdio/cli": "5.16.13",
+    "@wdio/sync": "5.16.14",
     "async": "3.1.0",
     "chai": "4.2.0",
     "chrome-har": "0.11.2",
@@ -80,7 +80,7 @@
     "soap": "0.30.0",
     "strip-comments": "1.0.2",
     "twilio": "3.37.1",
-    "webdriverio": "5.16.9",
+    "webdriverio": "5.16.13",
     "when": "3.7.8",
     "xlsx": "0.15.2"
   },
