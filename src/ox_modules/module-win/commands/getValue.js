@@ -26,7 +26,7 @@ module.exports = function(locator, timeout) {
     try {
         var text = el.getValue();
         // uiautomator1 simply returns an error if element not found
-        if (text.error) {
+        if (text && text.error) {
             if (text.error === 'no such element') {
                 throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
             }
