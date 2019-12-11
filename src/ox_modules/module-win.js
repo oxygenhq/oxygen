@@ -43,7 +43,14 @@ const DEFAULT_APP = 'Root';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
-    
+const WINDOWS_STANDARD_APP_IDS = {
+    Calculator: 'Microsoft.WindowsCalculator_8wekyb3d8bbwe!App',
+    AlarmClock: 'Microsoft.WindowsAlarms_8wekyb3d8bbwe!App',
+    Notepad: 'C:\\Windows\\System32\\notepad.exe',
+    Paint: 'C:\\Windows\\System32\\mspaint.exe',
+    Paint3D: 'Microsoft.MSPaint_8wekyb3d8bbwe!Microsoft.MSPaint',
+    StickyNotes: 'Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe!App'
+}; 
 
 export default class WindowsModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -107,9 +114,21 @@ export default class WindowsModule extends WebDriverModule {
         if (!this.caps.app) {
             this.caps.app = DEFAULT_APP;
         }
+        else {
+            const appCapVal = this.caps.app;
+            // try to resolve 'app' value in the Windows standard app list
+            const appNames = Object.keys(WINDOWS_STANDARD_APP_IDS);
+            if (appNames.includes(appCapVal)) {
+                this.caps.app = WINDOWS_STANDARD_APP_IDS[appCapVal];
+            }
+        }
         // set default platformName for WinAppDriver
         if (!this.caps.platformName) {
             this.caps.platformName = 'Windows';
+        }
+        // set default deviceName for WinAppDriver
+        if (!this.caps.deviceName) {
+            this.caps.deviceName = 'WindowsPC';
         }
         // set default platformVersion for WinAppDriver
         if (!this.caps.platformVersion) {
