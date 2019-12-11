@@ -93,16 +93,20 @@ module.exports = {
         if (err instanceof OxError) {
             return err;
         }
-
-        /*console.log('=== Error Details ===');
+        /*
+        console.log('=== Error Details ===');
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
-        console.log(util.inspect(err));*/
-
+        console.log(util.inspect(err));
+        */
         var errType = err.type || err.name || typeof err;
 
+        // handle "Can't call <command> on element with selector <selector> because element wasn't found"
+        if (err.message && err.message.includes(`because element wasn't found`)) {
+            return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, err.message, null, true, err);
+        }
         // handle "invalid argument: Unsupported locator strategy: -android uiautomator" for mobile.
         // usually due to not using the correct context
-        if (err.message && err.message.includes('Unsupported locator strategy')) {
+        else if (err.message && err.message.includes('Unsupported locator strategy')) {
             let matches = err.message.match(/invalid argument: (.*)/i);
             return new OxError(ERROR_CODES.MOBILE_CONTEXT_ERROR, (matches.length === 2 ? matches[1] : err.message) +
                 '. Make sure you are using the correct mobile context. See mob.setNativeContext and mob.setWebViewContext.');

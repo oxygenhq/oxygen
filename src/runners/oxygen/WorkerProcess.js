@@ -41,8 +41,8 @@ export default class WorkerProcess extends EventEmitter {
             cwd: process.cwd(), 
             env,
             execArgv: [],
-            detached: true,
-            //silent: true
+            detached: false,
+            //silent: false
         };
         if (this._debugPort) {
             // add --inspect-brk argument if debug port is specified

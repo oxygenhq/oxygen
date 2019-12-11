@@ -12,7 +12,7 @@
  */
 import StackTrace from 'stack-trace';
 
-const STACKTRACE_FILTERS = ['node_modules/oxygen-cli/', '/oxygen-node/', '(module.js', '(internal/module.js', 'at <anonymous>'];
+const STACKTRACE_FILTERS = ['\\node_modules\\', '/node_modules/', '/oxygen-node/', '\\oxygen-node\\', '(module.js', '(internal/module.js', 'at <anonymous>'];
 
 export default class OxygenError extends Error {
     constructor(type, message, data, isFatal, orgErr = null) {
