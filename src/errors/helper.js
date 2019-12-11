@@ -200,7 +200,9 @@ module.exports = {
         } else if (err.message === 'All minutes for this organization has been exausted' ||
             err.message === '401 Unauthorized') {
             return new OxError(ERROR_CODES.APPIUM_CONNECTION_ERROR, err.message);
-        } else if (err.message && err.message.indexOf('A new session could not be created.') > -1) {
+        } else if (err.message && (
+                err.message.indexOf('A new session could not be created.') > -1 ||
+                err.message.indexOf('Failed to create session.') > -1)) {
             return new OxError(ERROR_CODES.APPIUM_SESSION_ERROR, extractOriginalError(err.message), null, true);
         }
 
