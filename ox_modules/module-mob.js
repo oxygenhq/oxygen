@@ -254,6 +254,18 @@ module.exports = function (options, context, rs, logger) {
             }
         }
 
+        // set appContext to WEB for mobile web tests so that getWdioLocator will resolve locators properly
+        if (_this.caps.browserName) {
+            this.appContext = 'WEB';
+        }
+        
+        // if we are running on Android 7+ emulator, and thus/or using a WebView Browser Tester - 
+        // perform an actual appContext switch to WEB
+        // so Appium will delegate commands to Chrome Driver instead of Appium Driver
+        if (_this.caps.browserName ===  'chromium-webview') {
+            this.setWebViewContext();
+        }
+
         _this.driver.setTimeout({ 'implicit': _this.waitForTimeout });
         
         // clear logs if auto collect logs option is enabled
