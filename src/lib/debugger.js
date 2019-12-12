@@ -237,8 +237,8 @@ export default class Debugger extends EventEmitter {
                         const initialDepth = 1;
                             
                         if(e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0){
-
-                            const callFrames = e.callFrames.filter((item) => {
+                            let callFrames = [];
+                            callFrames = e.callFrames.filter((item) => {
                                 if(item && item.url){
 
                                     const finded = this._breakpoints.find((breakpoint) => breakpoint.breakpointId.endsWith(item.url));
@@ -257,6 +257,10 @@ export default class Debugger extends EventEmitter {
                             // } catch(e){
                             //     console.log('getScriptSource e', e);
                             // }
+
+                            if(callFrames && Array.isArray(callFrames) && callFrames.length > 1){
+                                delete callFrames[1];
+                            }
 
                             let callFramesMapResult = await this.processCallFrames(callFrames, initialDepth);
 
