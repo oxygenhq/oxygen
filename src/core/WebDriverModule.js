@@ -1,4 +1,4 @@
-import OxygenModule from "./OxygenModule";
+import OxygenModule from './OxygenModule';
 
 export default class WebDriverModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {

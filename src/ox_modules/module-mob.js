@@ -239,7 +239,7 @@ export default class MobileModule extends WebDriverModule {
      */
     transaction(name) {
         global._lastTransactionName = name;
-    };
+    }
 
     /*
      * Private

@@ -220,7 +220,7 @@ export default class OxygenRunner extends EventEmitter {
         result.status = hasFailedSuites ? Status.FAILED : Status.PASSED;
         result.environment = { ...this._env };
         // combine test defined caps and per module capabilities, that were passed by user in each module's init function
-        result.capabilities = { ...this._caps, ...this._modCaps };;    // assign a copy of _caps object
+        result.capabilities = { ...this._caps, ...this._modCaps };    // assign a copy of _caps object
         result.options = { ...this._options };  // assign a copy of _options object
 
         // if error occured, add it to the summary

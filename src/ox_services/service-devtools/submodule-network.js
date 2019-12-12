@@ -10,7 +10,7 @@
 /**
  * Provides methods for monitoring and analyzing Chrome browser network activities.
 */
-import { OxygenSubModule } from "../../core/OxygenSubModule";
+import { OxygenSubModule } from '../../core/OxygenSubModule';
 
 import errHelper from '../../errors/helper';
 import OxError from '../../errors/OxygenError';
@@ -104,7 +104,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             this._driver.pause(500);
         }
         throw new OxError(errHelper.errorCode.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
-    };
+    }
 
     /**
      * @summary Wait for a network request.
@@ -129,7 +129,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             this._driver.pause(500);
         }
         throw new OxError(errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher.');
-    };
+    }
 
     _onNetworkResponseReceived(params) {
         if (this._collectData) {

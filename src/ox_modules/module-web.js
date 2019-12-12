@@ -82,7 +82,7 @@ export default class WebModule extends WebDriverModule {
      */
     getCapabilities() {
         return this.caps || super.getCapabilities();
-    };
+    }
 
     /**
      * @function init
@@ -228,7 +228,7 @@ export default class WebModule extends WebDriverModule {
     _iterationStart() {
         // clear transaction name saved in previous iteration if any
         global._lastTransactionName = null;
-    };
+    }
 
     _iterationEnd() {
         if (!this.isInitialized) {

@@ -92,7 +92,7 @@ export default class WindowsModule extends WebDriverModule {
                 this.driver.reloadSession();
                 this._isInitialized = true;
             } else {
-                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');                
+                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
             }
             return;
         }
@@ -210,7 +210,7 @@ export default class WindowsModule extends WebDriverModule {
      */
     transaction(name) {
         global._lastTransactionName = name;
-    };
+    }
 
     /*
      * Private

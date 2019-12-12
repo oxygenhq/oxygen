@@ -101,7 +101,7 @@ module.exports = {
         var errType = err.type || err.name || typeof err;
 
         // handle "Can't call <command> on element with selector <selector> because element wasn't found"
-        if (err.message && err.message.includes(`because element wasn't found`)) {
+        if (err.message && err.message.includes('because element wasn\'t found')) {
             return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, err.message, null, true, err);
         }
         // handle "invalid argument: Unsupported locator strategy: -android uiautomator" for mobile.
