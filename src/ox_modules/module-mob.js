@@ -73,7 +73,7 @@ const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 export default class MobileModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
-        this.transactions = {};                      
+        this.transactions = {};
         this.lastNavigationStartTime = null;
         this.networkRequests = null;
         this.helpers = {};
@@ -112,7 +112,7 @@ export default class MobileModule extends WebDriverModule {
                 this.driver.reloadSession();
                 this._isInitialized = true;
             } else {
-                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');                
+                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
             }
             return;
         }
@@ -146,14 +146,14 @@ export default class MobileModule extends WebDriverModule {
         // webdriver expects lower case names
         if (this.caps.browserName && typeof this.caps.browserName === 'string') {
             this.caps.browserName = this.caps.browserName.toLowerCase();
-        }  
+        }
         // adjust capabilities to enable collecting browser and performance stats in Chrome 
         if (this.options.recordHAR && this.caps.browserName === 'chrome') {
             this.caps['goog:loggingPrefs'] = {     // for ChromeDriver >= 75
                 browser: 'ALL',
                 performance: 'ALL'
             };
-        }      
+        }
         // populate WDIO options
         const url = URL.parse(appiumUrl);
         const protocol = url.protocol.replace(/:$/, '');
@@ -196,6 +196,18 @@ export default class MobileModule extends WebDriverModule {
 
         if (initError) {
             throw errHelper.getAppiumInitError(initError);
+        }
+
+        // set appContext to WEB for mobile web tests so that getWdioLocator will resolve locators properly
+        if (_this.caps.browserName) {
+            this.appContext = 'WEB';
+        }
+        
+        // if we are running on Android 7+ emulator, and thus/or using a WebView Browser Tester -
+        // perform an actual appContext switch to WEB
+        // so Appium will delegate commands to Chrome Driver instead of Appium Driver
+        if (_this.caps.browserName ===  'chromium-webview') {
+            this.setWebViewContext();
         }
 
         this.driver.setTimeout({ 'implicit': DEFAULT_WAIT_TIMEOUT });
