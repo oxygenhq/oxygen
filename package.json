@@ -28,9 +28,15 @@
   "bugs": {
     "url": "https://github.com/oxygenhq/oxygen/issues"
   },
+  "husky": {
+    "hooks": {
+      "pre-commit": "npm run lint"
+    }
+  },
   "devDependencies": {
     "doctrine": "3.0.0",
-    "eslint": "6.6.0"
+    "eslint": "6.6.0",
+    "husky": "3.1.0"
   },
   "dependencies": {
     "@wdio/devtools-service": "5.16.10",
@@ -67,9 +73,9 @@
     "odbc": "1.4.6"
   },
   "scripts": {
-    "prepublishOnly": "npm run eslint && node tools/dos2unix lib/cli.js",
+    "prepublishOnly": "npm run lint && node tools/dos2unix lib/cli.js",
     "postpublish": "node tools/unix2dos lib/cli.js",
-    "eslint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
+    "lint": "eslint \"Gruntfile.js\" \"lib/**/*.js\" \"errors/**/*.js\" \"model/**/*.js\" \"ox_modules/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc"
   }
 }
