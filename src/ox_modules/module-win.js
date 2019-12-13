@@ -88,11 +88,11 @@ export default class WindowsModule extends WebDriverModule {
         // if reopenSession is true - reinitilize the module
         if (this.isInitialized) {
             if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
-                logger.debug('reopenSession is true - reloading the session...');
+                this.logger.debug('reopenSession is true - reloading the session...');
                 this.driver.reloadSession();
                 this._isInitialized = true;
             } else {
-                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
+                this.logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
             }
             return;
         }
@@ -230,11 +230,11 @@ export default class WindowsModule extends WebDriverModule {
         }
     }
 
-    _getLogs(name) {
-        if (!NO_LOGS_COMMANDS.includes(name)) {
-            return this.getLogs();
-        }
-    }
+    // _getLogs(name) {
+    //     if (!NO_LOGS_COMMANDS.includes(name)) {
+    //         return this.getLogs();
+    //     }
+    // }
 
     _adjustAppiumLog(log, src) {
         if (!log || typeof log !== 'object') {

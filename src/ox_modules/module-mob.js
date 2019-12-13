@@ -108,11 +108,11 @@ export default class MobileModule extends WebDriverModule {
         // if reopenSession is true - reinitilize the module
         if (this.isInitialized) {
             if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
-                logger.debug('reopenSession is true - reloading the session...');
+                this.logger.debug('reopenSession is true - reloading the session...');
                 this.driver.reloadSession();
                 this._isInitialized = true;
             } else {
-                logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
+                this.logger.debug('mob.init was called for already initialized module. reopenSession is false so the call is ignored.');
             }
             return;
         }
@@ -271,11 +271,11 @@ export default class MobileModule extends WebDriverModule {
         }
     }
 
-    _getLogs(name) {
-        if (!NO_LOGS_COMMANDS.includes(name)) {
-            return this.getLogs();
-        }
-    }
+    // _getLogs(name) {
+    //     if (!NO_LOGS_COMMANDS.includes(name)) {
+    //         return this.getLogs();
+    //     }
+    // }
 
     _adjustAppiumLog(log, src) {
         if (!log || typeof log !== 'object') {
@@ -348,7 +348,7 @@ export default class MobileModule extends WebDriverModule {
                 //       so we get package name from caps instead.
                 locator = locator.substr('id='.length);
                 if (locator.indexOf(':id/') === -1) {
-                    locator = _this.caps.appPackage + ':id/' + locator;
+                    locator = this.caps.appPackage + ':id/' + locator;
                 }
                 return 'android=new UiSelector().resourceId("' + locator + '")';
             } else if (locator.indexOf('class=') === 0)

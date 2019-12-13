@@ -51,6 +51,7 @@ import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
+import util from 'util';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';

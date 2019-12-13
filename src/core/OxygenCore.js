@@ -1,3 +1,4 @@
+/* eslint-disable no-prototype-builtins */
 import globule from 'globule';
 import path from 'path';
 import fs from 'fs';
@@ -253,7 +254,6 @@ export default class Oxygen extends OxygenEvents {
         }
         // initialize all modules
         this.logger.debug('Loading modules...');
-        let moduleName;
         for (let moduleFileName of moduleFiles) {
             // extract name from the module file name based on module name pattern
             const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
