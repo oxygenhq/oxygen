@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.0.0-beta.12 (2019-12-15)
+
+#### :tada: New Feature
+* Automatically set web context for mobile web tests.
+
+#### :house: Internal
+* Improve debugger initialization.
+
 ## v1.0.0-beta.8 (2019-12-09)
 
 #### :house: Internal
