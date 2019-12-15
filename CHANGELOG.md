@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.0.0-beta.13 (2019-12-15)
+
+#### :beetle: Bug Fix
+* Generate proper results on child process crashes.
+
 ## v1.0.0-beta.12 (2019-12-15)
 
 #### :tada: New Feature
