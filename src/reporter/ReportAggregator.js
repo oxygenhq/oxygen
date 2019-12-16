@@ -149,7 +149,7 @@ export default class ReportAggregator extends EventEmitter {
 
     onCaseEnd(rid, suiteId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
-        this.emit('suite:end', {
+        this.emit('case:end', {
             rid,
             suiteId,
             caseId,
