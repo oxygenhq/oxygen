@@ -20,6 +20,23 @@ module.exports = function() {
         return true;
     };
 
+    // take screenshot on error if either web or mob module is initialized
+    module._takeScreenshot = function(name) {
+        try {
+            var mod;
+            /*global ox*/
+            if (ox.mob && ox.mob._isInitialized()) {
+                mod = ox.mob;
+            } else if (ox.web && ox.web._isInitialized()) {
+                mod = ox.web;
+            }
+
+            return mod ? mod.takeScreenshot() : null;
+        } catch (e) {
+            // ignored
+        }
+    };
+
     /**
      * @summary Asserts that two values are equal.
      * @function equal
