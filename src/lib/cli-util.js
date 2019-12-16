@@ -102,7 +102,11 @@ export function getConfigurations(target, argv) {
         const reporters = argv.rf.split(',');
         startupOpts.reporting.reporters = reporters;
     }
-
+    // set a list of modules to be loaded, if set by user through comnand line (--modules switch)
+    if (argv.modules && typeof argv.modules === 'string' && argv.modules.length > 0) {
+        const modules = argv.modules.split(',');
+        startupOpts.modules = modules;
+    }
     // if the target is oxygen config file, merge its content with the default options
     let moreOpts = {};
     if (target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
