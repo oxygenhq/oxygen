@@ -82,6 +82,8 @@ export default class MobileModule extends WebDriverModule {
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
         this.OxError = OxError;
         this.errHelper = errHelper;
+        // holds element operation timeout value
+        this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
     }
 
 
@@ -210,7 +212,7 @@ export default class MobileModule extends WebDriverModule {
             this.setWebViewContext();
         }
 
-        this.driver.setTimeout({ 'implicit': DEFAULT_WAIT_TIMEOUT });
+        this.driver.setTimeout({ 'implicit': this.waitForTimeout });
         
         // clear logs if auto collect logs option is enabled
         if (this.options.collectDeviceLogs) {

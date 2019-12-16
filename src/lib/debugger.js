@@ -279,12 +279,10 @@ export default class Debugger extends EventEmitter {
                         saveValue = saveValue.filter((el) => !!el);
                     }
 
-                    console.log('variables', saveValue);
-
                     this.emit('break', e, saveValue);
 
                 }, reason => {
-                    console.log('breakpointsMapResult res reason' , reason);
+                    //console.log('breakpointsMapResult res reason' , reason);
                 }); 
 
             }

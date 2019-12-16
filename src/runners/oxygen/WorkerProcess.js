@@ -51,9 +51,6 @@ export default class WorkerProcess extends EventEmitter {
         // fork worker.js
         this._childProc = fork(path.join(__dirname, 'worker.js'), forkOpts);
         
-        const time = + new Date();
-        log.info('wp time : ' + time);
-
         this._hookChildProcEvents();
         // if we are in debug mode, initialize debugger and only then start modules 'init'
         if (this._debugMode) {

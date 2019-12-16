@@ -223,7 +223,7 @@ module.exports = {
         else if (locator.indexOf('/') === 0)
             return locator;                                 // leave xpath locator as is
         else if (locator.indexOf('id=') === 0)
-            return locator;
+            return '#' + locator.substr('id='.length);
         else if (locator.indexOf('name=') === 0)
             return locator;            
         else if (locator.indexOf('link=') === 0)

@@ -15,13 +15,5 @@ import OxygenError from './OxygenError';
 export default class ModuleError extends OxygenError {
     constructor(message, err, isFatal = true) {
         super('MODULE_ERROR', message, null, isFatal, err);
-        /*this.stack = err && err.stack ? err.stack : null;
-        this.subtype = err && err.type ? err.type : null;
-        //this.filterStackTrace();
-        if (!this.stack) {
-            this.captureStackTrace();
-        }
-        this.generateLocation();
-        console.log('this.location', this.location)*/
     }
 }

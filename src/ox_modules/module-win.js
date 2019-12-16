@@ -63,6 +63,8 @@ export default class WindowsModule extends WebDriverModule {
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
         this.OxError = OxError;
         this.errHelper = errHelper;
+        // holds element operation timeout value
+        this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
     }
 
     get name() {
@@ -178,7 +180,7 @@ export default class WindowsModule extends WebDriverModule {
             throw errHelper.getAppiumInitError(initError);
         }
 
-        this.driver.setTimeout({ 'implicit': DEFAULT_WAIT_TIMEOUT });
+        this.driver.setTimeout({ 'implicit': this.waitForTimeout });
         
         super.init();
     }

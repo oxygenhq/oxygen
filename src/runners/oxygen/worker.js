@@ -50,16 +50,6 @@ function stringify(obj) {
     return (typeof obj === 'string' || obj instanceof String ? obj : JSON.stringify(obj, null, 2));
 }
 
-var util = require('util');
-var log_stdout = process.stdout;
-
-var log = function(d) { 
-    log_stdout.write(util.format(d) + '\n');
-};
-
-const time = + new Date();
-log('woker : '+time);
-
 // redirect stdout and stderr to the logger
 //process.stdout.write = logger.debug;
 //process.stderr.write = logger.error;
