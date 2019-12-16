@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.0.0-beta.14 (2019-12-16)
+
+#### :tada: New Feature
+* Take screenshots on `assert.*` command failures.
+
 ## v1.0.0-beta.13 (2019-12-15)
 
 #### :beetle: Bug Fix
