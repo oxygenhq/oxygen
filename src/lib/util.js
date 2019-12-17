@@ -215,10 +215,12 @@ var self = module.exports = {
     getMethodSignature: function(moduleName, methodName, methodArgs) {
         // convert method arguments to string
         let methodArgsStr = '()';
+        
         if (methodArgs) {
             let argsStringified = JSON.stringify(methodArgs);
             methodArgsStr = '(' + argsStringified.slice(1, -1) + ')';
         }
+
         return moduleName + '.' + methodName + methodArgsStr;
     },
 
