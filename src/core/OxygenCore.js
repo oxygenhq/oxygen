@@ -471,7 +471,15 @@ export default class Oxygen extends OxygenEvents {
                     done = true;
                 });
 
-                deasync.loopWhile(() => !done && !error);
+                try {
+                    deasync.loopWhile(() => !done && !error);
+                }
+                catch (e) {
+                    // ignore this error as it usually happens 
+                    // when Oxygen is disposed and process is being killed
+                    this.logger.error('deasync.loopWhile() failed:', e);
+                    return undefined;
+                }
 
                 if (!error) {
                     return finalVal;
