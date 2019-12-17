@@ -251,9 +251,19 @@ export default class Debugger extends EventEmitter {
 
                             // to see how debbuger see script
                             // try {
-                            //     const scriptSource = await this.getScriptSource(callFrames[0].location.scriptId);
-    
-                            //     console.log('scriptSource', scriptSource);
+                            //     callFrames.map(async(item) => {
+                            //         const scriptSource = await this.getScriptSource(item.location.scriptId);
+        
+                            //         console.log('scriptSource', scriptSource.scriptSource);
+
+                            //         const scriptSourceSplit = scriptSource.scriptSource.split('\n');
+                                    
+                            //         if(scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0){
+                            //             scriptSourceSplit.map((scriptSourceItem, idx) => {
+                            //                 console.log((idx+1) + ' ' + scriptSourceItem);
+                            //             });
+                            //         }                                    
+                            //     });
                             // } catch(e){
                             //     console.log('getScriptSource e', e);
                             // }

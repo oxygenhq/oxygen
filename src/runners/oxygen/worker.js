@@ -15,6 +15,7 @@ require('@babel/register')({
     // Since babel ignores all files outside the cwd, it does not compile sibling packages
     // So rewrite the ignore list to only include node_modules
     ignore: [__dirname + '/../../../node_modules'],
+    retainLines : true
 });
 const Fiber = require('fibers');
 const path = require('path');
