@@ -63,7 +63,7 @@ export default class OxygenError extends Error {
     }
 
     patchFilePathOnWindows(filePath) {
-    	if (filePath && process.platform === 'win32' && typeof(filePath) === 'string' && filePath.length > 0) {
+        if (filePath && process.platform === 'win32' && typeof(filePath) === 'string' && filePath.length > 0) {
             return filePath.replace(/\//g, '\\');
         }
         return filePath;
