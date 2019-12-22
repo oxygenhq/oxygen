@@ -85,7 +85,8 @@ module.exports = {
             type: err.type,
             message: err.message,
             data: err.data,
-            location: err.location
+            location: err.location,
+            stacktrace: err.stacktrace || null
         };
     },
     getOxygenError: function(err, module, cmd, args) {

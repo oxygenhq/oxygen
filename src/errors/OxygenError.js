@@ -12,7 +12,7 @@
  */
 import StackTrace from 'stack-trace';
 
-const STACKTRACE_FILTERS = ['\\node_modules\\', '/node_modules/', '/oxygen-node/', '\\oxygen-node\\', '(module.js', '(internal/module.js', 'at <anonymous>'];
+const STACKTRACE_FILTERS = ['\\node_modules\\', '/node_modules/', '/oxygen-node/', '\\oxygen-node\\', '(module.js', '(internal/module.js', 'at <anonymous>', 'internal/', 'internal\\'];
 
 export default class OxygenError extends Error {
     constructor(type, message, data, isFatal, orgErr = null) {
@@ -54,11 +54,19 @@ export default class OxygenError extends Error {
             const call = stackTrace[0];
             // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
             //const extraLine = oxutil.isInDebugMode() ? 1 : 0;
-            this.location = `${call.getFileName()}:${call.getLineNumber()}:${call.getColumnNumber()}`;
+            this.location = `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`;
+            this.stacktrace = stackTrace.map(call => `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`);
         }
         else {
             this.location = null;
         }
+    }
+
+    patchFilePathOnWindows(filePath) {
+    	if (filePath && process.platform === 'win32' && typeof(filePath) === 'string' && filePath.length > 0) {
+            return filePath.replace(/\//g, '\\');
+        }
+        return filePath;
     }
 
     captureStackTrace() {
