@@ -16,6 +16,7 @@ require('@babel/register')({
     // So rewrite the ignore list to only include node_modules
     extends: __dirname+'/../../../babel.config.js',
     presets: ['@babel/env'],
+    plugins: ['@babel/plugin-transform-runtime'],
     ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
     retainLines: true,
     overrides: [{
