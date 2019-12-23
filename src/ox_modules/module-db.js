@@ -21,7 +21,7 @@ try {
     throw new ModuleUnavailableError('`unixodbc` binaries not installed');
 }
 
-const OxError = require('../errors/OxygenError');
+import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
 
 module.exports = function() {

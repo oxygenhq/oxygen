@@ -11,7 +11,7 @@
  * Provides generic methods for working with PDF files.
  */
 
-const OxError = require('../errors/OxygenError');
+import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 var pdfreader = require('pdfreader');
 var deasync = require('deasync');

@@ -12,7 +12,7 @@
  */
 
 const chai = require('chai');
-const OxError = require('../errors/OxygenError');
+import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 
 module.exports = function() {

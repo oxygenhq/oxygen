@@ -10,10 +10,12 @@
 /**
  * Provides methods for working with Twilio service.
  */
+import OxErrorContsructor from '../errors/OxygenError';
+
 module.exports = function() {
     const deasync = require('deasync');
     const utils = require('./utils');
-    const OxError = this.OxError = require('../errors/OxygenError');
+    const OxError = this.OxError = OxErrorContsructor;
     const errHelper = this.errHelper = require('../errors/helper');
     const helpers = this.helpers = {};
 

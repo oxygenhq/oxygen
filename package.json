@@ -97,7 +97,7 @@
   "scripts": {
     "build": "run-s clean compile",
     "clean": "rimraf ./build",
-    "compile": "babel src/ -d build/ --config-file ./babel.config.js --copy-files",
+    "compile": "babel src/ -d build/ --config-file ./.babelrc --copy-files",
     "test": "run-s test:*",
     "test:lint": "eslint src test",
     "test:unit": "jest",
@@ -106,7 +106,7 @@
     "lint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node tools/apidoc",
     "prod": "node ./build/lib/cli.js",
-    "dev": "cross-env DEBUG=true babel-node --config-file ./babel.config.js ./src/lib/cli.js",
+    "dev": "cross-env DEBUG=true babel-node --config-file ./.babelrc ./src/lib/cli.js",
     "debug": "cross-env DEBUG=true babel-node --debug=5858 --presets @babel/preset-env ./src/lib/cli.js"
   }
 }

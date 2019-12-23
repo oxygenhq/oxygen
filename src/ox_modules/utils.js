@@ -8,7 +8,7 @@
  */
 
 const errHelper = require('../errors/helper');
-const OxError = require('../errors/OxygenError').default;
+import OxError from '../errors/OxygenError';
 
 module.exports = {
     matchPattern: function(val, pattern) {

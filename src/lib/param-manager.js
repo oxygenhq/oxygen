@@ -6,13 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-
+import OxError from '../errors/OxygenError';
 module.exports = function (filePath, mode, fileType /*optional*/) {
     var defer = require('when').defer;
     var path = require('path');
     var ExcelReader = require('./param-reader-excel');
-    var CsvReader = require('./param-reader-csv');
-    var OxError = require('../errors/OxygenError');
+    var CsvReader = require('./param-reader-csv');    
     var errHelper = require('../errors/helper');
     var module = {};
     var _whenInitialized = defer();

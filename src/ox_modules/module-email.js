@@ -11,7 +11,7 @@
  * Provides methods for working with email via IMAP.
  */
 
-const OxError = require('../errors/OxygenError');
+import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
 
 module.exports = function() {

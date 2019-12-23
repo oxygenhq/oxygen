@@ -11,7 +11,7 @@
  * Helper module for handling and converting various error types
  */
  
-const OxError = require('./OxygenError').default;
+import OxError from './OxygenError';
 const util = require('util');
 
 const ERROR_CODES = {
