@@ -11,19 +11,10 @@
  * Boilerplate code for user scripts.
  * Provides everything necessary for executing JS test scripts.
  */
-
-var util = require('util');
-
-console.log('__dirname', __dirname);
-process.stdout.write(util.format('__dirname') + '\n');
-process.stdout.write(util.format(__dirname) + '\n');
-
 require('@babel/register')({
     // Since babel ignores all files outside the cwd, it does not compile sibling packages
     // So rewrite the ignore list to only include node_modules
     extends: __dirname+'/../../../babel.config.js',
-    presets: ['@babel/preset-env'],
-    plugins: ['@babel/plugin-transform-runtime'],
     ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
     retainLines: true,
     overrides: [{
