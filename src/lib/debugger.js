@@ -348,7 +348,7 @@ export default class Debugger extends EventEmitter {
                 log.error('Failed to connect to the debugger: ', e);
                 lastError = e;
             }
-            snooze(snoozeTime);
+            await snooze(snoozeTime);
             snoozeTime = snoozeTime * CONNECT_SNOOZE_INTERVAL_MULT;
         }
 
