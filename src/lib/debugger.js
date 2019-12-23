@@ -19,8 +19,13 @@ const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
 
+const CONNECT_RETRIES = 4;
+const CONNECT_SNOOZE_INTERVAL_MULT = 3;
 const MAX_DEPTH = 5;
 let maxFindedDepth = 0;
+
+// snooze function - async wrapper around setTimeout function
+const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const deleteValues = (arr, depth) => {
 
@@ -330,16 +335,28 @@ export default class Debugger extends EventEmitter {
         this._port = port;
         this._host = host || 'localhost';
 
-        try{
-            this._client = await CDP({ port: port, host: this._host });
-        } catch(e){
-            log.error('Failed to connect to the debugger: ', e);
-            //console.log('~~~ ignore CDP', e);
+        let snoozeTime = 1000;
+        let lastError = null;
+
+        for (let retries = 0; retries < CONNECT_RETRIES; retries++) {
+            try {
+                this._client = await CDP({ port: port, host: this._host });
+                lastError = null;
+                break;
+            } 
+            catch(e) {
+                log.error('Failed to connect to the debugger: ', e);
+                lastError = e;
+            }
+            snooze(snoozeTime);
+            snoozeTime = snoozeTime * CONNECT_SNOOZE_INTERVAL_MULT;
         }
 
-        if(this._client){
-            await this.continueConnect();
+        if (lastError) {
+            throw lastError;
         }
+
+        await this.continueConnect();
     }
     /**
      * Set breakpoint for a particular script.
