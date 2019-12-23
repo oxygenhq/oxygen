@@ -282,6 +282,8 @@ export default class Debugger extends EventEmitter {
                             return null;
                         }
                         
+                    } else {
+                        return null;
                     }
                 });
 
@@ -294,7 +296,11 @@ export default class Debugger extends EventEmitter {
                         saveValue = saveValue.filter((el) => !!el);
                     }
 
-                    this.emit('break', e, saveValue);
+                    if(saveValue && Array.isArray(saveValue) && saveValue.length > 0){
+                        this.emit('break', e, saveValue);
+                    } else {
+                        this.continue();
+                    }
 
                 }, reason => {
                     //console.log('breakpointsMapResult res reason' , reason);
@@ -388,7 +394,10 @@ export default class Debugger extends EventEmitter {
         this._breakpoints = this._breakpoints.filter((bp) => {
             return bp.breakpointId !== breakpointId;
         });
-        return await this._Debugger.removeBreakpoint({ breakpointId: breakpointId });
+        
+        const removeBr = { breakpointId: breakpointId };
+        
+        return await this._Debugger.removeBreakpoint(removeBr);
     }
 
     async continue() {
