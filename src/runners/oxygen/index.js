@@ -21,6 +21,8 @@ import TestResult from '../../model/test-result';
 import Status from '../../model/status';
 import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
+import OxygenError from '../../errors/OxygenError';
+import ScriptError from '../../errors/ScriptError';
 import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
 
@@ -317,12 +319,24 @@ export default class OxygenRunner extends EventEmitter {
         }
         //this.emit('iteration:start', caseIteration);
         this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
-        let result = null;
-        try {
-            const caseResult = new TestCaseResult();
-            caseResult.name = caze.name;
-            caseResult.location = caze.path;
+        const caseResult = new TestCaseResult();
+        caseResult.name = caze.name;
+        caseResult.location = caze.path;
+        // try to initialize Oxygen and handle any possible error
+        try {            
             await (!this._worker.isOxygenInitialized && this._worker_InitOxygen());
+        }
+        catch (e) {
+            log.error('_worker_InitOxygen() thrown an error:', e);
+            caseResult.startTime = caseResult.endTime = oxutil.getTimeStamp();
+            caseResult.duration = 0;
+            caseResult.failure = errorHelper.getFailureFromError(e);
+            caseResult.status = Status.FAILED;
+            this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+            return caseResult;
+        }
+        // run the test in the worker process and handle any possible error
+        try {
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
             caseResult.endTime = oxutil.getTimeStamp();
@@ -340,13 +354,14 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.failure = error;
                 caseResult.status = Status.FAILED;
             }
-            result = caseResult;
         } catch (e) {
             log.error('_worker_Run() thrown an error:', e);
-        } finally {
-            this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, result);
-        }
-        return result;
+            caseResult.failure = errorHelper.getFailureFromError(e);
+            caseResult.status = Status.FAILED;
+            
+        } 
+        this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+        return caseResult;
     }
     
     async _worker_Run(suite, caze, suiteIteration, caseIteration, params) {
@@ -425,7 +440,14 @@ export default class OxygenRunner extends EventEmitter {
                 else if (_this._isRunning) {
                     promise = _this._whenTestCaseFinished;
                 }
-                const error = _this._workerProcLastError || new Error(`Worker process exited with code: ${exitCode}.`);
+                let error = _this._workerProcLastError || null;
+                if (exitCode == 134) {
+                    error = new ScriptError('Out of memory error. Make sure that you don\'t have any memory leaks in the test script.');
+                }
+                else if (!error) {
+                    error = new OxygenError(`Worker process exited with code: ${exitCode}.`);
+                }                
+                
                 promise && promise.reject(error);
                 _this._resetGlobalVariables();
             }
