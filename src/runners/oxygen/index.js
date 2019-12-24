@@ -22,7 +22,6 @@ import Status from '../../model/status';
 import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
 import OxygenError from '../../errors/OxygenError';
-import ScriptError from '../../errors/ScriptError';
 import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
 
@@ -442,7 +441,7 @@ export default class OxygenRunner extends EventEmitter {
                 }
                 let error = _this._workerProcLastError || null;
                 if (exitCode == 134) {
-                    error = new ScriptError('Out of memory error. Make sure that you don\'t have any memory leaks in the test script.');
+                    error = new OxygenError(errorHelper.errorCode.SCRIPT_ERROR, 'Out of memory error. Make sure that you don\'t have any memory leaks in the test script.');
                 }
                 else if (!error) {
                     error = new OxygenError(`Worker process exited with code: ${exitCode}.`);
