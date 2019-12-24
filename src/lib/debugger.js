@@ -265,7 +265,7 @@ export default class Debugger extends EventEmitter {
                                     
                             //         if(scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0){
                             //             scriptSourceSplit.map((scriptSourceItem, idx) => {
-                            //                 console.log((idx+1) + ' ' + scriptSourceItem);
+                            //                 console.log((idx) + ' ' + scriptSourceItem);
                             //             });
                             //         }                                    
                             //     });
@@ -370,20 +370,30 @@ export default class Debugger extends EventEmitter {
      * @param {Integer} Line number.
      */
     async setBreakpoint(scriptPath, lineNumber) {
+
+        let err = null;
+
         let breakpoint = await this._Debugger.setBreakpointByUrl({
             url: scriptPath,
-            lineNumber: lineNumber,
+            lineNumber: lineNumber-1,
             columnNumber: 0
         }).catch(e => {
+            err = e;
             // ignore error when trying to set an laready existing breakpoint
             if (!e.response || e.response.message !== 'Breakpoint at specified location already exists.') {
                 throw e;
             }
         });
 
-        await this.setBreakpointsActive(true);
-        this._breakpoints.push(breakpoint);
+        if(err){
+            // ignore
+        } else {
+            await this.setBreakpointsActive(true);
+            this._breakpoints.push(breakpoint);
+        }
+        
         return breakpoint;
+
     }
 
     async setBreakpointsActive(active) {
