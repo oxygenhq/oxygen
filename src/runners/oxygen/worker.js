@@ -14,7 +14,7 @@
 require('@babel/register')({
     // Since babel ignores all files outside the cwd, it does not compile sibling packages
     // So rewrite the ignore list to only include node_modules
-    extends: __dirname+'/../../../.babelrc',
+    // extends: __dirname+'/../../../.babelrc',
     ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
     retainLines: true,
     overrides: [{
