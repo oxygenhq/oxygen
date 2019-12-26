@@ -218,7 +218,7 @@ export default class WebModule extends WebDriverModule {
     async dispose() {
         if (this.driver && this.isInitialized) {
             try {
-                await this.driver.deleteSession();
+                // await this.driver.deleteSession();
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }

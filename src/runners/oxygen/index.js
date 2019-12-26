@@ -323,7 +323,7 @@ export default class OxygenRunner extends EventEmitter {
         caseResult.location = caze.path;
         // try to initialize Oxygen and handle any possible error
         try {            
-            await (!this._worker.isOxygenInitialized && this._worker_InitOxygen());
+            await (!(this._worker && this._worker.isOxygenInitialized) && this._worker_InitOxygen());
         }
         catch (e) {
             log.error('_worker_InitOxygen() thrown an error:', e);
@@ -339,7 +339,7 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
             caseResult.endTime = oxutil.getTimeStamp();
-            await (this._worker.isOxygenInitialized && this._worker_DisposeModules());
+            await (this._worker && this._worker.isOxygenInitialized && this._worker_DisposeModules());
             caseResult.duration = caseResult.endTime - caseResult.startTime;
             caseResult.context = context;
             caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
