@@ -54,8 +54,6 @@ export default class WorkerProcess extends EventEmitter {
         this._hookChildProcEvents();
         // if we are in debug mode, initialize debugger and only then start modules 'init'
         if (this._debugMode) {
-            // delay debugger initialization, as debugger port might not be open yet right after the process fork
-            await snooze(500);
             await this._initializeDebugger();
         }
         this._isRunning = true;

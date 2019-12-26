@@ -19,8 +19,8 @@ const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
 
-const CONNECT_RETRIES = 4;
-const CONNECT_SNOOZE_INTERVAL_MULT = 3;
+const CONNECT_RETRIES = 5;
+const CONNECT_SNOOZE_INTERVAL_MULT = 2;
 const MAX_DEPTH = 5;
 let maxFindedDepth = 0;
 
@@ -351,7 +351,6 @@ export default class Debugger extends EventEmitter {
                 break;
             } 
             catch(e) {
-                log.error('Failed to connect to the debugger: ', e);
                 lastError = e;
             }
             await snooze(snoozeTime);
@@ -359,6 +358,7 @@ export default class Debugger extends EventEmitter {
         }
 
         if (lastError) {
+            log.error('Failed to connect to the debugger: ', lastError);
             throw lastError;
         }
 
