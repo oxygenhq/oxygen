@@ -1,5 +1,60 @@
 # CHANGELOG
 
+## v1.0.0 (2020-xx-xx)
+
+#### :tada: New Feature
+* Significant improvements to test structure organization, allowing to define all configurations using a project file.
+* Improvements to the script development flexibility:  
+  - Automation tests can be written using ES6.
+  - Tests can hook into exposed `before` and `after` hooks for `test`, `suite`, `case`, `command` actions.
+* Improvements to Oxygen extendability:  
+  - Internal modules can be written using ES6 and can be developed in both synchronous and asynchronous (using `async/await` operators) manner.  
+  - Modules can contain submodules. E.g. `web.network.assertUrl`.
+  - Added support for Service. Services are add-ons which can be developed for providing additional custom logic for tests.
+* Support for Applitools for visual UI testing.
+* Support for native Windows applications (via WinApiDriver) automation - WinForms, WPF, UWP, Classic Win32.
+* Support for writing tests using Cucumber.
+* Support for environment variables.
+* Project level Page Object support.
+* Support for running multiple Suites as a part of a single test.
+* Improved debugging support when using breakpoints in external files.
+* Support for Node.js 13
+
+#### :boom: Breaking Change
+* `ox.*` is no longer available. `ox.modules.*` should be used instead. All available modules `web`, `mob`, etc are also exposed globally now and can be used directly.
+* `return` is no longer supported for terminating user scripts.
+* Suite configuration JSONs are no longer supported. Project level configuration files should be used instead.
+
+#### :nail_care: Polish
+* Improved error handling. Errors now contain proper stacktraces and provide more details about where in user script the error has occurred.
+* More errors from underlying frameworks are handled and processed.
+* JUnit XML reports improved to include more details about test failures.
+
+#### :book: Documentation
+* Documentation has been migrated to a new infrastructure providing better user experience. Documentation has been, as well, improved with more topics.
+
+#### :house: Internal
+* Webdriverio updated to v5.18.0
+* Updated pre-bundled Chrome drivers.
+
+## v1.0.0-beta.14 (2019-12-16)
+
+#### :tada: New Feature
+* Take screenshots on `assert.*` command failures.
+
+## v1.0.0-beta.13 (2019-12-15)
+
+#### :beetle: Bug Fix
+* Generate proper results on child process crashes.
+
+## v1.0.0-beta.12 (2019-12-15)
+
+#### :tada: New Feature
+* Automatically set web context for mobile web tests.
+
+#### :house: Internal
+* Improve debugger initialization.
+
 ## v1.0.0-beta.8 (2019-12-09)
 
 #### :house: Internal
