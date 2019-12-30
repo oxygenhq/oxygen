@@ -136,6 +136,9 @@ export default class Oxygen extends OxygenEvents {
 
     set context(ctx) {
         this.ctx = ctx;
+        if (global.ox) {
+            global.ox.ctx = ctx;
+        }
     }
 
     get results() {

@@ -164,6 +164,7 @@ async function run(scriptName, scriptPath, context) {
         return;
     }
     _oxygen.context = context;
+    updateContextGlobally(context);
     _steps = [];
     if (_cwd && !path.isAbsolute(scriptPath)) {
         scriptPath = path.resolve(_cwd, scriptPath);
@@ -240,12 +241,24 @@ function processSend(msg) {
 function makeModulesGlobal(options) {
     if (typeof options.makeModulesGlobal === 'undefined' || options.makeModulesGlobal === true) {
         if (global.ox && global.ox.modules) {
+            // expose modules as global variables
             for (let moduleName in global.ox.modules) {
                 if (!global[moduleName]) {
                     global[moduleName] = global.ox.modules[moduleName];
                 }
             }
+            // expose "ctx", "params" and "env" as global variables
+            global.params = global.ox.ctx.params;
+            global.env = global.ox.ctx.env;
+            global.ctx = global.ox.ctx;
         }
         
+    }
+}
+function updateContextGlobally(context) {
+    if (global.ox) {
+        // update "params" and "env" in "ox" global variable
+        global.params = context.params;
+        global.env = context.env;
     }
 }
