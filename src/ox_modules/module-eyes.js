@@ -64,8 +64,18 @@ export default class ApplitoolsModule extends OxygenModule {
         const driver = module.getDriver();
         this._eyes = new Eyes();
         this._eyes.setApiKey(this._apiKey);
-        const appName = this.options.appName || this.options.name || 'Oxygen Test';
-        await driver.call(() => this._eyes.open(driver, this.options.name, appName, this._viewport));
+
+        let appName = 'Oxygen App';
+        let testName = 'Oxygen Test';
+
+        if(this.options.appName && typeof this.options.appName === 'string'){
+            appName = this.options.appName;
+        }
+        if(this.options.name && typeof this.options.name === 'string'){
+            testName = this.options.name;
+        }
+        
+        await driver.call(() => this._eyes.open(driver, appName, testName, this._viewport));
         super.init();
     }
     /**
