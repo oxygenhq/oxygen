@@ -243,7 +243,7 @@ function load(file, loadDescription) {
 }
 
 function generate(module, moduleName) {
-    var outFile = 'apidocs/api-' + moduleName + '.md';
+    var outFile = 'apidocs/module-' + moduleName + '.md';
     
     try {
         fs.unlinkSync(outFile);
