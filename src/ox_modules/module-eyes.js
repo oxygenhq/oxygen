@@ -59,12 +59,12 @@ export default class ApplitoolsModule extends OxygenModule {
             }
         }
         if (typeof module.getDriver !== 'function') {
-            throw new ModuleError(`The module "${module}" does not have "getDriver" function implemented.`);
+            throw new ModuleError(`The module "${module.name}" does not have "getDriver" function implemented.`);
         }
         const driver = module.getDriver();
         this._eyes = new Eyes();
         this._eyes.setApiKey(this._apiKey);
-        const appName = this.options.appName || this.options.name;
+        const appName = this.options.appName || this.options.name || 'Oxygen Test';
         await driver.call(() => this._eyes.open(driver, this.options.name, appName, this._viewport));
         super.init();
     }
