@@ -13,6 +13,7 @@
 
 import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
+const path = require('path');
 var pdfreader = require('pdfreader');
 var deasync = require('deasync');
 
@@ -52,14 +53,14 @@ function checkRows(searchStr, rows) {
     return result;
 }
 
-function assertion(path, text, pageNum = 0){
+function assertion(pdfFilePath, text, pageNum = 0){
     let rows = {}; // indexed by y-position
     let currentPage = 1;
 
     return new Promise(function(resolve, reject) {
         const searchStr = text.replace(/\s/g, '');
 
-        new pdfreader.PdfReader().parseFileItems(path, function(
+        new pdfreader.PdfReader().parseFileItems(pdfFilePath, function(
             err,
             item
         ) {
@@ -128,7 +129,7 @@ function assertion(path, text, pageNum = 0){
     });
 }
 
-function count(path, text, pageNum = 0){
+function count(pdfFilePath, text, pageNum = 0){
     let rows = {}; // indexed by y-position
     let currentPage = 1;
     let totalResult = 0;
@@ -136,7 +137,7 @@ function count(path, text, pageNum = 0){
     return new Promise(function(resolve, reject) {
         const searchStr = text.replace(/\s/g, '');
 
-        new pdfreader.PdfReader().parseFileItems(path, function(
+        new pdfreader.PdfReader().parseFileItems(pdfFilePath, function(
             err,
             item
         ) {
@@ -232,7 +233,9 @@ function validateMessage(arg, name) {
     }
 }
 
-module.exports = function() {
+module.exports = function(options, context, rs, logger, modules, services) {
+    this.options = options;
+
     module.isInitialized = function() {
         return true;
     };
@@ -240,21 +243,23 @@ module.exports = function() {
     /**
      * @summary Asserts that text is present in a PDF file
      * @function assert
-     * @param {String} path - Absolute path to the PDF file.
+     * @param {String} pdfFilePath - Absolute path to the PDF file.
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.assert = function(path, text, pageNum = null, message = null) {
-        validateString(path, 'path');
+    module.assert = function(pdfFilePath, text, pageNum = null, message = null) {
+        validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
-        
+        // resolve relative file path
+        pdfFilePath = path.resolve(this.options.cwd, pdfFilePath);
+
         try {
             let actual = null;
             const expected = true;
-            assertion(path, text, pageNum).then(
+            assertion(pdfFilePath, text, pageNum).then(
                 result => {
                     actual = result;
                 },
@@ -290,13 +295,13 @@ module.exports = function() {
     /**
      * @summary Asserts that text is not present in a PDF file
      * @function assertNot
-     * @param {String} path - Absolute path to the pdf file.
+     * @param {String} pdfFilePath - Absolute path to the pdf file.
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.assertNot = function(path, text, pageNum = null, message = null) {
-        validateString(path, 'path');
+    module.assertNot = function(pdfFilePath, text, pageNum = null, message = null) {
+        validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
@@ -304,7 +309,7 @@ module.exports = function() {
         try {
             let actual = null;
             const expected = false;
-            assertion(path, text, pageNum).then(
+            assertion(pdfFilePath, text, pageNum).then(
                 result => {
                     actual = result;
                 },
@@ -340,18 +345,18 @@ module.exports = function() {
     /**
      * @summary Count the number of times specified text is present in a PDF file.
      * @function count
-     * @param {String} path - Absolute path to the pdf file.
+     * @param {String} pdfFilePath - Absolute path to the pdf file.
      * @param {String} text - Text to count.
      * @param {Number=} pageNum - Page number.
      * @return {Number} Number of times the specified text was found.
      */
-    module.count = function(path, text, pageNum = null) {
-        validateString(path, 'path');
+    module.count = function(pdfFilePath, text, pageNum = null) {
+        validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
 
         let actual = null;
-        count(path, text, pageNum, true).then(
+        count(pdfFilePath, text, pageNum, true).then(
             result => {
                 actual = result;
             },
