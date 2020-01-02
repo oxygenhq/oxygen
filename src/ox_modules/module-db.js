@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -9,6 +9,7 @@
 
 /**
  * Provides methods for working with Data Bases through ODBC.
+ * NOTE: before using this module, make sure to install `unixodbc` (`brew install unixodbc`) on Mac and Linux.
  */
 
 // ignore this module if odbc wasn't installed
