@@ -4,10 +4,12 @@ import oxutil from './util';
 
 export const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 export const OXYGEN_ENV_FILE_NAME = 'oxygen.env';
+export const OXYGEN_PAGE_OBJECT_FILE_NAME = 'oxygen.po';
 
 export async function generateTestOptions(config, argv) {
     const options = { ...config };
     options.env = loadEnvironmentVariables(config, argv);
+    options.po = getPageObjectFilePath(config, argv);
     options.suites = await loadSuites(config, argv);
     return options;
 }
@@ -34,19 +36,28 @@ export async function loadSuites(config, argv) {
             const suitesFolder = path.join(target.cwd, 'suites');
             if (path.existsSync(suitesFolder)) {
                 suites = loadSuitesFromFolder(suitesFolder);
-                // filter out suites if '--suites' command line argument was specified
-                if (argv.suites && typeof argv.suites === 'string') {
-                    const selectedSuiteNames = argv.suites.split(',');
-                    suites = suites.filter(x => selectedSuiteNames.contains(x.name));
-                }
             }
         }
     }
+    // filter out suites if '--suites' command line argument was specified
+    if (argv.suites && typeof argv.suites === 'string') {
+        const selectedSuiteNames = argv.suites.split(',');
+        suites = suites.filter(x => selectedSuiteNames.includes(x.name));
+    }
+    
     return suites;
 }
 
 export function loadSuitesFromFolder(folderPath) {
     throw new Error('Not implemented.');
+}
+
+export function getPageObjectFilePath(config, argv = {}) {
+    const target = config.target;
+    const poFileName = argv.po || `${OXYGEN_PAGE_OBJECT_FILE_NAME}.js`;
+    const cwd = target.cwd || process.cwd();
+    const poFilePath = path.resolve(cwd, poFileName);
+    return fs.existsSync(poFilePath) ? poFilePath : null;
 }
 
 export function loadEnvironmentVariables(config, argv) {
@@ -119,7 +130,7 @@ export function getConfigurations(target, argv) {
         name = target.name !== OXYGEN_CONFIG_FILE_NAME ? target.name : target.baseName;
     }
 
-    return { name: name, ...startupOpts, ...moreOpts };
+    return { ...startupOpts, ...moreOpts, name: name };
 }
 
 export function processTargetPath(targetPath) {

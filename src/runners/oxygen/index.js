@@ -54,19 +54,20 @@ export default class OxygenRunner extends EventEmitter {
     /*********************************
      * Public methods
      *********************************/
-    async init(options, caps, reporter) {
+    async init(options, caps = {}, reporter) {
+        // make sure at least one test suite is defined
+        if (!options.suites) {
+            throw new Error('Initialization failed - no test suites are defined. You must define "suites" property in Oxygen options.');
+        }
+
         this._options = options;
         this._cwd = this._options.cwd || process.cwd();
         this._reporter = reporter;
         this._isInitialized = true;
 
-        this._env = _.clone(options.envVars) || {};   // assign environment variables for later use
-        this._caps = _.clone(caps) || {}; // assign caps for later use
-        this._suites = _.clone(options.suites) || { cases: [] };
-        // make sure at least one test suite is defined
-        if (!options.suites) {
-            throw new Error('Initialization failed - no test suites are defined. You must define "suites" property in Oxygen options.');
-        }
+        this._env = { ...(options.env || options.envVars || {}) };   // assign environment variables for later use
+        this._caps = { ...caps }; // assign caps for later use
+        this._suites = [ ...options.suites ];
         // set up debugging options
         // TODO: this needs to be reimplemented. Everything related to debugging (initializeDebugger) should be removed from Oxygen
         // and added to IDE instead. I.e. the only thing oxygen should do is to launch the child process with the debugging switch.
@@ -390,7 +391,8 @@ export default class OxygenRunner extends EventEmitter {
                         iteration: suiteIteration
                     }
                 }
-            }
+            },
+            poFile: this._options.po || null
         });
         return this._whenTestCaseFinished.promise;
     }

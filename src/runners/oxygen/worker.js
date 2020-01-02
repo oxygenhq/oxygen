@@ -138,7 +138,7 @@ process.on('message', async function (msg) {
     if (msg.type === 'init') {
         await init(msg.options, msg.caps);
     } else if (msg.type === 'run') {
-        run(msg.scriptName, msg.scriptPath, msg.context);
+        run(msg.scriptName, msg.scriptPath, msg.context, msg.poFile || null);
     } else if (msg.type === 'dispose') {
         dispose();
     } else if (msg.type === 'dispose-modules') {
@@ -157,14 +157,15 @@ async function runFnInFiberContext (fn) {
     }).run());
 }
 
-async function run(scriptName, scriptPath, context) {
+async function run(scriptName, scriptPath, context, poPath = null) {
     // assign up to date context to Oxygen Core to reflect new parameters and other context data
     if (!_oxygen) {
         processSend({ event: 'run:failed', ctx: context, resultStore: null, err: errorHelper.getFailureFromError(new Error('_oxygen is null')) });
         return;
     }
-    _oxygen.context = context;
+    _oxygen.context = context;    
     updateContextGlobally(context);
+    loadAndSetPageObject(poPath);
     _steps = [];
     if (_cwd && !path.isAbsolute(scriptPath)) {
         scriptPath = path.resolve(_cwd, scriptPath);
@@ -260,5 +261,24 @@ function updateContextGlobally(context) {
         // update "params" and "env" in "ox" global variable
         global.params = context.params;
         global.env = context.env;
+    }
+}
+function loadAndSetPageObject(poPath) {
+    if (!poPath) {
+        global.po = {};
+        return;
+    }
+    try {
+        const po = require(poPath);
+        if (_oxygen) {
+            _oxygen.repository = po;
+        }
+        if (global.ox) {
+            global.po = po;
+        }
+    }
+    catch (e) {
+        // ignore
+        global.po = {};
     }
 }

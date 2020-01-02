@@ -51,6 +51,7 @@ const DEFAULT_OPTS = {
 };
 const MODULE_NAME_MATCH_REGEX = /^module-(.+?)\.js$/;
 const SERVICE_NAME_MATCH_REGEX = /^service-(.+?)\.js$/;
+const DO_NOT_WRAP_METHODS = ['driver', 'getDriver'];
 
 const DEFAULT_CTX = {
     params: {},
@@ -72,6 +73,7 @@ export default class Oxygen extends OxygenEvents {
         this.ctx = { ...DEFAULT_CTX };
         this.modules = {};
         this.services = {};
+        this.repo = {};
         this.capabilities = null;
         this.opts = null;
         this.oxBaseDir = path.join(__dirname, '../');
@@ -138,6 +140,17 @@ export default class Oxygen extends OxygenEvents {
         this.ctx = ctx;
         if (global.ox) {
             global.ox.ctx = ctx;
+        }
+    }
+
+    get repository() {
+        return this.repo;
+    }
+
+    set repository(repo) {
+        this.repo = repo;
+        if (global.ox) {
+            global.ox.repo = repo;
         }
     }
 
@@ -299,7 +312,7 @@ export default class Oxygen extends OxygenEvents {
                 this.logger.debug(e.stack);
             }
         }
-        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, moduleLogger, this.services);
+        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, moduleLogger, this.modules, this.services);
         if (!mod.name) {
             mod.name = moduleName;
         }
@@ -328,24 +341,25 @@ export default class Oxygen extends OxygenEvents {
         const _this = this;
         let moduleMethods = Object.keys(module);        
         if (!moduleMethods.some(x => x=== 'exports')) {
-            moduleMethods = Object.getOwnPropertyNames(Object.getPrototypeOf(module));
+            moduleMethods = this._getAllPropertyNames(module);
         }
         for (let methodName of moduleMethods) {
             const method = module[methodName];
+            // ignore any module property that is not a function or a OxygenSubModule
             if ((!(method instanceof Function) && !(method instanceof OxygenSubModule) && typeof method !== 'function') || methodName === 'exports' || methodName === '_compile') {
                 continue;
             }
-            /*if (typeof module[methodName] !== 'function' || methodName === 'exports') {
-                continue;
-            }*/
-            // FIXME: all methods both public and internal should have identical error and results handling
+            // map and wrap sub-module methods (recursive call to _wrapModule)
             if (method instanceof OxygenSubModule) {
                 wrapper[methodName] = this._wrapModule(`${name}.${methodName}`, method);
             }
-            else if (methodName === 'driver') {
-                wrapper[methodName] = module[methodName];
+            // do not wrap methods
+            else if (DO_NOT_WRAP_METHODS.includes(methodName)) {
+                // === 'driver' || methodName === 'getDriver'
+                wrapper[methodName] = module[methodName].bind(module);
             }
-            else if (methodName.indexOf('_') === 0) {
+            // private methods and event handlers
+            else if (methodName.indexOf('_') === 0 || methodName.indexOf('on') === 0) {
                 wrapper[methodName] = function() {
                     var args = Array.prototype.slice.call(arguments);
                         
@@ -719,5 +733,19 @@ export default class Oxygen extends OxygenEvents {
             }
         }
         return arg;        
+    }
+    _getAllPropertyNames( obj ) {
+        const props = [];
+    
+        do {
+            Object.getOwnPropertyNames( obj ).forEach(function ( prop ) {
+                if ( props.indexOf( prop ) === -1 ) {
+                    props.push( prop );
+                }
+            });
+            // eslint-disable-next-line no-cond-assign
+        } while ( obj = Object.getPrototypeOf( obj ) );
+    
+        return props;
     }
 }
