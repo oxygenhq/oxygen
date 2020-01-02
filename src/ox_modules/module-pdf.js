@@ -234,7 +234,6 @@ function validateMessage(arg, name) {
 }
 
 module.exports = function(options, context, rs, logger, modules, services) {
-    this.options = options;
 
     module.isInitialized = function() {
         return true;
@@ -253,8 +252,32 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
-        // resolve relative file path
-        pdfFilePath = path.resolve(this.options.cwd, pdfFilePath);
+
+        pdfFilePath = pdfFilePath.trim(); 
+
+        pdfFilePath = pdfFilePath.split('').map((item, idx) => {
+            return ![8206, 8296].includes(pdfFilePath.charCodeAt(idx)) ? item : null;
+        }).join('');
+
+        if(pdfFilePath[0] === '~'){
+            // resolve relative file path
+            pdfFilePath = path.join(process.env.HOME, pdfFilePath.slice(1));
+        } else {
+            let cwd = process.cwd();
+    
+            if(options && options.cwd){
+                cwd = options.cwd;
+            }
+    
+            if(options && options.rootPath){
+                cwd = options.rootPath;
+            }
+    
+            cwd = cwd.trim(); 
+    
+            // resolve relative file path
+            pdfFilePath = path.resolve(cwd, pdfFilePath);
+        }
 
         try {
             let actual = null;
