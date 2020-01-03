@@ -26,9 +26,10 @@ module.exports = function(locator, timeout) {
         var el = this.helpers.getElement(locator, false, timeout);
 
         // if the element is outside the viewport - try to scroll it into the view first
+        // on evetyhing except IE, because it doesn't work on IE
         // taken from https://github.com/webdriverio/webdriverio/blob/master/packages/webdriverio/src/scripts/isElementClickable.js
         // TODO: once WDIO updated to newer version which has isClickable, should simply use isClickable
-        if (!el.isDisplayedInViewport()) {
+        if (this.caps.browserName !== 'internet explorer' && !el.isDisplayedInViewport()) {
             el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
             if (!el.isDisplayedInViewport()) {
                 el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
