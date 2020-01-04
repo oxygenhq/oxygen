@@ -110,10 +110,10 @@ async function dispose() {
     }
 }
 
-async function disposeModules() {
+async function disposeModules(status = null) {
     if (_oxygen) {
         try {
-            await _oxygen.disposeModules();
+            await _oxygen.disposeModules(status);
             processSend({ event: 'dispose-modules:success' });
         }
         catch (e) {
@@ -142,7 +142,7 @@ process.on('message', async function (msg) {
     } else if (msg.type === 'dispose') {
         dispose();
     } else if (msg.type === 'dispose-modules') {
-        disposeModules();
+        disposeModules(msg.status || null);
     }
 });
 

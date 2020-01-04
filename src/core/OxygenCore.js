@@ -102,9 +102,9 @@ export default class Oxygen extends OxygenEvents {
         this.isInitialized = true;
     }
 
-    async disposeModules() {
+    async disposeModules(status = null) {
         try {
-            await this._disposeModules();
+            await this._disposeModules(status);
         }
         catch (e) {
             console.error('Failed to dispose modules: ', e);
@@ -492,6 +492,11 @@ export default class Oxygen extends OxygenEvents {
                     deasync.loopWhile(() => !done && !error);
                 }
                 catch (e) {
+
+                    if(e && e.message && typeof e.message === 'string' && e.message.includes('readyState')){
+                        return undefined;
+                    }
+
                     // ignore this error as it usually happens 
                     // when Oxygen is disposed and process is being killed
                     this.logger.error('deasync.loopWhile() failed:', e);
@@ -602,7 +607,7 @@ export default class Oxygen extends OxygenEvents {
         return true;
     }
 
-    async _disposeModules() {
+    async _disposeModules(status = null) {
         if (!this.modules || typeof this.modules !== 'object') {
             return false;
         }
@@ -610,7 +615,7 @@ export default class Oxygen extends OxygenEvents {
             const mod = this.modules[key];
             if (mod.dispose) {      
                 try {
-                    await mod.dispose();
+                    await mod.dispose(status);
                 }    
                 catch (e) {
                     // ignore module disposal error 

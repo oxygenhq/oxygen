@@ -215,10 +215,14 @@ export default class WebModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
-    async dispose() {
+    async dispose(status) {
         if (this.driver && this.isInitialized) {
             try {
-                // await this.driver.deleteSession();
+                if(!status){
+                    // ignore
+                } else if(status && typeof status === 'string' && status.toUpperCase() === 'PASSED'){
+                    await this.driver.deleteSession();
+                }
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }

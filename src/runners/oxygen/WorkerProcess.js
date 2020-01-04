@@ -60,7 +60,7 @@ export default class WorkerProcess extends EventEmitter {
         return this._childProc;
     }
 
-    async stop() {
+    async stop(status = null) {
         if (this._childProc) {
             this._childProc.kill('SIGINT');
             await snooze(100);
@@ -94,11 +94,12 @@ export default class WorkerProcess extends EventEmitter {
         }
     }
 
-    async disposeModules() {
+    async disposeModules(status = null) {
         if(this._childProc){
                 
             this._childProc.send({
-                type: 'dispose-modules'
+                type: 'dispose-modules',
+                status: status
             });
         }
 

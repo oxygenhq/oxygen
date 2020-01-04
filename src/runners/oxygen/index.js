@@ -79,12 +79,12 @@ export default class OxygenRunner extends EventEmitter {
         await this._worker_InitOxygen();
     }
 
-    async dispose() {
+    async dispose(status = null) {
         this._isDisposing = true;
         try {
             if(!this._testKilled && this._worker && this._worker.isRunning){
                 await this._worker_DisposeOxygen();
-                await this._worker.stop();
+                await this._worker.stop(status);
             }
         } catch (e) {
             // ignore errors during the dispose
@@ -123,10 +123,10 @@ export default class OxygenRunner extends EventEmitter {
         return result;
     }
 
-    async kill() {
+    async kill(status = null) {
         this._testKilled = true;
         if (this._worker) {
-            await this._worker.stop();
+            await this._worker.stop(status);
         }
         this._resetGlobalVariables();
     }
@@ -340,7 +340,6 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.startTime = oxutil.getTimeStamp();
             const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
             caseResult.endTime = oxutil.getTimeStamp();
-            await (this._worker && this._worker.isOxygenInitialized && this._worker_DisposeModules());
             caseResult.duration = caseResult.endTime - caseResult.startTime;
             caseResult.context = context;
             caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
@@ -354,6 +353,7 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.failure = error;
                 caseResult.status = Status.FAILED;
             }
+            await (this._worker && this._worker.isOxygenInitialized && this._worker_DisposeModules(caseResult.status));
         } catch (e) {
             log.error('_worker_Run() thrown an error:', e);
             caseResult.failure = errorHelper.getFailureFromError(e);
@@ -407,9 +407,9 @@ export default class OxygenRunner extends EventEmitter {
         }
     }
 
-    async _worker_DisposeModules() {
+    async _worker_DisposeModules(status = null) {
         if(this._worker && this._worker.disposeModules){
-            await this._worker.disposeModules();
+            await this._worker.disposeModules(status);
         }
     }
 
