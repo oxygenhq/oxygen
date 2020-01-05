@@ -220,8 +220,15 @@ export default class WorkerProcess extends EventEmitter {
                 whenDebuggerReady.reject(err);
             }
         });
-        this._debugger.on('break', function(breakpoint, variables) {
-            this.emit('debugger:break', Object.assign(breakpoint, { pid: this._pid }), variables);
+        this._debugger.on('break', function(breakpointData) {
+            this.emit('debugger:break', breakpointData);
+        });
+        this._debugger.on('breakError', async function(breakError) {
+
+            const error = new Error(breakError);
+
+            _this.emit('error', Object.assign({ error : error }, { pid: this._pid }));
+            _this.emit('exit', { pid: this._pid, exitCode: 1 });
         });
 
         try{

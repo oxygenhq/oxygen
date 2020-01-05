@@ -157,17 +157,16 @@ export default class OxygenRunner extends EventEmitter {
 
                 const tsBreakpoints = this._worker.debugger.getBreakpoints(filePath);
 
-                // add new breakpoints
-                for (var userSetBp of breakpoints) {
-                    if (!tsBreakpoints.includes(userSetBp)) {
-                        promises.push(this._worker.debugger.setBreakpoint(filePath, userSetBp));
-                    }
-                }
-
                 // remove deleted breakpoints
                 for (var actualCurrentBp of tsBreakpoints) {
                     if (!breakpoints.includes(actualCurrentBp)) {
                         promises.push(this._worker.debugger.removeBreakpointByValue(filePath, actualCurrentBp));
+                    }
+                }
+                // add new breakpoints
+                for (var userSetBp of breakpoints) {
+                    if (!tsBreakpoints.includes(userSetBp)) {
+                        promises.push(this._worker.debugger.setBreakpoint(filePath, userSetBp));
                     }
                 }
 
@@ -502,25 +501,8 @@ export default class OxygenRunner extends EventEmitter {
             }
         });
 
-        this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpoint, variables) => {
-            // assume we always send breakpoint of the top call frame
-            if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
-                let breakpointData = null;
-                // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
-                if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
-                    breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
-                }
-                // otherwise, get the line from breakpoint.callFrames[0] object (but then we won't have file path, but scriptId instead)
-                else {
-                    breakpointData = breakpoint.callFrames[0].location;
-                }
-
-                if(variables){
-                    breakpointData.variables = variables;
-                }
-                
-                _this.emit('breakpoint', breakpointData);
-            }
+        this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {
+            _this.emit('breakpoint', breakpointData);
         });
     }
 
@@ -593,35 +575,6 @@ export default class OxygenRunner extends EventEmitter {
         this.emit('test-end', result);
     }
 
-}
-
-function extractBreakpointData(bpStr) {
-    if (!bpStr || typeof bpStr !== 'string') {
-        return null;
-    }
-    const parts = bpStr.split(':');
-    try {
-        
-        let fileName;
-        let lineNumber;
-
-        if (process.platform === 'win32') { // path may contain a Drive letter on win32
-            fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-            lineNumber = parseInt(parts[1]);
-        } else {
-            fileName = parts[parts.length-1];
-            lineNumber = parseInt(parts[1]);
-        }
-    
-        return {
-            fileName: fileName,
-            lineNumber: lineNumber
-        };
-
-    } catch (e) {
-        log.error(`Failed to extract breakpoint data: ${bpStr}`);
-        return null;
-    }
 }
 
 export { ParameterManager };
