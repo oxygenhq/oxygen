@@ -39,6 +39,15 @@ const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
 const { LEVELS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
 
+const DUMMY_HOOKS = {
+    beforeTest: () => {},
+    beforeSuite: () => {},
+    beforeCase: () => {},
+    afterTest: () => {},
+    afterSuite: () => {},
+    afterCase: () => {},
+};
+
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
 
@@ -72,13 +81,13 @@ function stringify(obj) {
 let _oxygen = null;
 let _opts = {};
 let _cwd = null;
-let _hooks = null;
+let _userHooks = null;
 let _steps = null;
 
 async function init(options, caps) {
     _opts = options;
     _cwd = _opts.cwd || process.cwd();
-    _hooks = options.hooks || {};
+    _userHooks = loadUserHooks(options);
     if (!_oxygen) {
         try {
             _oxygen = new Oxygen();
@@ -94,7 +103,6 @@ async function init(options, caps) {
             processSend({ event: 'init:failed', err: { message: e.message, stack: e.stack } });
         }
     }
-    console.log('hooks:', _hooks);
 }
 
 async function dispose() {
@@ -142,8 +150,8 @@ process.on('message', async function (msg) {
         await init(msg.options, msg.caps);
     } else if (msg.type === 'run') {
         run(msg.scriptName, msg.scriptPath, msg.context, msg.poFile || null);
-    } else if (msg.type === 'call') {
-        callOxygenMethod(msg.method, msg.args, msg.callId);
+    } else if (msg.type === 'hook') {
+        callUserHook(msg.method, msg.args, msg.callId);
     } else if (msg.type === 'dispose') {
         dispose();
     } else if (msg.type === 'dispose-modules') {
@@ -287,36 +295,48 @@ function loadAndSetPageObject(poPath) {
         global.po = {};
     }
 }
-async function callOxygenMethod(methodName, args, callId) {
+function loadUserHooks(options) {
+    let hooks = DUMMY_HOOKS;
+    if (options.target.name === 'oxygen.conf') {
+        try {
+            hooks = require(options.target.path).hooks || DUMMY_HOOKS;
+        }
+        catch (e) {
+            logger.error('Error loading user hooks:', e);
+        }
+    }
+    return hooks;
+}
+async function callUserHook(method, args, callId) {
     if (!_oxygen) {
         processSend({
-            type: 'call:success',
+            event: 'hook:success',
             callId: callId,
             retval: undefined
         });
     }
-    if (Object.prototype.hasOwnProperty.call(_oxygen, methodName)) {
+    if (Object.prototype.hasOwnProperty.call(_userHooks, method)) {
         try {
-            const retval = await _oxygen[methodName].call(_oxygen, args);
+            const retval = await _userHooks[method].apply(_oxygen, args);
             processSend({
-                type: 'call:success',
+                event: 'hook:success',
                 callId: callId,
                 retval: retval
             });
         }
         catch (e) {
             processSend({
-                type: 'call:failed',
+                event: 'hook:failed',
                 callId: callId,
-                err: e
+                err: e.toString()
             });
         }        
     }
     else {
         processSend({
-            type: 'call:failed',
+            type: 'hook:failed',
             callId: callId,
-            err: new Error(`No method exists: ${methodName}`)
+            err: new Error(`Hook does not exist: ${method}`)
         });
     }
 }

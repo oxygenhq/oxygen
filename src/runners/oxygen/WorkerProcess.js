@@ -111,17 +111,18 @@ export default class WorkerProcess extends EventEmitter {
         return this._whenModulesDisposed.promise;
     }
 
-    async onBeforeTest(options, caps) {
+    async emitUserHook(hookName, hookArgs) {
         if(this._childProc){
             const callId = oxutil.generateUniqueId();
             this._childProc.send({
-                type: 'call',
-                method: 'onBeforeTest',
+                type: 'hook',
+                method: hookName,
                 callId: callId,
-                args: [options, caps]
+                args: hookArgs
             });
             this._calls[callId] = defer();
-        }
+            return this._calls[callId].promise;
+        }        
     }
 
     send(message) {
@@ -191,12 +192,12 @@ export default class WorkerProcess extends EventEmitter {
                     this._whenOxygenInitialized && this._whenOxygenInitialized.reject(msg.err);
                     this._isOxygenInitialized = false;
                     break;
-                case 'call:success':
-                    msg.callId && Object.prototype.hasOwnProperty.call(this, msg.callId) && this._calls[msg.callId].resolve(msg.retval);
+                case 'hook:success':
+                    msg.callId && Object.prototype.hasOwnProperty.call(this._calls, msg.callId) && this._calls[msg.callId].resolve(msg.retval);
                     delete this._calls[msg.callId];
                     break;
-                case 'call:failed':
-                    msg.callId && Object.prototype.hasOwnProperty.call(this, msg.callId) && this._calls[msg.callId].reject(msg.err);
+                case 'hook:failed':
+                    msg.callId && Object.prototype.hasOwnProperty.call(this._calls, msg.callId) && this._calls[msg.callId].reject(msg.err);
                     delete this._calls[msg.callId];
                     break;
             }

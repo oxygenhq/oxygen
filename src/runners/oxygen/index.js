@@ -231,6 +231,7 @@ export default class OxygenRunner extends EventEmitter {
             result.failure = errorHelper.getFailureFromError(error);
             result.status = Status.FAILED;
         }
+        await this._worker_callAfterTestHook(result);
         return result;
     }
 
@@ -255,6 +256,7 @@ export default class OxygenRunner extends EventEmitter {
             suiteResult.startTime = oxutil.getTimeStamp();
             suiteResult.iterationNum = suiteIteration;
             suiteResult.status = Status.PASSED;
+            await this._worker_callBeforeSuiteHook(suite);
             this._reporter.onSuiteStart(this._id, suite.uri, suiteResult);
             for (let caze of suite.cases) {
                 // ignore cases with missing mandatory 'path' property 
@@ -283,6 +285,7 @@ export default class OxygenRunner extends EventEmitter {
             }
             suiteResult.endTime = oxutil.getTimeStamp();
             suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
+            await this._worker_callAfterSuiteHook(suite, suiteResult);
             this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult);
         }
         return suiteIterations;
@@ -319,6 +322,7 @@ export default class OxygenRunner extends EventEmitter {
             }
         }
         //this.emit('iteration:start', caseIteration);
+        await this._worker_callBeforeCaseHook(caze);
         this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
         const caseResult = new TestCaseResult();
         caseResult.name = caze.name;
@@ -361,6 +365,7 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.status = Status.FAILED;
             
         } 
+        await this._worker_callAfterCaseHook(caze, caseResult);
         this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
         return caseResult;
     }
@@ -394,7 +399,6 @@ export default class OxygenRunner extends EventEmitter {
                 }
             },
             poFile: this._options.po || null,
-            hooks: this._options.hooks || {}
         });
         return this._whenTestCaseFinished.promise;
     }
@@ -416,7 +420,57 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_callBeforeTestHook() {
-        await (this._worker && this._worker.onBeforeTest(this._options, this._caps));
+        try {
+            await (this._worker && this._worker.emitUserHook('beforeTest', [this._id, this._options, this._caps]));
+        }
+        catch (e) {
+            log.error('"beforeTest" hook failed:', e);
+        }
+    }
+
+    async _worker_callBeforeSuiteHook(suite) {
+        try {
+            await (this._worker && this._worker.emitUserHook('beforeSuite', [suite]));
+        }
+        catch (e) {
+            log.error('"beforeSuite" hook failed:', e);
+        }
+    }
+
+    async _worker_callBeforeCaseHook(caze) {
+        try {
+            await (this._worker && this._worker.emitUserHook('beforeCase', [caze]));
+        }
+        catch (e) {
+            log.error('"beforeCase" hook failed:', e);
+        }
+    }
+
+    async _worker_callAfterTestHook(result) {
+        try {
+            await (this._worker && this._worker.emitUserHook('afterTest', [this._id, result]));
+        }
+        catch (e) {
+            log.error('"afterTest" hook failed:', e);
+        }
+    }
+
+    async _worker_callAfterSuiteHook(suite, result) {
+        try {
+            await (this._worker && this._worker.emitUserHook('afterSuite', [suite, result]));
+        }
+        catch (e) {
+            log.error('"afterSuite" hook failed:', e);
+        }
+    }
+
+    async _worker_callAfterCaseHook(caze, result) {
+        try {
+            await (this._worker && this._worker.emitUserHook('afterCase', [caze, result]));
+        }
+        catch (e) {
+            log.error('"afterCase" hook failed:', e);
+        }
     }
 
     async _startWorkerProcess() {

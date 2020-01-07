@@ -8,13 +8,10 @@
  * (at your option) any later version.
  */
 import * as cliutil from './cli-util';
-//import oxutil from './util';
 import Launcher from './launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
 
 process.on('SIGINT', handleSigInt);
-
-//const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 
 // parse command line arguments
 const argv = require('minimist')(process.argv.slice(2));
@@ -28,7 +25,6 @@ if (argv.v || argv.version) {
 }
 
 const targetFile = cliutil.processTargetPath(argv._[0]);
-
 if (targetFile == null) {
     printUsage();
     process.exit(1);
@@ -49,56 +45,7 @@ cliutil.generateTestOptions(config, argv).then(
         );
     }
 );
-/*
-async function prepareTestOptions(targetFile, config) {
-    // if the target is oxygen config file, merge its content with the default options
-    if (targetFile.name === OXYGEN_CONFIG_FILE_NAME && (targetFile.extension === '.js' || targetFile.extension === '.json')) {
-        const moreOpts = require(targetFile.path);
-        return validateAndCompleteConfigFile({ name: targetFile.name, ...config, ...moreOpts });
-    }
-    // validate that we got a file that Oxygen can support
-    else if (targetFile.extension !== '.js' && targetFile.extension !== '.json') {
-        console.error('Unsupported file format: ' + targetFile.extension);
-        process.exit(1);
-    }
-    let testsuite = {};
-    if (targetFile.extension === '.js') {
-        testsuite = await oxutil.generateTestSuiteFromJSFile(targetFile.path, config.parameters.file, config.parameters.mode);
-    }
-    else if (targetFile.extension === '.json') {
-        testsuite = await oxutil.generateTestSuiteFromJsonFile(targetFile.path, config.parameters.file, config.parameters.mode, config);
-    }
-    else {
-        console.error('Unsupported file extension: ' + targetFile.extension);
-        process.exit(1);
-    }
-    return {
-        ...config,
-        name: targetFile.name,
-        suites: [ testsuite ]
-    };
-}
 
-function validateAndCompleteConfigFile(config) {
-    if (!config.framework) {
-        config.framework = 'oxygen';
-    }
-    if (config.framework === 'oxygen' && !config.suites) {
-        console.error('Cannot start the test - no suites are specified.');
-        process.exit(1);
-    }
-    // add suite name to each suite if it has 'path' property only
-    if (config.framework === 'oxygen') {
-        for (let suite of config.suites) {
-            if (!suite.name) {
-                console.error('Suite definition is missing "name" property.');
-                process.exit(1);
-            }
-        }
-    }
-    return config;
-}
-*/
 async function prepareAndStartTheTest(options) {
     if (options.framework === 'oxygen' && (!options.suites || !Array.isArray(options.suites))) {
         throw new Error('Cannot start the test - no suites are specified.');
