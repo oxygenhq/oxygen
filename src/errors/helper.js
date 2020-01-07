@@ -90,15 +90,17 @@ module.exports = {
         };
     },
     getOxygenError: function(err, module, cmd, args) {
+        console.log('=== Error Details ===');
+        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+        console.log(util.inspect(err));
+        
         // return the error as is if it has been already processed
         if (err instanceof OxError) {
             return err;
         }
-        /*
-        console.log('=== Error Details ===');
-        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
-        console.log(util.inspect(err));
-        */
+        
+        
+        
         var errType = err.type || err.name || typeof err;
 
         // handle "Can't call <command> on element with selector <selector> because element wasn't found"

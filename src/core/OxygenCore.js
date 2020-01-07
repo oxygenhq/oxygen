@@ -457,8 +457,8 @@ export default class Oxygen extends OxygenEvents {
         const endTime = oxutil.getTimeStamp(); 
 
         if (publicMethod) {
-            const stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, startTime, endTime, retval, error);            
-            stepResult.location = cmdLocation;
+            const stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);            
+            //stepResult.location = cmdLocation;
             this.resultStore.steps.push(stepResult);
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
         }
@@ -537,11 +537,12 @@ export default class Oxygen extends OxygenEvents {
         return null;
     }
 
-    _getStepResult(module, moduleName, methodName, args, startTime, endTime, retval, err) {
+    _getStepResult(module, moduleName, methodName, args, location, startTime, endTime, retval, err) {
         var step = new StepResult();
 
         step.name = oxutil.getMethodSignature(moduleName, methodName, args);
         step.transaction = global._lastTransactionName;                    // FIXME: why is this here if it's already populated in rs?
+        step.location = location;
         // determine step status
         if (err) {
             if (err.isFatal) {
@@ -564,9 +565,12 @@ export default class Oxygen extends OxygenEvents {
         } else {
             step.stats = {};
         }
-    
         if (err) {
             step.failure = errorHelper.getFailureFromError(err);
+            // if getFailureFromError was not able to retrieve error location, then take it from command location
+            if (!step.failure.location) {
+                step.failure.location = location;
+            }
             // let the module decide whether a screenshot should be taken on error or not
             if (typeof module._takeScreenshot === 'function') {
                 try {

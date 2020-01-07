@@ -205,6 +205,8 @@ export default class OxygenRunner extends EventEmitter {
         result.status = Status.PASSED;
         result.suites = [];
         let error = null;
+        // call beforeTest hook
+        await this._worker_callBeforeTestHook();
         try {
             // iterate through suites
             for (let suite of this._suites) {
@@ -391,7 +393,8 @@ export default class OxygenRunner extends EventEmitter {
                     }
                 }
             },
-            poFile: this._options.po || null
+            poFile: this._options.po || null,
+            hooks: this._options.hooks || {}
         });
         return this._whenTestCaseFinished.promise;
     }
@@ -410,6 +413,10 @@ export default class OxygenRunner extends EventEmitter {
         if(this._worker && this._worker.disposeModules){
             await this._worker.disposeModules(status);
         }
+    }
+
+    async _worker_callBeforeTestHook() {
+        await (this._worker && this._worker.onBeforeTest(this._options, this._caps));
     }
 
     async _startWorkerProcess() {

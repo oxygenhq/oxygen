@@ -8,6 +8,7 @@ import logger from '../../lib/logger';
 const log = logger('WorkerProcess');
 
 import Debugger from '../../lib/debugger';
+import oxutil from '../../lib/util';
 
 // snooze function - async wrapper around setTimeout function
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -29,6 +30,8 @@ export default class WorkerProcess extends EventEmitter {
         this._whenOxygenInitialized = null;
         this._whenOxygenDisposed = null;
         this._whenModulesDisposed = null;
+        // hold the remote calls ids
+        this._calls = {};
     }
     async start() {
         const env = Object.assign(process.env, {
@@ -108,6 +111,19 @@ export default class WorkerProcess extends EventEmitter {
         return this._whenModulesDisposed.promise;
     }
 
+    async onBeforeTest(options, caps) {
+        if(this._childProc){
+            const callId = oxutil.generateUniqueId();
+            this._childProc.send({
+                type: 'call',
+                method: 'onBeforeTest',
+                callId: callId,
+                args: [options, caps]
+            });
+            this._calls[callId] = defer();
+        }
+    }
+
     send(message) {
         if (!this._childProc) {
             return false;
@@ -174,6 +190,14 @@ export default class WorkerProcess extends EventEmitter {
                 case 'init:failed':
                     this._whenOxygenInitialized && this._whenOxygenInitialized.reject(msg.err);
                     this._isOxygenInitialized = false;
+                    break;
+                case 'call:success':
+                    msg.callId && Object.prototype.hasOwnProperty.call(this, msg.callId) && this._calls[msg.callId].resolve(msg.retval);
+                    delete this._calls[msg.callId];
+                    break;
+                case 'call:failed':
+                    msg.callId && Object.prototype.hasOwnProperty.call(this, msg.callId) && this._calls[msg.callId].reject(msg.err);
+                    delete this._calls[msg.callId];
                     break;
             }
         }

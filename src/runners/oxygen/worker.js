@@ -72,11 +72,13 @@ function stringify(obj) {
 let _oxygen = null;
 let _opts = {};
 let _cwd = null;
+let _hooks = null;
 let _steps = null;
 
 async function init(options, caps) {
     _opts = options;
     _cwd = _opts.cwd || process.cwd();
+    _hooks = options.hooks || {};
     if (!_oxygen) {
         try {
             _oxygen = new Oxygen();
@@ -92,6 +94,7 @@ async function init(options, caps) {
             processSend({ event: 'init:failed', err: { message: e.message, stack: e.stack } });
         }
     }
+    console.log('hooks:', _hooks);
 }
 
 async function dispose() {
@@ -139,6 +142,8 @@ process.on('message', async function (msg) {
         await init(msg.options, msg.caps);
     } else if (msg.type === 'run') {
         run(msg.scriptName, msg.scriptPath, msg.context, msg.poFile || null);
+    } else if (msg.type === 'call') {
+        callOxygenMethod(msg.method, msg.args, msg.callId);
     } else if (msg.type === 'dispose') {
         dispose();
     } else if (msg.type === 'dispose-modules') {
@@ -280,5 +285,38 @@ function loadAndSetPageObject(poPath) {
     catch (e) {
         // ignore
         global.po = {};
+    }
+}
+async function callOxygenMethod(methodName, args, callId) {
+    if (!_oxygen) {
+        processSend({
+            type: 'call:success',
+            callId: callId,
+            retval: undefined
+        });
+    }
+    if (Object.prototype.hasOwnProperty.call(_oxygen, methodName)) {
+        try {
+            const retval = await _oxygen[methodName].call(_oxygen, args);
+            processSend({
+                type: 'call:success',
+                callId: callId,
+                retval: retval
+            });
+        }
+        catch (e) {
+            processSend({
+                type: 'call:failed',
+                callId: callId,
+                err: e
+            });
+        }        
+    }
+    else {
+        processSend({
+            type: 'call:failed',
+            callId: callId,
+            err: new Error(`No method exists: ${methodName}`)
+        });
     }
 }
