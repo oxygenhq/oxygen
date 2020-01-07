@@ -8,6 +8,7 @@ export default class OxygenModule {
         this.modules = modules;
         this.services = services;
         this._isInitialized = false;
+        this._alwaysInitialized = false;
     }
     get name() {
         throw Error('"name" property must be implemented by the deriving class');
@@ -19,7 +20,9 @@ export default class OxygenModule {
         this._isInitialized = true;
     }
     dispose() {
-        this._isInitialized = false;
+        if (this._alwaysInitialized == false) {
+            this._isInitialized = false;
+        }        
     }
     onBeforeCase(suite, suiteIterationNum, caze, caseIterationNum) {
 

@@ -19,6 +19,7 @@ export default class LogModule extends OxygenModule {
         super(options, context, rs, logger, modules, services);
         // this module doesn't need to be expicitly initialized, so we will just call super.init() to set the right state
         super.init();
+        this._alwaysInitialized = true;
     }
     get name() {
         return MODULE_NAME;
