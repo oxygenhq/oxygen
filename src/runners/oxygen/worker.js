@@ -229,7 +229,7 @@ function handleAfterCommand(e) {
     if (!e || !e.result) {
         return;
     }
-    _steps.push(e.result);
+    _steps && _steps.push(e.result);
     processSend({ event: 'command:after', command: e });
 }
 
