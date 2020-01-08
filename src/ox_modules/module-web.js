@@ -47,7 +47,7 @@ import deasync from 'deasync';
 import URL from 'url';
 import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
-
+import { defer } from 'when';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
@@ -59,6 +59,9 @@ const DEFAULT_BROWSER_NAME = 'chrome';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
+
+// snooze function - async wrapper around setTimeout function
+const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export default class WebModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -216,20 +219,43 @@ export default class WebModule extends WebDriverModule {
      * @summary Ends the current session.
      */
     async dispose(status) {
+        this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
                 if(!status){
                     // ignore
+                    this.disposeContinue();
                 } else if(status && typeof status === 'string' && status.toUpperCase() === 'PASSED'){
-                    await this.driver.deleteSession();
+                    
+                    const closeWindowResult = this.driver.closeWindow();
+
+                    closeWindowResult.then(
+                        (value) => {
+                            this.disposeContinue();
+                        },
+                        (reason) => {
+                            console.log('closeWindow fail reason', reason);
+                            this.disposeContinue();
+                        }
+                    );
+                } else {
+                    this.disposeContinue();
                 }
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
-            this.driver = null;
-            this.lastNavigationStartTime = null;
-            super.dispose();
         }
+        
+        await snooze(2000);
+
+        return this._whenWebModuleDispose.promise;
+    }
+
+    disposeContinue(){
+        this.driver = null;
+        this.lastNavigationStartTime = null;
+        super.dispose();
+        this._whenWebModuleDispose.resolve(null);
     }
 
     _iterationStart() {
