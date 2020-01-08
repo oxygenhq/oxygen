@@ -187,7 +187,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
         }
         if (statusCode !== matchedReq.status) {
-            const message = failureMessage || `Expected status code "${statusCode}" does not match "${matchedReq.status}.`;
+            const message = failureMessage || `The expected status code "${statusCode}" does not match "${matchedReq.status}".`;
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
         }
     }
