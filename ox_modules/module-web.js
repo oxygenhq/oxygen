@@ -351,6 +351,11 @@ module.exports = function (options, context, rs, logger) {
                     _this.networkRequests.push(params.response);
                 }
             });
+            _this.driver.on('Network.requestWillBeSent', (params) => {
+                if (_this.networkCollect && params.redirectResponse) {
+                    _this.networkRequests.push(params.redirectResponse);
+                }
+            });
         }
 
         // reset browser logs if auto collect logs option is enabled
