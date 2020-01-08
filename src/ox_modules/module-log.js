@@ -37,8 +37,21 @@ export default class LogModule extends OxygenModule {
      * @function error
      * @param {String} msg - Message to print.
      */
-    error(msg) { 
-        this.logger.userError(msg); 
+    error(msg, err = null) {
+
+        let errString = '';
+
+        if(err && err.message){
+            errString += ' '+err.message;
+        }
+
+        if(err && err.type){
+            errString += ' '+err.type;
+        }
+
+        const message = msg + errString;
+
+        this.logger.userError(message); 
     }
     /**
      * @summary Print a DEBUG message.

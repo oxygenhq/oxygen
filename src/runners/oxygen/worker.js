@@ -60,7 +60,7 @@ const logger = {
         const ts = oxutil.getTimeStamp();
         processSend({ time: ts, event: 'log', level: LEVELS.DEBUG, msg: stringify(message), src });
     },
-    error: function(message, err = null, src = DEFAULT_LOGGER_ISSUER) {
+    error: function(message, src = DEFAULT_LOGGER_ISSUER, err = null) {
         const ts = oxutil.getTimeStamp();
         processSend({ time: ts, event: 'log', level: LEVELS.ERROR, msg: stringify(message), src, err: err });
     },
@@ -237,9 +237,13 @@ function handleLogEntry(e) {
     if (!e || !e.level || !e.message) {
         return;
     }
-    logger[e.level](e.message, e.src);
-}
+    if(e && e.level && e.level === 'error'){
+        logger[e.level](e.message, e.src, e.err);
+    } else {
+        logger[e.level](e.message, e.src);
+    }
 
+}
 function processSend(msg) {
     // wrap process.send with try/catch as sometimes we might call process.send 
     // when parent process is already disconnected (when use kills the main process)
