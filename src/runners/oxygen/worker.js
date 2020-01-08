@@ -297,7 +297,7 @@ function loadAndSetPageObject(poPath) {
 }
 function loadUserHooks(options) {
     let hooks = DUMMY_HOOKS;
-    if (options.target.name === 'oxygen.conf') {
+    if (options && options.target && options.target.name === 'oxygen.conf') {
         try {
             hooks = require(options.target.path).hooks || DUMMY_HOOKS;
         }
