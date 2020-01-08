@@ -244,6 +244,8 @@ export default class WebModule extends WebDriverModule {
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
+        } else {
+            this.disposeContinue();
         }
         
         await snooze(2000);
