@@ -32,8 +32,16 @@ export default class WorkerProcess extends EventEmitter {
         this._whenModulesDisposed = null;
         // hold the remote calls ids
         this._calls = {};
+
+        this._startBootstrapTime = null;
+        this._endBootstrapTime = null;
+
+        this._startWorkerTime = null;
+        this._endWorkerTime = null;
     }
     async start() {
+        this._startWorkerTime = new Date();
+        this._startBootstrapTime = new Date();
         const env = Object.assign(process.env, {
             OX_WORKER: true,
             DEBUG: !isNaN(this._debugPort)
@@ -81,6 +89,10 @@ export default class WorkerProcess extends EventEmitter {
                 options: options,
                 caps: caps,
             });
+            
+            this._endWorkerTime = new Date();
+            const duration = (this._endWorkerTime - this._startWorkerTime)/1000;
+            console.log('Worker load time : ' + duration + ' sec');
             this._whenOxygenInitialized = defer();
             return this._whenOxygenInitialized.promise;
         }        
@@ -184,10 +196,15 @@ export default class WorkerProcess extends EventEmitter {
                 case 'dispose-modules:failed':
                     this._whenModulesDisposed && this._whenModulesDisposed.reject(msg.err);
                     break;
-                case 'init:success':
+                case 'init:success': {
                     this._whenOxygenInitialized && this._whenOxygenInitialized.resolve(null);
                     this._isOxygenInitialized = true;
+
+                    this._endBootstrapTime = new Date();
+                    const duration = (this._endBootstrapTime - this._startBootstrapTime)/1000;
+                    console.log('Worker init time : ' + duration + ' sec');
                     break;
+                }
                 case 'init:failed':
                     this._whenOxygenInitialized && this._whenOxygenInitialized.reject(msg.err);
                     this._isOxygenInitialized = false;

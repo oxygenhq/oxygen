@@ -288,6 +288,7 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadModule(moduleName, moduleFileName, oxModulesDirPath) {
+        const start = new Date();
         let ModuleClass = require(path.join(oxModulesDirPath, moduleFileName));
         if (ModuleClass.default) {
             ModuleClass = ModuleClass.default;
@@ -326,9 +327,11 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     
-        this.logger.debug('Loading module: ' + moduleName);
         this._callServicesOnModuleLoaded(mod);
         this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
+        const end = new Date();
+        const duration = (end - start)/1000;
+        this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
     }
 
     _wrapModule(name, module) {

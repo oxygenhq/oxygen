@@ -60,9 +60,6 @@ const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 
-// snooze function - async wrapper around setTimeout function
-const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
-
 export default class WebModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
@@ -248,9 +245,7 @@ export default class WebModule extends WebDriverModule {
             this.disposeContinue();
         }
         
-        await snooze(2000);
-
-        return this._whenWebModuleDispose.promise;
+        return this._whenWebModuleDispose;
     }
 
     disposeContinue(){

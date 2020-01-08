@@ -10,7 +10,6 @@
 /**
  * Provides access to Applitools Eyes service.
  */
-import { Eyes, Target } from '@applitools/eyes-webdriverio';
 
 import OxygenModule from '../core/OxygenModule';
 import ModuleError from '../errors/ModuleError';
@@ -62,6 +61,7 @@ export default class ApplitoolsModule extends OxygenModule {
             throw new ModuleError(`The module "${module.name}" does not have "getDriver" function implemented.`);
         }
         const driver = module.getDriver();
+        const Eyes = require('@applitools/eyes-webdriverio').Eyes;
         this._eyes = new Eyes();
         this._eyes.setApiKey(this._apiKey);
 
@@ -110,6 +110,7 @@ export default class ApplitoolsModule extends OxygenModule {
         if (!this._eyes) {
             return false;
         }
+        const Target = require('@applitools/eyes-webdriverio').Target;
         const result =  await this._eyes.check(name, target || Target.window().fully());
         if (result._asExpected) {
             return true;
