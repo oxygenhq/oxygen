@@ -46,7 +46,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      * @function networkCollectStart
      * @example <caption>[javascript] Usage example</caption>
      * web.init();
-     * web.networkCollectStart();
+     * web.network.start();
      * web.open("https://www.yourwebsite.com");
      * // print the collected request so far:
      * let requests = web.networkGetRequests();
@@ -54,11 +54,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      *   log.info(JSON.stringify(req, null, 2));
      * }
      * // wait for a request using a verbatim URL match:
-     * web.networkWaitForUrl('https://www.yourwebsite.com/foo/bar');
+     * web.network.waitForUrl('https://www.yourwebsite.com/foo/bar');
      * // wait for a request using a regular expression URL match:
-     * web.networkWaitForUrl(/https:\/\/.*\/foo\/bar/);
+     * web.network.waitForUrl(/https:\/\/.*\/foo\/bar/);
      * // wait for a request using a custom matcher:
-     * web.networkWaitFor(function (request) {
+     * web.network.waitFor(function (request) {
      *   return request.statusText === 'OK' && request.url === 'https://www.yourwebsite.com/foo/bar';
      * });
      */
@@ -131,9 +131,114 @@ export default class NetworkSubModule extends OxygenSubModule {
         throw new OxError(errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher.');
     }
 
+    /**
+     * @summary Assert if network request matching the specified URL.
+     * @function assertUrl
+     * @param {String|RegExp} url - A request URL to match verbatim or a RegExp.
+     * @param {Number=} timeout - Timeout. Default is 60 seconds.
+     * @return {Object} Network request details if the network request was found.
+     */
+    assertUrl(url, timeout = 60*1000) {
+        if (!this._driver || !this._isInitialized || !this._parent) {
+            return null;
+        }
+        this._parent.helpers.assertArgument(url, 'url');
+        this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+            for (let req of this._networkRequests) {
+                if (url.constructor.name === 'RegExp' && url.test(req.url) || url === req.url) {
+                    return req;
+                }
+            }
+            this._driver.pause(500);
+        }
+        throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+    }
+
+    /**
+     * @summary Assert whether HTTP response status code matches the specified value.
+     * @function assertStatusCode
+     * @param {String|RegExp} url - A request URL to match verbatim or a RegExp.
+     * @param {Number} statusCode - A response status code to match verbatim or a RegExp.
+     * @param {String=} failureMessage - An optional failure message.
+     * @param {Number=} timeout - Timeout. Default is 60 seconds.
+     * @return {Object} Network request details if the network request was found.
+     */
+    async assertStatusCode(url, statusCode, failureMessage = null, timeout = 60*1000) {
+        if (!this._driver || !this._isInitialized || !this._parent) {
+            return null;
+        }
+        this._parent.helpers.assertArgument(url, 'url');
+        this._parent.helpers.assertArgument(statusCode, 'statusCode');
+        this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
+        const start = Date.now();
+        let matchedReq = null;
+        while (Date.now() - start < timeout && !matchedReq) {
+            for (let req of this._networkRequests) {
+                if (url.constructor.name === 'RegExp' && url.test(req.url) || url === req.url) {
+                    matchedReq = req;
+                    break;
+                }
+            }
+            !matchedReq && this._driver.pause(500);
+        }
+        if (!matchedReq) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+        }
+        if (statusCode !== matchedReq.status) {
+            const message = failureMessage || `Expected status code "${statusCode}" does not match "${matchedReq.status}.`;
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+        }
+    }
+
+    /**
+     * @summary Assert whether HTTP response content matches the specified value or pattern.
+     * @function assertResponseContent
+     * @param {String|RegExp} url - A request URL to match verbatim or a RegExp.
+     * @param {String|RegExp} content - A response body content to match verbatim or a RegExp.
+     * @param {String=} failureMessage - An optional failure message.
+     * @param {Number=} timeout - Timeout. Default is 60 seconds.
+     * @return {Object} Network request details if the network request was found.
+     */
+    async assertResponseContent(url, content, failureMessage = null, timeout = 60*1000) {
+        if (!this._driver || !this._isInitialized || !this._parent) {
+            return null;
+        }
+        this._parent.helpers.assertArgument(url, 'url');
+        this._parent.helpers.assertArgument(content, 'content');
+        this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
+        const start = Date.now();
+        let matchedReq = null;
+        while (Date.now() - start < timeout && !matchedReq) {
+            for (let req of this._networkRequests) {
+                if (url.constructor.name === 'RegExp' && url.test(req.url) || url === req.url) {
+                    matchedReq = req;
+                    break;
+                }
+            }
+            !matchedReq && this._driver.pause(500);
+        }
+        if (!matchedReq) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+        }        
+        const resp = await this._driver.cdp('Network','getResponseBody', {
+            requestId: matchedReq.requestId
+        });
+        if (resp && resp.body && !resp.base64Encoded) {
+            if (content.constructor.name === 'RegExp' && content.test(resp.body) || resp.body.indexOf(content) > -1) {
+                return true;
+            }
+            else {
+                const message = failureMessage || `Response "${url}" body content does not match "${content}.`;
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+            }
+        }
+    }
+
     _onNetworkResponseReceived(params) {
         if (this._collectData) {
-            this._networkRequests.push(params.response);
+            this._networkRequests.push({ requestId: params.requestId, ...params.response });
         }
     }
 }
