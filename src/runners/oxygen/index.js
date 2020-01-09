@@ -377,29 +377,33 @@ export default class OxygenRunner extends EventEmitter {
             log.error('_worker is null but not suppose to!');
             this._whenTestCaseFinished.reject(new Error('_worker is null'));
         }
-        // send the message to the worker process
-        this._worker.send({
-            type: 'run',
-            scriptName: caze.name,
-            scriptPath: caze.path,
-            context: {
-                params: params,
-                env: this._env,
-                caps: this._caps,
-                vars: this._vars,
-                test: {
-                    case: {
-                        name: caze.name,
-                        iteration: caseIteration
-                    },
-                    suite: {
-                        name: suite.name,
-                        iteration: suiteIteration
+
+        if(this._worker && this._worker.send){
+            // send the message to the worker process
+            this._worker.send({
+                type: 'run',
+                scriptName: caze.name,
+                scriptPath: caze.path,
+                context: {
+                    params: params,
+                    env: this._env,
+                    caps: this._caps,
+                    vars: this._vars,
+                    test: {
+                        case: {
+                            name: caze.name,
+                            iteration: caseIteration
+                        },
+                        suite: {
+                            name: suite.name,
+                            iteration: suiteIteration
+                        }
                     }
-                }
-            },
-            poFile: this._options.po || null,
-        });
+                },
+                poFile: this._options.po || null,
+            });
+        }
+        
         return this._whenTestCaseFinished.promise;
     }
 
@@ -432,7 +436,9 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callBeforeSuiteHook(suite) {
         try {
-            await (this._worker && this._worker.emitUserHook('beforeSuite', [suite]));
+            if(this && this._worker && this._worker.emitUserHook){
+                await this._worker.emitUserHook('beforeSuite', [suite]);
+            }
         }
         catch (e) {
             log.error('"beforeSuite" hook failed:', e);
