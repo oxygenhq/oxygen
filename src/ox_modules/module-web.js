@@ -222,7 +222,7 @@ export default class WebModule extends WebDriverModule {
                 if(!status){
                     // ignore
                     this.disposeContinue();
-                } else if(status && typeof status === 'string' && status.toUpperCase() === 'PASSED'){
+                } else if(status && typeof status === 'string' && ['PASSED','FAILED'].includes(status.toUpperCase())){
                     
                     const closeWindowResult = this.driver.closeWindow();
 
