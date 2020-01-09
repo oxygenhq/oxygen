@@ -421,7 +421,9 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callBeforeTestHook() {
         try {
-            await (this._worker && this._worker.emitUserHook('beforeTest', [this._id, this._options, this._caps]));
+            if(this && this._worker && this._worker.emitUserHook){
+                await this._worker.emitUserHook('beforeTest', [this._id, this._options, this._caps]);
+            }
         }
         catch (e) {
             log.error('"beforeTest" hook failed:', e);
