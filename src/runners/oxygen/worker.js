@@ -105,10 +105,10 @@ async function init(options, caps) {
     }
 }
 
-async function dispose() {
+async function dispose(status = null) {
     if (_oxygen) {
         try {
-            await _oxygen.dispose();
+            await _oxygen.dispose(status);
             processSend({ event: 'dispose:success' });
         }
         catch (e) {
@@ -153,7 +153,7 @@ process.on('message', async function (msg) {
     } else if (msg.type === 'hook') {
         callUserHook(msg.method, msg.args, msg.callId);
     } else if (msg.type === 'dispose') {
-        dispose();
+        dispose(msg.status || null);
     } else if (msg.type === 'dispose-modules') {
         disposeModules(msg.status || null);
     }

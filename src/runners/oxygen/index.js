@@ -82,8 +82,8 @@ export default class OxygenRunner extends EventEmitter {
     async dispose(status = null) {
         this._isDisposing = true;
         try {
-            if(!this._testKilled && this._worker && this._worker.isRunning){
-                await this._worker_DisposeOxygen();
+            if(/*!this._testKilled && */this._worker && this._worker.isRunning){
+                await this._worker_DisposeOxygen(status);
                 await this._worker.stop(status);
             }
         } catch (e) {
@@ -125,10 +125,6 @@ export default class OxygenRunner extends EventEmitter {
 
     async kill(status = null) {
         this._testKilled = true;
-        if (this._worker) {
-            await this._worker.stop(status);
-        }
-        this._resetGlobalVariables();
     }
 
     debugContinue() {
@@ -411,9 +407,9 @@ export default class OxygenRunner extends EventEmitter {
         await (this._worker && this._worker.initOxygen(this._options, this._caps));
     }
 
-    async _worker_DisposeOxygen() {
+    async _worker_DisposeOxygen(status = null) {
         if(this._worker && this._worker.disposeOxygen){
-            await this._worker.disposeOxygen();
+            await this._worker.disposeOxygen(status);
         }
     }
 

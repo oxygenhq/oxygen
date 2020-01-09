@@ -112,9 +112,9 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
-    async dispose() {
+    async dispose(status = null) {
         try {
-            await this._disposeModules();
+            await this._disposeModules(status);
             await this._disposeServices();
             this.isInitialized = false;
         }
