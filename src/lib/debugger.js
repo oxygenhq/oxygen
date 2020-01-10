@@ -54,34 +54,34 @@ const deleteValues = (arr, depth) => {
     return result;
 };
 
-function extractBreakpointData(bpStr) {
-    if (!bpStr || typeof bpStr !== 'string') {
-        return null;
-    }
-    const parts = bpStr.split(':');
-    try {
+// function extractBreakpointData(bpStr) {
+//     if (!bpStr || typeof bpStr !== 'string') {
+//         return null;
+//     }
+//     const parts = bpStr.split(':');
+//     try {
         
-        let fileName;
-        let lineNumber;
+//         let fileName;
+//         let lineNumber;
 
-        if (process.platform === 'win32') { // path may contain a Drive letter on win32
-            fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-            lineNumber = parseInt(parts[1]);
-        } else {
-            fileName = parts[parts.length-1];
-            lineNumber = parseInt(parts[1]);
-        }
+//         if (process.platform === 'win32') { // path may contain a Drive letter on win32
+//             fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
+//             lineNumber = parseInt(parts[1]);
+//         } else {
+//             fileName = parts[parts.length-1];
+//             lineNumber = parseInt(parts[1]);
+//         }
     
-        return {
-            fileName: fileName,
-            lineNumber: lineNumber
-        };
+//         return {
+//             fileName: fileName,
+//             lineNumber: lineNumber
+//         };
 
-    } catch (e) {
-        log.error(`Failed to extract breakpoint data: ${bpStr}`);
-        return null;
-    }
-}
+//     } catch (e) {
+//         log.error(`Failed to extract breakpoint data: ${bpStr}`);
+//         return null;
+//     }
+// }
 
 function validateBreakpointData(breakpointData, possibleBreakpointsData) {
     let result = null;
@@ -347,9 +347,9 @@ export default class Debugger extends EventEmitter {
                                     const scriptSourceSplit = scriptSource.scriptSource.split('\n');
                                     
                                     if(scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0){
-                                        scriptSourceSplit.map((scriptSourceItem, idx) => {
-                                            console.log((idx) + ' ' + scriptSourceItem);
-                                        });
+                                        // scriptSourceSplit.map((scriptSourceItem, idx) => {
+                                        //     console.log((idx) + ' ' + scriptSourceItem);
+                                        // });
 
                                         if(possibleBreakpoints && Array.isArray(possibleBreakpoints) && possibleBreakpoints.length){
                                             if(possibleBreakpoints[0] === 1){
@@ -401,21 +401,24 @@ export default class Debugger extends EventEmitter {
                         // assume we always send breakpoint of the top call frame
                         if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
                             // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
-                            if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
-                                breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
-                            } else {
-                                breakpointData = {
-                                    lineNumber: breakpoint.callFrames[0].location.lineNumber,
-                                    fileName: breakpoint.callFrames[0].url
-                                };
-                            }
+                            // if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
+                                
+                            // //     breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
+
+                            // } else {
+                                
+                            breakpointData = {
+                                lineNumber: breakpoint.callFrames[0].location.lineNumber,
+                                fileName: breakpoint.callFrames[0].url
+                            };
+                            // }
+
 
                             if(saveValue){
                                 breakpointData.variables = saveValue;
                             }
                         }
 
-                        breakpointData = Object.assign(breakpointData);
 
                         const validateResult = validateBreakpointData(breakpointData, possibleBreakpointsData);
 
@@ -425,7 +428,6 @@ export default class Debugger extends EventEmitter {
                             this.emit('break', breakpointData);
                         }
                     } else {
-                        console.log('continue');
                         this.continue();
                     }
 
@@ -502,7 +504,7 @@ export default class Debugger extends EventEmitter {
 
         let breakpoint = await this._Debugger.setBreakpointByUrl({
             url: scriptPath,
-            lineNumber: lineNumber-1,
+            lineNumber: lineNumber-1, // from 1-base to 0-base
             columnNumber: 0
         }).catch(e => {
             err = e;
@@ -516,7 +518,6 @@ export default class Debugger extends EventEmitter {
             // ignore
         } else {
             this._breakpoints.push(breakpoint);
-            await this.setBreakpointsActive(true);
         }
         
         return breakpoint;
@@ -544,7 +545,9 @@ export default class Debugger extends EventEmitter {
         }
     }
 
-    async removeBreakpointByValue(filePath, line) {
+    async removeBreakpointByValue(filePath, inputLine) {
+
+        const line = inputLine - 1; // from 1-base to 0-base
         const self = this;
 
         if (this._breakpoints) {
@@ -637,10 +640,10 @@ export default class Debugger extends EventEmitter {
 
             if (process.platform === 'win32') { // path may contain a Drive letter on win32
                 fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-                lineNumber = parseInt(parts[1]);
+                lineNumber = parseInt(parts[1])+1; //from 0-base to 1-base
             } else {
                 fileName = parts[parts.length-1];
-                lineNumber = parseInt(parts[1]);
+                lineNumber = parseInt(parts[1])+1; //from 0-base to 1-base
             }
 
             if (fileName === filePath) {

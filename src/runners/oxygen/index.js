@@ -25,6 +25,9 @@ import OxygenError from '../../errors/OxygenError';
 import ParameterManager from '../../lib/param-manager.js';
 import WorkerProcess from './WorkerProcess';
 
+// snooze function - async wrapper around setTimeout function
+const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 export default class OxygenRunner extends EventEmitter {
     constructor() {
         super();
@@ -133,8 +136,10 @@ export default class OxygenRunner extends EventEmitter {
         } 
     }
 
-    updateBreakpoints(breakpoints, filePath){
+    async updateBreakpoints(breakpoints, filePath){
         try {
+
+            await this._worker.debugger.setBreakpointsActive(false);
             // var tc;
 
             // if (ts && ts.testcases && ts.testcases[tcindex]) {
@@ -166,9 +171,22 @@ export default class OxygenRunner extends EventEmitter {
                     }
                 }
 
-                Promise.all(promises).then(() => {
-                    log.debug('updateBreakpoints() done.');
+
+                let promiseAllPromise = await Promise.all(promises).then((value) => {
+                    return value;
                 });
+                                
+                await this._worker.debugger.setBreakpointsActive(true);
+
+                await snooze(500);
+
+                log.debug('updateBreakpoints() done.');
+                
+                const breakpointsAferManipulations = this._worker.debugger.getBreakpoints(filePath);
+            
+                return { promiseAllPromise : promiseAllPromise, breakpointsAferManipulations : breakpointsAferManipulations };
+            } else {
+                return null;
             }
         } catch(e){
             log.error('Debugger error', e);
