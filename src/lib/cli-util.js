@@ -15,6 +15,9 @@ export async function generateTestOptions(config, argv) {
 }
 
 export async function loadSuites(config, argv) {
+    if (config.framework && typeof config.framework === 'string' && config.framework.toLowerCase() !== 'oxygen') {
+        return;
+    }
     const { target } = config;
     const isConfigFile = target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0;
     let suites = [];

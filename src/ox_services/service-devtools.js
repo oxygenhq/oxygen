@@ -1,3 +1,4 @@
+/* eslint-disable no-unreachable */
 import WDIODevToolsService from '@wdio/devtools-service';
 
 import OxygenService from '../core/OxygenService';
@@ -14,6 +15,10 @@ export default class DevToolsService extends OxygenService {
         if (!module || !module.getDriver || typeof module.getDriver !== 'function' || !module.getCapabilities || typeof module.getCapabilities !== 'function') {
             return;
         }
+
+        // TODO: saucelabs integration throw error OI-667
+        return;
+
         const networkSubmodule = new NetworkSubModule('network', module);
         module.addSubModule('network', networkSubmodule);
         this._subModules[module.name] = networkSubmodule;

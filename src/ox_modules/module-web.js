@@ -1,3 +1,4 @@
+/* eslint-disable quotes */
 /*
  * Copyright (C) 2015-present CloudBeat Limited
  *
@@ -52,6 +53,7 @@ import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import util from 'util';
+import SauceLabs from 'saucelabs';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -177,6 +179,9 @@ export default class WebModule extends WebDriverModule {
 
         let initError = null;
         const _this = this;
+
+        this.wdioOpts = wdioOpts;
+
         wdio.remote(wdioOpts)
             .then((driver => {
                 _this.driver = driver;
@@ -222,19 +227,29 @@ export default class WebModule extends WebDriverModule {
                 if(!status){
                     // ignore
                     this.disposeContinue();
-                } else if(status && typeof status === 'string' && ['PASSED','FAILED'].includes(status.toUpperCase())){
-                    
-                    const closeWindowResult = this.driver.closeWindow();
+                } else if(status && typeof status === 'string'){
 
-                    closeWindowResult.then(
-                        (value) => {
-                            this.disposeContinue();
-                        },
-                        (reason) => {
-                            console.log('closeWindow fail reason', reason);
-                            this.disposeContinue();
-                        }
-                    );
+                    let isSaucelabs = false;
+                    if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')){
+                        isSaucelabs = true;
+                        const username = this.wdioOpts.capabilities['sauce:options']['username'];
+                        const accessKey = this.wdioOpts.capabilities['sauce:options']['accessKey'];
+                        const passed = status.toUpperCase() === 'PASSED';
+                        const id = this.driver.sessionId;
+                        const body = "{\"passed\":"+passed+"}";
+
+                        const myAccount = new SauceLabs({ user: username, key: accessKey});
+                        await myAccount.updateJob(username, id, body);
+                    }
+
+                    if(['PASSED','FAILED'].includes(status.toUpperCase())){
+                        this.deleteSession();
+                    } else if(isSaucelabs){
+                        this.deleteSession();
+                    } else {
+                        this.disposeContinue();
+                    }
+
                 } else {
                     this.disposeContinue();
                 }
@@ -245,7 +260,21 @@ export default class WebModule extends WebDriverModule {
             this.disposeContinue();
         }
         
-        return this._whenWebModuleDispose;
+        return this._whenWebModuleDispose.promise;
+    }
+
+    deleteSession(){
+        const deleteSessionResult = this.driver.deleteSession();
+    
+        deleteSessionResult.then(
+            (value) => {
+                this.disposeContinue();
+            },
+            (reason) => {
+                console.log('deleteSession fail reason', reason);
+                this.disposeContinue();
+            }
+        );
     }
 
     disposeContinue(){

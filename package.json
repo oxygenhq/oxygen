@@ -66,6 +66,7 @@
     "csv-parse": "4.8.3",
     "cucumber": "5.1.0",
     "deasync": "0.1.19",
+    "decache": "^4.5.1",
     "easyxml": "2.0.1",
     "ejs": "2.7.1",
     "fibers": "4.0.2",
@@ -83,13 +84,13 @@
     "oxygen-logger": "0.3.0",
     "pdfreader": "1.0.4",
     "request": "2.88.0",
+    "saucelabs": "^3.0.1",
     "serialport": "8.0.6",
     "soap": "0.30.0",
     "strip-comments": "1.0.2",
     "twilio": "3.39.1",
     "webdriverio": "5.18.2",
     "when": "3.7.8",
-    "decache": "^4.5.1",
     "xlsx": "0.15.4"
   },
   "optionalDependencies": {
