@@ -12,6 +12,7 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
     var path = require('path');
     var ExcelReader = require('./param-reader-excel');
     var CsvReader = require('./param-reader-csv');    
+    var JsonReader = require('./param-reader-json');    
     var errHelper = require('../errors/helper');
     var module = {};
     var _whenInitialized = defer();
@@ -30,6 +31,9 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
         }
         else if (ext === '.csv' || ext === '.txt') {
             reader = new CsvReader();
+        }
+        else if (ext === '.json' || ext === '.js') {
+            reader = new JsonReader();
         }
         else {
             _whenInitialized.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Unsupported parameters file type: ' + ext));
