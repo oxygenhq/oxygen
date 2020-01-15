@@ -54,36 +54,62 @@ const deleteValues = (arr, depth) => {
     return result;
 };
 
-// function extractBreakpointData(bpStr) {
-//     if (!bpStr || typeof bpStr !== 'string') {
-//         return null;
-//     }
-//     const parts = bpStr.split(':');
-//     try {
+function extractBreakpointData(bpStr) {
+    if (!bpStr || typeof bpStr !== 'string') {
+        return null;
+    }
+    const parts = bpStr.split(':');
+    try {
         
-//         let fileName;
-//         let lineNumber;
+        let fileName;
+        let lineNumber;
 
-//         if (process.platform === 'win32') { // path may contain a Drive letter on win32
-//             fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-//             lineNumber = parseInt(parts[1]);
-//         } else {
-//             fileName = parts[parts.length-1];
-//             lineNumber = parseInt(parts[1]);
-//         }
+        if (process.platform === 'win32') { // path may contain a Drive letter on win32
+            fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
+            lineNumber = parseInt(parts[1]);
+        } else {
+            fileName = parts[parts.length-1];
+            lineNumber = parseInt(parts[1]);
+        }
     
-//         return {
-//             fileName: fileName,
-//             lineNumber: lineNumber
-//         };
+        return {
+            fileName: fileName,
+            lineNumber: lineNumber
+        };
 
-//     } catch (e) {
-//         log.error(`Failed to extract breakpoint data: ${bpStr}`);
-//         return null;
-//     }
-// }
+    } catch (e) {
+        log.error(`Failed to extract breakpoint data: ${bpStr}`);
+        return null;
+    }
+}
 
-function validateBreakpointData(breakpointData, possibleBreakpointsData) {
+function validateBreakpoint(breakpoint){
+    const brObj = extractBreakpointData(breakpoint.breakpointId);
+              
+    const brLineNumber = brObj.lineNumber + 1; // from 0-base to 1 base;
+
+    if(breakpoint && breakpoint.locations && Array.isArray(breakpoint.locations) && breakpoint.locations.length > 0){
+        let result = null;
+        breakpoint.locations.map((item) => {
+            const brFileName = brObj.fileName;
+            const itemLineNumber = item.lineNumber + 1; // from 0-base to 1 base;
+
+            if(brLineNumber !== itemLineNumber){
+                result = {
+                    msg: `Breakpoints error : ${brFileName} Don't have opportunity to have breakpoint on line ${brLineNumber}. `,
+                    fileName: brFileName
+                };
+            }
+        });
+
+        return result;
+    } else {
+        return null;
+    }
+
+}
+
+function validateBreakpointData(breakpointData, possibleBreakpointsData, breakpoints) {
     let result = null;
     let errorStart = '';
 
@@ -424,6 +450,23 @@ export default class Debugger extends EventEmitter {
 
                         if(validateResult){
                             this.emit('breakError', validateResult);
+                        } else if(this.breakError && this.breakError.msg && this.breakError.fileName ) {
+
+                            let msg = this.breakError.msg;
+
+                            if(possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0){
+                                possibleBreakpointsData.map((item) => {
+                                    if(item && item.file === this.breakError.fileName){            
+                                        if(item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0){
+                                            msg += ` Possible breakpoint lines : ${item.breakpoints.map((line) => line).join(', ')}`;
+                                        } else {
+                                            msg += ' File don\'t have possible breakpoint lines';
+                                        }
+                                    }
+                                });
+                            }
+
+                            this.emit('breakError', msg);
                         } else {
                             this.emit('break', breakpointData);
                         }
@@ -443,6 +486,11 @@ export default class Debugger extends EventEmitter {
             for (var bp of this._breakpoints) {
                 if (bp && bp.breakpointId === e.breakpointId) {
                     bp.locations = [e.location];
+                    const validateResult = validateBreakpoint(bp);
+
+                    if(validateResult){
+                        this.breakError = validateResult;
+                    }
                 }
             }
         });
