@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "1.0.0-beta.37",
+  "version": "1.0.0-beta.38",
   "description": "Automation framework for Web & Mobile applications",
   "main": "./build/index.js",
   "bin": {
