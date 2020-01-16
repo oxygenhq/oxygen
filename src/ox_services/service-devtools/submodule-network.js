@@ -30,6 +30,7 @@ export default class NetworkSubModule extends OxygenSubModule {
         this._devTools = devTools;
         this._driver = this._parent.getDriver();
         this._driver.on('Network.responseReceived', this._onNetworkResponseReceived.bind(this));
+        this._driver.on('Network.requestWillBeSent', this._onNetworkRequestWillBeSent.bind(this));
         super.init();
         return true;
     }
@@ -239,6 +240,12 @@ export default class NetworkSubModule extends OxygenSubModule {
     _onNetworkResponseReceived(params) {
         if (this._collectData) {
             this._networkRequests.push({ requestId: params.requestId, ...params.response });
+        }
+    }
+
+    _onNetworkRequestWillBeSent(params) {
+        if (this._collectData && params.redirectResponse) {
+            this._networkRequests.push({ requestId: params.requestId, ...params.redirectResponse });
         }
     }
 }
