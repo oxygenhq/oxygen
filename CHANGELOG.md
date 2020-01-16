@@ -25,10 +25,17 @@
 * `return` is no longer supported for terminating user scripts.
 * Suite configuration JSONs are no longer supported. Project level configuration files should be used instead.
 
+#### :beetle: Bug Fix
+* `twilio` not producing proper error when no matching messages found.
+* `web.network` not recording responses for redirected requests.
+* `web.click` not working on IE under certain conditions.
+
 #### :nail_care: Polish
 * Improved error handling. Errors now contain proper stacktraces and provide more details about where in user script the error has occurred.
 * More errors from underlying frameworks are handled and processed.
 * JUnit XML reports improved to include more details about test failures.
+* `twilio` module performance improvements.
+* Added JS injection fall-back for `web.doubleClick` when element is not clickable. 
 
 #### :book: Documentation
 * Documentation has been migrated to a new infrastructure providing better user experience. Documentation has been, as well, improved with more topics.
