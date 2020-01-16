@@ -225,7 +225,7 @@ module.exports = {
         else if (locator.indexOf('id=') === 0)
             return '#' + locator.substr('id='.length);
         else if (locator.indexOf('name=') === 0)
-            return locator;            
+            return '[name="' + locator.substr('name='.length) + '"]';
         else if (locator.indexOf('link=') === 0)
             return '=' + locator.substr('link='.length);
         else if (locator.indexOf('link-contains=') === 0)
