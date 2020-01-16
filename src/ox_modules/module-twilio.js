@@ -53,26 +53,22 @@ module.exports = function() {
         }
         var msg;
         var now = Date.now();
-        var earliestMessageDate = now - notOlderThan;
-        
+        var earliestMessageDate = new Date(now - notOlderThan);
+
         while (!msg && (Date.now() - now) < timeout) {
             var msgsProcessed = false;
-            _client.messages.list(function(err, messages) {
+            _client.messages.list({ dateSentAfter: earliestMessageDate }, function(err, messages) {
                 var _msg;
-                for (_msg of messages) {
-                    if (_msg.direction == 'inbound') {
-                        var _msgDate = Date.parse(_msg.dateCreated);
-
-                        // skip if message is older than `notOlderThan`
-                        if (_msgDate < earliestMessageDate) {
-                            continue;
-                        }
-
-                        // if message is newer than the previous one - save it
-                        if (msg && Date.parse(msg.dateCreated) < _msgDate) {
-                            msg = _msg;
-                        } else if (!msg) {
-                            msg = _msg;
+                if (messages && typeof messages[Symbol.iterator] === 'function') {
+                    for (_msg of messages) {
+                        if (_msg.direction == 'inbound') {
+                            var _msgDate = Date.parse(_msg.dateCreated);
+                            // if message is newer than the previous one - save it
+                            if (msg && Date.parse(msg.dateCreated) < _msgDate) {
+                                msg = _msg;
+                            } else if (!msg) {
+                                msg = _msg;
+                            }
                         }
                     }
                 }
