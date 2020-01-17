@@ -25,6 +25,7 @@
 * `ox.*` is no longer available. `ox.modules.*` should be used instead. All available modules `web`, `mob`, etc are also exposed globally now and can be used directly.
 * `return` is no longer supported for terminating user scripts.
 * Suite configuration JSONs are no longer supported. Project level configuration files should be used instead.
+* `web.network*` commands are now accessible via a submodule `web.network.*` and have different names. See documentation for more details.
 
 #### :beetle: Bug Fix
 * `twilio` not producing proper error when no matching messages found.
