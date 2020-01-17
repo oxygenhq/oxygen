@@ -25,6 +25,7 @@ export default class NetworkSubModule extends OxygenSubModule {
 
     init(devTools) {
         if (!devTools || !this._parent || !this._parent.getDriver || typeof this._parent.getDriver !== 'function' || !this._parent.getDriver()) {
+            super.init();
             return false;
         }
         this._devTools = devTools;

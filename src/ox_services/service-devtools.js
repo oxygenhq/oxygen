@@ -16,9 +16,6 @@ export default class DevToolsService extends OxygenService {
             return;
         }
 
-        // TODO: saucelabs integration throw error OI-667
-        return;
-
         const networkSubmodule = new NetworkSubModule('network', module);
         module.addSubModule('network', networkSubmodule);
         this._subModules[module.name] = networkSubmodule;
@@ -32,16 +29,39 @@ export default class DevToolsService extends OxygenService {
         if (!submodule) {
             return;
         }
-        // initialize DevToolsService and hook it to the current webdriver object
-        const devToolsSvc = new WDIODevToolsService();
-        devToolsSvc.beforeSession(null, module.getCapabilities());
-        if (devToolsSvc.isSupported) {
-            // change global.browser to the current module's webdriver instance
-            const orgGlobalBrowser = global.browser;
-            global.browser = module.getDriver();
-            await devToolsSvc.before();
-            submodule.init(devToolsSvc);
-            global.browser = orgGlobalBrowser;
+
+        let options = {};
+        const capabilities = module.getCapabilities();
+        this._driver = module.getDriver();
+
+        if(
+            this._driver &&
+            this._driver.capabilities &&
+            this._driver.capabilities['goog:chromeOptions'] &&
+            this._driver.capabilities['goog:chromeOptions']['debuggerAddress']
+        ){
+            options.debuggerAddress = this._driver.capabilities['goog:chromeOptions']['debuggerAddress'];
+        }
+
+        if(capabilities && capabilities['sauce:options']){
+            submodule.init();
+        } else {
+            // initialize DevToolsService and hook it to the current webdriver object
+            const devToolsSvc = new WDIODevToolsService(options);
+            const UNSUPPORTED_ERROR_MESSAGE = devToolsSvc.beforeSession(null, capabilities);
+    
+            if(UNSUPPORTED_ERROR_MESSAGE){
+                console.log('UNSUPPORTED_ERROR_MESSAGE', UNSUPPORTED_ERROR_MESSAGE);
+            }
+
+            if (devToolsSvc.isSupported) {
+                // change global.browser to the current module's webdriver instance
+                const orgGlobalBrowser = global.browser;
+                global.browser = module.getDriver();
+                await devToolsSvc.before();
+                submodule.init(devToolsSvc);
+                global.browser = orgGlobalBrowser;
+            }
         }
     }
     onModuleWillDispose(module) {
