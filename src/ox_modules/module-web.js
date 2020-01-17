@@ -54,6 +54,7 @@ import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import util from 'util';
 import SauceLabs from 'saucelabs';
+import lambdaRestClient from '@lambdatest/node-rest-client';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -230,6 +231,7 @@ export default class WebModule extends WebDriverModule {
                 } else if(status && typeof status === 'string'){
 
                     let isSaucelabs = false;
+                    let isLambdatest = false;
                     if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')){
                         isSaucelabs = true;
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
@@ -241,10 +243,38 @@ export default class WebModule extends WebDriverModule {
                         const myAccount = new SauceLabs({ user: username, key: accessKey});
                         await myAccount.updateJob(username, id, body);
                     }
+                    if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('lambdatest')){
+                        isLambdatest = true;
+                        const lambdaCredentials = {
+                            username: this.wdioOpts.user,
+                            accessKey: this.wdioOpts.key
+                        };
+
+                        const passed = status.toUpperCase() === 'PASSED';
+                        const sessionId = this.driver.sessionId;
+
+                        const lambdaAutomationClient = lambdaRestClient.AutomationClient(
+                            lambdaCredentials
+                        );
+
+                        const requestBody = {
+                            status_ind: passed ? 'passed' : 'failed'
+                        };
+
+                        let done = false;
+
+                        lambdaAutomationClient.updateSessionById(sessionId, requestBody, () => {
+                            done = true;
+                        });
+
+                        deasync.loopWhile(() => !done);
+                    }
 
                     if(['PASSED','FAILED'].includes(status.toUpperCase())){
                         this.deleteSession();
                     } else if(isSaucelabs){
+                        this.deleteSession();
+                    } else if(isLambdatest){
                         this.deleteSession();
                     } else {
                         this.disposeContinue();
