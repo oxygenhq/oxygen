@@ -18,6 +18,7 @@
 * Project level Page Object support.
 * Support for running multiple Suites as a part of a single test.
 * Improved debugging support when using breakpoints in external files.
+* Added `web.rightClick`.
 * Support for Node.js 13
 
 #### :boom: Breaking Change
