@@ -15,7 +15,7 @@ import isGlob from 'is-glob';
 import path from 'path';
 
 import oxutil from '../../lib/util';
-import WorkerProcess from './WorkerProcess';
+import WorkerProcess from '../WorkerProcess';
 
 
 const DEFAULT_TIMEOUT = 30000;
@@ -42,8 +42,9 @@ export default class CucumberRunner {
     constructor (debugMode = null, debugPort = null) {
         this.isInitialized = false;
         this.id = oxutil.generateUniqueId();
-        const workerPath = path.join(__dirname, 'worker.js');
+        const workerPath = path.join(__dirname, 'worker-wrapper.js');
         this.worker = new WorkerProcess(this.id, workerPath, debugMode, debugPort);
+        this.handleWorkerEvents();
     }
 
     async init(config, caps, reporter) {
@@ -66,14 +67,14 @@ export default class CucumberRunner {
     async run () {
         try {
             this.reporter.onRunnerStart(this.id, this.config, this.capabilities);
-            const result = await this.worker.run(this.capabilities);
+            const result = await this.worker.run({ caps: this.capabilities });
             this.reporter.onRunnerEnd(this.id, null);
     
             return result;
         }
         catch (e) {
             console.log('Fatal error in Cucumber runner:', e);
-            this.reporter.onRunnerEnd(this.id, e);
+            this.reporter.onRunnerEnd(this.id, null, e);
         }
     }
 
@@ -89,5 +90,18 @@ export default class CucumberRunner {
                 return files.concat([absolutePath]);
             }
         }, []);
+    }
+
+    handleWorkerEvents() {
+        if (!this.worker) {
+            return;
+        }
+        this.worker.on('reporter', this.callReporter.bind(this));
+    }
+
+    callReporter({ method, args}) {
+        if (this.reporter && this.reporter[method] && typeof this.reporter[method] === 'function') {
+            this.reporter[method].apply(this.reporter, args);
+        }        
     }
 }

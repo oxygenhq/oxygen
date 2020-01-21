@@ -98,7 +98,13 @@ export default class ReportAggregator extends EventEmitter {
             testResult.duration = testResult.endTime - testResult.startTime;
             testResult.status = fatalError ? Status.FAILED : (testResult.suites.some(x => x.status === Status.FAILED)) ? Status.FAILED : Status.PASSED;
             if (testResult.status === Status.FAILED) {
-                testResult.failure = fatalError ? errorHelper.getFailureFromError(fatalError) : this._getFirstFailure(testResult);
+                if (fatalError) {
+                    // assume that if fatalError is not inherited from Error class then we already got Oxygen Failure object
+                    testResult.failure = fatalError instanceof Error ? errorHelper.getFailureFromError(fatalError) : fatalError;    
+                }
+                else {
+                    testResult.failure = this._getFirstFailure(testResult);
+                }
             }
             if (finalResult && finalResult.capabilities) {
                 testResult.capabilities = finalResult.capabilities;
@@ -165,13 +171,13 @@ export default class ReportAggregator extends EventEmitter {
         });
     }
 
-    onStepEnd(rid, step) {
-        const status = step.result.status.toUpperCase();
-        const duration = step.result.duration ? (step.result.duration / 1000).toFixed(2) : 0;
-        console.log(`  - Step "${step.name}" has ended in ${duration}s with status: ${status}.`);
+    onStepEnd(rid, stepResult) {
+        const status = stepResult.status.toUpperCase();
+        const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
+        console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
         this.emit('step:end', {
             rid,
-            step: step,
+            step: stepResult,
         });
     }
 
@@ -198,8 +204,17 @@ export default class ReportAggregator extends EventEmitter {
                     return suiteResult.failure;
                 }
                 for (let caseResult of suiteResult.cases) {
-                    if (caseResult.status === Status.FAILED && caseResult.failure) {
+                    if (suiteResult.status !== Status.FAILED) {
+                        continue;
+                    }
+                    if (caseResult.failure) {
                         return caseResult.failure;
+                    }
+                    for (let stepResult of caseResult.steps) {
+                        if (stepResult.status !== Status.FAILED) {
+                            continue;
+                        }
+                        return stepResult.failure || null;
                     }
                 }
             }

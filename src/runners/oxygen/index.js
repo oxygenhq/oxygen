@@ -14,6 +14,7 @@ const DEFAULT_ISSUER = 'user';
 import { EventEmitter } from 'events';
 import _  from 'lodash';
 import { defer } from 'when';
+import path from 'path';
 
 import TestSuiteResult from '../../model/suite-result';
 import TestCaseResult from '../../model/case-result';
@@ -23,7 +24,7 @@ import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
 import OxygenError from '../../errors/OxygenError';
 import ParameterManager from '../../lib/param-manager.js';
-import WorkerProcess from './WorkerProcess';
+import WorkerProcess from '../WorkerProcess';
 
 // snooze function - async wrapper around setTimeout function
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -385,44 +386,36 @@ export default class OxygenRunner extends EventEmitter {
     }
     
     async _worker_Run(suite, caze, suiteIteration, caseIteration, params) {
-        // define a promise
-        this._whenTestCaseFinished = defer();
         if (!this._worker) {
             log.error('_worker is null but not suppose to!');
             this._whenTestCaseFinished.reject(new Error('_worker is null'));
         }
-
-        if(this._worker && this._worker.send){
-            // send the message to the worker process
-            this._worker.send({
-                type: 'run',
-                scriptName: caze.name,
-                scriptPath: caze.path,
-                context: {
-                    params: params,
-                    env: this._env,
-                    caps: this._caps,
-                    vars: this._vars,
-                    test: {
-                        case: {
-                            name: caze.name,
-                            iteration: caseIteration
-                        },
-                        suite: {
-                            name: suite.name,
-                            iteration: suiteIteration
-                        }
+        // start running the test
+        return await this._worker.run({
+            scriptName: caze.name,
+            scriptPath: caze.path,
+            context: {
+                params: params,
+                env: this._env,
+                caps: this._caps,
+                vars: this._vars,
+                test: {
+                    case: {
+                        name: caze.name,
+                        iteration: caseIteration
+                    },
+                    suite: {
+                        name: suite.name,
+                        iteration: suiteIteration
                     }
-                },
-                poFile: this._options.po || null,
-            });
-        }
-        
-        return this._whenTestCaseFinished.promise;
+                }
+            },
+            poFile: this._options.po || null,
+        });
     }
 
     async _worker_InitOxygen() {
-        await (this._worker && this._worker.initOxygen(this._options, this._caps));
+        await (this._worker && this._worker.init(this._id, this._options));
     }
 
     async _worker_DisposeOxygen(status = null) {
@@ -439,8 +432,8 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callBeforeTestHook() {
         try {
-            if(this && this._worker && this._worker.emitUserHook){
-                await this._worker.emitUserHook('beforeTest', [this._id, this._options, this._caps]);
+            if(this && this._worker && this._worker.invokeTestHook){
+                await this._worker.invokeTestHook('beforeTest', [this._id, this._options, this._caps]);
             }
         }
         catch (e) {
@@ -450,8 +443,8 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callBeforeSuiteHook(suite) {
         try {
-            if(this && this._worker && this._worker.emitUserHook){
-                await this._worker.emitUserHook('beforeSuite', [suite]);
+            if(this && this._worker && this._worker.invokeTestHook){
+                await this._worker.invokeTestHook('beforeSuite', [suite]);
             }
         }
         catch (e) {
@@ -461,7 +454,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callBeforeCaseHook(caze) {
         try {
-            await (this._worker && this._worker.emitUserHook('beforeCase', [caze]));
+            await (this._worker && this._worker.invokeTestHook('beforeCase', [caze]));
         }
         catch (e) {
             log.error('"beforeCase" hook failed:', e);
@@ -470,7 +463,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callAfterTestHook(result) {
         try {
-            await (this._worker && this._worker.emitUserHook('afterTest', [this._id, result]));
+            await (this._worker && this._worker.invokeTestHook('afterTest', [this._id, result]));
         }
         catch (e) {
             log.error('"afterTest" hook failed:', e);
@@ -479,7 +472,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callAfterSuiteHook(suite, result) {
         try {
-            await (this._worker && this._worker.emitUserHook('afterSuite', [suite, result]));
+            await (this._worker && this._worker.invokeTestHook('afterSuite', [suite, result]));
         }
         catch (e) {
             log.error('"afterSuite" hook failed:', e);
@@ -488,7 +481,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callAfterCaseHook(caze, result) {
         try {
-            await (this._worker && this._worker.emitUserHook('afterCase', [caze, result]));
+            await (this._worker && this._worker.invokeTestHook('afterCase', [caze, result]));
         }
         catch (e) {
             log.error('"afterCase" hook failed:', e);
@@ -496,7 +489,8 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _startWorkerProcess() {
-        this._worker = new WorkerProcess(this._id, this._debugMode, this._debugPort);
+        const workerPath = path.join(__dirname, 'worker.js');
+        this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort);
         await this._worker.start();
         this._hookWorkerEvents();
     }
@@ -504,6 +498,8 @@ export default class OxygenRunner extends EventEmitter {
     _hookWorkerEvents() {
         // preserve this object
         const _this = this;
+        this._worker.subscribe('command:before', this._handleBeforeCommand.bind(this));
+        this._worker.subscribe('command:after', this._handleAfterCommand.bind(this));
         this._worker.on('error', (payload) => {
             const { error } = payload;
             log.error('Worker process error: ', error);
@@ -561,20 +557,6 @@ export default class OxygenRunner extends EventEmitter {
             } else if (msg.event && msg.event === 'run:failed') {
                 _this._whenTestCaseFinished.resolve(_this._processWorkerResults(msg));
                 _this._whenTestCaseFinished = null;
-            } /*else if (msg.event && msg.event === 'dispose:success') {
-                _this._whenDisposed.resolve(null);
-                _this._resetGlobalVariables();
-            } else if (msg.event && msg.event === 'dispose:failed') {
-                _this._whenDisposed.reject(msg.err);
-                _this._resetGlobalVariables();
-            } */else if (msg.event && msg.event === 'command:before') {
-                if(!this._id){
-                    throw new Error('this._id is not exist');
-                }
-
-                _this._reporter && _this._reporter.onStepStart(this._id, msg.command);
-            } else if (msg.event && msg.event === 'command:after') {
-                _this._reporter && _this._reporter.onStepEnd(this._id, msg.command);
             } else if (msg.event && msg.event === 'line-update') {
                 _this.emit('line-update', msg.line, msg.stack, msg.time);
             } else if (msg.event && msg.event === 'result-update') {
@@ -587,6 +569,14 @@ export default class OxygenRunner extends EventEmitter {
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {
             _this.emit('breakpoint', breakpointData);
         });
+    }
+
+    _handleBeforeCommand(e) {
+        this._reporter && this._reporter.onStepStart(this._id, e);
+    }
+
+    _handleAfterCommand(e) {
+        this._reporter && this._reporter.onStepEnd(this._id, e.result);
     }
 
     _resetGlobalVariables() {
