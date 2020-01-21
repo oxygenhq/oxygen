@@ -26,7 +26,7 @@ module.exports = function () {
         try {
             var workbook = xlsx.readFile(filePath);
             var sheetNameList = workbook.SheetNames;
-            var jsonRaw = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]]);
+            var jsonRaw = xlsx.utils.sheet_to_json(workbook.Sheets[sheetNameList[0]], { defval: '' });
             // just in case there were some extra line breaks in the cells
             // recreate the parameters objects with all the \r and \n and white spaces trimmed
             for (var paramRaw of jsonRaw) {
