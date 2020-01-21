@@ -221,7 +221,7 @@ export default class WebModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
-    async dispose(status) {
+    async dispose(status = 'passed') {
         this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
@@ -301,7 +301,11 @@ export default class WebModule extends WebDriverModule {
                 this.disposeContinue();
             },
             (reason) => {
-                console.log('deleteSession fail reason', reason);
+                if(reason && reason.name && reason.name === 'invalid session id'){
+                    // ignore
+                } else {
+                    console.log('deleteSession fail reason', reason);
+                }
                 this.disposeContinue();
             }
         );

@@ -26,6 +26,7 @@ import CucumberEventListener from './CucumberEventListener';
 import CucumberReporter from './CucumberReporter';
 import Oxygen from '../../core/OxygenCore';
 import oxutil from '../../lib/util';
+import Status from '../../model/status';
 
 const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_OPTS = {
@@ -131,7 +132,21 @@ export default class CucumberWorker {
                 throw hookError;
             }
 
-            await this.disposeOxygenCore();
+            
+            let testResultStatus = Status.PASSED;
+            
+            if(this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)){
+                const suites = this.cucumberReporter.suites;
+                Object.keys(suites).forEach(function (key) {
+                    const suite = suites[key];
+                    if(suite.status === Status.FAILED){
+                        testResultStatus = Status.FAILED;
+                    }
+                });
+            }
+            
+
+            await this.disposeOxygenCore(testResultStatus);
     
             return result;
         }
@@ -148,10 +163,10 @@ export default class CucumberWorker {
         }
     }
 
-    async disposeOxygenCore() {
+    async disposeOxygenCore(status = null) {
         if (this.oxygen) {
             try {
-                await this.oxygen.dispose();
+                await this.oxygen.dispose(status);
             }
             catch (e) {
                 console.error('Failed to dispose Oxygen modules:', e);
