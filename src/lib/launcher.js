@@ -73,6 +73,7 @@ export default class Launcher {
             callback();
         }
         catch (e) {
+            console.error('Failed to launch the test:', e);
             // stop processing the queue
             this._queue.kill();
             // if this is custom error message

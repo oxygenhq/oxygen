@@ -58,7 +58,8 @@ const ERROR_CODES = {
     ELEMENT_STATE_ERROR: 'ELEMENT_STATE_ERROR',
     MOBILE_CONTEXT_ERROR: 'MOBILE_CONTEXT_ERROR',
     APPLICATION_NOT_FOUND_ERROR: 'APPLICATION_NOT_FOUND_ERROR',
-    TWILIO_ERROR: 'TWILIO_ERROR'
+    TWILIO_ERROR: 'TWILIO_ERROR',
+    HOOK_ERROR: 'HOOK_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
@@ -90,6 +91,7 @@ module.exports = {
         };
     },
     getOxygenError: function(err, module, cmd, args) {
+        
         console.log('=== Error Details ===');
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
         console.log(util.inspect(err));
@@ -98,9 +100,7 @@ module.exports = {
         if (err instanceof OxError) {
             return err;
         }
-        
-        
-        
+                
         var errType = err.type || err.name || typeof err;
 
         // handle "Can't call <command> on element with selector <selector> because element wasn't found"

@@ -74,8 +74,12 @@ export default class ApplitoolsModule extends OxygenModule {
         if(this.options.name && typeof this.options.name === 'string'){
             testName = this.options.name;
         }
-        
-        await driver.call(() => this._eyes.open(driver, appName, testName, this._viewport));
+        try {
+            await driver.call(() => this._eyes.open(driver, appName, testName, this._viewport));
+        }
+        catch (e) {
+            throw new ModuleError(`Failed to initialize "eyes" module: ${e.message}`);
+        }
         super.init();
     }
     /**

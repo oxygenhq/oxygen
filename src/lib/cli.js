@@ -12,6 +12,13 @@ import Launcher from './launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
 
 process.on('SIGINT', handleSigInt);
+process.on('uncaughtException', error => {
+    console.error('uncaughtException', error);
+});
+
+process.on('unhandledRejection', error => {
+    console.error('unhandledRejection', error);
+});
 
 // parse command line arguments
 const argv = require('minimist')(process.argv.slice(2));
@@ -71,7 +78,8 @@ async function prepareAndStartTheTest(options) {
 }
 
 function handleSigInt() {
-    process.exit(0);
+    // delay process exit to let Oxygen to properly dispose
+    setTimeout(() => process.exit(0), 2000);
 }
 
 function printUsage() {

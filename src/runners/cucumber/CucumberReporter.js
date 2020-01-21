@@ -6,13 +6,13 @@ import oxutil from '../../lib/util';
 import errorHelper from '../../errors/helper';
 
 export default class CucumberReporter {
-    constructor(runnerId, cucumberEventListener, oxygenEventListener, mainReporter, options) {
+    constructor(runnerId, options, cucumberEventListener, oxygenEventListener, reportDispatcher, testHooks) {
         this.runnerId = runnerId;
         this.suites = {};
         this.currentStep = null;
         this.cucumberEventListener = cucumberEventListener;
         this.oxygenEventListener = oxygenEventListener;
-        this.mainReporter = mainReporter;
+        this.reportDispatcher = reportDispatcher;
         this.options = options;
 
         this.onBeforeFeature = this.onBeforeFeature.bind(this);
@@ -24,6 +24,8 @@ export default class CucumberReporter {
         this.onTestEnd = this.onTestEnd.bind(this);
         this.onBeforeOxygenCommand = this.onBeforeOxygenCommand.bind(this);
         this.onAfterOxygenCommand = this.onAfterOxygenCommand.bind(this);
+
+        this.testHooks = testHooks;
 
         this.hookEvents();
     }
@@ -61,12 +63,15 @@ export default class CucumberReporter {
         suiteResult.location = location;
         suiteResult.startTime = oxutil.getTimeStamp();
 
-        if (this.mainReporter.onSuiteStart && typeof this.mainReporter.onSuiteStart === 'function') {
-            this.mainReporter.onSuiteStart(this.runnerId, uri, suiteResult);
+        // call test hook if defined
+        if (typeof this.testHooks.beforeSuite === 'function') {
+            this.testHooks.beforeSuite(this.runnerId, suiteResult);
         }
-        if (this.options && typeof this.options.beforeSuite === 'function') {
-            this.options.beforeSuite(suiteResult);
+        // call report generator
+        if (this.reportDispatcher.onSuiteStart && typeof this.reportDispatcher.onSuiteStart === 'function') {
+            this.reportDispatcher.onSuiteStart(this.runnerId, uri, suiteResult);
         }
+        
     }
 
     onAfterFeature(uri, feature) {
@@ -79,10 +84,13 @@ export default class CucumberReporter {
         suiteResult.endTime = oxutil.getTimeStamp();
         suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
         suiteResult.status = this.determineSuiteStatus(suiteResult);
-        this.mainReporter.onSuiteEnd(this.runnerId, uri, suiteResult);
-
-        if (this.mainReporter.onSuiteEnd && typeof this.mainReporter.onSuiteEnd === 'function') {
-            this.mainReporter.onSuiteEnd(this.runnerId, uri, suiteResult);
+        // call test hook if defined
+        if (typeof this.testHooks.afterSuite === 'function') {
+            this.testHooks.afterSuite(this.runnerId, suiteResult);
+        }
+        // call report generator
+        if (this.reportDispatcher.onSuiteEnd && typeof this.reportDispatcher.onSuiteEnd === 'function') {
+            this.reportDispatcher.onSuiteEnd(this.runnerId, uri, suiteResult);
         }
     }
 
@@ -98,9 +106,13 @@ export default class CucumberReporter {
         caseResult.location = caseId;
         caseResult.startTime = oxutil.getTimeStamp();
         cases.push(caseResult);
-
-        if (this.mainReporter.onCaseStart && typeof this.mainReporter.onCaseStart === 'function') {
-            this.mainReporter.onCaseStart(this.runnerId, uri, caseId, scenario);
+        // call test hook if defined
+        if (typeof this.testHooks.beforeCase === 'function') {
+            this.testHooks.beforeCase(this.runnerId, scenario);
+        }
+        // call report generator
+        if (this.reportDispatcher.onCaseStart && typeof this.reportDispatcher.onCaseStart === 'function') {
+            this.reportDispatcher.onCaseStart(this.runnerId, uri, caseId, scenario);
         }
     }
 
@@ -116,8 +128,13 @@ export default class CucumberReporter {
         caseResult.endTime = oxutil.getTimeStamp();
         caseResult.duration = caseResult.endTime - caseResult.startTime;
         caseResult.status = this.determineCaseStatus(caseResult);
-        if (this.mainReporter.onCaseEnd && typeof this.mainReporter.onCaseEnd === 'function') {
-            this.mainReporter.onCaseEnd(this.runnerId, uri, caseId, caseResult);
+        // call test hook if defined
+        if (typeof this.testHooks.afterCase === 'function') {
+            this.testHooks.afterCase(this.runnerId, caseResult);
+        }
+        // call report generator
+        if (this.reportDispatcher.onCaseEnd && typeof this.reportDispatcher.onCaseEnd === 'function') {
+            this.reportDispatcher.onCaseEnd(this.runnerId, uri, caseId, caseResult);
         }
     }
 
@@ -133,8 +150,13 @@ export default class CucumberReporter {
         stepResult.name = step.text;
         stepResult.startTime = oxutil.getTimeStamp();
         stepResult.location = `${uri}:${step.location.line}`;
-        if (this.mainReporter.onStepStart && typeof this.mainReporter.onStepStart === 'function') {
-            this.mainReporter.onStepStart(this.runnerId, uri, caseId, stepResult);
+        // call test hook if defined
+        if (typeof this.testHooks.beforeStep === 'function') {
+            this.testHooks.beforeStep(this.runnerId, step);
+        }
+        // call report generator
+        if (this.reportDispatcher.onStepStart && typeof this.reportDispatcher.onStepStart === 'function') {
+            this.reportDispatcher.onStepStart(this.runnerId, stepResult);
         }
     }
 
@@ -155,9 +177,13 @@ export default class CucumberReporter {
             //console.log('result.exception', result.exception)   
             stepResult.failure = errorHelper.getFailureFromError(result.exception);
         }        
-
-        if (this.mainReporter.onStepEnd && typeof this.mainReporter.onStepEnd === 'function') {
-            this.mainReporter.onStepEnd(this.runnerId, uri, caseId, stepResult);
+        // call test hook if defined
+        if (typeof this.testHooks.afterStep === 'function') {
+            this.testHooks.afterStep(this.runnerId, stepResult, result.exception);
+        }
+        // call report generator
+        if (this.reportDispatcher.onStepEnd && typeof this.reportDispatcher.onStepEnd === 'function') {
+            this.reportDispatcher.onStepEnd(this.runnerId, stepResult);
         }
     }
 

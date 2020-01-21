@@ -17,6 +17,15 @@ const _ = require('lodash');
 const moment = require('moment');
 const crypto = require('crypto');
 
+const DUMMY_HOOKS = {
+    beforeTest: () => {},
+    beforeSuite: () => {},
+    beforeCase: () => {},
+    afterTest: () => {},
+    afterSuite: () => {},
+    afterCase: () => {},
+};
+
 var self = module.exports = {
 
     generateUniqueId: function() {
@@ -236,5 +245,32 @@ var self = module.exports = {
         // return process.debugPort || argv.includes('inspect') || argv.includes('inspect-brk') || argv.includes('debug');
 
         return false;
+    },
+
+    loadTestHooks: function(options) {
+        let hooks = DUMMY_HOOKS;
+        if (options && options.target && options.target.name === 'oxygen.conf') {
+            try {
+                hooks = require(options.target.path).hooks || DUMMY_HOOKS;
+            }
+            catch (e) {
+                console.warn('Error loading user hooks:', e);
+            }
+        }
+        return hooks;
+    },
+
+    executeTestHook: async function(hooks, method, args) {
+        // if hook is not defined, just quietly ignore it
+        if (!hooks || !method || !hooks[method] || typeof hooks[method] !== 'function') {
+            return null;
+        }
+        try {
+            await hooks[method].apply(undefined, args); 
+        }
+        catch (e) {
+            console.error(`Hook "${method}" has thrown an error: ${e.toString()}`);
+            throw e;
+        }
     }
 };

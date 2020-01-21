@@ -16,15 +16,14 @@ import isGlob from 'is-glob';
 import glob from 'glob';
 
 import {
-    executeHooksWithArgs,
     executeSync,
     executeAsync
 } from '@wdio/sync'; //'wdio-sync';
 import { isFunctionAsync, hasWdioSyncSupport, runFnInFiberContext } from '@wdio/utils';
 import { EventEmitter } from 'events';
 
-import CucumberEventListener from './cucumber-event-listener';
-import CucumberReporter from './reporter';
+import CucumberEventListener from './CucumberEventListener';
+import CucumberReporter from './CucumberReporter';
 import Oxygen from '../../core/OxygenCore';
 import oxutil from '../../lib/util';
 
@@ -52,8 +51,10 @@ const DEFAULT_OPTS = {
 global.browser = {};
 
 export default class CucumberWorker {
-    constructor () {
+    constructor (reporter) {
+        this.rid = null;
         this.isInitialized = false;
+        this.reporter = reporter;
         this.cucumberEventListener = null;
         this.cucumberReporter = null;
         this.oxygen = null;
@@ -68,16 +69,17 @@ export default class CucumberWorker {
         this.rid = rid;
         this.config = config;
         this.cwd = this.config.cwd || process.cwd();
-        this.specs = config.specs || [];
+        this.specs = this.resolveSpecFiles(config.specs || []); // config.specs || [];
         this.isInitialized = true;
         this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);
+        this.testHooks = oxutil.loadTestHooks(config);
     }
 
     dispose() {
         this.isInitialized = false;
     }
 
-    async run () {
+    async run (runOpts) {
         try {
             Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
             await this.initializeOxygenCore();
@@ -89,11 +91,9 @@ export default class CucumberWorker {
             this.wrapSteps();
             Cucumber.setDefaultTimeout(this.cucumberOpts.timeout);
             const supportCodeLibrary = Cucumber.supportCodeLibraryBuilder.finalize();
-    
             const eventBroadcaster = new EventEmitter();
             this.hookInCucumberEvents(eventBroadcaster);
-            this.cucumberReporter = new CucumberReporter(this.id, this.cucumberEventListener, this.oxygen, this.reporter, this.config);
-        
+            this.cucumberReporter = new CucumberReporter(this.rid, this.config, this.cucumberEventListener, this.oxygen, this.reporter, this.testHooks);            
             const pickleFilter = new Cucumber.PickleFilter({
                 featurePaths: this.specs,
                 names: this.cucumberOpts.name,
@@ -112,19 +112,23 @@ export default class CucumberWorker {
                 supportCodeLibrary,
                 testCases
             });
-            
-            const beforeHookRetval = await executeHooksWithArgs(this.config.before, [this.capabilities, this.specs]);
-            // if beforeHookRetval contains some value, then this is an error thrown by 'before' method
-            if (beforeHookRetval && Array.isArray(beforeHookRetval) && beforeHookRetval.length > 0 && beforeHookRetval[0]) {
-                throw beforeHookRetval[0];
+            // call 'beforeTest' hook
+            let hookError = await oxutil.executeTestHook(this.testHooks, 'beforeTest', [this.rid, this.config, this.capabilities]);
+            if (hookError) {
+                throw hookError;
             }
-            
-            const result = await runtime.start() ? 0 : 1;
-
-            const afterHookRetval = await executeHooksWithArgs(this.config.after, [result, this.capabilities, this.specs]);
-            // if afterHookRetval contains some value, then this is an error thrown by 'after' method
-            if (afterHookRetval && Array.isArray(afterHookRetval) && afterHookRetval.length > 0 && afterHookRetval[0]) {
-                throw afterHookRetval[0];
+            // run the test
+            let result = null, error = null;
+            try {
+                result = await runtime.start() ? 0 : 1;
+            }
+            catch (e) {
+                error = e;
+            }
+            // call 'afterTest' hook
+            hookError = await oxutil.executeTestHook(this.testHooks, 'afterTest', [this.rid, result, error]);
+            if (hookError) {
+                throw hookError;
             }
 
             await this.disposeOxygenCore();
@@ -132,7 +136,7 @@ export default class CucumberWorker {
             return result;
         }
         catch (e) {
-            console.log('Fatal error in Cucumber runner:', e);
+            console.log('Fatal error in CucumberWorker:', e.toString());
             throw e;
         }
     }
@@ -196,6 +200,21 @@ export default class CucumberWorker {
             require(codePath);
         });
         mockery.disable();
+    }
+
+    resolveSpecFiles (specs) {
+        if (!Array.isArray(specs)) {
+            return [];
+        }
+        return specs.reduce((files, specFile) => {
+            const absolutePath = oxutil.resolvePath(specFile, this.cwd);
+            if (isGlob(absolutePath)) {
+                return files.concat(glob.sync(absolutePath));
+            } 
+            else {
+                return files.concat(absolutePath);
+            }
+        }, []);
     }
 
     beforeCommandHandler() {
@@ -276,6 +295,7 @@ export default class CucumberWorker {
 
     hookInCucumberEvents(eventBroadcaster) {
         this.cucumberEventListener = new CucumberEventListener(eventBroadcaster);
+        /*
         this.cucumberEventListener.on('feature:before', this.onBeforeFeature);
         this.cucumberEventListener.on('feature:after', this.onAfterFeature);
         this.cucumberEventListener.on('scenario:before', this.onAfterFeature);
@@ -283,6 +303,7 @@ export default class CucumberWorker {
         this.cucumberEventListener.on('step:before', this.onAfterFeature);
         this.cucumberEventListener.on('step:after', this.onAfterFeature);
         this.cucumberEventListener.on('test:end', this.onTestEnd);
+        */
     }
 
     onBeforeFeature() {

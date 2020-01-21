@@ -87,18 +87,18 @@ export default class Oxygen extends OxygenEvents {
         this.ctx.caps = { ...ctx.caps || {}, ...caps, };
         this.resultStore = Object.assign(DEFAULT_RESULT_STORE, results || {});
         this.capabilities = this.ctx.caps = caps;
+        
         // define 'ox' object in global JS scope
-        // we will use this object to access Oxygen modules and test context from modules used in the test (if any)
-        global.ox = {
-            modules: this.modules,
-            ctx: this.ctx,
-            options: this.opts,
-            caps: this.capabilities,
-            resultStore: this.resultStore
-        };
+        // we will use this object to access Oxygen modules and test context from modules used in the test (if any)        
+        this.makeOxGlobal();
+        // load services
         this._loadServices();
+        // load modules
         this._loadModules();
-
+        // if options.makeModulesGlobal is true or undefined than define 'ctx' content and each module in global scope
+        if (typeof options.globalScope === 'undefined' || options.globalScope === true) {
+            this.makeContextAndModulesGlobal();
+        }
         this.isInitialized = true;
     }
 
@@ -140,6 +140,11 @@ export default class Oxygen extends OxygenEvents {
         this.ctx = ctx;
         if (global.ox) {
             global.ox.ctx = ctx;
+            if (typeof this.opts.globalScope === 'undefined' || this.opts.globalScope === true) {
+                // update "params" and "env" in "ox" global variable
+                global.params = ctx.params || {};
+                global.env = ctx.env || {};
+            }
         }
     }
 
@@ -188,6 +193,54 @@ export default class Oxygen extends OxygenEvents {
 
     onAfterCase(error = null) {
         this._callModulesOnAfterCase(error);
+    }
+
+    makeOxGlobal() {        
+        if (!global.ox) {
+            global.ox = {
+                modules: this.modules,
+                ctx: this.ctx,
+                options: this.opts,
+                caps: this.capabilities,
+                resultStore: this.resultStore
+            };
+        }
+    }
+
+    makeContextAndModulesGlobal() {
+        // make sure 'ox' is already global
+        if (global.ox) {
+            // expose modules as global variables
+            for (let moduleName in this.modules) {
+                if (!global[moduleName]) {
+                    global[moduleName] = this.modules[moduleName];
+                }
+            }
+            // expose "ctx", "params" and "env" as global variables
+            global.params = global.ox.ctx.params;
+            global.env = global.ox.ctx.env;
+            global.ctx = global.ox.ctx;            
+        }
+    }
+
+    loadPageObjectFile(poPath) {
+        if (!poPath) {
+            return;
+        }
+        try {
+            const po = require(poPath);
+            // set page object repository as the main one
+            this.repository = po;
+            if (typeof this.opts.globalScope === 'undefined' || this.opts.globalScope === true) {
+                global.po = po;
+            }
+        }
+        catch (e) {
+            // ignore error
+            if (typeof this.opts.globalScope === 'undefined' || this.opts.globalScope === true) {
+                global.po = {};
+            }
+        }
     }
 
     /*
