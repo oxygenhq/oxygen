@@ -266,6 +266,15 @@ var self = module.exports = {
             return null;
         }
         try {
+            const chai = require('chai');
+            const mock = require('mock-require');
+
+            mock('chai', { 
+                expect: chai.expect,
+                assert: chai.assert,
+                should: chai.should
+            });
+
             await hooks[method].apply(undefined, args); 
         }
         catch (e) {
