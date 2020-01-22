@@ -104,10 +104,10 @@ function emitReporterEvent(method, args) {
     });
 }
 
-async function dispose() {
+async function dispose(status= null) {
     if (_worker) {
         try {
-            await _worker.dispose();
+            await _worker.dispose(status);
         }
         catch (e) {
             // ignore

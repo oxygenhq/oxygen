@@ -82,15 +82,15 @@ export default class WorkerProcess extends EventEmitter {
         }        
     }
 
-    async dispose() {
+    async dispose(status = null) {
         if (this._isInitialized && this._childProc) {               
-            await this.invoke('dispose');
+            await this.invoke('dispose', status);
         }
     }
 
-    async disposeModules() {
+    async disposeModules(status = null) {
         if (this._isInitialized && this._childProc) {               
-            await this.invoke('disposeModules');
+            await this.invoke('disposeModules', status);
         }
     }
 

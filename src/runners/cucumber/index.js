@@ -59,8 +59,8 @@ export default class CucumberRunner {
         this.worker.init(this.id, config);
     }
 
-    async dispose() {
-        await this.worker.dispose();
+    async dispose(status = null) {
+        await this.worker.dispose(status);
         this.isInitialized = false;
     }
 
@@ -76,6 +76,10 @@ export default class CucumberRunner {
             console.log('Fatal error in Cucumber runner:', e);
             this.reporter.onRunnerEnd(this.id, null, e);
         }
+    }
+
+    async kill(status = null) {
+        this._testKilled = true;
     }
 
     resolveSpecFiles (specs) {

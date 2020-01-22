@@ -76,8 +76,19 @@ export default class CucumberWorker {
         this.testHooks = oxutil.loadTestHooks(config);
     }
 
-    dispose() {
+    async dispose(status = null) {
         this.isInitialized = false;
+        if (this.oxygen) {
+            try {
+                await this.oxygen.dispose(status);
+            }
+            catch (e) {
+                this._logger.error('Failed to dispose Oxygen', null, e);
+            }
+            finally {
+                this.oxygen = null;
+            }
+        }
     }
 
     async run (runOpts) {
