@@ -11,21 +11,42 @@
  * Cucumber worker process.
  * Provides everything necessary for executing Cucumber-based JS test scripts.
  */
-require('@babel/register')({
-    // Since babel ignores all files outside the cwd, it does not compile sibling packages
-    // So rewrite the ignore list to only include node_modules
-    ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
-    retainLines: true,
-    overrides: [{
-        'test': [/underscore.js/, /websocket.js/],
-        'sourceType': 'script',
-    },{
-        'exclude': /app\/node_modules/
-    },{
-        'exclude': /node_modules/
-    }],
-    'presets': [['@babel/preset-env', {
-        'targets': { 'browsers': ['last 2 chrome versions'] }
-    }]],
-});
-require('./worker');
+if(process.platform === 'win32' && process.env.NODE_ENV === undefined){
+    require('@babel/register')({
+        // Since babel ignores all files outside the cwd, it does not compile sibling packages
+        // So rewrite the ignore list to only include node_modules
+        ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
+        retainLines: true,
+        overrides: [{
+            'test': [/underscore.js/, /websocket.js/],
+            'sourceType': 'script',
+        },{
+            'exclude': /app\/node_modules/
+        },{
+            'exclude': /node_modules/
+        }],
+        'presets': [['./resources/app/node_modules/@babel/preset-env', {
+            'targets': { 'browsers': ['last 2 chrome versions'] }
+        }]],
+    });
+    require('./worker');
+} else {
+    require('@babel/register')({
+        // Since babel ignores all files outside the cwd, it does not compile sibling packages
+        // So rewrite the ignore list to only include node_modules
+        ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
+        retainLines: true,
+        overrides: [{
+            'test': [/underscore.js/, /websocket.js/],
+            'sourceType': 'script',
+        },{
+            'exclude': /app\/node_modules/
+        },{
+            'exclude': /node_modules/
+        }],
+        'presets': [['@babel/preset-env', {
+            'targets': { 'browsers': ['last 2 chrome versions'] }
+        }]],
+    });
+    require('./worker');
+}
