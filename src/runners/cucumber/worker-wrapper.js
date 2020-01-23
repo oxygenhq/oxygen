@@ -12,6 +12,9 @@
  * Provides everything necessary for executing Cucumber-based JS test scripts.
  */
 if(process.platform === 'win32' && process.env.NODE_ENV === undefined){
+    var path = require('path');
+    var envPreset = './../../../../@babel/preset-env';
+    var envPath = path.resolve(__dirname,envPreset);
     require('@babel/register')({
         // Since babel ignores all files outside the cwd, it does not compile sibling packages
         // So rewrite the ignore list to only include node_modules
@@ -25,7 +28,7 @@ if(process.platform === 'win32' && process.env.NODE_ENV === undefined){
         },{
             'exclude': /node_modules/
         }],
-        'presets': [['./resources/app/node_modules/@babel/preset-env', {
+        'presets': [[envPath, {
             'targets': { 'browsers': ['last 2 chrome versions'] }
         }]],
     });
