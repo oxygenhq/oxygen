@@ -16,8 +16,9 @@ const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
  * WorkerProcess responsible for spawning a worker process the test instance.
  */
 export default class WorkerProcess extends EventEmitter {
-    constructor(pid, workerPath, debugMode, debugPort) {
+    constructor(pid, workerPath, debugMode, debugPort, name = null) {
         super();
+        this._name = name;
         this._isRunning = false;
         this._isInitialized = false;
         this._stoppedByUser = true;
@@ -78,18 +79,26 @@ export default class WorkerProcess extends EventEmitter {
             const afterTime = new Date().getTime();    
             const duration = afterTime - beforeTime;    
             this._isInitialized = true;
-            console.log('Worker initialized in ' + duration + ' ms');
-        }        
+            let start = '';
+            if(this._name){
+                start = this._name+' ';
+            }
+            console.log(start+'Worker initialized in ' + duration + ' ms');
+        }
     }
 
     async dispose(status = null) {
-        if (this._isInitialized && this._childProc) {               
-            await this.invoke('dispose', status);
+        if (this._childProc) {     
+            this._send({
+                type: 'exit',
+                status: status,
+            });
+            this._childProc.kill('SIGINT');
         }
     }
 
     async disposeModules(status = null) {
-        if (this._isInitialized && this._childProc) {               
+        if (this._childProc) {               
             await this.invoke('disposeModules', status);
         }
     }

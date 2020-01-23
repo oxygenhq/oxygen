@@ -96,7 +96,7 @@ process.on('SIGINT', async function() {
     logger.debug('SIGINT received');
     if (_worker) {
         try {
-            await _worker.dispose();
+            await _worker.dispose('CANCELED');
         }
         catch (e) {
             // ignore any error

@@ -60,7 +60,7 @@ let _worker = new CucumberWorker(reporter);
 
 process.on('SIGINT', async function() {
     logger.debug('SIGINT received');
-    await dispose();
+    await dispose('CANCELED');
     process.exit(0);
 });
 

@@ -490,7 +490,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _startWorkerProcess() {
         const workerPath = path.join(__dirname, 'worker.js');
-        this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort);
+        this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen');
         await this._worker.start();
         this._hookWorkerEvents();
     }
