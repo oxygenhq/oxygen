@@ -11,7 +11,7 @@
  * Report aggregator
  */
 import { EventEmitter } from 'events';
-
+import path from 'path';
 import TestResult from '../model/test-result';
 import oxutil from '../lib/util';
 
@@ -165,6 +165,12 @@ export default class ReportAggregator extends EventEmitter {
 
     onStepStart(rid, step) {
         console.log(`  - Step "${step.name}" has started...`);
+
+        if(this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber'){
+            const fullPath = path.resolve(this.options.rootPath, step.location);
+            step.location = fullPath+':1';
+        }
+
         this.emit('step:start', {
             rid,
             step: step,
