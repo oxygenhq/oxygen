@@ -110,23 +110,29 @@ export function getConfigurations(target, argv) {
             file: argv.p || argv.param || null,
             mode: argv.pm || 'seq'
         },
-    };
-    // set reporters if set by user through comnand line (--rf switch)
-    if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
-        const reporters = argv.rf.split(',');
-        startupOpts.reporting.reporters = reporters;
-    }
-    // set a list of modules to be loaded, if set by user through comnand line (--modules switch)
-    if (argv.modules && typeof argv.modules === 'string' && argv.modules.length > 0) {
-        const modules = argv.modules.split(',');
-        startupOpts.modules = modules;
-    }
+    };    
     // if the target is oxygen config file, merge its content with the default options
     let moreOpts = {};
     if (target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
         moreOpts = require(target.path);
     } 
+    // override test options with user settings set via command line arguments
 
+    // set reporters if set by user through comnand line (--rf switch)
+    if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
+        const reporters = argv.rf.split(',');
+        moreOpts.reporting.reporters = reporters;
+    }
+    // set specs if set by user through comnand line (--specs switch)
+    if (argv.specs && typeof argv.specs === 'string' && argv.specs.length > 0) {
+        const specs = argv.specs.split(',');
+        moreOpts.specs = specs;
+    }
+    // set a list of modules to be loaded, if set by user through comnand line (--modules switch)
+    if (argv.modules && typeof argv.modules === 'string' && argv.modules.length > 0) {
+        const modules = argv.modules.split(',');
+        moreOpts.modules = modules;
+    }
     // determine test name
     let name = startupOpts.name || moreOpts.name || null;
     if (!name) {

@@ -64,7 +64,7 @@ const ERROR_CODES = {
 
 // Chai to Oxygen error codes mapping
 const CHAI_ERROR_CODES = {
-    AssertionError: ERROR_CODES.ASSERT
+    AssertionError: ERROR_CODES.ASSERT_ERROR
 };
 
 // General JavaScript error codes mapping
@@ -102,7 +102,6 @@ module.exports = {
         }
                 
         var errType = err.type || err.name || typeof err;
-
         // handle "Can't call <command> on element with selector <selector> because element wasn't found"
         if (err.message && err.message.includes('because element wasn\'t found')) {
             return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, err.message, null, true, err);
