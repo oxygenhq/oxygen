@@ -22,7 +22,7 @@
                         <div id="collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>" class="panel-collapse collapse in">
                             <div class="panel-body">    
                                 <% if (caseResult.failure) { %>
-                                <pre style="background-color: #fcacac"><b><%= caseResult.failure.type %></b><br><%= caseResult.failure.message %></pre>
+                                <pre style="background-color: #fcacac"><b><%= caseResult.failure.type %></b><%= caseResult.failure.message %></pre>
                                 <% } %>
                                 <h4>Steps</h4>
                                 <table class="table table-bordered" style="width: 100%; table-layout: fixed;">

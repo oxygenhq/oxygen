@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with Mailinator service - www.mailinator.com
+ * @name mailinator
+ * @description Provides methods for working with Mailinator service - www.mailinator.com
  */
 
 import OxError from '../errors/OxygenError';
@@ -104,7 +105,7 @@ module.exports = function() {
      *       "fromfull": "noreply@example.com",
      *       "subject": "Subject",
      *       "from": "Test Tester",
-     *       "origfrom": "Test Tester <noreply@example.com>",
+     *       "origfrom": "Test Tester noreply@example.com",
      *       "to": "inbox-name",
      *       "id": "RANDOMLY GENERATED ID",
      *       "time": 1491200030000,
@@ -142,7 +143,7 @@ module.exports = function() {
      *         }
      *       ],
      *       "from":"Test Tester",
-     *       "origfrom":"Test Tester <noreply@example.com>",
+     *       "origfrom":"Test Tester noreply@example.com",
      *       "to":"cb-test-2",
      *       "id":"RANDOMLY GENERATED ID",
      *       "time":1491200030000,

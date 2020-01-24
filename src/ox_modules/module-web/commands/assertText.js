@@ -10,7 +10,7 @@
 /**
  * @summary Asserts element's inner text.
  * @description Text pattern can be any of the supported
- *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+ *  string matching patterns(on the top of page).
  *  If the element is not interactable, then it will allways return empty string as its text.
  * @function assertText
  * @param {String|Element} locator - An element locator.

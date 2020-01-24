@@ -35,7 +35,7 @@ module.exports = function(value) {
     // and `keys` crashes.
     // thus, do same thing as WDIO except releaseActions
 
-    /**
+    /*
      * replace key with corresponding unicode character
      */
     if (typeof value === 'string') {
@@ -52,7 +52,7 @@ module.exports = function(value) {
         throw new Error('"keys" command requires a string or array of strings as parameter');
     }
 
-    /**
+    /*
      * JsonWireProtocol action
      */
     if (!this.driver.isW3C) {
@@ -60,7 +60,7 @@ module.exports = function(value) {
         return;
     }
 
-    /**
+    /*
      * W3C way of handle it key actions
      */
     const keyDownActions = keySequence.map((value) => ({ type: 'keyDown', value }));

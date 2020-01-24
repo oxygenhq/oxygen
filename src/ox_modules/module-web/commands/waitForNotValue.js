@@ -10,7 +10,7 @@
 /**
  * @summary Waits for input element's value to stop matching the specified pattern.
  * @description Value pattern can be any of the supported 
- *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+ *  string matching patterns(on the top of page).
  * @function waitForNotValue
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - Value pattern.

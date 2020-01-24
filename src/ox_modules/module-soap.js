@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with SOAP based Web Services.
+ * @name soap
+ * @description Provides methods for working with SOAP based Web Services.
  */
 
 import OxError from '../errors/OxygenError';

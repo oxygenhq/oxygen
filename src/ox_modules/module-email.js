@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with email via IMAP.
+ * @name email
+ * @description Provides methods for working with email via IMAP.
  */
 
 import OxError from '../errors/OxygenError';

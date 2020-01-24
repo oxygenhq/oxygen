@@ -10,7 +10,7 @@
 /**
  * @summary Asserts text of the currently selected option in a drop-down list.
  * @description Assertion pattern can be any of the supported 
- *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+ *  string matching patterns(on the top of page).
  * @function assertSelectedLabel
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - The assertion pattern.

@@ -12,7 +12,8 @@ import OxygenModule from '../core/OxygenModule';
 const MODULE_NAME = 'log';
 
 /**
- * Provides methods for printing user defined messages to test results.
+ * @name log
+ * @description Provides methods for printing user defined messages to test results.
  */
 export default class LogModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
