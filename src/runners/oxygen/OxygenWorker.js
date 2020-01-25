@@ -12,7 +12,7 @@
 
 const Fiber = require('fibers');
 const path = require('path');
-const ScriptNotFoundError = require('../../errors/ScriptNotFound');
+const ScriptNotFoundError = require('../../errors/ScriptNotFound').default;
 const { EventEmitter } = require('events');
 
 const Oxygen = require('../../core/OxygenCore').default;
@@ -89,7 +89,8 @@ export default class OxygenWorker extends EventEmitter {
             error = errorHelper.getFailureFromError(error);
         } 
         const moduleCaps = this._oxygen.getModulesCapabilities();
-        const resultStore = this._oxygen.results;
+        // clone the results, otherwise resultStore will be empty after the following this._oxygen.resetResults() call
+        const resultStore = { ...this._oxygen.results };
         // reset steps and other result data
         this._oxygen.resetResults();
         this._steps = null;
