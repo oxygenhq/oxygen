@@ -112,7 +112,7 @@ export function getConfigurations(target, argv) {
         },
     };    
     // if the target is oxygen config file, merge its content with the default options
-    let moreOpts = {};
+    let moreOpts = { reporting: {} };
     if (target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
         moreOpts = require(target.path);
     } 
