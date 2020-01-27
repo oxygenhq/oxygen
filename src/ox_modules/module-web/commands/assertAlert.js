@@ -10,7 +10,7 @@
 /**
  * @summary Asserts whether alert matches the specified pattern and dismisses it.
  * @description Text pattern can be any of the supported
- *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+ *  string matching patterns(on the top of page).
  * @function assertAlert
  * @param {String} pattern - Text pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.

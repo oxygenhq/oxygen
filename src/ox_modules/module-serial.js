@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with serial ports.
+ * @name serial
+ * @description Provides methods for working with serial ports.
  */
 import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
@@ -101,7 +102,7 @@ module.exports = function() {
     /**
      * @summary Waits for text to appear in the input data buffer.
      * @description Text pattern can be any of the supported 
-     *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+     *  string matching patterns(on the top of page).
      * @function waitForText
      * @param {String} pattern - Text pattern.
      * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.

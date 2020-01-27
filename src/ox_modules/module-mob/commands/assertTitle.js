@@ -9,7 +9,7 @@
 /**
  * @summary Asserts the page title.
  * @description Assertion pattern can be any of the supported 
- *  [string matching patterns](http://docs.oxygenhq.org/api-mob.html#patterns).
+ *  string matching patterns(on the top of page).
  * @function assertTitle
  * @param {String} pattern - Assertion text or pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.

@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides generic assertion methods.
+ * @name assert
+ * @description Provides generic assertion methods.
  */
 
 const chai = require('chai');

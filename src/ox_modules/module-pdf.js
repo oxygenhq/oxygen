@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides generic methods for working with PDF files.
+ * @name pdf
+ * @description Provides generic methods for working with PDF files.
  */
 
 import OxError from '../errors/OxygenError';

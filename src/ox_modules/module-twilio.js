@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with Twilio service.
+ * @name twilio
+ * @description Provides methods for working with Twilio service.
  */
 import OxErrorContsructor from '../errors/OxygenError';
 

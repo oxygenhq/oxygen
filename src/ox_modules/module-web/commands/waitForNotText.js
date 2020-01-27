@@ -10,7 +10,7 @@
 /**
  * @summary Waits for inner text of the given element to stop matching the specified pattern.
  * @description Text pattern can be any of the supported 
- *  [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+ *  string matching patterns(on the top of page).
  * @function waitForNotText
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - Text pattern.
