@@ -19,14 +19,14 @@ export async function loadSuites(config, argv) {
         return;
     }
     const { target } = config;
-    const isConfigFile = target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0;
+    const isConfigFile = target && target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0;
     let suites = [];
     // if an individual script or suite file was passed
     if (!isConfigFile) {
-        if (target.extension === '.js') {
+        if (target && target.extension === '.js') {
             suites.push(await oxutil.generateTestSuiteFromJSFile(target.path, config.parameters.file, config.parameters.mode, false, config.iterations || 1));
         }
-        else if (target.extension === '.json') {
+        else if (target && target.extension === '.json') {
             suites.push(await oxutil.generateTestSuiteFromJsonFile(target.path, config.parameters.file, config.parameters.mode, config));
         }
     }
@@ -56,7 +56,7 @@ export function loadSuitesFromFolder(folderPath) {
 }
 
 export function getPageObjectFilePath(config, argv = {}) {
-    const target = config.target;
+    const target = config.target || {};
     const poFileName = argv.po || `${OXYGEN_PAGE_OBJECT_FILE_NAME}.js`;
     const cwd = target.cwd || process.cwd();
     const poFilePath = path.resolve(cwd, poFileName);
@@ -64,7 +64,7 @@ export function getPageObjectFilePath(config, argv = {}) {
 }
 
 export function loadEnvironmentVariables(config, argv) {
-    const target = config.target;
+    const target = config.target || {};
     const envName = argv.env || 'default';
     const cwd = target.cwd || process.cwd();
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
@@ -90,7 +90,7 @@ export function getConfigurations(target, argv) {
     // process command line arguments
     const startupOpts = {
         name: argv.name || null,
-        cwd: target.cwd,
+        cwd: target ? (target.cwd || process.cwd()) : process.cwd(),
         target: target,
         browserName : argv.b || argv.browser || 'chrome',
         seleniumUrl : argv.s || argv.server || 'http://localhost:4444/wd/hub',
@@ -113,7 +113,7 @@ export function getConfigurations(target, argv) {
     };    
     // if the target is oxygen config file, merge its content with the default options
     let moreOpts = {};
-    if (target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
+    if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
         moreOpts = require(target.path);
     } 
     // override test options with user settings set via command line arguments
@@ -135,7 +135,7 @@ export function getConfigurations(target, argv) {
     }
     // determine test name
     let name = startupOpts.name || moreOpts.name || null;
-    if (!name) {
+    if (!name && target) {
         name = target.name !== OXYGEN_CONFIG_FILE_NAME ? target.name : target.baseName;
     }
 
