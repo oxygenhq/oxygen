@@ -43,9 +43,10 @@
  *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>	
  *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>	
  *  <li><code>link-contains=TEXT</code> - Locates link element whose visible text contains the given string.</li>	
- *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>	
+ *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>  
+ *  <li><code>tag=NAME</code> - Locates element by its tag name.</li>  
  *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>	
- *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</li>	
+ *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</li>
  *  </ul>	
  * </div>
  */
