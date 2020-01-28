@@ -43,7 +43,7 @@ export default class DevToolsService extends OxygenService {
             options.debuggerAddress = this._driver.capabilities['goog:chromeOptions']['debuggerAddress'];
         }
 
-        if(capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'])){
+        if(capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'] || capabilities['testingBot:options'])){
             submodule.init();
         } else {
             // initialize DevToolsService and hook it to the current webdriver object

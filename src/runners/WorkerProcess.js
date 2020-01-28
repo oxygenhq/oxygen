@@ -61,21 +61,26 @@ export default class WorkerProcess extends EventEmitter {
         return this._childProc;
     }
 
-    async stop() {
-        if (this._childProc) {
+    async stop(status = null) {
+        if (this._isInitialized && this._childProc) {
+            await this.invoke('dispose', status);
             this._childProc.kill('SIGINT');
             await snooze(100);
-        }        
+        } else if (this._childProc) {
+            this._childProc.kill('SIGINT');
+            await snooze(100);
+        }
         if (this._debugger) {                        
             await this._debugger.close();
         }
         this._reset();
     }
 
-    async init(rid, options) {
+    async init(rid, options, caps) {
         if (!this._isInitialized) {
             const beforeTime = new Date().getTime();
-            await this.invoke('init', rid, options);    
+            await this.invoke('init', rid, options, caps);    
+
             const afterTime = new Date().getTime();    
             const duration = afterTime - beforeTime;    
             this._isInitialized = true;
@@ -88,7 +93,18 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async dispose(status = null) {
-        if (this._childProc) {     
+        if (this._isInitialized && this._childProc) {
+            this._isInitialized = false;
+
+            await this.invoke('dispose', status);
+            this._send({
+                type: 'exit',
+                status: status,
+            });
+            this._childProc.kill('SIGINT');
+
+        } else if (this._childProc) {     
+            this._isInitialized = false;
             this._send({
                 type: 'exit',
                 status: status,
@@ -177,6 +193,7 @@ export default class WorkerProcess extends EventEmitter {
         this._whenOxygenDisposed = null;
         this._whenOxygenInitialized = null;
         this._whenModulesDisposed = null;
+        this._isInitialized = false;
     }
 
     _hookChildProcEvents() {
