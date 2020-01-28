@@ -12,10 +12,6 @@
  * @function waitForVisible
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Time in milliseconds to wait for the element. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.waitForVisible("id=Title", 45*1000);//Waits for an element to  be visible.
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

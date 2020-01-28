@@ -13,12 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Object} - X and Y location of the element relative to top-left page corner.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var loc = win.getLocation("id=element");//Get element's location.
- * var x = loc.x;
- * var y = loc.y;
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

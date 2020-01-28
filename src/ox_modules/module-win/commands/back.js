@@ -10,11 +10,6 @@
 /**
  * @summary Navigate backwards in the browser history or simulates back button on Android device.
  * @function back
- * @for android, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.click("id=NextPage);// Clicks an element and opens an alert.
- * win.back();//Navigate back to previous page.
  */
 module.exports = function() {
     this.driver.back();

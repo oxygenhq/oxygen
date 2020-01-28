@@ -13,10 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {String} - Element's text.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var a = win.getText("id=TextArea");//Gets the text from an element.
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

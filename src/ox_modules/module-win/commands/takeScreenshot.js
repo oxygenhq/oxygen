@@ -11,10 +11,9 @@
  * @function takeScreenshot
  * @summary Take a screenshot of the current page or screen and return it as base64 encoded string.
  * @return {String} Screenshot image encoded as a base64 string.
- * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var ss = win.takeScreenshot();//Take a screenshot of the current page or screen and return it as base64 encoded string.
+ * win.init(caps);
+ * var ss = win.takeScreenshot();//Take a screenshot and return it as base64 encoded string.
  * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
  */
 module.exports = function() {

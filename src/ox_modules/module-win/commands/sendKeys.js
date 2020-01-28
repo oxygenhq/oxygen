@@ -14,7 +14,6 @@
  * @function sendKeys
  * @param {(String|String[])} value - Sequence of key strokes to send. Can be either a string or an 
  *                                  array of strings for sending raw key codes.
- * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * win.init();//Opens browser session.
  * win.open("www.yourwebsite.com");// Opens a website.

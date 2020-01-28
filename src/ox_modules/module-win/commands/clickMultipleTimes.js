@@ -13,10 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number} taps - Number of taps.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.clickMultipleTimes("id=Mark",4);// Clicks an element certain amount of times.
  */
 module.exports = function(locator, taps, timeout) {
     this.helpers.assertArgumentNumberNonNegative(taps, 'taps');

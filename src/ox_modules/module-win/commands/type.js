@@ -15,10 +15,6 @@
  * @param {String|Element} locator - An element locator.
  * @param {String} value - The value to type.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.type('id=TextArea', 'hello world\uE007');
  */
 module.exports = function(locator, value, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

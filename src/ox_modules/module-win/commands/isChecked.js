@@ -13,10 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is checked. false otherwise.
- * @for android
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.isChecked("id=checkBox");//Determines if checkbox or radio element is checked.
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

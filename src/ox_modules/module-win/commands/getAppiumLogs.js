@@ -11,10 +11,6 @@
  * @function getAppiumLogs
  * @summary Collects logs from the Appium server.
  * @return {Object[]} A list of logs.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps); //Starts a mobile session and opens app from desired capabilities
- * win.getAppiumLogs(); //Collects logs from the Appium server
  */
 module.exports = function() {
     return this.driver.getLogs('server');

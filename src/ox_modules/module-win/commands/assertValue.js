@@ -12,10 +12,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {String} pattern - Value pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.assertValue("id=UserName", "John Doe");// Asserts if the value of an element.
  */
 module.exports = function(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');

@@ -16,10 +16,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {String} pattern - Assertion text or pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.assertText("id=UserName","John Doe");// Asserts if an element’s text is as expected.
  */
 module.exports = function(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');

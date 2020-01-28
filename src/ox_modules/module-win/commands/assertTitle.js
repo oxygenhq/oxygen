@@ -13,10 +13,6 @@
  * @function assertTitle
  * @param {String} pattern - Assertion text or pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.assertTitle("Your websites title!");// Asserts if the title of the page.
  */
 module.exports = function(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');

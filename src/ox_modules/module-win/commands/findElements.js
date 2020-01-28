@@ -13,14 +13,6 @@
  * @param {Element=} parent - Optional parent element for relative search.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Element[]} - Collection of Element objects.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var els = win.findElements("//div");
- * for (let el of els) {
- *   var text = win.getText(el);
- *   log.info(text);
- * }
 */
 module.exports = function(locator, parent, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

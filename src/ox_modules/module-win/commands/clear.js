@@ -12,12 +12,6 @@
  * @function clear
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.type("id=Password", "Password");//Types a password to a field.
- * win.clear("id=Password");//Clears the characters from the field of an element.
- 
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

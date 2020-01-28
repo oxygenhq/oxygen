@@ -13,10 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is clickable. false otherwise.
- * @for android
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.isClickable("id=Element");//Determines if element is clickable.
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

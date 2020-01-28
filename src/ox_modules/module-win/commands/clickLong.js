@@ -13,10 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number} duration - Touch duration in milliseconds.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.clickLong("id=Mark",6000);// Clicks an element for a certain duration.
  */
 module.exports = function(locator, duration, timeout) {
     this.helpers.assertArgumentNumberNonNegative(duration, 'duration');

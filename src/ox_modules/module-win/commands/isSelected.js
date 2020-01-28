@@ -13,15 +13,6 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is selected. false otherwise.
- * @for android
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);
- * var a = win.isSelected("id=Selection");
- * if (a) {
- *   ...
- * } else {
- *   ...
- * }
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');

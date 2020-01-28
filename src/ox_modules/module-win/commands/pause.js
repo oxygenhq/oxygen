@@ -11,10 +11,6 @@
  * @summary Pauses test execution for given amount of milliseconds.
  * @function pause
  * @param {Number} ms - milliseconds to pause the execution.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * win.pause(10*1000);//Pauses the execution for 10 seconds (10000ms)
  */
 module.exports = function(ms) {
     this.helpers.assertArgumentNumberNonNegative(ms, 'ms');

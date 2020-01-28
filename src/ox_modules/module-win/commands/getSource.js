@@ -11,10 +11,6 @@
  * @function getSource
  * @summary Gets the source code of the page.
  * @return {String} - HTML in case of web or hybrid application or XML in case of native.
- * @for android, ios, hybrid, web
- * @example <caption>[javascript] Usage example</caption>
- * win.init(caps);//Starts a mobile session and opens app from desired capabilities
- * var a = win.getSource();//Gets the source code of the page.
  */
 module.exports = function() {
     return this.driver.getPageSource();
