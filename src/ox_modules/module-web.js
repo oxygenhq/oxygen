@@ -132,8 +132,14 @@ export default class WebModule extends WebDriverModule {
             throw new OxError(errHelper.errorCode.INVALID_CAPABILITIES,
                 'Failed to initialize `web` module - browserName must be specified.');
         }
-        // webdriver expects lower case names
-        this.caps.browserName = this.caps.browserName.toLowerCase();
+
+        if(this.caps && this.caps['lamda:options']){
+            // lambdatest expects origin case names
+        } else {
+            // webdriver expects lower case names
+            this.caps.browserName = this.caps.browserName.toLowerCase();
+        }
+
         // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
         if (this.caps.browserName === 'ie') {
             this.caps.browserName = 'internet explorer';

@@ -344,7 +344,7 @@ export default class OxygenRunner extends EventEmitter {
         caseResult.location = caze.path;
         // try to initialize Oxygen and handle any possible error
         try {            
-            await (!(this._worker && this._worker.isOxygenInitialized) && this._worker_InitOxygen());
+            await (!(this._worker) && this._worker_InitOxygen());
         }
         catch (e) {
             log.error('_worker_InitOxygen() thrown an error:', e);
@@ -373,7 +373,7 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.failure = error;
                 caseResult.status = Status.FAILED;
             }
-            await (this._worker && this._worker.isOxygenInitialized && this._worker_DisposeModules(caseResult.status));
+            await (this._worker && this._worker_DisposeModules(caseResult.status));
         } catch (e) {
             log.error('_worker_Run() thrown an error:', e);
             caseResult.failure = errorHelper.getFailureFromError(e);
@@ -415,7 +415,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_InitOxygen() {
-        await (this._worker && this._worker.init(this._id, this._options));
+        await (this._worker && this._worker.init(this._id, this._options, this._caps));
     }
 
     async _worker_DisposeOxygen(status = null) {
