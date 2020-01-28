@@ -9,9 +9,9 @@
 
 'use strict';
 /**
- * Provides methods for mobile automation.
- * <br /><br />
- * <b><i>Locators:</i></b><br />
+ * @name mob
+ * @description Provides methods for mobile automation.
+ * @sample <br></br> **Locators: **<br></br>
  * <div id="locators-android-native">Native application locators for<img src="/img/platforms/android.png"></img>
  *  <ul>
  *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
@@ -31,22 +31,21 @@
  *  <li><code>~ACCESSIBILITY_ID</code> - Locates element by its Accessibility Id.</li>
  *  </ul>
  * </div>
- * <div id="locators-hybrid-web">
- *  Hybrid<img src="/img/platforms/hybrid.png"></img>and Web<img src="/img/platforms/web.png"></img>application locators
- *  for<img src="/img/platforms/android.png"></img><img src="/img/platforms/apple.png"></img>
- *  <ul>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  <li><code>id=ID</code> - Locates element by its id.</li>
- *  <li><code>name=NAME</code> - Locates element by its name attribute.</li>
- *  <li><code>link=TEXT</code> - Locates anchor element whose text matches the given string.</li>
- *  <li><code>link-contains=TEXT</code> - Locates anchor element whose text contains the given string.</li>
- *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>
- *  </ul>
- * </div>
- * <br/>
- * <b><i>Pattern arguments:</i></b><br />
+ * <div id="locators-hybrid-web">Hybrid<img src="/img/platforms/hybrid.png"></img>and Web<img src="/img/platforms/web.png"></img>application locators	
+ *  for<img src="/img/platforms/android.png"></img><img src="/img/platforms/apple.png"></img>	
+ *  <ul>	
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>	
+ *  <li><code>id=ID</code> - Locates element by its id.</li>	
+ *  <li><code>name=NAME</code> - Locates element by its name attribute.</li>	
+ *  <li><code>link=TEXT</code> - Locates anchor element whose text matches the given string.</li>	
+ *  <li><code>link-contains=TEXT</code> - Locates anchor element whose text contains the given string.</li>	
+ *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>	
+ *  </ul>	
+ * </div>	
+ * <br></br>
+ * <br></br> **Pattern arguments:** <br></br>
  * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
- *  following patterns unless specified otherwise:
+ *  following patterns unless specified otherwise:<br></br>
  *  <ul>
  *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
  *  <li><code>PATTERN</code> - Verbatim matching.</li>

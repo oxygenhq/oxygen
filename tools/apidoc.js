@@ -1,6 +1,9 @@
+import 'core-js/stable';
+import 'regenerator-runtime/runtime';
 var fs = require('fs');
 var path = require('path');
 var doctrine = require('doctrine');
+import {MdReverse, TablePlugin, StrikethroughPlugin} from 'md-reverse/src/lib/mdReverse';
 var modPath = path.resolve(__dirname, '../build/ox_modules');
 
 if (!String.prototype.format) {
@@ -12,43 +15,27 @@ if (!String.prototype.format) {
     };
 }
 
-var MD = '---\n' +
-        'currentSect: api\n' +
-        'currentMenu: api-{0}\n' +
-        '---\n';
-
-var DESC_MAIN = '<div class="desc-module" markdown="1">{0}</div>';
-
-var INDEX_HEADER = '<h3 class="methods">Methods</h3>';
-var INDEX = '<div class="index">' +
-            '<div id="index-col-1" class="index-col">{0}</div>' +
-            '<div id="index-col-2" class="index-col">{1}</div>' +
-            '<div id="index-col-3" class="index-col">{2}</div>' +
-            '</div>';
-            
-var SIGNATURE = '<div style="position:relative;">' +
-                // trick to scroll slightly above the target anchor, because floating header will overlap it otherwise
-                '<div id="{0}" style="position:absolute;top:-70px;" />' +
-                '<h4>' +
-                '<span class="signature">{0}({1})</span>' +
-                '<span class="signature-return">{2}</span>' +
-                '<div class="signature-for">{3}</div>' +
-                '</h4>' +
+var SIGNATURE_HEAD = '<div style="position:relative;">' +
+                '</br>' +
+                '<h2>' +
+                '<span class="signature">{0}</span>' +
+                '</h2>' +
                 '</div>';
                 
-var SIGNATURE_AND = '<div class="android" title="Native Android applications"></div>';
-var SIGNATURE_IOS = '<div class="apple" title="Native iOS applications"></div>';
-var SIGNATURE_HYB = '<div class="hybrid" title="Hybrid applications on Android/iOS"></div>';
-var SIGNATURE_WEB = '<div class="web" title="Web applications on Android/iOS"></div>';
+const img = (name) => ` ![](/img/platforms/${name}.png) `;
+var SIGNATURE_AND = img('android');
+var SIGNATURE_IOS = img('apple');
+var SIGNATURE_HYB = img('hybrid');
+var SIGNATURE_WEB = img('web');
 var SIGNATURE_CHROME = '<div class="chrome" title="Chrome"></div>';
 var SIGNATURE_FIREFOX = '<div class="firefox" title="Firefox"></div>';
 var SIGNATURE_IE = '<div class="ie" title="Internet Explorer"></div>';
 
-var DESCRIPTION = '<div class="description" markdown="1">{0}</div>';
+var DESCRIPTION = '<div class="description" markdown="1">&nbsp;{0}</div>';
 
-var DEPRECATED = '<div class="deprecated">{0}</div><br/>';
+var DEPRECATED = '<div class="deprecated">{0}</div>';
 
-var PARAMS = '<h5>Parameters:</h5>' +
+var PARAMS = '<br></br> **Parameters:** <br></br>' +
              '<table class="params">' +
              '<thead>'+
              '<tr>' +
@@ -66,19 +53,15 @@ var PARAMS_ROW = '<tr>' +
                  '<td class="description last">{2}</td>' +
                  '</tr>';
 
-var OPTIONAL = '<span class="optional">optional</span>';
+var OPTIONAL = '<code>optional</code> ';
                  
-var RETURNS = '<h5>Returns:</h5>' +
+var RETURNS = '<br></br> **Returns:** <br></br>' +
                 '<div class="param-desc"><span class="param-type">{0}</span> - {1}</div>';
-  
-var LINK = '<a href="#{0}" class={1}>{0}</a><br />';
 
-var EXAMPLE = '<div markdown="1">' +
-              '<br/><span class="example-caption">{0}</span>' +
-              '\n```{1}\n' + 
+var EXAMPLE = '<br></br> **{0}:** <br></br>' +
+              '\n ```{1} \n' + 
               '{2}'+
-              '\n```\n' +
-              '</div>';
+              '\n ``` </br>';
 
 
 var modules = fs.readdirSync(modPath);
@@ -100,14 +83,14 @@ for (var m of modules) {
             for (var cmd of cmds) {
                 var cmdfile = path.join(cmdsDir, cmd);
                 if (fs.lstatSync(cmdfile).isFile() && cmd.endsWith('.js')) {
-                    console.log('Generating ' + name + '.' + cmd.substring(0, cmd.length - '.js'.length));
+                    console.log('Generating' + name + '.' + cmd.substring(0, cmd.length - '.js'.length));
                     modDoc.methods = modDoc.methods.concat(load(cmdfile, false).methods);
                 }
             }
             generate(modDoc, name);
         } else {
             generate(load(path.join(modPath, m), true), name);
-            console.log('Generating ' + name);
+            console.log('Generating' + name);
         }
     }
 }
@@ -125,11 +108,32 @@ function load(file, loadDescription) {
         var comments = [];
         var commentParsed;
         var description;
+        var name = '';
+        var note = '';
+        var sample = '';
         
         if (loadDescription) {
             commentRaw = regex.exec(data);
             commentParsed = doctrine.parse(commentRaw[0], { unwrap: true });
-            description = commentParsed.description;
+
+            // console.log('commentParsed', commentParsed);
+
+            if(commentParsed && commentParsed.tags && Array.isArray(commentParsed.tags)){
+                for (var tag of commentParsed.tags) {
+                    if (tag.title === 'name') {
+                        name = tag.name;
+                    } else if (tag.title === 'description') {
+                        description = tag.description;
+                    } else if (tag.title === 'note') {
+                        note = tag.description;
+                    } else if (tag.title === 'sample'){
+                        sample = tag.description;
+                    }
+                    
+                }
+            } else {
+                description = commentParsed.description;
+            }
         } else {
             description = '';
         }
@@ -200,6 +204,12 @@ function load(file, loadDescription) {
                         type = type.replace(/<|>/ig, function(m){
                             return '&' + (m == '>' ? 'g' : 'l') + 't;';
                         });
+
+                        if(optional && type){
+                            type = type.replace('=', '');
+                        }
+
+                        type = type.replace('|', '\\|');
                         
                         params.push({
                             description: tag.description.replace(/(\r\n|\n)/gm,''),
@@ -233,7 +243,10 @@ function load(file, loadDescription) {
             comments.push(commentParsed);
         }
         return {
-            description: description.replace(/(?<! {2})(\r\n|\n)/gm, ''),
+            description: description ? description.replace(/(?<! {2})(\r\n|\n)/gm, '') : '',
+            name: name ? name.replace(/(?<! {2})(\r\n|\n)/gm, '') : '',
+            note: note ? note.replace(/(?<! {2})(\r\n|\n)/gm, '') : '',
+            sample: sample ? sample.replace(/(?<! {2})(\r\n|\n)/gm, '') : sample,
             methods: comments
         };
     } catch (exc) {
@@ -244,61 +257,20 @@ function load(file, loadDescription) {
 
 function generate(module, moduleName) {
     var outFile = 'apidocs/module-' + moduleName + '.md';
-    
+    var outContent = '';
     try {
         fs.unlinkSync(outFile);
     } catch (e) {
         // ignored
     }
     
-    // YAML front matter
-    fs.appendFileSync(outFile, MD.format(moduleName));
-    
-    // header
-    fs.appendFileSync(outFile, '\n' + moduleName + '\n==\n');
-    
-    // main div wrapper
-    fs.appendFileSync(outFile, '<div class="apidoc">');
 
-    // description
-    fs.appendFileSync(outFile, DESC_MAIN.format(module.description));
-    
-    // index links
-    var methodsUnsorted = [];
-    for (var method of module.methods) {
-        methodsUnsorted.push(method);
+    if(module.sample){
+        outContent += `
+${module.sample}
+        `;
     }
-    
-    var links1 = '';
-    var links2 = '';
-    var links3 = '';
-    var i = 0;
-    var colSize = methodsUnsorted.length/3;
 
-    var methodsSorted = methodsUnsorted.sort(function(a, b) {
-        if (a.getMethod() < b.getMethod()) {
-            return -1;
-        }
-        if (a.getMethod() > b.getMethod()) {
-            return 1;
-        }
-        return 0;
-    });
-
-    for (let method of methodsSorted) {
-        if (i < colSize) {
-            links1 += LINK.format(method.getMethod(), method.getDeprecated() === undefined ? '' : 'deprecated');
-        } else if (i >= colSize && i < colSize*2) {
-            links2 += LINK.format(method.getMethod(), method.getDeprecated() === undefined ? '' : 'deprecated');
-        } else {
-            links3 += LINK.format(method.getMethod(), method.getDeprecated() === undefined ? '' : 'deprecated');
-        }
-        i++;
-    }
-    
-    fs.appendFileSync(outFile, INDEX_HEADER);
-    fs.appendFileSync(outFile, INDEX.format(links1, links2, links3));
-    
     for (let method of module.methods) {
         var params = method.getParams();
         
@@ -335,22 +307,20 @@ function generate(module, moduleName) {
                 }
             });
         }
-        
         // signature & description
-        var sigHtml = SIGNATURE.format(method.getMethod(), 
-                                        paramConcat.join(', '), 
-                                        ret === undefined ? '' : '&rarr; {' + ret.type + '}',
-                                        platformSignature);
+        var sigHtmlHead = SIGNATURE_HEAD.format(method.getMethod());
+
+        var sigHtml = '';
 
         var methodDesc = method.getDescription();
               
-        var descHtml = DESCRIPTION.format(method.getSummary() + 
-                                          (methodDesc !== undefined ? '<br/><br/>' + methodDesc : ''));
+        var descHtml = DESCRIPTION.format(method.getSummary() +
+                                          (methodDesc !== undefined ? '<br></br>' + methodDesc : ''));
 
         var depricated = method.getDeprecated();
         var deprecatedHtml = depricated !== undefined ? DEPRECATED.format(method.getDeprecated()) : '';
 
-        fs.appendFileSync(outFile, sigHtml + deprecatedHtml + descHtml);
+        outContent += sigHtmlHead + sigHtml + deprecatedHtml + descHtml;
 
         // example
         var example = method.getExample();
@@ -365,7 +335,7 @@ function generate(module, moduleName) {
                 language = example.caption.substring(langStart + 1, langEnd);
             }
             var exampleHtml = EXAMPLE.format(caption, language, example.description);
-            fs.appendFileSync(outFile, exampleHtml);
+            outContent += exampleHtml;
         }
         
         // parameters
@@ -378,14 +348,44 @@ function generate(module, moduleName) {
                                                     (param.optional ? OPTIONAL : '') + param.description);
             }
                 
-            fs.appendFileSync(outFile, PARAMS.format(paramRowsHtml));
+            outContent += PARAMS.format(paramRowsHtml);
         }
 
         // returns
         if (ret !== undefined) {
-            fs.appendFileSync(outFile, RETURNS.format(ret.type, ret.description));
+            outContent += RETURNS.format(ret.type, ret.description);
+        }
+
+        // Supported On:
+        if (platformSignature) {
+            outContent += ` <br></br> **Supported On**: ${platformSignature}`;
         }
     }
 
-    fs.appendFileSync(outFile, '</div>');
+
+    var mdReserve = new MdReverse();
+    mdReserve.use(TablePlugin);
+    mdReserve.use(StrikethroughPlugin);
+    var content = mdReserve.toMarkdown(outContent);
+    var startCntent = '';
+    if(module.description){
+        startCntent += `---
+description: ${module.description}
+---
+        `;
+    }
+    if(module.name){
+        startCntent += `
+# ${module.name}
+        `;
+    }
+    if(module.note){
+        startCntent += `
+{% hint style="warning" %}
+${module.note}
+{% endhint %}
+        `;
+    }
+
+    fs.appendFileSync(outFile, startCntent+content);
 }

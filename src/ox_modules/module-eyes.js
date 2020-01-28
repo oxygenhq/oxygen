@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides access to Applitools Eyes service.
+ * @name eyes
+ * @description Provides access to Applitools Eyes service.
  */
 
 import OxygenModule from '../core/OxygenModule';
@@ -125,6 +126,7 @@ export default class ApplitoolsModule extends OxygenModule {
     /**
      * @summary Takes a snapshot of the application under test and matches it with
      * the expected output.
+     * @function checkWindow
      * @param {string} [name=] - An optional tag to be associated with the snapshot.
      * @param {number} [matchTimeout=-1] - The amount of time to retry matching (Milliseconds).
      * @return {boolean} A promise which is resolved when the validation is finished.

@@ -1,4 +1,3 @@
-/* eslint-disable quotes */
 /*
  * Copyright (C) 2015-present CloudBeat Limited
  *
@@ -8,17 +7,23 @@
  * (at your option) any later version.
  */
 
+'use strict';
 /**
- * Provides methods for browser automation.
- * <br /><br />
- * <b><i>Notes:</i></b><br />
+ * @name web
+ * @description Provides methods for browser automation.
+ * @sample <br></br> **Notes**: <br></br>
  * Commands which operate on elements such as click, assert, waitFor, type, select, and others will 
  * automatically wait for a period of time for the element to appear in DOM and become visible. By 
  * default this period equals to 60 seconds, but can be changed using the <code>setTimeout</code>
  * command.
- * <br /><br />
- * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
+ * <br></br>
+ * <div id="patterns">
+ * <br></br>
+ * **String matching patterns:** 
+ *  <br></br>
+ *  Commands which expect a string matching pattern in their arguments, support
  *  following patterns unless specified otherwise:
+ *  <br></br>
  *  <ul>
  *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
  *  <li><code>regexi:PATTERN</code> - Match using case-insensitive regular expression.</li>
@@ -30,19 +35,22 @@
  *  <li><code>PATTERN</code> - Same as glob matching.</li>
  *  </ul>
  * </div>
- * <div id="locators">Commands which expect an element locator in their arguments, support
- *  following locator types unless specified otherwise:
- *  <ul>
- *  <li><code>id=ID</code> - Locates element by its ID attribute.</li>
- *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>
- *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>
- *  <li><code>link-contains=TEXT</code> - Locates link element whose visible text contains the given string.</li>
- *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</li>
- *  </ul>
+ * <div id="locators">Commands which expect an element locator in their arguments, support	
+ *  following locator types unless specified otherwise:	
+ *  <br></br>
+ *  <ul>	
+ *  <li><code>id=ID</code> - Locates element by its ID attribute.</li>	
+ *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>	
+ *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>	
+ *  <li><code>link-contains=TEXT</code> - Locates link element whose visible text contains the given string.</li>	
+ *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>	
+ *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>	
+ *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</li>	
+ *  </ul>	
  * </div>
  */
+
+/* eslint-disable quotes */
 import { harFromMessages } from 'chrome-har';
 import deasync from 'deasync';
 import URL from 'url';

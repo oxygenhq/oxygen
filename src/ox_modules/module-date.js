@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with dates.
+ * @name date
+ * @description Provides methods for working with dates.
  */
 module.exports = function() {
     module.isInitialized = function() {

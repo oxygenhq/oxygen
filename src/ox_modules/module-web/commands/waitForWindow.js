@@ -12,7 +12,7 @@
   * @description `windowLocator` can be:  
   *              - `title=TITLE` - Wait for the first window which matches the specified title.
   *                TITLE can be any of the supported 
-  *                [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns).
+  *                string matching patterns(on the top of page).
   * @function waitForWindow
   * @param {String} windowLocator - A window locator.
   * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.

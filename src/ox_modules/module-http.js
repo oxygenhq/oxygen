@@ -8,7 +8,8 @@
  */
 
 /**
- * Provides methods for working with HTTP(S)
+ * @name http
+ * @description Provides methods for working with HTTP(S)
  */
 
 import OxError from '../errors/OxygenError';

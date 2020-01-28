@@ -8,8 +8,9 @@
  */
 
 /**
- * Provides methods for working with Data Bases through ODBC.
- * NOTE: before using this module, make sure to install `unixodbc` (`brew install unixodbc`) on Mac and Linux.
+ * @name db
+ * @description Provides methods for working with Data Bases through ODBC.
+ * @note before using this module, make sure to install `unixodbc` (`brew install unixodbc`) on Mac and Linux.
  */
 
 // ignore this module if odbc wasn't installed

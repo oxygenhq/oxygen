@@ -12,7 +12,7 @@
  * @description `windowLocator` can be:  
  *              - `title=TITLE` - Switch to the first window which matches the specified title.
  *                TITLE can be any of the supported 
- *                [string matching patterns](http://docs.oxygenhq.org/api-web.html#patterns). 
+ *                string matching patterns(on the top of page).
  *                When using title locator, this command will wait for the window to appear first 
  *                similarly to waitForWindow command.  
  *              - `windowHandle` - Switch to a window using its unique handle.  
