@@ -31,7 +31,7 @@ module.exports = function(windowLocator, timeout) {
         currentHandle = this.driver.getWindowHandle();
     } catch (err) {
         var wnds = this.driver.getWindowHandles();
-        this.driver.window(wnds[wnds.length - 1]);
+        this.driver.switchToWindow(wnds[wnds.length - 1]);
         currentHandle = this.driver.getWindowHandle();
     }
 
