@@ -95,7 +95,7 @@ export default class OxygenWorker extends EventEmitter {
         this._oxygen.resetResults();
         this._steps = null;
 
-        return { error, moduleCaps, resultStore };
+        return { error, moduleCaps, resultStore, context: this._oxygen.context };
     }
 
     async dispose(status = null) {

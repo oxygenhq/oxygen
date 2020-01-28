@@ -51,9 +51,7 @@ export default class OxygenRunner extends EventEmitter {
         this._testKilled = false;
         this._scriptContentLineOffset = 3;
         // promises
-        this._whenEngineInitFinished = defer();
         this._whenDisposed = defer();
-        this._whenTestCaseFinished = null;
     }
     /*********************************
      * Public methods
@@ -358,7 +356,8 @@ export default class OxygenRunner extends EventEmitter {
         // run the test in the worker process and handle any possible error
         try {
             caseResult.startTime = oxutil.getTimeStamp();
-            const { resultStore, context, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+            const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+            this._processTestResults({ resultStore, context, error, moduleCaps });
             caseResult.endTime = oxutil.getTimeStamp();
             caseResult.duration = caseResult.endTime - caseResult.startTime;
             caseResult.context = context;
@@ -545,21 +544,11 @@ export default class OxygenRunner extends EventEmitter {
 
                 _this.emit('log', msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
                 _this._reporter && _this._reporter.onLogEntry(msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
-            } else if (msg.event && msg.event === 'init:success') {
-                _this._isInitializing = false;
-                _this._whenEngineInitFinished.resolve(null);
-            } else if (msg.event && msg.event === 'init:failed') {
-                _this._isInitializing = false;
-                _this._whenEngineInitFinished.reject(msg.err);
-            } else if (msg.event && msg.event === 'run:success') {
-                _this._whenTestCaseFinished.resolve(_this._processWorkerResults(msg));
-                _this._whenTestCaseFinished = null;
-            } else if (msg.event && msg.event === 'run:failed') {
-                _this._whenTestCaseFinished.resolve(_this._processWorkerResults(msg));
-                _this._whenTestCaseFinished = null;
-            } else if (msg.event && msg.event === 'line-update') {
+            } 
+            else if (msg.event && msg.event === 'line-update') {
                 _this.emit('line-update', msg.line, msg.stack, msg.time);
-            } else if (msg.event && msg.event === 'result-update') {
+            } 
+            else if (msg.event && msg.event === 'result-update') {
                 if (msg.method === 'init') {
                     _this.emit('init-done', msg);
                 }
@@ -586,43 +575,31 @@ export default class OxygenRunner extends EventEmitter {
         this._isDisposing = false;
         this._isInitializing = false;
         this._testKilled = false;
-        this.__whenTestCaseFinished = null;
-        this._whenEngineInitFinished = defer();
         this._whenDisposed = defer();
     }
 
-    _processWorkerResults(msg) {
+    _processTestResults({ resultStore, moduleCaps, context = {}, error = null }) {
         // if test was killed before any results were generated, then just finalize the test without processing results
-        if (!msg && this._testKilled) {
-            //this._finalizeTest(null);
+        if (this._testKilled) {
             return null;
         }
-        if (msg.err) {
-            this.emit('test-error', msg.err);
+        if (error) {
+            this.emit('test-error', error);
         }        
         // store 'vars' part of the context for a later use
-        this._vars = msg.ctx.vars || this._vars;
+        this._vars = context.vars || this._vars;
         // store 'modCaps' part of the context for a later use
-        this._modCaps = { ...this._modCaps, ...msg.ctx.moduleCaps || {} };
+        this._modCaps = { ...this._modCaps, ...moduleCaps || {} };
         // clean up context from internal elements, not need in the report:
         // remove caps from the context as it already appears in TestResult node
-        if (msg.ctx && msg.ctx.caps)
-            delete msg.ctx.caps;
+        if (context.caps)
+            delete context.caps;
         // remove env from the context as it already appears in TestResult node
-        if (msg.ctx && msg.ctx.env)
-            delete msg.ctx.env;
+        if (context.env)
+            delete context.env;
         // remove test from the context as it already appears in TestResult node
-        if (msg.ctx && msg.ctx.test)
-            delete msg.ctx.test;
-        // remove test options from the context as it already appears in TestResult node
-        if (msg.context && msg.context.options)
-            delete msg.context.options;
-
-        return {
-            resultStore: msg.resultStore,
-            context: msg.ctx,
-            error: msg.err || null
-        };
+        if (context.test)
+            delete context.test;
     }
 
     _emitIterationEnd(ts, tc, suiteIterationNum, caseIterationNum, caseIterationResult) {
