@@ -207,7 +207,6 @@ export default class WindowsModule extends WebDriverModule {
      *              unique.
      * @function transaction
      * @param {String} name - The transaction name.
-     * @for android, ios, hybrid, web
      */
     transaction(name) {
         global._lastTransactionName = name;
