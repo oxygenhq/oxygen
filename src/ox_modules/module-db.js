@@ -10,7 +10,10 @@
 /**
  * @name db
  * @description Provides methods for working with Data Bases through ODBC.
- * @note before using this module, make sure to install `unixodbc` (`brew install unixodbc`) on Mac and Linux.
+ * @note Before using this module, make sure to install `unixodbc`:  
+ *   * Windows - Install `Windows SDK`  
+ *   * OS X -  `brew install unixodbc`  
+ *   * Linux - `sudo apt-get install unixodbc unixodbc-dev` or `sudo dnf install unixODBC unixODBC-devel`
  */
 
 // ignore this module if odbc wasn't installed
