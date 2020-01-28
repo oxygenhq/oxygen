@@ -4,7 +4,7 @@ var fs = require('fs');
 var path = require('path');
 var doctrine = require('doctrine');
 import {MdReverse, TablePlugin, StrikethroughPlugin} from 'md-reverse/src/lib/mdReverse';
-var modPath = path.resolve(__dirname, '../build/ox_modules');
+var modPath = path.resolve(__dirname, '../src/ox_modules');
 
 if (!String.prototype.format) {
     String.prototype.format = function() {
