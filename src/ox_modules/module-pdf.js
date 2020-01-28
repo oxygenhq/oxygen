@@ -18,14 +18,21 @@ const path = require('path');
 var pdfreader = require('pdfreader');
 var deasync = require('deasync');
 
-function countRows(searchStr, rows) {
+function countRows(searchStr, rows, reverse) {
     let result = 0;
 
     Object.keys(rows) // => array of y-positions (type: float)
         .sort((y1, y2) => parseFloat(y1) - parseFloat(y2)) // sort float positions
         .some(y => {
             var line = (rows[y] || []).join('').replace(/\s/g, '');
-            var inludes = line.includes(searchStr);
+            let inludes;
+
+            if(reverse){
+                const reverseSearchStr = searchStr.split('').reverse().join('');
+                inludes = line.includes(searchStr) || line.includes(reverseSearchStr);
+            } else {
+                inludes = line.includes(searchStr);
+            }
             
             if(inludes){
                 result++;
@@ -35,7 +42,7 @@ function countRows(searchStr, rows) {
     return result;
 }
 
-function checkRows(searchStr, rows) {
+function checkRows(searchStr, rows, reverse) {
     let result = false;
     
     Object.keys(rows) // => array of y-positions (type: float)
@@ -43,7 +50,15 @@ function checkRows(searchStr, rows) {
         .some(y => {
 
             var line = (rows[y] || []).join('').replace(/\s/g, '');
-            var inludes = line.includes(searchStr);
+
+            let inludes;
+
+            if(reverse){
+                const reverseSearchStr = searchStr.split('').reverse().join('');
+                inludes = line.includes(searchStr) || line.includes(reverseSearchStr);
+            } else {
+                inludes = line.includes(searchStr);
+            }
             
             if(inludes){
                 result = true;
@@ -54,7 +69,7 @@ function checkRows(searchStr, rows) {
     return result;
 }
 
-function assertion(pdfFilePath, text, pageNum = 0){
+function assertion(pdfFilePath, text, pageNum = 0, reverse = false){
     let rows = {}; // indexed by y-position
     let currentPage = 1;
 
@@ -86,7 +101,7 @@ function assertion(pdfFilePath, text, pageNum = 0){
                 }
 
                 if(hold && currentPage > 0){
-                    let result = checkRows(searchStr, rows);
+                    let result = checkRows(searchStr, rows, reverse);
 
                     if(result){
                         resolve(true);
@@ -130,7 +145,7 @@ function assertion(pdfFilePath, text, pageNum = 0){
     });
 }
 
-function count(pdfFilePath, text, pageNum = 0){
+function count(pdfFilePath, text, pageNum = 0, reverse = false){
     let rows = {}; // indexed by y-position
     let currentPage = 1;
     let totalResult = 0;
@@ -165,7 +180,7 @@ function count(pdfFilePath, text, pageNum = 0){
                 if(hold && currentPage > 0){
 
                     //check in the last page
-                    let result = countRows(searchStr, rows);
+                    let result = countRows(searchStr, rows, reverse);
 
                     if(result && result > 0){
                         totalResult+=result;
@@ -214,7 +229,7 @@ function validateString(arg, name) {
     if(arg && typeof arg === 'string' && arg.trim().length > 0){
         // text is correct
     } else {
-        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a a non-empty string.");
+        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
     }
 }
 
@@ -230,7 +245,15 @@ function validateMessage(arg, name) {
     if(arg === null || (arg && typeof arg === 'string' && arg.trim().length > 0)){
         // pageNum is correct
     } else {
-        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a a non-empty string.");
+        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
+    }
+}
+
+function validateReverse(arg, name) {
+    if(arg === null || (arg && typeof arg === 'boolean')){
+        // pageNum is correct
+    } else {
+        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a boolean");
     }
 }
 
@@ -247,12 +270,14 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
+     * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assert = function(pdfFilePath, text, pageNum = null, message = null) {
+    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
+        validateReverse(reverse, 'reverse');
 
         pdfFilePath = pdfFilePath.trim(); 
 
@@ -283,7 +308,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
         try {
             let actual = null;
             const expected = true;
-            assertion(pdfFilePath, text, pageNum).then(
+            assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
                     actual = result;
                 },
@@ -323,17 +348,19 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
+     * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assertNot = function(pdfFilePath, text, pageNum = null, message = null) {
+    module.assertNot = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
+        validateReverse(reverse, 'reverse');
 
         try {
             let actual = null;
             const expected = false;
-            assertion(pdfFilePath, text, pageNum).then(
+            assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
                     actual = result;
                 },
@@ -372,15 +399,17 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String} pdfFilePath - Absolute path to the pdf file.
      * @param {String} text - Text to count.
      * @param {Number=} pageNum - Page number.
+     * @param {Boolean=} reverse - Check also reverse variant of string.
      * @return {Number} Number of times the specified text was found.
      */
-    module.count = function(pdfFilePath, text, pageNum = null) {
+    module.count = function(pdfFilePath, text, pageNum = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
+        validateReverse(reverse, 'reverse');
 
         let actual = null;
-        count(pdfFilePath, text, pageNum, true).then(
+        count(pdfFilePath, text, pageNum, reverse).then(
             result => {
                 actual = result;
             },
