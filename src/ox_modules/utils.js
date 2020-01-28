@@ -52,7 +52,8 @@ module.exports = {
 
         if (el.error && (
             el.error.error === 'no such element' ||
-            (el.error.message && el.error.message.startsWith('no such element')))) {
+            (el.error.message && el.error.message.startsWith('no such element') ||
+            el.error.message && /*winappdriver*/el.error.message.startsWith('An element could not be located')))) {
             if (timeout) {
                 module.exports.restoreTimeoutImplicit.call(this);
             }
