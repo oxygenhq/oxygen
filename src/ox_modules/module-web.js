@@ -64,6 +64,7 @@ import OxError from '../errors/OxygenError';
 import util from 'util';
 import SauceLabs from 'saucelabs';
 import lambdaRestClient from '@lambdatest/node-rest-client';
+import TestingBot from 'testingbot-api';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -78,7 +79,6 @@ export default class WebModule extends WebDriverModule {
         this.transactions = {};                      // transaction->har dictionary
         this.lastNavigationStartTime = null;
         this.helpers = {};
-        this._loadHelperFunctions();
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
         this.OxError = OxError;
         this.errHelper = errHelper;
@@ -202,6 +202,7 @@ export default class WebModule extends WebDriverModule {
             .then((driver => {
                 _this.driver = driver;
                 _this._isInitialized = true;
+                this._loadHelperFunctions();
             }))
             .catch(err => {
                 initError = err;
@@ -247,6 +248,7 @@ export default class WebModule extends WebDriverModule {
 
                     let isSaucelabs = false;
                     let isLambdatest = false;
+                    let isTestingBot = false;
                     if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')){
                         isSaucelabs = true;
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
@@ -284,12 +286,29 @@ export default class WebModule extends WebDriverModule {
 
                         deasync.loopWhile(() => !done);
                     }
+                    if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('testingbot')){
+                        isTestingBot = true;
+                        const sessionId = this.driver.sessionId;
+                        const tb = new TestingBot({
+                            api_key: this.wdioOpts.user,
+                            api_secret: this.wdioOpts.key
+                        });
+                        const passed = status.toUpperCase() === 'PASSED';
+                        let done = false;
+                        const testData = { "test[success]" : passed ? "1" : "0" };
+                        tb.updateTest(testData, sessionId, function(error, testDetails) {
+                            done = true;
+                        });
+                        deasync.loopWhile(() => !done);
+                    }
 
                     if(['PASSED','FAILED'].includes(status.toUpperCase())){
                         this.deleteSession();
                     } else if(isSaucelabs){
                         this.deleteSession();
                     } else if(isLambdatest){
+                        this.deleteSession();
+                    } else if(isTestingBot){
                         this.deleteSession();
                     } else {
                         this.disposeContinue();
