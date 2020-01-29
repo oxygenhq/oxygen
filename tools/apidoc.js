@@ -49,14 +49,14 @@ var PARAMS = '<br></br> **Parameters:** <br></br>' +
             
 var PARAMS_ROW = '<tr>' +
                  '<td class="name"><code>{0}</code></td>' +
-                 '<td class="type"><span class="param-type">{1}</span></td>' +
+                 '<td class="type">{1}</td>' +
                  '<td class="description last">{2}</td>' +
                  '</tr>';
 
 var OPTIONAL = '<code>optional</code> ';
                  
 var RETURNS = '<br></br> **Returns:** <br></br>' +
-                '<div class="param-desc"><span class="param-type">{0}</span> - {1}</div>';
+                '<div class="param-desc"><code>{0}</code> - {1}</div>';
 
 var EXAMPLE = '<br></br> **{0}:** <br></br>' +
               '\n ```{1} \n' + 
@@ -208,8 +208,17 @@ function load(file, loadDescription) {
                         if(optional && type){
                             type = type.replace('=', '');
                         }
+                        
+                        type = type.replace('(', '');
+                        type = type.replace(')', '');
 
-                        type = type.replace('|', '\\|');
+                        if(type && typeof type === 'string' && type.includes('|')){
+                            const typeArr = type.split('|');
+                            const typeArrWithCode = typeArr.map((item) => { return '`'+item+'`'; });
+                            type = typeArrWithCode.join('\\|');
+                        } else {
+                            type = '`'+type+'`';
+                        }
                         
                         params.push({
                             description: tag.description.replace(/(\r\n|\n)/gm,''),
