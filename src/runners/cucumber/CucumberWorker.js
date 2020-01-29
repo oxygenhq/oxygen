@@ -66,7 +66,7 @@ export default class CucumberWorker {
         this.onTestEnd = this.onTestEnd.bind(this);
     }
 
-    init(rid, config) {
+    init(rid, config, caps) {
         this.rid = rid;
         this.config = config;
         this.cwd = this.config.cwd || process.cwd();
@@ -74,6 +74,7 @@ export default class CucumberWorker {
         this.isInitialized = true;
         this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);
         this.testHooks = oxutil.loadTestHooks(config);
+        this.capabilities = caps;
     }
 
     async dispose(status = null) {
@@ -95,7 +96,17 @@ export default class CucumberWorker {
         try {
             Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
             await this.initializeOxygenCore();
-
+            
+            if(runOpts && runOpts.context && this.oxygen){
+                const { context } = runOpts;
+                this.oxygen.context = context;
+            } else {
+                if(!this.oxygen){
+                    console.warn('this.oxygen is undefined');
+                } else {
+                    console.warn('context in runOpts is undefined');
+                }
+            }
             //wrapCommand(this.beforeCommandHandler, this.afterCommandHandler)
     
             this.registerCompilers();

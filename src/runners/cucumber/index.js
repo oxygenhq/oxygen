@@ -56,7 +56,7 @@ export default class CucumberRunner {
         this.isInitialized = true;
         this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);
         this.worker.start();
-        this.worker.init(this.id, config);
+        this.worker.init(this.id, config, caps);
     }
 
     async dispose(status = null) {
@@ -67,7 +67,11 @@ export default class CucumberRunner {
     async run () {
         try {
             this.reporter.onRunnerStart(this.id, this.config, this.capabilities);
-            const result = await this.worker.run({ caps: this.capabilities });
+            const result = await this.worker.run({ 
+                context: {
+                    caps: this.capabilities 
+                }
+            });
             this.reporter.onRunnerEnd(this.id, null);
     
             return result;
