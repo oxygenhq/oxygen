@@ -106,7 +106,7 @@ module.exports = {
         if (timeout) {
             module.exports.setTimeoutImplicit.call(this, timeout);
         }
-        
+
         locator = this.helpers.getWdioLocator(locator);
 
         var el = parentElement.$(locator);
@@ -163,13 +163,26 @@ module.exports = {
     },
 
     setTimeoutImplicit: function(timeout) {
-        var timeouts = this.driver.getTimeouts();
-        this._prevImplicitTimeout = timeouts.implicit;
-        this.driver.setTimeout({ 'implicit': timeout });
+        let timeouts;
+
+        if(this.driver && this.driver.getTimeouts){
+            // chrome >= 75
+            timeouts = this.driver.getTimeouts();
+        } else if(this.driver && this.driver.capabilities && this.driver.capabilities.timeouts){
+            // chrome >= 72 && chrome < 75
+            timeouts = this.driver.capabilities.timeouts;
+        }
+
+        if(timeouts && timeouts.implicit){
+            this._prevImplicitTimeout = timeouts.implicit;
+        }
+        if(this.driver.setTimeout){
+            this.driver.setTimeout({ 'implicit': timeout });
+        }
     },
 
     restoreTimeoutImplicit: function() {
-        if (this._prevImplicitTimeout) {
+        if (this._prevImplicitTimeout && this.driver.setTimeout) {
             this.driver.setTimeout({ 'implicit': this._prevImplicitTimeout });
         }
     },

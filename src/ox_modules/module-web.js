@@ -79,6 +79,7 @@ export default class WebModule extends WebDriverModule {
         this.transactions = {};                      // transaction->har dictionary
         this.lastNavigationStartTime = null;
         this.helpers = {};
+        this._loadHelperFunctions();
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
         this.OxError = OxError;
         this.errHelper = errHelper;
@@ -202,7 +203,7 @@ export default class WebModule extends WebDriverModule {
             .then((driver => {
                 _this.driver = driver;
                 _this._isInitialized = true;
-                this._loadHelperFunctions();
+                
             }))
             .catch(err => {
                 initError = err;
@@ -213,8 +214,6 @@ export default class WebModule extends WebDriverModule {
         if (initError) {
             throw errHelper.getSeleniumInitError(initError);
         }
-
-        this.driver.setTimeout({ 'implicit': this.waitForTimeout });
 
         // reset browser logs if auto collect logs option is enabled
         if (this.options.collectBrowserLogs && this.caps.browserName === 'chrome') {
@@ -228,6 +227,7 @@ export default class WebModule extends WebDriverModule {
         // maximize browser window
         try {
             this.driver.maximizeWindow();
+            this.driver.setTimeout({ 'implicit': this.waitForTimeout });    
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
