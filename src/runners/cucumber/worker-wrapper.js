@@ -11,7 +11,7 @@
  * Cucumber worker process.
  * Provides everything necessary for executing Cucumber-based JS test scripts.
  */
-if(process.platform === 'win32' && process.env.NODE_ENV === undefined){
+if(['darwin','win32'].includes(process.platform) && process.env.NODE_ENV === undefined){
     var path = require('path');
     var envPreset = './../../../../@babel/preset-env';
     var envPath = path.resolve(__dirname,envPreset);
