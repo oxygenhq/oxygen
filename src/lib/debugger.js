@@ -157,6 +157,7 @@ export default class Debugger extends EventEmitter {
         this._pendingBP = undefined;
         this._paused = false;
         this._client = null;
+        this._fileNameAliases = [];
         this.reset();
     }
     reset() {
@@ -166,6 +167,7 @@ export default class Debugger extends EventEmitter {
             this._paused = false;
         }
         this._breakpoints = [];
+        this._fileNameAliases = [];
     }
 
     async getPropertiesByObjectId(objectId, depth, elm){
@@ -312,8 +314,117 @@ export default class Debugger extends EventEmitter {
         });
     }
 
+    inBreakpoints(itemUrl){
+        let result = false;
+        if(this._breakpoints && Array.isArray(this._breakpoints) && this._breakpoints.length > 0){
+            this._breakpoints.map((bp) => {
+                if(
+                    itemUrl &&
+                    itemUrl.toLowerCase &&
+                    bp.origin &&
+                    bp.origin.scriptPath &&
+                    bp.origin.scriptPath.toLowerCase &&
+                    itemUrl.toLowerCase() === bp.origin.scriptPath.toLowerCase()
+                ){
+                    result = true;
+                }
+            });
+        }
+        return result;
+    }
+
+    inFileNameAliases(fileName){
+        let result = false;
+        if(this._fileNameAliases && Array.isArray(this._fileNameAliases) && this._fileNameAliases.length > 0){
+            this._fileNameAliases.map((alias) => {
+                if(
+                    alias &&
+                    alias.toLowerCase &&
+                    fileName &&
+                    fileName.toLowerCase &&
+                    alias.toLowerCase() === fileName.toLowerCase()
+                ){
+                    result = alias;
+                }
+            });
+        }
+        return result;
+    }
+
     async continueConnect(){
-        //this._client.on('Debugger.scriptParsed', async (m) => await this._handleParsedScript(m));
+
+        this._client.on('Debugger.scriptParsed', async(m) => {
+            if(m && m.url){
+                if(m.url.toLowerCase){
+                    const filelc = m.url.toLowerCase();
+                    let breakpointForChange;
+                    const findResult = this._breakpoints.find((item) => {
+                        if(item.origin && item.origin.scriptPath && item.origin.scriptPath.toLowerCase){
+                            const breakpointlc = item.origin.scriptPath.toLowerCase();
+
+                            if(breakpointlc === filelc && item.origin.scriptPath !== m.url){
+
+                                if(this._fileNameAliases.includes(m.url)){
+                                    // ignore
+                                } else {
+                                    this._fileNameAliases.push(m.url);
+                                }
+
+                                this._Debugger.pause();
+
+                                breakpointForChange = {
+                                    breakpoint: item,
+                                    mUrl: m.url
+                                };
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        } else {
+                            return false;
+                        }
+                    });
+
+                    if(findResult){
+                        const breakpointsFromOldLocation = [];
+
+                        this._breakpoints.map((bp) => {
+                            if(
+                                bp &&
+                                bp.origin &&
+                                bp.origin.scriptPath &&
+                                breakpointForChange &&
+                                breakpointForChange.mUrl &&
+                                breakpointForChange.breakpoint &&
+                                breakpointForChange.breakpoint.origin &&
+                                breakpointForChange.breakpoint.origin.scriptPath &&
+                                bp.origin.scriptPath === breakpointForChange.breakpoint.origin.scriptPath
+                            ){
+                                breakpointsFromOldLocation.push({
+                                    scriptPath: breakpointForChange.mUrl,
+                                    lineNumber: bp.origin.lineNumber
+                                });
+                            }
+                        });
+
+                        if(breakpointsFromOldLocation && Array.isArray(breakpointsFromOldLocation) && breakpointsFromOldLocation.length > 0){
+                            let breakpointsFromOldLocationResult = breakpointsFromOldLocation.map(async(bp) => {
+                                return await this.setBreakpoint(bp.scriptPath, bp.lineNumber);
+                            });
+
+                            breakpointsFromOldLocationResult = breakpointsFromOldLocationResult.filter((el) => !!el);
+                
+                            Promise.all(breakpointsFromOldLocationResult).then(async(value) => {
+                                await this._Debugger.resume();
+                                await this._Debugger.pause();
+                            });
+                        }
+
+                    }
+                }
+            }
+        });
+        
         this._client.on('Debugger.paused', (e) => {
             this._paused = true;
             if (e.reason === 'Break on start') {
@@ -324,14 +435,25 @@ export default class Debugger extends EventEmitter {
                 // thus, we emit break event only if matching breakpoint still exists in this._breakpoints
 
                 const possibleBreakpointsData = [];
+                let eCallFrames = [];
+
+                if(e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0){
+                    e.callFrames.map((item) => {
+                        if(item && item.url && this.inBreakpoints(item.url)){
+                            eCallFrames.push(item);
+                        }
+                    });
+                }
+                
 
                 let breakpointsMapResult = this._breakpoints.map(async(bp) => {
                     if (bp &&
                         bp.locations &&
-                        e.callFrames &&
+                        eCallFrames &&
+                        eCallFrames[0] &&
                         bp.locations.length > 0 &&
-                        bp.locations[0].scriptId === e.callFrames[0].location.scriptId &&
-                        bp.locations[0].lineNumber === e.callFrames[0].location.lineNumber) {
+                        bp.locations[0].scriptId === eCallFrames[0].location.scriptId &&
+                        bp.locations[0].lineNumber === eCallFrames[0].location.lineNumber) {
 
                         const initialDepth = 1;
                             
@@ -429,30 +551,22 @@ export default class Debugger extends EventEmitter {
                     }
 
                     if(saveValue && Array.isArray(saveValue) && saveValue.length > 0){
-                        let breakpointData = null;                        
-                        const breakpoint = e;
+                        let breakpointData = null;     
 
                         // assume we always send breakpoint of the top call frame
-                        if (breakpoint.callFrames && breakpoint.callFrames.length > 0) {
-                            // if breakpoint.hitBreakpoints has at list one element, then report file and line based on its data
-                            // if (breakpoint.hitBreakpoints && Array.isArray(breakpoint.hitBreakpoints) && breakpoint.hitBreakpoints.length > 0) {
-                                
-                            // //     breakpointData = extractBreakpointData(breakpoint.hitBreakpoints[0]);
+                        if (eCallFrames && eCallFrames.length > 0) {
 
-                            // } else {
-                                
+                            
                             breakpointData = {
-                                lineNumber: breakpoint.callFrames[0].location.lineNumber,
-                                fileName: breakpoint.callFrames[0].url
+                                lineNumber: eCallFrames[0].location.lineNumber,
+                                fileName: eCallFrames[0].url
                             };
-                            // }
 
 
                             if(saveValue){
                                 breakpointData.variables = saveValue;
                             }
                         }
-
 
                         const validateResult = validateBreakpointData(breakpointData, possibleBreakpointsData);
 
@@ -489,11 +603,12 @@ export default class Debugger extends EventEmitter {
                             this.emit('break', breakpointData);
                         }
                     } else {
-                        this.continue();
+                        console.log('should continue');
+                        // this.continue();
                     }
 
                 }, reason => {
-                    //console.log('breakpointsMapResult res reason' , reason);
+                    // console.log('breakpointsMapResult res reason' , reason);
                 }); 
 
             }
@@ -566,10 +681,19 @@ export default class Debugger extends EventEmitter {
      */
     async setBreakpoint(scriptPath, lineNumber) {
 
+
+        let fileName = scriptPath;
+
+        const aliasResult = this.inFileNameAliases(fileName);
+
+        if(aliasResult){
+            fileName = aliasResult;
+        }
+
         let err = null;
 
         let breakpoint = await this._Debugger.setBreakpointByUrl({
-            url: scriptPath,
+            url: fileName,
             lineNumber: lineNumber-1, // from 1-base to 0-base
             columnNumber: 0
         }).catch(e => {
@@ -583,6 +707,12 @@ export default class Debugger extends EventEmitter {
         if(err){
             // ignore
         } else {
+
+            breakpoint.origin = {
+                scriptPath: fileName,
+                lineNumber: lineNumber
+            };
+
             this._breakpoints.push(breakpoint);
         }
         
@@ -613,6 +743,8 @@ export default class Debugger extends EventEmitter {
 
     async removeBreakpointByValue(filePath, inputLine) {
 
+        const filePathAlias = this.inFileNameAliases(filePath);
+
         const line = inputLine - 1; // from 1-base to 0-base
         const self = this;
 
@@ -632,7 +764,11 @@ export default class Debugger extends EventEmitter {
                             lineNumber = parseInt(parts[1]);
                         }
     
-                        if (fileName === filePath && lineNumber === line) {
+                        
+                        if (
+                            (fileName === filePath || fileName === filePathAlias)
+                            && lineNumber === line
+                        ) {
                             await self.removeBreakpoint(b.breakpointId);
                         }
                     }
@@ -712,8 +848,13 @@ export default class Debugger extends EventEmitter {
                 lineNumber = parseInt(parts[1])+1; //from 0-base to 1-base
             }
 
-            if (fileName === filePath) {
+            if(fileName === filePath){
                 bps.push(lineNumber);
+            } else {
+                const filePathAlias = this.inFileNameAliases(filePath);
+                if(filePathAlias){
+                    bps.push(lineNumber);
+                }
             }
         }
         return bps;
