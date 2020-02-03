@@ -250,7 +250,7 @@ function validateMessage(arg, name) {
 }
 
 function validateReverse(arg, name) {
-    if(arg === null || (arg && typeof arg === 'boolean')){
+    if(arg === null || (typeof arg !== 'undefined' && typeof arg === 'boolean')){
         // pageNum is correct
     } else {
         throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a boolean");
