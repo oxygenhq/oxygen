@@ -39,8 +39,10 @@ export default class NetworkSubModule extends OxygenSubModule {
     async dispose() {
 
         try {
-            this._driver.removeListener('Network.responseReceived', () => {});
-            this._driver.removeListener('Network.requestWillBeSent', () => {});
+            if(this._driver){
+                this._driver.removeListener('Network.responseReceived', () => {});
+                this._driver.removeListener('Network.requestWillBeSent', () => {});
+            }
         } catch(e){
             console.log('_driver removeListener error', e);
         }
