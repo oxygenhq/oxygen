@@ -303,7 +303,7 @@ export default class WebModule extends WebDriverModule {
                     }
 
                     if(['PASSED','FAILED'].includes(status.toUpperCase())){
-                        this.deleteSession();
+                        await this.closeBrowserWindow();
                     } else if(isSaucelabs){
                         this.deleteSession();
                     } else if(isLambdatest){
@@ -327,22 +327,49 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
-    deleteSession(){
-        const deleteSessionResult = this.driver.deleteSession();
-    
-        deleteSessionResult.then(
-            (value) => {
-                this.disposeContinue();
-            },
-            (reason) => {
-                if(reason && reason.name && reason.name === 'invalid session id'){
-                    // ignore
-                } else {
-                    console.log('deleteSession fail reason', reason);
+    closeBrowserWindow(){
+        try {
+            const deleteSessionResult = this.driver.closeWindow();
+            
+            deleteSessionResult.then(
+                (value) => {
+                    this.deleteSession();
+                },
+                (reason) => {
+                    if(reason && reason.name && reason.name === 'invalid session id'){
+                        // ignore
+                    } else {
+                        console.log('closeWindow fail reason', reason);
+                    }
+                    this.deleteSession();
                 }
-                this.disposeContinue();
-            }
-        );
+            );
+        } catch(e){
+            console.log('closeWindow e', e);
+        }
+    }
+
+    deleteSession(){
+        try {
+
+            const deleteSessionResult = this.driver.deleteSession();
+        
+            deleteSessionResult.then(
+                (value) => {
+                    this.disposeContinue();
+                },
+                (reason) => {
+                    if(reason && reason.name && reason.name === 'invalid session id'){
+                        // ignore
+                    } else {
+                        console.log('deleteSession fail reason', reason);
+                    }
+                    this.disposeContinue();
+                }
+            );
+        } catch(e){
+            console.log('deleteSession e', e);
+        }
     }
 
     disposeContinue(){
