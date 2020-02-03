@@ -67,7 +67,23 @@ export default class OxygenRunner extends EventEmitter {
         this._reporter = reporter;
         this._isInitialized = true;
 
-        this._env = { ...(options.env || options.envVars || {}) };   // assign environment variables for later use
+        if(options){
+            if(options.env && Object.keys(options.env)){
+                // assign environment variables for later use
+                this._env = {
+                    ...this._env,
+                    ...options.env
+                };
+            }
+            if(options.envVars && Object.keys(options.envVars)){
+                // assign environment variables for later use
+                this._env = {
+                    ...this._env,
+                    ...options.envVars
+                };
+            }
+        }
+
         this._caps = { ...caps }; // assign caps for later use
         this._suites = [ ...options.suites ];
         // set up debugging options
