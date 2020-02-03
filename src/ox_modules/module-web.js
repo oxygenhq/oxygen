@@ -302,74 +302,83 @@ export default class WebModule extends WebDriverModule {
                         deasync.loopWhile(() => !done);
                     }
 
-                    if(['PASSED','FAILED'].includes(status.toUpperCase())){
-                        await this.closeBrowserWindow();
-                    } else if(isSaucelabs){
+                    if(isSaucelabs){
                         this.deleteSession();
                     } else if(isLambdatest){
                         this.deleteSession();
                     } else if(isTestingBot){
                         this.deleteSession();
+                    } else if(['PASSED','FAILED'].includes(status.toUpperCase())){
+                        this.closeBrowserWindow();
                     } else {
                         this.disposeContinue();
                     }
-
                 } else {
                     this.disposeContinue();
                 }
             } catch (e) {
-                this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
+                this.logger.warn('Error disposing driver: ', e);    // ignore any errors at disposal stage
             }
         } else {
             this.disposeContinue();
         }
-        
+
         return this._whenWebModuleDispose.promise;
     }
 
     closeBrowserWindow(){
+        let done = false;
         try {
-            const deleteSessionResult = this.driver.closeWindow();
-            
-            deleteSessionResult.then(
+
+            const closeWindowResult = this.driver.closeWindow();
+        
+            closeWindowResult.then(
                 (value) => {
-                    this.deleteSession();
+                    done = true;
                 },
                 (reason) => {
+                    done = true;
                     if(reason && reason.name && reason.name === 'invalid session id'){
                         // ignore
                     } else {
                         console.log('closeWindow fail reason', reason);
                     }
-                    this.deleteSession();
                 }
             );
         } catch(e){
+            done = true;
             console.log('closeWindow e', e);
         }
+        deasync.loopWhile(() => !done);
+        this.disposeContinue();
     }
 
+
     deleteSession(){
+        let done = false;
         try {
 
             const deleteSessionResult = this.driver.deleteSession();
         
             deleteSessionResult.then(
                 (value) => {
-                    this.disposeContinue();
+                    done = true;
                 },
                 (reason) => {
+                    done = true;
                     if(reason && reason.name && reason.name === 'invalid session id'){
                         // ignore
                     } else {
                         console.log('deleteSession fail reason', reason);
                     }
-                    this.disposeContinue();
                 }
             );
         } catch(e){
+            done = true;
             console.log('deleteSession e', e);
         }
+        deasync.loopWhile(() => !done);
+        this.disposeContinue();
     }
 
     disposeContinue(){

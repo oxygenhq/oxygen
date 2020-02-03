@@ -15,6 +15,7 @@
 
 // setup logger
 import logger from '../lib/logger';
+import deasync from 'deasync';
 const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
@@ -826,8 +827,34 @@ export default class Debugger extends EventEmitter {
     }
 
     async close() {
+        this.closeDone = false;
         if (this._client) {
-            await this._client.close();
+
+            if(CDP){
+                if(CDP.List){
+                    CDP.List({ port: this._port, host: this._host }, (err, targets) => {
+                        if(targets && Array.isArray(targets) && targets.length > 0){
+                            targets.map((target) => {
+                                const promise = CDP.Close({id: target.id}, (err) => {
+                                    this.closeDone = true;
+                                });
+                        
+                                if(promise && promise.then){
+                                    promise.then(() => {
+
+                                    }, () => {
+
+                                    });
+                                }
+
+                            });
+                        }
+                    });
+                }
+            }
+
+            deasync.loopWhile(() => !this.closeDone);
+
             this._client = null;
         }
         this.reset();

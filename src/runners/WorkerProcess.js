@@ -93,6 +93,9 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async dispose(status = null) {
+        if (this._debugger) {                        
+            await this._debugger.close();
+        }
         if (this._isInitialized && this._childProc) {
             this._isInitialized = false;
 
@@ -114,6 +117,9 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async disposeModules(status = null) {
+        if (this._debugger) {                        
+            await this._debugger.close();
+        }
         if (this._childProc) {               
             await this.invoke('disposeModules', status);
         }

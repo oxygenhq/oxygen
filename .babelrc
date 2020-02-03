@@ -18,6 +18,9 @@
         }
     },
     "overrides": [{
+        "test": ["/underscore.js/", "/websocket.js/"],
+        "sourceType": "script"
+    },{
         "test": "**/src/ox_modules/**/*.js",
         "comments": true
     }],
