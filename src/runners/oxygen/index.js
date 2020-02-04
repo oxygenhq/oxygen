@@ -353,6 +353,7 @@ export default class OxygenRunner extends EventEmitter {
         const caseResult = new TestCaseResult();
         caseResult.name = caze.name;
         caseResult.location = caze.path;
+        caseResult.iterationNum = caseIteration;
         // try to initialize Oxygen and handle any possible error
         try {            
             await (!(this._worker) && this._worker_InitOxygen());
