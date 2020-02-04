@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.0.0 (2020-02-xx)
+## v1.0.0 (2020-02-04)
 
 #### :tada: New Feature
 * Significant improvements to test structure organization, allowing to define all configurations using a project file.
