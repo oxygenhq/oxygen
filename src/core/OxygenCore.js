@@ -668,10 +668,9 @@ export default class Oxygen extends OxygenEvents {
     }
 
     async _disposeModules(status = null) {
-        if (!this.modules || typeof this.modules !== 'object' || this.modulesDisposed) {
+        if (!this.modules || typeof this.modules !== 'object') {
             return false;
         }
-        this.modulesDisposed = true;
         for (let key in this.modules) {
             const mod = this.modules[key];
             if (mod.dispose) {      

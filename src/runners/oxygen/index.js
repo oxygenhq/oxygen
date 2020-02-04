@@ -132,9 +132,6 @@ export default class OxygenRunner extends EventEmitter {
         }
         this._reporter.onRunnerEnd(this._id, result, error);
         this._isRunning = false;
-        if (this._worker) {
-            await this._worker.stop();
-        }
         if (error) {
             throw error;
         }
@@ -388,7 +385,6 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.failure = error;
                 caseResult.status = Status.FAILED;
             }
-            await (this._worker && this._worker_DisposeModules(caseResult.status));
         } catch (e) {
             log.error('_worker_Run() thrown an error:', e);
             caseResult.failure = errorHelper.getFailureFromError(e);
@@ -397,6 +393,9 @@ export default class OxygenRunner extends EventEmitter {
         } 
         await this._worker_callAfterCaseHook(caze, caseResult);
         this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+
+        await (this._worker && this._worker_DisposeModules(caseResult.status));
+
         return caseResult;
     }
     

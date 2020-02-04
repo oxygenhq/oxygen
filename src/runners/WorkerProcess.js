@@ -120,7 +120,7 @@ export default class WorkerProcess extends EventEmitter {
         if (this._debugger) {                        
             await this._debugger.close();
         }
-        if (this._childProc) {               
+        if (this._childProc) {
             await this.invoke('disposeModules', status);
         }
     }
