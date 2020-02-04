@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.0.0 (2020-xx-xx)
+## v1.0.0 (2020-02-xx)
 
 #### :tada: New Feature
 * Significant improvements to test structure organization, allowing to define all configurations using a project file.
@@ -19,7 +19,9 @@
 * Support for running multiple Suites as a part of a single test.
 * Improved debugging support when using breakpoints in external files.
 * Added `web.rightClick`.
-* Support for Node.js 13
+* Added `win.rightClick`.
+* Improvements to SauceLabs, LambdaTest, TestingBot integrations
+* `pdf` methods accept optional argument for reversing string order (useful when working with RTL languages).
 
 #### :boom: Breaking Change
 * `ox.*` is no longer available. `ox.modules.*` should be used instead. All available modules `web`, `mob`, etc are also exposed globally now and can be used directly.
@@ -31,19 +33,20 @@
 * `twilio` not producing proper error when no matching messages found.
 * `web.network` not recording responses for redirected requests.
 * `web.click` not working on IE under certain conditions.
+* Debugger not entering into module code if module name is specified using wrong case.
 
 #### :nail_care: Polish
 * Improved error handling. Errors now contain proper stacktraces and provide more details about where in user script the error has occurred.
 * More errors from underlying frameworks are handled and processed.
 * JUnit XML reports improved to include more details about test failures.
 * `twilio` module performance improvements.
-* Added JS injection fall-back for `web.doubleClick` when element is not clickable. 
+* Added JS injection fall-back for `web.doubleClick` when element is not clickable.
 
 #### :book: Documentation
 * Documentation has been migrated to a new infrastructure providing better user experience. Documentation has been, as well, improved with more topics.
 
 #### :house: Internal
-* Webdriverio updated to v5.18.0
+* Webdriverio updated to v5.18.6.
 * Updated pre-bundled Chrome drivers.
 
 ## v1.0.0-beta.14 (2019-12-16)
