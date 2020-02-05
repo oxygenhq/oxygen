@@ -31,7 +31,8 @@ require('@babel/register')({
     }],
 });
 
-const { LEVELS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
+
+const { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } = require('../../lib/logger');
 const OxygenWorker = require('./OxygenWorker').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
@@ -54,6 +55,9 @@ const reporter = {
     },
     onStepEnd: function(...args) {
         emitReporterEvent('onStepEnd', args);        
+    },
+    onRunnerEnd: function(...args) {
+        emitReporterEvent('onRunnerEnd', args);        
     }
 };
 
@@ -91,6 +95,14 @@ function stringify(obj) {
 // redirect stdout and stderr to the logger
 //process.stdout.write = logger.debug;
 //process.stderr.write = logger.error;
+
+process.on('uncaughtException', async(err, origin) => {
+    logger.error(err.message, ISSUERS.USER);
+    processSend({
+        event: 'workerError',
+        errMessage: err.message,
+    });
+});
 
 process.on('SIGINT', async function() {
     logger.debug('SIGINT received');

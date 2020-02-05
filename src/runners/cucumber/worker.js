@@ -2,7 +2,7 @@ import 'core-js/stable';
 import 'regenerator-runtime/runtime';
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
-const { LEVELS, DEFAULT_LOGGER_ISSUER } = require('../../lib/logger');
+const { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } = require('../../lib/logger');
 import CucumberWorker  from './CucumberWorker';
 
 // mockup globbal.browser object for internal WDIO functions to work properly
@@ -45,6 +45,9 @@ const reporter = {
     },
     onStepEnd: function(...args) {
         emitReporterEvent('onStepEnd', args);        
+    },
+    onRunnerEnd: function(...args) {
+        emitReporterEvent('onRunnerEnd', args);        
     }
 };
 
@@ -57,6 +60,13 @@ function stringify(obj) {
 //process.stderr.write = logger.error;
 
 let _worker = new CucumberWorker(reporter);
+process.on('uncaughtException', async(err, origin) => {
+    logger.error(err.message, ISSUERS.USER);
+    processSend({
+        event: 'workerError',
+        errMessage: err.message,
+    });
+});
 
 process.on('SIGINT', async function() {
     logger.debug('SIGINT received');

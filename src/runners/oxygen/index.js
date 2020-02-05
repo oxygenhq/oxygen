@@ -568,6 +568,10 @@ export default class OxygenRunner extends EventEmitter {
                     _this.emit('init-done', msg);
                 }
             }
+            else if (msg.event && msg.event === 'workerError'){
+                this.dispose('failed');
+                this._reporter.onRunnerEnd(this._id, {}, msg.errMessage);
+            }
         });
 
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {

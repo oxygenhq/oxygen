@@ -112,8 +112,8 @@ export default class ReportAggregator extends EventEmitter {
             if (testResult.failure) {
                 console.log(`Error: ${testResult.failure.type} at ${testResult.failure.location}.`);
             }
+            console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }
-        console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         this.emit('runner:end', {
             rid,
             result: testResult,
