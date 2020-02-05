@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.0.1 (2020-02-05)
+
+#### :house: Internal
+* Various fixes.
+
 ## v1.0.0 (2020-02-04)
 
 #### :tada: New Feature
