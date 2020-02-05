@@ -11,44 +11,32 @@
 /**
  * @name web
  * @description Provides methods for browser automation.
- * @sample <br></br> **Notes**: <br></br>
- * Commands which operate on elements such as click, assert, waitFor, type, select, and others will 
- * automatically wait for a period of time for the element to appear in DOM and become visible. By 
- * default this period equals to 60 seconds, but can be changed using the <code>setTimeout</code>
- * command.
- * <br></br>
- * <div id="patterns">
- * <br></br>
+ * @sample **Notes:**  
+ *   
+ * Commands which operate on elements such as click, assert, waitFor, type, select, and others will automatically wait for a period of time for the element to appear in DOM and become visible. By default this period equals to 60 seconds, but can be changed using the `setTimeout`command.
+ *   
  * **String matching patterns:** 
- *  <br></br>
- *  Commands which expect a string matching pattern in their arguments, support
- *  following patterns unless specified otherwise:
- *  <br></br>
- *  <ul>
- *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
- *  <li><code>regexi:PATTERN</code> - Match using case-insensitive regular expression.</li>
- *  <li><code>exact:STRING</code> - Match the string verbatim.</li>
- *  <li><code>glob:PATTERN</code> - Match using case-insensitive glob pattern.
- *      <code>?</code> will match any single character except new line (\n).
- *      <code>*</code> will match any sequence (0 or more) of characters except new line. Empty
- *      PATTERN will match only other empty strings.</li>
- *  <li><code>PATTERN</code> - Same as glob matching.</li>
- *  </ul>
- * </div>
- * <div id="locators">Commands which expect an element locator in their arguments, support	
- *  following locator types unless specified otherwise:	
- *  <br></br>
- *  <ul>	
- *  <li><code>id=ID</code> - Locates element by its ID attribute.</li>	
- *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>	
- *  <li><code>link=TEXT</code> - Locates link element whose visible text matches the given string.</li>	
- *  <li><code>link-contains=TEXT</code> - Locates link element whose visible text contains the given string.</li>	
- *  <li><code>name=NAME</code> - Locates element by its NAME attribute.</li>  
- *  <li><code>tag=NAME</code> - Locates element by its tag name.</li>  
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>	
- *  <li><code>(XPATH)[]</code> - Locates element using an XPath 1.0 expression.</li>
- *  </ul>	
- * </div>
+ * 
+ *  Commands which expect a string matching pattern in their arguments, support following patterns unless specified otherwise:
+ * 
+ *  * `regex:PATTERN` - Match using regular expression.
+ *  * `regexi:PATTERN` - Match using case-insensitive regular expression.
+ *  * `exact:STRING` - Match the string verbatim.
+ *  * `glob:PATTERN` - Match using case-insensitive glob pattern. `?` will match any single character except new line \(\n\). `*` will match any sequence \(0 or more\) of characters except new line. Empty     PATTERN will match only other empty strings.
+ *  * `PATTERN` - Same as glob matching.  
+ *  
+ *  Commands which expect an element locator in their arguments, support following locator types unless specified otherwise:
+ * 
+ *  * `id=ID` - Locates element by its ID attribute.
+ *  * `css=CSS_SELECTOR` - Locates element using a CSS selector.
+ *  * `link=TEXT` - Locates link element whose visible text matches the given string.
+ *  * `link-contains=TEXT` - Locates link element whose visible text contains the given string.
+ *  * `name=NAME` - Locates element by its NAME attribute.
+ *  * `tag=NAME` - Locates element by its tag name.
+ *  * `/XPATH` - Locates element using an XPath 1.0 expression.
+ *  * `(XPATH)[]` - Locates element using an XPath 1.0 expression.  
+ *   
+ *    
  */
 
 /* eslint-disable quotes */

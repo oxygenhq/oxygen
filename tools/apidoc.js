@@ -255,7 +255,7 @@ function load(file, loadDescription) {
             description: description ? description.replace(/(?<! {2})(\r\n|\n)/gm, '') : '',
             name: name ? name.replace(/(?<! {2})(\r\n|\n)/gm, '') : '',
             note: note ? note.replace(/(?<! {2})(\r\n|\n)/gm, '') : '',
-            sample: sample ? sample.replace(/(?<! {2})(\r\n|\n)/gm, '') : sample,
+            sample: sample ? sample : '',
             methods: comments
         };
     } catch (exc) {
@@ -273,13 +273,6 @@ function generate(module, moduleName) {
         // ignored
     }
     
-
-    if(module.sample){
-        outContent += `
-${module.sample}
-        `;
-    }
-
     for (let method of module.methods) {
         var params = method.getParams();
         
@@ -380,20 +373,22 @@ ${module.sample}
     if(module.description){
         startCntent += `---
 description: ${module.description}
----
-        `;
+---`;
     }
     if(module.name){
         startCntent += `
-# ${module.name}
-        `;
+# ${module.name}  `;
     }
     if(module.note){
         startCntent += `
 {% hint style="warning" %}
 ${module.note}
-{% endhint %}
-        `;
+{% endhint %}  `;
+    }
+    if(module.sample){
+        startCntent += `
+${module.sample}  
+`;
     }
 
     fs.appendFileSync(outFile, startCntent+content);

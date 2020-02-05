@@ -11,47 +11,41 @@
 /**
  * @name mob
  * @description Provides methods for mobile automation.
- * @sample <br></br> **Locators: **<br></br>
- * <div id="locators-android-native">Native application locators for<img src="/img/platforms/android.png"></img>
- *  <ul>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  <li><code>id=ID</code> - Locates element by its id.</li>
- *  <li><code>class=CLASS</code> - Locates element by its class.</li>
- *  <li><code>text=TEXT</code> - Locates element by its visible text.</li>
- *  <li><code>text-contains=TEXT</code> - Locates element whose visible text contains the specified string.</li>
- *  <li><code>desc=DESCRIPTION</code> - Locates element by its description.</li>
- *  <li><code>desc-contains=DESCRIPTION</code> - Locates element whose description contains the specified string.</li>
- *  <li><code>scrollable</code> - Locates elements that are scrollable.</li>
- *  </ul>
- * </div>
- * <div id="locators-ios">Native application locators for<img src="/img/platforms/apple.png"></img>
- *  <ul>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  <li><code>id=ID</code> - Locates element by its ID.</li>
- *  <li><code>~ACCESSIBILITY_ID</code> - Locates element by its Accessibility Id.</li>
- *  </ul>
- * </div>
- * <div id="locators-hybrid-web">Hybrid<img src="/img/platforms/hybrid.png"></img>and Web<img src="/img/platforms/web.png"></img>application locators	
- *  for<img src="/img/platforms/android.png"></img><img src="/img/platforms/apple.png"></img>	
- *  <ul>	
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>	
- *  <li><code>id=ID</code> - Locates element by its id.</li>	
- *  <li><code>name=NAME</code> - Locates element by its name attribute.</li>  
- *  <li><code>tag=NAME</code> - Locates element by its tag name.</li>  
- *  <li><code>link=TEXT</code> - Locates anchor element whose text matches the given string.</li>	
- *  <li><code>link-contains=TEXT</code> - Locates anchor element whose text contains the given string.</li>	
- *  <li><code>css=CSS_SELECTOR</code> - Locates element using a CSS selector.</li>	
- *  </ul>	
- * </div>	
- * <br></br>
- * <br></br> **Pattern arguments:** <br></br>
- * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
- *  following patterns unless specified otherwise:<br></br>
- *  <ul>
- *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
- *  <li><code>PATTERN</code> - Verbatim matching.</li>
- *  </ul>
- * </div>
+ * @sample **Locators:**  
+ * 
+ * Native application locators for![](../../.gitbook/assets/android.png) 
+ * * `/XPATH` - Locates element using an XPath 1.0 expression.
+ * * `id=ID` - Locates element by its id.
+ * * `class=CLASS` - Locates element by its class.
+ * * `text=TEXT` - Locates element by its visible text.
+ * * `text-contains=TEXT` - Locates element whose visible text contains the specified string.
+ * * `desc=DESCRIPTION` - Locates element by its description.
+ * * `desc-contains=DESCRIPTION` - Locates element whose description contains the specified string.
+ * * `scrollable` - Locates elements that are scrollable.
+ *   
+ *  Native application locators for![](../../.gitbook/assets/apple.png) 
+ * 
+ * * `/XPATH` - Locates element using an XPath 1.0 expression.
+ * * `id=ID` - Locates element by its ID.
+ * * `~ACCESSIBILITY_ID` - Locates element by its Accessibility Id.
+ * 
+ *  Hybrid![](../../.gitbook/assets/hybrid.png)  and Web![](../../.gitbook/assets/web.png)  application locators for![](../../.gitbook/assets/android.png)  ![](../../.gitbook/assets/apple.png) 
+ * 
+ * * `/XPATH` - Locates element using an XPath 1.0 expression.
+ * * `id=ID` - Locates element by its id.
+ * * `name=NAME` - Locates element by its name attribute.
+ * * `tag=NAME` - Locates element by its tag name.
+ * * `link=TEXT` - Locates anchor element whose text matches the given string.
+ * * `link-contains=TEXT` - Locates anchor element whose text contains the given string.
+ * * `css=CSS_SELECTOR` - Locates element using a CSS selector.
+ * 
+ * **Pattern arguments:**
+ * 
+ * Commands which expect a string matching pattern in their arguments, support following patterns unless specified otherwise:
+ * 
+ * * `regex:PATTERN` - Match using regular expression.
+ * * `PATTERN` - Verbatim matching.
+ * 
  */
 import deasync from 'deasync';
 import URL from 'url';

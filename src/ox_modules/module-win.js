@@ -11,20 +11,17 @@
 /**
  * @name win
  * @description Provides methods for Windows native applications automation.
- * @sample <br></br> **Locators**: <br></br>
- * <div>
- *  <ul>
- *  <li><code>/XPATH</code> - Locates element using an XPath 1.0 expression.</li>
- *  </ul>
- * </div>
- * <br></br> **Pattern arguments:** <br></br>
- * <div id="patterns">Commands which expect a string matching pattern in their arguments, support
- *  following patterns unless specified otherwise:<br></br>
- *  <ul>
- *  <li><code>regex:PATTERN</code> - Match using regular expression.</li>
- *  <li><code>PATTERN</code> - Verbatim matching.</li>
- *  </ul>
- * </div>
+ * @sample **Locators:**  
+ *   
+ *  * `/XPATH` - Locates element using an XPath 1.0 expression.  
+ *   
+ *  **Pattern arguments:**  
+ *   
+ *  Commands which expect a string matching pattern in their arguments, support following patterns unless specified otherwise:
+ *     
+ *  * `regex:PATTERN` - Match using regular expression.  
+ *  * `PATTERN` - Verbatim matching.
+ *     
  */
 
 import deasync from 'deasync';
