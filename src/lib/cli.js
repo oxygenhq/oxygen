@@ -116,6 +116,5 @@ Web test options:
       --reopen={true|false}  Reopen browser on each iteration. Default is false.
       
 Mobile test options:
-      --host=HOSTNAME        Appium server hostname. Default is localhost.
-      --port=PORT            Appium server port. Default is 4723.`);
+    -s, --server=SERVER_URL    Appium server URL. Default is http://localhost:4723/wd/hub.`);
 }
