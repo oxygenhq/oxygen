@@ -111,7 +111,7 @@ export function getConfigurations(target, argv) {
         },
     };    
     // if the target is oxygen config file, merge its content with the default options
-    let moreOpts = { reporting: {} };
+    let moreOpts = { reporting: startupOpts.reporting, parameters: startupOpts.parameters };
     if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
         moreOpts = require(target.path);
     } 
@@ -121,6 +121,10 @@ export function getConfigurations(target, argv) {
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
         const reporters = argv.rf.split(',');
         moreOpts.reporting.reporters = reporters;
+    }
+    // set reporter output directory if set by user through comnand line (--ro switch)
+    if (argv.ro && typeof argv.ro === 'string' && argv.ro.length > 0) {
+        moreOpts.reporting.outputDir = argv.ro;
     }
     // set specs if set by user through comnand line (--specs switch)
     if (argv.specs && typeof argv.specs === 'string' && argv.specs.length > 0) {
