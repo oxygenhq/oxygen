@@ -89,8 +89,7 @@ FILE - Path to a test case (.js) or test suite (.json) file.
 
 General options:
   -d, --delay=SECONDS        Delay between each command in seconds. 
-      --rf={html|pdf|xml|excel|junit}  Reports file format. Default is html.
-      --rt=FILE              Reports template. Relevant only for excel reports.
+      --rf={html|pdf|xml|excel|junit|json}  Reports file format. Default is html.
       --ro=PATH              Output path for report file. If specified, the report 
                              will overwrite any previous reports.
   -i, --iter=COUNT           Number of times to run the test. Default is 1.      
@@ -111,10 +110,10 @@ General options:
   -v, --version              Display version information and exit.
 
 Web test options:
-  -b, --browser={chrome|ie}  Browser name. Default is chrome.
+  -b, --browser={chrome|ie|safari|firefox}  Browser name. Default is chrome.
   -s, --server=SERVER_URL    Selenium hub URL. Default is http://localhost:4444/wd/hub.
       --reopen={true|false}  Reopen browser on each iteration. Default is false.
       
 Mobile test options:
-    -s, --server=SERVER_URL    Appium server URL. Default is http://localhost:4723/wd/hub.`);
+    -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723/wd/hub.`);
 }
