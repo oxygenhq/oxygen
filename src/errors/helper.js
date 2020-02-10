@@ -115,9 +115,9 @@ module.exports = {
         }
         // handle "invalid selector: Unable to locate an element with the xpath expression"
         // usually due to invalid xpath
-        else if (err.message && err.message.includes('invalid selector: Unable to locate an element with the xpath expression')) {
+        else if (err.message && err.message.includes('Unable to locate an element with the xpath expression')) {
             let matches = err.message.match(/(The string '.*' is not a valid XPath expression.)/i);
-            return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches.length === 2 ? matches[1] : err.message));
+            return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches && matches.length === 2 ? matches[1] : err.message));
         }
         else if (err.message && (err.message.includes('Unable to automate Chrome version') ||
             err.message.includes('No Chromedriver found that can automate'))) {
