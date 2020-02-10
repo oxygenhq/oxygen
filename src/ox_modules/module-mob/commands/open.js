@@ -19,5 +19,13 @@
  */
 module.exports = function(url) {
     this.helpers.assertArgumentNonEmptyString(url);
-    this.driver.url(url);
+    try {
+        this.driver.url(url);
+    } catch (e) {
+        if (e && e.message.startsWith('Specified URL')) {
+            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
+        } else {
+            throw e;
+        }
+    }
 };
