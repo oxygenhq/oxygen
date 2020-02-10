@@ -236,8 +236,15 @@ module.exports = {
             return locator;
         else if (locator.indexOf('/') === 0)
             return locator;                                 // leave xpath locator as is
-        else if (locator.indexOf('id=') === 0)
-            return '#' + locator.substr('id='.length);
+        else if (locator.indexOf('id=') === 0) {
+            // generate XPath instead of CSS for browser tests, since ID can contain illegal characters
+            // and escaping doesn't work reliably or in identical manner in all browser
+            if (this.driver.capabilities && this.driver.capabilities.browserName) {
+                return `//*[@id="${locator.substr('id='.length)}"]`;
+            } else {
+                return '#' + locator.substr('id='.length);
+            }
+        }
         else if (locator.indexOf('name=') === 0)
             return '[name="' + locator.substr('name='.length) + '"]';
         else if (locator.indexOf('link=') === 0)
