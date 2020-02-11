@@ -14,6 +14,7 @@ import { EventEmitter } from 'events';
 import path from 'path';
 import TestResult from '../model/test-result';
 import oxutil from '../lib/util';
+import { defer } from 'when';
 
 // import all built-in reporters
 import JsonReporter from '../ox_reporters/reporter-json';
@@ -38,6 +39,8 @@ export default class ReportAggregator extends EventEmitter {
         super();
         // results hash table based on runner id key
         this.results = [];
+        // a hash list of runnerEnd event promises, keyed by runner id
+        this.runnerEndPromises = {};
         this.options = options;
         this.instantiateReporters();
     }
@@ -71,6 +74,13 @@ export default class ReportAggregator extends EventEmitter {
         return true;
     }
 
+    async waitForResult(rid) {
+        if (!rid || !this.runnerEndPromises[rid]) {
+            return null;
+        }
+        return this.runnerEndPromises[rid];
+    }
+
     onRunnerStart(rid, opts, caps) {
         if (!rid) {
             throw new Error('"rid" cannot be empty.');
@@ -83,6 +93,8 @@ export default class ReportAggregator extends EventEmitter {
         testResult.environment = opts.envVars || {};
         testResult.options = opts;
         this.results.push(testResult);
+        // create a new promise for later to be resolved on runner:end event
+        this.runnerEndPromises[rid] = defer();
         console.log(`Test ${rid} has started...`);
         this.emit('runner:start', {
             rid,
@@ -118,6 +130,12 @@ export default class ReportAggregator extends EventEmitter {
             rid,
             result: testResult,
         });
+        if (this.runnerEndPromises[rid]) {
+            // calling nextTick() will help us to insure that we resolve the promise after emit('runner:end') has completed
+            process.nextTick(() => {
+                this.runnerEndPromises[rid].resolve(testResult);
+            });            
+        }
     }
 
     onSuiteStart(rid, suiteId, suite) {

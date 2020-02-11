@@ -67,14 +67,13 @@ export default class CucumberRunner {
     async run () {
         try {
             this.reporter.onRunnerStart(this.id, this.config, this.capabilities);
-            const result = await this.worker.run({ 
+            await this.worker.run({ 
                 context: {
                     caps: this.capabilities 
                 }
             });
             this.reporter.onRunnerEnd(this.id, null);
-    
-            return result;
+            return await this.reporter.waitForResult(this.id);
         }
         catch (e) {
             console.log('Fatal error in Cucumber runner:', e);
