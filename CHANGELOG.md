@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v1.0.2 (2020-02-12)
+
+#### :beetle: Bug Fix
+* `--server` switch not working with mobile tests.
+* `--ro` switch not working.
+* `id` locator in web tests not working if it contains illegal characters.
+* Test doesn't run if empty parameters file is used.
+
+#### :nail_care: Polish
+* Update help screen.
+* Properly process 'Specified URL is not valid' errors.
+* Properly process 'invalid xpath' errors for IE.
+
+#### :house: Internal
+* Update dependencies.
+
 ## v1.0.1 (2020-02-05)
 
 #### :house: Internal
