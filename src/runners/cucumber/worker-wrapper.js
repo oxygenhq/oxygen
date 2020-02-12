@@ -12,9 +12,17 @@
  * Provides everything necessary for executing Cucumber-based JS test scripts.
  */
 if(['darwin','win32'].includes(process.platform) && process.env.NODE_ENV === undefined){
+    var fs = require('fs');
     var path = require('path');
     var envPreset = './../../../../@babel/preset-env';
     var envPath = path.resolve(__dirname,envPreset);
+
+    if (fs.existsSync(envPath)) {
+        // use preset env from parent node_modules
+    } else {
+        envPath = '@babel/preset-env';
+    }
+
     require('@babel/register')({
         // Since babel ignores all files outside the cwd, it does not compile sibling packages
         // So rewrite the ignore list to only include node_modules
