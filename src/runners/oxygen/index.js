@@ -130,6 +130,11 @@ export default class OxygenRunner extends EventEmitter {
         catch (e) {
             error = e;
         }
+
+        if(!error && result && result.failure){
+            error = result.failure;
+        }
+
         this._reporter.onRunnerEnd(this._id, result, error);
         this._isRunning = false;
         if (error) {
