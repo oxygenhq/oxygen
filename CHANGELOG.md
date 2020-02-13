@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.0.3 (2020-02-13)
+
+#### :beetle: Bug Fix
+* Stopping test not working reliably.
+* Loading custom globally installed modules not working with `require`.
+* Confusing error message when required file is not found.
+
 ## v1.0.2 (2020-02-12)
 
 #### :beetle: Bug Fix
