@@ -1,4 +1,4 @@
-import { fork } from 'child_process';
+import { fork, execSync } from 'child_process';
 import { EventEmitter } from 'events';
 import { defer } from 'when';
 
@@ -49,6 +49,25 @@ export default class WorkerProcess extends EventEmitter {
             // add --inspect-brk argument if debug port is specified
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
         }      
+
+        try {
+            const execResult = execSync('npm root -g');
+
+            if(execResult && execResult.toString){
+                let globalNpmModulesPath = execResult.toString().trim();
+
+                if(
+                    globalNpmModulesPath &&
+                    forkOpts && 
+                    forkOpts.env
+                ){
+                    forkOpts.env.NODE_PATH = globalNpmModulesPath;
+                }
+            }
+        } catch(e){
+            console.log('npm root error:', e);
+        }
+
         // fork worker
         this._childProc = fork(this._workerPath, forkOpts);
         
