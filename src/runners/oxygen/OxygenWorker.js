@@ -12,7 +12,7 @@
 
 const Fiber = require('fibers');
 const path = require('path');
-const ScriptNotFoundError = require('../../errors/ScriptNotFound').default;
+// const ScriptNotFoundError = require('../../errors/ScriptNotFound').default;
 const { EventEmitter } = require('events');
 
 const Oxygen = require('../../core/OxygenCore').default;
@@ -78,7 +78,8 @@ export default class OxygenWorker extends EventEmitter {
                     require(scriptPath);
                 }
                 catch (e) {
-                    error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
+                    // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
+                    error = e;
                 }
                 this._oxygen.onAfterCase && this._oxygen.onAfterCase(error);
             });
