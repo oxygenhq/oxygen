@@ -827,13 +827,15 @@ export default class Debugger extends EventEmitter {
     }
 
     async close() {
-        this.closeDone = false;
         if (this._client) {
 
             if(CDP){
                 if(CDP.List){
                     CDP.List({ port: this._port, host: this._host }, (err, targets) => {
                         if(targets && Array.isArray(targets) && targets.length > 0){
+
+                            this.closeDone = false;
+
                             targets.map((target) => {
                                 const promise = CDP.Close({id: target.id}, (err) => {
                                     this.closeDone = true;
@@ -848,12 +850,14 @@ export default class Debugger extends EventEmitter {
                                 }
 
                             });
+
+                            deasync.loopWhile(() => !this.closeDone);
+                            
                         }
                     });
                 }
             }
 
-            deasync.loopWhile(() => !this.closeDone);
 
             this._client = null;
         }

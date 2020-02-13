@@ -1,3 +1,4 @@
+/* eslint-disable no-async-promise-executor */
 /*
  * Copyright (C) 2015-present CloudBeat Limited
  *
@@ -100,11 +101,12 @@ export default class OxygenRunner extends EventEmitter {
     async dispose(status = null) {
         this._isDisposing = true;
         try {
-            if(/*!this._testKilled && */this._worker && this._worker.isRunning){
+            if(this._worker && this._worker.isRunning){
                 await this._worker_DisposeOxygen(status);
                 await this._worker.stop(status);
             }
         } catch (e) {
+            console.log('runner dispose e', e);
             // ignore errors during the dispose
             log.warn('Error when disposing Runner:', e);
         }
@@ -303,7 +305,7 @@ export default class OxygenRunner extends EventEmitter {
                 for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
                     const caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
                     if (!caseResult) {
-                        log.warn('_runCase returned null');
+
                         continue;
                     }
                     suiteResult.cases.push(caseResult);
@@ -375,21 +377,25 @@ export default class OxygenRunner extends EventEmitter {
         // run the test in the worker process and handle any possible error
         try {
             caseResult.startTime = oxutil.getTimeStamp();
-            const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
-            this._processTestResults({ resultStore, context, error, moduleCaps });
-            caseResult.endTime = oxutil.getTimeStamp();
-            caseResult.duration = caseResult.endTime - caseResult.startTime;
-            caseResult.context = context;
-            caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
-            caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
-            caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
-
-            // determine test case iteration status - mark it as failed if any step has failed
-            var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
-            caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
-            if (error) {
-                caseResult.failure = error;
-                caseResult.status = Status.FAILED;
+            if(this._worker){
+                const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+                this._processTestResults({ resultStore, context, error, moduleCaps });
+                caseResult.endTime = oxutil.getTimeStamp();
+                caseResult.duration = caseResult.endTime - caseResult.startTime;
+                caseResult.context = context;
+                caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
+                caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
+                caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
+    
+                // determine test case iteration status - mark it as failed if any step has failed
+                var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
+                caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
+                if (error) {
+                    caseResult.failure = error;
+                    caseResult.status = Status.FAILED;
+                }
+            } else {
+                return;
             }
         } catch (e) {
             log.error('_worker_Run() thrown an error:', e);
@@ -408,7 +414,11 @@ export default class OxygenRunner extends EventEmitter {
     async _worker_Run(suite, caze, suiteIteration, caseIteration, params) {
         if (!this._worker) {
             log.error('_worker is null but not suppose to!');
-            this._whenTestCaseFinished.reject(new Error('_worker is null'));
+
+            if(this._whenTestCaseFinished){
+                this._whenTestCaseFinished.reject(new Error('_worker is null'));
+            }
+            return;            
         }
         // start running the test
         return await this._worker.run({
