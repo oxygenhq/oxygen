@@ -325,6 +325,12 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _runCase(suite, caze, suiteIteration, caseIteration) {
+
+        let showIterationsMessages = false;
+        if(caze && caze.iterationCount && caze.iterationCount > 1){
+            showIterationsMessages = true;
+        }
+
         const params = {};
         // get test suite's parameters if defined
         // get them first and then override with test case level parameters if defined
@@ -361,6 +367,11 @@ export default class OxygenRunner extends EventEmitter {
         caseResult.name = caze.name;
         caseResult.location = caze.path;
         caseResult.iterationNum = caseIteration;
+        
+        if(showIterationsMessages){
+            this._reporter.onIterationStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caseResult);
+        }
+
         // try to initialize Oxygen and handle any possible error
         try {            
             await (!(this._worker) && this._worker_InitOxygen());
@@ -405,6 +416,10 @@ export default class OxygenRunner extends EventEmitter {
         } 
         await this._worker_callAfterCaseHook(caze, caseResult);
         this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+
+        if(showIterationsMessages){
+            this._reporter.onIterationEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+        }
 
         await (this._worker && this._worker_DisposeModules(caseResult.status));
 
