@@ -73,11 +73,19 @@ export default class WorkerProcess extends EventEmitter {
         
         this._hookChildProcEvents();
         // if we are in debug mode, initialize debugger and only then start modules 'init'
-        if (this._debugMode) {
-            await this._initializeDebugger();
-        }
+        
         this._isRunning = true;
         return this._childProc;
+    }
+
+    async startDebugger() {
+        try {
+            if (this._debugMode) {
+                await this._initializeDebugger();
+            }
+        } catch(e){
+            this.emit('error', Object.assign({ error : e }, { pid: this._pid }));
+        }
     }
 
     async stop(status = null) {
@@ -274,7 +282,7 @@ export default class WorkerProcess extends EventEmitter {
 
     _handleChildError(error) {
         log.debug(`Worker ${this._pid} thrown an error: ${error}.`);
-        this.emit('error', Object.assign(error, { pid: this._pid }));
+        this.emit('error', Object.assign({ error : error }, { pid: this._pid }));
     }
 
     _handleChildExit(exitCode, signal) {
@@ -290,7 +298,7 @@ export default class WorkerProcess extends EventEmitter {
     _handleChildUncaughtException(error) {
         log.debug(`Worker ${this._pid} thrown an uncaught error: ${error}.`);
         this._reset();
-        this.emit('error', Object.assign(error, { pid: this._pid }));
+        this.emit('error', Object.assign({ error : error }, { pid: this._pid }));
         this.emit('exit', { pid: this._pid, exitCode: 1 });
     }
 
@@ -309,6 +317,9 @@ export default class WorkerProcess extends EventEmitter {
             whenDebuggerReady.resolve();
         });
         this._debugger.on('error', function(err) {
+
+            log.error('debugger on error :', err);
+
             this.emit('debugger:error', Object.assign(err, { pid: this._pid }));
             // reject the promise only if we got an error right after _debugger.connect() call below - we need this to indicate debugger initialization error
             if (!whenDebuggerReady.isResolved) {
@@ -331,7 +342,7 @@ export default class WorkerProcess extends EventEmitter {
             await this._debugger.connect(this._debugPort, '127.0.0.1');
         } catch(e){
             log.error('Cannot connect to the debugger: ', e);
-            throw e;
+            whenDebuggerReady.reject(e);
         }
 
 

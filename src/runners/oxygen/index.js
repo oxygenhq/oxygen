@@ -523,6 +523,7 @@ export default class OxygenRunner extends EventEmitter {
         this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen');
         await this._worker.start();
         this._hookWorkerEvents();
+        await this._worker.startDebugger();
     }
 
     _hookWorkerEvents() {
@@ -533,9 +534,15 @@ export default class OxygenRunner extends EventEmitter {
         this._worker.on('error', (payload) => {
             const { error } = payload;
             log.error('Worker process error: ', error);
-            _this._workerProcLastError = error;
+           
+            if(this.exitDone){
+                this.emit('test-error', error);
+            } else {
+                _this._workerProcLastError = error;
+            }
         });
         this._worker.on('exit', (payload) => {
+            this.exitDone = true;
             const { exitCode } = payload;
             
             if (exitCode && exitCode !== 0) {
