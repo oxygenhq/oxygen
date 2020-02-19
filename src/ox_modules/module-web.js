@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /*
  * Copyright (C) 2015-present CloudBeat Limited
  *
@@ -373,6 +374,21 @@ export default class WebModule extends WebDriverModule {
         this.driver = null;
         this.lastNavigationStartTime = null;
         super.dispose();
+
+        try {
+            const { execSync } = require('child_process');
+            const taskkillResult = execSync('taskkill /IM chromedriver.exe /F', {silent: true});
+            
+            // if(taskkillResult && taskkillResult.toString){
+            //     console.log('taskkillResult', taskkillResult.toString());
+            // }
+
+            // const killResult = execSync('kill -9 $(pgrep chromedriver)', {silent: true});
+            // console.log('killResult', killResult);
+        } catch(e){
+            // ignore errors
+        }
+
         this._whenWebModuleDispose.resolve(null);
     }
 
