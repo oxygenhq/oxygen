@@ -264,7 +264,32 @@ export default class Oxygen extends OxygenEvents {
             return;
         }
         _logger[level].apply(_logger, args);
-        const message = args && args.length > 0 && typeof args[0] === 'string' ? args[0] : null;
+
+        let message = null;
+        
+        if(args && args.length > 0 && typeof args[0] === 'string'){
+            message = args[0];
+        } else if(args && args.length > 0){
+
+            if(typeof args[0] === 'number' && args[0].toString){
+                message = args[0].toString();
+            } else if(typeof args[0] === 'boolean' && args[0].toString){
+                message = args[0].toString();
+            } else if(typeof args[0] === 'undefined'){
+                message = 'undefined';
+            } else if(typeof args[0] === 'object'){
+                try{
+                    const result = JSON.stringify(args[0]);
+                    message = result;
+                } catch(e){
+                    console.warn('stringify e', e);
+                    message = 'Null';
+                }
+            } else {
+                console.warn('uncovered typeof args[0]', typeof args[0]);
+            }
+        }
+
         const time = oxutil.getTimeStamp();
         // add the log entry to the result store
         if (level !== 'debug' && this.resultStore && this.resultStore.logs) {
