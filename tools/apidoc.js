@@ -1,5 +1,3 @@
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 var fs = require('fs');
 var path = require('path');
 var doctrine = require('doctrine');
@@ -83,14 +81,14 @@ for (var m of modules) {
             for (var cmd of cmds) {
                 var cmdfile = path.join(cmdsDir, cmd);
                 if (fs.lstatSync(cmdfile).isFile() && cmd.endsWith('.js')) {
-                    console.log('Generating' + name + '.' + cmd.substring(0, cmd.length - '.js'.length));
+                    console.log('Generating ' + name + '.' + cmd.substring(0, cmd.length - '.js'.length));
                     modDoc.methods = modDoc.methods.concat(load(cmdfile, false).methods);
                 }
             }
             generate(modDoc, name);
         } else {
             generate(load(path.join(modPath, m), true), name);
-            console.log('Generating' + name);
+            console.log('Generating ' + name);
         }
     }
 }
