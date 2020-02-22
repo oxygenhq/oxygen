@@ -84,7 +84,7 @@
     "moment": "2.24.0",
     "ox-chrome-remote-interface": "0.28.1",
     "oxygen-logger": "0.4.0",
-    "pdfreader": "1.0.6",
+    "pdfreader": "1.0.4",
     "request": "2.88.2",
     "saucelabs": "3.0.1",
     "serialport": "8.0.7",
