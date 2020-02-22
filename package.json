@@ -112,5 +112,8 @@
     "prod": "node ./build/lib/cli.js",
     "dev": "cross-env DEBUG=true NODE_ENV=development babel-node --config-file ./.babelrc ./src/lib/cli.js",
     "debug": "cross-env DEBUG=true babel-node --debug=5858 --presets @babel/preset-env ./src/lib/cli.js"
+  },
+  "engines": {
+    "node": ">=10.14.0 <13.0"
   }
 }
