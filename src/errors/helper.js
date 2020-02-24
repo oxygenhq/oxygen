@@ -124,7 +124,7 @@ module.exports = {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         }
         // handle various types of 'Original error'
-        else if (err.message.indexOf(ORIGINAL_ERROR_MESSAGE) > -1) {
+        else if (err.message.includes(ORIGINAL_ERROR_MESSAGE)) {
             return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
         }
 
@@ -159,15 +159,22 @@ module.exports = {
             if (ieZoomErrorMsg) {
                 return new OxError(ERROR_CODES.BROWSER_CONFIGURATION_ERROR, ieZoomErrorMsg.toString());
             }
-            else if (err.message.indexOf('Unable to create new service: ChromeDriverService') > -1) {
+
+            if (err.message.includes('Unable to create new service: ChromeDriverService')) {
                 return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, err.message, null, true, err);
             }
-            else if (err.message.indexOf('Unable to create new service:') > -1) {
+            
+            if (err.message.includes('Unable to create new service:')) {
                 return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, err.message, null, true, err);
+            }
+
+            var chromeDriverMsg = err.message.match(/(This version of ChromeDriver only supports Chrome version [0-9]*)/gm);
+            if (chromeDriverMsg) {
+                return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, chromeDriverMsg.toString());
             }
         }
 
-        if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
+        if (err.message && err.message.includes('cannot find Chrome binary')) {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, 'Cannot find Chrome binary');
         } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND' || err.message === 'Failed to create session.\nsocket hang up') {
             return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
@@ -185,26 +192,26 @@ module.exports = {
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, err.type + ': ' + err.message, util.inspect(err));
     },
     getAppiumInitError: function(err) {
-        if (err.message && err.message.indexOf('cannot find Chrome binary') > -1) {
+        if (err.message && err.message.includes('cannot find Chrome binary')) {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, 'Cannot find Chrome binary');
         } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND' || err.message === 'Failed to create session.\nsocket hang up') {
             return new OxError(ERROR_CODES.APPIUM_UNREACHABLE_ERROR, "Couldn't connect to Appium server");
-        } else if (err.message && err.message.indexOf('Could not find a connected Android device') > -1) {
+        } else if (err.message && err.message.includes('Could not find a connected Android device')) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, 'Could not find a connected Android device');
-        } else if (err.message && err.message.indexOf('Unable to automate Chrome version') > -1) {          // appium <= 1.14
+        } else if (err.message && err.message.includes('Unable to automate Chrome version')) {          // appium <= 1.14
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
-        } else if (err.message && err.message.indexOf('No Chromedriver found that can automate') > -1) {    // appium >= 1.15
+        } else if (err.message && err.message.includes('No Chromedriver found that can automate')) {    // appium >= 1.15
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
-        } else if (err.message && err.message.indexOf('Unable to find an active device or emulator with') > -1) {
+        } else if (err.message && err.message.includes('Unable to find an active device or emulator with')) {
             return new OxError(ERROR_CODES.DEVICE_NOT_FOUND, extractOriginalError(err.message));
-        } else if (err.message && err.message.indexOf('is not installed on device') > -1) {
+        } else if (err.message && err.message.includes('is not installed on device')) {
             return new OxError(ERROR_CODES.APPLICATION_NOT_FOUND_ERROR, extractOriginalError(err.message));
         } else if (err.message === 'All minutes for this organization has been exausted' ||
             err.message === '401 Unauthorized') {
             return new OxError(ERROR_CODES.APPIUM_CONNECTION_ERROR, err.message);
         } else if (err.message && (
-                err.message.indexOf('A new session could not be created.') > -1 ||
-                err.message.indexOf('Failed to create session.') > -1)) {
+                err.message.includes('A new session could not be created.') ||
+                err.message.includes('Failed to create session.'))) {
             return new OxError(ERROR_CODES.APPIUM_SESSION_ERROR, extractOriginalError(err.message), null, true);
         }
 
