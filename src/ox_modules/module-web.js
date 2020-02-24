@@ -378,11 +378,11 @@ export default class WebModule extends WebDriverModule {
 
         try {
             if (process.platform === 'win32') {
-                execSync('taskkill /IM chromedriver.exe /F', {silent: true});
+                execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
             } else {
-                execSync("kill -9 $(pgrep -d' ' -f chromedriver)", {silent: true});
+                execSync("kill -9 $(pgrep -d' ' -f chromedriver)", { stdio: ['ignore', 'ignore', 'ignore'] });
             }
-        } catch(e){
+        } catch(e) {
             // ignore errors
         }
 
@@ -399,8 +399,8 @@ export default class WebModule extends WebDriverModule {
             return;
         }
         // collect browser logs for this session
-        if (this.options.collectBrowserLogs === true && this.caps.browserName === 'chrome') {            
-            try {                
+        if (this.options.collectBrowserLogs === true && this.caps.browserName === 'chrome') {
+            try {
                 const logs = this.getBrowserLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
@@ -446,11 +446,11 @@ export default class WebModule extends WebDriverModule {
         return {
             time: log.timestamp,
             msg: log.message,
-            // convert SEVERE log level to ERROR 
+            // convert SEVERE log level to ERROR
             level: log.level === 'SEVERE' ? 'ERROR' : log.level,
             src: 'browser'
         };
-    }    
+    }
 
     /*
      * FIXME: There is a bug with IE. See the comment within function body.
@@ -519,7 +519,7 @@ export default class WebModule extends WebDriverModule {
         }
 
         return {};
-    }    
+    }
 
     /**
      * @summary Opens new transaction.
