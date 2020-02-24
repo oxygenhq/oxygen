@@ -121,6 +121,8 @@ export function getConfigurations(target, argv) {
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
         const reporters = argv.rf.split(',');
         moreOpts.reporting.reporters = reporters;
+    } else {
+        moreOpts.reporting.reporters = ['html'];
     }
     // set reporter output directory if set by user through comnand line (--ro switch)
     if (argv.ro && typeof argv.ro === 'string' && argv.ro.length > 0) {
