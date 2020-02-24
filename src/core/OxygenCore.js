@@ -271,7 +271,9 @@ export default class Oxygen extends OxygenEvents {
             message = args[0];
         } else if(args && args.length > 0){
 
-            if(typeof args[0] === 'number' && args[0].toString){
+            if(typeof args[0] !== 'undefined' && args[0] instanceof Error){
+                message = args[0].toString();
+            } else if(typeof args[0] === 'number' && args[0].toString){
                 message = args[0].toString();
             } else if(typeof args[0] === 'boolean' && args[0].toString){
                 message = args[0].toString();
@@ -279,14 +281,23 @@ export default class Oxygen extends OxygenEvents {
                 message = 'undefined';
             } else if(typeof args[0] === 'object'){
                 try{
-                    const result = JSON.stringify(args[0]);
+                    const result = JSON.stringify(args[0], null, 2);
+                    message = result;
+                } catch(e){
+                    console.warn('object stringify e', e);
+                    message = e.toString();
+                }
+            } else if(args[0].toString){
+                message = args[0].toString();
+            } else {
+                console.warn('uncovered typeof args[0]', typeof args[0]);
+                try{
+                    const result = JSON.stringify(args[0], null, 2);
                     message = result;
                 } catch(e){
                     console.warn('stringify e', e);
-                    message = 'Null';
+                    message = e.toString();
                 }
-            } else {
-                console.warn('uncovered typeof args[0]', typeof args[0]);
             }
         }
 

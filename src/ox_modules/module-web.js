@@ -54,6 +54,7 @@ import util from 'util';
 import SauceLabs from 'saucelabs';
 import lambdaRestClient from '@lambdatest/node-rest-client';
 import TestingBot from 'testingbot-api';
+import { execSync } from 'child_process';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -376,15 +377,11 @@ export default class WebModule extends WebDriverModule {
         super.dispose();
 
         try {
-            const { execSync } = require('child_process');
-            const taskkillResult = execSync('taskkill /IM chromedriver.exe /F', {silent: true});
-            
-            // if(taskkillResult && taskkillResult.toString){
-            //     console.log('taskkillResult', taskkillResult.toString());
-            // }
-
-            // const killResult = execSync('kill -9 $(pgrep chromedriver)', {silent: true});
-            // console.log('killResult', killResult);
+            if (process.platform === 'win32') {
+                execSync('taskkill /IM chromedriver.exe /F', {silent: true});
+            } else {
+                execSync('kill -9 $(pgrep chromedriver)', {silent: true});
+            }
         } catch(e){
             // ignore errors
         }

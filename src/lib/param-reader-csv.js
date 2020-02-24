@@ -44,23 +44,7 @@ module.exports = function () {
             bom = true;
         }
 
-        data = data.trim();
-
-        const dataSplit = data.split('\r\n');
-
-        const header = dataSplit.shift();
-
-        let headerSplit = header.split(',');
-        
-        headerSplit = headerSplit.map((item) => item.trim());
-
-        headerSplit = headerSplit.join(',');
-
-        dataSplit.unshift(headerSplit);
-
-        data = dataSplit.join('\r\n');
-        
-        var table = parse(data, { bom: bom, columns: true });
+        var table = parse(data, { bom: bom, columns: true, trim: true });
 
         _doneReading.resolve(table);
 
