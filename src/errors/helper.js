@@ -91,11 +91,6 @@ module.exports = {
         };
     },
     getOxygenError: function(err, module, cmd, args) {
-        
-        console.log('=== Error Details ===');
-        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
-        console.log(util.inspect(err));
-        
         // return the error as is if it has been already processed
         if (err instanceof OxError) {
             return err;
@@ -149,6 +144,10 @@ module.exports = {
             }
             return new OxError(oxErrorCode, err.message || null, null, true, err);
         }
+
+        console.log('=== Error Details ===');
+        console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
+        console.log(util.inspect(err));
         
         const errMessage = err.message ? `${errType}: ${err.message}` : `${errType}`;
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err), true, err);
