@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v1.1.0 (2020-02-xx)
+
+#### :boom: Breaking Change
+* `log.*` will automatically serialize the value if it's a complex object.
+
+#### :beetle: Bug Fix
+* `log.*` not working with non-string objects.
+* Parameters not loaded correctly from CSV if header contains spaces.
+* Error handling in `web.assertAlert`, `web.alertAccept`, `web.alertDismiss` commands.
+* Processing of ChomeDriver version mismatch errors.
+* Generate HTML reports if `--rf` switch is not specified.
+
+#### :house: Internal
+* Update dependencies.
+
 ## v1.0.3 (2020-02-13)
 
 #### :beetle: Bug Fix
