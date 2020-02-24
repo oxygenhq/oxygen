@@ -380,7 +380,7 @@ export default class WebModule extends WebDriverModule {
             if (process.platform === 'win32') {
                 execSync('taskkill /IM chromedriver.exe /F', {silent: true});
             } else {
-                execSync('kill -9 $(pgrep chromedriver)', {silent: true});
+                execSync("kill -9 $(pgrep -d' ' -f chromedriver)", {silent: true});
             }
         } catch(e){
             // ignore errors
