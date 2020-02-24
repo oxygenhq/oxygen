@@ -16,13 +16,13 @@
                             <h3 class="panel-title">
                             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>">
                                 <%= caseResult.name %> (Iteration #<%= caseResult.iterationNum %>)</a>
-                                <%- caseResult.status === 'passed' ? PASSED_LABEL : FAILED_LABEL %>             
+                                <%- caseResult.status === 'passed' ? PASSED_LABEL : FAILED_LABEL %>
                             </h3>
                         </div>
                         <div id="collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>" class="panel-collapse collapse in">
-                            <div class="panel-body">    
+                            <div class="panel-body">
                                 <% if (caseResult.failure) { %>
-                                <pre style="background-color: #fcacac"><b><%= caseResult.failure.type %></b><%= caseResult.failure.message %></pre>
+                                <pre style="background-color: #fcacac"><b><%= caseResult.failure.type %>: </b><%= caseResult.failure.message %></pre>
                                 <% } %>
                                 <h4>Steps</h4>
                                 <table class="table table-bordered" style="width: 100%; table-layout: fixed;">
@@ -35,7 +35,7 @@
                                             <th>Details</th>
                                         </tr>
                                     </thead>
-                                    <tbody>			
+                                    <tbody>
                                         <% if (caseResult.steps.length == 0) { %>
                                             <tr>
                                                 <td colspan="5">- No steps defined -</td>
@@ -63,7 +63,7 @@
                                             </tr>
                                         <% }); %>
                                     </tbody>
-                                </table>                                    
+                                </table>
                             </div>
                         </div>
                     </div>
