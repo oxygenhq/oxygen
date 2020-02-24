@@ -21,8 +21,8 @@ module.exports = function() {
     try {
         this.driver.acceptAlert();
     } catch (e) {
-        if (e.name === 'no such alert') {
-            throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR);
+        if (e.name === 'no such alert' || e.type === 'NO_ALERT_OPEN_ERROR') {
+            throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
         } else {
             throw e;
         }

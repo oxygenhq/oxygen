@@ -26,7 +26,20 @@ module.exports = function(pattern, timeout) {
         this.driver.waitUntil(() => {
             try {
                 alertText = this.driver.getAlertText();
-                return this.helpers.matchPattern(alertText, pattern);
+
+                // WDIO returns promise sometimes when laert is not present
+                // (unable to reproduce this under pure WDIO...)
+                // add catch so we won't get unhandle promise rejections
+                if (alertText.catch) {
+                    alertText.catch((e) => { });
+                    return false;
+                }
+
+                if (typeof alertText === 'string') {
+                    return this.helpers.matchPattern(alertText, pattern);
+                } else {
+                    return false;
+                }
             } catch (e) {
                 return false;
             }
@@ -34,9 +47,9 @@ module.exports = function(pattern, timeout) {
         (!timeout ? this.waitForTimeout : timeout));
         this.driver.dismissAlert();
     } catch (e) {
-        if (alertText) {
+        if (alertText && typeof alertText === 'string') {
             throw this.errHelper.getAssertError(pattern, alertText);
         }
-        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, 'No alert present');
+        throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
     }
 };
