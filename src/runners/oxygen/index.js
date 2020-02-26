@@ -102,7 +102,6 @@ export default class OxygenRunner extends EventEmitter {
         this._isDisposing = true;
         try {
             if(this._worker && this._worker.isRunning){
-                await this._worker_DisposeOxygen(status);
                 await this._worker.stop(status);
             }
         } catch (e) {
@@ -463,12 +462,6 @@ export default class OxygenRunner extends EventEmitter {
         await (this._worker && this._worker.init(this._id, this._options, this._caps));
     }
 
-    async _worker_DisposeOxygen(status = null) {
-        if(this._worker && this._worker.disposeOxygen){
-            await this._worker.disposeOxygen(status);
-        }
-    }
-
     async _worker_DisposeModules(status = null) {
         if(this._worker && this._worker.disposeModules){
             await this._worker.disposeModules(status);
@@ -539,6 +532,7 @@ export default class OxygenRunner extends EventEmitter {
         await this._worker.start();
         this._hookWorkerEvents();
         await this._worker.startDebugger();
+        this._hookWorkerDebuggerEvents();
     }
 
     _hookWorkerEvents() {
@@ -611,9 +605,11 @@ export default class OxygenRunner extends EventEmitter {
                 this._reporter.onRunnerEnd(this._id, {}, msg.errMessage);
             }
         });
+    }
 
+    _hookWorkerDebuggerEvents(){
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {
-            _this.emit('breakpoint', breakpointData);
+            this.emit('breakpoint', breakpointData);
         });
     }
 

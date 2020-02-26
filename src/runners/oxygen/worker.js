@@ -106,6 +106,7 @@ process.on('uncaughtException', async(err, origin) => {
 
 process.on('SIGINT', async function() {
     logger.debug('SIGINT received');
+    await dispose('CANCELED');
     process.exit(0);
 });
 
@@ -131,6 +132,16 @@ process.on('message', async function (msg) {
 });
 
 
+async function dispose(status= null) {
+    if (_worker) {
+        try {
+            await _worker.dispose(status);
+        }
+        catch (e) {
+            // ignore
+        }
+    }
+}
 
 function processSend(msg) {
     // wrap process.send with try/catch as sometimes we might call process.send 

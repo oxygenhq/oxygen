@@ -90,7 +90,6 @@ export default class WorkerProcess extends EventEmitter {
 
     async stop(status = null) {
         if (this._isInitialized && this._childProc) {
-            await this.invoke('dispose', status);
             this._childProc.kill('SIGINT');
             await snooze(100);
         } else if (this._childProc) {
