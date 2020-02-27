@@ -22,6 +22,34 @@ module.exports = function() {
     };
 
     /**
+     * @function takeScreenshot
+     * @summary Take a screenshot of the current page or screen and return it as base64 encoded string.
+     * @return {String} Screenshot image encoded as a base64 string.
+     * @for android, ios, hybrid, web
+     * @example <caption>[javascript] Usage example</caption>
+     * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+     * var ss = mob.takeScreenshot();//Take a screenshot of the current page or screen and return it as base64 encoded string.
+     * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
+     */
+    
+    module.takeScreenshot = function(name) {
+        var mod;
+
+        /*global ox*/
+        if(ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
+            mod = ox.modules.mob.getDriver();
+        } else if (ox && ox.modules && ox.modules.web && ox.modules.web.getDriver && ox.modules.web.getDriver()) {
+            mod = ox.modules.web.getDriver();
+        } else if (ox && ox.modules && ox.modules.win && ox.modules.win.getDriver && ox.modules.win.getDriver()) {
+            mod = ox.modules.win.getDriver();
+        } else {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Need mob,web or win module be initialized first');
+        }
+
+        return mod ? mod.takeScreenshot() : null;
+    };
+
+    /**
      * @summary Asserts that two values are equal.
      * @function equal
      * @param {String} actual - Actual value.
