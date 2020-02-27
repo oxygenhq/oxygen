@@ -1,19 +1,22 @@
 # CHANGELOG
 
-## v1.1.0 (2020-02-xx)
+## v1.1.0 (2020-02-27)
 
 #### :boom: Breaking Change
-* `log.*` will automatically serialize the value if it's a complex object.
+* `log.*` will automatically serialize the value if it's a complex object. Using `log.info(JSON.stringify(obj))` is no longer required.
+* Minimum required version of Node.js has been raised to v10.14. Although Oxygen will work in part on older versions, anything below 10.14 is no longer officially supported.
 
 #### :beetle: Bug Fix
 * `log.*` not working with non-string objects.
 * Parameters not loaded correctly from CSV if header contains spaces.
 * Error handling in `web.assertAlert`, `web.alertAccept`, `web.alertDismiss` commands.
 * Processing of ChomeDriver version mismatch errors.
-* Generate HTML reports if `--rf` switch is not specified.
+* Generate HTML reports by default even if `--rf` switch is not specified.
+* Regression with `assert` commands no longer taking screenshot for web and mobile tests.
 
 #### :house: Internal
 * Update dependencies.
+* Various other small fixes & improvements.
 
 ## v1.0.3 (2020-02-13)
 
