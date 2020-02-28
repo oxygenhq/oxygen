@@ -1,5 +1,5 @@
 /* eslint-disable no-prototype-builtins */
-import globule from 'globule';
+import glob from 'glob';
 import path from 'path';
 import fs from 'fs';
 import deasync from 'deasync';
@@ -307,7 +307,7 @@ export default class Oxygen extends OxygenEvents {
             this.resultStore.logs.push({
                 time: time,
                 level: level.toUpperCase(),
-                msg: message,                
+                msg: message,
                 src: src
             });
         }
@@ -317,7 +317,7 @@ export default class Oxygen extends OxygenEvents {
     }
     _loadServices() {
         const oxServicesDirPath = path.resolve(this.oxBaseDir, './ox_services');
-        const serviceFiles = globule.find('service-*.js', { srcBase: oxServicesDirPath });
+        const serviceFiles = glob.sync('service-*.js', { cwd: oxServicesDirPath });
         // initialize all services
         this.logger.debug('Loading services...');
         
@@ -355,7 +355,7 @@ export default class Oxygen extends OxygenEvents {
         }
         // otherwise, load all available modules (might be more time consuming)
         else {
-            moduleFiles = globule.find('module-*.js', { srcBase: oxModulesDirPath });
+            moduleFiles = glob.sync('module-*.js', { cwd: oxModulesDirPath });
         }
         // initialize all modules
         this.logger.debug('Loading modules...');
