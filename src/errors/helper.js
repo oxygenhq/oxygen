@@ -114,6 +114,15 @@ module.exports = {
             let matches = err.message.match(/(The string '.*' is not a valid XPath expression.)/i);
             return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches && matches.length === 2 ? matches[1] : err.message));
         }
+        // invalid css locator on Chrome/IE. e.g. css=#\:p0
+        else if (err.message && err.message.includes('An invalid or illegal selector was specified')) {
+            return new OxError(ERROR_CODES.SCRIPT_ERROR, 'An invalid or illegal selector was specified');
+        }
+        // invalid css locator on Firefox. e.g. css=#\:p0
+        else if (err.message && err.message.startsWith('Given css selector expression')) {
+            let matches = err.message.match(/(Given css selector expression ".*" is invalid).*/i);
+            return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches && matches.length === 2 ? matches[1] : err.message));
+        }
         else if (err.message && (err.message.includes('Unable to automate Chrome version') ||
             err.message.includes('No Chromedriver found that can automate'))) {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
