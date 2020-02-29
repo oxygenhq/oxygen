@@ -8,18 +8,16 @@ const path = require('path');
 let originalNodeCfgDir = process.env.NODE_CONFIG_DIR;
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../..', 'config');
 
-// import config and oxygen-logger modules
 const config = require('config');
-const loggerFactory = require('oxygen-logger');
-
-// setup logger
-loggerFactory.init(config.get('logger'));
+const loggerFactory = require('@wdio/logger');
 
 // revert back NODE_CONFIG_DIR value
 process.env.NODE_CONFIG_DIR = originalNodeCfgDir;
 
 exports.default = function logger(name) {
-    return loggerFactory.get(name);
+    const logger = loggerFactory.default(name);
+    logger.setLevel(config.get('logger').console.level);
+    return logger;
 };
 
 const LEVEL_INFO = 'info';
