@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.1.1 (2020-02-29)
+
+#### :nail_care: Polish
+* Properly process 'invalid css selector' errors.
+
+#### :house: Internal
+* Remove duplicate dependency.
+
 ## v1.1.0 (2020-02-27)
 
 #### :boom: Breaking Change
