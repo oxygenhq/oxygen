@@ -31,7 +31,6 @@ require('@babel/register')({
     }],
 });
 
-
 const { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } = require('../../lib/logger');
 const OxygenWorker = require('./OxygenWorker').default;
 const oxutil = require('../../lib/util');
@@ -105,9 +104,7 @@ process.on('uncaughtException', async(err, origin) => {
 });
 
 process.on('SIGINT', async function() {
-    logger.debug('SIGINT received');
     await dispose('CANCELED');
-    process.exit(0);
 });
 
 process.on('message', async function (msg) {
@@ -148,7 +145,7 @@ function processSend(msg) {
     // when parent process is already disconnected (when use kills the main process)
     try {
         // add utc timestamp
-        process.send({ time: oxutil.getTimeStamp(), ...msg });
+        process.connected && process.send({ time: oxutil.getTimeStamp(), ...msg });
     }
     catch (e) {
         // ignore

@@ -380,7 +380,23 @@ export default class WebModule extends WebDriverModule {
             if (process.platform === 'win32') {
                 execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
             } else {
-                execSync("kill -9 $(pgrep -d' ' -f chromedriver)", { stdio: ['ignore', 'ignore', 'ignore'] });
+                if(this.options && this.options.selenuimPid){                    
+                    try {
+                        let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
+
+                        if(pgrepResult && pgrepResult.toString){
+
+                            pgrepResult = pgrepResult.toString();    
+                            pgrepResult = pgrepResult.replace(this.options.selenuimPid, '');
+        
+                            if(pgrepResult){
+                                execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                            }
+                        } 
+                    } catch(e){
+                        // ignore
+                    }
+                }
             }
         } catch(e) {
             // ignore errors
