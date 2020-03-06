@@ -303,7 +303,7 @@ export default class Oxygen extends OxygenEvents {
 
         const time = oxutil.getTimeStamp();
         // add the log entry to the result store
-        if (level !== 'debug' && this.resultStore && this.resultStore.logs) {
+        if (this.resultStore && this.resultStore.logs) {
             this.resultStore.logs.push({
                 time: time,
                 level: level.toUpperCase(),
