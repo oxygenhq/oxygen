@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.1.2 (2020-03-06)
+
+#### :house: Internal
+* Fix process disposal.
+
 ## v1.1.1 (2020-02-29)
 
 #### :nail_care: Polish

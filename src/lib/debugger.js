@@ -15,7 +15,6 @@
 
 // setup logger
 import logger from '../lib/logger';
-import deasync from 'deasync';
 const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
