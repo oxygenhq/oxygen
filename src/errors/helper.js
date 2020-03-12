@@ -131,6 +131,11 @@ module.exports = {
         else if (err.message.includes(ORIGINAL_ERROR_MESSAGE)) {
             return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
         }
+        // invalid URL in open command
+        else if (err.message && err.message.includes('Invalid URL')) {
+            let matches = err.message.match(/( Invalid URL: .*$).*/i);
+            return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches && matches.length === 2 ? matches[1] : err.message));
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
