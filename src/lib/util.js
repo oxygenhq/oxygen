@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2017 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -267,13 +267,13 @@ var self = module.exports = {
         }
         try {
             const chai = require('chai');
-            const mock = require('mock-require');
-
-            mock('chai', { 
-                expect: chai.expect,
-                assert: chai.assert,
-                should: chai.should
+            const mockery = require('mockery');
+            mockery.enable({
+                useCleanCache: true,
+                warnOnReplace: false,
+                warnOnUnregistered: false
             });
+            mockery.registerMock('chai', chai);
 
             await hooks[method].apply(undefined, args); 
         }
