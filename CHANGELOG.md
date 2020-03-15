@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v1.1.3 (2020-03-15)
+
+#### :beetle: Bug Fix
+* Debug logs were not added to JSON results.
+
+#### :nail_care: Polish
+* Properly process 'invalid url' errors.
+
+#### :house: Internal
+* Update dependencies.
+
 ## v1.1.2 (2020-03-06)
 
 #### :house: Internal
