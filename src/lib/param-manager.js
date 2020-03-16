@@ -43,15 +43,16 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
         this.mode = mode;
 
         reader.read(filePath, fileType || null)
-         .then(function(result) {
-             self.table = result;
-             // initialize currentRow according with parameter reading mode (random or sequential)
-             self.currentRow = self.mode === 'random' ? random(0, self.table.length) : 0;
-             _whenInitialized.resolve(null);
-         })
-         .catch(function(err) {
-             _whenInitialized.reject(err);
-         });
+            .then(function(result) {
+                self.table = result;
+                // initialize currentRow according with parameter reading mode (random or sequential)
+                self.currentRow = self.mode === 'random' ? random(0, self.table.length) : 0;
+                _whenInitialized.resolve(null);
+            })
+            .catch(function(err) {
+                _whenInitialized.reject(err);
+            });
+
         return _whenInitialized.promise;
     };
 
