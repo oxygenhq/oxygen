@@ -611,6 +611,10 @@ export default class OxygenRunner extends EventEmitter {
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {
             this.emit('breakpoint', breakpointData);
         });
+
+        this._worker.debugger && this._worker.debugger.on('debugger:breakError', (breakError) => {
+            this.emit('breakpointError', breakError);
+        });        
     }
 
     _handleBeforeCommand(e) {

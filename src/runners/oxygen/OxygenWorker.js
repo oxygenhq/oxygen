@@ -130,7 +130,7 @@ export default class OxygenWorker extends EventEmitter {
     
     async callTestHook(hookName, hookArgs) {
         if (!this._testHooks || !this._testHooks[hookName] || typeof this._testHooks[hookName] !== 'function') {
-            new Error(`Hook does not exist: ${hookName}`);
+            throw new Error(`Hook does not exist: ${hookName}`);
         }
         await oxutil.executeTestHook(this._testHooks, hookName, hookArgs);
     }
