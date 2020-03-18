@@ -96,7 +96,7 @@ function validateBreakpoint(breakpoint){
 
             if(brLineNumber !== itemLineNumber){
                 result = {
-                    msg: `Breakpoints error : ${brFileName} Don't have opportunity to have breakpoint at line `,
+                    msg: `Breakpoints warning : ${brFileName} Don't have opportunity to have breakpoint at line : `,
                     fileName: brFileName,
                     line: brLineNumber
                 };
@@ -109,43 +109,6 @@ function validateBreakpoint(breakpoint){
     }
 
 }
-
-function validateBreakpointData(breakpointData, possibleBreakpointsData, breakpoints) {
-    let result = null;
-    let errorStart = '';
-
-    if(breakpointData){
-        if(breakpointData.fileName && breakpointData.lineNumber){
-            let lineNumber = breakpointData.lineNumber + 1; // from 0-base to 1 base;
-
-            if(possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0){
-                possibleBreakpointsData.map((item) => {
-                    if(item && item.file === breakpointData.fileName){
-
-                        if(lineNumber >= item.fileLineNumbersLength){
-                            lineNumber = lineNumber - 2; // //# sourceMappingURL and }.call(this, exports, require, module, __filename, __dirname); });
-                        }
-
-                        errorStart = `Breakpoints error : ${item.file} Don't have opportunity to have breakpoint at line : ${lineNumber}. `;
-
-                        if(item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0){
-                            if(item.breakpoints.includes(lineNumber)){
-                                // ignore, all ok
-                            } else {
-                                result = `${errorStart} Possible breakpoint lines : ${item.breakpoints.map((line) => line).join(', ')}`;
-                            }
-                        } else {
-                            result = `${errorStart} File don't have possible breakpoint lines`;
-                        }
-                    }
-                });
-            }            
-        }
-    }
-
-    return result;
-}
-
 export default class Debugger extends EventEmitter {
     constructor(pid) {
         super();
@@ -158,6 +121,7 @@ export default class Debugger extends EventEmitter {
         this._paused = false;
         this._client = null;
         this._fileNameAliases = [];
+        this._breakpointErrors = [];
         this.reset();
     }
     reset() {
@@ -370,6 +334,7 @@ export default class Debugger extends EventEmitter {
                                     this._fileNameAliases.push(m.url);
                                 }
 
+                                this._paused = true;
                                 this._Debugger.pause();
 
                                 breakpointForChange = {
@@ -415,7 +380,8 @@ export default class Debugger extends EventEmitter {
                             breakpointsFromOldLocationResult = breakpointsFromOldLocationResult.filter((el) => !!el);
                 
                             Promise.all(breakpointsFromOldLocationResult).then(async(value) => {
-                                await this._Debugger.resume();
+                                await this._Debugger.resume();                                
+                                this._paused = true;
                                 await this._Debugger.pause();
                             });
                         }
@@ -556,7 +522,7 @@ export default class Debugger extends EventEmitter {
                         // assume we always send breakpoint of the top call frame
                         if (eCallFrames && eCallFrames.length > 0) {
 
-                            
+
                             breakpointData = {
                                 lineNumber: eCallFrames[0].location.lineNumber,
                                 fileName: eCallFrames[0].url
@@ -568,37 +534,56 @@ export default class Debugger extends EventEmitter {
                             }
                         }
 
-                        const validateResult = validateBreakpointData(breakpointData, possibleBreakpointsData);
+                        if(
+                            this._breakpointErrors &&
+                            Array.isArray(this._breakpointErrors) &&
+                            this._breakpointErrors.length > 0
+                        ){
+                            this._breakpointErrors.map((breakpointError) => {
+                                if(breakpointError && breakpointError.msg && breakpointError.fileName && breakpointError.line) {
 
-                        if(validateResult){
-                            this.emit('breakError', validateResult);
-                        } else if(this.breakError && this.breakError.msg && this.breakError.fileName && this.breakError.line) {
-
-                            let msg = this.breakError.msg;
-
-                            if(possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0){
-                                possibleBreakpointsData.map((item) => {
-                                    if(item && item.file === this.breakError.fileName){   
-                                        let line;
-                                        
-                                        if(this.breakError.line >= item.fileLineNumbersLength){
-                                            line = this.breakError.line - 2; // //# sourceMappingURL and }.call(this, exports, require, module, __filename, __dirname); });
-                                        } else {
-                                            line = this.breakError.line;
-                                        }
-
-                                        msg += `${line}. `;
-
-                                        if(item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0){
-                                            msg += ` Possible breakpoint lines : ${item.breakpoints.map((line) => line).join(', ')}`;
-                                        } else {
-                                            msg += ' File don\'t have possible breakpoint lines';
-                                        }
+                                    let msg;
+                                    
+                                    if(possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0){
+                                        possibleBreakpointsData.map((item) => {
+                                            if(item && item.file === breakpointError.fileName){   
+                                                let line;
+                                                
+                                                if(breakpointError.line >= item.fileLineNumbersLength){
+                                                    line = breakpointError.line - 2; // //# sourceMappingURL and }.call(this, exports, require, module, __filename, __dirname); });
+                                                } else {
+                                                    line = breakpointError.line;
+                                                }
+        
+        
+                                                if(item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0){
+                                                    if(breakpointError && breakpointError.msg && breakpointError.msg.includes('Possible breakpoint lines')){
+                                                        // ignore
+                                                    } else {
+                                                        msg = breakpointError.msg;
+                                                        msg += `${line}. `;
+                                                        msg += ` Possible breakpoint lines : ${item.breakpoints.map((line) => line).join(', ')}`;
+                                                    }
+                                                } else {
+                                                    if(breakpointError && breakpointError.msg && breakpointError.msg.includes('possible breakpoint lines')){
+                                                        // ignore
+                                                    } else {
+                                                        msg = breakpointError.msg;
+                                                        msg += `${line}. `;
+                                                        msg += ' File don\'t have possible breakpoint lines';
+                                                    }
+                                                }
+                                            }
+                                        });
                                     }
-                                });
-                            }
 
-                            this.emit('breakError', msg);
+                                    this.emit('breakError', {
+                                        message: msg,
+                                        lineNumber:breakpointError.line,
+                                        fileName: breakpointError.fileName
+                                    });
+                                }
+                            });
                         } else {
                             this.emit('break', breakpointData);
                         }
@@ -622,7 +607,7 @@ export default class Debugger extends EventEmitter {
                     const validateResult = validateBreakpoint(bp);
 
                     if(validateResult){
-                        this.breakError = validateResult;
+                        this._breakpointErrors.push(validateResult);
                     }
                 }
             }
@@ -735,6 +720,13 @@ export default class Debugger extends EventEmitter {
     }
 
     async continue() {
+        if (this._paused) {
+            this._paused = false;
+            return await this._Debugger.resume();
+        }
+    }
+
+    async resume() {
         if (this._paused) {
             this._paused = false;
             return await this._Debugger.resume();

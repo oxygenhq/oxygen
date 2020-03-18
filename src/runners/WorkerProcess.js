@@ -27,6 +27,7 @@ export default class WorkerProcess extends EventEmitter {
         this._debugMode = debugMode;
         this._debugPort = debugPort;
         this._workerPath = workerPath;
+        this._breakpointErrors = [];
         // hold the remote invocation promise
         this._calls = {};
         this._eventHandlers = {};
@@ -330,10 +331,16 @@ export default class WorkerProcess extends EventEmitter {
         });
         this._debugger.on('breakError', async function(breakError) {
 
-            const error = new Error(breakError);
-
-            _this.emit('error', Object.assign({ error : error }, { pid: this._pid }));
-            _this.emit('exit', { pid: this._pid, exitCode: 1 });
+            if(breakError && breakError.message){
+                if(_this._breakpointErrors.includes(breakError.message)){
+                    // ignore
+                } else {
+                    _this._breakpointErrors.push(breakError.message);
+                    this.emit('debugger:breakError', breakError);
+                }
+            }
+            
+            await _this._debugger.resume();
         });
 
         try{
