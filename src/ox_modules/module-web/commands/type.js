@@ -21,6 +21,7 @@
  * web.type("id=UserName","User1");//Types a string to field.
  */
 module.exports = function(locator, value, timeout) {
+    this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, true, timeout);

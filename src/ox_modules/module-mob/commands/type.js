@@ -21,6 +21,7 @@
  * mob.type('id=TextArea', 'hello world\uE007');
  */
 module.exports = function(locator, value, timeout) {
+    this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, true, timeout);
