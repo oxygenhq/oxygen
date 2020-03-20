@@ -339,8 +339,6 @@ export default class WorkerProcess extends EventEmitter {
                     this.emit('debugger:breakError', breakError);
                 }
             }
-            
-            await _this._debugger.resume();
         });
 
         try{

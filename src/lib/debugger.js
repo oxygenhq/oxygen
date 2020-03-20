@@ -539,6 +539,31 @@ export default class Debugger extends EventEmitter {
                             Array.isArray(this._breakpointErrors) &&
                             this._breakpointErrors.length > 0
                         ){
+                            const isset = this._breakpoints.find((item) => {
+                                if(
+                                    item &&
+                                    item.origin &&
+                                    item.origin.lineNumber &&
+                                    parseInt(item.origin.lineNumber)+1 === parseInt(breakpointData.lineNumber)
+                                ){
+                                    return true;
+                                } else {
+                                    return false;
+                                }
+                            });
+
+                            if(isset){
+                                breakpointData.resolved = true;
+                            }
+                        }
+
+                        this.emit('break', breakpointData);
+
+                        if(
+                            this._breakpointErrors &&
+                            Array.isArray(this._breakpointErrors) &&
+                            this._breakpointErrors.length > 0
+                        ){
                             this._breakpointErrors.map((breakpointError) => {
                                 if(breakpointError && breakpointError.msg && breakpointError.fileName && breakpointError.line) {
 
@@ -584,8 +609,6 @@ export default class Debugger extends EventEmitter {
                                     });
                                 }
                             });
-                        } else {
-                            this.emit('break', breakpointData);
                         }
                     } else {
                         console.log('should continue');
