@@ -85,27 +85,26 @@ function handleSigInt() {
 function printUsage() {
     console.log(`Usage: oxygen [OPTIONS]... FILE
 
-FILE - Path to a test case (.js) or test suite (.json) file.
+FILE - Path to a test script (.js) or a project configuration (.json) file.
 
 General options:
-  -d, --delay=SECONDS        Delay between each command in seconds. 
+  -d, --delay=SECONDS        Delay between each command in seconds.
       --rf={html|pdf|xml|excel|junit|json}  Reports file format. Default is html.
-      --ro=PATH              Output path for report file. If specified, the report 
+      --ro=PATH              Output path for report file. If specified, the report
                              will overwrite any previous reports.
-  -i, --iter=COUNT           Number of times to run the test. Default is 1.      
+  -i, --iter=COUNT           Number of times to run the test. Default is 1.
   -p, --param=FILE           Parameters file. If not specified an attempt will
                              be made to load parameters from a file named same
                              as the test script, located in the same directory,
                              and having extension - xlsx, xls, csv, or txt.
-      --pm={seq|random|all}  Order in which to read the parameters - sequential, 
+      --pm={seq|random|all}  Order in which to read the parameters - sequential,
                              random, all. Default is seq.
                              In 'seq' and 'random' modes test will run exact number
                              of times specified with the -i option.
-                             In 'all' mode, all available parameters will be read 
+                             In 'all' mode, all available parameters will be read
                              sequentially. This option is mutually exclusive with
                              -i option.
       --dbgport=PORT         Debugger port.
-      --req={true|false}     Allow usage of 'require'. Default is true.
   -h, --help                 Display this information and exit.
   -v, --version              Display version information and exit.
 
