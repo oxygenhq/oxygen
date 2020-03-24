@@ -227,13 +227,13 @@ export default class WebModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
-    async dispose(status = 'passed') {
+    async dispose(status) {
         this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
                 if(!status){
                     // ignore
-                    this.disposeContinue();
+                    this.closeBrowserWindow();
                 } else if(status && typeof status === 'string'){
 
                     let isSaucelabs = false;

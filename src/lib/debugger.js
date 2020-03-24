@@ -756,6 +756,13 @@ export default class Debugger extends EventEmitter {
         }
     }
 
+    async resumeTerminate() {
+        if (this._paused) {
+            this._paused = false;
+            await this._Debugger.resume(true);
+        }
+    }
+
     async removeBreakpointByValue(filePath, inputLine) {
 
         const filePathAlias = this.inFileNameAliases(filePath);

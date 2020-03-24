@@ -91,6 +91,10 @@ export default class WorkerProcess extends EventEmitter {
 
     async stop(status = null) {
         if (this._isInitialized && this._childProc) {
+            if (this._debugger && this._debugger._paused) {                        
+                await this._debugger.resumeTerminate();
+            }
+            await this.invoke('dispose', status);
             this._childProc.kill('SIGINT');
             await snooze(100);
         } else if (this._childProc) {
