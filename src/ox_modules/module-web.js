@@ -217,7 +217,11 @@ export default class WebModule extends WebDriverModule {
         // maximize browser window
         try {
             this.driver.maximizeWindow();
-            this.driver.setTimeout({ 'implicit': this.waitForTimeout });    
+            this.driver.setTimeout({ 'implicit': this.waitForTimeout });  
+
+            if (this.options && this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
+                this.driver.reloadSession();
+            }
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
