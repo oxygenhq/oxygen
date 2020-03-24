@@ -59,7 +59,8 @@ const ERROR_CODES = {
     MOBILE_CONTEXT_ERROR: 'MOBILE_CONTEXT_ERROR',
     APPLICATION_NOT_FOUND_ERROR: 'APPLICATION_NOT_FOUND_ERROR',
     TWILIO_ERROR: 'TWILIO_ERROR',
-    HOOK_ERROR: 'HOOK_ERROR'
+    HOOK_ERROR: 'HOOK_ERROR',
+    CLOUDPROVIDER_ERROR: 'CLOUDPROVIDER_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
@@ -184,6 +185,10 @@ module.exports = {
             var chromeDriverMsg = err.message.match(/(This version of ChromeDriver only supports Chrome version [0-9]*)/gm);
             if (chromeDriverMsg) {
                 return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, chromeDriverMsg.toString());
+            }
+
+            if (err.message.startsWith('Failed to create session.')) {
+                return new OxError(ERROR_CODES.CLOUDPROVIDER_ERROR, err.message);
             }
         }
 
