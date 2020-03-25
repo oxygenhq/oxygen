@@ -27,7 +27,21 @@ module.exports = function(locator, value, timeout) {
     var el = this.helpers.getElement(locator, true, timeout);
 
     try {
-        el.setValue(value.toString());
+        if (
+            this.driver &&
+            this.driver.capabilities &&
+            this.driver.capabilities.browserName &&
+            this.driver.capabilities.browserName.toLowerCase &&
+            ['firefox', 'microsoftedge'].includes(this.driver.capabilities.browserName.toLowerCase())
+        ) {
+            //https://github.com/webdriverio/webdriverio/issues/3324
+            this.driver.execute((el, val) => {                           
+                el.focus();
+                el.value = val;
+            }, el, value);
+        } else {
+            el.setValue(value.toString());
+        }
     } catch (e) {
         if (e.name === 'invalid element state') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);

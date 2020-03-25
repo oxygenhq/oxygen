@@ -157,6 +157,8 @@ export default class WebModule extends WebDriverModule {
             */
         }
 
+        // this.caps.selenium_version = '4.0.0-alpha-2';
+
         // populate WDIO options
         const url = URL.parse(seleniumUrl || DEFAULT_SELENIUM_URL);
         const protocol = url.protocol.replace(/:$/, '');
@@ -216,8 +218,19 @@ export default class WebModule extends WebDriverModule {
         }
         // maximize browser window
         try {
-            this.driver.maximizeWindow();
-            this.driver.setTimeout({ 'implicit': this.waitForTimeout });  
+            if(
+                this.driver &&
+                this.driver.capabilities &&
+                this.driver.capabilities &&
+                this.driver.capabilities.browserName &&
+                this.driver.capabilities.browserName === 'MicrosoftEdge'
+            ){
+                // ignore
+                // fails on lambdatest
+            } else {
+                this.driver.maximizeWindow();
+                this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+            }
 
             if (this.options && this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
                 this.driver.reloadSession();

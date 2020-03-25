@@ -164,6 +164,17 @@ module.exports = {
 
     setTimeoutImplicit: function(timeout) {
         let timeouts;
+        
+        if (
+            this.driver &&
+            this.driver.capabilities &&
+            this.driver.capabilities.browserName &&
+            this.driver.capabilities.browserName.toLowerCase &&
+            this.driver.capabilities.browserName.toLowerCase().includes('edge')
+        ) {
+            // ignore
+            return;
+        }
 
         if(this.driver && this.driver.getTimeouts){
             // chrome >= 75
