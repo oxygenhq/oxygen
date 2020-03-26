@@ -257,6 +257,32 @@ function validateReverse(arg, name) {
     }
 }
 
+function resolvePath(pdfFilePath, options) {
+
+    pdfFilePath = pdfFilePath.trim().split('').map((item, idx) => {
+        return ![8206, 8296].includes(pdfFilePath.charCodeAt(idx)) ? item : null;
+    }).join('');
+
+    if (pdfFilePath[0] === '~') {
+        // resolve path relative to home directory
+        return path.join(process.env.HOME, pdfFilePath.slice(1));
+    } else {
+        let cwd = process.cwd();
+
+        if(options && options.cwd){
+            cwd = options.cwd;
+        }
+
+        if(options && options.rootPath){
+            cwd = options.rootPath;
+        }
+
+        cwd = cwd.trim();
+
+        return path.resolve(cwd, pdfFilePath);
+    }
+}
+
 module.exports = function(options, context, rs, logger, modules, services) {
 
     module.isInitialized = function() {
@@ -266,85 +292,68 @@ module.exports = function(options, context, rs, logger, modules, services) {
     /**
      * @summary Asserts that text is present in a PDF file
      * @function assert
-     * @param {String} pdfFilePath - Absolute path to the PDF file.
+     * @param {String} pdfFilePath - Relative or absolute path to the PDF file.
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) { 
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
 
-        pdfFilePath = pdfFilePath.trim(); 
+        pdfFilePath = resolvePath(pdfFilePath, options);
 
-        pdfFilePath = pdfFilePath.split('').map((item, idx) => {
-            return ![8206, 8296].includes(pdfFilePath.charCodeAt(idx)) ? item : null;
-        }).join('');
-
-        if(pdfFilePath[0] === '~'){
-            // resolve relative file path
-            pdfFilePath = path.join(process.env.HOME, pdfFilePath.slice(1));
-        } else {
-            let cwd = process.cwd();
-    
-            if(options && options.cwd){
-                cwd = options.cwd;
-            }
-    
-            if(options && options.rootPath){
-                cwd = options.rootPath;
-            }
-    
-            cwd = cwd.trim(); 
-    
-            // resolve relative file path
-            pdfFilePath = path.resolve(cwd, pdfFilePath);
-        }
-
+        let error;
         try {
             let actual = null;
             const expected = true;
             assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
                     actual = result;
+                    
+                    if(actual === expected){
+                        // ignore;
+                    } else {
+                        let savaMessage = text+' is not found in the PDF';
+
+                        if(pageNum){
+                            savaMessage+= ` in page ${pageNum}`;
+                        }
+
+                        if(message){
+                            // show message in result
+                            savaMessage = message;
+                        }
+                        
+                        error = new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
+                    }
                 },
-                error => {
-                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, error.message || error);
+                e => {
+                    error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
+                    actual = false;
                 }
             );
             
-            deasync.loopWhile(() => { return typeof actual !== 'boolean'; });
-
-            if(actual === expected){
-                // ignore;
-            } else {
-                let savaMessage = text+' is not found in the PDF';
-
-                if(pageNum){
-                    savaMessage+= ` in page ${pageNum}`;
-                }
-
-                if(message){
-                    // show message in result
-                    savaMessage = message;
-                }
-                
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
-            }
+            deasync.loopWhile(() => typeof actual !== 'boolean');
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
+
+        if(error){
+            throw error;
+        }
+
     };
     
     /**
      * @summary Asserts that text is not present in a PDF file
      * @function assertNot
-     * @param {String} pdfFilePath - Absolute path to the pdf file.
+     * @param {String} pdfFilePath - Relative or absolute path to the pdf file.
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
@@ -357,6 +366,9 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
 
+        pdfFilePath = resolvePath(pdfFilePath, options);
+
+        let error;
         try {
             let actual = null;
             const expected = false;
@@ -364,8 +376,9 @@ module.exports = function(options, context, rs, logger, modules, services) {
                 result => {
                     actual = result;
                 },
-                error => {
-                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, error.message || error);
+                e => {
+                    error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
+                    actual = false;
                 }
             );
             
@@ -391,12 +404,16 @@ module.exports = function(options, context, rs, logger, modules, services) {
         catch (e) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
+
+        if(error){
+            throw error;
+        }
     };
 
     /**
      * @summary Count the number of times specified text is present in a PDF file.
      * @function count
-     * @param {String} pdfFilePath - Absolute path to the pdf file.
+     * @param {String} pdfFilePath - Relative or absolute path to the pdf file.
      * @param {String} text - Text to count.
      * @param {Number=} pageNum - Page number.
      * @param {Boolean=} reverse - Check also reverse variant of string.
@@ -407,6 +424,8 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateReverse(reverse, 'reverse');
+
+        pdfFilePath = resolvePath(pdfFilePath, options);
 
         let actual = null;
         count(pdfFilePath, text, pageNum, reverse).then(

@@ -16,7 +16,7 @@ const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
  * WorkerProcess responsible for spawning a worker process the test instance.
  */
 export default class WorkerProcess extends EventEmitter {
-    constructor(pid, workerPath, debugMode, debugPort, name = null) {
+    constructor(pid, workerPath, debugMode, debugPort, name = null, npmGRootExecution = true) {
         super();
         this._name = name;
         this._isRunning = false;
@@ -27,6 +27,7 @@ export default class WorkerProcess extends EventEmitter {
         this._debugMode = debugMode;
         this._debugPort = debugPort;
         this._workerPath = workerPath;
+        this._npmGRootExecution = npmGRootExecution;
         this._breakpointErrors = [];
         // hold the remote invocation promise
         this._calls = {};
@@ -49,26 +50,28 @@ export default class WorkerProcess extends EventEmitter {
         if (this._debugPort) {
             // add --inspect-brk argument if debug port is specified
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
-        }      
-
-        try {
-            const execResult = execSync('npm root -g');
-
-            if(execResult && execResult.toString){
-                let globalNpmModulesPath = execResult.toString().trim();
-
-                if(
-                    globalNpmModulesPath &&
-                    forkOpts && 
-                    forkOpts.env
-                ){
-                    forkOpts.env.NODE_PATH = globalNpmModulesPath;
-                }
-            }
-        } catch(e){
-            console.log('npm root error:', e);
         }
 
+        if(this._npmGRootExecution){
+            try {
+                const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
+    
+                if(execResult && execResult.toString){
+                    let globalNpmModulesPath = execResult.toString().trim();
+    
+                    if(
+                        globalNpmModulesPath &&
+                        forkOpts &&
+                        forkOpts.env
+                    ){
+                        forkOpts.env.NODE_PATH = globalNpmModulesPath;
+                    }
+                }
+            } catch(e){
+                console.log('npm root error:', e);
+            }
+        }
+        
         // fork worker
         this._childProc = fork(this._workerPath, forkOpts);
         
@@ -80,12 +83,8 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async startDebugger() {
-        try {
-            if (this._debugMode) {
-                await this._initializeDebugger();
-            }
-        } catch(e){
-            this.emit('error', Object.assign({ error : e }, { pid: this._pid }));
+        if (this._debugMode) {
+            await this._initializeDebugger();
         }
     }
 
@@ -95,10 +94,8 @@ export default class WorkerProcess extends EventEmitter {
                 await this._debugger.resumeTerminate();
             }
             await this.invoke('dispose', status);
-            this._childProc.kill('SIGINT');
             await snooze(100);
         } else if (this._childProc) {
-            this._childProc.kill('SIGINT');
             await snooze(100);
         }
         if (this._debugger) {                        
@@ -107,10 +104,14 @@ export default class WorkerProcess extends EventEmitter {
         this._reset();
     }
 
+    kill(){
+        this._childProc.kill('SIGINT');
+    }
+
     async init(rid, options, caps) {
         if (!this._isInitialized) {
             const beforeTime = new Date().getTime();
-            await this.invoke('init', rid, options, caps);    
+            await this.invoke('init', rid, options, caps);
 
             const afterTime = new Date().getTime();    
             const duration = afterTime - beforeTime;    
@@ -119,7 +120,7 @@ export default class WorkerProcess extends EventEmitter {
             if(this._name){
                 start = this._name+' ';
             }
-            console.log(start+'Worker initialized in ' + duration + ' ms');
+            log.info(start+'Worker initialized in ' + duration + ' ms');
         }
     }
 
@@ -346,11 +347,13 @@ export default class WorkerProcess extends EventEmitter {
         });
 
         try{
-            // connect to Chrome debugger
+            log.info(`Connecting to debugger on port ${this._debugPort}...`);
             await this._debugger.connect(this._debugPort, '127.0.0.1');
         } catch(e){
             log.error('Cannot connect to the debugger: ', e);
-            whenDebuggerReady.reject(e);
+            const message = 'Cannot connect to the debugger: ' + e.message;
+            const error = new Error(message);
+            whenDebuggerReady.reject(error);
         }
 
 

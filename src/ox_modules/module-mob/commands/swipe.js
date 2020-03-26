@@ -25,9 +25,33 @@ module.exports = function(locator, xoffset, yoffset, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, false, timeout);
-    el.touchAction([
-        'press',
-        { action: 'moveTo', x: xoffset, y: yoffset },
-        'release'
+    
+    const location = el.getLocation();
+
+    return this.driver.touchPerform([
+        {
+            action: 'press',
+            options: {
+                x: location.x,
+                y: location.y,
+            },
+        },
+        {
+            action: 'wait',
+            options: {
+                ms: 100,
+            },
+        },
+        {
+            action: 'moveTo',
+            options: {
+                x: xoffset,
+                y: yoffset,
+            },
+        },
+        {
+            action: 'release',
+            options: {},
+        },
     ]);
 };

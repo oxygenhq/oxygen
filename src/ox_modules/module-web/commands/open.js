@@ -17,7 +17,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  */
 module.exports = function(url) {
-    this.helpers.assertArgumentNonEmptyString(url);
+    this.helpers.assertArgumentNonEmptyString(url, 'url');
     try {
         this.driver.url(url);
     } catch (e) {

@@ -15,21 +15,23 @@
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - The assertion pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Boolean=} waitForVisible - Wait for visible.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertSelectedValue ("id=Selection", "3");// Asserts if an element's value is selected in the drop down list.
  */
-module.exports = function(locator, pattern, timeout) {
+module.exports = function(locator, pattern, timeout, waitForVisible = true) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, true, timeout);
+    var el = this.helpers.getElement(locator, waitForVisible, timeout);
 
     var text;
     try {
         this.driver.waitUntil(() => {
             text = el.getValue();
+
             return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

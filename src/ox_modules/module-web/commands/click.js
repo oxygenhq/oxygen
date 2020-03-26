@@ -37,9 +37,10 @@ module.exports = function(locator, timeout) {
         }
         el.click();
     } catch (e) {
-        // if element is not clickable, try clicking it using JS injection
+        // if element is not clickable or visible, try clicking it using JS injection
         if (e.message &&
-            (e.message.includes('is not clickable at point')
+            (e.message.includes('is not clickable at point')                    // chrome/firefox
+                || e.message.includes('Element not clickable at point')         // ie
                 || e.message === 'element not visible'
                 || e.message === 'element not interactable'                     // chrome
                 || e.message === 'Element is not displayed'                     // ie

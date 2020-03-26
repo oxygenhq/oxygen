@@ -664,15 +664,17 @@ export default class Debugger extends EventEmitter {
 
         for (let retries = 0; retries < CONNECT_RETRIES; retries++) {
             try {
-                this._client = await CDP({ port: port, host: this._host });
+                this._client = await CDP({ port: this._port, host: this._host });
                 lastError = null;
                 break;
             } 
             catch(e) {
                 lastError = e;
             }
+
+            log.warn(`Debugger connection failed. Will retry in ${snoozeTime/1000}s. Error: `, lastError);
             await snooze(snoozeTime);
-            snoozeTime = snoozeTime * CONNECT_SNOOZE_INTERVAL_MULT;
+            snoozeTime *= CONNECT_SNOOZE_INTERVAL_MULT;
         }
 
         if (lastError) {

@@ -21,7 +21,7 @@
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, true, timeout);
+    var el = this.helpers.getElement(locator, false, timeout);
     var text = el.getText();
     if (text) {
         return text.trim().replace(/\s+/g, ' ');

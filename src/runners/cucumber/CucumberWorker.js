@@ -66,15 +66,16 @@ export default class CucumberWorker {
         this.onTestEnd = this.onTestEnd.bind(this);
     }
 
-    init(rid, config, caps) {
+    async init(rid, config, caps) {
         this.rid = rid;
         this.config = config;
         this.cwd = this.config.cwd || process.cwd();
         this.specs = this.resolveSpecFiles(config.specs || []); // config.specs || [];
-        this.isInitialized = true;
         this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);
         this.testHooks = oxutil.loadTestHooks(config);
         this.capabilities = caps;
+        await this.initializeOxygenCore();
+        this.isInitialized = true;
     }
 
     async dispose(status = null) {
@@ -95,7 +96,6 @@ export default class CucumberWorker {
     async run (runOpts) {
         try {
             Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
-            await this.initializeOxygenCore();
             
             if(runOpts && runOpts.context && this.oxygen){
                 const { context } = runOpts;

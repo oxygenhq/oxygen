@@ -55,6 +55,7 @@ import SauceLabs from 'saucelabs';
 import lambdaRestClient from '@lambdatest/node-rest-client';
 import TestingBot from 'testingbot-api';
 import { execSync } from 'child_process';
+import perfectoReporting from 'perfecto-reporting';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -96,7 +97,7 @@ export default class WebModule extends WebDriverModule {
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
      * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
      */
-    init(caps, seleniumUrl) {
+    async init(caps, seleniumUrl) {
         if (this.isInitialized) {
             return;
         }
@@ -187,22 +188,44 @@ export default class WebModule extends WebDriverModule {
         let initError = null;
         const _this = this;
 
+        
+        if(
+            wdioOpts.capabilities && 
+            wdioOpts.capabilities['perfectoMobile:options']
+        ){
+            wdioOpts.capabilities.maxInstances = 1;
+            wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
+            wdioOpts.port = 80;
+            wdioOpts.protocol = 'http';
+            wdioOpts.openDeviceTimeout = 15;
+        }
+
         this.wdioOpts = wdioOpts;
 
-        wdio.remote(wdioOpts)
-            .then((driver => {
-                _this.driver = driver;
-                _this._isInitialized = true;
-                
-            }))
-            .catch(err => {
-                initError = err;
-            });
+        try {
+            this.driver = await wdio.remote(wdioOpts);
+            
+            if(
+                wdioOpts.capabilities && 
+                wdioOpts.capabilities['perfectoMobile:options']
+            ){
 
-        deasync.loopWhile(() => !_this.isInitialized && !initError);
+                const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
+                    webdriver: {
+                        executeScript: (command, params) => {
+                            this.driver.execute(command, params);
+                        }
+                    }
+                });
+                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);  
+                this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
 
-        if (initError) {
-            throw errHelper.getSeleniumInitError(initError);
+                // avoid request abort
+                deasync.sleep(10*1000);
+            }
+        }
+        catch (e) {
+            throw errHelper.getSeleniumInitError(e);
         }
 
         // reset browser logs if auto collect logs option is enabled
@@ -216,12 +239,18 @@ export default class WebModule extends WebDriverModule {
         }
         // maximize browser window
         try {
-            this.driver.maximizeWindow();
-            this.driver.setTimeout({ 'implicit': this.waitForTimeout });  
-
-            if (this.options && this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
-                this.driver.reloadSession();
+            if(
+                this.driver &&
+                this.driver.capabilities &&
+                this.driver.capabilities.browserName === 'MicrosoftEdge'
+            ){
+                // ignore
+                // fails on lambdatest
+            } else {
+                await this.driver.maximizeWindow();
+                await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
             }
+
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
@@ -231,18 +260,21 @@ export default class WebModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
+
     async dispose(status) {
+
         this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
                 if(!status){
                     // ignore
-                    this.closeBrowserWindow();
+                    await this.closeBrowserWindows();
                 } else if(status && typeof status === 'string'){
 
                     let isSaucelabs = false;
                     let isLambdatest = false;
                     let isTestingBot = false;
+                    let isPerfecto = false;
                     if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')){
                         isSaucelabs = true;
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
@@ -252,7 +284,7 @@ export default class WebModule extends WebDriverModule {
                         const body = "{\"passed\":"+passed+"}";
 
                         const myAccount = new SauceLabs({ user: username, key: accessKey});
-                        await myAccount.updateJob(username, id, body);
+                        myAccount.updateJob(username, id, body);
                     }
                     if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('lambdatest')){
                         isLambdatest = true;
@@ -295,6 +327,26 @@ export default class WebModule extends WebDriverModule {
                         });
                         deasync.loopWhile(() => !done);
                     }
+                            
+                    if(
+                        this.wdioOpts && 
+                        this.wdioOpts.capabilities && 
+                        this.wdioOpts.capabilities['perfectoMobile:options']
+                    ){
+                        isPerfecto = true;
+                        const passed = status.toUpperCase() === 'PASSED';
+
+                        let perfectoStatus = perfectoReporting.Constants.results.failed;
+                        if(passed){
+                            perfectoStatus = perfectoReporting.Constants.results.passed;
+                        }
+
+                        this.reportingClient.testStop({
+                            status: perfectoStatus
+                        });
+                        // avoid request abort
+                        deasync.sleep(10*1000);
+                    }
 
                     if(isSaucelabs){
                         this.deleteSession();
@@ -302,8 +354,10 @@ export default class WebModule extends WebDriverModule {
                         this.deleteSession();
                     } else if(isTestingBot){
                         this.deleteSession();
+                    } else if(isPerfecto){
+                        this.deleteSession();
                     } else if(['PASSED','FAILED'].includes(status.toUpperCase())){
-                        this.closeBrowserWindow();
+                        await this.closeBrowserWindows();
                     } else {
                         this.disposeContinue();
                     }
@@ -316,66 +370,39 @@ export default class WebModule extends WebDriverModule {
         } else {
             this.disposeContinue();
         }
-
+        
         return this._whenWebModuleDispose.promise;
     }
 
-    closeBrowserWindow(){
-        let done = false;
-        try {
-
-            const closeWindowResult = this.driver.closeWindow();
-        
-            closeWindowResult.then(
-                (value) => {
-                    done = true;
-                },
-                (reason) => {
-                    done = true;
-                    if(reason && reason.name && reason.name === 'invalid session id'){
-                        // ignore
-                    } else {
-                        console.log('closeWindow fail reason', reason);
-                    }
-                }
-            );
+    async switchAndCloseWindow(handle) {
+        try{
+            await this.driver.switchToWindow(handle);
+            await this.driver.closeWindow();
         } catch(e){
-            done = true;
-            console.log('closeWindow e', e);
+            // ignore switch and close window errors
         }
-        deasync.loopWhile(() => !done);
+    }
+
+    async closeBrowserWindows() {
+        try {
+            const handles = await this.driver.getWindowHandles();
+            if(
+                handles &&
+                Array.isArray(handles) &&
+                handles.length > 0
+            ){
+                for (const handle of handles) {
+                    await this.switchAndCloseWindow(handle);
+                }
+            }
+        } catch(e){
+            this.logger.error('Close browser window error', e);
+        }
         this.disposeContinue();
     }
 
-
-    deleteSession(){
-        let done = false;
-        try {
-
-            const deleteSessionResult = this.driver.deleteSession();
+    disposeContinue() {
         
-            deleteSessionResult.then(
-                (value) => {
-                    done = true;
-                },
-                (reason) => {
-                    done = true;
-                    if(reason && reason.name && reason.name === 'invalid session id'){
-                        // ignore
-                    } else {
-                        console.log('deleteSession fail reason', reason);
-                    }
-                }
-            );
-        } catch(e){
-            done = true;
-            console.log('deleteSession e', e);
-        }
-        deasync.loopWhile(() => !done);
-        this.disposeContinue();
-    }
-
-    disposeContinue(){
         this.driver = null;
         this.lastNavigationStartTime = null;
         super.dispose();
@@ -456,6 +483,22 @@ export default class WebModule extends WebDriverModule {
                 return this.takeScreenshot();
             } catch (e) {
                 throw errHelper.getOxygenError(e);
+            }
+        }
+    }
+
+    _takeScreenshotSilent(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            try {
+                if(
+                    this.driver &&
+                    this.driver.takeScreenshot
+                ){
+                    return this.driver.takeScreenshot();
+                }
+            } catch (e) {
+                this.logger.error('Cannot get screenshot', e);  
+                // ignore
             }
         }
     }

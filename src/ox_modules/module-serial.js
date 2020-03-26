@@ -72,28 +72,30 @@ module.exports = function() {
      * }
      */
     module.open = function(port, opts, bufferSize = 65536) {
-        serialPort = new SerialPort(port, opts);
-
-        var opened = false;
-        serialPort.on('open', () => {
-            opened = true;
-        });
-
-        var error;
-        serialPort.on('error', (err) => {
-            error = err;
-        });
-
-        var parser = serialPort.pipe(new SerialPort.parsers.Readline());
-        stringBuffer = new CircularStringBuffer(bufferSize);
-        parser.on('data', (data) => {
-            stringBuffer.push(data.toString());
-        });
-
-        deasync.loopWhile(() => !error && !opened);
-
-        if (error) {
-            throw new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, error.message);
+        if(port){
+            serialPort = new SerialPort(port, opts);
+    
+            var opened = false;
+            serialPort.on('open', () => {
+                opened = true;
+            });
+    
+            var error;
+            serialPort.on('error', (err) => {
+                error = err;
+            });
+    
+            var parser = serialPort.pipe(new SerialPort.parsers.Readline());
+            stringBuffer = new CircularStringBuffer(bufferSize);
+            parser.on('data', (data) => {
+                stringBuffer.push(data.toString());
+            });
+    
+            deasync.loopWhile(() => !error && !opened);
+    
+            if (error) {
+                throw new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, error.message);
+            }
         }
 
         return serialPort;
@@ -108,22 +110,24 @@ module.exports = function() {
      * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
      */
     module.waitForText = function(pattern, timeout = 60000) {
-        var now = (new Date).getTime();
-        deasync.loopWhile(() => {
-            var i;
-            for (i = stringBuffer.length; i >= 0; i--) {
-                if (utils.matchPattern(stringBuffer[i], pattern)) {
-                    return false;
+        if(stringBuffer){
+            var now = (new Date).getTime();
+            deasync.loopWhile(() => {
+                var i;
+                for (i = stringBuffer.length; i >= 0; i--) {
+                    if (utils.matchPattern(stringBuffer[i], pattern)) {
+                        return false;
+                    }
                 }
-            }
-
-            if ((new Date).getTime() - now >= timeout) {
-                throw new OxError(errHelper.errorCode.TIMEOUT);
-            }
-
-            deasync.sleep(500);
-            return true;
-        });
+    
+                if ((new Date).getTime() - now >= timeout) {
+                    throw new OxError(errHelper.errorCode.TIMEOUT);
+                }
+    
+                deasync.sleep(500);
+                return true;
+            });
+        }
     };
 
     /**
@@ -132,10 +136,12 @@ module.exports = function() {
      * @param {(String|Array)} data - Data to send. Either a string or an array of bytes.
      */
     module.write = function(data) {
-        var done;
-        serialPort.write(data);
-        serialPort.drain(() => { done = true;});
-        deasync.loopWhile(() => !done);
+        if(serialPort){
+            var done;
+            serialPort.write(data);
+            serialPort.drain(() => { done = true;});
+            deasync.loopWhile(() => !done);
+        }
     };
 
     /*

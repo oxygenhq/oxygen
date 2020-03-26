@@ -16,7 +16,7 @@
  * @param {Number=} yoffset - Indicates the size in pixels of the vertical scroll step (positive - scroll up, negative - scroll down). Default is -30.
  * @param {Number=} retries - Indicates the number of scroll retries before giving up if element not found. Default is 50.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
+ * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.scrollIntoElement('id=bottomPanel','id=Button',0,-30,50);//Scrolls the view element until a specified target element inside the view is found.

@@ -67,9 +67,9 @@ export default class Launcher {
             // initialize oxygen
             await runner.init(this._config, caps, this.reporter);   
             // run Oxygen test 
-            const results = await runner.run();
-            this._results.push(results);
-            await runner.dispose();
+            const result = await runner.run();
+            this._results.push(result);
+            await runner.dispose(result.status);
             callback();
         }
         catch (e) {

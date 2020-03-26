@@ -6,17 +6,16 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
-
+ 
 /**
- * @summary Gets the text displayed by an alert or confirm dialog.
- * @function getAlertText
- * @return {String} - Alert's text.
- * @for android, ios, hybrid, web
+ * @summary Sets the size of the outer browser window.
+ * @function getWindowSize
+ * @return {Object} Size object. Example: { height: 1056, width: 1936, x: -8, y: -8 }
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.click("id=Submit");// Clicks an element and opens an alert.
- * var a = mob.getAlertText();//Gets alert text.
+ * web.init();//Opens browser session.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * const sizeObject = web.getWindowSize();
  */
 module.exports = function() {
-    return this.driver.getAlertText();
+    return this.driver.getWindowSize();
 };

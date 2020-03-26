@@ -48,6 +48,9 @@ const reporter = {
     },
     onRunnerEnd: function(...args) {
         emitReporterEvent('onRunnerEnd', args);        
+    },
+    onLogEntry: function(...args) {
+        emitReporterEvent('onLogEntry', args);        
     }
 };
 
@@ -69,7 +72,7 @@ process.on('uncaughtException', async(err, origin) => {
 });
 
 process.on('SIGINT', async function() {
-    logger.debug('SIGINT received');
+    console.log('SIGINT received');
     await dispose('CANCELED');
     process.exit(0);
 });

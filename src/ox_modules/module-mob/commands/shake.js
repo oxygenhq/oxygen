@@ -11,7 +11,7 @@
  * @summary Perform shake action on the device
  * @description Supported on Android and iOS 9 or earlier versions. 
  * @function shake
- * @for android, ios
+ * @for ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.shake();//Perform shake action on the device.

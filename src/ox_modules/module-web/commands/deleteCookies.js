@@ -8,11 +8,10 @@
  */
  
 /**
- * @summary Returns a specific cookie or a list of cookies visible to the current page.
+ * @summary Delete cookies visible to the current page.
  * @function deleteCookies
- * @param {String} names - Names of the cookies to retrieve.
- * @return {String} The attribute's value.
+ * @param {String|String[]=} names - Cookie name or a list of cookie names to delete.
  */
 module.exports = function(names) {
-    return this.driver.deleteCookie(names);
+    this.driver.deleteCookie(names);
 };

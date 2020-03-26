@@ -20,7 +20,7 @@ export default class DevToolsService extends OxygenService {
         module.addSubModule('network', networkSubmodule);
         this._subModules[module.name] = networkSubmodule;
     }
-    async onModuleInitialized(module) {
+    onModuleInitialized(module) {
         // skip any module that does not implement .getDriver() method (e.g. not webdriver based)
         if (!module || !module.getDriver || typeof module.getDriver !== 'function' || !module.getCapabilities || typeof module.getCapabilities !== 'function') {
             return;

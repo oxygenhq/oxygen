@@ -11,9 +11,9 @@
  * @summary Points the mouse cursor over the specified element.
  * @function point
  * @param {String|Element} locator - An element locator. If the element is not visible, it will be scrolled into view.
- * @param {Number=} xoffset - X offset to move to, relative to the top-left corner of the element.
+ * @param {Number=} xOffset - X offset to move to, relative to the top-left corner of the element.
                               If not specified, the mouse will move to the middle of the element.
- * @param {Number=} yoffset - Y offset to move to, relative to the top-left corner of the element.
+ * @param {Number=} yOffset  - Y offset to move to, relative to the top-left corner of the element.
                               If not specified, the mouse will move to the middle of the element.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
@@ -21,9 +21,9 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.point("id=Selection");//Hovers a mouse over an element.
  */
-module.exports = function(locator, xoffset, yoffset, timeout) {
+module.exports = function(locator, xOffset, yOffset, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, false, timeout);
-    el.moveTo(xoffset, yoffset);
+    el.moveTo({xOffset: xOffset, yOffset: yOffset });
 };

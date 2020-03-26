@@ -20,7 +20,7 @@ var SIGNATURE_HEAD = '<div style="position:relative;">' +
                 '</h2>' +
                 '</div>';
                 
-const img = (name) => ` ![](/img/platforms/${name}.png) `;
+const img = (name) => ` ![](../../.gitbook/assets/${name}.png) `;
 var SIGNATURE_AND = img('android');
 var SIGNATURE_IOS = img('apple');
 var SIGNATURE_HYB = img('hybrid');
@@ -74,7 +74,7 @@ for (var m of modules) {
         var modDir = path.join(modPath, 'module-' + name);
         
         if (fs.existsSync(modDir)) {
-            var modDoc = load(path.join(modPath, m), true);
+            let modDoc = load(path.join(modPath, m), true);
             // load commands
             var cmdsDir = path.join(modDir, 'commands');
             var cmds = fs.readdirSync(cmdsDir);
@@ -85,12 +85,45 @@ for (var m of modules) {
                     modDoc.methods = modDoc.methods.concat(load(cmdfile, false).methods);
                 }
             }
+            sort(modDoc.methods);
             generate(modDoc, name);
         } else {
-            generate(load(path.join(modPath, m), true), name);
+            let modDoc = load(path.join(modPath, m), true);
+            sort(modDoc.methods);
             console.log('Generating ' + name);
+            generate(modDoc, name);
         }
     }
+}
+
+/*
+ * Sort commands alphabeticaly in place
+ */
+function sort(methods) {
+    methods.sort((a, b) => {
+        let aName;
+        for (let tag of a.tags) {
+            if (tag.title === 'function') {
+                aName = tag.name;
+                break;
+            }
+        }
+        let bName;
+        for (let tag of b.tags) {
+            if (tag.title === 'function') {
+                bName = tag.name;
+                break;
+            }
+        }
+
+        if (aName < bName) {
+            return -1;
+        }
+        if (aName > bName) {
+            return 1;
+        }
+        return 0;
+    });
 }
 
 /*

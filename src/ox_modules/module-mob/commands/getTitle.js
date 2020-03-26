@@ -8,12 +8,10 @@
  */
  
 /**
- * @summary Opens an URL.
- * @description The `open` command waits for the page to load before proceeding.
- * @function open
- * @param {String} url - The URL to open; may be relative or absolute.
+ * @summary Returns the title of the currently active window.
+ * @function getTitle
+ * @return {String} The page title.
  */
-module.exports = function(url) {
-    this.helpers.assertArgumentNonEmptyString(url, 'url');
-    this.driver.url(url);
+module.exports = function(locator) {
+    return this.driver.getTitle();
 };

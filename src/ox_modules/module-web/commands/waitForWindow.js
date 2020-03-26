@@ -10,9 +10,10 @@
  /**
   * @summary Waits for a window to appear, but doesn't actually switches to it.
   * @description `windowLocator` can be:  
-  *              - `title=TITLE` - Wait for the first window which matches the specified title.
-  *                TITLE can be any of the supported 
-  *                string matching patterns(on the top of page).
+  * - `title=TITLE` Wait for the first window which matches the specified title. `TITLE` can be 
+  * any of the supported  string matching patterns(see top of the page).  
+  * - `url=URL` Wait for the first window which matches the specified URL. `URL` can be 
+  * any of the supported string matching patterns(see top of the page).
   * @function waitForWindow
   * @param {String} windowLocator - A window locator.
   * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
@@ -36,20 +37,47 @@ module.exports = function(windowLocator, timeout) {
     }
 
     if (windowLocator.indexOf('title=') === 0) {
-        var pattern = windowLocator.substring('title='.length);
+        let pattern = windowLocator.substring('title='.length);
         timeout = !timeout ? this.waitForTimeout : timeout;
-        var start = (new Date()).getTime();
+        let start = (new Date()).getTime();
         while ((new Date()).getTime() - start < timeout) {
-            var windowHandles = this.driver.getWindowHandles();
-            for (var i = 0; i < windowHandles.length; i++) {
-                var handle = windowHandles[i];
+            let windowHandles = this.driver.getWindowHandles();
+            for (let i = 0; i < windowHandles.length; i++) {
+                let handle = windowHandles[i];
                 try {
                     this.driver.switchToWindow(handle);
                 } catch (err) { // in case window was closed
                     continue;
                 }
-                var title = this.driver.getTitle();
+                let title = this.driver.getTitle();
                 if (this.helpers.matchPattern(title, pattern)) {
+                    try {
+                        this.driver.switchToWindow(currentHandle);  // return to original window
+                    } catch (err) {
+                        windowHandles = this.driver.getWindowHandles();
+                        this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
+                    }
+                    return;
+                }
+            }
+            this.pause(1000);
+        }
+        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
+    } else if (windowLocator.indexOf('url=') === 0) {
+        let pattern = windowLocator.substring('url='.length);
+        timeout = !timeout ? this.waitForTimeout : timeout;
+        let start = (new Date()).getTime();
+        while ((new Date()).getTime() - start < timeout) {
+            let windowHandles = this.driver.getWindowHandles();
+            for (let i = 0; i < windowHandles.length; i++) {
+                let handle = windowHandles[i];
+                try {
+                    this.driver.switchToWindow(handle);
+                } catch (err) { // in case window was closed
+                    continue;
+                }
+                let url = this.driver.getUrl();
+                if (this.helpers.matchPattern(url, pattern)) {
                     try {
                         this.driver.switchToWindow(currentHandle);  // return to original window
                     } catch (err) {
