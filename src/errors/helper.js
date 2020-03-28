@@ -59,8 +59,7 @@ const ERROR_CODES = {
     MOBILE_CONTEXT_ERROR: 'MOBILE_CONTEXT_ERROR',
     APPLICATION_NOT_FOUND_ERROR: 'APPLICATION_NOT_FOUND_ERROR',
     TWILIO_ERROR: 'TWILIO_ERROR',
-    HOOK_ERROR: 'HOOK_ERROR',
-    CLOUDPROVIDER_ERROR: 'CLOUDPROVIDER_ERROR'
+    HOOK_ERROR: 'HOOK_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
@@ -186,10 +185,6 @@ module.exports = {
             if (chromeDriverMsg) {
                 return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, chromeDriverMsg.toString());
             }
-
-            if (err.message.startsWith('Failed to create session.')) {
-                return new OxError(ERROR_CODES.CLOUDPROVIDER_ERROR, err.message);
-            }
         }
 
         if (err.message && err.message.includes('cannot find Chrome binary')) {
@@ -197,7 +192,8 @@ module.exports = {
         } else if (err.code === 'ECONNREFUSED' || err.code === 'ECONNRESET' || err.code === 'ENOTFOUND' || err.message === 'Failed to create session.\nsocket hang up') {
             return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, "Couldn't connect to Selenium server");
         } else if (err.message === 'All minutes for this organization has been exausted' ||
-            err.message === '401 Unauthorized') {
+            err.message === '401 Unauthorized' ||
+            err.message && err.message.startsWith('Failed to create session.')) {
             return new OxError(ERROR_CODES.SELENIUM_CONNECTION_ERROR, err.message);
         } else if (err.message.includes('Unable to create new service:')) {
             return new OxError(ERROR_CODES.SELENIUM_CONNECTION_ERROR, err.message + '\n\nThis is probably due to missing ChromeDriver/IEDriverServer/GeckoDriver binary.\n');
