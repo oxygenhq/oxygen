@@ -216,8 +216,17 @@ export default class WebModule extends WebDriverModule {
         }
         // maximize browser window
         try {
-            this.driver.maximizeWindow();
-            this.driver.setTimeout({ 'implicit': this.waitForTimeout });  
+            if(
+                this.driver &&
+                this.driver.capabilities &&
+                this.driver.capabilities.browserName === 'MicrosoftEdge'
+            ){
+                // ignore
+                // fails on lambdatest
+            } else {
+                this.driver.maximizeWindow();
+                this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+            }
 
             if (this.options && this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
                 this.driver.reloadSession();

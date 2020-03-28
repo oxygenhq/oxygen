@@ -163,20 +163,32 @@ module.exports = {
     },
 
     setTimeoutImplicit: function(timeout) {
-        let timeouts;
+        if (!this.driver) {
+            return;
+        }
 
-        if(this.driver && this.driver.getTimeouts){
+        let timeouts;
+        
+        if (
+            this.driver.capabilities &&
+            this.driver.capabilities.browserName &&
+            this.driver.capabilities.browserName.toLowerCase &&
+            this.driver.capabilities.browserName.toLowerCase().includes('edge')
+        ) {
+            // not supported on Edge
+            return;
+        } else if (this.driver.getTimeouts) {
             // chrome >= 75
             timeouts = this.driver.getTimeouts();
-        } else if(this.driver && this.driver.capabilities && this.driver.capabilities.timeouts){
+        } else if (this.driver.capabilities && this.driver.capabilities.timeouts) {
             // chrome >= 72 && chrome < 75
             timeouts = this.driver.capabilities.timeouts;
         }
 
-        if(timeouts && timeouts.implicit){
+        if (timeouts && timeouts.implicit) {
             this._prevImplicitTimeout = timeouts.implicit;
         }
-        if(this.driver.setTimeout){
+        if (this.driver.setTimeout) {
             this.driver.setTimeout({ 'implicit': timeout });
         }
     },
