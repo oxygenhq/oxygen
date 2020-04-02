@@ -46,7 +46,7 @@
     "md-reverse": "1.0.0"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.9.22",
+    "@applitools/eyes-webdriverio": "5.9.23",
     "@babel/cli": "7.8.4",
     "@babel/core": "7.8.4",
     "@babel/plugin-proposal-class-properties": "7.8.3",
@@ -69,11 +69,11 @@
     "deasync": "0.1.19",
     "decache": "4.5.1",
     "easyxml": "2.0.1",
-    "ejs": "3.0.1",
+    "ejs": "3.0.2",
     "fibers": "4.0.2",
     "glob": "7.1.6",
     "glob-to-regexp": "0.4.1",
-    "imap-simple": "4.3.0",
+    "imap-simple": "5.0.0",
     "is-glob": "4.0.1",
     "junit-report-builder": "1.3.3",
     "lodash": "4.17.15",
@@ -88,7 +88,7 @@
     "serialport": "8.0.7",
     "soap": "0.31.0",
     "testingbot-api": "1.0.7",
-    "twilio": "3.41.1",
+    "twilio": "3.42.0",
     "webdriverio": "5.22.4",
     "when": "3.7.8",
     "xlsx": "0.15.6"
