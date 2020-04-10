@@ -101,6 +101,10 @@ export default class MobileModule extends WebDriverModule {
      * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
      */
     init(caps, appiumUrl) {
+
+        console.log('this.options', this.options);
+        console.log('caps', caps);
+
         // if reopenSession is true - reinitilize the module
         if (this.isInitialized) {
             if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
@@ -150,6 +154,9 @@ export default class MobileModule extends WebDriverModule {
                 performance: 'ALL'
             };
         }
+
+        console.log('appiumUrl', appiumUrl);
+
         // populate WDIO options
         const url = URL.parse(appiumUrl);
         const protocol = url.protocol.replace(/:$/, '');
