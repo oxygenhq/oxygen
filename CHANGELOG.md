@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v1.2.0 (2020-04-xx)
+
+#### :tada: New Feature
+* Add `web.pointJS`.
+
+#### :beetle: Bug Fix
+* `--p=json` switch not working.
+* Number of issues related to running tests on LambdaTest cloud provider.
+
+#### :nail_care: Polish
+* Argument validation for `*.type` and `*.open` commands.
+* Process 'Failed to create session' errors.
+
+#### :book: Documentation
+* Fix `web.deleteCookies` documentation.
+
+#### :house: Internal
+* WebDriverIO updated to v5.22.1.
+* Improvements to browser disposal and debugger support.
+
 ## v1.1.3 (2020-03-15)
 
 #### :beetle: Bug Fix
