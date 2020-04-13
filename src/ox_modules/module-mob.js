@@ -101,6 +101,10 @@ export default class MobileModule extends WebDriverModule {
      * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
      */
     init(caps, appiumUrl) {
+
+        console.log('this.options', this.options);
+        console.log('caps', caps);
+
         // if reopenSession is true - reinitilize the module
         if (this.isInitialized) {
             if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
@@ -150,6 +154,9 @@ export default class MobileModule extends WebDriverModule {
                 performance: 'ALL'
             };
         }
+
+        console.log('appiumUrl', appiumUrl);
+
         // populate WDIO options
         const url = URL.parse(appiumUrl);
         const protocol = url.protocol.replace(/:$/, '');
@@ -177,12 +184,31 @@ export default class MobileModule extends WebDriverModule {
             runner: 'repl'
         };
 
+        if(
+            wdioOpts && 
+            wdioOpts.capabilities && 
+            wdioOpts.capabilities['sauce:options'] && 
+            wdioOpts.capabilities['sauce:options']['testobject_api_key']            
+        ){
+            wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
+            wdioOpts.capabilities.maxInstances = 1;
+        }
+
         let initError = null;
         const _this = this;
         wdio.remote(wdioOpts)
             .then((driver => {
                 _this.driver = driver;
                 _this._isInitialized = true;
+
+                if (
+                    wdioOpts && 
+                    wdioOpts.capabilities && 
+                    wdioOpts.capabilities['sauce:options'] && 
+                    wdioOpts.capabilities['sauce:options']['testobject_api_key']            
+                ) {
+                    this.driver.setTimeout(null);
+                }
             }))
             .catch(err => {
                 initError = err;
