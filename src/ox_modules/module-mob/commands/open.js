@@ -18,7 +18,7 @@
  * mob.open('www.yourwebsite.com');//Opens an URL.
  */
 module.exports = function(url) {
-    this.helpers.assertArgumentNonEmptyString(url);
+    this.helpers.assertArgumentNonEmptyString(url, 'url');
     try {
         this.driver.url(url);
     } catch (e) {
