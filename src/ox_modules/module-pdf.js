@@ -257,6 +257,27 @@ function validateReverse(arg, name) {
     }
 }
 
+function resolvePath(pdfFilePath, options) {
+    if (pdfFilePath[0] === '~') {
+        // resolve path relative to home directory
+        return path.join(process.env.HOME, pdfFilePath.slice(1));
+    } else {
+        let cwd = process.cwd();
+
+        if(options && options.cwd){
+            cwd = options.cwd;
+        }
+
+        if(options && options.rootPath){
+            cwd = options.rootPath;
+        }
+
+        cwd = cwd.trim();
+
+        return path.resolve(cwd, pdfFilePath);
+    }
+}
+
 module.exports = function(options, context, rs, logger, modules, services) {
 
     module.isInitialized = function() {
@@ -266,7 +287,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
     /**
      * @summary Asserts that text is present in a PDF file
      * @function assert
-     * @param {String} pdfFilePath - Absolute path to the PDF file.
+     * @param {String} pdfFilePath - Relative or absolute path to the PDF file.
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
@@ -279,31 +300,11 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
 
-        pdfFilePath = pdfFilePath.trim(); 
-
-        pdfFilePath = pdfFilePath.split('').map((item, idx) => {
+        pdfFilePath = pdfFilePath.trim().split('').map((item, idx) => {
             return ![8206, 8296].includes(pdfFilePath.charCodeAt(idx)) ? item : null;
         }).join('');
 
-        if(pdfFilePath[0] === '~'){
-            // resolve relative file path
-            pdfFilePath = path.join(process.env.HOME, pdfFilePath.slice(1));
-        } else {
-            let cwd = process.cwd();
-    
-            if(options && options.cwd){
-                cwd = options.cwd;
-            }
-    
-            if(options && options.rootPath){
-                cwd = options.rootPath;
-            }
-    
-            cwd = cwd.trim(); 
-    
-            // resolve relative file path
-            pdfFilePath = path.resolve(cwd, pdfFilePath);
-        }
+        pdfFilePath = resolvePath(pdfFilePath, options);
 
         try {
             let actual = null;
@@ -344,7 +345,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
     /**
      * @summary Asserts that text is not present in a PDF file
      * @function assertNot
-     * @param {String} pdfFilePath - Absolute path to the pdf file.
+     * @param {String} pdfFilePath - Relative or absolute path to the pdf file.
      * @param {String} text - Text to assert.
      * @param {Number=} pageNum - Page number.
      * @param {String=} message - Message to throw if assertion fails.
@@ -356,6 +357,8 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
+
+        pdfFilePath = resolvePath(pdfFilePath, options);
 
         try {
             let actual = null;
@@ -396,7 +399,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
     /**
      * @summary Count the number of times specified text is present in a PDF file.
      * @function count
-     * @param {String} pdfFilePath - Absolute path to the pdf file.
+     * @param {String} pdfFilePath - Relative or absolute path to the pdf file.
      * @param {String} text - Text to count.
      * @param {Number=} pageNum - Page number.
      * @param {Boolean=} reverse - Check also reverse variant of string.
@@ -407,6 +410,8 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateReverse(reverse, 'reverse');
+
+        pdfFilePath = resolvePath(pdfFilePath, options);
 
         let actual = null;
         count(pdfFilePath, text, pageNum, reverse).then(
