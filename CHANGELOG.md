@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.2.0 (2020-04-xx)
+## v1.2.0 (2020-04-13)
 
 #### :tada: New Feature
 * Add `web.pointJS`.
@@ -8,6 +8,7 @@
 #### :beetle: Bug Fix
 * `--p=json` switch not working.
 * Number of issues related to running tests on LambdaTest cloud provider.
+* Relative paths in `pdf.assertNot` and `pdf.count`.
 
 #### :nail_care: Polish
 * Argument validation for `*.type` and `*.open` commands.
@@ -18,7 +19,7 @@
 
 #### :house: Internal
 * WebDriverIO updated to v5.22.1.
-* Improvements to browser disposal and debugger support.
+* Improvements to browser disposal, debugger support, and SauceLabs provider support.
 
 ## v1.1.3 (2020-03-15)
 
