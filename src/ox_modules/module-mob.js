@@ -184,12 +184,31 @@ export default class MobileModule extends WebDriverModule {
             runner: 'repl'
         };
 
+        if(
+            wdioOpts && 
+            wdioOpts.capabilities && 
+            wdioOpts.capabilities['sauce:options'] && 
+            wdioOpts.capabilities['sauce:options']['testobject_api_key']            
+        ){
+            wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
+            wdioOpts.capabilities.maxInstances = 1;
+        }
+
         let initError = null;
         const _this = this;
         wdio.remote(wdioOpts)
             .then((driver => {
                 _this.driver = driver;
                 _this._isInitialized = true;
+
+                if (
+                    wdioOpts && 
+                    wdioOpts.capabilities && 
+                    wdioOpts.capabilities['sauce:options'] && 
+                    wdioOpts.capabilities['sauce:options']['testobject_api_key']            
+                ) {
+                    this.driver.setTimeout(null);
+                }
             }))
             .catch(err => {
                 initError = err;
