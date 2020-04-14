@@ -201,14 +201,14 @@ export default class MobileModule extends WebDriverModule {
                 _this.driver = driver;
                 _this._isInitialized = true;
 
-                if (
-                    wdioOpts && 
-                    wdioOpts.capabilities && 
-                    wdioOpts.capabilities['sauce:options'] && 
-                    wdioOpts.capabilities['sauce:options']['testobject_api_key']            
-                ) {
-                    this.driver.setTimeout(null);
-                }
+                // if (
+                //     wdioOpts && 
+                //     wdioOpts.capabilities && 
+                //     wdioOpts.capabilities['sauce:options'] && 
+                //     wdioOpts.capabilities['sauce:options']['testobject_api_key']            
+                // ) {
+                //     // this.driver.setTimeout(null);
+                // }
             }))
             .catch(err => {
                 initError = err;
