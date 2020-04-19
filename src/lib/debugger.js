@@ -650,11 +650,11 @@ export default class Debugger extends EventEmitter {
         await this._Debugger.paused();
         this.emit('ready');
     }
+
     /**
      * Connects to a debugger. Does nothing if already connected.
      * @param {Integer} Debugger port.
      */
-    
     async connect(port, host) {
         this._port = port;
         this._host = host || 'localhost';
@@ -667,12 +667,13 @@ export default class Debugger extends EventEmitter {
                 this._client = await CDP({ port: port, host: this._host });
                 lastError = null;
                 break;
-            } 
-            catch(e) {
+            } catch(e) {
                 lastError = e;
             }
+
+            log.warn(`Debugger connection failed. Will retry in ${snoozeTime/1000}s. Error: `, lastError);
             await snooze(snoozeTime);
-            snoozeTime = snoozeTime * CONNECT_SNOOZE_INTERVAL_MULT;
+            snoozeTime *= CONNECT_SNOOZE_INTERVAL_MULT;
         }
 
         if (lastError) {
@@ -682,6 +683,7 @@ export default class Debugger extends EventEmitter {
 
         await this.continueConnect();
     }
+
     /**
      * Set breakpoint for a particular script.
      * @param {String} Script path.

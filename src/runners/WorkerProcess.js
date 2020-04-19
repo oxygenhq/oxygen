@@ -346,13 +346,12 @@ export default class WorkerProcess extends EventEmitter {
         });
 
         try{
-            // connect to Chrome debugger
+            log.info(`Connecting to debugger on port ${this._debugPort}...`);
             await this._debugger.connect(this._debugPort, '127.0.0.1');
         } catch(e){
             log.error('Cannot connect to the debugger: ', e);
             whenDebuggerReady.reject(e);
         }
-
 
         return whenDebuggerReady.promise;
     }
