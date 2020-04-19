@@ -40,7 +40,7 @@
     "cross-env": "7.0.2",
     "doctrine": "3.0.0",
     "eslint": "6.8.0",
-    "husky": "4.2.3",
+    "husky": "4.2.5",
     "npm-run-all": "4.1.5",
     "source-map-support": "0.5.16",
     "md-reverse": "1.0.0"
@@ -63,7 +63,7 @@
     "chai": "4.2.0",
     "chrome-har": "0.11.7",
     "config": "3.3.1",
-    "core-js": "3.6.4",
+    "core-js": "3.6.5",
     "csv-parse": "4.8.8",
     "cucumber": "6.0.5",
     "deasync": "0.1.19",
@@ -88,7 +88,7 @@
     "serialport": "8.0.7",
     "soap": "0.31.0",
     "testingbot-api": "1.0.7",
-    "twilio": "3.42.0",
+    "twilio": "3.42.2",
     "webdriverio": "5.22.4",
     "when": "3.7.8",
     "xlsx": "0.15.6"
