@@ -80,12 +80,8 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async startDebugger() {
-        try {
-            if (this._debugMode) {
-                await this._initializeDebugger();
-            }
-        } catch(e){
-            this.emit('error', Object.assign({ error : e }, { pid: this._pid }));
+        if (this._debugMode) {
+            await this._initializeDebugger();
         }
     }
 
@@ -350,7 +346,9 @@ export default class WorkerProcess extends EventEmitter {
             await this._debugger.connect(this._debugPort, '127.0.0.1');
         } catch(e){
             log.error('Cannot connect to the debugger: ', e);
-            whenDebuggerReady.reject(e);
+            const message = 'Cannot connect to the debugger: ' + e.message;
+            const error = new Error(message);
+            whenDebuggerReady.reject(error);
         }
 
         return whenDebuggerReady.promise;

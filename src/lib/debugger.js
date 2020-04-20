@@ -664,7 +664,7 @@ export default class Debugger extends EventEmitter {
 
         for (let retries = 0; retries < CONNECT_RETRIES; retries++) {
             try {
-                this._client = await CDP({ port: port, host: this._host });
+                this._client = await CDP({ port: this._port, host: this._host });
                 lastError = null;
                 break;
             } catch(e) {
