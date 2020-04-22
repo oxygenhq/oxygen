@@ -56,6 +56,10 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
         return _whenInitialized.promise;
     };
 
+    module.getMode = function() {
+        return this.mode;
+    }
+
     module.readNext = function () {
         if (this.mode === 'random') {
             this.currentRow = random(0, this.table.length);

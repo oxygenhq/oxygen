@@ -89,6 +89,10 @@ export default class OxygenWorker extends EventEmitter {
         if (error) {
             error = errorHelper.getFailureFromError(error);
         } 
+        // if the test was terminated by user, by this point this._oxygen could be already null
+        if (!this._oxygen) {
+            return { error, terminated: true };
+        }
         const moduleCaps = this._oxygen.getModulesCapabilities();
         // clone the results, otherwise resultStore will be empty after the following this._oxygen.resetResults() call
         const resultStore = { ...this._oxygen.results };
@@ -96,7 +100,7 @@ export default class OxygenWorker extends EventEmitter {
         this._oxygen.resetResults();
         this._steps = null;
 
-        return { error, moduleCaps, resultStore, context: this._oxygen.context };
+        return { error, moduleCaps, resultStore, context: this._oxygen.context, terminated: false };
     }
 
     async dispose(status = null) {

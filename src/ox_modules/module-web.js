@@ -344,13 +344,13 @@ export default class WebModule extends WebDriverModule {
                     if(reason && reason.name && reason.name === 'invalid session id'){
                         // ignore
                     } else {
-                        console.log('closeWindow fail reason', reason);
+                        console.log('Failed to close the window: ', reason);
                     }
                 }
             );
         } catch(e){
             done = true;
-            console.log('closeWindow e', e);
+            console.log('Failed to close the window: ', e);
         }
         deasync.loopWhile(() => !done);
         this.disposeContinue();
@@ -372,13 +372,13 @@ export default class WebModule extends WebDriverModule {
                     if(reason && reason.name && reason.name === 'invalid session id'){
                         // ignore
                     } else {
-                        console.log('deleteSession fail reason', reason);
+                        console.log('Failed to delete the session: ', reason);
                     }
                 }
             );
         } catch(e){
             done = true;
-            console.log('deleteSession e', e);
+            console.log('Failed to delete the session: ', e);
         }
         deasync.loopWhile(() => !done);
         this.disposeContinue();

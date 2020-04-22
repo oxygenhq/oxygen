@@ -105,7 +105,7 @@ export default class OxygenRunner extends EventEmitter {
                 await this._worker.stop(status);
             }
         } catch (e) {
-            console.log('runner dispose e', e);
+            console.log('Failed to dispose the Oxygen Runner: ', e);
             // ignore errors during the dispose
             log.warn('Error when disposing Runner:', e);
         }
@@ -304,7 +304,6 @@ export default class OxygenRunner extends EventEmitter {
                 for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
                     const caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
                     if (!caseResult) {
-
                         continue;
                     }
                     suiteResult.cases.push(caseResult);
@@ -388,7 +387,11 @@ export default class OxygenRunner extends EventEmitter {
         try {
             caseResult.startTime = oxutil.getTimeStamp();
             if(this._worker){
-                const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+                const { resultStore, context, moduleCaps, error, terminated } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+                // if the user terminated the test during its run, then just return no results
+                if (terminated) {
+                    return;
+                }
                 this._processTestResults({ resultStore, context, error, moduleCaps });
                 caseResult.endTime = oxutil.getTimeStamp();
                 caseResult.duration = caseResult.endTime - caseResult.startTime;

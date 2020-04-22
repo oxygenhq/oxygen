@@ -10,7 +10,6 @@
 /**
  * Helper module for internal Oxygen use
  */
-const defer = require('when').defer;
 const path = require('path');
 const fs = require('fs');
 const _ = require('lodash');
@@ -36,9 +35,39 @@ var self = module.exports = {
         return moment.utc().valueOf();
     },
     
-    generateTestSuiteFromJSFile: function (filePath, paramFile, paramMode, noParamAutoSearch, iterationCount = 1) {
+    generateTestSuiteFromJson: async function(suiteDef, testConfig, iterationCount = 1) {
+        var suite = new require('../model/testsuite.js')();
+        suite.id = null;
+        suite.name = suiteDef.name;
+        suite.id = suiteDef.id;
+        suite.iterationCount = suiteDef.iterations || testConfig.iterations || iterationCount;
+        const suiteFilePath = suiteDef.path || path.join(testConfig.target.cwd, 'suites', `${suiteDef.name}.json`);
+        suite.paramManager = await self.getParameterManager(suiteFilePath, testConfig.parameters, testConfig.target.cwd);
+        if (suite.paramManager && suite.paramManager.getMode() == 'all') {
+            suite.iterationCount = suite.paramManajuger.rows;
+        }
+        suite.capabilities = suiteDef.capabilities || testConfig.capabilities || {};
+        suite.environment = testConfig.environment || null;
+        suite.options = testConfig.options || null;
+        suite.parallel = suiteDef.parallel || testConfig.parallel || testConfig.concurrency || 1;
+        // initialize each test case
+        suiteDef.cases.forEach(caseDef => {
+            // initialize testcase object
+            const tc = new require('../model/testcase.js')();
+            if (caseDef.name)
+                tc.name = caseDef.name;
+            else
+                tc.name = self.getFileNameWithoutExt(caseDef.path);
+            tc.path = self.resolvePath(caseDef.path, testConfig.target.cwd);
+            tc.format = 'js';
+            tc.iterationCount = caseDef.iterations || 1;
+            suite.cases.push(tc);
+        });
+        return suite;
+    },
+
+    generateTestSuiteFromJSFile: async function (filePath, paramFile = null, paramMode = null, noParamAutoSearch = true, iterationCount = 1) {
         var fileNameNoExt = self.getFileNameWithoutExt(filePath);
-        var _done = defer();
 
         var testcase = new require('../model/testcase.js')();
         testcase.name = fileNameNoExt;
@@ -54,100 +83,36 @@ var self = module.exports = {
         if (testcase.reopenSession) {
             suite.reopenSession = testcase.reopenSession;
         }
-        
-        // if param file is not specified, then check if JS file is coming in pair with a parameter file 
-        // (currently supporting CSV or TXT)
-        if (paramFile === null && !noParamAutoSearch) {
-            var csvParamFile = path.join(path.dirname(filePath), fileNameNoExt + '.csv');
-            var txtParamFile = path.join(path.dirname(filePath), fileNameNoExt + '.txt');
-            var xslParamFile = path.join(path.dirname(filePath), fileNameNoExt + '.xls');
-            var xslxParamFile = path.join(path.dirname(filePath), fileNameNoExt + '.xlsx');
+        const cwd = path.dirname(filePath);
+        suite.paramManager = await self.getParameterManager(filePath, { file: paramFile, mode: paramMode }, cwd);
+        // if parameter reading mode is 'all' then change iterationCount to the amount of rows in the param file
+        if (suite.paramManager && paramMode == 'all') {
+            suite.iterationCount = suite.paramManager.rows;
+        }        
+    },
 
-            if (fs.existsSync(csvParamFile)) {
-                paramFile = csvParamFile;
-            } else if (fs.existsSync(txtParamFile)) {
-                paramFile = txtParamFile;
-            } else if (fs.existsSync(xslParamFile)) {
-                paramFile = xslParamFile;
-            } else if (fs.existsSync(xslxParamFile)) {
-                paramFile = xslxParamFile;
-            }
-        }
-        
-        // try to load parameter manager if parameter file exists
-        if (paramFile) {
-            self.loadParameterManager(filePath, paramFile, paramMode)
-                .then(function(pm) {
-                    suite.paramManager = pm;
-                    // if parameter reading mode is 'all' then change iterationCount to the amount of rows in the param file
-                    if (suite.paramManager && paramMode == 'all') {
-                        suite.iterationCount = suite.paramManager.rows;
-                    }
-                    _done.resolve(suite);
-                })
-                .catch(function(err) {
-                    _done.reject(err);
-                });
-        }
-        
-        // if no parameter file specified - resolve immediately
-        if (!paramFile) {
-            _done.resolve(suite);
-        }
+    getParameterManager: async function(mainFilePath, paramOpts = null, cwd = null, autoSearch = false) {
+        let paramFilePath = paramOpts && paramOpts.file ? paramOpts.file : null;
+        let paramMode = paramOpts && paramOpts.mode ? paramOpts.mode : 'seq';
 
-        return _done.promise;
+        if (paramFilePath && cwd && !path.isAbsolute(paramFilePath)) {
+            paramFilePath = path.join(cwd, paramFilePath);
+        }
+        
+        return await self.loadParameterManager(mainFilePath, paramFilePath, paramMode, autoSearch);
     },
     
-    generateTestSuiteFromJsonFile: function (filePath, paramFile, paramMode, options) {
-        var fileNameNoExt = self.getFileNameWithoutExt(filePath);
-        var baseFolder = path.dirname(filePath);
-        var _done = defer();
-        // load json config file
-        var conf = require(filePath);
-        // create test suite object
-        var suite = new require('../model/testsuite.js')();
-        suite.name = fileNameNoExt;
-        suite.iterationCount = conf.iterations || options.iterations || 1;
-        suite.capabilities = conf.capabilities || {};
-        suite.environment = conf.environment || null;
-        suite.options = conf.options || null;
-        suite.parallel = conf.parallel || 1;
-        // initialize each test case
-        _.each(conf.cases, function(caseDef) {
-            // initialize testcase object
-            var tc = new require('../model/testcase.js')();
-            if (caseDef.name)
-                tc.name = caseDef.name;
-            else
-                tc.name = self.getFileNameWithoutExt(caseDef.path);
-            tc.path = self.resolvePath(caseDef.path, baseFolder);
-            tc.format = 'js';
-            tc.iterationCount = 1;
-            suite.cases.push(tc);
-        });
-        // try to load parameter manager if parameter file exists
-        self.loadParameterManager(filePath, paramFile, paramMode)
-            .then(function(pm) {
-                suite.paramManager = pm;
-                // if parameter reading mode is 'all' then change iterationCount to the amount of rows in the param file
-                if (suite.paramManager && paramMode == 'all') {
-                    suite.iterationCount = suite.paramManager.rows;
-                }
-                _done.resolve(suite);
-            })
-            .catch(function(err) {
-                _done.reject(err);
-            });
-
-        // apply server settings to startup options if found in test suite configuration file
-        if (conf.server) {
-            // server configuration can be provided either as host + port for Appium or full URL in case of Selenium server.
-            if (conf.server.host) { options.host = conf.server.host; }
-            if (conf.server.port) { options.port = conf.server.port; }
-            if (conf.server.url) { options.seleniumUrl = conf.server.url; }
+    generateTestSuiteFromJsonFile: async function (filePath, paramFile, paramMode = null, options = {}) {
+        const testConf = {
+            ...options || {},
         }
-
-        return _done.promise;
+        if (paramFile) {
+            testConf.parameters = {
+                file: paramFile,
+                mode: paramMode,
+            };
+        }
+        return await self.generateTestSuiteFromJson(require(filePath), testConfig);
     },
 
     getFileNameWithoutExt: function (filePath) {
@@ -157,11 +122,11 @@ var self = module.exports = {
         return filePathNoExt;
     },
 
-    loadParameterManager: function(mainFile, paramFile, paramMode) {
+    loadParameterManager: async function(mainFile, paramFile, paramMode, autoSearch = false) {
         var paramManager = null;
-        var _done = defer();
-        // if param file is not specified, then check if JS file is coming in pair with a parameter file (currently supporting CSV or TXT)
-        if (!paramFile) {
+        // if param file is not specified, then check if JS file is coming in pair with a parameter file 
+        // (currently supporting CSV or TXT)
+        if (!paramFile && autoSearch) {
             var fileNameNoExt = self.getFileNameWithoutExt(mainFile);
             var csvParamFile = path.join(path.dirname(mainFile), fileNameNoExt + '.csv');
             var txtParamFile = path.join(path.dirname(mainFile), fileNameNoExt + '.txt');
@@ -180,18 +145,10 @@ var self = module.exports = {
         }
         if (paramFile) {
             paramManager = new require('./param-manager')(paramFile, paramMode || 'sequential');
-            paramManager.init()
-             .then(function() {
-                 _done.resolve(paramManager);
-             })
-             .catch(function(err) {
-                 _done.reject(err);
-             });
+            await paramManager.init();
+            return paramManager;
         }
-        else {
-            _done.resolve(null);    // param file not found or is not specified
-        }
-        return _done.promise;
+        return null;
     },
 
     resolvePath: function(pathToResolve, baseFolder) {
