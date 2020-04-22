@@ -12,7 +12,6 @@
  */
 const path = require('path');
 const fs = require('fs');
-const _ = require('lodash');
 const moment = require('moment');
 const crypto = require('crypto');
 
@@ -103,11 +102,11 @@ var self = module.exports = {
     },
     
     generateTestSuiteFromJsonFile: async function (filePath, paramFile, paramMode = null, options = {}) {
-        const testConf = {
+        const testConfig = {
             ...options || {},
-        }
+        };
         if (paramFile) {
-            testConf.parameters = {
+            testConfig.parameters = {
                 file: paramFile,
                 mode: paramMode,
             };

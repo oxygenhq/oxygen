@@ -64,7 +64,7 @@ export function loadSuiteDefinitionsFromFolder(folderPath) {
             const fullPath = path.join(folderPath, file);
             suiteDefs.push(require(fullPath));
         }
-    })
+    });
     return suiteDefs;
 }
 
@@ -169,7 +169,7 @@ export function getCommandLineOptions(argv) {
         opts.parameters = {
             file: argv.p || argv.param || null,
             mode: argv.pm || 'seq'
-        }
+        };
     }
     
     // switch: --specs - set specs if set by user through comnand line
@@ -193,7 +193,7 @@ function deleteNullProperties(obj) {
     const clone = { ...obj };
     const keys = Object.keys(obj);
     forEach (keys, key => {
-        if (obj.hasOwnProperty(key) && (obj[key] == null || obj[key] == undefined)) {
+        if (Object.prototype.hasOwnProperty.call(obj, key) && (obj[key] == null || obj[key] == undefined)) {
             delete clone[key];
         }
     });

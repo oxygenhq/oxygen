@@ -58,7 +58,7 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
 
     module.getMode = function() {
         return this.mode;
-    }
+    };
 
     module.readNext = function () {
         if (this.mode === 'random') {
