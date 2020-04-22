@@ -1,6 +1,7 @@
 import path from 'path';
 import fs from 'fs';
 import oxutil from './util';
+import { forEach } from 'async';
 
 export const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 export const OXYGEN_ENV_FILE_NAME = 'oxygen.env';
@@ -32,27 +33,39 @@ export async function loadSuites(config, argv) {
     }
     // if a folder or a configuration file was passed
     else {
+        let suiteDefs = [];
         if (config.suites && Array.isArray(config.suites)) {
-            suites = config.suites;
+            suiteDefs = config.suites;
         }
-        else {
-            const suitesFolder = path.join(target.cwd, 'suites');
-            if (path.existsSync(suitesFolder)) {
-                suites = loadSuitesFromFolder(suitesFolder);
-            }
+        // check if more suites are defined in the 'suites' folder
+        const suitesFolder = path.join(target.cwd, 'suites');
+        if (fs.existsSync(suitesFolder)) {            
+            suiteDefs = [
+                ...suiteDefs,
+                ...loadSuiteDefinitionsFromFolder(suitesFolder)
+            ];
         }
+        // merge suites configured in the project config file and those found in 'suites' folder
+        suites = await Promise.all(suiteDefs.map(async (suiteDef) => await oxutil.generateTestSuiteFromJson(suiteDef, config)));
     }
     // filter out suites if '--suites' command line argument was specified
     if (argv.suites && typeof argv.suites === 'string') {
         const selectedSuiteNames = argv.suites.split(',');
         suites = suites.filter(x => selectedSuiteNames.includes(x.name));
     }
-    
     return suites;
 }
 
-export function loadSuitesFromFolder(folderPath) {
-    throw new Error('Not implemented.');
+export function loadSuiteDefinitionsFromFolder(folderPath) {
+    const files = fs.readdirSync(folderPath);
+    let suiteDefs = [];
+    forEach(files, file => {
+        if (path.extname(file) === '.json') {
+            const fullPath = path.join(folderPath, file);
+            suiteDefs.push(require(fullPath));
+        }
+    });
+    return suiteDefs;
 }
 
 export function getPageObjectFilePath(config, argv = {}) {
@@ -88,63 +101,103 @@ export function loadEnvironmentVariables(config, argv) {
 
 export function getConfigurations(target, argv) {
     // process command line arguments
-    const startupOpts = {
-        name: argv.name || null,
+    const DEFAULT_OPTS = {        
         cwd: target ? (target.cwd || process.cwd()) : process.cwd(),
         target: target,
-        browserName : argv.b || argv.browser || 'chrome',
-        seleniumUrl : argv.s || argv.server || 'http://localhost:4444/wd/hub',
-        appiumUrl : argv.s || argv.server || 'http://localhost:4723/wd/hub',
-        reopenSession: argv.reopen ? argv.reopen === 'true' : false,
-        iterations : argv.i ? parseInt(argv.i) : (argv.iter ? parseInt(argv.iter) : null),
-        debugPort: argv.dbgport || null,
-        delay: argv.delay || null,
+        browserName: 'chrome',
+        seleniumUrl : 'http://localhost:4444/wd/hub',
+        appiumUrl : 'http://localhost:4723/wd/hub',
+        reopenSession: false,
+        iterations : 1,
+        debugPort: null,
+        delay: null,
         collectDeviceLogs: false,
         collectAppiumLogs: false,
-        collectBrowserLogs: false,
+        collectBrowserLogs: false,        
         reporting: {
             reporters: ['html']
         },
         parameters : {
-            file: argv.p || argv.param || null,
-            mode: argv.pm || 'seq'
+            file: null,
+            mode: 'seq'
         },
-    };    
+    };
+    // retrieve options provided via command line arguments
+    const cmdOpts = getCommandLineOptions(argv); 
     // if the target is oxygen config file, merge its content with the default options
-    let moreOpts = { reporting: startupOpts.reporting, parameters: startupOpts.parameters };
+    let projConfigOpts = {};
     if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
-        moreOpts = require(target.path);
-    } 
-    // override test options with user settings set via command line arguments
-
-    // set reporters if set by user through comnand line (--rf switch)
-    if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
-        const reporters = argv.rf.split(',');
-        moreOpts.reporting.reporters = reporters;
-    } else {
-        moreOpts.reporting.reporters = ['html'];
-    }
-    // set reporter output directory if set by user through comnand line (--ro switch)
-    if (argv.ro && typeof argv.ro === 'string' && argv.ro.length > 0) {
-        moreOpts.reporting.outputDir = argv.ro;
-    }
-    // set specs if set by user through comnand line (--specs switch)
-    if (argv.specs && typeof argv.specs === 'string' && argv.specs.length > 0) {
-        const specs = argv.specs.split(',');
-        moreOpts.specs = specs;
-    }
-    // set a list of modules to be loaded, if set by user through comnand line (--modules switch)
-    if (argv.modules && typeof argv.modules === 'string' && argv.modules.length > 0) {
-        const modules = argv.modules.split(',');
-        moreOpts.modules = modules;
-    }
+        projConfigOpts = require(target.path);
+    }     
     // determine test name
-    let name = startupOpts.name || moreOpts.name || null;
+    let name = cmdOpts.name || projConfigOpts.name || null;
     if (!name && target) {
         name = target.name !== OXYGEN_CONFIG_FILE_NAME ? target.name : target.baseName;
     }
+    // merge options according to the following order (the last one overrides the previous one):
+    // default options, project config file, command line arguments
+    return { ...DEFAULT_OPTS, ...projConfigOpts, ...cmdOpts, name: name };
+}
 
-    return { ...startupOpts, ...moreOpts, name: name };
+export function getCommandLineOptions(argv) {
+    const opts = {
+        // switch: --name 
+        name: argv.name || null,
+        // switch: -b or --browser
+        browserName : argv.b || argv.browser || null,
+        seleniumUrl : argv.s || argv.server || null,
+        appiumUrl : argv.s || argv.server || null,
+        reopenSession: argv.reopen ? argv.reopen === 'true' : null,
+        iterations : argv.i ? parseInt(argv.i) : (argv.iter ? parseInt(argv.iter) : null),
+        debugPort: argv.dbgport || null,
+        delay: argv.delay || null,
+    };
+    // switch: --rf flag
+    if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
+        const reportFormats = argv.rf.split(',');
+        opts.reporting = {
+            reporters: reportFormats
+        };
+        // switch: --ro - set reporter output directory if set by user through comnand line
+        // NOTE: --ro switch must be specified together with --rf
+        if (argv.ro && typeof argv.ro === 'string' && argv.ro.length > 0) {
+            opts.reporting.outputDir = argv.ro;
+        }
+    }    
+    // option: -p or --param and --pm
+    if (argv.p || argv.param) {
+        opts.parameters = {
+            file: argv.p || argv.param || null,
+            mode: argv.pm || 'seq'
+        };
+    }
+    
+    // switch: --specs - set specs if set by user through comnand line
+    if (argv.specs && typeof argv.specs === 'string' && argv.specs.length > 0) {
+        const specs = argv.specs.split(',');
+        opts.specs = specs;
+    }
+    // switch: --modules - set a list of modules to be loaded, if set by user through comnand line
+    if (argv.modules && typeof argv.modules === 'string' && argv.modules.length > 0) {
+        const modules = argv.modules.split(',');
+        opts.modules = modules;
+    }
+    // remove any property with null value (so it won't override default values if it's null)
+    return deleteNullProperties(opts);
+}
+
+function deleteNullProperties(obj) {
+    if (typeof obj !== 'object') {
+        return obj;
+    }
+    const clone = { ...obj };
+    const keys = Object.keys(obj);
+    forEach (keys, key => {
+        if (Object.prototype.hasOwnProperty.call(obj, key) && (obj[key] == null || obj[key] == undefined)) {
+            delete clone[key];
+        }
+    });
+    return clone;
 }
 
 export function processTargetPath(targetPath) {

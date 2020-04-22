@@ -38,6 +38,7 @@ if (targetFile == null) {
 }
 
 const config = cliutil.getConfigurations(targetFile, argv);
+
 cliutil.generateTestOptions(config, argv).then(
     (options) => {
         prepareAndStartTheTest(options).then(
