@@ -154,7 +154,7 @@ export function getCommandLineOptions(argv) {
     };
     // switch: --rf flag
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
-        const reportFormats = argv.split(',');
+        const reportFormats = argv.rf.split(',');
         opts.reporting = {
             reporters: reportFormats
         };
