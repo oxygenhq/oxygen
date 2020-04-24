@@ -35,7 +35,6 @@
   },
   "devDependencies": {
     "@babel/node": "7.8.4",
-    "@babel/runtime": "7.8.4",
     "babel-plugin-source-map-support": "2.1.1",
     "cross-env": "7.0.2",
     "doctrine": "3.0.0",
@@ -54,6 +53,7 @@
     "@babel/plugin-proposal-function-bind": "7.8.3",
     "@babel/plugin-proposal-optional-catch-binding": "7.8.3",
     "@babel/preset-env": "7.8.4",
+    "@babel/runtime": "7.8.4",
     "@babel/register": "7.8.3",
     "@lambdatest/node-rest-client": "1.0.0",
     "@wdio/cli": "5.22.4",
