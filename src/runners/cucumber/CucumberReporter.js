@@ -10,6 +10,7 @@ export default class CucumberReporter {
         this.runnerId = runnerId;
         this.suites = {};
         this.currentStep = null;
+        this.currentCase = null;
         this.cucumberEventListener = cucumberEventListener;
         this.oxygenEventListener = oxygenEventListener;
         this.reportDispatcher = reportDispatcher;
@@ -24,6 +25,7 @@ export default class CucumberReporter {
         this.onTestEnd = this.onTestEnd.bind(this);
         this.onBeforeOxygenCommand = this.onBeforeOxygenCommand.bind(this);
         this.onAfterOxygenCommand = this.onAfterOxygenCommand.bind(this);
+        this.onOxygenLog = this.onOxygenLog.bind(this);
 
         this.testHooks = testHooks;
 
@@ -41,6 +43,7 @@ export default class CucumberReporter {
 
         this.oxygenEventListener.on('command:before', this.onBeforeOxygenCommand);
         this.oxygenEventListener.on('command:after', this.onAfterOxygenCommand);
+        this.oxygenEventListener.on('log', this.onOxygenLog);
     }
 
     onBeforeOxygenCommand(e) {  
@@ -52,6 +55,18 @@ export default class CucumberReporter {
                 this.currentStep.steps = [];
             }
             this.currentStep.steps.push(e.result);
+        }
+    }
+
+    onOxygenLog(log) {
+        if (this.currentCase) {
+            if (!this.currentCase.logs) {
+                this.currentCase.logs = [];
+            }
+            this.currentCase.logs.push(log);
+        }
+        if (this.reportDispatcher.onLogEntry && typeof this.reportDispatcher.onLogEntry === 'function') {
+            this.reportDispatcher.onLogEntry(log.time, log.level, log.msg, log.src);
         }
     }
 
@@ -100,7 +115,7 @@ export default class CucumberReporter {
         const caseId = `${uri}:${caseLocation.line}`;
         const suiteResult = this.suites[suiteId];
         const cases = suiteResult.cases;
-        const caseResult = new TestCaseResult();
+        const caseResult = this.currentCase = new TestCaseResult();
         caseResult.name = scenario.name;
         caseResult.tags = this.simplifyCucumberTags(scenario.tags);
         caseResult.location = caseId;
