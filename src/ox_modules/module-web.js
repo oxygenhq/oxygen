@@ -96,7 +96,7 @@ export default class WebModule extends WebDriverModule {
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
      * @param {String=} seleniumUrl - Remote server URL (default: http://localhost:4444/wd/hub).
      */
-    init(caps, seleniumUrl) {
+    async init(caps, seleniumUrl) {
         if (this.isInitialized) {
             return;
         }
@@ -189,20 +189,11 @@ export default class WebModule extends WebDriverModule {
 
         this.wdioOpts = wdioOpts;
 
-        wdio.remote(wdioOpts)
-            .then((driver => {
-                _this.driver = driver;
-                _this._isInitialized = true;
-                
-            }))
-            .catch(err => {
-                initError = err;
-            });
-
-        deasync.loopWhile(() => !_this.isInitialized && !initError);
-
-        if (initError) {
-            throw errHelper.getSeleniumInitError(initError);
+        try {
+            this.driver = await wdio.remote(wdioOpts);
+        }
+        catch (e) {
+            throw errHelper.getSeleniumInitError(e);
         }
 
         // reset browser logs if auto collect logs option is enabled
@@ -224,12 +215,8 @@ export default class WebModule extends WebDriverModule {
                 // ignore
                 // fails on lambdatest
             } else {
-                this.driver.maximizeWindow();
-                this.driver.setTimeout({ 'implicit': this.waitForTimeout });
-            }
-
-            if (this.options && this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
-                this.driver.reloadSession();
+                await this.driver.maximizeWindow();
+                await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
             }
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
@@ -329,7 +316,7 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
-    closeBrowserWindow(){
+    closeBrowserWindow() {
         let done = false;
         try {
 
@@ -350,14 +337,13 @@ export default class WebModule extends WebDriverModule {
             );
         } catch(e){
             done = true;
-            console.log('closeWindow e', e);
         }
         deasync.loopWhile(() => !done);
         this.disposeContinue();
     }
 
 
-    deleteSession(){
+    deleteSession() {
         let done = false;
         try {
 
@@ -378,7 +364,6 @@ export default class WebModule extends WebDriverModule {
             );
         } catch(e){
             done = true;
-            console.log('deleteSession e', e);
         }
         deasync.loopWhile(() => !done);
         this.disposeContinue();

@@ -100,11 +100,7 @@ export default class MobileModule extends WebDriverModule {
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
      * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
      */
-    init(caps, appiumUrl) {
-
-        console.log('this.options', this.options);
-        console.log('caps', caps);
-
+    async init(caps, appiumUrl) {
         // if reopenSession is true - reinitilize the module
         if (this.isInitialized) {
             if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
@@ -155,8 +151,6 @@ export default class MobileModule extends WebDriverModule {
             };
         }
 
-        console.log('appiumUrl', appiumUrl);
-
         // populate WDIO options
         const url = URL.parse(appiumUrl);
         const protocol = url.protocol.replace(/:$/, '');
@@ -193,31 +187,12 @@ export default class MobileModule extends WebDriverModule {
             wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
             wdioOpts.capabilities.maxInstances = 1;
         }
-
-        let initError = null;
-        const _this = this;
-        wdio.remote(wdioOpts)
-            .then((driver => {
-                _this.driver = driver;
-                _this._isInitialized = true;
-
-                // if (
-                //     wdioOpts && 
-                //     wdioOpts.capabilities && 
-                //     wdioOpts.capabilities['sauce:options'] && 
-                //     wdioOpts.capabilities['sauce:options']['testobject_api_key']            
-                // ) {
-                //     // this.driver.setTimeout(null);
-                // }
-            }))
-            .catch(err => {
-                initError = err;
-            });
-
-        deasync.loopWhile(() => !_this.isInitialized && !initError);
-
-        if (initError) {
-            throw errHelper.getAppiumInitError(initError);
+        // init webdriver
+        try {
+            this.driver = await wdio.remote(wdioOpts);
+        }
+        catch (e) {
+            throw errHelper.getAppiumInitError(e);
         }
 
         // set appContext to WEB for mobile web tests so that getWdioLocator will resolve locators properly
@@ -229,16 +204,16 @@ export default class MobileModule extends WebDriverModule {
         // perform an actual appContext switch to WEB
         // so Appium will delegate commands to Chrome Driver instead of Appium Driver
         if (_this.caps.browserName ===  'chromium-webview') {
-            this.setWebViewContext();
+            await this.setWebViewContext();
         }
 
-        this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+        await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
         
         // clear logs if auto collect logs option is enabled
         if (this.options.collectDeviceLogs) {
             try {
                 // simply call this to clear the previous logs and start the test with the clean logs
-                this.getDeviceLogs();
+                await this.getDeviceLogs();
             } catch (e) {
                 this.logger.error('Cannot retrieve device logs.', e);
             }
