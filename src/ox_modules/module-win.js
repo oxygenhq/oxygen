@@ -24,7 +24,6 @@
  *     
  */
 
-import deasync from 'deasync';
 import URL from 'url';
 import * as wdio from 'webdriverio';
 

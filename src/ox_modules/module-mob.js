@@ -47,7 +47,6 @@
  * * `PATTERN` - Verbatim matching.
  * 
  */
-import deasync from 'deasync';
 import URL from 'url';
 import * as wdio from 'webdriverio';
 
@@ -196,14 +195,14 @@ export default class MobileModule extends WebDriverModule {
         }
 
         // set appContext to WEB for mobile web tests so that getWdioLocator will resolve locators properly
-        if (_this.caps.browserName) {
+        if (this.caps.browserName) {
             this.appContext = 'WEB';
         }
         
         // if we are running on Android 7+ emulator, and thus/or using a WebView Browser Tester -
         // perform an actual appContext switch to WEB
         // so Appium will delegate commands to Chrome Driver instead of Appium Driver
-        if (_this.caps.browserName ===  'chromium-webview') {
+        if (this.caps.browserName ===  'chromium-webview') {
             await this.setWebViewContext();
         }
 
