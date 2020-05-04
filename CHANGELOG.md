@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.2.5 (2020-05-04)
+
+#### :beetle: Bug Fix
+* Number of issues to related to module initialization.
+* Cucumber runner not populating logs data.
+
 ## v1.2.0 (2020-04-13)
 
 #### :tada: New Feature
