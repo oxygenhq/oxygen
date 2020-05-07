@@ -556,6 +556,9 @@ export default class Oxygen extends OxygenEvents {
         }
 
         if (error && error.isFatal && !this.opts.continueOnError) {
+            if (!error.location && cmdLocation) {
+                error.location = cmdLocation;
+            }
             throw error;
         }
         return retval;
