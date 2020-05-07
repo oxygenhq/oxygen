@@ -36,6 +36,22 @@ module.exports = function() {
     };
 
     /**
+     * @summary Asserts that the string value contains a substring.
+     * @function contain
+     * @param {String} actual - Actual value.
+     * @param {String} contains - Verbatim string to be contained. 
+     * @param {String=} message - Message to throw if assertion fails.
+     */
+    module.contain = function(actual, contains, message) {
+        try {
+            chai.expect(actual).to.contain(contains, message);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+        }
+    };
+
+    /**
      * @summary Asserts that two values are equal.
      * @function equal
      * @param {String} actual - Actual value.
