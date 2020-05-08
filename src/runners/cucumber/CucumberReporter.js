@@ -63,10 +63,15 @@ export default class CucumberReporter {
             if (!this.currentCase.logs) {
                 this.currentCase.logs = [];
             }
-            this.currentCase.logs.push(log);
+            this.currentCase.logs.push({
+                time: log.time,
+                level: log.level.toUpperCase(),
+                msg: log.message,
+                src: log.src
+            });
         }
         if (this.reportDispatcher.onLogEntry && typeof this.reportDispatcher.onLogEntry === 'function') {
-            this.reportDispatcher.onLogEntry(log.time, log.level, log.msg, log.src);
+            this.reportDispatcher.onLogEntry(log.time, log.level, log.message, log.src);
         }
     }
 
