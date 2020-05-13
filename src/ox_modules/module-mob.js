@@ -49,11 +49,12 @@
  */
 import URL from 'url';
 import * as wdio from 'webdriverio';
-
+import deasync from 'deasync';
 import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
+import perfectoReporting from 'perfecto-reporting';
 
 const MODULE_NAME = 'mob';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
@@ -186,9 +187,50 @@ export default class MobileModule extends WebDriverModule {
             wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
             wdioOpts.capabilities.maxInstances = 1;
         }
+
+        if(
+            wdioOpts && 
+            wdioOpts.capabilities && 
+            wdioOpts.capabilities['perfectoMobile:options']
+        ){
+            wdioOpts.capabilities.maxInstances = 1;
+            wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
+            wdioOpts.port = 80;
+            wdioOpts.protocol = 'http';
+            wdioOpts.openDeviceTimeout = 15;
+            
+            delete wdioOpts.capabilities.manufacturer;
+            delete wdioOpts.capabilities.platformName;
+            delete wdioOpts.capabilities.model;
+            delete wdioOpts.capabilities.browserName;
+        }
+
+        this.wdioOpts = wdioOpts;
+
         // init webdriver
         try {
             this.driver = await wdio.remote(wdioOpts);
+
+            
+            if(
+                wdioOpts && 
+                wdioOpts.capabilities && 
+                wdioOpts.capabilities['perfectoMobile:options']
+            ){
+
+                const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
+                    webdriver: {
+                        executeScript: (command, params) => {
+                            this.driver.execute(command, params);
+                        }
+                    }
+                });
+                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);  
+                this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
+
+                // avoid request abort
+                deasync.sleep(10*1000);
+            }
         }
         catch (e) {
             throw errHelper.getAppiumInitError(e);
@@ -224,8 +266,28 @@ export default class MobileModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
-    async dispose() {
+    async dispose(status) {
         if (this.driver && this.isInitialized) {
+            
+            if(
+                this.wdioOpts && 
+                this.wdioOpts.capabilities && 
+                this.wdioOpts.capabilities['perfectoMobile:options']
+            ){
+                const passed = status.toUpperCase() === 'PASSED';
+
+                let perfectoStatus = perfectoReporting.Constants.results.failed;
+                if(passed){
+                    perfectoStatus = perfectoReporting.Constants.results.passed;
+                }
+
+                this.reportingClient.testStop({
+                    status: perfectoStatus
+                });
+                // avoid request abort
+                deasync.sleep(10*1000);
+            }
+
             try {
                 await this.driver.deleteSession();
             } catch (e) {
