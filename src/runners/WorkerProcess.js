@@ -16,7 +16,7 @@ const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
  * WorkerProcess responsible for spawning a worker process the test instance.
  */
 export default class WorkerProcess extends EventEmitter {
-    constructor(pid, workerPath, debugMode, debugPort, name = null) {
+    constructor(pid, workerPath, debugMode, debugPort, name = null, npmGRootExecution = true) {
         super();
         this._name = name;
         this._isRunning = false;
@@ -27,6 +27,7 @@ export default class WorkerProcess extends EventEmitter {
         this._debugMode = debugMode;
         this._debugPort = debugPort;
         this._workerPath = workerPath;
+        this._npmGRootExecution = npmGRootExecution;
         this._breakpointErrors = [];
         // hold the remote invocation promise
         this._calls = {};
@@ -51,22 +52,24 @@ export default class WorkerProcess extends EventEmitter {
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
         }      
 
-        try {
-            const execResult = execSync('npm root -g');
-
-            if(execResult && execResult.toString){
-                let globalNpmModulesPath = execResult.toString().trim();
-
-                if(
-                    globalNpmModulesPath &&
-                    forkOpts && 
-                    forkOpts.env
-                ){
-                    forkOpts.env.NODE_PATH = globalNpmModulesPath;
+        if(this._npmGRootExecution){
+            try {
+                const execResult = execSync('npm root -g');
+    
+                if(execResult && execResult.toString){
+                    let globalNpmModulesPath = execResult.toString().trim();
+    
+                    if(
+                        globalNpmModulesPath &&
+                        forkOpts &&
+                        forkOpts.env
+                    ){
+                        forkOpts.env.NODE_PATH = globalNpmModulesPath;
+                    }
                 }
+            } catch(e){
+                console.log('npm root error:', e);
             }
-        } catch(e){
-            console.log('npm root error:', e);
         }
 
         // fork worker

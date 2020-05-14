@@ -31,7 +31,7 @@ import WorkerProcess from '../WorkerProcess';
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export default class OxygenRunner extends EventEmitter {
-    constructor() {
+    constructor(options) {
         super();
         // class variables
         this._id = oxutil.generateUniqueId();
@@ -41,6 +41,12 @@ export default class OxygenRunner extends EventEmitter {
         this._worker = null;
         this._debugMode = false;
         this._workerProcLastError = null;
+
+        this._npmGRootExecution = true;
+        if(options && typeof options.npmGRootExecution !== 'undefined'){
+            this._npmGRootExecution = options.npmGRootExecution;
+        }
+
         // define variables to iterate through test cases and test suite iterations
         this._suite;
         this._envVars = {};  // environment variables passed at the beginning of the test
@@ -528,7 +534,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _startWorkerProcess() {
         const workerPath = path.join(__dirname, 'worker.js');
-        this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen');
+        this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen', this._npmGRootExecution);
         await this._worker.start();
         this._hookWorkerEvents();
         await this._worker.startDebugger();

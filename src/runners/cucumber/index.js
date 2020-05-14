@@ -39,11 +39,26 @@ const DEFAULT_OPTS = {
 };
 
 export default class CucumberRunner {
-    constructor (debugMode = null, debugPort = null) {
+    constructor (config) {
+
+        this._debugMode =  (config && config.debugPortIde) ? true : false;
+        this._debugPort = null;
+
+        if(config && config.debugPort){
+            this._debugPort = config.debugPort;
+        } else if(config && config.debugPortIde) {
+            this._debugPort = config.debugPortIde;
+        }
+
+        this._npmGRootExecution = true;
+        if(config && typeof config.npmGRootExecution !== 'undefined'){
+            this._npmGRootExecution = config.npmGRootExecution;
+        }
+
         this.isInitialized = false;
         this.id = oxutil.generateUniqueId();
         const workerPath = path.join(__dirname, 'worker-wrapper.js');
-        this.worker = new WorkerProcess(this.id, workerPath, debugMode, debugPort, 'Cucumber');
+        this.worker = new WorkerProcess(this.id, workerPath, this._debugMode, this._debugPort, 'Cucumber', this._npmGRootExecution);
         this.handleWorkerEvents();
     }
 
