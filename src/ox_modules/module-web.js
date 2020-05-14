@@ -55,6 +55,7 @@ import SauceLabs from 'saucelabs';
 import lambdaRestClient from '@lambdatest/node-rest-client';
 import TestingBot from 'testingbot-api';
 import { execSync } from 'child_process';
+import perfectoReporting from 'perfecto-reporting';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -187,10 +188,43 @@ export default class WebModule extends WebDriverModule {
         let initError = null;
         const _this = this;
 
+        
+        if(
+            wdioOpts && 
+            wdioOpts.capabilities && 
+            wdioOpts.capabilities['perfectoMobile:options']
+        ){
+            wdioOpts.capabilities.maxInstances = 1;
+            wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
+            wdioOpts.port = 80;
+            wdioOpts.protocol = 'http';
+            wdioOpts.openDeviceTimeout = 15;
+        }
+
         this.wdioOpts = wdioOpts;
 
         try {
             this.driver = await wdio.remote(wdioOpts);
+            
+            if(
+                wdioOpts && 
+                wdioOpts.capabilities && 
+                wdioOpts.capabilities['perfectoMobile:options']
+            ){
+
+                const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
+                    webdriver: {
+                        executeScript: (command, params) => {
+                            this.driver.execute(command, params);
+                        }
+                    }
+                });
+                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);  
+                this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
+
+                // avoid request abort
+                deasync.sleep(10*1000);
+            }
         }
         catch (e) {
             throw errHelper.getSeleniumInitError(e);
@@ -239,6 +273,7 @@ export default class WebModule extends WebDriverModule {
                     let isSaucelabs = false;
                     let isLambdatest = false;
                     let isTestingBot = false;
+                    let isPerfecto = false;
                     if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')){
                         isSaucelabs = true;
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
@@ -291,12 +326,34 @@ export default class WebModule extends WebDriverModule {
                         });
                         deasync.loopWhile(() => !done);
                     }
+                            
+                    if(
+                        this.wdioOpts && 
+                        this.wdioOpts.capabilities && 
+                        this.wdioOpts.capabilities['perfectoMobile:options']
+                    ){
+                        isPerfecto = true;
+                        const passed = status.toUpperCase() === 'PASSED';
+
+                        let perfectoStatus = perfectoReporting.Constants.results.failed;
+                        if(passed){
+                            perfectoStatus = perfectoReporting.Constants.results.passed;
+                        }
+
+                        this.reportingClient.testStop({
+                            status: perfectoStatus
+                        });
+                        // avoid request abort
+                        deasync.sleep(10*1000);
+                    }
 
                     if(isSaucelabs){
                         this.deleteSession();
                     } else if(isLambdatest){
                         this.deleteSession();
                     } else if(isTestingBot){
+                        this.deleteSession();
+                    } else if(isPerfecto){
                         this.deleteSession();
                     } else if(['PASSED','FAILED'].includes(status.toUpperCase())){
                         this.closeBrowserWindow();
