@@ -373,14 +373,69 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
+    closeCurrentBrowserWindow(){
+        let done = false;
+        
+        const closeWindowResult = this.driver.closeWindow();
+        
+        closeWindowResult.then(
+            (value) => {
+                done = true;
+            },
+            (reason) => {
+                done = true;
+                if(reason && reason.name && reason.name === 'invalid session id'){
+                    // ignore
+                } else {
+                    console.log('closeWindow fail reason', reason);
+                }
+            }
+        );
+        
+        deasync.loopWhile(() => !done);
+    }
+
+    switchToWindow(handle) {
+        let done = false;
+        const switchToWindowRetVal = this.driver.switchToWindow(handle);
+        
+        switchToWindowRetVal.then(
+            (value) => {
+                this.closeCurrentBrowserWindow();
+                done = true;
+            },
+            (reason) => {
+                done = true;
+                if(reason && reason.name && reason.name === 'invalid session id'){
+                    // ignore
+                } else {
+                    console.log('windowHandles fail reason', reason);
+                }
+            }
+        );
+
+        
+        deasync.loopWhile(() => !done);
+    }
+
     closeBrowserWindow() {
         let done = false;
-        try {
 
-            const closeWindowResult = this.driver.closeWindow();
-        
-            closeWindowResult.then(
-                (value) => {
+        try {
+            const windowHandles = this.driver.getWindowHandles();
+            
+            windowHandles.then(
+                (handles) => {
+                    if(
+                        handles &&
+                        Array.isArray(handles) &&
+                        handles.length > 0
+                    ){
+                        handles.map((handle) => {
+                            this.switchToWindow(handle);
+                        });
+                    }
+
                     done = true;
                 },
                 (reason) => {
@@ -388,10 +443,11 @@ export default class WebModule extends WebDriverModule {
                     if(reason && reason.name && reason.name === 'invalid session id'){
                         // ignore
                     } else {
-                        console.log('closeWindow fail reason', reason);
+                        console.log('windowHandles fail reason', reason);
                     }
                 }
             );
+            
         } catch(e){
             done = true;
         }
