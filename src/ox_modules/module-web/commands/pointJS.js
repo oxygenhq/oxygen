@@ -19,8 +19,17 @@ module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, false, timeout);
-    /*global MouseEvent*/
-    this.execute((e) => {
-        e.dispatchEvent(new MouseEvent('mouseover', { bubbles: true, cancelable: true }));
-    }, el);
+    var isIE = this.getCapabilities().browserName === 'internet explorer';
+
+    /*global MouseEvent,document,window*/
+    this.execute(function(e, isIE) {
+        var ev;
+        if (isIE) {
+            ev = document.createEvent('MouseEvent');
+            ev.initMouseEvent('mouseover', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+        } else {
+            ev = new MouseEvent('mouseover', { bubbles: true, cancelable: true });
+        }
+        e.dispatchEvent(ev);
+    }, el, isIE);
 };
