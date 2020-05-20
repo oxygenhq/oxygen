@@ -20,7 +20,7 @@ var SIGNATURE_HEAD = '<div style="position:relative;">' +
                 '</h2>' +
                 '</div>';
                 
-const img = (name) => ` ![](/img/platforms/${name}.png) `;
+const img = (name) => ` ![](../../.gitbook/assets/${name}.png) `;
 var SIGNATURE_AND = img('android');
 var SIGNATURE_IOS = img('apple');
 var SIGNATURE_HYB = img('hybrid');
