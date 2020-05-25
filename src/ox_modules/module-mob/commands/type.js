@@ -29,9 +29,22 @@ module.exports = function(locator, value, timeout) {
     try {
         el.setValue(value.toString());
     } catch (e) {
-        if (e.name === 'invalid element state') {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);
+        if(
+            e && 
+            e.message &&
+            e.message.includes('java.lang.NullPointerException')
+        ){
+
+            this.driver.execute((el, val) => {
+                el.focus();
+                el.value = val;
+            }, el, value);
+
+        } else {
+            if (e.name === 'invalid element state') {
+                throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);
+            }
+            throw e;
         }
-        throw e;
     }
 };

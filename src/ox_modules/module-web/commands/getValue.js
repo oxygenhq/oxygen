@@ -22,7 +22,15 @@ module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, true, timeout);
-    var val = el.getValue();
+    let val;
+
+    try{
+        val = el.getValue();
+    } catch(e){
+        console.log('web.getValue error', e);
+        val = el.getAttribute('value');
+    }
+
     if (val) {
         return val.trim().replace(/\s+/g, ' ');
     }
