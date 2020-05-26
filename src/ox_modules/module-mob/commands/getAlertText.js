@@ -9,13 +9,13 @@
 
 /**
  * @summary Gets the text displayed by an alert or confirm dialog.
- * @function alertText
+ * @function getAlertText
  * @return {String} - Alert's text.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.click("id=Submit");// Clicks an element and opens an alert.
- * var a = mob.alertText();//Gets alert text.
+ * var a = mob.getAlertText();//Gets alert text.
  */
 module.exports = function() {
     return this.driver.getAlertText();
