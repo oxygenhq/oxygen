@@ -274,7 +274,7 @@ export default class MobileModule extends WebDriverModule {
                 this.wdioOpts.capabilities && 
                 this.wdioOpts.capabilities['perfectoMobile:options']
             ){
-                const passed = status.toUpperCase() === 'PASSED';
+                const passed = status && status.toUpperCase() === 'PASSED';
 
                 let perfectoStatus = perfectoReporting.Constants.results.failed;
                 if(passed){
