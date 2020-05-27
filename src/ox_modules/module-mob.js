@@ -198,12 +198,22 @@ export default class MobileModule extends WebDriverModule {
             wdioOpts.port = 80;
             wdioOpts.protocol = 'http';
             wdioOpts.openDeviceTimeout = 15;
-            
-            delete wdioOpts.capabilities.manufacturer;
-            delete wdioOpts.capabilities.platformName;
-            delete wdioOpts.capabilities.model;
-            delete wdioOpts.capabilities.browserName;
-        }
+
+            if(
+                wdioOpts.capabilities.platformVersion &&
+                wdioOpts.capabilities.automationName
+            ){
+                // OI-844
+                delete wdioOpts.capabilities.deviceName;
+                delete wdioOpts.capabilities.manufacturer;
+                delete wdioOpts.capabilities.model;
+            } else {
+                delete wdioOpts.capabilities.manufacturer;
+                delete wdioOpts.capabilities.platformName;
+                delete wdioOpts.capabilities.model;
+                delete wdioOpts.capabilities.browserName;
+            }
+        } 
 
         this.wdioOpts = wdioOpts;
 
