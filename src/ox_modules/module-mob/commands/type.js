@@ -27,7 +27,31 @@ module.exports = function(locator, value, timeout) {
     var el = this.helpers.getElement(locator, true, timeout);
 
     try {
-        el.setValue(value.toString());
+
+        if(
+            this.driver &&
+            this.driver.capabilities &&
+            this.driver.capabilities.entityType &&
+            this.driver.capabilities.entityType === 'appium_driver'            
+        ) {
+            let saveValue;
+
+            if(value){
+                if(Array.isArray(value)){
+                    saveValue = value;
+                } else if(typeof value === 'string'){
+                    saveValue = [value.toString()];
+                } else if(value.toString){
+                    saveValue = [value.toString()];
+                }
+            }
+
+            // native app
+            el.sendKeys(saveValue);
+        } else {
+            // remote_web_driver (mob browser)
+            el.setValue(value.toString());
+        }
     } catch (e) {
         if(
             e && 
