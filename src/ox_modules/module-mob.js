@@ -113,6 +113,19 @@ export default class MobileModule extends WebDriverModule {
             return;
         }
 
+        if(
+            caps &&
+            this.ctx.caps && 
+            this.ctx.caps['perfectoMobile:options']
+        ){
+            delete caps.platformName;
+            delete caps.platformVersion;
+            delete caps.deviceName;
+            delete caps.browserName;
+            delete caps.automationName;
+            delete caps.udid;
+        }
+
         if (!appiumUrl) {
             appiumUrl = this.options.appiumUrl || DEFAULT_APPIUM_URL;
         }
@@ -199,20 +212,10 @@ export default class MobileModule extends WebDriverModule {
             wdioOpts.protocol = 'http';
             wdioOpts.openDeviceTimeout = 15;
 
-            if(
-                wdioOpts.capabilities.platformVersion &&
-                wdioOpts.capabilities.automationName
-            ){
-                // OI-844
-                delete wdioOpts.capabilities.deviceName;
-                delete wdioOpts.capabilities.manufacturer;
-                delete wdioOpts.capabilities.model;
-            } else {
-                delete wdioOpts.capabilities.manufacturer;
-                delete wdioOpts.capabilities.platformName;
-                delete wdioOpts.capabilities.model;
-                delete wdioOpts.capabilities.browserName;
-            }
+            delete wdioOpts.capabilities.manufacturer;
+            delete wdioOpts.capabilities.platformName;
+            delete wdioOpts.capabilities.model;
+            delete wdioOpts.capabilities.browserName;
         } 
 
         this.wdioOpts = wdioOpts;
