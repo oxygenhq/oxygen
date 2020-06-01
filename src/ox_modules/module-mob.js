@@ -124,6 +124,12 @@ export default class MobileModule extends WebDriverModule {
             delete caps.browserName;
             delete caps.automationName;
             delete caps.udid;
+
+            if(caps && caps.app){
+                // ignore
+            } else {
+                caps.useAppiumForWeb = true;
+            }
         }
 
         if (!appiumUrl) {
