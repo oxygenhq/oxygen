@@ -136,8 +136,8 @@ export default class MobileModule extends WebDriverModule {
                 this.ctx.caps && 
                 this.ctx.caps['perfectoMobile:options']
             ){
-                caps.useAppiumForWeb = true;
-                caps.enableAppiumBehavior = true;
+                this.ctx.caps.useAppiumForWeb = true;
+                this.ctx.caps.enableAppiumBehavior = true;
             }
         }
 
