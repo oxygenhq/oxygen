@@ -179,7 +179,12 @@ module.exports = {
             return;
         } else if (this.driver.getTimeouts) {
             // chrome >= 75
-            timeouts = this.driver.getTimeouts();
+            try {
+                timeouts = this.driver.getTimeouts();
+            } catch(e){
+                // fails on perfecto mobile
+                console.log('getTimeouts error', e);
+            }
         } else if (this.driver.capabilities && this.driver.capabilities.timeouts) {
             // chrome >= 72 && chrome < 75
             timeouts = this.driver.capabilities.timeouts;
