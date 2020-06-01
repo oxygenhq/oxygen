@@ -126,9 +126,18 @@ export default class MobileModule extends WebDriverModule {
             delete caps.udid;
 
             if(caps && caps.app){
-                // ignore
+                caps.enableAppiumBehavior = true;
             } else {
                 caps.useAppiumForWeb = true;
+                caps.enableAppiumBehavior = true;
+            }
+        } else {
+            if(
+                this.ctx.caps && 
+                this.ctx.caps['perfectoMobile:options']
+            ){
+                caps.useAppiumForWeb = true;
+                caps.enableAppiumBehavior = true;
             }
         }
 
