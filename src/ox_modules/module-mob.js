@@ -264,7 +264,13 @@ export default class MobileModule extends WebDriverModule {
         }
 
         // set appContext to WEB for mobile web tests so that getWdioLocator will resolve locators properly
-        if (this.caps.browserName) {
+        if (this.caps.browserName || 
+            (
+                this.driver &&
+                this.driver.capabilities &&
+                this.driver.capabilities.browserName
+            )
+        ) {
             this.appContext = 'WEB';
         }
         
