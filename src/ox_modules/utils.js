@@ -180,7 +180,15 @@ module.exports = {
         } else if (this.driver.getTimeouts) {
             // chrome >= 75
             try {
-                timeouts = this.driver.getTimeouts();
+                if(
+                    this.driver.capabilities &&
+                    this.driver.capabilities.stopUrl &&
+                    this.driver.capabilities.stopUrl.includes('perfectomobile.com')
+                ){
+                    //ignore
+                } else {
+                    timeouts = this.driver.getTimeouts();
+                }
             } catch(e){
                 // fails on perfecto mobile
                 console.log('getTimeouts error', e);
