@@ -213,7 +213,6 @@ export default class MobileModule extends WebDriverModule {
             wdioOpts.openDeviceTimeout = 15;
 
             delete wdioOpts.capabilities.manufacturer;
-            delete wdioOpts.capabilities.platformName;
             delete wdioOpts.capabilities.model;
             delete wdioOpts.capabilities.browserName;
         } 
