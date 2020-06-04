@@ -50,7 +50,7 @@ const WINDOWS_STANDARD_APP_IDS = {
 export default class WindowsModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
-        this.transactions = {};                      
+        this.transactions = {};
         this.lastNavigationStartTime = null;
         this.networkRequests = null;
         this.helpers = {};
@@ -67,9 +67,18 @@ export default class WindowsModule extends WebDriverModule {
     }
 
     /**
+     * @function getDriver
+     * @summary Returns the underlying WDIO driver.
+     * @return {Object} WDIO driver.
+     */
+    getDriver() {
+        return super.getDriver();
+    }
+
+    /**
      * @function getCapabilities
      * @summary Returns currently defined capabilities.
-     * @return {Object} capabilities - Current capabilities object.
+     * @return {Object} Current capabilities object.
      */
     getCapabilities() {
         return this.caps || super.getCapabilities();

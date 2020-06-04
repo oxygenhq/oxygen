@@ -83,9 +83,18 @@ export default class WebModule extends WebDriverModule {
     }
 
     /**
+     * @function getDriver
+     * @summary Returns the underlying WDIO driver.
+     * @return {Object} WDIO driver.
+     */
+    getDriver() {
+        return super.getDriver();
+    }
+
+    /**
      * @function getCapabilities
      * @summary Returns currently defined capabilities.
-     * @return {Object} capabilities - Current capabilities object.
+     * @return {Object} Current capabilities object.
      */
     getCapabilities() {
         return this.caps || super.getCapabilities();
