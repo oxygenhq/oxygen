@@ -137,6 +137,11 @@ module.exports = {
             let matches = err.message.match(/( Invalid URL: .*$).*/i);
             return new OxError(ERROR_CODES.SCRIPT_ERROR, (matches && matches.length === 2 ? matches[1] : err.message));
         }
+        // usually on mobile Chrome when element is overlapped by another element
+        else if (err.message && err.message.startsWith('element click intercepted')) {
+            let matches = err.message.match(/element click intercepted: (.*)/i);
+            return new OxError(ERROR_CODES.ELEMENT_NOT_VISIBLE, (matches && matches.length === 2 ? matches[1] : err.message));
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
