@@ -25,7 +25,12 @@ module.exports = function(locator, clickParent) {
     var el = this.helpers.getElement(locator);
     // NOTE: adding comments inside the passed function is not allowed!
     /*global document*/
-    this.driver.execute(function (domEl, clickParent) {
+    var ret = this.driver.execute(function (domEl, clickParent) {
+        // createEvent won't be available won't be available on IE in < 9 compatibility mode
+        if (!document.createEvent) {
+            return false;
+        }
+
         var clckEv = document.createEvent('MouseEvent');
         clckEv.initEvent('click', true, true);
         if (clickParent) {
@@ -33,5 +38,11 @@ module.exports = function(locator, clickParent) {
         } else {
             domEl.dispatchEvent(clckEv);
         }
+
+        return true;
     }, el, clickParent);
+
+    if (!ret) {
+        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, 'clickHidden() is not supported on the current page');
+    }
 };
