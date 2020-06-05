@@ -43,7 +43,7 @@
                                         <% } %>
                                         <% caseResult.steps.forEach(function(stepResult, index) { %>
                                             <%
-                                                const duration = (stepResult.duration / 100).toFixed(1);
+                                                const duration = (stepResult.duration / 1000).toFixed(1);
                                             %>
                                             <tr>
                                                 <td><%= index + 1 %></td>
