@@ -45,7 +45,7 @@
     "md-reverse": "1.0.0"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.11.2",
+    "@applitools/eyes-webdriverio": "5.12.0",
     "@babel/cli": "7.8.4",
     "@babel/core": "7.8.4",
     "@babel/plugin-proposal-class-properties": "7.8.3",
