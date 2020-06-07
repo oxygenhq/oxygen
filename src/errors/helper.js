@@ -51,6 +51,7 @@ const ERROR_CODES = {
     BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR',
     APPIUM_CONNECTION_ERROR: 'APPIUM_CONNECTION_ERROR',
     APPIUM_SESSION_ERROR: 'APPIUM_SESSION_ERROR',
+    SELENIUM_SESSION_ERROR: 'SELENIUM_SESSION_ERROR',
     SELENIUM_CONNECTION_ERROR: 'SELENIUM_CONNECTION_ERROR',
     RUNTIME_ERROR: 'RUNTIME_ERROR',
     OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
@@ -142,6 +143,11 @@ module.exports = {
             let matches = err.message.match(/element click intercepted: (.*)/i);
             return new OxError(ERROR_CODES.ELEMENT_NOT_VISIBLE, (matches && matches.length === 2 ? matches[1] : err.message));
         }
+        // usually because Selenium has killed the session due to exceeding '-timeout' timeout
+        else if (err.message && err.message.startsWith('No active session with ID')) {
+            return new OxError(ERROR_CODES.SELENIUM_SESSION_ERROR, 'Execution time exceeded the timeout set by Selenium');
+        }
+
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
