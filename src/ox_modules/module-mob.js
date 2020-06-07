@@ -212,14 +212,16 @@ export default class MobileModule extends WebDriverModule {
             path: path,
             capabilities: this.caps,
             logLevel: 'silent',
-            runner: 'repl'
+            runner: 'repl',
+            connectionRetryTimeout: 310*1000,
+            connectionRetryCount: 1
         };
 
         if(
             wdioOpts && 
             wdioOpts.capabilities && 
             wdioOpts.capabilities['sauce:options'] && 
-            wdioOpts.capabilities['sauce:options']['testobject_api_key']            
+            wdioOpts.capabilities['sauce:options']['testobject_api_key']
         ){
             wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
             wdioOpts.capabilities.maxInstances = 1;

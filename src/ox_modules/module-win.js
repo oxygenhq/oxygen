@@ -164,11 +164,13 @@ export default class WindowsModule extends WebDriverModule {
             path: path,
             capabilities: this.caps,
             logLevel: 'silent',
-            runner: 'repl'
+            runner: 'repl',
+            connectionRetryTimeout: 310*1000,
+            connectionRetryCount: 1
         };
 
         try {
-            this.driver = await wdio.remote(wdioOpts);            
+            this.driver = await wdio.remote(wdioOpts);
         }
         catch (e) {
             throw errHelper.getAppiumInitError(e);

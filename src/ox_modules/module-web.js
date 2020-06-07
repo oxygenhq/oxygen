@@ -191,7 +191,9 @@ export default class WebModule extends WebDriverModule {
             path: path,
             capabilities: this.caps,
             logLevel: 'silent',
-            runner: 'repl'
+            runner: 'repl',
+            connectionRetryTimeout: 310*1000,
+            connectionRetryCount: 1
         };
 
         let initError = null;
