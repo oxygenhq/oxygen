@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.4.0 (2020-06-xx)
+## v1.4.0 (2020-06-07)
 
 #### :tada: New Feature
 * `mob.getTitle`
@@ -10,16 +10,21 @@
 * `web.type` on Firefox not triggering some events attached to the element.
 * Browser not being closed on test completion when multiple tabs or windows are opened.
 * `web.pointJS` not working on Internet Explorer.
+* Incorrect command duration in HTML reports.
 
 #### :nail_care: Polish
 * Improve `web.makeVisible` to adjust visibility of parent elements as well.
-* Handle 'Element not clickable at point' error produced by IE.
+* Handle 'Element not clickable at point' errors produced by IE.
+* Handle 'element click intercepted' errors.
+* Handle 'No active session with ID' errors.
 
 #### :book: Documentation
-* Improve docs for `web.scrollIntoView` and `mob.getAlertText`.
+* Improve documentation for `web.scrollIntoView`, `mob.getAlertText`, `*.getDriver`.
 
 #### :house: Internal
-* Support for PerfectoMobile provider.
+* Initial support for PerfectoMobile provider.
+* Increase `connectionRetryTimeout` and decrease `connectionRetryCount` in order to better handle slowly loading pages.
+* Bump dependencies.
 
 ## v1.3.0 (2020-05-10)
 
