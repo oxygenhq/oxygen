@@ -10,13 +10,11 @@
 /**
  * @summary Selects window. Once window has been selected, all commands go to that window.
  * @description `windowLocator` can be:  
- *              - `title=TITLE` - Switch to the first window which matches the specified title.
- *                TITLE can be any of the supported 
- *                string matching patterns(on the top of page).
- *                When using title locator, this command will wait for the window to appear first 
- *                similarly to waitForWindow command.  
- *              - `windowHandle` - Switch to a window using its unique handle.  
- *              - `unspecified` - Switch to the last opened window.
+ * - `title=TITLE` Switch to the first window which matches the specified title. TITLE can be any of
+ * the supported string matching patterns (see top of the page). When using title locator, this command
+ * will wait for the window to appear first similarly to `waitForWindow` command.  
+ * - `windowHandle` Switch to a window using its unique handle.  
+ * - `unspecified` Switch to the last opened window.
  * @function selectWindow
  * @param {String=} windowLocator - Window locator.
  * @param {Number=} timeout - Timeout in milliseconds when using 'title' window locating strategy. 

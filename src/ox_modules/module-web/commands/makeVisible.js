@@ -10,13 +10,12 @@
 /**
  * @summary Makes hidden element visible.
  * @description This a workaround command for situations which require manipulation of hidden
- *              elements, such as when using `web.type` command for file input fields which tend
- *              to be hidden.  
- *              Specifically `makeVisible` will apply following styles to the
- *              specified element and all the parnet elements:  
- *              - visibility = 'visible' if set to 'hidden'
- *              - opacity = 1 if set to 0
- *              - display = 'block' if set to 'none'
+ * elements, such as when using `web.type` command for file input fields which tend to be hidden.  
+ * Specifically `makeVisible` will apply following styles to the specified element and all the
+ * parent elements:  
+ * - visibility = 'visible' if set to 'hidden'  
+ * - opacity = 1 if set to 0  
+ * - display = 'block' if set to 'none'  
  * @function makeVisible
  * @param {String|Element} locator - An element locator. If multiple elements match the locator, visibility
  *                           is applied to all.
