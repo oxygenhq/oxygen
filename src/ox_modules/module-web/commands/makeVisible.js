@@ -24,7 +24,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.makeVisible("id=SaveButton");// Makes an invisible/hidden element to become visible.
  */
-module.exports = function makeVisible(locator) {
+module.exports = function(locator) {
     var el = this.helpers.getElement(locator);
 
     /*global window*/
