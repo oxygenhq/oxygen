@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v1.4.1 (2020-06-09)
+
+#### :tada: New Feature
+* Added support for finding windows by their URL to `web.selectWindow` and `web.waitForWindow`. 
+Option to select/waitFor last opened windows has been deprecated and will be removed in the future.
+
+#### :beetle: Bug Fix
+* `mob.swipeElement` not working due to a typo.
+
+#### :book: Documentation
+* Various documentation fixes.
+
+#### :house: Internal
+*  WebDriverIO updated to v5.23.0.
+
 ## v1.4.0 (2020-06-07)
 
 #### :tada: New Feature
