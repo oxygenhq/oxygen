@@ -20,9 +20,9 @@
  * mob.swipeElement("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
 */
 module.exports = function(locator, xoffset, yoffset, speed) {
-    this.helpers._assertArgument(locator, 'locator');
-    this.helpers._assertArgumentNumber(xoffset, 'xoffset');
-    this.helpers._assertArgumentNumber(yoffset, 'yoffset');
+    this.helpers.assertArgument(locator, 'locator');
+    this.helpers.assertArgumentNumber(xoffset, 'xoffset');
+    this.helpers.assertArgumentNumber(yoffset, 'yoffset');
 
     speed = typeof speed === 'number' ? speed : 30;
     if (typeof locator === 'number' && typeof xoffset === 'number') {
