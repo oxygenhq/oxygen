@@ -258,6 +258,11 @@ function validateReverse(arg, name) {
 }
 
 function resolvePath(pdfFilePath, options) {
+
+    pdfFilePath = pdfFilePath.trim().split('').map((item, idx) => {
+        return ![8206, 8296].includes(pdfFilePath.charCodeAt(idx)) ? item : null;
+    }).join('');
+
     if (pdfFilePath[0] === '~') {
         // resolve path relative to home directory
         return path.join(process.env.HOME, pdfFilePath.slice(1));
@@ -299,10 +304,6 @@ module.exports = function(options, context, rs, logger, modules, services) {
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
-
-        pdfFilePath = pdfFilePath.trim().split('').map((item, idx) => {
-            return ![8206, 8296].includes(pdfFilePath.charCodeAt(idx)) ? item : null;
-        }).join('');
 
         pdfFilePath = resolvePath(pdfFilePath, options);
 
