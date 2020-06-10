@@ -361,6 +361,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         pdfFilePath = resolvePath(pdfFilePath, options);
 
+        let error;
         try {
             let actual = null;
             const expected = false;
@@ -368,8 +369,9 @@ module.exports = function(options, context, rs, logger, modules, services) {
                 result => {
                     actual = result;
                 },
-                error => {
-                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, error.message || error);
+                e => {
+                    error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
+                    actual = false;
                 }
             );
             
@@ -394,6 +396,10 @@ module.exports = function(options, context, rs, logger, modules, services) {
         }
         catch (e) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+        }
+
+        if(error){
+            throw error;
         }
     };
 
