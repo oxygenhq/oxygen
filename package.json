@@ -83,7 +83,7 @@
     "ox-chrome-remote-interface": "0.28.1",
     "oxygen-logger": "0.5.0",
     "pdfreader": "1.0.4",
-    "perfecto-reporting": "2.5.3",
+    "perfecto-reporting": "^2.5.3",
     "request": "2.88.2",
     "saucelabs": "3.0.1",
     "serialport": "9.0.0",
