@@ -50,11 +50,11 @@ export default class WorkerProcess extends EventEmitter {
         if (this._debugPort) {
             // add --inspect-brk argument if debug port is specified
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
-        }      
+        }
 
         if(this._npmGRootExecution){
             try {
-                const execResult = execSync('npm root -g');
+                const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
     
                 if(execResult && execResult.toString){
                     let globalNpmModulesPath = execResult.toString().trim();
