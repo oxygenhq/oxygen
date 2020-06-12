@@ -218,7 +218,6 @@ export default class MobileModule extends WebDriverModule {
         };
 
         if(
-            wdioOpts && 
             wdioOpts.capabilities && 
             wdioOpts.capabilities['sauce:options'] && 
             wdioOpts.capabilities['sauce:options']['testobject_api_key']
@@ -228,7 +227,6 @@ export default class MobileModule extends WebDriverModule {
         }
 
         if(
-            wdioOpts && 
             wdioOpts.capabilities && 
             wdioOpts.capabilities['perfectoMobile:options']
         ){
