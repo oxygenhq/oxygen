@@ -249,7 +249,6 @@ export default class MobileModule extends WebDriverModule {
 
             
             if(
-                wdioOpts && 
                 wdioOpts.capabilities && 
                 wdioOpts.capabilities['perfectoMobile:options']
             ){
