@@ -201,7 +201,6 @@ export default class WebModule extends WebDriverModule {
 
         
         if(
-            wdioOpts && 
             wdioOpts.capabilities && 
             wdioOpts.capabilities['perfectoMobile:options']
         ){
@@ -218,7 +217,6 @@ export default class WebModule extends WebDriverModule {
             this.driver = await wdio.remote(wdioOpts);
             
             if(
-                wdioOpts && 
                 wdioOpts.capabilities && 
                 wdioOpts.capabilities['perfectoMobile:options']
             ){
