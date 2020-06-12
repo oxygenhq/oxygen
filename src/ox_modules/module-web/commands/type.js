@@ -31,8 +31,7 @@ module.exports = function(locator, value, timeout) {
             this.driver &&
             this.driver.capabilities &&
             this.driver.capabilities.browserName &&
-            this.driver.capabilities.browserName.toLowerCase &&
-            this.driver.capabilities.browserName.toLowerCase() === 'microsoftedge'
+            this.driver.capabilities.browserName === 'MicrosoftEdge'
         ) {
             //https://github.com/webdriverio/webdriverio/issues/3324
             this.driver.execute((el, val) => {
