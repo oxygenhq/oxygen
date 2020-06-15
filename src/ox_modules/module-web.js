@@ -276,7 +276,7 @@ export default class WebModule extends WebDriverModule {
             try {
                 if(!status){
                     // ignore
-                    this.closeBrowserWindow();
+                    await this.closeBrowserWindows();
                 } else if(status && typeof status === 'string'){
 
                     let isSaucelabs = false;
@@ -365,7 +365,7 @@ export default class WebModule extends WebDriverModule {
                     } else if(isPerfecto){
                         this.deleteSession();
                     } else if(['PASSED','FAILED'].includes(status.toUpperCase())){
-                        this.closeBrowserWindow();
+                        await this.closeBrowserWindows();
                     } else {
                         this.disposeContinue();
                     }
@@ -382,112 +382,43 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
-    closeCurrentBrowserWindow(){
-        let done = false;
-        
-        const closeWindowResult = this.driver.closeWindow();
-        
-        closeWindowResult.then(
-            (value) => {
-                done = true;
-            },
-            (reason) => {
-                done = true;
-                if(reason && reason.name && reason.name === 'invalid session id'){
-                    // ignore
-                } else {
-                    console.log('closeWindow fail reason', reason);
+    async closeCurrentBrowserWindow(){
+        try{    
+            return await this.driver.closeWindow();
+        } catch(e){
+            this.logger.error('Close browser window error', e);
+        }
+    }
+
+    async switchAndCloseWindow(handle) {
+        await this.driver.switchToWindow(handle);
+        await this.closeCurrentBrowserWindow();
+    }
+
+    async closeBrowserWindows() {
+        try {
+            const handles = await this.driver.getWindowHandles();
+            if(
+                handles &&
+                Array.isArray(handles) &&
+                handles.length > 0
+            ){
+                for (const handle of handles) {
+                    await this.switchAndCloseWindow(handle);
                 }
             }
-        );
-        
-        deasync.loopWhile(() => !done);
-    }
-
-    switchToWindow(handle) {
-        let done = false;
-        const switchToWindowRetVal = this.driver.switchToWindow(handle);
-        
-        switchToWindowRetVal.then(
-            (value) => {
-                this.closeCurrentBrowserWindow();
-                done = true;
-            },
-            (reason) => {
-                done = true;
-                if(reason && reason.name && reason.name === 'invalid session id'){
-                    // ignore
-                } else {
-                    console.log('windowHandles fail reason', reason);
-                }
-            }
-        );
-
-        
-        deasync.loopWhile(() => !done);
-    }
-
-    closeBrowserWindow() {
-        let done = false;
-
-        try {
-            const windowHandles = this.driver.getWindowHandles();
-            
-            windowHandles.then(
-                (handles) => {
-                    if(
-                        handles &&
-                        Array.isArray(handles) &&
-                        handles.length > 0
-                    ){
-                        handles.map((handle) => {
-                            this.switchToWindow(handle);
-                        });
-                    }
-
-                    done = true;
-                },
-                (reason) => {
-                    done = true;
-                    if(reason && reason.name && reason.name === 'invalid session id'){
-                        // ignore
-                    } else {
-                        console.log('windowHandles fail reason', reason);
-                    }
-                }
-            );
-            
         } catch(e){
-            done = true;
+            this.logger.error('Close browser window error', e);
         }
-        deasync.loopWhile(() => !done);
-        this.disposeContinue();
+        await this.deleteSession();
     }
 
-
-    deleteSession() {
-        let done = false;
+    async deleteSession() {
         try {
-
-            const deleteSessionResult = this.driver.deleteSession();
-        
-            deleteSessionResult.then(
-                (value) => {
-                    done = true;
-                },
-                (reason) => {
-                    done = true;
-                    if(reason && reason.name && reason.name === 'invalid session id'){
-                        // ignore
-                    } else {
-                        console.log('deleteSession fail reason', reason);
-                    }
-                }
-            );
+            await this.driver.deleteSession();
         } catch(e){
-            done = true;
+            console.log('deleteSession fail', e);
         }
-        deasync.loopWhile(() => !done);
         this.disposeContinue();
     }
 
