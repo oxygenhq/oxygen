@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.5.0 (2020-06-15)
+
+#### :tada: New Feature
+* Added support for defining suites in separate files.
+
+#### :beetle: Bug Fix
+* Re-enabled `network` module.
+
 ## v1.4.1 (2020-06-09)
 
 #### :tada: New Feature
