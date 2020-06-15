@@ -88,6 +88,7 @@ var self = module.exports = {
         if (suite.paramManager && paramMode == 'all') {
             suite.iterationCount = suite.paramManager.rows;
         }        
+        return suite;
     },
 
     getParameterManager: async function(mainFilePath, paramOpts = null, cwd = null, autoSearch = false) {
