@@ -276,7 +276,7 @@ export default class WebModule extends WebDriverModule {
             try {
                 if(!status){
                     // ignore
-                    await this.closeBrowserWindows();
+                    this.closeBrowserWindow();
                 } else if(status && typeof status === 'string'){
 
                     let isSaucelabs = false;
@@ -365,7 +365,7 @@ export default class WebModule extends WebDriverModule {
                     } else if(isPerfecto){
                         this.deleteSession();
                     } else if(['PASSED','FAILED'].includes(status.toUpperCase())){
-                        await this.closeBrowserWindows();
+                        this.closeBrowserWindow();
                     } else {
                         this.disposeContinue();
                     }
@@ -382,43 +382,112 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
-    async closeCurrentBrowserWindow(){
-        try{    
-            return await this.driver.closeWindow();
-        } catch(e){
-            this.logger.error('Close browser window error', e);
-        }
-    }
-
-    async switchAndCloseWindow(handle) {
-        await this.driver.switchToWindow(handle);
-        await this.closeCurrentBrowserWindow();
-    }
-
-    async closeBrowserWindows() {
-        try {
-            const handles = await this.driver.getWindowHandles();
-            if(
-                handles &&
-                Array.isArray(handles) &&
-                handles.length > 0
-            ){
-                for (const handle of handles) {
-                    await this.switchAndCloseWindow(handle);
+    closeCurrentBrowserWindow(){
+        let done = false;
+        
+        const closeWindowResult = this.driver.closeWindow();
+        
+        closeWindowResult.then(
+            (value) => {
+                done = true;
+            },
+            (reason) => {
+                done = true;
+                if(reason && reason.name && reason.name === 'invalid session id'){
+                    // ignore
+                } else {
+                    console.log('closeWindow fail reason', reason);
                 }
             }
-        } catch(e){
-            this.logger.error('Close browser window error', e);
-        }
-        await this.deleteSession();
+        );
+        
+        deasync.loopWhile(() => !done);
     }
 
-    async deleteSession() {
+    switchToWindow(handle) {
+        let done = false;
+        const switchToWindowRetVal = this.driver.switchToWindow(handle);
+        
+        switchToWindowRetVal.then(
+            (value) => {
+                this.closeCurrentBrowserWindow();
+                done = true;
+            },
+            (reason) => {
+                done = true;
+                if(reason && reason.name && reason.name === 'invalid session id'){
+                    // ignore
+                } else {
+                    console.log('windowHandles fail reason', reason);
+                }
+            }
+        );
+
+        
+        deasync.loopWhile(() => !done);
+    }
+
+    closeBrowserWindow() {
+        let done = false;
+
         try {
-            await this.driver.deleteSession();
+            const windowHandles = this.driver.getWindowHandles();
+            
+            windowHandles.then(
+                (handles) => {
+                    if(
+                        handles &&
+                        Array.isArray(handles) &&
+                        handles.length > 0
+                    ){
+                        handles.map((handle) => {
+                            this.switchToWindow(handle);
+                        });
+                    }
+
+                    done = true;
+                },
+                (reason) => {
+                    done = true;
+                    if(reason && reason.name && reason.name === 'invalid session id'){
+                        // ignore
+                    } else {
+                        console.log('windowHandles fail reason', reason);
+                    }
+                }
+            );
+            
         } catch(e){
-            console.log('deleteSession fail', e);
+            done = true;
         }
+        deasync.loopWhile(() => !done);
+        this.disposeContinue();
+    }
+
+
+    deleteSession() {
+        let done = false;
+        try {
+
+            const deleteSessionResult = this.driver.deleteSession();
+        
+            deleteSessionResult.then(
+                (value) => {
+                    done = true;
+                },
+                (reason) => {
+                    done = true;
+                    if(reason && reason.name && reason.name === 'invalid session id'){
+                        // ignore
+                    } else {
+                        console.log('deleteSession fail reason', reason);
+                    }
+                }
+            );
+        } catch(e){
+            done = true;
+        }
+        deasync.loopWhile(() => !done);
         this.disposeContinue();
     }
 
