@@ -179,15 +179,39 @@ var self = module.exports = {
     },
 
     getMethodSignature: function(moduleName, methodName, methodArgs) {
-        // convert method arguments to string
-        let methodArgsStr = '()';
-        
-        if (methodArgs) {
-            let argsStringified = JSON.stringify(methodArgs);
-            methodArgsStr = '(' + argsStringified.slice(1, -1) + ')';
-        }
+        return moduleName + '.' + methodName + '(' + self.stringify(methodArgs, 0) + ')';
+    },
 
-        return moduleName + '.' + methodName + methodArgsStr;
+    /*
+     * Used to serialize oxygen command parameters. Produces a non-compliant JSON serialization.
+     */
+    stringify: function (args, indentation = 0) {
+        let str;
+        try {
+            str = JSON.stringify(args, (key, value) => {
+                if (typeof value === 'bigint') {    // https://github.com/GoogleChromeLabs/jsbi/issues/30
+                    return value.toString();
+                } else if (typeof value === 'function') {
+                    return value.toString();
+                } else if (typeof value === 'undefined') {
+                    // if undefined is inside an array then it will be serialized as null.
+                    // however if we just return 'undefined' here as string, it will be enclosed in quotes.
+                    // so return magic string instead and trim the quotes later on
+                    return '__UNDEFINED';
+                } else if (value instanceof Error) {
+                    return value.toString();
+                }
+                return value;
+            }, indentation);
+            // trim the enclosing array and any whitespace
+            str = str.replace(/^\[{1}\s*|\s*\]{1}$/g, '');
+            // convert magic 'undefined' string to proper representation
+            str = str.replace(/"__UNDEFINED"/g, 'undefined');
+        } catch (e) {
+            console.warn('Failed to serialize command arguments: ', e);
+            str = e.toString();
+        }
+        return str;
     },
 
     isInDebugMode: function() {

@@ -258,49 +258,15 @@ export default class Oxygen extends OxygenEvents {
             userWarn: (...args) => this._log(_logger, 'warn', args, ISSUERS.USER),
         };
         return loggerWrap;
-    }    
+    }
+
     _log(_logger, level, args, src = DEFAULT_LOGGER_ISSUER) {
         if (!_logger[level]) {
             return;
         }
         _logger[level].apply(_logger, args);
 
-        let message = null;
-        
-        if(args && args.length > 0 && typeof args[0] === 'string'){
-            message = args[0];
-        } else if(args && args.length > 0){
-
-            if(typeof args[0] !== 'undefined' && args[0] instanceof Error){
-                message = args[0].toString();
-            } else if(typeof args[0] === 'number' && args[0].toString){
-                message = args[0].toString();
-            } else if(typeof args[0] === 'boolean' && args[0].toString){
-                message = args[0].toString();
-            } else if(typeof args[0] === 'undefined'){
-                message = 'undefined';
-            } else if(typeof args[0] === 'object'){
-                try{
-                    const result = JSON.stringify(args[0], null, 2);
-                    message = result;
-                } catch(e){
-                    console.warn('object stringify e', e);
-                    message = e.toString();
-                }
-            } else if(args[0].toString){
-                message = args[0].toString();
-            } else {
-                console.warn('uncovered typeof args[0]', typeof args[0]);
-                try{
-                    const result = JSON.stringify(args[0], null, 2);
-                    message = result;
-                } catch(e){
-                    console.warn('stringify e', e);
-                    message = e.toString();
-                }
-            }
-        }
-
+        const message = oxutil.stringify(args, 2);
         const time = oxutil.getTimeStamp();
         // add the log entry to the result store
         if (this.resultStore && this.resultStore.logs) {
@@ -315,6 +281,7 @@ export default class Oxygen extends OxygenEvents {
         args = message ? args.shift() : args;
         this.emitLog(time, level, message, args, src);
     }
+
     _loadServices() {
         const oxServicesDirPath = path.resolve(this.oxBaseDir, './ox_services');
         const serviceFiles = glob.sync('service-*.js', { cwd: oxServicesDirPath });
