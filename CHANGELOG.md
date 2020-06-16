@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.5.1 (2020-06-16)
+
+#### :beetle: Bug Fix
+* Regression introduced in v1.5.0 related to running single test cases.
+* Serialization of command arguments.
+
 ## v1.5.0 (2020-06-15)
 
 #### :tada: New Feature
