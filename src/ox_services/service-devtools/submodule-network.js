@@ -40,15 +40,15 @@ export default class NetworkSubModule extends OxygenSubModule {
 
         try {
             if(this._driver){
-                this._driver.removeListener('Network.responseReceived', () => {});
-                this._driver.removeListener('Network.requestWillBeSent', () => {});
+                await this._driver.removeListener('Network.responseReceived', () => {});
+                await this._driver.removeListener('Network.requestWillBeSent', () => {});
+                
+                await this._devTools.client.Network.disable();
+                await this._devTools.client.Browser.close();
             }
         } catch(e){
-            console.log('_driver removeListener error', e);
+            // ignore errors;
         }
-        // Maybe in one day we will need this
-        // await this._driver.endTracing();
-        // await this._driver.disablePerformanceAudits();
 
         this._devTools = null;
         this._driver = null;

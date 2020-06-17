@@ -382,17 +382,13 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
-    async closeCurrentBrowserWindow(){
-        try{    
-            return await this.driver.closeWindow();
-        } catch(e){
-            this.logger.error('Close browser window error', e);
-        }
-    }
-
     async switchAndCloseWindow(handle) {
-        await this.driver.switchToWindow(handle);
-        await this.closeCurrentBrowserWindow();
+        try{
+            await this.driver.switchToWindow(handle);
+            await this.driver.closeWindow();
+        } catch(e){
+            // ignore switch and close window errors
+        }
     }
 
     async closeBrowserWindows() {
@@ -409,15 +405,6 @@ export default class WebModule extends WebDriverModule {
             }
         } catch(e){
             this.logger.error('Close browser window error', e);
-        }
-        await this.deleteSession();
-    }
-
-    async deleteSession() {
-        try {
-            await this.driver.deleteSession();
-        } catch(e){
-            console.log('deleteSession fail', e);
         }
         this.disposeContinue();
     }
