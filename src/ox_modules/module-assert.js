@@ -16,15 +16,34 @@ const chai = require('chai');
 import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 
+/*global ox*/
+
 module.exports = function() {
     module.isInitialized = function() {
         return true;
     };
 
+    module._takeScreenshotSilent = async function(name) {
+        var mod;
+        if(ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
+            mod = ox.modules.mob;
+        } else if (ox && ox.modules && ox.modules.web && ox.modules.web.getDriver && ox.modules.web.getDriver()) {
+            mod = ox.modules.web;
+        } else if (ox && ox.modules && ox.modules.win && ox.modules.win.getDriver && ox.modules.win.getDriver()) {
+            mod = ox.modules.win;
+        }
+
+        if(mod && mod._takeScreenshotSilent){
+            const result = await mod._takeScreenshotSilent();
+            return result;
+        } else {
+            return null;
+        }
+    };
+
     // take screenshot on error if either web, mob, or win module is initialized
     module._takeScreenshot = function(name) {
         var mod;
-        /*global ox*/
         if(ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
             mod = ox.modules.mob;
         } else if (ox && ox.modules && ox.modules.web && ox.modules.web.getDriver && ox.modules.web.getDriver()) {
@@ -88,7 +107,7 @@ module.exports = function() {
      */
     module.notEqual = function(actual, expected, message) {
         try {
-            if (expected.indexOf('regex:') === 0) {
+            if (expected && typeof expected === 'string' && expected.indexOf('regex:') === 0) {
                 var regex = new RegExp(expected.substring('regex:'.length));
                 chai.assert.notMatch(actual, regex, message);
             } else {
@@ -105,6 +124,11 @@ module.exports = function() {
      * @param {String=} message - Error message to return.
      */
     module.fail = function(message) {
+
+        if(!message){
+            return;
+        }
+
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
     };
 

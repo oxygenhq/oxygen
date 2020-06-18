@@ -19,10 +19,16 @@
 module.exports = function() {
     var browser = this.caps.browserName;
     switch (browser) {
-        case 'chrome':
-            return this.driver.execute(
-                `var xmlEl = document.getElementById("webkit-xml-viewer-source-xml");
-                return xmlEl ? xmlEl.innerHTML : null;`);
+        case 'chrome': {
+            const retval = this.driver.execute(() => {
+                // eslint-disable-next-line no-undef
+                var xmlEl = document.getElementById('webkit-xml-viewer-source-xml');
+                
+                return xmlEl ? xmlEl.innerHTML : null;
+            });
+
+            return retval;
+        }
         case 'ie':
             var src = this.driver.getPageSource();
             src = src.replace(/<head>(.|\n)*?<\/head>/g, '');

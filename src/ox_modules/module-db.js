@@ -16,15 +16,8 @@
  *   * Linux - `sudo apt-get install unixodbc unixodbc-dev` or `sudo dnf install unixODBC unixODBC-devel`
  */
 
-// ignore this module if odbc wasn't installed
-var db;
-try {
-    db = require('odbc')();
-} catch (e) {
-    // could happen only on unix due to missing unixodbc binaries
-    const ModuleUnavailableError = require('../errors/ModuleUnavailableError');
-    throw new ModuleUnavailableError('`unixodbc` binaries not installed');
-}
+
+var connection;
 
 import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
@@ -35,13 +28,23 @@ module.exports = function() {
         return true;
     };
 
-    module._openDbConn = function() {
+    module._openDbConn = async function() {
         if (!this.connString) {
             throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, 'No connection string specified. Use db.setConnectionString().');
         }
 
         try {
-            db.openSync(this.connString);
+            // ignore this module if odbc wasn't installed
+            var db;
+            try {
+                db = require('odbc');
+            } catch (e) {
+                // could happen only on unix due to missing unixodbc binaries
+                const ModuleUnavailableError = require('../errors/ModuleUnavailableError');
+                throw new ModuleUnavailableError('`unixodbc` binaries not installed');
+            }
+
+            connection = await db.connect(this.connString);
         } catch (e) {
             throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, e.message);
         }
@@ -70,10 +73,10 @@ module.exports = function() {
      * @return {Object} The first column of the first row in the result set, or null if the result
      *                  set is empty.
      */
-    module.getScalar = function(query) {
-        module._openDbConn();
+    module.getScalar = async function(query) {
+        await module._openDbConn();
         try {
-            var resultSet =  db.querySync(query);
+            var resultSet = await connection.query(query);
             if (resultSet.length === 0) {
                 return null;
             }
@@ -83,7 +86,7 @@ module.exports = function() {
         } catch (e) {
             throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
         } finally {
-            db.closeSync();
+            await connection.close();
         }
     };
 
@@ -93,14 +96,17 @@ module.exports = function() {
      * @param {String} query - The query to execute.
      * @return {Object} The result set.
      */
-    module.executeQuery = function(query) {
-        module._openDbConn();
+    module.executeQuery = async function(query) {
+        await module._openDbConn();
         try {
-            return db.querySync(query);
+            const querySyncRetval = await connection.query(query);
+            return querySyncRetval;
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
+            const errorMessage = errHelper.getDbErrorMessage(e);
+
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errorMessage);
         } finally {
-            db.closeSync();
+            await connection.close();
         }
     };
 
@@ -110,14 +116,14 @@ module.exports = function() {
      * @function executeNonQuery
      * @param {String} query - The query to execute.
      */
-    module.executeNonQuery = function(query) {
-        module._openDbConn();
+    module.executeNonQuery = async function(query) {
+        await module._openDbConn();
         try {
-            db.querySync(query);
+            await connection.query(query);
         } catch (e) {
             throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
         } finally {
-            db.closeSync();
+            await connection.close();
         }
     };
 

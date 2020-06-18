@@ -46,12 +46,24 @@ module.exports = function(wifi, data) {
     } catch (e) { // ignore any errors
     }
 
+    let serial;
+
+    if(
+        this.driver &&
+        this.driver.capabilities
+    ){
+        if (this.driver.capabilities.deviceUDID) {
+            serial = this.driver.capabilities.deviceUDID;
+        } else if (this.driver.capabilities.deviceName) {
+            serial = this.driver.capabilities.deviceName;
+        }
+    }
     // attempt to do it using 'adb shell svc' just in case setNetworkConnection has failed.
     var cp = require('child_process');
 
     cp.execFileSync('adb', [
         '-s',
-        this.caps.deviceName,
+        serial,
         'shell',
         'svc',
         'data',
@@ -61,7 +73,7 @@ module.exports = function(wifi, data) {
 
     cp.execFileSync('adb', [
         '-s',
-        this.caps.deviceName,
+        serial,
         'shell',
         'svc',
         'wifi',

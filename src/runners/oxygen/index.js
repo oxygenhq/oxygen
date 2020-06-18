@@ -30,6 +30,7 @@ import WorkerProcess from '../WorkerProcess';
 // snooze function - async wrapper around setTimeout function
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+
 export default class OxygenRunner extends EventEmitter {
     constructor(options) {
         super();
@@ -152,6 +153,10 @@ export default class OxygenRunner extends EventEmitter {
 
     async kill(status = null) {
         this._testKilled = true;
+        
+        if(this._worker && this._worker.isRunning){
+            await this._worker.kill(status);
+        }
     }
 
     debugContinue() {
@@ -257,7 +262,13 @@ export default class OxygenRunner extends EventEmitter {
         }
         result.endTime = oxutil.getTimeStamp();
         result.duration = result.endTime - result.startTime;
-        const hasFailedSuites = result.suites.some(x => x.status === Status.FAILED);
+        
+        const hasFailedSuites = result.suites.some(suiteIterations => {
+            if(suiteIterations && Array.isArray(suiteIterations) && suiteIterations.length > 0){
+                return suiteIterations.some(x => x.status === Status.FAILED);
+            }
+        });
+        
         result.status = hasFailedSuites ? Status.FAILED : Status.PASSED;
         result.environment = { ...this._env };
         // combine test defined caps and per module capabilities, that were passed by user in each module's init function
@@ -584,7 +595,7 @@ export default class OxygenRunner extends EventEmitter {
                 _this._resetGlobalVariables();
             }
         });
-        this._worker.on('message', (msg) => {
+        this._worker.on('message', async (msg) => {
             if (msg.event && msg.event === 'log') {
                 if (msg.level === 'DEBUG') {
                     log.debug(msg.msg);
@@ -608,8 +619,8 @@ export default class OxygenRunner extends EventEmitter {
                 }
             }
             else if (msg.event && msg.event === 'workerError'){
-                this.dispose('failed');
-                this._reporter.onRunnerEnd(this._id, {}, msg.errMessage);
+                await this.dispose('failed');
+                this.kill();
             }
         });
     }

@@ -62,7 +62,7 @@ const DEFAULT_BROWSER_NAME = 'default';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
-    
+
 
 export default class MobileModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -335,6 +335,8 @@ export default class MobileModule extends WebDriverModule {
             this.driver = null;
             this.lastNavigationStartTime = null;
             super.dispose();
+        } else {
+            return;
         }
     }
 
@@ -364,6 +366,22 @@ export default class MobileModule extends WebDriverModule {
                 return this.takeScreenshot();
             } catch (e) {
                 throw errHelper.getOxygenError(e);
+            }
+        }
+    }
+    
+    _takeScreenshotSilent(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            try {
+                if(
+                    this.driver &&
+                    this.driver.takeScreenshot
+                ){
+                    return this.driver.takeScreenshot();
+                }
+            } catch (e) {
+                this.logger.error('Cannot get screenshot', e);  
+                // ignore
             }
         }
     }

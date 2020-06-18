@@ -30,6 +30,7 @@ module.exports = function(locator, pattern, timeout) {
     try {
         this.driver.waitUntil(() => {
             text = el.getValue();
+            
             return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

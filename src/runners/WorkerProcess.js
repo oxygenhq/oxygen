@@ -71,7 +71,7 @@ export default class WorkerProcess extends EventEmitter {
                 console.log('npm root error:', e);
             }
         }
-
+        
         // fork worker
         this._childProc = fork(this._workerPath, forkOpts);
         
@@ -94,10 +94,8 @@ export default class WorkerProcess extends EventEmitter {
                 await this._debugger.resumeTerminate();
             }
             await this.invoke('dispose', status);
-            this._childProc.kill('SIGINT');
             await snooze(100);
         } else if (this._childProc) {
-            this._childProc.kill('SIGINT');
             await snooze(100);
         }
         if (this._debugger) {                        
@@ -106,10 +104,14 @@ export default class WorkerProcess extends EventEmitter {
         this._reset();
     }
 
+    kill(){
+        this._childProc.kill('SIGINT');
+    }
+
     async init(rid, options, caps) {
         if (!this._isInitialized) {
             const beforeTime = new Date().getTime();
-            await this.invoke('init', rid, options, caps);    
+            await this.invoke('init', rid, options, caps);
 
             const afterTime = new Date().getTime();    
             const duration = afterTime - beforeTime;    
@@ -118,7 +120,7 @@ export default class WorkerProcess extends EventEmitter {
             if(this._name){
                 start = this._name+' ';
             }
-            console.log(start+'Worker initialized in ' + duration + ' ms');
+            log.info(start+'Worker initialized in ' + duration + ' ms');
         }
     }
 

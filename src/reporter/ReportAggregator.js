@@ -122,7 +122,13 @@ export default class ReportAggregator extends EventEmitter {
                 testResult.capabilities = finalResult.capabilities;
             }
             if (testResult.failure) {
-                console.log(`Error: ${testResult.failure.type} at ${testResult.failure.location}.`);
+                if(testResult.failure.type && testResult.failure.location){
+                    console.log(`Error: ${testResult.failure.type} at ${testResult.failure.location}.`);
+                } else if(testResult.failure.type){
+                    console.log(`Error: ${testResult.failure.type}`);
+                } else if(typeof testResult.failure === 'string') {
+                    console.log(`Error: ${testResult.failure}`);
+                }
             }
             console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }

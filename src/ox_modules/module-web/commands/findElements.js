@@ -21,9 +21,10 @@
  *   log.info(text);
  * }
 */
-module.exports = function(locator, parent, timeout) {
-    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+module.exports = function(locator, parent, timeout = 60 * 1000) {
 
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    
     if (parent) {
         return this.helpers.getChildElements(locator, parent, timeout);
     } else {

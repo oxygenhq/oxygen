@@ -18,7 +18,7 @@ const { EventEmitter } = require('events');
 const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
-
+  
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
 
@@ -31,6 +31,7 @@ export default class OxygenWorker extends EventEmitter {
         this._testHooks = {};
         this._reporter = reporter;
         this._runId = null;
+        this._disposed = false;
     }
 
     async init(runId, options, caps) {
@@ -71,7 +72,7 @@ export default class OxygenWorker extends EventEmitter {
         // load and run the test script
         try {
             await this._runFnInFiberContext(() => {
-                this._oxygen.onBeforeCase && this._oxygen.onBeforeCase(context);
+                this._oxygen && this._oxygen.onBeforeCase && this._oxygen.onBeforeCase(context);
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
@@ -81,26 +82,49 @@ export default class OxygenWorker extends EventEmitter {
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
                     error = e;
                 }
-                this._oxygen.onAfterCase && this._oxygen.onAfterCase(error);
             });
         } catch (e) {
             error = e;
         }   
+                
+        // In some cases step result generation takes some time to make screenshot
+        await this._oxygen.waitStepResult();
+
         if (error) {
             error = errorHelper.getFailureFromError(error);
         } 
-        const moduleCaps = this._oxygen.getModulesCapabilities();
+
+        let moduleCaps = {}; 
+        
+        if(this._oxygen && this._oxygen.getModulesCapabilities){
+            moduleCaps = this._oxygen.getModulesCapabilities();
+        }
         // clone the results, otherwise resultStore will be empty after the following this._oxygen.resetResults() call
-        const resultStore = { ...this._oxygen.results };
-        // reset steps and other result data
-        this._oxygen.resetResults();
+        
+        let resultStore = {};
+
+        if(this._oxygen && this._oxygen.results){
+            resultStore = { ...this._oxygen.results };
+        }
+
+        if(this._oxygen && this._oxygen.resetResults){
+            // reset steps and other result data
+            this._oxygen.resetResults();
+        }
         this._steps = null;
 
-        return { error, moduleCaps, resultStore, context: this._oxygen.context };
+        let oxContext = {};
+        if(this._oxygen && this._oxygen.context){
+            context = this._oxygen.context;
+        }
+
+        this._oxygen &&this._oxygen.onAfterCase && this._oxygen.onAfterCase(error);
+
+        return { error, moduleCaps, resultStore, context: oxContext };
     }
 
     async dispose(status = null) {
-        if (this._oxygen) {
+        if (this._oxygen && !this._disposed) {
             try {
                 await this._oxygen.dispose(status);
             }
@@ -108,7 +132,7 @@ export default class OxygenWorker extends EventEmitter {
                 this._logger.error('Failed to dispose Oxygen', null, e);
             }
             finally {
-                this._oxygen = null;
+                this._disposed = true;
                 this._steps = null;
             }
         }
@@ -157,8 +181,13 @@ export default class OxygenWorker extends EventEmitter {
         if (!e || !e.result) {
             return;
         }
-        this._steps && this._steps.push(e.result);
-        this.emit('command:after', e);
+        
+        if(this._disposed){
+            //ignore
+        } else {
+            this._steps && this._steps.push(e.result);
+            this.emit('command:after', e);
+        }
     }
     
     _handleLogEntry(e) {

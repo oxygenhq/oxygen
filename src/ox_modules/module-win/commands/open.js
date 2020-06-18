@@ -14,6 +14,6 @@
  * @param {String} url - The URL to open; may be relative or absolute.
  */
 module.exports = function(url) {
-    this.helpers.assertArgumentNonEmptyString(url);
+    this.helpers.assertArgumentNonEmptyString(url, 'url');
     this.driver.url(url);
 };

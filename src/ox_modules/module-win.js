@@ -26,7 +26,6 @@
 
 import URL from 'url';
 import * as wdio from 'webdriverio';
-
 import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
@@ -185,10 +184,10 @@ export default class WindowsModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
-    async dispose() {
+    dispose() {
         if (this.driver && this.isInitialized) {
             try {
-                await this.driver.deleteSession();
+                this.driver.deleteSession();
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
@@ -223,6 +222,22 @@ export default class WindowsModule extends WebDriverModule {
                 return this.takeScreenshot();
             } catch (e) {
                 throw errHelper.getOxygenError(e);
+            }
+        }
+    }
+
+    _takeScreenshotSilent(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            try {
+                if(
+                    this.driver &&
+                    this.driver.takeScreenshot
+                ){
+                    return this.driver.takeScreenshot();
+                }
+            } catch (e) {
+                this.logger.error('Cannot get screenshot', e);  
+                // ignore
             }
         }
     }

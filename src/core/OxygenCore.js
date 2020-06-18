@@ -78,6 +78,7 @@ export default class Oxygen extends OxygenEvents {
         this.opts = null;
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
+        this._disposed = false;
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -113,6 +114,8 @@ export default class Oxygen extends OxygenEvents {
     }
 
     async dispose(status = null) {
+        this._disposed = true;
+
         try {
             await this._disposeModules(status);
             await this._disposeServices();
@@ -458,10 +461,14 @@ export default class Oxygen extends OxygenEvents {
         if (!module || !module[cmdName]) {
             return undefined;
         }
+        if(cmdName !== 'dispose' && this._disposed){
+            return undefined;
+        }
+
+
         let retval = null;
         let error = null;
         const cmdFn = module[cmdName];
-
         const publicMethod = !cmdName.startsWith('_') && cmdName !== 'dispose';
 
         // delay the command execution if required
@@ -495,32 +502,70 @@ export default class Oxygen extends OxygenEvents {
             if (cmdName === 'dispose') {
                 this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
             }
-            retval = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
+
+            const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
+            
+
+            if(retvalPromise && retvalPromise.then){
+                let promiseDone = false;                 
+
+                retvalPromise.then((value) => {
+                    
+                    retval = value;
+                    promiseDone = true;
+                }, (e) => {
+                    error = e;
+                    promiseDone = true;
+                });
+        
+                deasync.loopWhile(() => !promiseDone);
+            } else {
+                retval = retvalPromise;
+            }
+            
             if (cmdName === 'init') {
                 this._wrapAsync(this._callServicesOnModuleInitialized).apply(this, [module]);
             }
-            
+                        
         } catch (e) {
-            // do nothing if error ocurred after the module was disposed (or in a process of being disposed)
-            // except for init methods of course
-            if (module && 
-                (typeof module.isInitialized === 'boolean' && !module.isInitialized) 
-                && cmdName !== 'init') {
+            if(e && e.message && e.message.includes('invalid session id')){
+                // ignore
                 return;
+            } else {
+                // do nothing if error ocurred after the module was disposed (or in a process of being disposed)
+                // except for init methods of course
+                if (module && 
+                    (typeof module.isInitialized === 'boolean' && !module.isInitialized) 
+                    && cmdName !== 'init') {
+                    return;
+                }
+                //console.log('==== error ====', e)
+                error = errorHelper.getOxygenError(e, moduleName, cmdName, cmdArgs);
             }
-            //console.log('==== error ====', e)
-            error = errorHelper.getOxygenError(e, moduleName, cmdName, cmdArgs);
-            
-        }
+        }        
+        
 
         const endTime = oxutil.getTimeStamp(); 
 
+        let stepResult;
+        let done = false;
+
         if (publicMethod) {
-            const stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);            
+            this._waitStepResult = true;
+            stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);            
+            
+            this._waitStepResult = false;
             //stepResult.location = cmdLocation;
-            this.resultStore.steps.push(stepResult);
+
+
+            if(this._disposed){
+                // ignore
+            } else {
+                this.resultStore.steps.push(stepResult);
+            }
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
-        }
+            done = true;
+        } 
 
         if (error && error.isFatal && !this.opts.continueOnError) {
             if (!error.location && cmdLocation) {
@@ -528,6 +573,14 @@ export default class Oxygen extends OxygenEvents {
             }
             throw error;
         }
+
+        if(!publicMethod){            
+            done = true;
+        }
+        
+        deasync.loopWhile(() => !done && !error);
+
+
         return retval;
     }
 
@@ -537,9 +590,11 @@ export default class Oxygen extends OxygenEvents {
             // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
             if (!Fiber.current) {
                 const retval = fn.apply(self, args);
+
                 let done = false;
                 let error = null;
                 let finalVal = null;
+
                 Promise.resolve(retval)
                 .then((val) => {
                     finalVal = val;
@@ -570,14 +625,33 @@ export default class Oxygen extends OxygenEvents {
                 }
                 throw error;
             }
-            // otherwise, if we are inside the Fiber context, then use Fiber's Future
-            const future = new Future();
-            var result = fn.apply(self, args);
-            if (result && typeof result.then === 'function') {
-                result.then((val) => future.return(val), (err) => future.throw(err));
-                return future.wait();
+            
+            let error = null;
+            let done = false;
+            let retval = null;
+
+            try{
+
+                // otherwise, if we are inside the Fiber context, then use Fiber's Future
+                const future = new Future();
+                var result = fn.apply(self, args);
+                if (result && typeof result.then === 'function') {
+                    result.then((val) => future.return(val), (err) => future.throw(err));
+                    return future.wait();
+                }
+                return result;
+                
+            } catch(e){
+                error = e;
             }
-            return result;
+
+            deasync.loopWhile(() => !done && !error);
+            
+
+            if (!error) {
+                return retval;
+            }
+            throw error;
         };
     }
 
@@ -617,6 +691,7 @@ export default class Oxygen extends OxygenEvents {
         else {
             step.status = STATUS.PASSED;
         }
+
         step.action = (typeof module._isAction === 'function' ? module._isAction(methodName) : false);
         step.startTime = startTime;
         step.endTime = endTime;
@@ -627,6 +702,7 @@ export default class Oxygen extends OxygenEvents {
         } else {
             step.stats = {};
         }
+
         if (err) {
             step.failure = errorHelper.getFailureFromError(err);
             // if getFailureFromError was not able to retrieve error location, then take it from command location
@@ -634,16 +710,36 @@ export default class Oxygen extends OxygenEvents {
                 step.failure.location = location;
             }
             // let the module decide whether a screenshot should be taken on error or not
-            if (typeof module._takeScreenshot === 'function') {
+
+            if (typeof module._takeScreenshotSilent === 'function') {
                 try {
-                    step.screenshot = module._takeScreenshot(methodName);
+                    const screenshotPromise = module._takeScreenshotSilent(methodName);
+
+                    if(screenshotPromise && screenshotPromise.then){
+                        screenshotPromise.then((screenshot) => {
+                            step.screenshot = screenshot;
+                        });
+
+                    } else {
+                        step.screenshot = screenshotPromise;
+                    }
+                
                 }
                 catch (e) {
                     // If we are here, we were unable to get a screenshot
                     // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
                     deasync.sleep(1000);
                     try {
-                        step.screenshot = module._takeScreenshot(methodName);
+                        const screenshotPromise = module._takeScreenshotSilent(methodName);
+                        
+                        if(screenshotPromise && screenshotPromise.then){
+                            screenshotPromise.then((screenshot) => {
+                                step.screenshot = screenshot;
+                            });
+
+                        } else {
+                            step.screenshot = screenshotPromise;
+                        }
                     }
                     catch (e) {
                         // FIXME: indicate to user that an attempt to take a screenshot has failed
@@ -679,9 +775,10 @@ export default class Oxygen extends OxygenEvents {
         }
         for (let key in this.modules) {
             const mod = this.modules[key];
-            if (mod.dispose) {      
+
+            if (mod.dispose) {
                 try {
-                    await mod.dispose(status);
+                    mod.dispose(status);
                 }    
                 catch (e) {
                     // ignore module disposal error 
@@ -741,21 +838,21 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     }
-    async _callServicesOnModuleInitialized(module) {
+    _callServicesOnModuleInitialized(module) {
         for (let serviceName in this.services) {
             const service = this.services[serviceName];
             if (!service) {
                 continue;
             }
             try {
-                await service.onModuleInitialized(module);
+                service.onModuleInitialized(module);
             }
             catch (e) {
                 this.logger.error(`Failed to call "onModuleInitialized" method of ${serviceName} service.`, e);
             }
         }
     }
-    async _callServicesOnModuleWillDispose(module) {        
+    async _callServicesOnModuleWillDispose(module) {
         if (!this || !this.services) {
             return;
         }
@@ -765,7 +862,9 @@ export default class Oxygen extends OxygenEvents {
                 continue;
             }
             try {
-                await service.onModuleWillDispose && service.onModuleWillDispose(module);
+                if(service.onModuleWillDispose){
+                    service.onModuleWillDispose(module);
+                }
             }
             catch (e) {
                 this.logger.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
@@ -818,5 +917,15 @@ export default class Oxygen extends OxygenEvents {
         } while ( obj = Object.getPrototypeOf( obj ) );
     
         return props;
+    }
+
+    waitStepResult(){        
+        return new Promise((resolve, reject) => {
+            setInterval(() => {
+                if(!this._waitStepResult){
+                    resolve();
+                }
+            }, 1000);
+        });
     }
 }

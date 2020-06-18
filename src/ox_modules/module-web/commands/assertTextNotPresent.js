@@ -27,9 +27,13 @@ module.exports = function(text, timeout) {
     }
 
     try {
-        this.driver.waitUntil(() => {
-            var els = this.driver.$$('//*[contains(text(),"' + text + '")]');
-            return els.length === 0;
+        this.driver.waitUntil(async() => {
+            try {
+                const els = await this.driver.$$('//*[contains(text(),"' + text + '")]');
+                return els.length === 0;
+            } catch (e) {
+                return false;
+            }
         },
         (!timeout ? this.waitForTimeout : timeout));
     } catch (e) {

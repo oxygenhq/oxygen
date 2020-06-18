@@ -38,6 +38,7 @@ module.exports = function(locator, timeout) {
     try {
         el.waitForExist((!timeout ? this.waitForTimeout : timeout), true);
     } catch (e) {
+        
         this.helpers.restoreTimeoutImplicit();
         if (e.message && e.message.includes('still existing')) {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STILL_EXISTS);

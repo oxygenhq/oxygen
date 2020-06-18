@@ -121,7 +121,12 @@ module.exports = function() {
         if (err) {
             throw new OxError(errHelper.errorCode.EMAIL_ERROR, err.toString());
         } else if (!mail) {
-            throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get an email within " + timeout + 'ms.');
+
+            if(!timeout){
+                timeout = 'timeout undefined ';
+            }
+
+            throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get an email within " + timeout + ' ms.');
         }
 
         return mail;

@@ -298,7 +298,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) { 
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -307,40 +307,47 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         pdfFilePath = resolvePath(pdfFilePath, options);
 
+        let error;
         try {
             let actual = null;
             const expected = true;
             assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
                     actual = result;
+                    
+                    if(actual === expected){
+                        // ignore;
+                    } else {
+                        let savaMessage = text+' is not found in the PDF';
+
+                        if(pageNum){
+                            savaMessage+= ` in page ${pageNum}`;
+                        }
+
+                        if(message){
+                            // show message in result
+                            savaMessage = message;
+                        }
+                        
+                        error = new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
+                    }
                 },
-                error => {
-                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, error.message || error);
+                e => {
+                    error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
+                    actual = false;
                 }
             );
             
-            deasync.loopWhile(() => { return typeof actual !== 'boolean'; });
-
-            if(actual === expected){
-                // ignore;
-            } else {
-                let savaMessage = text+' is not found in the PDF';
-
-                if(pageNum){
-                    savaMessage+= ` in page ${pageNum}`;
-                }
-
-                if(message){
-                    // show message in result
-                    savaMessage = message;
-                }
-                
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
-            }
+            deasync.loopWhile(() => typeof actual !== 'boolean');
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
+
+        if(error){
+            throw error;
+        }
+
     };
     
     /**

@@ -92,6 +92,31 @@ module.exports = {
             stacktrace: err.stacktrace || null
         };
     },
+    getDbErrorMessage: function(err) {
+        let message = '';
+
+        if(err && err.message){
+            message += err.message;
+        }
+
+        if (
+            err &&
+            err.odbcErrors &&
+            Array.isArray(err.odbcErrors) &&
+            err.odbcErrors.length > 0
+        ) {
+            err.odbcErrors.map((item) => {
+                if (
+                    item &&
+                    item.message
+                ) {
+                    message += ' ' +item.message;
+                }
+            });
+        }
+
+        return message;
+    },
     getOxygenError: function(err, module, cmd, args) {
         // return the error as is if it has been already processed
         if (err instanceof OxError) {

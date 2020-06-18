@@ -25,28 +25,36 @@ module.exports = function(pattern, timeout) {
     try {
         this.driver.waitUntil(() => {
             try {
-                alertText = this.driver.getAlertText();
+                const alertTextRetVal = this.driver.getAlertText();
 
-                // WDIO returns promise sometimes when laert is not present
-                // (unable to reproduce this under pure WDIO...)
-                // add catch so we won't get unhandle promise rejections
-                if (alertText.catch) {
-                    alertText.catch((e) => { });
-                    return false;
+                if (alertTextRetVal.then) {
+                    alertTextRetVal.then((value) => {
+                        alertText = value;
+                    });
                 }
+
+                if (typeof alertTextRetVal === 'string') {
+                    alertText = alertTextRetVal;
+                }                
 
                 if (typeof alertText === 'string') {
                     return this.helpers.matchPattern(alertText, pattern);
-                } else {
-                    return false;
                 }
             } catch (e) {
                 return false;
             }
         },
         (!timeout ? this.waitForTimeout : timeout));
-        this.driver.dismissAlert();
+
+        const dismissAlertRetVal = this.driver.dismissAlert();
+        console.log('~~dismissAlertRetVal', dismissAlertRetVal);
+
+
     } catch (e) {
+        
+        const dismissAlertRetVal = this.driver.dismissAlert();
+        console.log('~~dismissAlertRetVal', dismissAlertRetVal);
+        
         if (alertText && typeof alertText === 'string') {
             throw this.errHelper.getAssertError(pattern, alertText);
         }

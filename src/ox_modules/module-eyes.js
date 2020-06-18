@@ -16,6 +16,7 @@ import OxygenModule from '../core/OxygenModule';
 import ModuleError from '../errors/ModuleError';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
+var deasync = require('deasync');
 
 const DEFAULT_VIEWPORT = {
     width: 1440,
@@ -62,6 +63,8 @@ export default class ApplitoolsModule extends OxygenModule {
             throw new ModuleError(`The module "${module.name}" does not have "getDriver" function implemented.`);
         }
         const driver = module.getDriver();
+        this._driver = driver;
+
         const Eyes = require('@applitools/eyes-webdriverio').Eyes;
         this._eyes = new Eyes();
         this._eyes.setApiKey(this._apiKey);
@@ -92,9 +95,11 @@ export default class ApplitoolsModule extends OxygenModule {
         if (!this.isInitialized || !this._eyes) {
             return;
         }
+
         let results = null;
+
         try {
-            results = await this._eyes.close(false);
+            results = this._eyes.close(false);
         }
         finally {
             this._eyes.abortIfNotClosed(); 
@@ -131,11 +136,28 @@ export default class ApplitoolsModule extends OxygenModule {
      * @param {number} [matchTimeout=-1] - The amount of time to retry matching (Milliseconds).
      * @return {boolean} A promise which is resolved when the validation is finished.
      */
-    async checkWindow(name, matchTimeout) {
+    checkWindow(name, matchTimeout) {
         if (!this._eyes) {
             return false;
         }
-        const result = await this._eyes.checkWindow(name, matchTimeout);
+
+        let done = false;
+        let result;
+
+        this._driver.call(async() => {
+            const resultPromise = this._eyes.checkWindow(name, matchTimeout);
+
+            if(resultPromise && resultPromise.then){
+                result = await resultPromise;
+                done = true;
+            } else {
+                done = true;
+                result = resultPromise;
+            }
+        });
+
+        deasync.loopWhile(() => { return !done; });
+
         if (result._asExpected) {
             return true;
         }

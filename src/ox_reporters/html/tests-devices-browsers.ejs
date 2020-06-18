@@ -24,6 +24,11 @@
                             browserName = result.capabilities.web.browserName;
                         }
                     }
+                    
+                    if (!browserName && result.options && result.options.browserName) {
+                            browserName = result.options.browserName;
+                    }
+
                     if (browserName && browserName.length > 0) {
                         browserName = browserName.charAt(0).toUpperCase() + browserName.slice(1); 
                     }

@@ -261,6 +261,7 @@ export default class WebModule extends WebDriverModule {
                 await this.driver.maximizeWindow();
                 await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
             }
+
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
@@ -270,7 +271,9 @@ export default class WebModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
+
     async dispose(status) {
+
         this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
@@ -292,7 +295,7 @@ export default class WebModule extends WebDriverModule {
                         const body = "{\"passed\":"+passed+"}";
 
                         const myAccount = new SauceLabs({ user: username, key: accessKey});
-                        await myAccount.updateJob(username, id, body);
+                        myAccount.updateJob(username, id, body);
                     }
                     if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('lambdatest')){
                         isLambdatest = true;
@@ -378,7 +381,7 @@ export default class WebModule extends WebDriverModule {
         } else {
             this.disposeContinue();
         }
-
+        
         return this._whenWebModuleDispose.promise;
     }
 
@@ -409,7 +412,8 @@ export default class WebModule extends WebDriverModule {
         this.disposeContinue();
     }
 
-    disposeContinue(){
+    disposeContinue() {
+        
         this.driver = null;
         this.lastNavigationStartTime = null;
         super.dispose();
@@ -490,6 +494,22 @@ export default class WebModule extends WebDriverModule {
                 return this.takeScreenshot();
             } catch (e) {
                 throw errHelper.getOxygenError(e);
+            }
+        }
+    }
+
+    _takeScreenshotSilent(name) {
+        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            try {
+                if(
+                    this.driver &&
+                    this.driver.takeScreenshot
+                ){
+                    return this.driver.takeScreenshot();
+                }
+            } catch (e) {
+                this.logger.error('Cannot get screenshot', e);  
+                // ignore
             }
         }
     }

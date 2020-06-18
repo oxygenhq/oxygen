@@ -8,14 +8,14 @@
  */
  
 /**
- * @summary Perform shake action on the device
- * @description Supported on Android and iOS 9 or earlier versions. 
- * @function shake
- * @for ios
+ * @summary Sets the size of the outer browser window.
+ * @function getWindowSize
+ * @return {Object} Size object. Example: { height: 1056, width: 1936, x: -8, y: -8 }
  * @example <caption>[javascript] Usage example</caption>
- * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.shake();//Perform shake action on the device.
+ * web.init();//Opens browser session.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * const sizeObject = web.getWindowSize();
  */
 module.exports = function() {
-    this.driver.shake();
+    return this.driver.getWindowSize();
 };
