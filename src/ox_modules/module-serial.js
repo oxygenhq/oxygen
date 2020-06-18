@@ -72,6 +72,9 @@ module.exports = function() {
      * }
      */
     module.open = function(port, opts, bufferSize = 65536) {
+        utils.assertArgumentNonEmptyString(port, 'port');
+        utils.assertArgumentNumberNonNegative(bufferSize, 'bufferSize');
+
         if(port){
             serialPort = new SerialPort(port, opts);
     
@@ -110,6 +113,9 @@ module.exports = function() {
      * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
      */
     module.waitForText = function(pattern, timeout = 60000) {
+        utils.assertArgumentNonEmptyString(pattern, 'pattern');
+        utils.assertArgumentNumberNonNegative(timeout, 'timeout');
+
         if(stringBuffer){
             var now = (new Date).getTime();
             deasync.loopWhile(() => {
@@ -136,6 +142,8 @@ module.exports = function() {
      * @param {(String|Array)} data - Data to send. Either a string or an array of bytes.
      */
     module.write = function(data) {
+        utils.assertArgument(data, 'data');
+        
         if(serialPort){
             var done;
             serialPort.write(data);
