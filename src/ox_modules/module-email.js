@@ -13,6 +13,7 @@
  */
 
 import OxError from '../errors/OxygenError';
+import utils from './utils';
 var errHelper = require('../errors/helper');
 
 module.exports = function() {
@@ -36,6 +37,13 @@ module.exports = function() {
      * @param {Number} authTimeout - Authentication timeout in milliseconds.
      */
     module.init = function(user, password, host, port, tls, authTimeout) {
+        utils.assertArgumentNonEmptyString(user, 'user');
+        utils.assertArgumentNonEmptyString(password, 'password');
+        utils.assertArgumentNonEmptyString(host, 'host');
+        utils.assertArgumentNumberNonNegative(port, 'port');
+        utils.assertArgumentBool(tls, 'tls');
+        utils.assertArgumentNumberNonNegative(authTimeout, 'authTimeout');
+
         _config = {
             imap: {
                 user: user,
@@ -53,7 +61,7 @@ module.exports = function() {
      * @function getLastEmail
      * @param {Number} sinceMinutes - Search for emails received since the specified amount of minutes into past.
      * @param {String|Regex} subject - Return email matching the specified subject.
-     * @param {String} timeout - Timeout (in milliseconds) for waiting for the message to arrive.
+     * @param {Number} timeout - Timeout (in milliseconds) for waiting for the message to arrive.
      * @return {Object} Email body and TO, FROM, SUBJECT, DATE headers.
      * @example <caption>[javascript] Usage example</caption>
      * email.init('[YOUR_EMAIL]@gmail.com', 'password', 'imap.gmail.com', 993, true, 3000);
@@ -61,6 +69,9 @@ module.exports = function() {
      * log.info(JSON.stringify(mail, null, 2));
      */
     module.getLastEmail = function(sinceMinutes, subject, timeout) {
+        utils.assertArgumentNumberNonNegative(sinceMinutes, 'sinceMinutes');
+        utils.assertArgumentNumberNonNegative(timeout, 'timeout');
+
         var mail;
         var now = (new Date()).getTime();
         var err;
@@ -121,11 +132,6 @@ module.exports = function() {
         if (err) {
             throw new OxError(errHelper.errorCode.EMAIL_ERROR, err.toString());
         } else if (!mail) {
-
-            if(!timeout){
-                timeout = 'timeout undefined ';
-            }
-
             throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get an email within " + timeout + ' ms.');
         }
 
