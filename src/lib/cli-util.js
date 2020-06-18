@@ -78,7 +78,7 @@ export function getPageObjectFilePath(config, argv = {}) {
 
 export function loadEnvironmentVariables(config, argv) {
     const target = config.target || {};
-    const envName = argv.env || 'default';
+    const envName = argv.env || config.environment || 'default';
     const cwd = target.cwd || process.cwd();
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
     if (fs.existsSync(defaultEnvFile)) {
