@@ -75,21 +75,29 @@ export default class OxygenRunner extends EventEmitter {
         this._reporter = reporter;
         this._isInitialized = true;
 
-        if(options){
-            if(options.env && Object.keys(options.env)){
-                // assign environment variables for later use
-                this._env = {
-                    ...this._env,
-                    ...options.env
-                };
+        if (options) {
+            // merge current and test configuration based environment variables
+            let optEnv = {};
+            if (options.env) {
+                // 'env' option might be defined either as a name of the environment or as an object that lists all environment variables
+                // if 'env' is a string, then resolve the actual variables from 'envs' object
+                if (typeof options.env === 'string' && typeof options.envs === 'object' && options.envs[options.env]) {
+                    optEnv = options.envs[options.env];
+                    
+                }
+                // if 'env' is an object, use the variables defined in it
+                else if (typeof options.env === 'object' && Object.keys(options.env)) {
+                    optEnv = options.env;
+                }
             }
-            if(options.envVars && Object.keys(options.envVars)){
-                // assign environment variables for later use
-                this._env = {
-                    ...this._env,
-                    ...options.envVars
-                };
+            else if (options.envVars && Object.keys(options.envVars)) {
+                optEnv = options.envVars;
             }
+            // assign environment variables for later use
+            this._env = {
+                ...this._env,
+                ...optEnv
+            };
         }
 
         this._caps = { ...caps }; // assign caps for later use

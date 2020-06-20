@@ -99,6 +99,15 @@ export function loadEnvironmentVariables(config, argv) {
     return {};
 }
 
+export function getEnvironments(target) {
+    const cwd = target.cwd || process.cwd();
+    const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
+    if (fs.existsSync(defaultEnvFile)) {
+        return require(defaultEnvFile);
+    }
+    return {};
+}
+
 export function getConfigurations(target, argv) {
     // process command line arguments
     const DEFAULT_OPTS = {        
@@ -128,7 +137,17 @@ export function getConfigurations(target, argv) {
     let projConfigOpts = {};
     if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
         projConfigOpts = require(target.path);
-    }     
+    }
+    // load environments definition
+    const envs = getEnvironments(target);    
+    
+    if (projConfigOpts.envs) {
+        // merge external environments definition with the one in the config file
+        projConfigOpts.envs = { ...projConfigOpts.envs, ...envs };
+    }
+    else {
+        projConfigOpts = { ...projConfigOpts, envs: envs };
+    }
     // determine test name
     let name = cmdOpts.name || projConfigOpts.name || null;
     if (!name && target) {
