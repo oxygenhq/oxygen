@@ -80,7 +80,12 @@ export default class OxygenWorker extends EventEmitter {
                 }
                 catch (e) {
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
-                    error = e;
+
+                    if(e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED){
+                        //ignore
+                    } else {
+                        error = e;
+                    }
                 }
             });
         } catch (e) {

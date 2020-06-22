@@ -679,17 +679,22 @@ export default class Oxygen extends OxygenEvents {
         step.name = oxutil.getMethodSignature(moduleName, methodName, args);
         step.transaction = global._lastTransactionName;                    // FIXME: why is this here if it's already populated in rs?
         step.location = location;
-        // determine step status
-        if (err) {
-            if (err.isFatal) {
-                step.status = STATUS.FAILED;
+
+        if(err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED){
+            step.status = STATUS.PASSED;
+        } else {
+            // determine step status
+            if (err) {
+                if (err.isFatal) {
+                    step.status = STATUS.FAILED;
+                }
+                else {
+                    step.status = STATUS.WARNING;
+                }
             }
             else {
-                step.status = STATUS.WARNING;
+                step.status = STATUS.PASSED;
             }
-        }
-        else {
-            step.status = STATUS.PASSED;
         }
 
         step.action = (typeof module._isAction === 'function' ? module._isAction(methodName) : false);
@@ -704,45 +709,49 @@ export default class Oxygen extends OxygenEvents {
         }
 
         if (err) {
-            step.failure = errorHelper.getFailureFromError(err);
-            // if getFailureFromError was not able to retrieve error location, then take it from command location
-            if (!step.failure.location) {
-                step.failure.location = location;
-            }
-            // let the module decide whether a screenshot should be taken on error or not
-
-            if (typeof module._takeScreenshotSilent === 'function') {
-                try {
-                    const screenshotPromise = module._takeScreenshotSilent(methodName);
-
-                    if(screenshotPromise && screenshotPromise.then){
-                        screenshotPromise.then((screenshot) => {
-                            step.screenshot = screenshot;
-                        });
-
-                    } else {
-                        step.screenshot = screenshotPromise;
-                    }
-                
+            if(err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED){
+                //ignore
+            } else {
+                step.failure = errorHelper.getFailureFromError(err);
+                // if getFailureFromError was not able to retrieve error location, then take it from command location
+                if (!step.failure.location) {
+                    step.failure.location = location;
                 }
-                catch (e) {
-                    // If we are here, we were unable to get a screenshot
-                    // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
-                    deasync.sleep(1000);
+                // let the module decide whether a screenshot should be taken on error or not
+    
+                if (typeof module._takeScreenshotSilent === 'function') {
                     try {
                         const screenshotPromise = module._takeScreenshotSilent(methodName);
-                        
+    
                         if(screenshotPromise && screenshotPromise.then){
                             screenshotPromise.then((screenshot) => {
                                 step.screenshot = screenshot;
                             });
-
+    
                         } else {
                             step.screenshot = screenshotPromise;
                         }
+                    
                     }
                     catch (e) {
-                        // FIXME: indicate to user that an attempt to take a screenshot has failed
+                        // If we are here, we were unable to get a screenshot
+                        // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
+                        deasync.sleep(1000);
+                        try {
+                            const screenshotPromise = module._takeScreenshotSilent(methodName);
+                            
+                            if(screenshotPromise && screenshotPromise.then){
+                                screenshotPromise.then((screenshot) => {
+                                    step.screenshot = screenshot;
+                                });
+    
+                            } else {
+                                step.screenshot = screenshotPromise;
+                            }
+                        }
+                        catch (e) {
+                            // FIXME: indicate to user that an attempt to take a screenshot has failed
+                        }
                     }
                 }
             }

@@ -124,12 +124,16 @@ module.exports = function() {
      * @param {String=} message - Error message to return.
      */
     module.fail = function(message) {
-
-        if(!message){
-            return;
-        }
-
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+    };
+
+    /**
+     * @summary Pass test with the given message.
+     * @function passed
+     * @param {String=} message - Message to return.
+     */
+    module.passed = function(message) {
+        throw new OxError(errHelper.errorCode.ASSERT_PASSED, message);
     };
 
     return module;
