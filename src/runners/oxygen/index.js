@@ -124,7 +124,10 @@ export default class OxygenRunner extends EventEmitter {
             // ignore errors during the dispose
             log.warn('Error when disposing Runner:', e);
         }
-        this._resetGlobalVariables();
+
+        if(status !== 'CANCELED'){
+            this._resetGlobalVariables();
+        }
     }
 
     async run() {
