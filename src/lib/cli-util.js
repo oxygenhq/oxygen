@@ -100,7 +100,13 @@ export function loadEnvironmentVariables(config, argv) {
 }
 
 export function getEnvironments(target) {
-    const cwd = target.cwd || process.cwd();
+    let targetCwd = null;
+
+    if (target && target.cwd) {
+        targetCwd = target.cwd;
+    }
+
+    const cwd = targetCwd || process.cwd();
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
     if (fs.existsSync(defaultEnvFile)) {
         return require(defaultEnvFile);
@@ -110,8 +116,14 @@ export function getEnvironments(target) {
 
 export function getConfigurations(target, argv) {
     // process command line arguments
+    let targetCwd = null;
+
+    if (target && target.cwd) {
+        targetCwd = target.cwd;
+    }
+
     const DEFAULT_OPTS = {        
-        cwd: target ? (target.cwd || process.cwd()) : process.cwd(),
+        cwd: target ? (targetCwd || process.cwd()) : process.cwd(),
         target: target,
         browserName: 'chrome',
         seleniumUrl : 'http://localhost:4444/wd/hub',

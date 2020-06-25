@@ -847,14 +847,14 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     }
-    _callServicesOnModuleInitialized(module) {
+    async _callServicesOnModuleInitialized(module) {
         for (let serviceName in this.services) {
             const service = this.services[serviceName];
             if (!service) {
                 continue;
             }
             try {
-                service.onModuleInitialized(module);
+                await service.onModuleInitialized(module);
             }
             catch (e) {
                 this.logger.error(`Failed to call "onModuleInitialized" method of ${serviceName} service.`, e);
