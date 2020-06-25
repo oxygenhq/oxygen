@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.6.0 (2020-06-xx)
+## v1.6.0 (2020-06-25)
 
 #### :tada: New Feature
 * Support for Node.js 12.
