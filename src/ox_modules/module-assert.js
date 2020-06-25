@@ -128,11 +128,11 @@ module.exports = function() {
     };
 
     /**
-     * @summary Pass test with the given message.
-     * @function passed
+     * @summary Passes the test with the given message.
+     * @function pass
      * @param {String=} message - Message to return.
      */
-    module.passed = function(message) {
+    module.pass = function(message) {
         throw new OxError(errHelper.errorCode.ASSERT_PASSED, message);
     };
 

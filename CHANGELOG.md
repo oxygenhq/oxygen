@@ -1,5 +1,38 @@
 # CHANGELOG
 
+## v1.6.0 (2020-06-25)
+
+#### :tada: New Feature
+* Support for Node.js 12.
+* `web.getWindowSize` for returning browser window dimensions.
+* `assert.pass` for arbitrary stopping test execution.
+
+#### :beetle: Bug Fix
+* Browser session not being disposed in some cases.
+* `web.assertTextPresent` and `web.assertTextNotPresent` not working correctly.
+* `web.point` not working correctly.
+* `win.isSelected` not working correctly.
+* Environment definition not being read from oxygen.conf.js.
+* Exit code returned by Oxygen not reflecting the test status.
+
+#### :nail_care: Polish
+* `mob.swipeElement` no longer requires `speed` argument.
+* Improved `mob.swipe` behavior.
+* Improved `web.assertSelectedLabel` and `web.assertSelectedValue` to accept optional argument specifying whether to wait for element's visibility.
+* `web.getText` no longer requires element to be visible.
+
+#### :book: Documentation
+* Various documentation fixes.
+
+## v1.5.1 (2020-06-17)
+
+#### :beetle: Bug Fix
+* Regression related to execution of Cucumber projects.
+* Regression related to execution of single test scripts.
+
+#### :nail_care: Polish
+* Improve command argument serialization.
+
 ## v1.5.0 (2020-06-15)
 
 #### :tada: New Feature
