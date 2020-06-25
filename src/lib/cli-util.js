@@ -2,6 +2,7 @@ import path from 'path';
 import fs from 'fs';
 import oxutil from './util';
 import { forEach } from 'async';
+import moduleRequire from './moduleRequire';
 
 export const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 export const OXYGEN_ENV_FILE_NAME = 'oxygen.env';
@@ -109,7 +110,7 @@ export function getEnvironments(target) {
     const cwd = targetCwd || process.cwd();
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
     if (fs.existsSync(defaultEnvFile)) {
-        return require(defaultEnvFile);
+        return moduleRequire(defaultEnvFile);
     }
     return {};
 }
@@ -240,6 +241,11 @@ export function processTargetPath(targetPath) {
     else {
         targetPath = oxutil.resolvePath(targetPath, process.cwd());
     }
+    
+    if (!fs.existsSync(targetPath)) {
+        return null;
+    }
+
     const stats = fs.lstatSync(targetPath);
     const isDirector = stats.isDirectory();
     if (isDirector) {
