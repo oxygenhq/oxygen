@@ -42,9 +42,9 @@ const config = cliutil.getConfigurations(targetFile, argv);
 cliutil.generateTestOptions(config, argv).then(
     (options) => {
         prepareAndStartTheTest(options).then(
-            () => {
+            (code) => {
                 console.log('Done!');
-                process.exit(0);
+                process.exit(code);
             },
             (e) => {
                 console.error('Test failed: ', e);
@@ -63,6 +63,7 @@ async function prepareAndStartTheTest(options) {
     if (!(capsArr instanceof Array)) {
         capsArr = [capsArr];
     }
+    let exitCode = 0;
     // start launcher
     try {
         const reporter = new ReportAggregator(options);
@@ -70,12 +71,14 @@ async function prepareAndStartTheTest(options) {
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();
+        exitCode = reporter.getExitCode();
     }
     catch (e) {
         console.error('Fatal error', e);
         console.trace();
         process.exit(1);
     }
+    return exitCode;
 }
 
 function handleSigInt() {

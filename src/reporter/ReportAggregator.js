@@ -45,6 +45,27 @@ export default class ReportAggregator extends EventEmitter {
         this.instantiateReporters();
     }
 
+    getExitCode() {
+        let exitCode = 0;
+
+        if(
+            this.results &&
+            Array.isArray(this.results) &&
+            this.results.length > 0
+        ){
+            const testFailded = this.results.find((item) => item.status === 'failed');
+
+            if(testFailded){
+                exitCode = -1;
+            }
+        } else {
+            // something broken ?
+            exitCode = -1;
+        }
+
+        return exitCode;
+    }
+
     instantiateReporters() {
         this.reporters = [];
         const generalReportingOpts = this.options.reporting || {};
