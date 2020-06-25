@@ -35,7 +35,7 @@ module.exports = function(pattern, timeout) {
 
                 if (typeof alertTextRetVal === 'string') {
                     alertText = alertTextRetVal;
-                }                
+                }
 
                 if (typeof alertText === 'string') {
                     return this.helpers.matchPattern(alertText, pattern);
@@ -46,14 +46,9 @@ module.exports = function(pattern, timeout) {
         },
         (!timeout ? this.waitForTimeout : timeout));
 
-        const dismissAlertRetVal = this.driver.dismissAlert();
-        console.log('~~dismissAlertRetVal', dismissAlertRetVal);
-
-
+        this.driver.dismissAlert();
     } catch (e) {
-        
-        const dismissAlertRetVal = this.driver.dismissAlert();
-        console.log('~~dismissAlertRetVal', dismissAlertRetVal);
+        this.driver.dismissAlert();
         
         if (alertText && typeof alertText === 'string') {
             throw this.errHelper.getAssertError(pattern, alertText);
