@@ -30,6 +30,74 @@ import WorkerProcess from '../WorkerProcess';
 // snooze function - async wrapper around setTimeout function
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
+const getSuitesBreakpoints = (suites) => {
+    const retval = [];
+
+    if (
+        suites &&
+        Array.isArray(suites) &&
+        suites.length > 0
+    ) {
+        suites.map((suite) => {
+            if (
+                suite &&
+                suite.cases &&
+                Array.isArray(suite.cases) &&
+                suite.cases.length > 0
+            ) {
+                suite.cases.map((caze) => {
+                    if (
+                        caze &&
+                        caze.breakpoints &&
+                        Array.isArray(caze.breakpoints) &&
+                        caze.breakpoints.length > 0
+                    ) {
+                        caze.breakpoints.map((breakpoint) => {
+                            retval.push(breakpoint);
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    return retval;
+};
+
+const removeBreakpointFromSuites = (suites, removeBreakpoint) => {
+    if (
+        suites &&
+        Array.isArray(suites) &&
+        suites.length > 0
+    ) {
+        suites.map((suite) => {
+            if (
+                suite &&
+                suite.cases &&
+                Array.isArray(suite.cases) &&
+                suite.cases.length > 0
+            ) {
+                suite.cases.map((caze) => {
+                    if (
+                        caze &&
+                        caze.breakpoints &&
+                        Array.isArray(caze.breakpoints) &&
+                        caze.breakpoints.length > 0
+                    ) {
+                        caze.breakpoints.map((breakpoint, idx) => {
+                            if(
+                                breakpoint.file === removeBreakpoint.file &&
+                                breakpoint.line === removeBreakpoint.line
+                            ){
+                                caze.breakpoints.splice(idx, 1);
+                            }
+                        });
+                    }
+                });
+            }
+        });
+    }
+};
 
 export default class OxygenRunner extends EventEmitter {
     constructor(options) {
@@ -179,24 +247,25 @@ export default class OxygenRunner extends EventEmitter {
     async updateBreakpoints(breakpoints, filePath){
         try {
 
-            await this._worker.debugger.setBreakpointsActive(false);
-            // var tc;
+            if(this._worker && this._worker.debugger && this._worker.debugger.setBreakpointsActive){
+                await this._worker.debugger.setBreakpointsActive(false);
+            } else {
+                await snooze(500);
+                return await this.updateBreakpoints(breakpoints, filePath);
+            }
 
-            // if (ts && ts.testcases && ts.testcases[tcindex]) {
-            //     tc = ts.testcases[tcindex];
-            // }
-
-            if (this._debugMode && this._worker.debugger /* && tc */) {
+            if (this._debugMode && this._worker.debugger) {
                 let promises = [];
 
-                // // adjust breakpoint line numbers
-                // breakpoints = breakpoints.map((bp) => {
-                //     // for primary file we add offset due to script-boilerplate code
-                //     // for secondary files just reduce by 1 since BP indices are 0-based
-                //     return (tc.path === filePath ? bp + module.getScriptContentLineOffset: bp - 1);
-                // });
-
                 const tsBreakpoints = this._worker.debugger.getBreakpoints(filePath);
+                const suitesBreakpoints = getSuitesBreakpoints(this._suites);
+
+                // remove breakpoints from suites/cases tree
+                for (var suiteBp of suitesBreakpoints) {
+                    if (!breakpoints.includes(suiteBp.line) &&  filePath === suiteBp.file) {
+                        removeBreakpointFromSuites(this._suites, suiteBp);
+                    }
+                }
 
                 // remove deleted breakpoints
                 for (var actualCurrentBp of tsBreakpoints) {
@@ -204,6 +273,7 @@ export default class OxygenRunner extends EventEmitter {
                         promises.push(this._worker.debugger.removeBreakpointByValue(filePath, actualCurrentBp));
                     }
                 }
+
                 // add new breakpoints
                 for (var userSetBp of breakpoints) {
                     if (!tsBreakpoints.includes(userSetBp)) {
@@ -377,12 +447,6 @@ export default class OxygenRunner extends EventEmitter {
                 // editor index starts from 1, but we need zero based index
                 let line = caze.breakpoints[i].line;
                 let file = caze.breakpoints[i].file;
-
-                // // if test case's script file is the same as the file with breakpoint, add extra boilerplate's wrapper lines
-                // if (caze.path === file) {
-                //     line = this._scriptContentLineOffset + line;
-                // }
-
 
                 await this._worker.debugger.setBreakpoint(file, line);
             }

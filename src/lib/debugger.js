@@ -690,8 +690,6 @@ export default class Debugger extends EventEmitter {
      * @param {Integer} Line number.
      */
     async setBreakpoint(scriptPath, lineNumber) {
-
-
         let fileName = scriptPath;
 
         const aliasResult = this.inFileNameAliases(fileName);
@@ -731,7 +729,12 @@ export default class Debugger extends EventEmitter {
     }
 
     async setBreakpointsActive(active) {
-        return await this._Debugger.setBreakpointsActive({'active': active});
+        if(this._Debugger && this._Debugger.setBreakpointsActive){
+            return await this._Debugger.setBreakpointsActive({'active': active});
+        } else {
+            await snooze(500);
+            return await this.setBreakpointsActive(active);
+        }
     }
 
     async removeBreakpoint(breakpointId) {
