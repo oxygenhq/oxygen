@@ -122,11 +122,11 @@ export default class MobileModule extends WebDriverModule {
             return;
         }
 
-        if(
+        if (
             caps &&
             this.ctx.caps && 
             this.ctx.caps['perfectoMobile:options']
-        ){
+        ) {
             delete caps.platformName;
             delete caps.platformVersion;
             delete caps.deviceName;
@@ -134,17 +134,17 @@ export default class MobileModule extends WebDriverModule {
             delete caps.automationName;
             delete caps.udid;
 
-            if(caps && caps.app){
+            if (caps && caps.app) {
                 caps.enableAppiumBehavior = true;
             } else {
                 caps.useAppiumForWeb = true;
                 caps.enableAppiumBehavior = true;
             }
         } else {
-            if(
+            if (
                 this.ctx.caps && 
                 this.ctx.caps['perfectoMobile:options']
-            ){
+            ) {
                 this.ctx.caps.useAppiumForWeb = true;
                 this.ctx.caps.enableAppiumBehavior = true;
             }
@@ -217,19 +217,19 @@ export default class MobileModule extends WebDriverModule {
             connectionRetryCount: 1
         };
 
-        if(
+        if (
             wdioOpts.capabilities && 
             wdioOpts.capabilities['sauce:options'] && 
             wdioOpts.capabilities['sauce:options']['testobject_api_key']
-        ){
+        ) {
             wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
             wdioOpts.capabilities.maxInstances = 1;
         }
 
-        if(
+        if (
             wdioOpts.capabilities && 
             wdioOpts.capabilities['perfectoMobile:options']
-        ){
+        ) {
             wdioOpts.capabilities.maxInstances = 1;
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
             wdioOpts.port = 80;
@@ -248,10 +248,10 @@ export default class MobileModule extends WebDriverModule {
             this.driver = await wdio.remote(wdioOpts);
 
             
-            if(
+            if (
                 wdioOpts.capabilities && 
                 wdioOpts.capabilities['perfectoMobile:options']
-            ){
+            ) {
 
                 const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {
@@ -308,15 +308,15 @@ export default class MobileModule extends WebDriverModule {
     async dispose(status) {
         if (this.driver && this.isInitialized) {
             
-            if(
+            if (
                 this.wdioOpts && 
                 this.wdioOpts.capabilities && 
                 this.wdioOpts.capabilities['perfectoMobile:options']
-            ){
+            ) {
                 const passed = status && status.toUpperCase() === 'PASSED';
 
                 let perfectoStatus = perfectoReporting.Constants.results.failed;
-                if(passed){
+                if (passed) {
                     perfectoStatus = perfectoReporting.Constants.results.passed;
                 }
 
@@ -373,10 +373,10 @@ export default class MobileModule extends WebDriverModule {
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             try {
-                if(
+                if (
                     this.driver &&
                     this.driver.takeScreenshot
-                ){
+                ) {
                     return this.driver.takeScreenshot();
                 }
             } catch (e) {

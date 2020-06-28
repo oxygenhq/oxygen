@@ -37,7 +37,7 @@ module.exports = function() {
 
         var interval = setInterval(() => {
             var now = new Date().getTime();
-            if ((now - start) >= _retryInterval){
+            if ((now - start) >= _retryInterval) {
                 clearInterval(interval);
                 isDone = true;
             }
@@ -64,7 +64,7 @@ module.exports = function() {
         deasync.loopWhile(() => !result);
 
         // retry
-        if (_currentTry < _retries && (!result.statusCode || result.statusCode >= 500)){
+        if (_currentTry < _retries && (!result.statusCode || result.statusCode >= 500)) {
             _currentTry++;
             wait();
             result = invoke(url);

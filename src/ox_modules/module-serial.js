@@ -75,7 +75,7 @@ module.exports = function() {
         utils.assertArgumentNonEmptyString(port, 'port');
         utils.assertArgumentNumberNonNegative(bufferSize, 'bufferSize');
 
-        if(port){
+        if (port) {
             serialPort = new SerialPort(port, opts);
     
             var opened = false;
@@ -116,7 +116,7 @@ module.exports = function() {
         utils.assertArgumentNonEmptyString(pattern, 'pattern');
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
-        if(stringBuffer){
+        if (stringBuffer) {
             var now = (new Date).getTime();
             deasync.loopWhile(() => {
                 var i;
@@ -144,7 +144,7 @@ module.exports = function() {
     module.write = function(data) {
         utils.assertArgument(data, 'data');
         
-        if(serialPort){
+        if (serialPort) {
             var done;
             serialPort.write(data);
             serialPort.drain(() => { done = true;});

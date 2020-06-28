@@ -48,14 +48,14 @@ export default class ReportAggregator extends EventEmitter {
     getExitCode() {
         let exitCode = 0;
 
-        if(
+        if (
             this.results &&
             Array.isArray(this.results) &&
             this.results.length > 0
-        ){
+        ) {
             const testFailded = this.results.find((item) => item.status === 'failed');
 
-            if(testFailded){
+            if (testFailded) {
                 exitCode = -1;
             }
         } else {
@@ -143,11 +143,11 @@ export default class ReportAggregator extends EventEmitter {
                 testResult.capabilities = finalResult.capabilities;
             }
             if (testResult.failure) {
-                if(testResult.failure.type && testResult.failure.location){
+                if (testResult.failure.type && testResult.failure.location) {
                     console.log(`Error: ${testResult.failure.type} at ${testResult.failure.location}.`);
-                } else if(testResult.failure.type){
+                } else if (testResult.failure.type) {
                     console.log(`Error: ${testResult.failure.type}`);
-                } else if(typeof testResult.failure === 'string') {
+                } else if (typeof testResult.failure === 'string') {
                     console.log(`Error: ${testResult.failure}`);
                 }
             }
@@ -165,16 +165,16 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
-    onIterationStart(rid, suiteId, caseId, caseResult){
-        if(caseResult && caseResult.iterationNum){
+    onIterationStart(rid, suiteId, caseId, caseResult) {
+        if (caseResult && caseResult.iterationNum) {
             const msg = `Iteration #${caseResult.iterationNum} started...`;
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
         }
     }
 
-    onIterationEnd(rid, suiteId, caseId, caseResult){
-        if(caseResult && caseResult.iterationNum && caseResult.status && caseResult.status.toUpperCase){
+    onIterationEnd(rid, suiteId, caseId, caseResult) {
+        if (caseResult && caseResult.iterationNum && caseResult.status && caseResult.status.toUpperCase) {
             const msg = `Iteration #${caseResult.iterationNum} ended with status: ${caseResult.status.toUpperCase()}.`;
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
@@ -227,7 +227,7 @@ export default class ReportAggregator extends EventEmitter {
     onStepStart(rid, step) {
         console.log(`  - Step "${step.name}" has started...`);
 
-        if(this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber'){
+        if (this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber') {
             const fullPath = path.resolve(this.options.rootPath, step.location);
             step.location = fullPath+':1';
         }

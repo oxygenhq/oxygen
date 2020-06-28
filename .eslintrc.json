@@ -7,12 +7,14 @@
     "rules": {
         "no-console": "off",
         "indent": "off",
-        "indent-legacy": ["error", 4, {"ArrayExpression": "first", "SwitchCase": 1}],
+        "indent-legacy": ["error", 4, { "ArrayExpression": "first", "SwitchCase": 1 }],
         "quotes": ["error", "single", { "avoidEscape": true }],
         "semi": ["error", "always"],
-        "semi-spacing": ["error", {"before": false, "after": true}],
-        "no-unused-vars": ["error", {"args": "none"}],
-        "require-atomic-updates": "off"
+        "semi-spacing": ["error", { "before": false, "after": true }],
+        "no-unused-vars": ["error", { "args": "none" }],
+        "require-atomic-updates": "off",
+        "keyword-spacing": ["error", { "before": true, "after": true }],
+        "space-before-blocks": ["error"]
     },
     "parserOptions": {
         "ecmaVersion": 2018,

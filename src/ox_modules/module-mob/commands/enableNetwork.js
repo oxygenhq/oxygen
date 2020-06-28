@@ -48,10 +48,10 @@ module.exports = function(wifi, data) {
 
     let serial;
 
-    if(
+    if (
         this.driver &&
         this.driver.capabilities
-    ){
+    ) {
         if (this.driver.capabilities.deviceUDID) {
             serial = this.driver.capabilities.deviceUDID;
         } else if (this.driver.capabilities.deviceName) {

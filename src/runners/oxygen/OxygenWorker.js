@@ -81,7 +81,7 @@ export default class OxygenWorker extends EventEmitter {
                 catch (e) {
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
 
-                    if(e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED){
+                    if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
                         //ignore
                     } else {
                         error = e;
@@ -101,25 +101,25 @@ export default class OxygenWorker extends EventEmitter {
 
         let moduleCaps = {}; 
         
-        if(this._oxygen && this._oxygen.getModulesCapabilities){
+        if (this._oxygen && this._oxygen.getModulesCapabilities) {
             moduleCaps = this._oxygen.getModulesCapabilities();
         }
         // clone the results, otherwise resultStore will be empty after the following this._oxygen.resetResults() call
         
         let resultStore = {};
 
-        if(this._oxygen && this._oxygen.results){
+        if (this._oxygen && this._oxygen.results) {
             resultStore = { ...this._oxygen.results };
         }
 
-        if(this._oxygen && this._oxygen.resetResults){
+        if (this._oxygen && this._oxygen.resetResults) {
             // reset steps and other result data
             this._oxygen.resetResults();
         }
         this._steps = null;
 
         let oxContext = {};
-        if(this._oxygen && this._oxygen.context){
+        if (this._oxygen && this._oxygen.context) {
             context = this._oxygen.context;
         }
 
@@ -187,7 +187,7 @@ export default class OxygenWorker extends EventEmitter {
             return;
         }
         
-        if(this._disposed){
+        if (this._disposed) {
             //ignore
         } else {
             this._steps && this._steps.push(e.result);
@@ -199,7 +199,7 @@ export default class OxygenWorker extends EventEmitter {
         if (!e || !e.level || !e.message) {
             return;
         }
-        if(e && e.level && e.level === 'error'){
+        if (e && e.level && e.level === 'error') {
             this._logger[e.level](e.message, e.src, e.err);
         } else {
             this._logger[e.level](e.message, e.src);

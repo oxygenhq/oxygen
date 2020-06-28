@@ -45,7 +45,7 @@ export default class CucumberRunner {
         this._debugPort = null;
 
         this._npmGRootExecution = true;
-        if(config && typeof config.npmGRootExecution !== 'undefined'){
+        if (config && typeof config.npmGRootExecution !== 'undefined') {
             this._npmGRootExecution = config.npmGRootExecution;
         }
 

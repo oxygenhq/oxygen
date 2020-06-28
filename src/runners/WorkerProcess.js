@@ -52,22 +52,22 @@ export default class WorkerProcess extends EventEmitter {
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
         }
 
-        if(this._npmGRootExecution){
+        if (this._npmGRootExecution) {
             try {
                 const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
     
-                if(execResult && execResult.toString){
+                if (execResult && execResult.toString) {
                     let globalNpmModulesPath = execResult.toString().trim();
     
-                    if(
+                    if (
                         globalNpmModulesPath &&
                         forkOpts &&
                         forkOpts.env
-                    ){
+                    ) {
                         forkOpts.env.NODE_PATH = globalNpmModulesPath;
                     }
                 }
-            } catch(e){
+            } catch (e) {
                 console.log('npm root error:', e);
             }
         }
@@ -104,7 +104,7 @@ export default class WorkerProcess extends EventEmitter {
         this._reset();
     }
 
-    kill(){
+    kill() {
         this._childProc.kill('SIGINT');
     }
 
@@ -117,7 +117,7 @@ export default class WorkerProcess extends EventEmitter {
             const duration = afterTime - beforeTime;    
             this._isInitialized = true;
             let start = '';
-            if(this._name){
+            if (this._name) {
                 start = this._name+' ';
             }
             log.info(start+'Worker initialized in ' + duration + ' ms');
@@ -336,8 +336,8 @@ export default class WorkerProcess extends EventEmitter {
         });
         this._debugger.on('breakError', async function(breakError) {
 
-            if(breakError && breakError.message){
-                if(_this._breakpointErrors.includes(breakError.message)){
+            if (breakError && breakError.message) {
+                if (_this._breakpointErrors.includes(breakError.message)) {
                     // ignore
                 } else {
                     _this._breakpointErrors.push(breakError.message);
@@ -346,10 +346,10 @@ export default class WorkerProcess extends EventEmitter {
             }
         });
 
-        try{
+        try {
             log.info(`Connecting to debugger on port ${this._debugPort}...`);
             await this._debugger.connect(this._debugPort, '127.0.0.1');
-        } catch(e){
+        } catch (e) {
             log.error('Cannot connect to the debugger: ', e);
             const message = 'Cannot connect to the debugger: ' + e.message;
             const error = new Error(message);

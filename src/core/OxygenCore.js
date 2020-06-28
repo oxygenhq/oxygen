@@ -461,7 +461,7 @@ export default class Oxygen extends OxygenEvents {
         if (!module || !module[cmdName]) {
             return undefined;
         }
-        if(cmdName !== 'dispose' && this._disposed){
+        if (cmdName !== 'dispose' && this._disposed) {
             return undefined;
         }
 
@@ -506,7 +506,7 @@ export default class Oxygen extends OxygenEvents {
             const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
             
 
-            if(retvalPromise && retvalPromise.then){
+            if (retvalPromise && retvalPromise.then) {
                 let promiseDone = false;                 
 
                 retvalPromise.then((value) => {
@@ -528,7 +528,7 @@ export default class Oxygen extends OxygenEvents {
             }
                         
         } catch (e) {
-            if(e && e.message && e.message.includes('invalid session id')){
+            if (e && e.message && e.message.includes('invalid session id')) {
                 // ignore
                 return;
             } else {
@@ -558,7 +558,7 @@ export default class Oxygen extends OxygenEvents {
             //stepResult.location = cmdLocation;
 
 
-            if(this._disposed){
+            if (this._disposed) {
                 // ignore
             } else {
                 this.resultStore.steps.push(stepResult);
@@ -574,7 +574,7 @@ export default class Oxygen extends OxygenEvents {
             throw error;
         }
 
-        if(!publicMethod){            
+        if (!publicMethod) {            
             done = true;
         }
         
@@ -610,7 +610,7 @@ export default class Oxygen extends OxygenEvents {
                 }
                 catch (e) {
 
-                    if(e && e.message && typeof e.message === 'string' && e.message.includes('readyState')){
+                    if (e && e.message && typeof e.message === 'string' && e.message.includes('readyState')) {
                         return undefined;
                     }
 
@@ -630,7 +630,7 @@ export default class Oxygen extends OxygenEvents {
             let done = false;
             let retval = null;
 
-            try{
+            try {
 
                 // otherwise, if we are inside the Fiber context, then use Fiber's Future
                 const future = new Future();
@@ -641,7 +641,7 @@ export default class Oxygen extends OxygenEvents {
                 }
                 return result;
                 
-            } catch(e){
+            } catch (e) {
                 error = e;
             }
 
@@ -680,7 +680,7 @@ export default class Oxygen extends OxygenEvents {
         step.transaction = global._lastTransactionName;                    // FIXME: why is this here if it's already populated in rs?
         step.location = location;
 
-        if(err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED){
+        if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
             step.status = STATUS.PASSED;
         } else {
             // determine step status
@@ -709,7 +709,7 @@ export default class Oxygen extends OxygenEvents {
         }
 
         if (err) {
-            if(err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED){
+            if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
                 //ignore
             } else {
                 step.failure = errorHelper.getFailureFromError(err);
@@ -723,7 +723,7 @@ export default class Oxygen extends OxygenEvents {
                     try {
                         const screenshotPromise = module._takeScreenshotSilent(methodName);
     
-                        if(screenshotPromise && screenshotPromise.then){
+                        if (screenshotPromise && screenshotPromise.then) {
                             screenshotPromise.then((screenshot) => {
                                 step.screenshot = screenshot;
                             });
@@ -740,7 +740,7 @@ export default class Oxygen extends OxygenEvents {
                         try {
                             const screenshotPromise = module._takeScreenshotSilent(methodName);
                             
-                            if(screenshotPromise && screenshotPromise.then){
+                            if (screenshotPromise && screenshotPromise.then) {
                                 screenshotPromise.then((screenshot) => {
                                     step.screenshot = screenshot;
                                 });
@@ -871,7 +871,7 @@ export default class Oxygen extends OxygenEvents {
                 continue;
             }
             try {
-                if(service.onModuleWillDispose){
+                if (service.onModuleWillDispose) {
                     service.onModuleWillDispose(module);
                 }
             }
@@ -928,10 +928,10 @@ export default class Oxygen extends OxygenEvents {
         return props;
     }
 
-    waitStepResult(){        
+    waitStepResult() {        
         return new Promise((resolve, reject) => {
             setInterval(() => {
-                if(!this._waitStepResult){
+                if (!this._waitStepResult) {
                     resolve();
                 }
             }, 1000);

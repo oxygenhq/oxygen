@@ -34,23 +34,23 @@ export default class DevToolsService extends OxygenService {
         const capabilities = module.getCapabilities();
         this._driver = module.getDriver();
 
-        if(
+        if (
             this._driver &&
             this._driver.capabilities &&
             this._driver.capabilities['goog:chromeOptions'] &&
             this._driver.capabilities['goog:chromeOptions']['debuggerAddress']
-        ){
+        ) {
             options.debuggerAddress = this._driver.capabilities['goog:chromeOptions']['debuggerAddress'];
         }
 
-        if(capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'] || capabilities['testingBot:options'])){
+        if (capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'] || capabilities['testingBot:options'])) {
             submodule.init();
         } else {
             // initialize DevToolsService and hook it to the current webdriver object
             const devToolsSvc = new WDIODevToolsService(options);
             const UNSUPPORTED_ERROR_MESSAGE = devToolsSvc.beforeSession(null, capabilities);
     
-            if(UNSUPPORTED_ERROR_MESSAGE){
+            if (UNSUPPORTED_ERROR_MESSAGE) {
                 console.log('UNSUPPORTED_ERROR_MESSAGE', UNSUPPORTED_ERROR_MESSAGE);
             }
 

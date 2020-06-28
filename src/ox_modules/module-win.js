@@ -229,10 +229,10 @@ export default class WindowsModule extends WebDriverModule {
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             try {
-                if(
+                if (
                     this.driver &&
                     this.driver.takeScreenshot
-                ){
+                ) {
                     return this.driver.takeScreenshot();
                 }
             } catch (e) {

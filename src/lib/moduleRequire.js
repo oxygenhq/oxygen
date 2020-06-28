@@ -7,26 +7,26 @@ function requireFromString(src, filename) {
         var m = new Module();
         m._compile(src, filename);
         return m.exports;
-    } catch(e){
+    } catch (e) {
         console.log('requireFromString e', e);
     }
 }
 
-function orgRequire(path){
+function orgRequire(path) {
     try {
         var text = fs.readFileSync(path,'utf8');
         return requireFromString(text, path);
-    } catch(e){
+    } catch (e) {
         console.log('orgRequire e', e);
     }
 }
 
-export default function moduleRequire(moduleName){
+export default function moduleRequire(moduleName) {
     try {
         decache(moduleName);
         var result = orgRequire(moduleName);
         return result;
-    } catch(e){
+    } catch (e) {
         console.log('moduleRequire e', e);
     }
 }

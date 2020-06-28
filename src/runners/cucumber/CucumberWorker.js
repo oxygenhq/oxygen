@@ -97,11 +97,11 @@ export default class CucumberWorker {
         try {
             Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
             
-            if(runOpts && runOpts.context && this.oxygen){
+            if (runOpts && runOpts.context && this.oxygen) {
                 const { context } = runOpts;
                 this.oxygen.context = context;
             } else {
-                if(!this.oxygen){
+                if (!this.oxygen) {
                     console.warn('this.oxygen is undefined');
                 } else {
                     console.warn('context in runOpts is undefined');
@@ -157,11 +157,11 @@ export default class CucumberWorker {
             
             let testResultStatus = Status.PASSED;
             
-            if(this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)){
+            if (this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)) {
                 const suites = this.cucumberReporter.suites;
                 Object.keys(suites).forEach(function (key) {
                     const suite = suites[key];
-                    if(suite.status === Status.FAILED){
+                    if (suite.status === Status.FAILED) {
                         testResultStatus = Status.FAILED;
                     }
                 });

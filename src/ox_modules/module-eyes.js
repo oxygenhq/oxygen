@@ -72,10 +72,10 @@ export default class ApplitoolsModule extends OxygenModule {
         let appName = 'Oxygen App';
         let testName = 'Oxygen Test';
 
-        if(this.options.appName && typeof this.options.appName === 'string'){
+        if (this.options.appName && typeof this.options.appName === 'string') {
             appName = this.options.appName;
         }
-        if(this.options.name && typeof this.options.name === 'string'){
+        if (this.options.name && typeof this.options.name === 'string') {
             testName = this.options.name;
         }
         try {
@@ -147,7 +147,7 @@ export default class ApplitoolsModule extends OxygenModule {
         this._driver.call(async() => {
             const resultPromise = this._eyes.checkWindow(name, matchTimeout);
 
-            if(resultPromise && resultPromise.then){
+            if (resultPromise && resultPromise.then) {
                 result = await resultPromise;
                 done = true;
             } else {

@@ -96,7 +96,7 @@ module.exports = {
     getDbErrorMessage: function(err) {
         let message = '';
 
-        if(err && err.message){
+        if (err && err.message) {
             message += err.message;
         }
 

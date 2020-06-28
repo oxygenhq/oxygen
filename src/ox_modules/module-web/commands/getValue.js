@@ -24,9 +24,9 @@ module.exports = function(locator, timeout) {
     var el = this.helpers.getElement(locator, true, timeout);
     let val;
 
-    try{
+    try {
         val = el.getValue();
-    } catch(e){
+    } catch (e) {
         console.log('web.getValue error', e);
         val = el.getAttribute('value');
     }

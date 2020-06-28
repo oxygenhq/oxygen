@@ -39,14 +39,14 @@ export default class NetworkSubModule extends OxygenSubModule {
     async dispose() {
 
         try {
-            if(this._driver){
+            if (this._driver) {
                 await this._driver.removeListener('Network.responseReceived', () => {});
                 await this._driver.removeListener('Network.requestWillBeSent', () => {});
                 
                 await this._devTools.client.Network.disable();
                 await this._devTools.client.Browser.close();
             }
-        } catch(e){
+        } catch (e) {
             // ignore errors;
         }
 

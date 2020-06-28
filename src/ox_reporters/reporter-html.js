@@ -30,7 +30,7 @@ export default class HtmlReporter extends FileReporterBase {
         const templatePath = path.join(__dirname, '../ox_reporters/html/index.ejs');
         const summary = generateSummary(results);
         // render HTML and write it to file
-        ejs.renderFile(templatePath, {summary: summary, results: results}, null, function(err, html){
+        ejs.renderFile(templatePath, {summary: summary, results: results}, null, function(err, html) {
             if (err) {
                 throw err;
             }

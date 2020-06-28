@@ -27,14 +27,14 @@ function countRows(searchStr, rows, reverse) {
             var line = (rows[y] || []).join('').replace(/\s/g, '');
             let inludes;
 
-            if(reverse){
+            if (reverse) {
                 const reverseSearchStr = searchStr.split('').reverse().join('');
                 inludes = line.includes(searchStr) || line.includes(reverseSearchStr);
             } else {
                 inludes = line.includes(searchStr);
             }
             
-            if(inludes){
+            if (inludes) {
                 result++;
             }
         });
@@ -53,14 +53,14 @@ function checkRows(searchStr, rows, reverse) {
 
             let inludes;
 
-            if(reverse){
+            if (reverse) {
                 const reverseSearchStr = searchStr.split('').reverse().join('');
                 inludes = line.includes(searchStr) || line.includes(reverseSearchStr);
             } else {
                 inludes = line.includes(searchStr);
             }
             
-            if(inludes){
+            if (inludes) {
                 result = true;
                 return true;
             }
@@ -69,7 +69,7 @@ function checkRows(searchStr, rows, reverse) {
     return result;
 }
 
-function assertion(pdfFilePath, text, pageNum = 0, reverse = false){
+function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
     let rows = {}; // indexed by y-position
     let currentPage = 1;
 
@@ -80,9 +80,9 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false){
             err,
             item
         ) {
-            if(err){
+            if (err) {
                 let errorMessage = 'unexpected PdfReader error';
-                if(err.data && err.data.message){
+                if (err.data && err.data.message) {
                     errorMessage = err.data.message;
                 }
                 throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage );
@@ -92,18 +92,18 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false){
                 currentPage = item.page - 1;
                 let hold = true;
 
-                if(pageNum){
-                    if(currentPage && parseInt(currentPage) === parseInt(pageNum)){
+                if (pageNum) {
+                    if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
                         // hold
                     } else {
                         hold = false;
                     }
                 }
 
-                if(hold && currentPage > 0){
+                if (hold && currentPage > 0) {
                     let result = checkRows(searchStr, rows, reverse);
 
-                    if(result){
+                    if (result) {
                         resolve(true);
                     }
                 }
@@ -113,27 +113,27 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false){
                 // accumulate text items into rows object, per line
                 (rows[item.y] = rows[item.y] || []).push(item.text);
             } else {
-                if(typeof item === 'undefined'){
+                if (typeof item === 'undefined') {
                     // end of file
                     let hold = true;
                     currentPage++;
 
-                    if(pageNum){
-                        if(pageNum > currentPage){
+                    if (pageNum) {
+                        if (pageNum > currentPage) {
                             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${currentPage} pages`);
-                        } else if(currentPage && parseInt(currentPage) === parseInt(pageNum)){
+                        } else if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
                             // hold
                         } else {
                             hold = false;
                         }
                     }
 
-                    if(hold && currentPage > 0){
+                    if (hold && currentPage > 0) {
 
                         //check in the last page
                         let result = checkRows(searchStr, rows);
                     
-                        if(result){
+                        if (result) {
                             resolve(true);
                         }
                     }
@@ -145,7 +145,7 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false){
     });
 }
 
-function count(pdfFilePath, text, pageNum = 0, reverse = false){
+function count(pdfFilePath, text, pageNum = 0, reverse = false) {
     let rows = {}; // indexed by y-position
     let currentPage = 1;
     let totalResult = 0;
@@ -157,9 +157,9 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false){
             err,
             item
         ) {
-            if(err){
+            if (err) {
                 let errorMessage = 'unexpected PdfReader error';
-                if(err.data && err.data.message){
+                if (err.data && err.data.message) {
                     errorMessage = err.data.message;
                 }
                 throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage );
@@ -169,20 +169,20 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false){
                 currentPage = item.page - 1;
                 let hold = true;
 
-                if(pageNum){
-                    if(currentPage && parseInt(currentPage) === parseInt(pageNum)){
+                if (pageNum) {
+                    if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
                         // hold
                     } else {
                         hold = false;
                     }
                 }
 
-                if(hold && currentPage > 0){
+                if (hold && currentPage > 0) {
 
                     //check in the last page
                     let result = countRows(searchStr, rows, reverse);
 
-                    if(result && result > 0){
+                    if (result && result > 0) {
                         totalResult+=result;
                     }
                 }
@@ -192,28 +192,28 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false){
                 // accumulate text items into rows object, per line
                 (rows[item.y] = rows[item.y] || []).push(item.text);
             } else {
-                if(typeof item === 'undefined'){
+                if (typeof item === 'undefined') {
                     // end of file
                     
                     let hold = true;
                     currentPage++;
                     
-                    if(pageNum){
-                        if(pageNum > currentPage){
+                    if (pageNum) {
+                        if (pageNum > currentPage) {
                             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${currentPage} pages`);
-                        } else if(currentPage && parseInt(currentPage) === parseInt(pageNum)){
+                        } else if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
                             // hold
                         } else {
                             hold = false;
                         }
                     }
 
-                    if(hold && currentPage > 0){
+                    if (hold && currentPage > 0) {
 
                         //check in the last page
                         let result = countRows(searchStr, rows);
                         
-                        if(result && result > 0){
+                        if (result && result > 0) {
                             totalResult+=result;
                         }
                     }
@@ -226,7 +226,7 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false){
 }
 
 function validateString(arg, name) {
-    if(arg && typeof arg === 'string' && arg.trim().length > 0){
+    if (arg && typeof arg === 'string' && arg.trim().length > 0) {
         // text is correct
     } else {
         throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
@@ -234,7 +234,7 @@ function validateString(arg, name) {
 }
 
 function validatePageNum(arg, name) {
-    if(arg === null || (arg && typeof arg === 'number' && arg > 0)){
+    if (arg === null || (arg && typeof arg === 'number' && arg > 0)) {
         // pageNum is correct
     } else {
         throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
@@ -242,7 +242,7 @@ function validatePageNum(arg, name) {
 }
 
 function validateMessage(arg, name) {
-    if(arg === null || (arg && typeof arg === 'string' && arg.trim().length > 0)){
+    if (arg === null || (arg && typeof arg === 'string' && arg.trim().length > 0)) {
         // pageNum is correct
     } else {
         throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
@@ -250,7 +250,7 @@ function validateMessage(arg, name) {
 }
 
 function validateReverse(arg, name) {
-    if(arg === null || (typeof arg !== 'undefined' && typeof arg === 'boolean')){
+    if (arg === null || (typeof arg !== 'undefined' && typeof arg === 'boolean')) {
         // pageNum is correct
     } else {
         throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a boolean");
@@ -269,11 +269,11 @@ function resolvePath(pdfFilePath, options) {
     } else {
         let cwd = process.cwd();
 
-        if(options && options.cwd){
+        if (options && options.cwd) {
             cwd = options.cwd;
         }
 
-        if(options && options.rootPath){
+        if (options && options.rootPath) {
             cwd = options.rootPath;
         }
 
@@ -315,16 +315,16 @@ module.exports = function(options, context, rs, logger, modules, services) {
                 result => {
                     actual = result;
                     
-                    if(actual === expected){
+                    if (actual === expected) {
                         // ignore;
                     } else {
                         let savaMessage = text+' is not found in the PDF';
 
-                        if(pageNum){
+                        if (pageNum) {
                             savaMessage+= ` in page ${pageNum}`;
                         }
 
-                        if(message){
+                        if (message) {
                             // show message in result
                             savaMessage = message;
                         }
@@ -344,7 +344,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
             error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
 
-        if(error){
+        if (error) {
             throw error;
         }
 
@@ -384,16 +384,16 @@ module.exports = function(options, context, rs, logger, modules, services) {
             
             deasync.loopWhile(() => typeof actual !== 'boolean');
             
-            if(actual === expected){
+            if (actual === expected) {
                 // ignore;
             } else {
                 let savaMessage = text+' is found in the PDF';
 
-                if(pageNum){
+                if (pageNum) {
                     savaMessage+= ` in page ${pageNum}`;
                 }
 
-                if(message){
+                if (message) {
                     // show message in result
                     savaMessage = message;
                 }
@@ -405,7 +405,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
 
-        if(error){
+        if (error) {
             throw error;
         }
     };

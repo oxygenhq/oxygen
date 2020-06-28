@@ -135,7 +135,7 @@ export default class WebModule extends WebDriverModule {
                 'Failed to initialize `web` module - browserName must be specified.');
         }
 
-        if(this.caps && this.caps['lamda:options']){
+        if (this.caps && this.caps['lamda:options']) {
             // lambdatest expects origin case names
         } else {
             // webdriver expects lower case names
@@ -200,10 +200,10 @@ export default class WebModule extends WebDriverModule {
         const _this = this;
 
         
-        if(
+        if (
             wdioOpts.capabilities && 
             wdioOpts.capabilities['perfectoMobile:options']
-        ){
+        ) {
             wdioOpts.capabilities.maxInstances = 1;
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
             wdioOpts.port = 80;
@@ -216,10 +216,10 @@ export default class WebModule extends WebDriverModule {
         try {
             this.driver = await wdio.remote(wdioOpts);
             
-            if(
+            if (
                 wdioOpts.capabilities && 
                 wdioOpts.capabilities['perfectoMobile:options']
-            ){
+            ) {
 
                 const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {
@@ -250,11 +250,11 @@ export default class WebModule extends WebDriverModule {
         }
         // maximize browser window
         try {
-            if(
+            if (
                 this.driver &&
                 this.driver.capabilities &&
                 this.driver.capabilities.browserName === 'MicrosoftEdge'
-            ){
+            ) {
                 // ignore
                 // fails on lambdatest
             } else {
@@ -277,16 +277,16 @@ export default class WebModule extends WebDriverModule {
         this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
-                if(!status){
+                if (!status) {
                     // ignore
                     await this.closeBrowserWindows();
-                } else if(status && typeof status === 'string'){
+                } else if (status && typeof status === 'string') {
 
                     let isSaucelabs = false;
                     let isLambdatest = false;
                     let isTestingBot = false;
                     let isPerfecto = false;
-                    if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')){
+                    if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')) {
                         isSaucelabs = true;
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
                         const accessKey = this.wdioOpts.capabilities['sauce:options']['accessKey'];
@@ -297,7 +297,7 @@ export default class WebModule extends WebDriverModule {
                         const myAccount = new SauceLabs({ user: username, key: accessKey});
                         myAccount.updateJob(username, id, body);
                     }
-                    if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('lambdatest')){
+                    if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('lambdatest')) {
                         isLambdatest = true;
                         const lambdaCredentials = {
                             username: this.wdioOpts.user,
@@ -323,7 +323,7 @@ export default class WebModule extends WebDriverModule {
 
                         deasync.loopWhile(() => !done);
                     }
-                    if(this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('testingbot')){
+                    if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('testingbot')) {
                         isTestingBot = true;
                         const sessionId = this.driver.sessionId;
                         const tb = new TestingBot({
@@ -339,16 +339,16 @@ export default class WebModule extends WebDriverModule {
                         deasync.loopWhile(() => !done);
                     }
                             
-                    if(
+                    if (
                         this.wdioOpts && 
                         this.wdioOpts.capabilities && 
                         this.wdioOpts.capabilities['perfectoMobile:options']
-                    ){
+                    ) {
                         isPerfecto = true;
                         const passed = status.toUpperCase() === 'PASSED';
 
                         let perfectoStatus = perfectoReporting.Constants.results.failed;
-                        if(passed){
+                        if (passed) {
                             perfectoStatus = perfectoReporting.Constants.results.passed;
                         }
 
@@ -359,15 +359,15 @@ export default class WebModule extends WebDriverModule {
                         deasync.sleep(10*1000);
                     }
 
-                    if(isSaucelabs){
+                    if (isSaucelabs) {
                         this.deleteSession();
-                    } else if(isLambdatest){
+                    } else if (isLambdatest) {
                         this.deleteSession();
-                    } else if(isTestingBot){
+                    } else if (isTestingBot) {
                         this.deleteSession();
-                    } else if(isPerfecto){
+                    } else if (isPerfecto) {
                         this.deleteSession();
-                    } else if(['PASSED','FAILED'].includes(status.toUpperCase())){
+                    } else if (['PASSED','FAILED'].includes(status.toUpperCase())) {
                         await this.closeBrowserWindows();
                     } else {
                         this.disposeContinue();
@@ -386,10 +386,10 @@ export default class WebModule extends WebDriverModule {
     }
 
     async switchAndCloseWindow(handle) {
-        try{
+        try {
             await this.driver.switchToWindow(handle);
             await this.driver.closeWindow();
-        } catch(e){
+        } catch (e) {
             // ignore switch and close window errors
         }
     }
@@ -397,16 +397,16 @@ export default class WebModule extends WebDriverModule {
     async closeBrowserWindows() {
         try {
             const handles = await this.driver.getWindowHandles();
-            if(
+            if (
                 handles &&
                 Array.isArray(handles) &&
                 handles.length > 0
-            ){
+            ) {
                 for (const handle of handles) {
                     await this.switchAndCloseWindow(handle);
                 }
             }
-        } catch(e){
+        } catch (e) {
             this.logger.error('Close browser window error', e);
         }
         this.disposeContinue();
@@ -420,29 +420,29 @@ export default class WebModule extends WebDriverModule {
 
         try {
             if (process.platform === 'win32') {
-                if(this.options && this.options.seleniumPid){
+                if (this.options && this.options.seleniumPid) {
                     execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
                 }
             } else {
-                if(this.options && this.options.seleniumPid){                    
+                if (this.options && this.options.seleniumPid) {                    
                     try {
                         let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
 
-                        if(pgrepResult && pgrepResult.toString){
+                        if (pgrepResult && pgrepResult.toString) {
 
                             pgrepResult = pgrepResult.toString();    
                             pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
         
-                            if(pgrepResult){
+                            if (pgrepResult) {
                                 execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
                             }
                         } 
-                    } catch(e){
+                    } catch (e) {
                         // ignore
                     }
                 }
             }
-        } catch(e) {
+        } catch (e) {
             // ignore errors
         }
 
@@ -501,10 +501,10 @@ export default class WebModule extends WebDriverModule {
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             try {
-                if(
+                if (
                     this.driver &&
                     this.driver.takeScreenshot
-                ){
+                ) {
                     return this.driver.takeScreenshot();
                 }
             } catch (e) {

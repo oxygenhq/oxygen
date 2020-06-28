@@ -25,7 +25,7 @@ module.exports = function() {
 
     module._takeScreenshotSilent = async function(name) {
         var mod;
-        if(ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
+        if (ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
             mod = ox.modules.mob;
         } else if (ox && ox.modules && ox.modules.web && ox.modules.web.getDriver && ox.modules.web.getDriver()) {
             mod = ox.modules.web;
@@ -33,7 +33,7 @@ module.exports = function() {
             mod = ox.modules.win;
         }
 
-        if(mod && mod._takeScreenshotSilent){
+        if (mod && mod._takeScreenshotSilent) {
             const result = await mod._takeScreenshotSilent();
             return result;
         } else {
@@ -44,7 +44,7 @@ module.exports = function() {
     // take screenshot on error if either web, mob, or win module is initialized
     module._takeScreenshot = function(name) {
         var mod;
-        if(ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
+        if (ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
             mod = ox.modules.mob;
         } else if (ox && ox.modules && ox.modules.web && ox.modules.web.getDriver && ox.modules.web.getDriver()) {
             mod = ox.modules.web;

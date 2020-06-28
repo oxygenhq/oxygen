@@ -28,7 +28,7 @@ module.exports = function(locator, value, timeout) {
 
     try {
 
-        if(
+        if (
             this.driver &&
             this.driver.capabilities &&
             this.driver.capabilities.entityType &&
@@ -36,12 +36,12 @@ module.exports = function(locator, value, timeout) {
         ) {
             let saveValue;
 
-            if(value){
-                if(Array.isArray(value)){
+            if (value) {
+                if (Array.isArray(value)) {
                     saveValue = value;
-                } else if(typeof value === 'string'){
+                } else if (typeof value === 'string') {
                     saveValue = [value.toString()];
-                } else if(value.toString){
+                } else if (value.toString) {
                     saveValue = [value.toString()];
                 }
             }
@@ -53,11 +53,11 @@ module.exports = function(locator, value, timeout) {
             el.setValue(value.toString());
         }
     } catch (e) {
-        if(
+        if (
             e && 
             e.message &&
             e.message.includes('java.lang.NullPointerException')
-        ){
+        ) {
 
             this.driver.execute((el, val) => {
                 el.focus();

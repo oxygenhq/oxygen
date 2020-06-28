@@ -42,11 +42,11 @@ export default class LogModule extends OxygenModule {
 
         let errString = '';
 
-        if(err && err.message){
+        if (err && err.message) {
             errString += ' '+err.message;
         }
 
-        if(err && err.type){
+        if (err && err.type) {
             errString += ' '+err.type;
         }
 

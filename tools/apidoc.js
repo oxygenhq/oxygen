@@ -149,7 +149,7 @@ function load(file, loadDescription) {
 
             // console.log('commentParsed', commentParsed);
 
-            if(commentParsed && commentParsed.tags && Array.isArray(commentParsed.tags)){
+            if (commentParsed && commentParsed.tags && Array.isArray(commentParsed.tags)) {
                 for (var tag of commentParsed.tags) {
                     if (tag.title === 'name') {
                         name = tag.name;
@@ -157,7 +157,7 @@ function load(file, loadDescription) {
                         description = tag.description;
                     } else if (tag.title === 'note') {
                         note = tag.description;
-                    } else if (tag.title === 'sample'){
+                    } else if (tag.title === 'sample') {
                         sample = tag.description;
                     }
                     
@@ -209,7 +209,7 @@ function load(file, loadDescription) {
                 for (var tag of this.tags) {
                     if (tag.title === 'return') {
                         var type = doctrine.type.stringify(tag.type, {compact:true});
-                        type = type.replace(/<|>/ig, function(m){
+                        type = type.replace(/<|>/ig, function(m) {
                             return '&' + (m == '>' ? 'g' : 'l') + 't;';
                         });
 
@@ -232,18 +232,18 @@ function load(file, loadDescription) {
                         }
 
                         var type = doctrine.type.stringify(tag.type, {compact:true});
-                        type = type.replace(/<|>/ig, function(m){
+                        type = type.replace(/<|>/ig, function(m) {
                             return '&' + (m == '>' ? 'g' : 'l') + 't;';
                         });
 
-                        if(optional && type){
+                        if (optional && type) {
                             type = type.replace('=', '');
                         }
                         
                         type = type.replace('(', '');
                         type = type.replace(')', '');
 
-                        if(type && typeof type === 'string' && type.includes('|')){
+                        if (type && typeof type === 'string' && type.includes('|')) {
                             const typeArr = type.split('|');
                             const typeArrWithCode = typeArr.map((item) => { return '`'+item+'`'; });
                             type = typeArrWithCode.join('\\|');
@@ -318,8 +318,8 @@ function generate(module, moduleName) {
         
         var platformSignature = '';
         if (platforms) {
-            platforms.forEach(function(item){
-                switch(item) {
+            platforms.forEach(function(item) {
+                switch (item) {
                     case 'android':
                         platformSignature += SIGNATURE_AND; break;
                     case 'ios':
@@ -401,22 +401,22 @@ function generate(module, moduleName) {
     mdReserve.use(StrikethroughPlugin);
     var content = mdReserve.toMarkdown(outContent);
     var startCntent = '';
-    if(module.description){
+    if (module.description) {
         startCntent += `---
 description: ${module.description}
 ---`;
     }
-    if(module.name){
+    if (module.name) {
         startCntent += `
 # ${module.name}  `;
     }
-    if(module.note){
+    if (module.note) {
         startCntent += `
 {% hint style="warning" %}
 ${module.note}
 {% endhint %}  `;
     }
-    if(module.sample){
+    if (module.sample) {
         startCntent += `
 ${module.sample}  
 `;

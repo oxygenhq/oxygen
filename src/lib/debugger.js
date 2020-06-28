@@ -29,16 +29,16 @@ const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const deleteValues = (arr, depth) => {
 
-    if(depth > maxFindedDepth){
+    if (depth > maxFindedDepth) {
         maxFindedDepth = depth;
     }
     
-    if(depth > MAX_DEPTH){
+    if (depth > MAX_DEPTH) {
         return [];
     }
 
     let result = arr.map((item) => {
-        if(item && item.value && item.value.className && item.value.className === 'Function'){
+        if (item && item.value && item.value.className && item.value.className === 'Function') {
             const cloneValue = Object.assign(item.value);
             delete cloneValue.objectId;
             const clone = Object.assign(item, {
@@ -83,18 +83,18 @@ function extractBreakpointData(bpStr) {
     }
 }
 
-function validateBreakpoint(breakpoint){
+function validateBreakpoint(breakpoint) {
     const brObj = extractBreakpointData(breakpoint.breakpointId);
               
     const brLineNumber = brObj.lineNumber + 1; // from 0-base to 1 base;
 
-    if(breakpoint && breakpoint.locations && Array.isArray(breakpoint.locations) && breakpoint.locations.length > 0){
+    if (breakpoint && breakpoint.locations && Array.isArray(breakpoint.locations) && breakpoint.locations.length > 0) {
         let result = null;
         breakpoint.locations.map((item) => {
             const brFileName = brObj.fileName;
             const itemLineNumber = item.lineNumber + 1; // from 0-base to 1 base;
 
-            if(brLineNumber !== itemLineNumber){
+            if (brLineNumber !== itemLineNumber) {
                 result = {
                     msg: `Breakpoints warning : ${brFileName} Don't have opportunity to have breakpoint at line : `,
                     fileName: brFileName,
@@ -134,20 +134,20 @@ export default class Debugger extends EventEmitter {
         this._fileNameAliases = [];
     }
 
-    async getPropertiesByObjectId(objectId, depth, elm){
+    async getPropertiesByObjectId(objectId, depth, elm) {
         let data = {};
 
-        try{
+        try {
             data = await this._Runtime.getProperties({
                 objectId : objectId
             });
-        } catch(e){
+        } catch (e) {
             // console.log('getProperties elm', elm);
             // console.log('getProperties e', e);
         }
         let clone = Object.assign({}, data);
         
-        if(clone && clone && clone.result){
+        if (clone && clone && clone.result) {
             clone = Object.assign({}, clone, {
                 result: deleteValues(clone.result, depth)
             });
@@ -156,31 +156,31 @@ export default class Debugger extends EventEmitter {
         return clone;
     }
 
-    async getPromiceAllResult(mapResultFiltered){
+    async getPromiceAllResult(mapResultFiltered) {
         let promiseAllPromise = await Promise.all(mapResultFiltered).then(value => {
             return value;
         });
 
-        if(promiseAllPromise && Array.isArray(promiseAllPromise) && promiseAllPromise.length > 0){
+        if (promiseAllPromise && Array.isArray(promiseAllPromise) && promiseAllPromise.length > 0) {
             promiseAllPromise = promiseAllPromise.filter((item) => !!item);
         }
         
         return promiseAllPromise;
     }
 
-    async getProperties(objectId, depth, elm){
+    async getProperties(objectId, depth, elm) {
         const promises = [];
 
         const getPropertiesResult = await this.getPropertiesByObjectId(objectId, depth, elm);
             
-        if(getPropertiesResult){
-            if(getPropertiesResult && getPropertiesResult.result && Array.isArray(getPropertiesResult.result)){
+        if (getPropertiesResult) {
+            if (getPropertiesResult && getPropertiesResult.result && Array.isArray(getPropertiesResult.result)) {
 
                 const mapResult = getPropertiesResult.result.map(async (item) => {
-                    if(item && item.value && item.value.objectId){
+                    if (item && item.value && item.value.objectId) {
                         const getPropertiesInnerResult = await this.getProperties(item.value.objectId, depth+1, item);
 
-                        if(item.scopeItem){
+                        if (item.scopeItem) {
                             return null;
                         } else {
                             return getPropertiesInnerResult;
@@ -198,11 +198,11 @@ export default class Debugger extends EventEmitter {
                     })
                 };
 
-                if(mapResultFiltered && Array.isArray(mapResultFiltered) && mapResultFiltered.length > 0){
+                if (mapResultFiltered && Array.isArray(mapResultFiltered) && mapResultFiltered.length > 0) {
 
                     const promiseAllPromise = await this.getPromiceAllResult(mapResultFiltered);
                     
-                    if(promiseAllPromise && Array.isArray(promiseAllPromise) && promiseAllPromise.length > 0){
+                    if (promiseAllPromise && Array.isArray(promiseAllPromise) && promiseAllPromise.length > 0) {
                         result.child = promiseAllPromise;
                         return result;
                     } else {
@@ -225,7 +225,7 @@ export default class Debugger extends EventEmitter {
             }
         }
 
-        if(promises.length > 0){
+        if (promises.length > 0) {
             return Promise.all(promises).then(values => {
                 return values;
             });
@@ -235,10 +235,10 @@ export default class Debugger extends EventEmitter {
         }
     }
 
-    async processScope(scopeChain, depth){
+    async processScope(scopeChain, depth) {
         let scopeChainResult = await scopeChain.map(async (chain) => {
-            if(chain && chain.object && chain.object.objectId){
-                if(typeof chain.object.objectId === 'string' && chain.type !== 'global'){
+            if (chain && chain.object && chain.object.objectId) {
+                if (typeof chain.object.objectId === 'string' && chain.type !== 'global') {
                     const getPropertiesResult = await this.getProperties(chain.object.objectId, depth);
                     
                     return getPropertiesResult;
@@ -253,7 +253,7 @@ export default class Debugger extends EventEmitter {
         scopeChainResult = scopeChainResult.filter((el) => !!el);
         
         return Promise.all(scopeChainResult).then(values => {
-            if(Array.isArray(values)){
+            if (Array.isArray(values)) {
                 return values.filter((el) => !!el);
             } else {
                 return values;
@@ -261,9 +261,9 @@ export default class Debugger extends EventEmitter {
         });
     }
 
-    async processCallFrames(callFrames, depth){
+    async processCallFrames(callFrames, depth) {
         let callFramesMapResult = await callFrames.map(async(callFrame) => {
-            if(callFrame && callFrame.scopeChain && Array.isArray(callFrame.scopeChain)){
+            if (callFrame && callFrame.scopeChain && Array.isArray(callFrame.scopeChain)) {
                 const processScopeResult = await this.processScope(callFrame.scopeChain, depth);
                 return processScopeResult;
             } else {
@@ -278,18 +278,18 @@ export default class Debugger extends EventEmitter {
         });
     }
 
-    inBreakpoints(itemUrl){
+    inBreakpoints(itemUrl) {
         let result = false;
-        if(this._breakpoints && Array.isArray(this._breakpoints) && this._breakpoints.length > 0){
+        if (this._breakpoints && Array.isArray(this._breakpoints) && this._breakpoints.length > 0) {
             this._breakpoints.map((bp) => {
-                if(
+                if (
                     itemUrl &&
                     itemUrl.toLowerCase &&
                     bp.origin &&
                     bp.origin.scriptPath &&
                     bp.origin.scriptPath.toLowerCase &&
                     itemUrl.toLowerCase() === bp.origin.scriptPath.toLowerCase()
-                ){
+                ) {
                     result = true;
                 }
             });
@@ -297,17 +297,17 @@ export default class Debugger extends EventEmitter {
         return result;
     }
 
-    inFileNameAliases(fileName){
+    inFileNameAliases(fileName) {
         let result = false;
-        if(this._fileNameAliases && Array.isArray(this._fileNameAliases) && this._fileNameAliases.length > 0){
+        if (this._fileNameAliases && Array.isArray(this._fileNameAliases) && this._fileNameAliases.length > 0) {
             this._fileNameAliases.map((alias) => {
-                if(
+                if (
                     alias &&
                     alias.toLowerCase &&
                     fileName &&
                     fileName.toLowerCase &&
                     alias.toLowerCase() === fileName.toLowerCase()
-                ){
+                ) {
                     result = alias;
                 }
             });
@@ -315,20 +315,20 @@ export default class Debugger extends EventEmitter {
         return result;
     }
 
-    async continueConnect(){
+    async continueConnect() {
 
         this._client.on('Debugger.scriptParsed', async(m) => {
-            if(m && m.url){
-                if(m.url.toLowerCase){
+            if (m && m.url) {
+                if (m.url.toLowerCase) {
                     const filelc = m.url.toLowerCase();
                     let breakpointForChange;
                     const findResult = this._breakpoints.find((item) => {
-                        if(item.origin && item.origin.scriptPath && item.origin.scriptPath.toLowerCase){
+                        if (item.origin && item.origin.scriptPath && item.origin.scriptPath.toLowerCase) {
                             const breakpointlc = item.origin.scriptPath.toLowerCase();
 
-                            if(breakpointlc === filelc && item.origin.scriptPath !== m.url){
+                            if (breakpointlc === filelc && item.origin.scriptPath !== m.url) {
 
-                                if(this._fileNameAliases.includes(m.url)){
+                                if (this._fileNameAliases.includes(m.url)) {
                                     // ignore
                                 } else {
                                     this._fileNameAliases.push(m.url);
@@ -350,11 +350,11 @@ export default class Debugger extends EventEmitter {
                         }
                     });
 
-                    if(findResult){
+                    if (findResult) {
                         const breakpointsFromOldLocation = [];
 
                         this._breakpoints.map((bp) => {
-                            if(
+                            if (
                                 bp &&
                                 bp.origin &&
                                 bp.origin.scriptPath &&
@@ -364,7 +364,7 @@ export default class Debugger extends EventEmitter {
                                 breakpointForChange.breakpoint.origin &&
                                 breakpointForChange.breakpoint.origin.scriptPath &&
                                 bp.origin.scriptPath === breakpointForChange.breakpoint.origin.scriptPath
-                            ){
+                            ) {
                                 breakpointsFromOldLocation.push({
                                     scriptPath: breakpointForChange.mUrl,
                                     lineNumber: bp.origin.lineNumber
@@ -372,7 +372,7 @@ export default class Debugger extends EventEmitter {
                             }
                         });
 
-                        if(breakpointsFromOldLocation && Array.isArray(breakpointsFromOldLocation) && breakpointsFromOldLocation.length > 0){
+                        if (breakpointsFromOldLocation && Array.isArray(breakpointsFromOldLocation) && breakpointsFromOldLocation.length > 0) {
                             let breakpointsFromOldLocationResult = breakpointsFromOldLocation.map(async(bp) => {
                                 return await this.setBreakpoint(bp.scriptPath, bp.lineNumber);
                             });
@@ -403,9 +403,9 @@ export default class Debugger extends EventEmitter {
                 const possibleBreakpointsData = [];
                 let eCallFrames = [];
 
-                if(e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0){
+                if (e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0) {
                     e.callFrames.map((item) => {
-                        if(item && item.url && this.inBreakpoints(item.url)){
+                        if (item && item.url && this.inBreakpoints(item.url)) {
                             eCallFrames.push(item);
                         }
                     });
@@ -423,23 +423,23 @@ export default class Debugger extends EventEmitter {
 
                         const initialDepth = 1;
                             
-                        if(e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0){
+                        if (e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0) {
                             const uniqueScriptIdArr = [];
                             const callFrames = e.callFrames.filter((item) => {
-                                if(item && item.url){
+                                if (item && item.url) {
                                     const finded = this._breakpoints.find((breakpoint) => {
                                         let result = false;
                                         
-                                        if(breakpoint.breakpointId.endsWith(item.url)){
+                                        if (breakpoint.breakpointId.endsWith(item.url)) {
                                             result = true;
                                         }
 
                                         return result;
                                     });
 
-                                    if(finded){
-                                        if(item.location && item.location.scriptId){
-                                            if(uniqueScriptIdArr.includes(item.location.scriptId)){
+                                    if (finded) {
+                                        if (item.location && item.location.scriptId) {
+                                            if (uniqueScriptIdArr.includes(item.location.scriptId)) {
                                                 return false;
                                             } else {
                                                 uniqueScriptIdArr.push(item.location.scriptId);
@@ -465,16 +465,16 @@ export default class Debugger extends EventEmitter {
                                     
 
                                     let fileLineNumbersLength = 0;
-                                    if(scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0){
+                                    if (scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0) {
                                         fileLineNumbersLength = scriptSourceSplit.length;
                                         // to see how debbuger see script
                                         // scriptSourceSplit.map((scriptSourceItem, idx) => {
                                         //     console.log((idx) + ' ' + scriptSourceItem);
                                         // });
 
-                                        if(possibleBreakpoints && Array.isArray(possibleBreakpoints) && possibleBreakpoints.length){
-                                            if(possibleBreakpoints[0] === 1){
-                                                if(scriptSourceSplit[0].endsWith(', __dirname) { ')){
+                                        if (possibleBreakpoints && Array.isArray(possibleBreakpoints) && possibleBreakpoints.length) {
+                                            if (possibleBreakpoints[0] === 1) {
+                                                if (scriptSourceSplit[0].endsWith(', __dirname) { ')) {
                                                     // first line is empty
                                                     possibleBreakpoints.shift();
                                                 }
@@ -489,7 +489,7 @@ export default class Debugger extends EventEmitter {
                                     });
                                 });
 
-                            } catch(e){
+                            } catch (e) {
                                 console.log('getScriptSource e', e);
                             }
 
@@ -512,11 +512,11 @@ export default class Debugger extends EventEmitter {
                 Promise.all(breakpointsMapResult).then(value => {
                     let saveValue = value;
 
-                    if(saveValue && Array.isArray(saveValue)){
+                    if (saveValue && Array.isArray(saveValue)) {
                         saveValue = saveValue.filter((el) => !!el);
                     }
 
-                    if(saveValue && Array.isArray(saveValue) && saveValue.length > 0){
+                    if (saveValue && Array.isArray(saveValue) && saveValue.length > 0) {
                         let breakpointData = null;     
 
                         // assume we always send breakpoint of the top call frame
@@ -529,60 +529,60 @@ export default class Debugger extends EventEmitter {
                             };
 
 
-                            if(saveValue){
+                            if (saveValue) {
                                 breakpointData.variables = saveValue;
                             }
                         }
 
-                        if(
+                        if (
                             this._breakpointErrors &&
                             Array.isArray(this._breakpointErrors) &&
                             this._breakpointErrors.length > 0
-                        ){
+                        ) {
                             const isset = this._breakpoints.find((item) => {
-                                if(
+                                if (
                                     item &&
                                     item.origin &&
                                     item.origin.lineNumber &&
                                     parseInt(item.origin.lineNumber)+1 === parseInt(breakpointData.lineNumber)
-                                ){
+                                ) {
                                     return true;
                                 } else {
                                     return false;
                                 }
                             });
 
-                            if(isset){
+                            if (isset) {
                                 breakpointData.resolved = true;
                             }
                         }
 
                         this.emit('break', breakpointData);
 
-                        if(
+                        if (
                             this._breakpointErrors &&
                             Array.isArray(this._breakpointErrors) &&
                             this._breakpointErrors.length > 0
-                        ){
+                        ) {
                             this._breakpointErrors.map((breakpointError) => {
-                                if(breakpointError && breakpointError.msg && breakpointError.fileName && breakpointError.line) {
+                                if (breakpointError && breakpointError.msg && breakpointError.fileName && breakpointError.line) {
 
                                     let msg;
                                     
-                                    if(possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0){
+                                    if (possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0) {
                                         possibleBreakpointsData.map((item) => {
-                                            if(item && item.file === breakpointError.fileName){   
+                                            if (item && item.file === breakpointError.fileName) {   
                                                 let line;
                                                 
-                                                if(breakpointError.line >= item.fileLineNumbersLength){
+                                                if (breakpointError.line >= item.fileLineNumbersLength) {
                                                     line = breakpointError.line - 2; // //# sourceMappingURL and }.call(this, exports, require, module, __filename, __dirname); });
                                                 } else {
                                                     line = breakpointError.line;
                                                 }
         
         
-                                                if(item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0){
-                                                    if(breakpointError && breakpointError.msg && breakpointError.msg.includes('Possible breakpoint lines')){
+                                                if (item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0) {
+                                                    if (breakpointError && breakpointError.msg && breakpointError.msg.includes('Possible breakpoint lines')) {
                                                         // ignore
                                                     } else {
                                                         msg = breakpointError.msg;
@@ -590,7 +590,7 @@ export default class Debugger extends EventEmitter {
                                                         msg += ` Possible breakpoint lines : ${item.breakpoints.map((line) => line).join(', ')}`;
                                                     }
                                                 } else {
-                                                    if(breakpointError && breakpointError.msg && breakpointError.msg.includes('possible breakpoint lines')){
+                                                    if (breakpointError && breakpointError.msg && breakpointError.msg.includes('possible breakpoint lines')) {
                                                         // ignore
                                                     } else {
                                                         msg = breakpointError.msg;
@@ -629,7 +629,7 @@ export default class Debugger extends EventEmitter {
                     bp.locations = [e.location];
                     const validateResult = validateBreakpoint(bp);
 
-                    if(validateResult){
+                    if (validateResult) {
                         this._breakpointErrors.push(validateResult);
                     }
                 }
@@ -667,7 +667,7 @@ export default class Debugger extends EventEmitter {
                 this._client = await CDP({ port: this._port, host: this._host });
                 lastError = null;
                 break;
-            } catch(e) {
+            } catch (e) {
                 lastError = e;
             }
 
@@ -694,7 +694,7 @@ export default class Debugger extends EventEmitter {
 
         const aliasResult = this.inFileNameAliases(fileName);
 
-        if(aliasResult){
+        if (aliasResult) {
             fileName = aliasResult;
         }
 
@@ -712,7 +712,7 @@ export default class Debugger extends EventEmitter {
             }
         });
 
-        if(err){
+        if (err) {
             // ignore
         } else {
 
@@ -729,7 +729,7 @@ export default class Debugger extends EventEmitter {
     }
 
     async setBreakpointsActive(active) {
-        if(this._Debugger && this._Debugger.setBreakpointsActive){
+        if (this._Debugger && this._Debugger.setBreakpointsActive) {
             return await this._Debugger.setBreakpointsActive({'active': active});
         } else {
             await snooze(500);
@@ -817,7 +817,7 @@ export default class Debugger extends EventEmitter {
         }
     }
 
-    async getPossibleBreakpoints(startLocation){
+    async getPossibleBreakpoints(startLocation) {
         const result = [];
         const possibleBreakpoints = await this._Debugger.getPossibleBreakpoints({ 
             start: {
@@ -827,12 +827,12 @@ export default class Debugger extends EventEmitter {
             }
         });
         
-        if(possibleBreakpoints && possibleBreakpoints.locations && Array.isArray(possibleBreakpoints.locations) && possibleBreakpoints.locations.length > 0){
+        if (possibleBreakpoints && possibleBreakpoints.locations && Array.isArray(possibleBreakpoints.locations) && possibleBreakpoints.locations.length > 0) {
             possibleBreakpoints.locations.map((item) => {
-                if(item && typeof item.lineNumber !== 'undefined'){
+                if (item && typeof item.lineNumber !== 'undefined') {
                     const lineNumber = item.lineNumber + 1; // from 0-base to 1-base
 
-                    if(result.includes(lineNumber)){
+                    if (result.includes(lineNumber)) {
                         //ignore
                     } else {
                         result.push(lineNumber);
@@ -841,7 +841,7 @@ export default class Debugger extends EventEmitter {
             });
         }
 
-        if(result && Array.isArray(result) && result.length > 0){
+        if (result && Array.isArray(result) && result.length > 0) {
             result.pop();
         }
 
@@ -907,11 +907,11 @@ export default class Debugger extends EventEmitter {
                 lineNumber = parseInt(parts[1])+1; //from 0-base to 1-base
             }
 
-            if(fileName === filePath){
+            if (fileName === filePath) {
                 bps.push(lineNumber);
             } else {
                 const filePathAlias = this.inFileNameAliases(filePath);
-                if(filePathAlias){
+                if (filePathAlias) {
                     bps.push(lineNumber);
                 }
             }

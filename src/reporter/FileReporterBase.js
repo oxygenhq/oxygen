@@ -65,7 +65,7 @@ export default class FileReporterBase extends ReporterBase {
     createFolderIfNotExists(folderPath) {
         try {
             fs.mkdirSync(folderPath);
-        } catch(e) {
+        } catch (e) {
             if ( e.code != 'EEXIST' ) throw e;
         }
         return folderPath;

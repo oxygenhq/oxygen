@@ -85,10 +85,10 @@ const removeBreakpointFromSuites = (suites, removeBreakpoint) => {
                         caze.breakpoints.length > 0
                     ) {
                         caze.breakpoints.map((breakpoint, idx) => {
-                            if(
+                            if (
                                 breakpoint.file === removeBreakpoint.file &&
                                 breakpoint.line === removeBreakpoint.line
-                            ){
+                            ) {
                                 caze.breakpoints.splice(idx, 1);
                             }
                         });
@@ -112,7 +112,7 @@ export default class OxygenRunner extends EventEmitter {
         this._workerProcLastError = null;
 
         this._npmGRootExecution = true;
-        if(options && typeof options.npmGRootExecution !== 'undefined'){
+        if (options && typeof options.npmGRootExecution !== 'undefined') {
             this._npmGRootExecution = options.npmGRootExecution;
         }
 
@@ -184,7 +184,7 @@ export default class OxygenRunner extends EventEmitter {
     async dispose(status = null) {
         this._isDisposing = true;
         try {
-            if(this._worker && this._worker.isRunning){
+            if (this._worker && this._worker.isRunning) {
                 await this._worker.stop(status);
             }
         } catch (e) {
@@ -193,7 +193,7 @@ export default class OxygenRunner extends EventEmitter {
             log.warn('Error when disposing Runner:', e);
         }
 
-        if(status !== 'CANCELED'){
+        if (status !== 'CANCELED') {
             this._resetGlobalVariables();
         }
     }
@@ -218,7 +218,7 @@ export default class OxygenRunner extends EventEmitter {
             error = e;
         }
 
-        if(!error && result && result.failure){
+        if (!error && result && result.failure) {
             error = result.failure;
         }
 
@@ -233,7 +233,7 @@ export default class OxygenRunner extends EventEmitter {
     async kill(status = null) {
         this._testKilled = true;
         
-        if(this._worker && this._worker.isRunning){
+        if (this._worker && this._worker.isRunning) {
             await this._worker.kill(status);
         }
     }
@@ -244,10 +244,10 @@ export default class OxygenRunner extends EventEmitter {
         } 
     }
 
-    async updateBreakpoints(breakpoints, filePath){
+    async updateBreakpoints(breakpoints, filePath) {
         try {
 
-            if(this._worker && this._worker.debugger && this._worker.debugger.setBreakpointsActive){
+            if (this._worker && this._worker.debugger && this._worker.debugger.setBreakpointsActive) {
                 await this._worker.debugger.setBreakpointsActive(false);
             } else {
                 await snooze(500);
@@ -298,7 +298,7 @@ export default class OxygenRunner extends EventEmitter {
             } else {
                 return null;
             }
-        } catch(e){
+        } catch (e) {
             log.error('Debugger error', e);
         }
     }
@@ -345,7 +345,7 @@ export default class OxygenRunner extends EventEmitter {
         result.duration = result.endTime - result.startTime;
         
         const hasFailedSuites = result.suites.some(suiteIterations => {
-            if(suiteIterations && Array.isArray(suiteIterations) && suiteIterations.length > 0){
+            if (suiteIterations && Array.isArray(suiteIterations) && suiteIterations.length > 0) {
                 return suiteIterations.some(x => x.status === Status.FAILED);
             }
         });
@@ -424,7 +424,7 @@ export default class OxygenRunner extends EventEmitter {
     async _runCase(suite, caze, suiteIteration, caseIteration) {
 
         let showIterationsMessages = false;
-        if(caze && caze.iterationCount && caze.iterationCount > 1){
+        if (caze && caze.iterationCount && caze.iterationCount > 1) {
             showIterationsMessages = true;
         }
 
@@ -459,7 +459,7 @@ export default class OxygenRunner extends EventEmitter {
         caseResult.location = caze.path;
         caseResult.iterationNum = caseIteration;
         
-        if(showIterationsMessages){
+        if (showIterationsMessages) {
             this._reporter.onIterationStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caseResult);
         }
 
@@ -479,7 +479,7 @@ export default class OxygenRunner extends EventEmitter {
         // run the test in the worker process and handle any possible error
         try {
             caseResult.startTime = oxutil.getTimeStamp();
-            if(this._worker){
+            if (this._worker) {
                 const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
                 this._processTestResults({ resultStore, context, error, moduleCaps });
                 caseResult.endTime = oxutil.getTimeStamp();
@@ -508,7 +508,7 @@ export default class OxygenRunner extends EventEmitter {
         await this._worker_callAfterCaseHook(caze, caseResult);
         this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
 
-        if(showIterationsMessages){
+        if (showIterationsMessages) {
             this._reporter.onIterationEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
         }
 
@@ -522,7 +522,7 @@ export default class OxygenRunner extends EventEmitter {
         if (!this._worker) {
             log.error('_worker is null but not suppose to!');
 
-            if(this._whenTestCaseFinished){
+            if (this._whenTestCaseFinished) {
                 this._whenTestCaseFinished.reject(new Error('_worker is null'));
             }
             return;            
@@ -556,14 +556,14 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_DisposeModules(status = null) {
-        if(this._worker && this._worker.disposeModules){
+        if (this._worker && this._worker.disposeModules) {
             await this._worker.disposeModules(status);
         }
     }
 
     async _worker_callBeforeTestHook() {
         try {
-            if(this && this._worker && this._worker.invokeTestHook){
+            if (this && this._worker && this._worker.invokeTestHook) {
                 await this._worker.invokeTestHook('beforeTest', [this._id, this._options, this._caps]);
             }
         }
@@ -574,7 +574,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async _worker_callBeforeSuiteHook(suite) {
         try {
-            if(this && this._worker && this._worker.invokeTestHook){
+            if (this && this._worker && this._worker.invokeTestHook) {
                 await this._worker.invokeTestHook('beforeSuite', [suite]);
             }
         }
@@ -637,7 +637,7 @@ export default class OxygenRunner extends EventEmitter {
             const { error } = payload;
             log.error('Worker process error: ', error);
            
-            if(this.exitDone){
+            if (this.exitDone) {
                 this.emit('test-error', error);
             } else {
                 _this._workerProcLastError = error;
@@ -693,14 +693,14 @@ export default class OxygenRunner extends EventEmitter {
                     _this.emit('init-done', msg);
                 }
             }
-            else if (msg.event && msg.event === 'workerError'){
+            else if (msg.event && msg.event === 'workerError') {
                 await this.dispose('failed');
                 this.kill();
             }
         });
     }
 
-    _hookWorkerDebuggerEvents(){
+    _hookWorkerDebuggerEvents() {
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {
             this.emit('breakpoint', breakpointData);
         });

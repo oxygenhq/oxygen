@@ -79,7 +79,7 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
         return this.table[this.currentRow];
     };
 
-    module.__defineGetter__('rows', function(){
+    module.__defineGetter__('rows', function() {
         return this.table.length;
     });
 
