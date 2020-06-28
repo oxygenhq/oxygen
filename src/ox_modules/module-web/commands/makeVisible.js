@@ -37,13 +37,15 @@ module.exports = function (locator) {
             var display = styles.display;
             var opacity = styles.opacity;
             if (display === 'none') {
-                curElm.style.display = 'block';
+                // in order to override any previously set '!important' style
+                // it needs to be set via cssText
+                curElm.style.cssText += ';display:block !important;';
             }
             if (visibility === 'hidden') {
-                curElm.style.visibility = 'visible';
+                curElm.style.cssText += ';visibility:visible !important;';
             }
             if (opacity === '0') {
-                curElm.style.opacity = 1;
+                curElm.style.cssText += ';opacity:1 !important;';
             }
             curElm = curElm.parentElement;
         }
