@@ -1,6 +1,7 @@
-import { fork, execSync } from 'child_process';
+import { fork, execSync, exec } from 'child_process';
 import { EventEmitter } from 'events';
 import { defer } from 'when';
+import deasync from 'deasync';
 
 // setup logger
 import logger from '../lib/logger';
@@ -40,8 +41,8 @@ export default class WorkerProcess extends EventEmitter {
         });
 
         log.info(`Starting worker process ${this._pid}.`);
-        let forkOpts = { 
-            cwd: process.cwd(), 
+        let forkOpts = {
+            cwd: process.cwd(),
             env,
             execArgv: [],
             detached: false,
@@ -54,30 +55,49 @@ export default class WorkerProcess extends EventEmitter {
 
         if (this._npmGRootExecution) {
             try {
-                const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
-    
-                if (execResult && execResult.toString) {
-                    let globalNpmModulesPath = execResult.toString().trim();
-    
-                    if (
-                        globalNpmModulesPath &&
-                        forkOpts &&
-                        forkOpts.env
-                    ) {
-                        forkOpts.env.NODE_PATH = globalNpmModulesPath;
+                let globalNpmModulesPath;
+
+                if (process.platform === 'darwin') {
+                    let done = false;
+
+                    exec('npm root -g', {cwd: process.cwd()}, function (err, stdout) {
+                        if (err) {
+                            console.log('darwin npm root error:', err);
+                            done = true;
+                        }
+                        if (stdout && stdout.toString) {
+                            globalNpmModulesPath = stdout.toString().trim();
+                        }
+                        done = true;
+                    });
+
+                    deasync.loopWhile(() => !done);
+                } else {
+                    const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
+
+                    if (execResult && execResult.toString) {
+                        globalNpmModulesPath = execResult.toString().trim();
                     }
+                }            
+
+                if (
+                    globalNpmModulesPath &&
+                    forkOpts &&
+                    forkOpts.env
+                ) {
+                    forkOpts.env.NODE_PATH = globalNpmModulesPath;
                 }
             } catch (e) {
                 console.log('npm root error:', e);
             }
         }
-        
+
         // fork worker
         this._childProc = fork(this._workerPath, forkOpts);
-        
+
         this._hookChildProcEvents();
         // if we are in debug mode, initialize debugger and only then start modules 'init'
-        
+
         this._isRunning = true;
         return this._childProc;
     }
@@ -90,7 +110,7 @@ export default class WorkerProcess extends EventEmitter {
 
     async stop(status = null) {
         if (this._isInitialized && this._childProc) {
-            if (this._debugger && this._debugger._paused) {                        
+            if (this._debugger && this._debugger._paused) {
                 await this._debugger.resumeTerminate();
             }
             await this.invoke('dispose', status);
@@ -98,7 +118,7 @@ export default class WorkerProcess extends EventEmitter {
         } else if (this._childProc) {
             await snooze(100);
         }
-        if (this._debugger) {                        
+        if (this._debugger) {
             await this._debugger.close();
         }
         this._reset();
@@ -113,8 +133,8 @@ export default class WorkerProcess extends EventEmitter {
             const beforeTime = new Date().getTime();
             await this.invoke('init', rid, options, caps);
 
-            const afterTime = new Date().getTime();    
-            const duration = afterTime - beforeTime;    
+            const afterTime = new Date().getTime();
+            const duration = afterTime - beforeTime;
             this._isInitialized = true;
             let start = '';
             if (this._name) {
@@ -125,7 +145,7 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async dispose(status = null) {
-        if (this._debugger) {                        
+        if (this._debugger) {
             await this._debugger.close();
         }
         if (this._isInitialized && this._childProc) {
@@ -138,7 +158,7 @@ export default class WorkerProcess extends EventEmitter {
             });
             this._childProc.kill('SIGINT');
 
-        } else if (this._childProc) {     
+        } else if (this._childProc) {
             this._isInitialized = false;
             this._send({
                 type: 'exit',
@@ -149,7 +169,7 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async disposeModules(status = null) {
-        if (this._debugger) {                        
+        if (this._debugger) {
             await this._debugger.close();
         }
         if (this._childProc) {
@@ -164,7 +184,7 @@ export default class WorkerProcess extends EventEmitter {
     get isRunning () {
         return this._isRunning;
     }
-    
+
     get isInitialized() {
         return this._isInitialized;
     }
@@ -185,7 +205,7 @@ export default class WorkerProcess extends EventEmitter {
 
     async invoke(method) {
         let args = Array.prototype.slice.call(arguments);
-        // ignore first argument - e.g. method 
+        // ignore first argument - e.g. method
         if (args.length > 0) {
             args.shift();
         }
@@ -199,7 +219,7 @@ export default class WorkerProcess extends EventEmitter {
             });
             this._calls[callId] = defer();
             return this._calls[callId].promise;
-        }        
+        }
     }
 
     async invokeTestHook(hookName, hookArgs) {
@@ -248,7 +268,7 @@ export default class WorkerProcess extends EventEmitter {
 
     _handleChildMessage(msg) {
         if (msg.event) {
-            switch (msg.event) {               
+            switch (msg.event) {
                 case 'invoke:result':
                     if (msg.callId && Object.prototype.hasOwnProperty.call(this._calls, msg.callId)) {
                         const promise = this._calls[msg.callId];
@@ -257,9 +277,9 @@ export default class WorkerProcess extends EventEmitter {
                         }
                         else {
                             promise.resolve(msg.retval);
-                        }                        
+                        }
                         delete this._calls[msg.callId];
-                    }                    
+                    }
                     break;
                 case 'reporter':
                     if (msg.method) {
@@ -282,7 +302,7 @@ export default class WorkerProcess extends EventEmitter {
             catch (e) {
                 log.error('Error thrown by worker event handler "${name}:', e);
             }
-        } 
+        }
     }
 
     _handleChildError(error) {
@@ -315,10 +335,10 @@ export default class WorkerProcess extends EventEmitter {
         this._debugger = new Debugger(this._pid);
         let whenDebuggerReady = defer();
         const _this = this;
-        // handle debugger events     
+        // handle debugger events
         this._debugger.on('ready', function(err) {
             // resume the first breakpoint which is automatically added by the debugger
-            _this._debugger.continue(); 
+            _this._debugger.continue();
             whenDebuggerReady.resolve();
         });
         this._debugger.on('error', function(err) {
