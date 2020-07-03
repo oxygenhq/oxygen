@@ -43,6 +43,9 @@ export default class JUnitXmlReporter extends FileReporterBase {
             let testCase = suite.testCase().name(caseResult.name);        
             testCase.className(caseResult.location);
             testCase.time(caseResult.duration ? caseResult.duration / 1000 : 0);
+            if (testCase._attributes && typeof testCase._attributes === 'object') {
+                testCase._attributes.status = caseResult.status;
+            }
             let lastFailedStep = null;
             for (let step of caseResult.steps) {
                 if (step.status === 'failed') {
