@@ -93,13 +93,13 @@ export default class CucumberWorker {
         }
     }
 
-    async run (runOpts) {
+    async run ({ scriptPath, context, poFile = null }) {
         try {
             Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
             
-            if (runOpts && runOpts.context && this.oxygen) {
-                const { context } = runOpts;
+            if (context && this.oxygen) {
                 this.oxygen.context = context;
+                this.oxygen.loadPageObjectFile(poFile);
             } else {
                 if (!this.oxygen) {
                     console.warn('this.oxygen is undefined');

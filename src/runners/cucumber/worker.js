@@ -135,7 +135,7 @@ async function invoke(method, args) {
             retval = await _worker[method].apply(_worker, args || []);
         }
         catch (e) {
-            console.log(`Failed to invoke: ${method}:`, e);
+            console.log(`Failed to invoke "${method}" method:`, e);
             error = e;
         }        
     }

@@ -79,15 +79,16 @@ export default class CucumberRunner {
             await this.worker.run({ 
                 context: {
                     caps: this.capabilities 
-                }
+                },
+                poFile: this.config.po || null,
             });
             this.reporter.onRunnerEnd(this.id, null);
-            return await this.reporter.waitForResult(this.id);
         }
         catch (e) {
             console.log('Fatal error in Cucumber runner:', e);
             this.reporter.onRunnerEnd(this.id, null, e);
         }
+        return await this.reporter.waitForResult(this.id);
     }
 
     async kill(status = null) {
