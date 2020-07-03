@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.6.1 (2020-07-03
+)
+#### :beetle: Bug Fix
+* Fix npm root -g mechanizm for macos
+
 ## v1.6.0 (2020-06-25)
 
 #### :tada: New Feature
