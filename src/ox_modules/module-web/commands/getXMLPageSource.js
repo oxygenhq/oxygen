@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Gets the source of the currently active window which displays `text/xml` page.
  * @function getXMLPageSource
@@ -23,7 +23,7 @@ module.exports = function() {
             const retval = this.driver.execute(() => {
                 // eslint-disable-next-line no-undef
                 var xmlEl = document.getElementById('webkit-xml-viewer-source-xml');
-                
+
                 return xmlEl ? xmlEl.innerHTML : null;
             });
 

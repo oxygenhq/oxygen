@@ -41,7 +41,7 @@ module.exports = {
         if (timeout) {
             module.exports.setTimeoutImplicit.call(this, timeout);
         }
-        
+
         var el;
         if (locator && locator.constructor && locator.constructor.name === 'Element') {
             el = locator;
@@ -85,7 +85,7 @@ module.exports = {
         if (timeout) {
             module.exports.setTimeoutImplicit.call(this, timeout);
         }
-        
+
         var els = this.driver.$$(this.helpers.getWdioLocator(locator));
 
         if (els.error && els.error.error === 'no such element') {
@@ -143,7 +143,7 @@ module.exports = {
         if (timeout) {
             module.exports.setTimeoutImplicit.call(this, timeout);
         }
-        
+
         locator = this.helpers.getWdioLocator(locator);
 
         var els = parentElement.$$(locator);
@@ -168,7 +168,7 @@ module.exports = {
         }
 
         let timeouts;
-        
+
         if (
             this.driver.capabilities &&
             this.driver.capabilities.browserName &&

@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Scrolls the view element until a specified target element inside the view is found.
  * @function scrollIntoElement

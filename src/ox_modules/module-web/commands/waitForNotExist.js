@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Waits for element to become unavailable in the DOM.
  * @function waitForNotExist
@@ -21,7 +21,7 @@ module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     this.helpers.setTimeoutImplicit(0);
-    
+
     var el;
     if (locator && locator.constructor && locator.constructor.name === 'Element') {
         el = locator;
@@ -38,7 +38,7 @@ module.exports = function(locator, timeout) {
     try {
         el.waitForExist((!timeout ? this.waitForTimeout : timeout), true);
     } catch (e) {
-        
+
         this.helpers.restoreTimeoutImplicit();
         if (e.message && e.message.includes('still existing')) {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STILL_EXISTS);

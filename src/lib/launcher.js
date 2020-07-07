@@ -11,7 +11,7 @@ import _ from 'lodash';
 import * as Runners from '../runners';
 import queue from 'async/queue';
 
-export default class Launcher { 
+export default class Launcher {
     constructor(config, reporter) {
         this._config = config;
         this.reporter = reporter;
@@ -44,7 +44,7 @@ export default class Launcher {
      * Private methods
      *********************************/
     _instantiateRunner(caps) {
-        if (this._config.framework && typeof this._config.framework === 'string') {        
+        if (this._config.framework && typeof this._config.framework === 'string') {
             if (Object.prototype.hasOwnProperty.call(Runners, this._config.framework)) {
                 return new Runners[this._config.framework]();
             }
@@ -65,7 +65,7 @@ export default class Launcher {
         }
         try {
             // initialize oxygen
-            await runner.init(this._config, caps, this.reporter);   
+            await runner.init(this._config, caps, this.reporter);
             // run Oxygen test 
             const result = await runner.run();
             this._results.push(result);

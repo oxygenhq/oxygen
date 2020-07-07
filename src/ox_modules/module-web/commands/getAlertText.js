@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Gets the text displayed by an alert or confirm dialog.
  * @function getAlertText

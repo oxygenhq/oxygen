@@ -20,13 +20,13 @@ export default class HtmlReporter extends FileReporterBase {
     constructor(options) {
         super(options);
     }
-    
+
     generate(results) {
         const resultFilePath = this.createFolderStructureAndFilePath('.html');
         const resultFolderPath = path.dirname(resultFilePath);
-    
+
         this.replaceScreenshotsWithFiles(results, resultFolderPath);
-        
+
         const templatePath = path.join(__dirname, '../ox_reporters/html/index.ejs');
         const summary = generateSummary(results);
         // render HTML and write it to file
@@ -90,7 +90,7 @@ function generateSummary(results) {
                     continue;
                 }
                 summary.totalSteps += caseResult.steps.length;
-                for (let stepResult of caseResult.steps) {                    
+                for (let stepResult of caseResult.steps) {
                     summary.passedSteps += stepResult.status === 'passed' ? 1 : 0;
                     summary.failedSteps += stepResult.status === 'failed' ? 1 : 0;
                     summary.skippedSteps += stepResult.status === 'skipped' ? 1 : 0;

@@ -22,7 +22,7 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     var el = this.helpers.getElement(locator, false, timeout);
     return el.getLocation();
 };

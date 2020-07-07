@@ -76,9 +76,9 @@ export default class CucumberRunner {
     async run () {
         try {
             this.reporter.onRunnerStart(this.id, this.config, this.capabilities);
-            await this.worker.run({ 
+            await this.worker.run({
                 context: {
-                    caps: this.capabilities 
+                    caps: this.capabilities
                 },
                 poFile: this.config.po || null,
             });
@@ -119,6 +119,6 @@ export default class CucumberRunner {
     callReporter({ method, args}) {
         if (this.reporter && this.reporter[method] && typeof this.reporter[method] === 'function') {
             this.reporter[method].apply(this.reporter, args);
-        }        
+        }
     }
 }

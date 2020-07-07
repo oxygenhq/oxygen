@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Selects window. Once window has been selected, all commands go to that window.
  * @description `windowLocator` can be:  

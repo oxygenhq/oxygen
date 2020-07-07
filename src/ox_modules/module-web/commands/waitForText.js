@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Waits for inner text of the given element to match the specified pattern.
  * @description Text pattern can be any of the supported 
@@ -25,7 +25,7 @@ module.exports = function(locator, pattern, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, false, timeout);
-    
+
     var text;
     try {
         this.driver.waitUntil(() => {

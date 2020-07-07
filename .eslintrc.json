@@ -14,7 +14,8 @@
         "no-unused-vars": ["error", { "args": "none" }],
         "require-atomic-updates": "off",
         "keyword-spacing": ["error", { "before": true, "after": true }],
-        "space-before-blocks": ["error"]
+        "space-before-blocks": ["error"],
+        "no-trailing-spaces": ["error", { "ignoreComments": true }]
     },
     "parserOptions": {
         "ecmaVersion": 2018,

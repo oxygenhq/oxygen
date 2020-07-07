@@ -102,7 +102,7 @@ export default class ApplitoolsModule extends OxygenModule {
             results = this._eyes.close(false);
         }
         finally {
-            this._eyes.abortIfNotClosed(); 
+            this._eyes.abortIfNotClosed();
         }
         this._eyes = null;
         super.dispose();

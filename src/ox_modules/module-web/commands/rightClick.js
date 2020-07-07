@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Perform right click on an element.
  * @function rightClick
@@ -19,7 +19,7 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     try {
         var el = this.helpers.getElement(locator, false, timeout);
 

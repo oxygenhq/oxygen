@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Waits for input element's value to match the specified pattern.
  * @description Value pattern can be any of the supported 
@@ -25,12 +25,12 @@ module.exports = function(locator, pattern, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, false, timeout);
-    
+
     var text;
     try {
         this.driver.waitUntil(() => {
             text = el.getValue();
-            
+
             return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

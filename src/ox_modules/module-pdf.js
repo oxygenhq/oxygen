@@ -33,7 +33,7 @@ function countRows(searchStr, rows, reverse) {
             } else {
                 inludes = line.includes(searchStr);
             }
-            
+
             if (inludes) {
                 result++;
             }
@@ -44,7 +44,7 @@ function countRows(searchStr, rows, reverse) {
 
 function checkRows(searchStr, rows, reverse) {
     let result = false;
-    
+
     Object.keys(rows) // => array of y-positions (type: float)
         .sort((y1, y2) => parseFloat(y1) - parseFloat(y2)) // sort float positions
         .some(y => {
@@ -59,7 +59,7 @@ function checkRows(searchStr, rows, reverse) {
             } else {
                 inludes = line.includes(searchStr);
             }
-            
+
             if (inludes) {
                 result = true;
                 return true;
@@ -132,12 +132,12 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
 
                         //check in the last page
                         let result = checkRows(searchStr, rows);
-                    
+
                         if (result) {
                             resolve(true);
                         }
                     }
-                    
+
                     resolve(false);
                 }
             }
@@ -194,10 +194,10 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false) {
             } else {
                 if (typeof item === 'undefined') {
                     // end of file
-                    
+
                     let hold = true;
                     currentPage++;
-                    
+
                     if (pageNum) {
                         if (pageNum > currentPage) {
                             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${currentPage} pages`);
@@ -212,12 +212,12 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false) {
 
                         //check in the last page
                         let result = countRows(searchStr, rows);
-                        
+
                         if (result && result > 0) {
                             totalResult+=result;
                         }
                     }
-                    
+
                     resolve(totalResult);
                 }
             }
@@ -298,7 +298,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) { 
+    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -314,7 +314,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
             assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
                     actual = result;
-                    
+
                     if (actual === expected) {
                         // ignore;
                     } else {
@@ -328,7 +328,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
                             // show message in result
                             savaMessage = message;
                         }
-                        
+
                         error = new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
                     }
                 },
@@ -337,7 +337,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
                     actual = false;
                 }
             );
-            
+
             deasync.loopWhile(() => typeof actual !== 'boolean');
         }
         catch (e) {
@@ -349,7 +349,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
         }
 
     };
-    
+
     /**
      * @summary Asserts that text is not present in a PDF file
      * @function assertNot
@@ -381,9 +381,9 @@ module.exports = function(options, context, rs, logger, modules, services) {
                     actual = false;
                 }
             );
-            
+
             deasync.loopWhile(() => typeof actual !== 'boolean');
-            
+
             if (actual === expected) {
                 // ignore;
             } else {
@@ -436,9 +436,9 @@ module.exports = function(options, context, rs, logger, modules, services) {
                 throw new OxError(errHelper.errorCode.PDF_ERROR, error.message || error);
             }
         );
-        
+
         deasync.loopWhile(() => { return typeof actual !== 'number'; });
-        
+
         return actual;
     };
 

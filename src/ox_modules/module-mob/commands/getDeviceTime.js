@@ -16,6 +16,6 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getDeviceTime(); //Gets the device time
  */
-module.exports = function() { 
+module.exports = function() {
     return this.driver.getDeviceTime();
 };

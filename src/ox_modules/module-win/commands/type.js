@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Send a sequence of key strokes to an element (clears value before).
  * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)

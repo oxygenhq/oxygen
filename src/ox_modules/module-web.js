@@ -199,9 +199,9 @@ export default class WebModule extends WebDriverModule {
         let initError = null;
         const _this = this;
 
-        
+
         if (
-            wdioOpts.capabilities && 
+            wdioOpts.capabilities &&
             wdioOpts.capabilities['perfectoMobile:options']
         ) {
             wdioOpts.capabilities.maxInstances = 1;
@@ -215,9 +215,9 @@ export default class WebModule extends WebDriverModule {
 
         try {
             this.driver = await wdio.remote(wdioOpts);
-            
+
             if (
-                wdioOpts.capabilities && 
+                wdioOpts.capabilities &&
                 wdioOpts.capabilities['perfectoMobile:options']
             ) {
 
@@ -228,7 +228,7 @@ export default class WebModule extends WebDriverModule {
                         }
                     }
                 });
-                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);  
+                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
                 this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
 
                 // avoid request abort
@@ -338,10 +338,10 @@ export default class WebModule extends WebDriverModule {
                         });
                         deasync.loopWhile(() => !done);
                     }
-                            
+
                     if (
-                        this.wdioOpts && 
-                        this.wdioOpts.capabilities && 
+                        this.wdioOpts &&
+                        this.wdioOpts.capabilities &&
                         this.wdioOpts.capabilities['perfectoMobile:options']
                     ) {
                         isPerfecto = true;
@@ -381,7 +381,7 @@ export default class WebModule extends WebDriverModule {
         } else {
             this.disposeContinue();
         }
-        
+
         return this._whenWebModuleDispose.promise;
     }
 
@@ -413,7 +413,7 @@ export default class WebModule extends WebDriverModule {
     }
 
     disposeContinue() {
-        
+
         this.driver = null;
         this.lastNavigationStartTime = null;
         super.dispose();
@@ -424,19 +424,19 @@ export default class WebModule extends WebDriverModule {
                     execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
                 }
             } else {
-                if (this.options && this.options.seleniumPid) {                    
+                if (this.options && this.options.seleniumPid) {
                     try {
                         let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
 
                         if (pgrepResult && pgrepResult.toString) {
 
-                            pgrepResult = pgrepResult.toString();    
+                            pgrepResult = pgrepResult.toString();
                             pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
-        
+
                             if (pgrepResult) {
                                 execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
                             }
-                        } 
+                        }
                     } catch (e) {
                         // ignore
                     }
@@ -508,7 +508,7 @@ export default class WebModule extends WebDriverModule {
                     return this.driver.takeScreenshot();
                 }
             } catch (e) {
-                this.logger.error('Cannot get screenshot', e);  
+                this.logger.error('Cannot get screenshot', e);
                 // ignore
             }
         }
@@ -586,7 +586,7 @@ export default class WebModule extends WebDriverModule {
             } catch (e) {
                 // couldn't get timings.
             }
-            
+
             this.lastNavigationStartTime = navigationStart;
             if (samePage) {
                 return {};
@@ -636,19 +636,19 @@ export default class WebModule extends WebDriverModule {
 
     _getHAR() {
         const logs = this.driver.getLogs('performance');
-    
+
         // in one instance, logs was not iterable for some reason - hence the following check:
         if (!logs || typeof logs[Symbol.iterator] !== 'function') {
             this.logger.error('getHAR: logs not iterable: ' + JSON.stringify(logs));
             return null;
         }
-    
+
         const events = [];
         for (let log of logs) {
             const msgObj = JSON.parse(log.message);   // returned as string
             events.push(msgObj.message);
         }
-    
+
         try {
             const har = harFromMessages(events);
             return JSON.stringify(har);

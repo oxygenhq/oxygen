@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Send a sequence of key strokes to an element (clears value before).
  * @description Refer to [Key Codes](https://w3c.github.io/webdriver/#keyboard-actions)
@@ -32,7 +32,7 @@ module.exports = function(locator, value, timeout) {
             this.driver &&
             this.driver.capabilities &&
             this.driver.capabilities.entityType &&
-            this.driver.capabilities.entityType === 'appium_driver'            
+            this.driver.capabilities.entityType === 'appium_driver'
         ) {
             let saveValue;
 
@@ -54,7 +54,7 @@ module.exports = function(locator, value, timeout) {
         }
     } catch (e) {
         if (
-            e && 
+            e &&
             e.message &&
             e.message.includes('java.lang.NullPointerException')
         ) {

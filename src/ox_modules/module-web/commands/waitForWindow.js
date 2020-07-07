@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
  /**
   * @summary Waits for a window to appear, but doesn't actually switches to it.
   * @description `windowLocator` can be:  

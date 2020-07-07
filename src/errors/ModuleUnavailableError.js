@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /*
  * Oxygen module is not available (e.g. ODBC due to missing libs)
  */

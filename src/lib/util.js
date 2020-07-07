@@ -33,7 +33,7 @@ var self = module.exports = {
     getTimeStamp: function() {
         return moment.utc().valueOf();
     },
-    
+
     generateTestSuiteFromJson: async function(suiteDef, testConfig, iterationCount = 1) {
         var suite = new require('../model/testsuite.js')();
         suite.id = null;
@@ -73,7 +73,7 @@ var self = module.exports = {
         testcase.path = filePath;
         testcase.format = 'js';
         testcase.iterationCount = 1;
-        
+
         var suite = new require('../model/testsuite.js')();
         suite.name = testcase.name;
         suite.id = testcase.id;
@@ -87,7 +87,7 @@ var self = module.exports = {
         // if parameter reading mode is 'all' then change iterationCount to the amount of rows in the param file
         if (suite.paramManager && paramMode == 'all') {
             suite.iterationCount = suite.paramManager.rows;
-        }        
+        }
         return suite;
     },
 
@@ -98,10 +98,10 @@ var self = module.exports = {
         if (paramFilePath && cwd && !path.isAbsolute(paramFilePath)) {
             paramFilePath = path.join(cwd, paramFilePath);
         }
-        
+
         return await self.loadParameterManager(mainFilePath, paramFilePath, paramMode, autoSearch);
     },
-    
+
     generateTestSuiteFromJsonFile: async function (filePath, paramFile, paramMode = null, options = {}) {
         const testConfig = {
             ...options || {},
@@ -217,7 +217,7 @@ var self = module.exports = {
     isInDebugMode: function() {
         // this always true;
         // const argv = process.execArgv.join();
-        
+
         // console.log('process.debugPort', process.debugPort);
         // console.log("argv.includes('inspect')", argv.includes('inspect'));
         // console.log("argv.includes('inspect-brk')", argv.includes('inspect-brk'));
@@ -256,7 +256,7 @@ var self = module.exports = {
             });
             mockery.registerMock('chai', chai);
 
-            await hooks[method].apply(undefined, args); 
+            await hooks[method].apply(undefined, args);
         }
         catch (e) {
             console.error(`Hook "${method}" has thrown an error: ${e.toString()}`);

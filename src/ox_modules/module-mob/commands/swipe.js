@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Perform a swipe on an element.
  * @function swipe
@@ -25,7 +25,7 @@ module.exports = function(locator, xoffset, yoffset, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = this.helpers.getElement(locator, false, timeout);
-    
+
     const location = el.getLocation();
 
     return this.driver.touchPerform([

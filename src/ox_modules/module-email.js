@@ -75,7 +75,7 @@ module.exports = function() {
         var mail;
         var now = (new Date()).getTime();
         var err;
-        
+
         while (!err && !mail && ((new Date()).getTime() - now) < timeout) {
             var done = false;
             imaps.connect(_config).then(function (connection) {

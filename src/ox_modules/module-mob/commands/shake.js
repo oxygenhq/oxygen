@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Perform shake action on the device
  * @description Supported on Android and iOS 9 or earlier versions. 

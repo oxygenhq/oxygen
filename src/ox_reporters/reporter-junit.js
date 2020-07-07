@@ -20,12 +20,12 @@ export default class JUnitXmlReporter extends FileReporterBase {
         super(options);
     }
 
-    generate(results) {        
+    generate(results) {
         var resultFilePath = this.createFolderStructureAndFilePath('.xml');
         var resultFolderPath = path.dirname(resultFilePath);
 
         this.replaceScreenshotsWithFiles(results, resultFolderPath);
-        
+
         for (let result of results) {
             for (let suite of result.suites) {
                 this._populateSuiteResults(suite, builder);
@@ -40,7 +40,7 @@ export default class JUnitXmlReporter extends FileReporterBase {
     _populateSuiteResults(suiteResult, builder) {
         var suite = builder.testSuite().name(suiteResult.name);
         for (let caseResult of suiteResult.cases) {
-            let testCase = suite.testCase().name(caseResult.name);        
+            let testCase = suite.testCase().name(caseResult.name);
             testCase.className(caseResult.location);
             testCase.time(caseResult.duration ? caseResult.duration / 1000 : 0);
             if (testCase._attributes && typeof testCase._attributes === 'object') {

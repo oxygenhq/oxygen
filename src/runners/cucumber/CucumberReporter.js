@@ -46,7 +46,7 @@ export default class CucumberReporter {
         this.oxygenEventListener.on('log', this.onOxygenLog);
     }
 
-    onBeforeOxygenCommand(e) {  
+    onBeforeOxygenCommand(e) {
     }
 
     onAfterOxygenCommand(e) {
@@ -91,7 +91,7 @@ export default class CucumberReporter {
         if (this.reportDispatcher.onSuiteStart && typeof this.reportDispatcher.onSuiteStart === 'function') {
             this.reportDispatcher.onSuiteStart(this.runnerId, uri, suiteResult);
         }
-        
+
     }
 
     onAfterFeature(uri, feature) {
@@ -166,7 +166,7 @@ export default class CucumberReporter {
         const caseResult = cases.find(x => x.location === caseId);
         const stepResult = this.currentStep = new TestStepResult();
         caseResult.steps.push(stepResult);
-        
+
         stepResult.name = step.text;
         stepResult.startTime = oxutil.getTimeStamp();
         stepResult.location = `${uri}:${step.location.line}`;
@@ -188,15 +188,15 @@ export default class CucumberReporter {
         const caseResult = cases.find(x => x.location === caseId);
         const stepLocation = `${uri}:${step.location.line}`;
         const stepResult = caseResult.steps.find(x => x.location === stepLocation);
-        
+
         stepResult.endTime = oxutil.getTimeStamp();
         stepResult.duration = stepResult.endTime - stepResult.startTime;
         stepResult.status = result.status;
         // get failure details if error was thrown in the step
-        if (result.exception) {         
+        if (result.exception) {
             //console.log('result.exception', result.exception)   
             stepResult.failure = errorHelper.getFailureFromError(result.exception);
-        }        
+        }
         // call test hook if defined
         if (typeof this.testHooks.afterStep === 'function') {
             this.testHooks.afterStep(this.runnerId, stepResult, result.exception);
@@ -211,8 +211,8 @@ export default class CucumberReporter {
 
     }
 
-    determineCaseStatus(caseResult) {        
-        const hasFailedStep = caseResult.steps.some(x => x.status === Status.FAILED);            
+    determineCaseStatus(caseResult) {
+        const hasFailedStep = caseResult.steps.some(x => x.status === Status.FAILED);
         if (hasFailedStep) {
             return Status.FAILED;
         }

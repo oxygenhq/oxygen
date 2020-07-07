@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Selects an option from a drop-down list using an option locator. This command works
  *          with multiple-choice lists as well.

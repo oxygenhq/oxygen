@@ -49,7 +49,7 @@ export default class DevToolsService extends OxygenService {
             // initialize DevToolsService and hook it to the current webdriver object
             const devToolsSvc = new WDIODevToolsService(options);
             const UNSUPPORTED_ERROR_MESSAGE = devToolsSvc.beforeSession(null, capabilities);
-    
+
             if (UNSUPPORTED_ERROR_MESSAGE) {
                 console.log('UNSUPPORTED_ERROR_MESSAGE', UNSUPPORTED_ERROR_MESSAGE);
             }

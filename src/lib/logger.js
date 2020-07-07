@@ -1,7 +1,7 @@
 Object.defineProperty(exports, '__esModule', {
     value: true
 });
-  
+
 const path = require('path');
 
 // explicitly set the config dir, otherwise if oxygen is globally installed it will use cwd

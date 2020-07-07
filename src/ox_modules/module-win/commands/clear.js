@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Clears element's value or content
  * @function clear
@@ -15,9 +15,9 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     var el = this.helpers.getElement(locator, false, timeout);
-    
+
     try {
         el.clearValue();
     } catch (e) {

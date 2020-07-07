@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Double clicks on an element.
  * @function doubleClick
@@ -19,7 +19,7 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     try {
         let el = this.helpers.getElement(locator, false, timeout);
 

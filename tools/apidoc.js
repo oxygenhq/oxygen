@@ -19,7 +19,7 @@ var SIGNATURE_HEAD = '<div style="position:relative;">' +
                 '<span class="signature">{0}</span>' +
                 '</h2>' +
                 '</div>';
-                
+
 const img = (name) => ` ![](../../.gitbook/assets/${name}.png) `;
 var SIGNATURE_AND = img('android');
 var SIGNATURE_IOS = img('apple');
@@ -44,7 +44,7 @@ var PARAMS = '<br></br> **Parameters:** <br></br>' +
              '</thead>' +
              '<tbody>{0}</tbody>' +
              '</table>';
-            
+
 var PARAMS_ROW = '<tr>' +
                  '<td class="name"><code>{0}</code></td>' +
                  '<td class="type">{1}</td>' +
@@ -52,12 +52,12 @@ var PARAMS_ROW = '<tr>' +
                  '</tr>';
 
 var OPTIONAL = '<code>optional</code> ';
-                 
+
 var RETURNS = '<br></br> **Returns:** <br></br>' +
                 '<div class="param-desc"><code>{0}</code> - {1}</div>';
 
 var EXAMPLE = '<br></br> **{0}:** <br></br>' +
-              '\n ```{1} \n' + 
+              '\n ```{1} \n' +
               '{2}'+
               '\n ``` </br>';
 
@@ -72,7 +72,7 @@ for (var m of modules) {
 
     if (fs.lstatSync(path.join(modPath, m)).isFile() && m.endsWith('.js')) {
         var modDir = path.join(modPath, 'module-' + name);
-        
+
         if (fs.existsSync(modDir)) {
             let modDoc = load(path.join(modPath, m), true);
             // load commands
@@ -132,9 +132,9 @@ function sort(methods) {
 function load(file, loadDescription) {
     try {
         var data = fs.readFileSync(file, 'utf8');
-    
+
         var regex = /(\/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)/g;
-        
+
         var commentRaw;
         var comments = [];
         var commentParsed;
@@ -142,7 +142,7 @@ function load(file, loadDescription) {
         var name = '';
         var note = '';
         var sample = '';
-        
+
         if (loadDescription) {
             commentRaw = regex.exec(data);
             commentParsed = doctrine.parse(commentRaw[0], { unwrap: true });
@@ -160,7 +160,7 @@ function load(file, loadDescription) {
                     } else if (tag.title === 'sample') {
                         sample = tag.description;
                     }
-                    
+
                 }
             } else {
                 description = commentParsed.description;
@@ -214,7 +214,7 @@ function load(file, loadDescription) {
                         });
 
                         return {
-                            description: tag.description.replace(/(\r\n|\n)/gm,''), 
+                            description: tag.description.replace(/(\r\n|\n)/gm,''),
                             type: type
                         };
                     }
@@ -239,7 +239,7 @@ function load(file, loadDescription) {
                         if (optional && type) {
                             type = type.replace('=', '');
                         }
-                        
+
                         type = type.replace('(', '');
                         type = type.replace(')', '');
 
@@ -250,7 +250,7 @@ function load(file, loadDescription) {
                         } else {
                             type = '`'+type+'`';
                         }
-                        
+
                         params.push({
                             description: tag.description.replace(/(\r\n|\n)/gm,''),
                             name: tag.name,
@@ -303,19 +303,19 @@ function generate(module, moduleName) {
     } catch (e) {
         // ignored
     }
-    
+
     for (let method of module.methods) {
         var params = method.getParams();
-        
+
         var paramConcat = [];
         for (let param of params) {
             paramConcat.push(param.name);
         }
-        
+
         var ret = method.getReturn();
-        
+
         var platforms = method.getFor();
-        
+
         var platformSignature = '';
         if (platforms) {
             platforms.forEach(function(item) {
@@ -346,7 +346,7 @@ function generate(module, moduleName) {
         var sigHtml = '';
 
         var methodDesc = method.getDescription();
-              
+
         var descHtml = DESCRIPTION.format(method.getSummary() +
                                           (methodDesc !== undefined ? '<br></br>' + methodDesc : ''));
 
@@ -360,7 +360,7 @@ function generate(module, moduleName) {
         if (example !== undefined) {
             var caption = '';
             var language = '';
-            
+
             var langStart = example.caption.indexOf('[');
             var langEnd = example.caption.indexOf(']');
             if (langStart !== -1 && langEnd !== -1) {
@@ -370,17 +370,17 @@ function generate(module, moduleName) {
             var exampleHtml = EXAMPLE.format(caption, language, example.description);
             outContent += exampleHtml;
         }
-        
+
         // parameters
         if (paramConcat.length > 0) {
             var paramRowsHtml = '';
-            
+
             for (let param of params) {
                 paramRowsHtml += PARAMS_ROW.format(param.name,
                                                     param.type,
                                                     (param.optional ? OPTIONAL : '') + param.description);
             }
-                
+
             outContent += PARAMS.format(paramRowsHtml);
         }
 

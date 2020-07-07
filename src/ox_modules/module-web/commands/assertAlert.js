@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Asserts whether alert matches the specified pattern and dismisses it.
  * @description Text pattern can be any of the supported
@@ -49,7 +49,7 @@ module.exports = function(pattern, timeout) {
         this.driver.dismissAlert();
     } catch (e) {
         this.driver.dismissAlert();
-        
+
         if (alertText && typeof alertText === 'string') {
             throw this.errHelper.getAssertError(pattern, alertText);
         }

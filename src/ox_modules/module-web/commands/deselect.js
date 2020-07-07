@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Deselects an option from multiple-choice drop-down list.
  * @description Option locator can be one of the following (No prefix is same as label matching):  

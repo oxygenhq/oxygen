@@ -77,25 +77,25 @@ module.exports = function() {
 
         if (port) {
             serialPort = new SerialPort(port, opts);
-    
+
             var opened = false;
             serialPort.on('open', () => {
                 opened = true;
             });
-    
+
             var error;
             serialPort.on('error', (err) => {
                 error = err;
             });
-    
+
             var parser = serialPort.pipe(new SerialPort.parsers.Readline());
             stringBuffer = new CircularStringBuffer(bufferSize);
             parser.on('data', (data) => {
                 stringBuffer.push(data.toString());
             });
-    
+
             deasync.loopWhile(() => !error && !opened);
-    
+
             if (error) {
                 throw new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, error.message);
             }
@@ -125,11 +125,11 @@ module.exports = function() {
                         return false;
                     }
                 }
-    
+
                 if ((new Date).getTime() - now >= timeout) {
                     throw new OxError(errHelper.errorCode.TIMEOUT);
                 }
-    
+
                 deasync.sleep(500);
                 return true;
             });
@@ -143,7 +143,7 @@ module.exports = function() {
      */
     module.write = function(data) {
         utils.assertArgument(data, 'data');
-        
+
         if (serialPort) {
             var done;
             serialPort.write(data);
@@ -171,7 +171,7 @@ module.exports = function() {
         this.maxSize = maxSize;
         this.size = 0;
     }
-    
+
     CircularStringBuffer.prototype = Object.create(Array.prototype);
 
     CircularStringBuffer.prototype.push = function(string) {

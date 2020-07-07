@@ -20,7 +20,7 @@
  * mob.smsClickLink(60000);//Clicks SMS message URL.
 */
 module.exports = function(timeout) {
-    this.helpers.assertArgumentTimeout(timeout, 'timeout'); 
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.waitForExist('id=android:id/message', timeout);
     this.click('id=android:id/button1');
 };

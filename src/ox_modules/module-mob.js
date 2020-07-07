@@ -124,7 +124,7 @@ export default class MobileModule extends WebDriverModule {
 
         if (
             caps &&
-            this.ctx.caps && 
+            this.ctx.caps &&
             this.ctx.caps['perfectoMobile:options']
         ) {
             delete caps.platformName;
@@ -142,7 +142,7 @@ export default class MobileModule extends WebDriverModule {
             }
         } else {
             if (
-                this.ctx.caps && 
+                this.ctx.caps &&
                 this.ctx.caps['perfectoMobile:options']
             ) {
                 this.ctx.caps.useAppiumForWeb = true;
@@ -218,8 +218,8 @@ export default class MobileModule extends WebDriverModule {
         };
 
         if (
-            wdioOpts.capabilities && 
-            wdioOpts.capabilities['sauce:options'] && 
+            wdioOpts.capabilities &&
+            wdioOpts.capabilities['sauce:options'] &&
             wdioOpts.capabilities['sauce:options']['testobject_api_key']
         ) {
             wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
@@ -227,7 +227,7 @@ export default class MobileModule extends WebDriverModule {
         }
 
         if (
-            wdioOpts.capabilities && 
+            wdioOpts.capabilities &&
             wdioOpts.capabilities['perfectoMobile:options']
         ) {
             wdioOpts.capabilities.maxInstances = 1;
@@ -239,7 +239,7 @@ export default class MobileModule extends WebDriverModule {
             delete wdioOpts.capabilities.manufacturer;
             delete wdioOpts.capabilities.model;
             delete wdioOpts.capabilities.browserName;
-        } 
+        }
 
         this.wdioOpts = wdioOpts;
 
@@ -247,9 +247,9 @@ export default class MobileModule extends WebDriverModule {
         try {
             this.driver = await wdio.remote(wdioOpts);
 
-            
+
             if (
-                wdioOpts.capabilities && 
+                wdioOpts.capabilities &&
                 wdioOpts.capabilities['perfectoMobile:options']
             ) {
 
@@ -260,7 +260,7 @@ export default class MobileModule extends WebDriverModule {
                         }
                     }
                 });
-                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);  
+                this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
                 this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
 
                 // avoid request abort
@@ -279,7 +279,7 @@ export default class MobileModule extends WebDriverModule {
         ) {
             this.appContext = 'WEB';
         }
-        
+
         // if we are running on Android 7+ emulator, and thus/or using a WebView Browser Tester -
         // perform an actual appContext switch to WEB
         // so Appium will delegate commands to Chrome Driver instead of Appium Driver
@@ -288,7 +288,7 @@ export default class MobileModule extends WebDriverModule {
         }
 
         await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
-        
+
         // clear logs if auto collect logs option is enabled
         if (this.options.collectDeviceLogs) {
             try {
@@ -307,10 +307,10 @@ export default class MobileModule extends WebDriverModule {
      */
     async dispose(status) {
         if (this.driver && this.isInitialized) {
-            
+
             if (
-                this.wdioOpts && 
-                this.wdioOpts.capabilities && 
+                this.wdioOpts &&
+                this.wdioOpts.capabilities &&
                 this.wdioOpts.capabilities['perfectoMobile:options']
             ) {
                 const passed = status && status.toUpperCase() === 'PASSED';
@@ -369,7 +369,7 @@ export default class MobileModule extends WebDriverModule {
             }
         }
     }
-    
+
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             try {
@@ -380,7 +380,7 @@ export default class MobileModule extends WebDriverModule {
                     return this.driver.takeScreenshot();
                 }
             } catch (e) {
-                this.logger.error('Cannot get screenshot', e);  
+                this.logger.error('Cannot get screenshot', e);
                 // ignore
             }
         }
@@ -414,7 +414,7 @@ export default class MobileModule extends WebDriverModule {
         // ignore the rest if mob module is not initialized
         if (!this.isInitialized) {
             return;
-        }        
+        }
         // collect all the device logs for this session
         if (this.options.collectDeviceLogs) {
             try {
@@ -427,7 +427,7 @@ export default class MobileModule extends WebDriverModule {
             }
             catch (e) {
                 // ignore errors
-                this.logger.error('Cannot retrieve device logs.', e);  
+                this.logger.error('Cannot retrieve device logs.', e);
             }
         }
         // collect all Appium logs for this session
@@ -442,7 +442,7 @@ export default class MobileModule extends WebDriverModule {
             }
             catch (e) {
                 // ignore errors
-                this.logger.error('Cannot retrieve Appium logs.', e);  
+                this.logger.error('Cannot retrieve Appium logs.', e);
             }
         }
     }
@@ -455,7 +455,7 @@ export default class MobileModule extends WebDriverModule {
             return locator; // leave xpath locator as is
         }
         const platform = this.caps && this.caps.platformName ? this.caps.platformName.toLowerCase() : null;
-        
+
         if (this.appContext === 'NATIVE_APP' && platform === 'android') {
             if (locator.indexOf('id=') === 0) {
                 // prepend package name if it's not specified
@@ -495,12 +495,12 @@ export default class MobileModule extends WebDriverModule {
             else if (locator.indexOf('css=') === 0)
                 return locator.substr('css='.length);           // in case of css, just remove css= prefix
         }
-        
+
         return locator;
     }
 
-    _loadHelperFunctions() {  
-        this.helpers.getWdioLocator = this._getWdioLocator;      
+    _loadHelperFunctions() {
+        this.helpers.getWdioLocator = this._getWdioLocator;
         this.helpers.matchPattern = modUtils.matchPattern;
         this.helpers.getElement = modUtils.getElement;
         this.helpers.getElements = modUtils.getElements;

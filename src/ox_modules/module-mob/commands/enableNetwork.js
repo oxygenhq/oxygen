@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Enable or disable wifi or data.
  * @function enableNetwork
@@ -68,7 +68,7 @@ module.exports = function(wifi, data) {
         'svc',
         'data',
         data ? 'enable' : 'disable'
-    ], 
+    ],
     {stdio: 'inherit'});
 
     cp.execFileSync('adb', [
@@ -78,6 +78,6 @@ module.exports = function(wifi, data) {
         'svc',
         'wifi',
         wifi ? 'enable' : 'disable'
-    ], 
+    ],
     {stdio: 'inherit'});
 };

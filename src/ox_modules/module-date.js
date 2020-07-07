@@ -15,7 +15,7 @@ module.exports = function() {
     module.isInitialized = function() {
         return true;
     };
-    
+
     var moment = require('moment');
 
     /**
@@ -44,6 +44,6 @@ module.exports = function() {
             return moment().add(value, unit).format(format);
         }
     };
-    
+
     return module;
 };

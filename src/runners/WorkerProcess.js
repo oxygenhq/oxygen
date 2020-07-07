@@ -78,7 +78,7 @@ export default class WorkerProcess extends EventEmitter {
                     if (execResult && execResult.toString) {
                         globalNpmModulesPath = execResult.toString().trim();
                     }
-                }            
+                }
 
                 if (
                     globalNpmModulesPath &&

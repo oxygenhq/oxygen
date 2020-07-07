@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
  * @description This includes the `open` command, `waitFor*` commands, and commands which wait

@@ -40,7 +40,7 @@ export async function loadSuites(config, argv) {
         }
         // check if more suites are defined in the 'suites' folder
         const suitesFolder = path.join(target.cwd, 'suites');
-        if (fs.existsSync(suitesFolder)) {            
+        if (fs.existsSync(suitesFolder)) {
             suiteDefs = [
                 ...suiteDefs,
                 ...loadSuiteDefinitionsFromFolder(suitesFolder)
@@ -123,7 +123,7 @@ export function getConfigurations(target, argv) {
         targetCwd = target.cwd;
     }
 
-    const DEFAULT_OPTS = {        
+    const DEFAULT_OPTS = {
         cwd: target ? (targetCwd || process.cwd()) : process.cwd(),
         target: target,
         browserName: 'chrome',
@@ -135,7 +135,7 @@ export function getConfigurations(target, argv) {
         delay: null,
         collectDeviceLogs: false,
         collectAppiumLogs: false,
-        collectBrowserLogs: false,        
+        collectBrowserLogs: false,
         reporting: {
             reporters: ['html']
         },
@@ -145,15 +145,15 @@ export function getConfigurations(target, argv) {
         },
     };
     // retrieve options provided via command line arguments
-    const cmdOpts = getCommandLineOptions(argv); 
+    const cmdOpts = getCommandLineOptions(argv);
     // if the target is oxygen config file, merge its content with the default options
     let projConfigOpts = {};
     if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
         projConfigOpts = require(target.path);
     }
     // load environments definition
-    const envs = getEnvironments(target);    
-    
+    const envs = getEnvironments(target);
+
     if (projConfigOpts.envs) {
         // merge external environments definition with the one in the config file
         projConfigOpts.envs = { ...projConfigOpts.envs, ...envs };
@@ -195,7 +195,7 @@ export function getCommandLineOptions(argv) {
         if (argv.ro && typeof argv.ro === 'string' && argv.ro.length > 0) {
             opts.reporting.outputDir = argv.ro;
         }
-    }    
+    }
     // option: -p or --param and --pm
     if (argv.p || argv.param) {
         opts.parameters = {
@@ -203,7 +203,7 @@ export function getCommandLineOptions(argv) {
             mode: argv.pm || 'seq'
         };
     }
-    
+
     // switch: --specs - set specs if set by user through comnand line
     if (argv.specs && typeof argv.specs === 'string' && argv.specs.length > 0) {
         const specs = argv.specs.split(',');
@@ -241,7 +241,7 @@ export function processTargetPath(targetPath) {
     else {
         targetPath = oxutil.resolvePath(targetPath, process.cwd());
     }
-    
+
     if (!fs.existsSync(targetPath)) {
         return null;
     }
@@ -268,7 +268,7 @@ export function processTargetPath(targetPath) {
         // working directory
         cwd: path.dirname(targetPath),
         // name of the target file without extension
-        name: oxutil.getFileNameWithoutExt(targetPath),        
+        name: oxutil.getFileNameWithoutExt(targetPath),
         // name including extension
         fullName: path.basename(targetPath),
         // parent folder's name

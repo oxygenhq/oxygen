@@ -38,25 +38,25 @@ const errorHelper = require('../../errors/helper');
 
 const reporter = {
     onSuiteStart: function(...args) {
-        emitReporterEvent('onSuiteStart', args);        
+        emitReporterEvent('onSuiteStart', args);
     },
     onSuiteEnd: function(...args) {
-        emitReporterEvent('onSuiteEnd', args);        
+        emitReporterEvent('onSuiteEnd', args);
     },
     onCaseStart: function(...args) {
-        emitReporterEvent('onCaseStart', args);        
+        emitReporterEvent('onCaseStart', args);
     },
     onCaseEnd: function(...args) {
-        emitReporterEvent('onCaseEnd', args);        
+        emitReporterEvent('onCaseEnd', args);
     },
     onStepStart: function(...args) {
-        emitReporterEvent('onStepStart', args);        
+        emitReporterEvent('onStepStart', args);
     },
     onStepEnd: function(...args) {
-        emitReporterEvent('onStepEnd', args);        
+        emitReporterEvent('onStepEnd', args);
     },
     onRunnerEnd: function(...args) {
-        emitReporterEvent('onRunnerEnd', args);        
+        emitReporterEvent('onRunnerEnd', args);
     }
 };
 
@@ -126,11 +126,11 @@ process.on('message', async function (msg) {
         processSend({
             event: 'invoke:result',
             method: method,
-            callId: callId, 
+            callId: callId,
             error: error,
             retval: retval
         });
-    } 
+    }
     else if (msg.type === 'subscribe') {
         subscribe(msg.event);
     }
@@ -162,14 +162,14 @@ function processSend(msg) {
 
 async function invoke(method, args) {
     let retval, error;
-    if (_worker && _worker[method] && typeof _worker[method] === 'function') {        
+    if (_worker && _worker[method] && typeof _worker[method] === 'function') {
         try {
             retval = await _worker[method].apply(_worker, args || []);
         }
         catch (e) {
             console.log(`Failed to invoke: ${method}:`, e);
             error = e;
-        }        
+        }
     }
     else {
         error = new Error(`Method "${method}" does not exist`);
@@ -177,18 +177,18 @@ async function invoke(method, args) {
     // convert JS error to Oxygen Failure object
     if (error) {
         error = errorHelper.getFailureFromError(error);
-    }    
+    }
     return { retval, error };
 }
 
 async function invokeTestHook(method, args) {
     let retval = undefined, error = null;
     try {
-        retval = await _worker.callTestHook(method, args);        
+        retval = await _worker.callTestHook(method, args);
     }
     catch (e) {
         error = e;
-    }        
+    }
     return { retval, error };
 }
 

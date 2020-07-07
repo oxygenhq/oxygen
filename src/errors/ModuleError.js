@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /*
  * Used to denote JavaScript level errors in user's script: TypeError, SyntaxError, etc.
  */

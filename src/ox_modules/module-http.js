@@ -20,7 +20,7 @@ module.exports = function() {
     var deasync = require('deasync');
 
     const _responseTimeout = 1000 * 30;   // in ms
-    
+
     module.isInitialized = function() {
         return true;
     };

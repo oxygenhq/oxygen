@@ -221,7 +221,7 @@ export default class CucumberEventListener extends EventEmitter {
 
         this.emit('scenario:after', uri, feature, scenario, sourceLocation);
 
-        this.currentPickle = null;        
+        this.currentPickle = null;
     }
 
     onTestRunStarted (testRunStartedEvent) {
@@ -236,7 +236,7 @@ export default class CucumberEventListener extends EventEmitter {
             this.emit('feature:after', this.currentFeatureUri, this.currentFeature);
             this.currentFeature = null;
         }
-        
+
         this.emit('test:end', testRunFinishedEvent.result);
     }
 }

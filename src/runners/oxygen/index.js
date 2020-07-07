@@ -151,7 +151,7 @@ export default class OxygenRunner extends EventEmitter {
                 // if 'env' is a string, then resolve the actual variables from 'envs' object
                 if (typeof options.env === 'string' && typeof options.envs === 'object' && options.envs[options.env]) {
                     optEnv = options.envs[options.env];
-                    
+
                 }
                 // if 'env' is an object, use the variables defined in it
                 else if (typeof options.env === 'object' && Object.keys(options.env)) {
@@ -232,7 +232,7 @@ export default class OxygenRunner extends EventEmitter {
 
     async kill(status = null) {
         this._testKilled = true;
-        
+
         if (this._worker && this._worker.isRunning) {
             await this._worker.kill(status);
         }
@@ -241,7 +241,7 @@ export default class OxygenRunner extends EventEmitter {
     debugContinue() {
         if (this._debugMode && this._worker) {
             this._worker.debugger.continue();
-        } 
+        }
     }
 
     async updateBreakpoints(breakpoints, filePath) {
@@ -285,15 +285,15 @@ export default class OxygenRunner extends EventEmitter {
                 let promiseAllPromise = await Promise.all(promises).then((value) => {
                     return value;
                 });
-                                
+
                 await this._worker.debugger.setBreakpointsActive(true);
 
                 await snooze(500);
 
                 log.debug('updateBreakpoints() done.');
-                
+
                 const breakpointsAferManipulations = this._worker.debugger.getBreakpoints(filePath);
-            
+
                 return { promiseAllPromise : promiseAllPromise, breakpointsAferManipulations : breakpointsAferManipulations };
             } else {
                 return null;
@@ -343,13 +343,13 @@ export default class OxygenRunner extends EventEmitter {
         }
         result.endTime = oxutil.getTimeStamp();
         result.duration = result.endTime - result.startTime;
-        
+
         const hasFailedSuites = result.suites.some(suiteIterations => {
             if (suiteIterations && Array.isArray(suiteIterations) && suiteIterations.length > 0) {
                 return suiteIterations.some(x => x.status === Status.FAILED);
             }
         });
-        
+
         result.status = hasFailedSuites ? Status.FAILED : Status.PASSED;
         result.environment = { ...this._env };
         // combine test defined caps and per module capabilities, that were passed by user in each module's init function
@@ -458,13 +458,13 @@ export default class OxygenRunner extends EventEmitter {
         caseResult.name = caze.name;
         caseResult.location = caze.path;
         caseResult.iterationNum = caseIteration;
-        
+
         if (showIterationsMessages) {
             this._reporter.onIterationStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caseResult);
         }
 
         // try to initialize Oxygen and handle any possible error
-        try {            
+        try {
             await (!(this._worker) && this._worker_InitOxygen());
         }
         catch (e) {
@@ -488,7 +488,7 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
                 caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
                 caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
-    
+
                 // determine test case iteration status - mark it as failed if any step has failed
                 var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
                 caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
@@ -503,8 +503,8 @@ export default class OxygenRunner extends EventEmitter {
             log.error('_worker_Run() thrown an error:', e);
             caseResult.failure = errorHelper.getFailureFromError(e);
             caseResult.status = Status.FAILED;
-            
-        } 
+
+        }
         await this._worker_callAfterCaseHook(caze, caseResult);
         this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
 
@@ -517,7 +517,7 @@ export default class OxygenRunner extends EventEmitter {
 
         return caseResult;
     }
-    
+
     async _worker_Run(suite, caze, suiteIteration, caseIteration, params) {
         if (!this._worker) {
             log.error('_worker is null but not suppose to!');
@@ -525,7 +525,7 @@ export default class OxygenRunner extends EventEmitter {
             if (this._whenTestCaseFinished) {
                 this._whenTestCaseFinished.reject(new Error('_worker is null'));
             }
-            return;            
+            return;
         }
         // start running the test
         return await this._worker.run({
@@ -636,7 +636,7 @@ export default class OxygenRunner extends EventEmitter {
         this._worker.on('error', (payload) => {
             const { error } = payload;
             log.error('Worker process error: ', error);
-           
+
             if (this.exitDone) {
                 this.emit('test-error', error);
             } else {
@@ -646,7 +646,7 @@ export default class OxygenRunner extends EventEmitter {
         this._worker.on('exit', (payload) => {
             this.exitDone = true;
             const { exitCode } = payload;
-            
+
             if (exitCode && exitCode !== 0) {
                 // if the test is running or is being disposed and the child process has died,
                 // then end the test or disposal with fatal error
@@ -664,8 +664,8 @@ export default class OxygenRunner extends EventEmitter {
                 }
                 else if (!error) {
                     error = new OxygenError(`Worker process exited with code: ${exitCode}.`);
-                }                
-                
+                }
+
                 promise && promise.reject(error);
                 _this._resetGlobalVariables();
             }
@@ -684,10 +684,10 @@ export default class OxygenRunner extends EventEmitter {
 
                 _this.emit('log', msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
                 _this._reporter && _this._reporter.onLogEntry(msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
-            } 
+            }
             else if (msg.event && msg.event === 'line-update') {
                 _this.emit('line-update', msg.line, msg.stack, msg.time);
-            } 
+            }
             else if (msg.event && msg.event === 'result-update') {
                 if (msg.method === 'init') {
                     _this.emit('init-done', msg);
@@ -707,7 +707,7 @@ export default class OxygenRunner extends EventEmitter {
 
         this._worker.debugger && this._worker.debugger.on('debugger:breakError', (breakError) => {
             this.emit('breakpointError', breakError);
-        });        
+        });
     }
 
     _handleBeforeCommand(e) {
@@ -735,7 +735,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         if (error) {
             this.emit('test-error', error);
-        }        
+        }
         // store 'vars' part of the context for a later use
         this._vars = context.vars || this._vars;
         // store 'modCaps' part of the context for a later use

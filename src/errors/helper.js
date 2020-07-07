@@ -6,11 +6,11 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * Helper module for handling and converting various error types
  */
- 
+
 import OxError from './OxygenError';
 const util = require('util');
 
@@ -123,7 +123,7 @@ module.exports = {
         if (err instanceof OxError) {
             return err;
         }
-                
+
         var errType = err.type || err.name || typeof err;
         // handle "Can't call <command> on element with selector <selector> because element wasn't found"
         if (err.message && err.message.includes('because element wasn\'t found')) {
@@ -179,7 +179,7 @@ module.exports = {
         var oxErrorCode = CHAI_ERROR_CODES[errType];
         if (oxErrorCode) {
             // throw non-fatal error if it's a "verify" module or method 
-            if (oxErrorCode === ERROR_CODES.ASSERT && 
+            if (oxErrorCode === ERROR_CODES.ASSERT &&
 				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
@@ -190,7 +190,7 @@ module.exports = {
         oxErrorCode = SCRIPT_ERROR_CODES[errType];
         if (oxErrorCode) {
             // throw non-fatal error if it's a "verify" module or method 
-            if (oxErrorCode === ERROR_CODES.ASSERT && 
+            if (oxErrorCode === ERROR_CODES.ASSERT &&
 				(module === 'verify' || cmd.indexOf('verify') === 0)) { // verify.*, *.verify*
                 return new OxError(ERROR_CODES.VERIFY, err.message, null, false);
             }
@@ -200,7 +200,7 @@ module.exports = {
         console.log('=== Error Details ===');
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
         console.log(util.inspect(err));
-        
+
         const errMessage = err.message ? `${errType}: ${err.message}` : `${errType}`;
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err), true, err);
     },
@@ -214,7 +214,7 @@ module.exports = {
             if (err.message.includes('Unable to create new service: ChromeDriverService')) {
                 return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, err.message, null, true, err);
             }
-            
+
             if (err.message.includes('Unable to create new service:')) {
                 return new OxError(ERROR_CODES.SELENIUM_UNREACHABLE_ERROR, err.message, null, true, err);
             }

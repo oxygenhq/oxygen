@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Return true if alert dialog is currently present on the screen.
  * @function isAlertPresent

@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Clicks on an element.
  * @description If the click causes new page to load, the command waits for page to load before
@@ -21,7 +21,7 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     try {
         var el = this.helpers.getElement(locator, false, timeout);
 

@@ -32,7 +32,7 @@ const deleteValues = (arr, depth) => {
     if (depth > maxFindedDepth) {
         maxFindedDepth = depth;
     }
-    
+
     if (depth > MAX_DEPTH) {
         return [];
     }
@@ -60,7 +60,7 @@ function extractBreakpointData(bpStr) {
     }
     const parts = bpStr.split(':');
     try {
-        
+
         let fileName;
         let lineNumber;
 
@@ -71,7 +71,7 @@ function extractBreakpointData(bpStr) {
             fileName = parts[parts.length-1];
             lineNumber = parseInt(parts[1]);
         }
-    
+
         return {
             fileName: fileName,
             lineNumber: lineNumber
@@ -85,7 +85,7 @@ function extractBreakpointData(bpStr) {
 
 function validateBreakpoint(breakpoint) {
     const brObj = extractBreakpointData(breakpoint.breakpointId);
-              
+
     const brLineNumber = brObj.lineNumber + 1; // from 0-base to 1 base;
 
     if (breakpoint && breakpoint.locations && Array.isArray(breakpoint.locations) && breakpoint.locations.length > 0) {
@@ -146,7 +146,7 @@ export default class Debugger extends EventEmitter {
             // console.log('getProperties e', e);
         }
         let clone = Object.assign({}, data);
-        
+
         if (clone && clone && clone.result) {
             clone = Object.assign({}, clone, {
                 result: deleteValues(clone.result, depth)
@@ -164,7 +164,7 @@ export default class Debugger extends EventEmitter {
         if (promiseAllPromise && Array.isArray(promiseAllPromise) && promiseAllPromise.length > 0) {
             promiseAllPromise = promiseAllPromise.filter((item) => !!item);
         }
-        
+
         return promiseAllPromise;
     }
 
@@ -172,7 +172,7 @@ export default class Debugger extends EventEmitter {
         const promises = [];
 
         const getPropertiesResult = await this.getPropertiesByObjectId(objectId, depth, elm);
-            
+
         if (getPropertiesResult) {
             if (getPropertiesResult && getPropertiesResult.result && Array.isArray(getPropertiesResult.result)) {
 
@@ -189,7 +189,7 @@ export default class Debugger extends EventEmitter {
                 });
 
                 const mapResultFiltered = mapResult.filter((item) => !!item);
-                                
+
                 const result = {
                     depth: depth,
                     objectId: objectId,
@@ -201,7 +201,7 @@ export default class Debugger extends EventEmitter {
                 if (mapResultFiltered && Array.isArray(mapResultFiltered) && mapResultFiltered.length > 0) {
 
                     const promiseAllPromise = await this.getPromiceAllResult(mapResultFiltered);
-                    
+
                     if (promiseAllPromise && Array.isArray(promiseAllPromise) && promiseAllPromise.length > 0) {
                         result.child = promiseAllPromise;
                         return result;
@@ -240,7 +240,7 @@ export default class Debugger extends EventEmitter {
             if (chain && chain.object && chain.object.objectId) {
                 if (typeof chain.object.objectId === 'string' && chain.type !== 'global') {
                     const getPropertiesResult = await this.getProperties(chain.object.objectId, depth);
-                    
+
                     return getPropertiesResult;
                 } else {
                     return null;
@@ -251,7 +251,7 @@ export default class Debugger extends EventEmitter {
         });
 
         scopeChainResult = scopeChainResult.filter((el) => !!el);
-        
+
         return Promise.all(scopeChainResult).then(values => {
             if (Array.isArray(values)) {
                 return values.filter((el) => !!el);
@@ -378,9 +378,9 @@ export default class Debugger extends EventEmitter {
                             });
 
                             breakpointsFromOldLocationResult = breakpointsFromOldLocationResult.filter((el) => !!el);
-                
+
                             Promise.all(breakpointsFromOldLocationResult).then(async(value) => {
-                                await this._Debugger.resume();                                
+                                await this._Debugger.resume();
                                 this._paused = true;
                                 await this._Debugger.pause();
                             });
@@ -390,7 +390,7 @@ export default class Debugger extends EventEmitter {
                 }
             }
         });
-        
+
         this._client.on('Debugger.paused', (e) => {
             this._paused = true;
             if (e.reason === 'Break on start') {
@@ -410,7 +410,7 @@ export default class Debugger extends EventEmitter {
                         }
                     });
                 }
-                
+
 
                 let breakpointsMapResult = this._breakpoints.map(async(bp) => {
                     if (bp &&
@@ -422,14 +422,14 @@ export default class Debugger extends EventEmitter {
                         bp.locations[0].lineNumber === eCallFrames[0].location.lineNumber) {
 
                         const initialDepth = 1;
-                            
+
                         if (e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0) {
                             const uniqueScriptIdArr = [];
                             const callFrames = e.callFrames.filter((item) => {
                                 if (item && item.url) {
                                     const finded = this._breakpoints.find((breakpoint) => {
                                         let result = false;
-                                        
+
                                         if (breakpoint.breakpointId.endsWith(item.url)) {
                                             result = true;
                                         }
@@ -460,9 +460,9 @@ export default class Debugger extends EventEmitter {
                                 callFrames.map(async(item) => {
                                     let possibleBreakpoints = await this.getPossibleBreakpoints(item.location);
                                     const scriptSource = await this.getScriptSource(item.location.scriptId);
-        
+
                                     const scriptSourceSplit = scriptSource.scriptSource.split('\n');
-                                    
+
 
                                     let fileLineNumbersLength = 0;
                                     if (scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0) {
@@ -496,19 +496,19 @@ export default class Debugger extends EventEmitter {
                             let callFramesMapResult = await this.processCallFrames(callFrames, initialDepth);
 
                             callFramesMapResult = callFramesMapResult.filter((el) => !!el);
-                                                        
+
                             return callFramesMapResult;
                         } else {
                             return null;
                         }
-                        
+
                     } else {
                         return null;
                     }
                 });
 
                 breakpointsMapResult = breakpointsMapResult.filter((el) => !!el);
-                
+
                 Promise.all(breakpointsMapResult).then(value => {
                     let saveValue = value;
 
@@ -517,7 +517,7 @@ export default class Debugger extends EventEmitter {
                     }
 
                     if (saveValue && Array.isArray(saveValue) && saveValue.length > 0) {
-                        let breakpointData = null;     
+                        let breakpointData = null;
 
                         // assume we always send breakpoint of the top call frame
                         if (eCallFrames && eCallFrames.length > 0) {
@@ -568,19 +568,19 @@ export default class Debugger extends EventEmitter {
                                 if (breakpointError && breakpointError.msg && breakpointError.fileName && breakpointError.line) {
 
                                     let msg;
-                                    
+
                                     if (possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0) {
                                         possibleBreakpointsData.map((item) => {
-                                            if (item && item.file === breakpointError.fileName) {   
+                                            if (item && item.file === breakpointError.fileName) {
                                                 let line;
-                                                
+
                                                 if (breakpointError.line >= item.fileLineNumbersLength) {
                                                     line = breakpointError.line - 2; // //# sourceMappingURL and }.call(this, exports, require, module, __filename, __dirname); });
                                                 } else {
                                                     line = breakpointError.line;
                                                 }
-        
-        
+
+
                                                 if (item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0) {
                                                     if (breakpointError && breakpointError.msg && breakpointError.msg.includes('Possible breakpoint lines')) {
                                                         // ignore
@@ -617,7 +617,7 @@ export default class Debugger extends EventEmitter {
 
                 }, reason => {
                     // console.log('breakpointsMapResult res reason' , reason);
-                }); 
+                });
 
             }
         });
@@ -723,7 +723,7 @@ export default class Debugger extends EventEmitter {
 
             this._breakpoints.push(breakpoint);
         }
-        
+
         return breakpoint;
 
     }
@@ -741,9 +741,9 @@ export default class Debugger extends EventEmitter {
         this._breakpoints = this._breakpoints.filter((bp) => {
             return bp.breakpointId !== breakpointId;
         });
-        
+
         const removeBr = { breakpointId: breakpointId };
-        
+
         return await this._Debugger.removeBreakpoint(removeBr);
     }
 
@@ -782,7 +782,7 @@ export default class Debugger extends EventEmitter {
                         const parts = b.breakpointId.split(':');
                         let fileName;
                         let lineNumber;
-    
+
                         if (process.platform === 'win32') { // path may contain a Drive letter on win32
                             fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
                             lineNumber = parseInt(parts[1]);
@@ -790,8 +790,8 @@ export default class Debugger extends EventEmitter {
                             fileName = parts[parts.length-1];
                             lineNumber = parseInt(parts[1]);
                         }
-    
-                        
+
+
                         if (
                             (fileName === filePath || fileName === filePathAlias)
                             && lineNumber === line
@@ -819,14 +819,14 @@ export default class Debugger extends EventEmitter {
 
     async getPossibleBreakpoints(startLocation) {
         const result = [];
-        const possibleBreakpoints = await this._Debugger.getPossibleBreakpoints({ 
+        const possibleBreakpoints = await this._Debugger.getPossibleBreakpoints({
             start: {
                 scriptId: startLocation.scriptId,
                 lineNumber: 0,
                 columnNumber: 0
             }
         });
-        
+
         if (possibleBreakpoints && possibleBreakpoints.locations && Array.isArray(possibleBreakpoints.locations) && possibleBreakpoints.locations.length > 0) {
             possibleBreakpoints.locations.map((item) => {
                 if (item && typeof item.lineNumber !== 'undefined') {
@@ -860,26 +860,26 @@ export default class Debugger extends EventEmitter {
         //             if(CDP.List){
         //                 CDP.List({ port: this._port, host: this._host }, (err, targets) => {
         //                     if(targets && Array.isArray(targets) && targets.length > 0){
-    
+
         //                         this.closeDone = false;
-    
+
         //                         targets.map((target) => {
         //                             const promise = CDP.Close({id: target.id}, (err) => {
         //                                 this.closeDone = true;
         //                             });
-                            
+
         //                             if(promise && promise.then){
         //                                 promise.then(() => {
-    
+
         //                                 }, () => {
-    
+
         //                                 });
         //                             }
-    
+
         //                         });
-    
+
         //                         deasync.loopWhile(() => !this.closeDone);
-                                
+
         //                     }
         //                 });
         //             }

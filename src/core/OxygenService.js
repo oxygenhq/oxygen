@@ -20,7 +20,7 @@ export default class OxygenService {
 
     }
     onModuleWillDispose(module) {
-        
+
     }
     onTestStart(test) {
 

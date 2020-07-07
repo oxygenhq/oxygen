@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Points the mouse cursor over the specified element.
  * @description This method is similar to `web.point`, however it simulates the action using 

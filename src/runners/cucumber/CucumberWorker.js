@@ -96,7 +96,7 @@ export default class CucumberWorker {
     async run ({ scriptPath, context, poFile = null }) {
         try {
             Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
-            
+
             if (context && this.oxygen) {
                 this.oxygen.context = context;
                 this.oxygen.loadPageObjectFile(poFile);
@@ -108,7 +108,7 @@ export default class CucumberWorker {
                 }
             }
             //wrapCommand(this.beforeCommandHandler, this.afterCommandHandler)
-    
+
             this.registerCompilers();
             this.loadRequireFiles();
             this.wrapSteps();
@@ -116,7 +116,7 @@ export default class CucumberWorker {
             const supportCodeLibrary = Cucumber.supportCodeLibraryBuilder.finalize();
             const eventBroadcaster = new EventEmitter();
             this.hookInCucumberEvents(eventBroadcaster);
-            this.cucumberReporter = new CucumberReporter(this.rid, this.config, this.cucumberEventListener, this.oxygen, this.reporter, this.testHooks);            
+            this.cucumberReporter = new CucumberReporter(this.rid, this.config, this.cucumberEventListener, this.oxygen, this.reporter, this.testHooks);
             const pickleFilter = new Cucumber.PickleFilter({
                 featurePaths: this.specs,
                 names: this.cucumberOpts.name,
@@ -154,9 +154,9 @@ export default class CucumberWorker {
                 throw hookError;
             }
 
-            
+
             let testResultStatus = Status.PASSED;
-            
+
             if (this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)) {
                 const suites = this.cucumberReporter.suites;
                 Object.keys(suites).forEach(function (key) {
@@ -166,10 +166,10 @@ export default class CucumberWorker {
                     }
                 });
             }
-            
+
 
             await this.disposeOxygenCore(testResultStatus);
-    
+
             return result;
         }
         catch (e) {
@@ -218,7 +218,7 @@ export default class CucumberWorker {
                 return files.concat([absolutePath]);
             }
         }, []);
-    }        
+    }
 
     loadRequireFiles () {
         // we use mockery to allow people to import 'our' cucumber even though their spec files are in their folders
@@ -247,7 +247,7 @@ export default class CucumberWorker {
             const absolutePath = oxutil.resolvePath(specFile, this.cwd);
             if (isGlob(absolutePath)) {
                 return files.concat(glob.sync(absolutePath));
-            } 
+            }
             else {
                 return files.concat(absolutePath);
             }
@@ -321,7 +321,7 @@ export default class CucumberWorker {
             } catch (err) {
                 error = err;
             }
-    
+
             if (error) {
                 throw error;
             }

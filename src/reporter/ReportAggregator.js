@@ -133,7 +133,7 @@ export default class ReportAggregator extends EventEmitter {
             if (testResult.status === Status.FAILED) {
                 if (fatalError) {
                     // assume that if fatalError is not inherited from Error class then we already got Oxygen Failure object
-                    testResult.failure = fatalError instanceof Error ? errorHelper.getFailureFromError(fatalError) : fatalError;    
+                    testResult.failure = fatalError instanceof Error ? errorHelper.getFailureFromError(fatalError) : fatalError;
                 }
                 else {
                     testResult.failure = this._getFirstFailure(testResult);
@@ -161,7 +161,7 @@ export default class ReportAggregator extends EventEmitter {
             // calling nextTick() will help us to insure that we resolve the promise after emit('runner:end') has completed
             process.nextTick(() => {
                 this.runnerEndPromises[rid].resolve(testResult);
-            });            
+            });
         }
     }
 

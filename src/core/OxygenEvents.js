@@ -9,7 +9,7 @@ export default class OxygenEvents extends EventEmitter {
     emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, ctx, location, startTime) {
         this.emit('command:before', {
             name: cmdName,
-            module: moduleName, 
+            module: moduleName,
             args: cmdArgs,
             signature: oxutil.getMethodSignature(moduleName, cmdName, cmdArgs),
             ctx: ctx,
@@ -21,7 +21,7 @@ export default class OxygenEvents extends EventEmitter {
     emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, ctx, location, endTime, result) {
         this.emit('command:after', {
             name: cmdName,
-            module: moduleName, 
+            module: moduleName,
             args: cmdArgs,
             signature: oxutil.getMethodSignature(moduleName, cmdName, cmdArgs),
             ctx: ctx,

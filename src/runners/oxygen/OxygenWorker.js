@@ -18,7 +18,7 @@ const { EventEmitter } = require('events');
 const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
-  
+
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
 
@@ -38,7 +38,7 @@ export default class OxygenWorker extends EventEmitter {
         this._runId = runId;
         this._opts = options;
         this._cwd = this._opts.cwd || process.cwd();
-        
+
         if (!this._oxygen) {
             try {
                 this._oxygen = new Oxygen();
@@ -62,7 +62,7 @@ export default class OxygenWorker extends EventEmitter {
         if (!this._oxygen) {
             throw Error ('Oxygen is not initialized');
         }
-        this._oxygen.context = context;    
+        this._oxygen.context = context;
         this._oxygen.loadPageObjectFile(poFile);
         this._steps = [];
         if (this._cwd && !path.isAbsolute(scriptPath)) {
@@ -90,22 +90,22 @@ export default class OxygenWorker extends EventEmitter {
             });
         } catch (e) {
             error = e;
-        }   
-                
+        }
+
         // In some cases step result generation takes some time to make screenshot
         await this._oxygen.waitStepResult();
 
         if (error) {
             error = errorHelper.getFailureFromError(error);
-        } 
+        }
 
-        let moduleCaps = {}; 
-        
+        let moduleCaps = {};
+
         if (this._oxygen && this._oxygen.getModulesCapabilities) {
             moduleCaps = this._oxygen.getModulesCapabilities();
         }
         // clone the results, otherwise resultStore will be empty after the following this._oxygen.resetResults() call
-        
+
         let resultStore = {};
 
         if (this._oxygen && this._oxygen.results) {
@@ -142,7 +142,7 @@ export default class OxygenWorker extends EventEmitter {
             }
         }
     }
-    
+
     async disposeModules(status = null) {
         if (this._oxygen) {
             try {
@@ -155,8 +155,8 @@ export default class OxygenWorker extends EventEmitter {
                 this._oxygen.resetResults();
             }
         }
-    }   
-    
+    }
+
     async callTestHook(hookName, hookArgs) {
         if (!this._testHooks || !this._testHooks[hookName] || typeof this._testHooks[hookName] !== 'function') {
             throw new Error(`Hook does not exist: ${hookName}`);
@@ -181,12 +181,12 @@ export default class OxygenWorker extends EventEmitter {
         }
         this.emit('command:before', e);
     }
-    
+
     _handleAfterCommand(e) {
         if (!e || !e.result) {
             return;
         }
-        
+
         if (this._disposed) {
             //ignore
         } else {
@@ -194,7 +194,7 @@ export default class OxygenWorker extends EventEmitter {
             this.emit('command:after', e);
         }
     }
-    
+
     _handleLogEntry(e) {
         if (!e || !e.level || !e.message) {
             return;
@@ -203,6 +203,6 @@ export default class OxygenWorker extends EventEmitter {
             this._logger[e.level](e.message, e.src, e.err);
         } else {
             this._logger[e.level](e.message, e.src);
-        }    
+        }
     }
 }

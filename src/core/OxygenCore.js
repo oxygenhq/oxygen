@@ -88,7 +88,7 @@ export default class Oxygen extends OxygenEvents {
         this.ctx.caps = { ...ctx.caps || {}, ...caps, };
         this.resultStore = Object.assign(DEFAULT_RESULT_STORE, results || {});
         this.capabilities = this.ctx.caps = caps;
-        
+
         // define 'ox' object in global JS scope
         // we will use this object to access Oxygen modules and test context from modules used in the test (if any)        
         this.makeOxGlobal();
@@ -173,12 +173,12 @@ export default class Oxygen extends OxygenEvents {
         const modCaps = {};
         for (let moduleName in this.modules) {
             const module = this.modules[moduleName];
-            if (module.name && module._getCapabilities && typeof module._getCapabilities === 'function') {                
+            if (module.name && module._getCapabilities && typeof module._getCapabilities === 'function') {
                 const caps = module._getCapabilities();
                 // store only non-empty caps per module that has this.caps property
-                if (caps && typeof caps === 'object' && Object.keys(caps).length > 0) {                    
+                if (caps && typeof caps === 'object' && Object.keys(caps).length > 0) {
                     modCaps[module.name] = caps;
-                }                
+                }
             }
         }
         return modCaps;
@@ -198,7 +198,7 @@ export default class Oxygen extends OxygenEvents {
         this._callModulesOnAfterCase(error);
     }
 
-    makeOxGlobal() {        
+    makeOxGlobal() {
         if (!global.ox) {
             global.ox = {
                 modules: this.modules,
@@ -222,7 +222,7 @@ export default class Oxygen extends OxygenEvents {
             // expose "ctx", "params" and "env" as global variables
             global.params = global.ox.ctx.params;
             global.env = global.ox.ctx.env;
-            global.ctx = global.ox.ctx;            
+            global.ctx = global.ox.ctx;
         }
     }
 
@@ -290,13 +290,13 @@ export default class Oxygen extends OxygenEvents {
         const serviceFiles = glob.sync('service-*.js', { cwd: oxServicesDirPath });
         // initialize all services
         this.logger.debug('Loading services...');
-        
+
         for (var i = 0; i < serviceFiles.length; i++) {
             const serviceFileName = serviceFiles[i];
             const serviceFilePath = path.join(oxServicesDirPath, serviceFileName);
             const result = serviceFileName.match(SERVICE_NAME_MATCH_REGEX);
             const serviceName = result[1];
-    
+
             try {
                 const service = this._loadService(serviceName, serviceFilePath);
                 service.init();
@@ -332,7 +332,7 @@ export default class Oxygen extends OxygenEvents {
         for (let moduleFileName of moduleFiles) {
             // extract name from the module file name based on module name pattern
             const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
-    
+
             try {
                 this._loadModule(moduleName, moduleFileName, oxModulesDirPath, this.opts);
             } catch (e) {
@@ -385,7 +385,7 @@ export default class Oxygen extends OxygenEvents {
                 }
             }
         }
-    
+
         this._callServicesOnModuleLoaded(mod);
         this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
         const end = new Date();
@@ -401,7 +401,7 @@ export default class Oxygen extends OxygenEvents {
             name: name
         };
         const _this = this;
-        let moduleMethods = Object.keys(module);        
+        let moduleMethods = Object.keys(module);
         if (!moduleMethods.some(x => x=== 'exports')) {
             moduleMethods = this._getAllPropertyNames(module);
         }
@@ -424,9 +424,9 @@ export default class Oxygen extends OxygenEvents {
             else if (methodName.indexOf('_') === 0 || methodName.indexOf('on') === 0) {
                 wrapper[methodName] = function() {
                     var args = Array.prototype.slice.call(arguments);
-                        
+
                     _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
-    
+
                     try {
                         return module[methodName].apply(module, args);
                     } catch (e) {
@@ -486,7 +486,7 @@ export default class Oxygen extends OxygenEvents {
         cmdArgs = this._populateParametersValue(cmdArgs);
         // start measuring method execution time
         const startTime = oxutil.getTimeStamp();
-        
+
         // add command location information (e.g. file name and command line)
         let cmdLocation = null;
         // do not report results or line updates on internal methods (started with '_')
@@ -496,7 +496,7 @@ export default class Oxygen extends OxygenEvents {
         }
 
         this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
-        
+
         try {
             // emit before events
             if (cmdName === 'dispose') {
@@ -504,29 +504,29 @@ export default class Oxygen extends OxygenEvents {
             }
 
             const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
-            
+
 
             if (retvalPromise && retvalPromise.then) {
-                let promiseDone = false;                 
+                let promiseDone = false;
 
                 retvalPromise.then((value) => {
-                    
+
                     retval = value;
                     promiseDone = true;
                 }, (e) => {
                     error = e;
                     promiseDone = true;
                 });
-        
+
                 deasync.loopWhile(() => !promiseDone);
             } else {
                 retval = retvalPromise;
             }
-            
+
             if (cmdName === 'init') {
                 this._wrapAsync(this._callServicesOnModuleInitialized).apply(this, [module]);
             }
-                        
+
         } catch (e) {
             if (e && e.message && e.message.includes('invalid session id')) {
                 // ignore
@@ -534,26 +534,26 @@ export default class Oxygen extends OxygenEvents {
             } else {
                 // do nothing if error ocurred after the module was disposed (or in a process of being disposed)
                 // except for init methods of course
-                if (module && 
-                    (typeof module.isInitialized === 'boolean' && !module.isInitialized) 
+                if (module &&
+                    (typeof module.isInitialized === 'boolean' && !module.isInitialized)
                     && cmdName !== 'init') {
                     return;
                 }
                 //console.log('==== error ====', e)
                 error = errorHelper.getOxygenError(e, moduleName, cmdName, cmdArgs);
             }
-        }        
-        
+        }
 
-        const endTime = oxutil.getTimeStamp(); 
+
+        const endTime = oxutil.getTimeStamp();
 
         let stepResult;
         let done = false;
 
         if (publicMethod) {
             this._waitStepResult = true;
-            stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);            
-            
+            stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
+
             this._waitStepResult = false;
             //stepResult.location = cmdLocation;
 
@@ -565,7 +565,7 @@ export default class Oxygen extends OxygenEvents {
             }
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
             done = true;
-        } 
+        }
 
         if (error && error.isFatal && !this.opts.continueOnError) {
             if (!error.location && cmdLocation) {
@@ -574,10 +574,10 @@ export default class Oxygen extends OxygenEvents {
             throw error;
         }
 
-        if (!publicMethod) {            
+        if (!publicMethod) {
             done = true;
         }
-        
+
         deasync.loopWhile(() => !done && !error);
 
 
@@ -625,7 +625,7 @@ export default class Oxygen extends OxygenEvents {
                 }
                 throw error;
             }
-            
+
             let error = null;
             let done = false;
             let retval = null;
@@ -640,13 +640,13 @@ export default class Oxygen extends OxygenEvents {
                     return future.wait();
                 }
                 return result;
-                
+
             } catch (e) {
                 error = e;
             }
 
             deasync.loopWhile(() => !done && !error);
-            
+
 
             if (!error) {
                 return retval;
@@ -701,7 +701,7 @@ export default class Oxygen extends OxygenEvents {
         step.startTime = startTime;
         step.endTime = endTime;
         step.duration = endTime - startTime;
-    
+
         if (typeof module._getStats === 'function') {
             step.stats = module._getStats(methodName);
         } else {
@@ -718,20 +718,20 @@ export default class Oxygen extends OxygenEvents {
                     step.failure.location = location;
                 }
                 // let the module decide whether a screenshot should be taken on error or not
-    
+
                 if (typeof module._takeScreenshotSilent === 'function') {
                     try {
                         const screenshotPromise = module._takeScreenshotSilent(methodName);
-    
+
                         if (screenshotPromise && screenshotPromise.then) {
                             screenshotPromise.then((screenshot) => {
                                 step.screenshot = screenshot;
                             });
-    
+
                         } else {
                             step.screenshot = screenshotPromise;
                         }
-                    
+
                     }
                     catch (e) {
                         // If we are here, we were unable to get a screenshot
@@ -739,12 +739,12 @@ export default class Oxygen extends OxygenEvents {
                         deasync.sleep(1000);
                         try {
                             const screenshotPromise = module._takeScreenshotSilent(methodName);
-                            
+
                             if (screenshotPromise && screenshotPromise.then) {
                                 screenshotPromise.then((screenshot) => {
                                     step.screenshot = screenshot;
                                 });
-    
+
                             } else {
                                 step.screenshot = screenshotPromise;
                             }
@@ -788,11 +788,11 @@ export default class Oxygen extends OxygenEvents {
             if (mod.dispose) {
                 try {
                     mod.dispose(status);
-                }    
+                }
                 catch (e) {
                     // ignore module disposal error 
                     this.logger.error(`Failed to dispose module '${key}': `, e);
-                }      
+                }
             }
         }
         return true;
@@ -898,7 +898,7 @@ export default class Oxygen extends OxygenEvents {
         // note: user parameter with the same name takes precedence over environment variable
         for (let paramName in this.ctx.params) {
             if (this.ctx.params.hasOwnProperty(paramName))
-            {    
+            {
                 const paramValue = this.ctx.params[paramName];
                 arg = arg.replace(new RegExp('\\${' + paramName + '}', 'g'), paramValue);
             }
@@ -911,11 +911,11 @@ export default class Oxygen extends OxygenEvents {
                 arg = arg.replace(new RegExp('\\${' + envName + '}', 'g'), envValue);
             }
         }
-        return arg;        
+        return arg;
     }
     _getAllPropertyNames( obj ) {
         const props = [];
-    
+
         do {
             Object.getOwnPropertyNames( obj ).forEach(function ( prop ) {
                 if ( props.indexOf( prop ) === -1 ) {
@@ -924,11 +924,11 @@ export default class Oxygen extends OxygenEvents {
             });
             // eslint-disable-next-line no-cond-assign
         } while ( obj = Object.getPrototypeOf( obj ) );
-    
+
         return props;
     }
 
-    waitStepResult() {        
+    waitStepResult() {
         return new Promise((resolve, reject) => {
             setInterval(() => {
                 if (!this._waitStepResult) {

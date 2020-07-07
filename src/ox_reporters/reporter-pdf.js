@@ -27,7 +27,7 @@ PdfReporter.prototype.generate = function(results) {
     var resultFilePath = this.createFolderStructureAndFilePath('.xml');
     var resultFolderPath = path.dirname(resultFilePath);
     this.replaceScreenshotsWithFiles(results, resultFolderPath);
-    
+
     var reporter = new HtmlReporter(results, this.options);
     var htmlPath = reporter.generate();
 

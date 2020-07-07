@@ -1,5 +1,5 @@
 require('@babel/register')({
-    'ignore': null, 
+    'ignore': null,
     'presets': [
         ['@babel/preset-env', {
             'targets': {

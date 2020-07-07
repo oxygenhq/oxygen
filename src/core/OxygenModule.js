@@ -22,13 +22,13 @@ export default class OxygenModule {
     dispose() {
         if (this._alwaysInitialized == false) {
             this._isInitialized = false;
-        }        
+        }
     }
     onBeforeCase(suite, suiteIterationNum, caze, caseIterationNum) {
 
     }
     onAfterCase(suiteResult, caseResult) {
-        
+
     }
     addCommand(name, func, thisArg) {
         if (!thisArg) {

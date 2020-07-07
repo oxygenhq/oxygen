@@ -30,8 +30,8 @@ export default class LogModule extends OxygenModule {
      * @function info
      * @param {String} msg - Message to print.
      */
-    info(msg) { 
-        this.logger.userInfo(msg); 
+    info(msg) {
+        this.logger.userInfo(msg);
     }
     /**
      * @summary Print an ERROR message.
@@ -52,22 +52,22 @@ export default class LogModule extends OxygenModule {
 
         const message = msg + errString;
 
-        this.logger.userError(message); 
+        this.logger.userError(message);
     }
     /**
      * @summary Print a DEBUG message.
      * @function debug
      * @param {String} msg - Message to print.
      */
-    debug(msg) { 
-        this.logger.userDebug(msg); 
+    debug(msg) {
+        this.logger.userDebug(msg);
     }
     /**
      * @summary Print a WARN message.
      * @function warn
      * @param {String} msg - Message to print.
      */
-    warn(msg) { 
-        this.logger.userWarn(msg); 
+    warn(msg) {
+        this.logger.userWarn(msg);
     }
 }

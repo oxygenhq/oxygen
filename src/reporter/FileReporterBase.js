@@ -36,17 +36,17 @@ export default class FileReporterBase extends ReporterBase {
         }
         let resultsBaseFolder = null;
         // produce report at the specified path. will overwrite any existing reports.
-        if (this.options.cwd && this.options.reporting.outputDir) {    
+        if (this.options.cwd && this.options.reporting.outputDir) {
             if (path.isAbsolute(this.options.reporting.outputDir)) {
                 resultsBaseFolder = this.options.reporting.outputDir;
             }
             else {
                 resultsBaseFolder = path.resolve(this.options.cwd, this.options.reporting.outputDir);
-            }            
-        } 
+            }
+        }
         // generate date-time folder structure for report files
-        else if (this.options.target) {                          
-            resultsBaseFolder = path.join(this.options.target.cwd, REPORTS_FOLDER_NAME);         
+        else if (this.options.target) {
+            resultsBaseFolder = path.join(this.options.target.cwd, REPORTS_FOLDER_NAME);
         } else {
             throw new Error('Error constructing reports path. Either srcFile or outputFolder is required.');
         }
@@ -58,7 +58,7 @@ export default class FileReporterBase extends ReporterBase {
             const subFolderName = moment().format('YYYY-MM-DD_HHmmss');
             resultFolderPath = path.join(resultsBaseFolder, subFolderName);
             this.createFolderIfNotExists(resultFolderPath);
-        }        
+        }
         return path.join(resultFolderPath, `${REPORT_FILE_NAME}${fileExtension}`);
 
     }
@@ -87,7 +87,7 @@ export default class FileReporterBase extends ReporterBase {
                     this._populateStepsWithScreenshots(caze.steps, stepsWithScreenshot);
                 }
             }
-        }        
+        }
         const screenshotFilePrefix = 'screenshot-';
         const screenshotFileSuffix = '.png';
         for (let i = 0; i<stepsWithScreenshot.length; i++) {

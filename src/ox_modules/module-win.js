@@ -44,7 +44,7 @@ const WINDOWS_STANDARD_APP_IDS = {
     Paint: 'C:\\Windows\\System32\\mspaint.exe',
     Paint3D: 'Microsoft.MSPaint_8wekyb3d8bbwe!Microsoft.MSPaint',
     StickyNotes: 'Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe!App'
-}; 
+};
 
 export default class WindowsModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -176,7 +176,7 @@ export default class WindowsModule extends WebDriverModule {
         }
 
         await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
-        
+
         super.init();
     }
 
@@ -236,7 +236,7 @@ export default class WindowsModule extends WebDriverModule {
                     return this.driver.takeScreenshot();
                 }
             } catch (e) {
-                this.logger.error('Cannot get screenshot', e);  
+                this.logger.error('Cannot get screenshot', e);
                 // ignore
             }
         }
@@ -283,13 +283,13 @@ export default class WindowsModule extends WebDriverModule {
             }
             catch (e) {
                 // ignore errors
-                this.logger.error('Cannot retrieve Appium logs.', e);  
+                this.logger.error('Cannot retrieve Appium logs.', e);
             }
         }
     }
 
-    _loadHelperFunctions() {  
-        this.helpers.getWdioLocator = modUtils.getWdioLocator;      
+    _loadHelperFunctions() {
+        this.helpers.getWdioLocator = modUtils.getWdioLocator;
         this.helpers.matchPattern = modUtils.matchPattern;
         this.helpers.getElement = modUtils.getElement;
         this.helpers.getElements = modUtils.getElements;

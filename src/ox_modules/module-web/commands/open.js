@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Opens an URL.
  * @description The `open` command waits for the page to load before proceeding.

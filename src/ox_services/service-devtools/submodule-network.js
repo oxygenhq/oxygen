@@ -42,7 +42,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             if (this._driver) {
                 await this._driver.removeListener('Network.responseReceived', () => {});
                 await this._driver.removeListener('Network.requestWillBeSent', () => {});
-                
+
                 await this._devTools.client.Network.disable();
                 await this._devTools.client.Browser.close();
             }
@@ -236,7 +236,7 @@ export default class NetworkSubModule extends OxygenSubModule {
         }
         if (!matchedReq) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
-        }        
+        }
         const resp = await this._driver.cdp('Network','getResponseBody', {
             requestId: matchedReq.requestId
         });

@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Clear the value of an input field.
  * @function clear
@@ -20,7 +20,7 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     var el = this.helpers.getElement(locator, true, timeout);
 
     try {

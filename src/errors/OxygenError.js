@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /*
  * Oxygen Error class
  */
@@ -41,7 +41,7 @@ export default class OxygenError extends Error {
             this.generateLocation();
         }
     }
-    
+
     filterStackTrace() {
         if (!this.stack) {
             this.captureStackTrace();

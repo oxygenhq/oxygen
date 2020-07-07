@@ -21,7 +21,7 @@ module.exports = function() {
     const helpers = this.helpers = {};
 
     var _client;
-    
+
     module.isInitialized = function() {
         return _client !== undefined;
     };

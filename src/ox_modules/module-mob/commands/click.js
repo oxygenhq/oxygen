@@ -19,7 +19,7 @@
  */
 module.exports = function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    
+
     var el = this.helpers.getElement(locator, false, timeout);
     // if the element is outside the viewport - try to scroll it into the view first
     // taken from https://github.com/webdriverio/webdriverio/blob/master/packages/webdriverio/src/scripts/isElementClickable.js

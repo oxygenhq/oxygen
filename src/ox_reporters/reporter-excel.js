@@ -79,7 +79,7 @@ function generateWorksheetFromTemplate(templatePath, rows, options) {
     var row;
     var header;
     var cellAddress;
-    
+
     // generate headers row         
     for (var h = 0; h < template.length; h++) {
         header = template[h];
@@ -110,9 +110,9 @@ function generateWorksheetFromTemplate(templatePath, rows, options) {
             column++;
         }
     }
-    
+
     var totalColumns = column;
-    
+
     // generate data rows
     for (var r = 0; r < rows.length; r++) {
         column = 0;
@@ -185,7 +185,7 @@ function addValues(suiteResult, caseResult, lastFailedStep) {
     values['suite.iteration'] = suiteResult.iterationNum;
     values['suite.status'] = suiteResult.status;
     values['case.name'] = caseResult.name;
-    values['case.iteration'] = caseResult.iterationNum;    
+    values['case.iteration'] = caseResult.iterationNum;
     values['case.status'] = caseResult.status;
 
     if (lastFailedStep) {

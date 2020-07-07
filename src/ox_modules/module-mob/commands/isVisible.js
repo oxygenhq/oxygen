@@ -6,7 +6,7 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
- 
+
 /**
  * @summary Checks if element is present and visible. Returns false if element was not found or
  *          wasn't visible within the specified timeout.
