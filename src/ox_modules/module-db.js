@@ -16,7 +16,6 @@
  *   * Linux - `sudo apt-get install unixodbc unixodbc-dev` or `sudo dnf install unixODBC unixODBC-devel`
  */
 
-
 var connection;
 
 import OxError from '../errors/OxygenError';

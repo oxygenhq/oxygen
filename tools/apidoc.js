@@ -61,7 +61,6 @@ var EXAMPLE = '<br></br> **{0}:** <br></br>' +
               '{2}'+
               '\n ``` </br>';
 
-
 var modules = fs.readdirSync(modPath);
 for (var m of modules) {
     if (!m.startsWith('module-')) {
@@ -279,7 +278,6 @@ function load(file, loadDescription) {
                 }
             };
 
-
             comments.push(commentParsed);
         }
         return {
@@ -394,7 +392,6 @@ function generate(module, moduleName) {
             outContent += ` <br></br> **Supported On**: ${platformSignature}`;
         }
     }
-
 
     var mdReserve = new MdReverse();
     mdReserve.use(TablePlugin);

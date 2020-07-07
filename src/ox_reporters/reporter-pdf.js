@@ -55,5 +55,4 @@ function convertToPdf(htmlFile) {
     return pdfPath;
 }
 
-
 module.exports = PdfReporter;

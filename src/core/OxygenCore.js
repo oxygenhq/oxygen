@@ -465,7 +465,6 @@ export default class Oxygen extends OxygenEvents {
             return undefined;
         }
 
-
         let retval = null;
         let error = null;
         const cmdFn = module[cmdName];
@@ -505,7 +504,6 @@ export default class Oxygen extends OxygenEvents {
 
             const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
 
-
             if (retvalPromise && retvalPromise.then) {
                 let promiseDone = false;
 
@@ -544,7 +542,6 @@ export default class Oxygen extends OxygenEvents {
             }
         }
 
-
         const endTime = oxutil.getTimeStamp();
 
         let stepResult;
@@ -556,7 +553,6 @@ export default class Oxygen extends OxygenEvents {
 
             this._waitStepResult = false;
             //stepResult.location = cmdLocation;
-
 
             if (this._disposed) {
                 // ignore
@@ -579,7 +575,6 @@ export default class Oxygen extends OxygenEvents {
         }
 
         deasync.loopWhile(() => !done && !error);
-
 
         return retval;
     }
@@ -646,7 +641,6 @@ export default class Oxygen extends OxygenEvents {
             }
 
             deasync.loopWhile(() => !done && !error);
-
 
             if (!error) {
                 return retval;

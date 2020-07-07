@@ -154,7 +154,6 @@ export default class CucumberWorker {
                 throw hookError;
             }
 
-
             let testResultStatus = Status.PASSED;
 
             if (this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)) {
@@ -166,7 +165,6 @@ export default class CucumberWorker {
                     }
                 });
             }
-
 
             await this.disposeOxygenCore(testResultStatus);
 

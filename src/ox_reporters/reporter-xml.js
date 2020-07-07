@@ -18,7 +18,6 @@ var ReporterFileBase = require('../lib/reporter-file-base');
 var util = require('util');
 util.inherits(XmlReporter, ReporterFileBase);
 
-
 function XmlReporter(results, options) {
     XmlReporter.super_.call(this, results, options);
 }

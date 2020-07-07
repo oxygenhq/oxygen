@@ -15,7 +15,8 @@
         "require-atomic-updates": "off",
         "keyword-spacing": ["error", { "before": true, "after": true }],
         "space-before-blocks": ["error"],
-        "no-trailing-spaces": ["error", { "ignoreComments": true }]
+        "no-trailing-spaces": ["error", { "ignoreComments": true }],
+        "no-multiple-empty-lines": [2, {"max": 1, "maxEOF": 1}]
     },
     "parserOptions": {
         "ecmaVersion": 2018,

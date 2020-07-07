@@ -199,7 +199,6 @@ export default class WebModule extends WebDriverModule {
         let initError = null;
         const _this = this;
 
-
         if (
             wdioOpts.capabilities &&
             wdioOpts.capabilities['perfectoMobile:options']

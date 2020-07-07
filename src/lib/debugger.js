@@ -213,7 +213,6 @@ export default class Debugger extends EventEmitter {
                     return result;
                 }
 
-
             } else {
                 return {
                     depth: depth,
@@ -411,7 +410,6 @@ export default class Debugger extends EventEmitter {
                     });
                 }
 
-
                 let breakpointsMapResult = this._breakpoints.map(async(bp) => {
                     if (bp &&
                         bp.locations &&
@@ -462,7 +460,6 @@ export default class Debugger extends EventEmitter {
                                     const scriptSource = await this.getScriptSource(item.location.scriptId);
 
                                     const scriptSourceSplit = scriptSource.scriptSource.split('\n');
-
 
                                     let fileLineNumbersLength = 0;
                                     if (scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0) {
@@ -522,12 +519,10 @@ export default class Debugger extends EventEmitter {
                         // assume we always send breakpoint of the top call frame
                         if (eCallFrames && eCallFrames.length > 0) {
 
-
                             breakpointData = {
                                 lineNumber: eCallFrames[0].location.lineNumber,
                                 fileName: eCallFrames[0].url
                             };
-
 
                             if (saveValue) {
                                 breakpointData.variables = saveValue;
@@ -579,7 +574,6 @@ export default class Debugger extends EventEmitter {
                                                 } else {
                                                     line = breakpointError.line;
                                                 }
-
 
                                                 if (item.breakpoints && Array.isArray(item.breakpoints) && item.breakpoints.length > 0) {
                                                     if (breakpointError && breakpointError.msg && breakpointError.msg.includes('Possible breakpoint lines')) {
@@ -790,7 +784,6 @@ export default class Debugger extends EventEmitter {
                             fileName = parts[parts.length-1];
                             lineNumber = parseInt(parts[1]);
                         }
-
 
                         if (
                             (fileName === filePath || fileName === filePathAlias)

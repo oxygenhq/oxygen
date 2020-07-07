@@ -63,7 +63,6 @@ const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 
-
 export default class MobileModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
@@ -79,7 +78,6 @@ export default class MobileModule extends WebDriverModule {
         // holds element operation timeout value
         this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
     }
-
 
     get name() {
         return MODULE_NAME;
@@ -246,7 +244,6 @@ export default class MobileModule extends WebDriverModule {
         // init webdriver
         try {
             this.driver = await wdio.remote(wdioOpts);
-
 
             if (
                 wdioOpts.capabilities &&

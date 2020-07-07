@@ -136,7 +136,6 @@ process.on('message', async function (msg) {
     }
 });
 
-
 async function dispose(status= null) {
     if (_worker) {
         try {

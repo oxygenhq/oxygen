@@ -17,7 +17,6 @@ import path from 'path';
 import oxutil from '../../lib/util';
 import WorkerProcess from '../WorkerProcess';
 
-
 const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_OPTS = {
     backtrace: false, // <boolean> show full backtrace for errors

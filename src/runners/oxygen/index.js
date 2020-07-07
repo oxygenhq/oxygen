@@ -281,7 +281,6 @@ export default class OxygenRunner extends EventEmitter {
                     }
                 }
 
-
                 let promiseAllPromise = await Promise.all(promises).then((value) => {
                     return value;
                 });

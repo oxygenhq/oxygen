@@ -174,7 +174,6 @@ module.exports = {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_ERROR, 'Execution time exceeded the timeout set by Selenium');
         }
 
-
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
         if (oxErrorCode) {
