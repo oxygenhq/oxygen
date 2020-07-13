@@ -19,11 +19,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.click("id=NextPage");//Clicks on next page link.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
-        var el = this.helpers.getElement(locator, false, timeout);
+        var el = await this.helpers.getElement(locator, false, timeout);
 
         // if the element is outside the viewport - try to scroll it into the view first
         // on evetyhing except IE, because it doesn't work on IE

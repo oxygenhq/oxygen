@@ -242,7 +242,7 @@ export default class WebModule extends WebDriverModule {
         if (this.options.collectBrowserLogs && this.caps.browserName === 'chrome') {
             try {
                 // simply call this to clear the previous logs and start the test with the clean logs
-                this.getBrowserLogs();
+                await this.getBrowserLogs();
             } catch (e) {
                 this.logger.error('Cannot retrieve browser logs.', e);
             }
@@ -453,14 +453,14 @@ export default class WebModule extends WebDriverModule {
         global._lastTransactionName = null;
     }
 
-    _iterationEnd() {
+    async _iterationEnd() {
         if (!this.isInitialized) {
             return;
         }
         // collect browser logs for this session
         if (this.options.collectBrowserLogs === true && this.caps.browserName === 'chrome') {
             try {
-                const logs = this.getBrowserLogs();
+                const logs = await this.getBrowserLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
                         this.rs.logs.push(this._adjustBrowserLog(log));
@@ -476,7 +476,7 @@ export default class WebModule extends WebDriverModule {
         if (this.options.recordHAR && this.caps.browserName === 'chrome') {
             // there might be no transactions set if test fails before web.transaction command
             if (global._lastTransactionName) {
-                this.transactions[global._lastTransactionName] = this._getHAR();
+                this.transactions[global._lastTransactionName] = await this._getHAR();
             }
         }
 
@@ -603,12 +603,12 @@ export default class WebModule extends WebDriverModule {
      * @function transaction
      * @param {String} name - The transaction name.
      */
-    transaction(name) {
+    async transaction(name) {
         if (global._lastTransactionName) {
             this.transactions[global._lastTransactionName] = null;
 
             if (this.options.recordHAR && this.isInitialized && this.caps.browserName === 'chrome') {
-                this.transactions[global._lastTransactionName] = this._getHAR();
+                this.transactions[global._lastTransactionName] = await this._getHAR();
             }
         }
 
@@ -633,24 +633,30 @@ export default class WebModule extends WebDriverModule {
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
     }
 
-    _getHAR() {
-        const logs = this.driver.getLogs('performance');
-
-        // in one instance, logs was not iterable for some reason - hence the following check:
-        if (!logs || typeof logs[Symbol.iterator] !== 'function') {
-            this.logger.error('getHAR: logs not iterable: ' + JSON.stringify(logs));
-            return null;
-        }
-
-        const events = [];
-        for (let log of logs) {
-            const msgObj = JSON.parse(log.message);   // returned as string
-            events.push(msgObj.message);
-        }
-
+    async _getHAR() {
         try {
-            const har = harFromMessages(events);
-            return JSON.stringify(har);
+            const types = await this.driver.getLogTypes();
+
+            if (types.includes('performance')) {
+                const logs = await this.driver.getLogs('performance');
+
+                // in one instance, logs was not iterable for some reason - hence the following check:
+                if (!logs || typeof logs[Symbol.iterator] !== 'function') {
+                    this.logger.error('getHAR: logs not iterable: ' + JSON.stringify(logs));
+                    return null;
+                }
+
+                const events = [];
+                for (let log of logs) {
+                    const msgObj = JSON.parse(log.message);   // returned as string
+                    events.push(msgObj.message);
+                }
+
+                const har = harFromMessages(events);
+                return JSON.stringify(har);
+            } else {
+                return null;
+            }
         } catch (e) {
             this.logger.error('Unable to fetch HAR: ' + e.toString());
             return null;

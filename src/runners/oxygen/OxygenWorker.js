@@ -104,6 +104,9 @@ export default class OxygenWorker extends EventEmitter {
         if (this._oxygen && this._oxygen.getModulesCapabilities) {
             moduleCaps = this._oxygen.getModulesCapabilities();
         }
+
+        this._oxygen && this._oxygen.onAfterCase && await this._oxygen.onAfterCase(error);
+
         // clone the results, otherwise resultStore will be empty after the following this._oxygen.resetResults() call
 
         let resultStore = {};
@@ -122,8 +125,6 @@ export default class OxygenWorker extends EventEmitter {
         if (this._oxygen && this._oxygen.context) {
             context = this._oxygen.context;
         }
-
-        this._oxygen &&this._oxygen.onAfterCase && this._oxygen.onAfterCase(error);
 
         return { error, moduleCaps, resultStore, context: oxContext };
     }

@@ -194,8 +194,8 @@ export default class Oxygen extends OxygenEvents {
         this._callModulesOnBeforeCase();
     }
 
-    onAfterCase(error = null) {
-        this._callModulesOnAfterCase(error);
+    async onAfterCase(error = null) {
+        await this._callModulesOnAfterCase(error);
     }
 
     makeOxGlobal() {
@@ -809,7 +809,7 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     }
-    _callModulesOnAfterCase(error = null) {
+    async _callModulesOnAfterCase(error = null) {
         for (let moduleName in this.modules) {
             const module = this.modules[moduleName];
             if (!module) {
@@ -817,7 +817,7 @@ export default class Oxygen extends OxygenEvents {
             }
             try {
                 module.onAfterCase && module.onAfterCase(error);
-                module._iterationEnd && module._iterationEnd();
+                module._iterationEnd && await module._iterationEnd();
             }
             catch (e) {
                 this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
