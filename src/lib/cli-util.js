@@ -63,7 +63,7 @@ export function loadSuiteDefinitionsFromFolder(folderPath) {
     forEach(files, file => {
         if (path.extname(file) === '.json') {
             const fullPath = path.join(folderPath, file);
-            suiteDefs.push(require(fullPath));
+            suiteDefs.push(moduleRequire(fullPath));
         }
     });
     return suiteDefs;
@@ -83,7 +83,7 @@ export function loadEnvironmentVariables(config, argv) {
     const cwd = target.cwd || process.cwd();
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
     if (fs.existsSync(defaultEnvFile)) {
-        const env = require(defaultEnvFile);
+        const env = moduleRequire(defaultEnvFile);
         if (env && typeof env === 'object' && Object.prototype.hasOwnProperty.call(env, envName)) {
             return env[envName];
         }
@@ -92,10 +92,10 @@ export function loadEnvironmentVariables(config, argv) {
     const dedicatedEnvFileJs = path.join(cwd, 'env', `${envName}.js`);
     const dedicatedEnvFileJson = path.join(cwd, 'env', `${envName}.json`);
     if (fs.existsSync(dedicatedEnvFileJs)) {
-        return require(dedicatedEnvFileJs);
+        return moduleRequire(dedicatedEnvFileJs);
     }
     else if (fs.existsSync(dedicatedEnvFileJson)) {
-        return require(dedicatedEnvFileJson);
+        return moduleRequire(dedicatedEnvFileJson);
     }
     return {};
 }
@@ -149,7 +149,7 @@ export function getConfigurations(target, argv) {
     // if the target is oxygen config file, merge its content with the default options
     let projConfigOpts = {};
     if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
-        projConfigOpts = require(target.path);
+        projConfigOpts = moduleRequire(target.path);
     }
     // load environments definition
     const envs = getEnvironments(target);
