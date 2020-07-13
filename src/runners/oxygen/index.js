@@ -158,9 +158,11 @@ export default class OxygenRunner extends EventEmitter {
                     optEnv = options.env;
                 }
             }
-            else if (options.envVars && Object.keys(options.envVars)) {
-                optEnv = options.envVars;
+
+            if (options.envVars && Object.keys(options.envVars)) {
+                optEnv = { ...optEnv, ...options.envVars };
             }
+
             // assign environment variables for later use
             this._env = {
                 ...this._env,
