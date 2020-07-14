@@ -378,6 +378,11 @@ export default class OxygenRunner extends EventEmitter {
         if (!suite.iterationCount) {
             suite.iterationCount = 1;
         }
+        let showIterationsMessages = false;
+        if (suite.iterationCount > 1) {
+            showIterationsMessages = true;
+        }
+
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
@@ -401,6 +406,11 @@ export default class OxygenRunner extends EventEmitter {
                     caze.iterationCount = 1;
                 }
                 for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
+
+                    if (showIterationsMessages) {
+                        this._reporter.onIterationStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, suiteResult);
+                    }
+
                     const caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
                     if (!caseResult) {
 
@@ -412,6 +422,11 @@ export default class OxygenRunner extends EventEmitter {
                     if (caseResult.status === Status.FAILED) {
                         suiteResult.status = Status.FAILED;
                     }
+
+                    if (showIterationsMessages) {
+                        this._reporter.onIterationEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, suiteResult);
+                    }
+
                 }
             }
             suiteResult.endTime = oxutil.getTimeStamp();
