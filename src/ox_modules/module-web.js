@@ -56,6 +56,7 @@ import lambdaRestClient from '@lambdatest/node-rest-client';
 import TestingBot from 'testingbot-api';
 import { execSync } from 'child_process';
 import perfectoReporting from 'perfecto-reporting';
+import request from 'request';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -285,6 +286,8 @@ export default class WebModule extends WebDriverModule {
                     let isLambdatest = false;
                     let isTestingBot = false;
                     let isPerfecto = false;
+                    let isBrowserstack = false;
+
                     if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')) {
                         isSaucelabs = true;
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
@@ -358,13 +361,45 @@ export default class WebModule extends WebDriverModule {
                         deasync.sleep(10*1000);
                     }
 
+                    if (
+                        this.wdioOpts &&
+                        this.wdioOpts.capabilities &&
+                        this.wdioOpts.capabilities['browserstack:options']
+                    ) {
+                        isBrowserstack = true;
+                        const passed = status.toUpperCase() === 'PASSED';
+
+                        const requestBody = {
+                            status: passed ? 'passed' : 'failed'
+                        };
+
+                        var result = null;
+                        var options = {
+                            url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
+                            method: 'PUT',
+                            json: true,
+                            rejectUnauthorized: false,
+                            body: requestBody,
+                            'auth': {
+                                'user': this.wdioOpts.user,
+                                'pass': this.wdioOpts.key,
+                                'sendImmediately': false
+                            },
+                        };
+
+                        request(options, (err, res, body) => { result = err || res; });
+                        deasync.loopWhile(() => !result);
+                    }
+
                     if (isSaucelabs) {
-                        this.deleteSession();
+                        this.disposeContinue();
                     } else if (isLambdatest) {
-                        this.deleteSession();
+                        this.disposeContinue();
                     } else if (isTestingBot) {
-                        this.deleteSession();
+                        this.disposeContinue();
                     } else if (isPerfecto) {
+                        this.disposeContinue();
+                    } else if (isBrowserstack) {
                         this.deleteSession();
                     } else if (['PASSED','FAILED'].includes(status.toUpperCase())) {
                         await this.closeBrowserWindows();
@@ -391,6 +426,15 @@ export default class WebModule extends WebDriverModule {
         } catch (e) {
             // ignore switch and close window errors
         }
+    }
+
+    async deleteSession() {
+        try {
+            await this.driver.deleteSession();
+        } catch (e) {
+            this.logger.error('deleteSession error', e);
+        }
+        this.disposeContinue();
     }
 
     async closeBrowserWindows() {

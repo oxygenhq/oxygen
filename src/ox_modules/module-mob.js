@@ -55,6 +55,7 @@ import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import perfectoReporting from 'perfecto-reporting';
+import request from 'request';
 
 const MODULE_NAME = 'mob';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
@@ -284,7 +285,16 @@ export default class MobileModule extends WebDriverModule {
             await this.setWebViewContext();
         }
 
-        await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+        if (
+            this.wdioOpts &&
+            this.wdioOpts.capabilities &&
+            this.wdioOpts.capabilities['browserstack:options']
+        ) {
+            // ignore
+            // fails on browserstack
+        } else {
+            await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+        }
 
         // clear logs if auto collect logs option is enabled
         if (this.options.collectDeviceLogs) {
@@ -322,6 +332,52 @@ export default class MobileModule extends WebDriverModule {
                 });
                 // avoid request abort
                 deasync.sleep(10*1000);
+            }
+
+            if (
+                this.wdioOpts &&
+                this.wdioOpts.capabilities &&
+                this.wdioOpts.capabilities['browserstack:options']
+            ) {
+                const passed = status.toUpperCase() === 'PASSED';
+
+                const requestBody = {
+                    status: passed ? 'passed' : 'failed'
+                };
+
+                var result = null;
+                var options;
+
+                if (this.wdioOpts.capabilities.browserName) {
+                    options = {
+                        url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
+                        method: 'PUT',
+                        json: true,
+                        rejectUnauthorized: false,
+                        body: requestBody,
+                        'auth': {
+                            'user': this.wdioOpts.user,
+                            'pass': this.wdioOpts.key,
+                            'sendImmediately': false
+                        },
+                    };
+                } else {
+                    options = {
+                        url: `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json`,
+                        method: 'PUT',
+                        json: true,
+                        rejectUnauthorized: false,
+                        body: requestBody,
+                        'auth': {
+                            'user': this.wdioOpts.capabilities['browserstack.user'],
+                            'pass': this.wdioOpts.capabilities['browserstack.key'],
+                            'sendImmediately': false
+                        },
+                    };
+                }
+
+                request(options, (err, res, body) => { result = err || res; });
+                deasync.loopWhile(() => !result);
             }
 
             try {
