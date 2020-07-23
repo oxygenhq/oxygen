@@ -12,6 +12,7 @@ import oxutil from '../lib/util';
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
+import * as Modules from '../ox_modules';
 
 // setup logger
 import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
@@ -318,7 +319,20 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadModules() {
-        const oxModulesDirPath = path.resolve(this.oxBaseDir, './ox_modules');
+        this._loadInternalModules();
+        this.__loadExternalModules();
+    }
+
+    _loadExternalModules() {
+        let modulesFolderPath = './modules';
+        if (this.opts.modules_ext && typeof this.opts.modules_ext === 'string') {
+            modulesFolderPath = this.opts.modules_ext;
+        }
+        //const oxModulesDirPath = path.resolve(this.oxBaseDir, './ox_modules');
+        const oxModulesDirPath = path.resolve(this.cwd, modulesFolderPath);
+        if (!fs.existsSync(oxModulesDirPath)) {
+            return false;
+        }
         let moduleFiles = [];
         // if particular module names are defined in the config, then load only these modules
         if (Array.isArray(this.opts.modules) && this.opts.modules.length > 0) {
@@ -335,7 +349,7 @@ export default class Oxygen extends OxygenEvents {
             const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
 
             try {
-                this._loadModule(moduleName, moduleFileName, oxModulesDirPath, this.opts);
+                this._loadModuleFromClassOrFile(moduleName, moduleFileName, oxModulesDirPath, this.opts);
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
@@ -347,17 +361,24 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
-    _loadModule(moduleName, moduleFileName, oxModulesDirPath) {
+    _loadInternalModules() {
+        for (let moduleName in Object.keys(Modules)) {
+            const ModuleClass = Modules[moduleName];
+            this._loadModuleFromClassOrFile(moduleName, ModuleClass);
+        }
+    }
+
+    _loadModuleFromClassOrFile(moduleName, moduleFileNameOrClass, oxModulesDirPath = null) {
         const start = new Date();
-        let ModuleClass = require(path.join(oxModulesDirPath, moduleFileName));
+        let ModuleClass = typeof moduleFileNameOrClass === 'class' ? moduleFileNameOrClass : require(path.join(oxModulesDirPath, moduleFileNameOrClass));
         if (ModuleClass.default) {
             ModuleClass = ModuleClass.default;
         }
         const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
         // load external commands for this module, if defined
-        const cmdDir = path.join(oxModulesDirPath, 'module-' + moduleName, 'commands');
+        const cmdDir = oxModulesDirPath ? path.join(oxModulesDirPath, 'module-' + moduleName, 'commands') : null;
         // ModuleClass.prototype.name => make sure this is ES6 module
-        if (ModuleClass.prototype.name && fs.existsSync(cmdDir)) {
+        if (cmdDir && ModuleClass.prototype.name && fs.existsSync(cmdDir)) {
             var commandName = null;
             try {
                 const files = fs.readdirSync(cmdDir);
