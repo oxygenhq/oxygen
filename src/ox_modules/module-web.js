@@ -548,7 +548,75 @@ export default class WebModule extends WebDriverModule {
                     this.driver &&
                     this.driver.takeScreenshot
                 ) {
-                    return this.driver.takeScreenshot();
+                    let images = [];
+                    const handles = this.driver.getWindowHandles();
+
+                    if (
+                        handles &&
+                        Array.isArray(handles) &&
+                        handles.length > 0
+                    ) {
+                        for (const handle of handles) {
+                            this.driver.switchToWindow(handle);
+                            const image = this.driver.takeScreenshot();
+                            const title = this.driver.getTitle();
+
+                            if (title) {
+                                const textToImage = require('text-to-image');
+                                let lineImage;
+
+                                this.driver.call(() => {
+                                    return new Promise((resolve, reject) => {
+                                        const pr = textToImage.generate('', { debug: false, bgColor: '#000000' });
+
+                                        pr.then((val) => {
+                                            lineImage = val;
+                                            resolve();
+                                        });
+                                    });
+                                });
+
+                                lineImage = lineImage.replace('data:image/png;base64,', '');
+                                images.push(lineImage);
+
+                                let titleImage;
+                                this.driver.call(() => {
+                                    return new Promise((resolve, reject) => {
+                                        const pr = textToImage.generate(title, { debug: false });
+
+                                        pr.then((val) => {
+                                            titleImage = val;
+                                            resolve();
+                                        });
+                                    });
+                                });
+
+                                titleImage = titleImage.replace('data:image/png;base64,', '');
+                                images.push(titleImage);
+                            }
+
+                            images.push(image);
+                        }
+                    }
+
+                    let retval;
+                    this.driver.call(() => {
+                        return new Promise((resolve, reject) => {
+                            const mergeImages = require('merge-base64');
+                            const mg = mergeImages(images, { direction: true });
+
+                            mg.then((retvalImage) => {
+                                retvalImage = retvalImage.replace('data:image/jpeg;base64,', '');
+
+                                // if return at once sometimes nodejs crash
+                                setTimeout(() => {
+                                    retval = retvalImage;
+                                    resolve(retval);
+                                }, 5000);
+                            });
+                        });
+                    });
+                    return retval;
                 }
             } catch (e) {
                 this.logger.error('Cannot get screenshot', e);

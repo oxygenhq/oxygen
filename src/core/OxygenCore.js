@@ -79,6 +79,7 @@ export default class Oxygen extends OxygenEvents {
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
         this._disposed = false;
+        this._waitStepResult = [];
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -548,10 +549,14 @@ export default class Oxygen extends OxygenEvents {
         let done = false;
 
         if (publicMethod) {
-            this._waitStepResult = true;
+            const waitId = +new Date();
+            this._waitStepResult.push(waitId);
+
             stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
 
-            this._waitStepResult = false;
+            const index = this._waitStepResult.indexOf(waitId);
+            this._waitStepResult.splice(index, 1);
+
             //stepResult.location = cmdLocation;
 
             if (this._disposed) {
@@ -590,15 +595,20 @@ export default class Oxygen extends OxygenEvents {
                 let error = null;
                 let finalVal = null;
 
-                Promise.resolve(retval)
-                .then((val) => {
-                    finalVal = val;
+                if (retval && retval.then) {
+                    Promise.resolve(retval)
+                    .then((val) => {
+                        finalVal = val;
+                        done = true;
+                    })
+                    .catch((e) => {
+                        error = e;
+                        done = true;
+                    });
+                } else {
+                    finalVal = retval;
                     done = true;
-                })
-                .catch((e) => {
-                    error = e;
-                    done = true;
-                });
+                }
 
                 try {
                     deasync.loopWhile(() => !done && !error);
@@ -924,9 +934,10 @@ export default class Oxygen extends OxygenEvents {
 
     waitStepResult() {
         return new Promise((resolve, reject) => {
-            setInterval(() => {
-                if (!this._waitStepResult) {
+            let intervalId = setInterval(() => {
+                if (this._waitStepResult.length === 0) {
                     resolve();
+                    clearInterval(intervalId);
                 }
             }, 1000);
         });
