@@ -723,6 +723,9 @@ export default class WebModule extends WebDriverModule {
                 this.transactions[global._lastTransactionName] = await this._getHAR();
             }
         }
+        if (global.transaction) {
+            global.transaction(name);
+        }
 
         global._lastTransactionName = name;
     }

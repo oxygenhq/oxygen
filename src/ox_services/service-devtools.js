@@ -42,8 +42,11 @@ export default class DevToolsService extends OxygenService {
         ) {
             options.debuggerAddress = this._driver.capabilities['goog:chromeOptions']['debuggerAddress'];
         }
-
-        if (capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'] || capabilities['testingBot:options'] || capabilities['browserstack:options'])) {
+        // make sure this module is only fully loaded for Chrome browser running locally or against a standard Selenium Grid (cloud providers won't support it)
+        if (capabilities && capabilities['browserName'] && capabilities['browserName'] !== 'chrome') {
+            submodule.init();   // do not fully initialize the module (effectively skip any sub modules)
+        }
+        else if (capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'] || capabilities['testingBot:options'] || capabilities['browserstack:options'])) {
             submodule.init();
         } else {
             // initialize DevToolsService and hook it to the current webdriver object

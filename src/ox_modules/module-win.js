@@ -206,6 +206,9 @@ export default class WindowsModule extends WebDriverModule {
      */
     transaction(name) {
         global._lastTransactionName = name;
+        if (global.transaction) {
+            global.transaction(name);
+        }
     }
 
     /*
