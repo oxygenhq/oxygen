@@ -11,8 +11,8 @@
  * Boilerplate code for user scripts.
  * Provides everything necessary for executing JS test scripts.
  */
-const { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } = require('../../lib/logger');
-const OxygenWorker = require('./OxygenWorker').default;
+import { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } from '../../lib/logger';
+import OxygenWorker from './OxygenWorker';
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
 
