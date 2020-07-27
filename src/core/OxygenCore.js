@@ -319,7 +319,7 @@ export default class Oxygen extends OxygenEvents {
 
     _loadModules() {
         this._loadInternalModules();
-        this.__loadExternalModules();
+        this._loadExternalModules();
     }
 
     _loadExternalModules() {
@@ -361,15 +361,27 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadInternalModules() {
-        for (let moduleName in Object.keys(Modules)) {
+        for (let moduleName of Object.keys(Modules)) {
             const ModuleClass = Modules[moduleName];
-            this._loadModuleFromClassOrFile(moduleName, ModuleClass);
+            try {
+                this._loadModuleFromClassOrFile(moduleName, ModuleClass);
+            } catch (e) {
+                this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
+                // ignore any module that failed to load, except Web and Mob modules
+                // without Mob and Web modules loaded, the initialization process shall fail
+                if (moduleName === 'web' || moduleName === 'mob') {
+                    break;
+                }
+            }
         }
     }
 
     _loadModuleFromClassOrFile(moduleName, moduleFileNameOrClass, oxModulesDirPath = null) {
         const start = new Date();
-        let ModuleClass = typeof moduleFileNameOrClass === 'class' ? moduleFileNameOrClass : require(path.join(oxModulesDirPath, moduleFileNameOrClass));
+        if (typeof moduleFileNameOrClass !== 'class' && typeof moduleFileNameOrClass !== 'function' && typeof moduleFileNameOrClass !== 'string') {
+            throw new Error('Invalid argument: "moduleFileNameOrClass" must be either of "class" or "string" type');
+        }
+        let ModuleClass = typeof moduleFileNameOrClass === 'class' || typeof moduleFileNameOrClass === 'function' ? moduleFileNameOrClass : require(path.join(oxModulesDirPath, moduleFileNameOrClass));
         if (ModuleClass.default) {
             ModuleClass = ModuleClass.default;
         }
