@@ -123,7 +123,7 @@ export default class OxygenWorker extends EventEmitter {
 
         let oxContext = {};
         if (this._oxygen && this._oxygen.context) {
-            context = this._oxygen.context;
+            oxContext = this._oxygen.context;
         }
 
         return { error, moduleCaps, resultStore, context: oxContext };
