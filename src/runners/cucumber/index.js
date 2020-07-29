@@ -50,7 +50,7 @@ export default class CucumberRunner {
 
         this.isInitialized = false;
         this.id = oxutil.generateUniqueId();
-        const workerPath = path.join(__dirname, 'worker-wrapper.js');
+        const workerPath = path.join(__dirname, 'worker.js');
         this.worker = new WorkerProcess(this.id, workerPath, this._debugMode, this._debugPort, 'Cucumber', this._npmGRootExecution);
         this.handleWorkerEvents();
     }
