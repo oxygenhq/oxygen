@@ -66,7 +66,7 @@ module.exports = function() {
      * @example <caption>[javascript] Usage example</caption>
      * email.init('[YOUR_EMAIL]@gmail.com', 'password', 'imap.gmail.com', 993, true, 3000);
      * var mail = email.getLastEmail(60, 'email subject', 5000);
-     * log.info(JSON.stringify(mail, null, 2));
+     * log.info(mail);
      */
     module.getLastEmail = function(sinceMinutes, subject, timeout) {
         utils.assertArgumentNumberNonNegative(sinceMinutes, 'sinceMinutes');
