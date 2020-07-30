@@ -73,7 +73,7 @@ export default class WorkerProcess extends EventEmitter {
 
                     deasync.loopWhile(() => !done);
                 } else {
-                    const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
+                    const execResult = execSync('npm root -g');
 
                     if (execResult && execResult.toString) {
                         globalNpmModulesPath = execResult.toString().trim();
