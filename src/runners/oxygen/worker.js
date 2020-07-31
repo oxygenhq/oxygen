@@ -96,14 +96,26 @@ function stringify(obj) {
 //process.stderr.write = logger.error;
 
 process.on('unhandledRejection', async(err, origin) => {
+    console.log('Oxygen runner unhandledRejection');
+    console.log(err);
     logger.error(err.message, ISSUERS.USER);
-    processSend({
-        event: 'workerError',
-        errMessage: err.message,
-    });
+
+    if (
+        err.message &&
+        (err.message.includes('element not interactable'))
+    ) {
+        //ignore
+    } else {
+        processSend({
+            event: 'workerError',
+            errMessage: err.message,
+        });
+    }
 });
 
 process.on('uncaughtException', async(err, origin) => {
+    console.log('Oxygen runner uncaughtException');
+    console.log(err);
     logger.error(err.message, ISSUERS.USER);
     processSend({
         event: 'workerError',
