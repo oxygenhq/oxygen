@@ -102,7 +102,7 @@ process.on('unhandledRejection', async(err, origin) => {
 
     if (
         err.message &&
-        (err.message.includes('element not interactable'))
+        (err.message.includes('element not interactable') || err.message.includes('element click intercepted'))
     ) {
         //ignore
     } else {
