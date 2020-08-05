@@ -8,19 +8,24 @@
         <h1 class="page-header">Detailed Results</h1>
         <% results.forEach(function(result, resultIndex) {
             let browserDeviceId;
-            if(result.capabilities){
-                if(result.capabilities.browserName){
+
+            if (result.capabilities) {
+                if (result.capabilities.browserName) {
                     browserDeviceId = result.capabilities.browserName;
-                } else if(result.capabilities.mob && result.capabilities.mob.platformName){
+                } else if (result.capabilities.mob && result.capabilities.mob.platformName) {
                     browserDeviceId = result.capabilities.mob.platformName;
+                } else if (result.capabilities.web && result.capabilities.web.browserName) {
+                    browserDeviceId = result.capabilities.web.browserName;
+                } else if (result.capabilities.mob && result.capabilities.mob.device) {
+                    browserDeviceId = result.capabilities.mob.device;
                 }
-            } else if(result.options){
-                if(result.options.browserName){
+            } else if (result.options) {
+                if (result.options.browserName) {
                     browserDeviceId = result.options.browserName;
                 }
             }
             
-            if(!browserDeviceId){
+            if (!browserDeviceId) {
                 browserDeviceId = 'Item';
             }
 
