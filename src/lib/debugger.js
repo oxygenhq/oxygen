@@ -542,6 +542,16 @@ export default class Debugger extends EventEmitter {
                                     parseInt(item.origin.lineNumber)+1 === parseInt(breakpointData.lineNumber)
                                 ) {
                                     return true;
+                                } else if (
+                                    item &&
+                                    item.locations &&
+                                    Array.isArray(item.locations) &&
+                                    item.locations.length > 0 &&
+                                    item.locations.find(loc => parseInt(loc.lineNumber) === parseInt(breakpointData.lineNumber)) &&
+                                    parseInt(item.origin.lineNumber) !== 1 &&
+                                    parseInt(breakpointData.lineNumber) !== 1
+                                ) {
+                                    return true;
                                 } else {
                                     return false;
                                 }
