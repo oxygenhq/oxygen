@@ -585,6 +585,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeTest" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeTest" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -596,6 +597,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeSuite" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeSuite" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -605,6 +607,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeCase" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeCase" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -614,6 +617,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterTest" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterTest" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -623,6 +627,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterSuite" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterSuite" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -632,6 +637,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterCase" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterCase" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 

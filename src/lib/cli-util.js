@@ -73,8 +73,20 @@ export function getPageObjectFilePath(config, argv = {}) {
     const target = config.target || {};
     const poFileName = argv.po || `${OXYGEN_PAGE_OBJECT_FILE_NAME}.js`;
     const cwd = target.cwd || process.cwd();
-    const poFilePath = path.resolve(cwd, poFileName);
-    return fs.existsSync(poFilePath) ? poFilePath : null;
+    let poFilePath = path.resolve(cwd, poFileName);
+    poFilePath = fs.existsSync(poFilePath) ? poFilePath : null;
+
+    if (poFilePath) {
+        try {
+            moduleRequire(poFilePath);
+            return poFilePath;
+        } catch (e) {
+            const err = new Error(`Error: Unable to load file: ${poFilePath}. Reason: ${e.message}`);
+            throw err;
+        }
+    } else {
+        return null;
+    }
 }
 
 export function loadEnvironmentVariables(config, argv) {
@@ -110,7 +122,12 @@ export function getEnvironments(target) {
     const cwd = targetCwd || process.cwd();
     const defaultEnvFile = path.join(cwd, `${OXYGEN_ENV_FILE_NAME}.js`);
     if (fs.existsSync(defaultEnvFile)) {
-        return moduleRequire(defaultEnvFile);
+        try {
+            return moduleRequire(defaultEnvFile);
+        } catch (e) {
+            const err = new Error(`Error: Unable to load file: ${defaultEnvFile}. Reason: ${e.message}`);
+            throw err;
+        }
     }
     return {};
 }
@@ -149,9 +166,13 @@ export function getConfigurations(target, argv) {
     // if the target is oxygen config file, merge its content with the default options
     let projConfigOpts = {};
     if (target && target.name === OXYGEN_CONFIG_FILE_NAME && (target.extension === '.js' || target.extension === '.json')) {
-        projConfigOpts = moduleRequire(target.path);
+        try {
+            projConfigOpts = moduleRequire(target.path);
+        } catch (e) {
+            const err = new Error(`Error: Unable to load file: ${target.path}. Reason: ${e.message}`);
+            throw err;
+        }
     }
-    // load environments definition
     const envs = getEnvironments(target);
 
     if (projConfigOpts.envs) {

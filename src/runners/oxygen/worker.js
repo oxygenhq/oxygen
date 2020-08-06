@@ -186,7 +186,7 @@ async function invokeTestHook(method, args) {
         retval = await _worker.callTestHook(method, args);
     }
     catch (e) {
-        error = e;
+        error = e.message;
     }
     return { retval, error };
 }
