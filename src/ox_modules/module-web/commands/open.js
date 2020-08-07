@@ -23,6 +23,8 @@ module.exports = function(url) {
     } catch (e) {
         if (e && e.message.startsWith('Specified URL')) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
+        } else if (e && e.message.startsWith('Reached error page:')) {  // geckodriver - site cannot be reached
+            throw new this.OxError(this.errHelper.errorCode.URL_OPEN_ERROR, e.message);
         } else {
             throw e;
         }
