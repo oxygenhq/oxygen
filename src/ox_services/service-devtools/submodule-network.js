@@ -30,8 +30,8 @@ export default class NetworkSubModule extends OxygenSubModule {
         }
         this._devTools = devTools;
         this._driver = this._parent.getDriver();
-        this._driver.on('Network.responseReceived', this._onNetworkResponseReceived.bind(this));
-        this._driver.on('Network.requestWillBeSent', this._onNetworkRequestWillBeSent.bind(this));
+        this._devTools.session.on('Network.responseReceived', this._onNetworkResponseReceived.bind(this));
+        this._devTools.session.on('Network.requestWillBeSent', this._onNetworkRequestWillBeSent.bind(this));
         super.init();
         return true;
     }
@@ -39,12 +39,11 @@ export default class NetworkSubModule extends OxygenSubModule {
     async dispose() {
 
         try {
-            if (this._driver) {
-                await this._driver.removeListener('Network.responseReceived', () => {});
-                await this._driver.removeListener('Network.requestWillBeSent', () => {});
-
-                await this._devTools.client.Network.disable();
-                await this._devTools.client.Browser.close();
+            if (this._devTools) {
+                await this._devTools.session.removeListener('Network.responseReceived', () => {});
+                await this._devTools.session.removeListener('Network.requestWillBeSent', () => {});
+                await this._devTools.session.emit('Network.disable');
+                await this._devTools.session.emit('Network.close');
             }
         } catch (e) {
             // ignore errors;

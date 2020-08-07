@@ -36,7 +36,7 @@ module.exports = function(locator, timeout) {
     }
 
     try {
-        el.waitForExist((!timeout ? this.waitForTimeout : timeout), true);
+        el.waitForExist({timeout: (!timeout ? this.waitForTimeout : timeout), reverse: true});
     } catch (e) {
 
         this.helpers.restoreTimeoutImplicit();
