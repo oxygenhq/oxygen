@@ -27,10 +27,10 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.selectWindow("title=Website");// Selects and focus a window. 
  */
-module.exports = function (windowHandle, timeout) {  
+module.exports = function (windowHandle, timeout) {
     try {
         this.driver.switchToWindow(windowHandle);
-    } 
+    }
     catch (err) {
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable1 to find window: ${windowHandle} - ${err.message}`);
     }

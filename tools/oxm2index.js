@@ -1,7 +1,7 @@
 const fs = require('fs');
 const path = require('path');
 const modPath = path.resolve(__dirname, '..', 'src', 'ox_modules');
-     
+
 const modules = fs.readdirSync(modPath);
 var modFilesIndexTxt = '';
 for (var m of modules) {
@@ -15,7 +15,7 @@ for (var m of modules) {
     if (fs.lstatSync(path.join(modPath, m)).isFile() && m.endsWith('.js')) {
         modFilesIndexTxt += `import _${name} from './${fileName}';\n`;
         modFilesIndexTxt += `export const ${name} = _${name};\n`;
-        modFilesIndexTxt += `\n`;
+        modFilesIndexTxt += '\n';
 
         const modDir = path.join(modPath, 'module-' + name);
 
@@ -28,9 +28,9 @@ for (var m of modules) {
                 const cmdName = path.parse(cmd).name;
                 modCmdFilesIndexTxt += `import _${cmdName} from './${cmdName}';\n`;
                 modCmdFilesIndexTxt += `export const ${cmdName} = _${cmdName};\n`;
-                modCmdFilesIndexTxt += `\n`;
+                modCmdFilesIndexTxt += '\n';
             }
-            writeIndexFile(cmdsDir, modCmdFilesIndexTxt)
+            writeIndexFile(cmdsDir, modCmdFilesIndexTxt);
         }
     }
 }
@@ -41,8 +41,6 @@ if (modFilesIndexTxt.length > 0) {
 
 function writeIndexFile(targetDir, content) {
     const outFile = path.join(targetDir, 'index.js');
-    var outContent = '';
-
     if (fs.existsSync(outFile)) {
         fs.unlinkSync(outFile);
     }

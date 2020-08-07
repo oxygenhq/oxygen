@@ -404,7 +404,6 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
-    
     _wrapModule(name, module) {
         if (!module) {
             return undefined;

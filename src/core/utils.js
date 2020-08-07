@@ -4,7 +4,7 @@ import path from 'path';
 export function loadModuleFromClass(moduleName, moduleClass, moduleLogger, oxModulesDirPath, args) {
     if (moduleClass.default) {
         moduleClass = moduleClass.default;
-    }    
+    }
     // check if module contains external "commands" folder and if so load all the commands
     const cmdDirPath = oxModulesDirPath ? path.join(oxModulesDirPath, 'module-' + moduleName, 'commands') : null;
     addCommandsToPrototype(cmdDirPath, moduleName, moduleClass);
