@@ -37,7 +37,8 @@ export default class WorkerProcess extends EventEmitter {
     async start() {
         const env = Object.assign(process.env, {
             OX_WORKER: true,
-            DEBUG: !isNaN(this._debugPort)
+            DEBUG: !isNaN(this._debugPort),
+            NO_UPDATE_NOTIFIER: true
         });
 
         log.info(`Starting worker process ${this._pid}.`);
@@ -73,7 +74,7 @@ export default class WorkerProcess extends EventEmitter {
 
                     deasync.loopWhile(() => !done);
                 } else {
-                    const execResult = execSync('npm root -g', { env: 'NO_UPDATE_NOTIFIER' });
+                    const execResult = execSync('npm root -g');
 
                     if (execResult && execResult.toString) {
                         globalNpmModulesPath = execResult.toString().trim();
