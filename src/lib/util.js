@@ -262,5 +262,9 @@ var self = module.exports = {
             console.error(`Hook "${method}" has thrown an error: ${e.toString()}`);
             throw e;
         }
+    },
+
+    getOxModulesDir: function() {
+        return path.join(__dirname, '..', 'ox_modules');
     }
 };
