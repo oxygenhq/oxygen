@@ -36,6 +36,7 @@ const ERROR_CODES = {
     APPIUM_UNREACHABLE_ERROR: 'APPIUM_UNREACHABLE_ERROR',
     SELENIUM_UNREACHABLE_ERROR: 'SELENIUM_UNREACHABLE_ERROR',
     CHROMEDRIVER_ERROR: 'CHROMEDRIVER_ERROR',
+    WEBDRIVER_ERROR: 'WEBDRIVER_ERROR',
     DB_CONNECTION_ERROR: 'DB_CONNECTION_ERROR',
     DB_QUERY_ERROR: 'DB_QUERY_ERROR',
     SOAP_ERROR: 'SOAP_ERROR',
@@ -172,6 +173,10 @@ module.exports = {
         // usually because Selenium has killed the session due to exceeding '-timeout' timeout
         else if (err.message && err.message.startsWith('No active session with ID')) {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_ERROR, 'Execution time exceeded the timeout set by Selenium');
+        }
+        // when driver (IEDriverServer, ChromeDriver, etc) crashes
+        else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
+            return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
         }
 
         // try to resolve Chai error code
