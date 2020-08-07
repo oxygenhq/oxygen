@@ -450,7 +450,7 @@ export default class WebModule extends WebDriverModule {
                 }
             }
         } catch (e) {
-            this.logger.error('Close browser window error', e);
+            this.logger.warn('Failed to close browser window:', e);
         }
         this.disposeContinue();
     }
