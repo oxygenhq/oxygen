@@ -45,7 +45,7 @@
     "md-reverse": "1.0.0"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.14.2",
+    "@applitools/eyes-webdriverio": "5.19.3",
     "@babel/cli": "7.10.4",
     "@babel/core": "7.10.4",
     "@babel/plugin-proposal-class-properties": "7.10.4",
@@ -61,7 +61,7 @@
     "@wdio/sync": "5.23.0",
     "async": "3.2.0",
     "chai": "4.2.0",
-    "chrome-har": "0.11.9",
+    "chrome-har": "0.11.11",
     "config": "3.3.1",
     "core-js": "3.6.5",
     "csv-parse": "4.10.1",
@@ -88,16 +88,16 @@
     "request": "2.88.2",
     "saucelabs": "3.0.1",
     "serialport": "9.0.0",
-    "soap": "0.31.0",
+    "soap": "0.32.0",
     "testingbot-api": "1.0.7",
     "text-to-image": "^2.3.0",
-    "twilio": "3.46.0",
+    "twilio": "3.48.2",
     "webdriverio": "5.23.0",
     "when": "3.7.8",
     "xlsx": "0.15.6"
   },
   "optionalDependencies": {
-    "odbc": "2.3.0"
+    "odbc": "2.3.3"
   },
   "scripts": {
     "build": "run-s clean compile",
