@@ -47,7 +47,7 @@
     "source-map-support": "0.5.19"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.19.3",
+    "@applitools/eyes-webdriverio": "5.21.0",
     "@lambdatest/node-rest-client": "1.0.0",
     "@wdio/cli": "6.4.0",
     "@wdio/devtools-service": "6.4.0",
@@ -81,7 +81,7 @@
     "perfecto-reporting": "2.5.3",
     "request": "2.88.2",
     "saucelabs": "3.0.1",
-    "serialport": "9.0.0",
+    "serialport": "9.0.1",
     "soap": "0.32.0",
     "testdouble": "3.16.1",
     "testingbot-api": "1.0.7",
@@ -92,7 +92,7 @@
     "xlsx": "0.15.6"
   },
   "optionalDependencies": {
-    "odbc": "2.3.3"
+    "odbc": "2.3.4"
   },
   "scripts": {
     "build": "run-s clean compile",
