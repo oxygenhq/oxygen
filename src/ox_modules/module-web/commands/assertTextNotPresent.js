@@ -18,7 +18,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertTextNotPresent("John Doe");// Asserts if a text is not presented somewhere on the page.
  */
-module.exports = function(text, timeout) {
+module.exports = async function(text, timeout) {
     this.helpers.assertArgumentNonEmptyString(text, 'text');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -27,7 +27,7 @@ module.exports = function(text, timeout) {
     }
 
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             try {
                 const els = await this.driver.$$('//*[contains(text(),"' + text + '")]');
                 return els.length === 0;

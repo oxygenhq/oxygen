@@ -35,7 +35,7 @@ module.exports = async function(locator, timeout) {
                 el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
             }
         }
-        el.click();
+        await el.click();
     } catch (e) {
         // if element is not clickable or visible, try clicking it using JS injection
         if (e.message &&

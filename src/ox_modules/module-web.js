@@ -567,7 +567,7 @@ export default class WebModule extends WebDriverModule {
 
                                 this.driver.call(() => {
                                     return new Promise((resolve, reject) => {
-                                        const pr = textToImage.generate('', { debug: false, bgColor: '#000000' });
+                                        const pr = textToImage.generate('', { debug: false, bgColor: '#000000', fontFamily: 'Arial' });
 
                                         pr.then((val) => {
                                             lineImage = val;
@@ -582,7 +582,7 @@ export default class WebModule extends WebDriverModule {
                                 let titleImage;
                                 this.driver.call(() => {
                                     return new Promise((resolve, reject) => {
-                                        const pr = textToImage.generate(title, { debug: false });
+                                        const pr = textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
 
                                         pr.then((val) => {
                                             titleImage = val;

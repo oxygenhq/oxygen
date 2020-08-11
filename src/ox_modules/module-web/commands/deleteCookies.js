@@ -12,6 +12,6 @@
  * @function deleteCookies
  * @param {String|String[]=} names - Cookie name or a list of cookie names to delete.
  */
-module.exports = function(names) {
-    this.driver.deleteCookie(names);
+module.exports = async function(names) {
+    await this.driver.deleteCookie(names);
 };

@@ -20,11 +20,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.type("id=UserName","User1");//Types a string to field.
  */
-module.exports = function(locator, value, timeout) {
+module.exports = async function(locator, value, timeout) {
     this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, true, timeout);
+    var el = await this.helpers.getElement(locator, true, timeout);
 
     try {
         if (
@@ -34,12 +34,12 @@ module.exports = function(locator, value, timeout) {
             this.driver.capabilities.browserName === 'MicrosoftEdge'
         ) {
             //https://github.com/webdriverio/webdriverio/issues/3324
-            this.driver.execute((el, val) => {
+            await this.driver.execute((el, val) => {
                 el.focus();
                 el.value = val;
             }, el, value);
         } else {
-            el.setValue(value.toString());
+            await el.setValue(value.toString());
         }
     } catch (e) {
         if (e.name === 'invalid element state') {

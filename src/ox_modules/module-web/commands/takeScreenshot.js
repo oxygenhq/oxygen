@@ -17,8 +17,8 @@
  * var ss = web.takeScreenshot();
  * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
  */
-module.exports = function() {
-    var response = this.driver.takeScreenshot();
+module.exports = async function() {
+    var response = await this.driver.takeScreenshot();
     // sometimes execution on IE fails with the following error:
     // "Unable to determine type from: E. Last 1 characters read: E"
     // it's unclear what this error means and why it happens

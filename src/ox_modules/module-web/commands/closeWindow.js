@@ -15,6 +15,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.closeWindow();//Closes the current window.
  */
-module.exports = function() {
-    this.driver.closeWindow();
+module.exports = async function() {
+    await this.driver.closeWindow();
 };

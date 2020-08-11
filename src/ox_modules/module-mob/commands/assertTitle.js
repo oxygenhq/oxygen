@@ -18,14 +18,14 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.assertTitle("Your websites title!");// Asserts if the title of the page.
  */
-module.exports = function(pattern, timeout) {
+module.exports = async function(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var title;
+    let title;
     try {
-        this.driver.waitUntil(() => {
-            title = this.driver.getTitle();
+        this.driver.waitUntil(async() => {
+            title = await this.driver.getTitle();
             return this.helpers.matchPattern(title, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

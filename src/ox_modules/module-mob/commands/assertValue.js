@@ -17,18 +17,18 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.assertValue("id=UserName", "John Doe");// Asserts if the value of an element.
  */
-module.exports = function(locator, pattern, timeout) {
+module.exports = async function(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    const el = await this.helpers.getElement(locator, false, timeout);
 
     var text;
     var actualError;
     try {
-        this.driver.waitUntil(() => {
+        this.driver.waitUntil(async() => {
             try {
-                text = el.getValue();
+                text = await el.getValue();
                 // uiautomator1 simply returns an error if element not found
                 if (text.error) {
                     actualError = text;

@@ -20,24 +20,14 @@
  * web.click("id=SaveButton");//Clicks on save – an alert would pop up
  * web.assertAlert("Your Alert's text");//Asserts the alert's text.
  */
-module.exports = function(pattern, timeout) {
-    var alertText = null;
+module.exports = async function(pattern, timeout) {
+    let alertText = null;
     try {
-        this.driver.waitUntil(() => {
+        await this.driver.waitUntil(async() => {
             try {
-                const alertTextRetVal = this.driver.getAlertText();
+                alertText = await this.driver.getAlertText();
 
-                if (alertTextRetVal.then) {
-                    alertTextRetVal.then((value) => {
-                        alertText = value;
-                    });
-                }
-
-                if (typeof alertTextRetVal === 'string') {
-                    alertText = alertTextRetVal;
-                }
-
-                if (typeof alertText === 'string') {
+                if (alertText) {
                     return this.helpers.matchPattern(alertText, pattern);
                 }
             } catch (e) {

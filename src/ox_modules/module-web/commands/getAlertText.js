@@ -16,6 +16,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var text = web.getAlertText();//Gets the text in the alert dialog.
  */
-module.exports = function() {
-    return this.driver.getAlertText();
+module.exports = async function() {
+    return await this.driver.getAlertText();
 };

@@ -18,17 +18,17 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getValue("id=UserName");//Gets the value from an element.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, true, timeout);
+    var el = await this.helpers.getElement(locator, true, timeout);
     let val;
 
     try {
-        val = el.getValue();
+        val = await el.getValue();
     } catch (e) {
         console.log('web.getValue error', e);
-        val = el.getAttribute('value');
+        val = await el.getAttribute('value');
     }
 
     if (val) {

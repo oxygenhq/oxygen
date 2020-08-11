@@ -16,11 +16,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var src = web.getXMLPageSource();//Gets the source of currently active window which displays `text/xml` page.
  */
-module.exports = function() {
+module.exports = async function() {
     var browser = this.caps.browserName;
     switch (browser) {
         case 'chrome': {
-            const retval = this.driver.execute(() => {
+            const retval = await this.driver.execute(() => {
                 // eslint-disable-next-line no-undef
                 var xmlEl = document.getElementById('webkit-xml-viewer-source-xml');
 
@@ -30,7 +30,7 @@ module.exports = function() {
             return retval;
         }
         case 'ie':
-            var src = this.driver.getPageSource();
+            var src = await this.driver.getPageSource();
             src = src.replace(/<head>(.|\n)*?<\/head>/g, '');
             src = src.replace(/<a\s*.*?>&lt;.*?<\/a>/g, '');
             src = src.replace(/<div\s*.*?>.*?<\/div>/g, '');

@@ -20,16 +20,16 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForText("id=Title","Website");//Waits for an element’s text to  match to expected string.
  */
-module.exports = function(locator, pattern, timeout) {
+module.exports = async function(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
     var text;
     try {
-        this.driver.waitUntil(() => {
-            text = el.getText();
+        await this.driver.waitUntil(async() => {
+            text = await el.getText();
             return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

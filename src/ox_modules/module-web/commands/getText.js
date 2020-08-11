@@ -18,11 +18,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var text = web.getText("id=Title");//Gets the text from an element.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    var text = el.getText();
+    var el = await this.helpers.getElement(locator, false, timeout);
+    var text = await el.getText();
     if (text) {
         return text.trim().replace(/\s+/g, ' ');
     }

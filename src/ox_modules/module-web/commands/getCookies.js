@@ -13,6 +13,6 @@
  * @param {String} names - Names of the cookies to retrieve.
  * @return {String} The attribute's value.
  */
-module.exports = function(names) {
-    return this.driver.getCookies(names);
+module.exports = async function(names) {
+    return await this.driver.getCookies(names);
 };

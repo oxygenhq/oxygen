@@ -16,6 +16,6 @@
  * web.click("id=NextPage");//Clicks on next page link.
  * web.back();//Navigate back to previous page.
  */
-module.exports = function() {
-    this.driver.back();
+module.exports = async function() {
+    await this.driver.back();
 };

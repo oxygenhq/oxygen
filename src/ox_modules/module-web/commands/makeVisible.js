@@ -24,11 +24,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.makeVisible("id=SaveButton");// Makes an invisible/hidden element to become visible.
  */
-module.exports = function (locator) {
-    var el = this.helpers.getElement(locator);
+module.exports = async function (locator) {
+    var el = await this.helpers.getElement(locator);
 
     /*global window*/
-    this.driver.execute(function (domEl) {
+    await this.driver.execute(function (domEl) {
         // make sure current element and all its ancestors have "display" style value different from "none"
         var curElm = domEl;
         while (curElm) {

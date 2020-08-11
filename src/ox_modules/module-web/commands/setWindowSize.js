@@ -17,8 +17,8 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.setWindowSize(100,40);//Sets the window size (width and height) in pixels.
  */
-module.exports = function(width, height) {
+module.exports = async function(width, height) {
     this.helpers.assertArgumentNumberNonNegative(width);
     this.helpers.assertArgumentNumberNonNegative(height);
-    this.driver.setWindowSize(width, height);
+    await this.driver.setWindowSize(width, height);
 };

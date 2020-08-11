@@ -16,7 +16,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isWebViewContext();//Checks if the current context is of WebView type.
  */
-module.exports = function() {
-    var context = this.driver.getContext();
+module.exports = async function() {
+    var context = await this.driver.getContext();
     return (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf('CHROMIUM') > -1));
 };

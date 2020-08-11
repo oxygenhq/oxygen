@@ -19,11 +19,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.isVisible("id=SaveButton");// Returns true if  the element is displayed in page. 
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
-        this.helpers.getElement(locator, true, timeout);
+        await this.helpers.getElement(locator, true, timeout);
         return true;
     } catch (e) {
         return false;

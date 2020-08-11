@@ -21,21 +21,33 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertSelectedValue ("id=Selection", "3");// Asserts if an element's value is selected in the drop down list.
  */
-module.exports = function(locator, pattern, timeout, waitForVisible = true) {
+module.exports = async function(locator, pattern, timeout, waitForVisible = true) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, waitForVisible, timeout);
+    const el = await this.helpers.getElement(locator, waitForVisible, timeout);
 
-    var text;
+    console.log('~~el', el);
+
+    let text;
     try {
-        this.driver.waitUntil(() => {
-            text = el.getValue();
+        await this.driver.waitUntil(async() => {
+            text = await el.getValue();
+
+            console.log('~~text', text);
+
+            console.log('~~pattern', pattern);
 
             return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));
+
+        console.log('~~after waitUntil');
     } catch (e) {
+        console.log('~~e', e);
+        console.log('~~text', text);
+        console.log('~~pattern', pattern);
+
         throw this.errHelper.getAssertError(pattern, text);
     }
 };

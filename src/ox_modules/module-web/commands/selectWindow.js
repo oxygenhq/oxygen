@@ -28,37 +28,37 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.selectWindow("title=Website");// Selects and focus a window. 
  */
-module.exports = function(windowLocator, timeout) {
+module.exports = async function(windowLocator, timeout) {
     var currentHandle;
 
     // getWindowHandle() could possibly fail if there is no active window,
     // so we select the last opened one in such case
     try {
-        currentHandle = this.driver.getWindowHandle();
+        currentHandle = await this.driver.getWindowHandle();
     } catch (err) {
-        var wnds = this.driver.getWindowHandles();
-        this.driver.switchToWindow(wnds[wnds.length - 1]);
-        currentHandle = this.driver.getWindowHandle();
+        var wnds = await this.driver.getWindowHandles();
+        await this.driver.switchToWindow(wnds[wnds.length - 1]);
+        currentHandle = await this.driver.getWindowHandle();
     }
 
     var windowHandles;
     if (!windowLocator) {
-        windowHandles = this.driver.getWindowHandles();
-        this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
+        windowHandles = await this.driver.getWindowHandles();
+        await this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
     } else if (windowLocator.indexOf('title=') === 0) {
         let pattern = windowLocator.substring('title='.length);
         let start = (new Date()).getTime();
         timeout = !timeout ? this.waitForTimeout : timeout;
         while ((new Date()).getTime() - start < timeout) {
-            windowHandles = this.driver.getWindowHandles();
+            windowHandles = await this.driver.getWindowHandles();
             for (let i = 0; i < windowHandles.length; i++) {
                 let handle = windowHandles[i];
                 try {
-                    this.driver.switchToWindow(handle);
+                    await this.driver.switchToWindow(handle);
                 } catch (err) { // in case window was closed
                     continue;
                 }
-                let title = this.driver.getTitle();
+                let title = await this.driver.getTitle();
                 if (this.helpers.matchPattern(title, pattern)) {
                     return currentHandle;
                 }
@@ -66,22 +66,22 @@ module.exports = function(windowLocator, timeout) {
             this.pause(1000);
         }
         // if window not found - switch to original one and throw
-        this.driver.switchToWindow(currentHandle);
+        await this.driver.switchToWindow(currentHandle);
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else if (windowLocator.indexOf('url=') === 0) {
         let pattern = windowLocator.substring('url='.length);
         let start = (new Date()).getTime();
         timeout = !timeout ? this.waitForTimeout : timeout;
         while ((new Date()).getTime() - start < timeout) {
-            windowHandles = this.driver.getWindowHandles();
+            windowHandles = await this.driver.getWindowHandles();
             for (let i = 0; i < windowHandles.length; i++) {
                 let handle = windowHandles[i];
                 try {
-                    this.driver.switchToWindow(handle);
+                    await this.driver.switchToWindow(handle);
                 } catch (err) { // in case window was closed
                     continue;
                 }
-                let url = this.driver.getUrl();
+                let url = await this.driver.getUrl();
                 if (this.helpers.matchPattern(url, pattern)) {
                     return currentHandle;
                 }
@@ -89,10 +89,10 @@ module.exports = function(windowLocator, timeout) {
             this.pause(1000);
         }
         // if window not found - switch to original one and throw
-        this.driver.switchToWindow(currentHandle);
+        await this.driver.switchToWindow(currentHandle);
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else {
-        this.driver.switchToWindow(windowLocator);
+        await this.driver.switchToWindow(windowLocator);
     }
 
     return currentHandle;

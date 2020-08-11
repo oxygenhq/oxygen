@@ -21,9 +21,9 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.point("id=Selection");//Hovers a mouse over an element.
  */
-module.exports = function(locator, xOffset, yOffset, timeout) {
+module.exports = async function(locator, xOffset, yOffset, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    el.moveTo({xOffset: xOffset, yOffset: yOffset });
+    var el = await this.helpers.getElement(locator, false, timeout);
+    await el.moveTo({xOffset: xOffset, yOffset: yOffset });
 };

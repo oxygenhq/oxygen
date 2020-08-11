@@ -21,19 +21,19 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertSelectedLabel("id=Selection", "United States");// Asserts if an element's label is selected in the drop down list.
  */
-module.exports = function(locator, pattern, timeout, waitForVisible = true) {
+module.exports = async function(locator, pattern, timeout, waitForVisible = true) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, waitForVisible, timeout);
+    const el = await this.helpers.getElement(locator, waitForVisible, timeout);
 
-    var text;
+    let text;
     try {
-        this.driver.waitUntil(() => {
+        await this.driver.waitUntil(async() => {
             var opts = el.$$('//option');
             for (var opt of opts) {
-                if (opt.isSelected()) {
-                    text = opt.getText();
+                if (await opt.isSelected()) {
+                    text = await opt.getText();
                     return this.helpers.matchPattern(text, pattern);
                 }
             }

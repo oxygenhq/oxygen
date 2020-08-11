@@ -18,16 +18,16 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.fileBrowse("id=ProfilePicture","C:\\picture.jpg");//Uploads a file to an element.
  */
-module.exports = function(locator, filepath, timeout) {
+module.exports = async function(locator, filepath, timeout) {
     this.helpers.assertArgumentNonEmptyString(filepath, 'filepath');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    var remoteFilePath = this.driver.uploadFile(filepath);
+    var remoteFilePath = await this.driver.uploadFile(filepath);
 
     try {
-        el.setValue(remoteFilePath);
+        await el.setValue(remoteFilePath);
     } catch (e) {
         if (e.name === 'invalid element state') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);

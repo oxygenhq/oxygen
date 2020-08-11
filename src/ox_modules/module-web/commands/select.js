@@ -23,21 +23,21 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.select("id=Selection","label=United States");// Selects an option from a list. 
  */
-module.exports = function(selectLocator, optionLocator, timeout) {
+module.exports = async function(selectLocator, optionLocator, timeout) {
     this.helpers.assertArgumentNonEmptyString(optionLocator, 'optionLocator');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(selectLocator, false, timeout);
+    var el = await this.helpers.getElement(selectLocator, false, timeout);
 
     try {
         if (optionLocator.indexOf('value=') === 0) {
-            el.selectByAttribute('value', optionLocator.substring('value='.length));
+            await el.selectByAttribute('value', optionLocator.substring('value='.length));
         } else if (optionLocator.indexOf('index=') === 0) {
-            el.selectByIndex(optionLocator.substring('index='.length));
+            await el.selectByIndex(optionLocator.substring('index='.length));
         } else if (optionLocator.indexOf('label=') === 0) {
-            el.selectByVisibleText(optionLocator.substring('label='.length));
+            await el.selectByVisibleText(optionLocator.substring('label='.length));
         } else {
-            el.selectByVisibleText(optionLocator);
+            await el.selectByVisibleText(optionLocator);
         }
     } catch (e) {
         if (e.message && e.message.startsWith('Option with ')) {

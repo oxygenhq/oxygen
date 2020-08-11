@@ -19,15 +19,14 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertTitle("Your websites title!");// Asserts the title of the page.
  */
-module.exports = function(pattern, timeout) {
+module.exports = async function(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var title;
+    let title;
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             title = await this.driver.getTitle();
-
             return this.helpers.matchPattern(title, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

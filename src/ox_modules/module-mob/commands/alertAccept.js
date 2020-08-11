@@ -17,9 +17,9 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * mob.alertAccept();//Automatically press on 'OK' button in the alert pop-up.
 */
-module.exports = function() {
+module.exports = async function() {
     try {
-        this.driver.acceptAlert();
+        await this.driver.acceptAlert();
     } catch (e) {
         if (e.name === 'no such alert') {
             throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR);

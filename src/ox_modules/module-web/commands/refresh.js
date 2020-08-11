@@ -15,6 +15,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.refresh();//Reloads the page
  */
-module.exports = function() {
-    this.driver.refresh();
+module.exports = async function() {
+    await this.driver.refresh();
 };

@@ -17,9 +17,9 @@
  * web.click("id=SaveButton");//Clicks on save – an alert would pop up
  * web.alertAccept();//Clicks on "OK" in the alert dialog.
  */
-module.exports = function() {
+module.exports = async function() {
     try {
-        this.driver.acceptAlert();
+        await this.driver.acceptAlert();
     } catch (e) {
         if (e.name === 'no such alert' || e.type === 'NO_ALERT_OPEN_ERROR') {
             throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');

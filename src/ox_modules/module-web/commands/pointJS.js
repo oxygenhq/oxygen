@@ -15,14 +15,14 @@
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    var isIE = this.getCapabilities().browserName === 'internet explorer';
+    var el = await this.helpers.getElement(locator, false, timeout);
+    var isIE = await this.getCapabilities().browserName === 'internet explorer';
 
     /*global MouseEvent,document,window*/
-    this.execute(function(e, isIE) {
+    await this.execute(function(e, isIE) {
         var ev;
         if (isIE) {
             ev = document.createEvent('MouseEvent');

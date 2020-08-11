@@ -17,9 +17,9 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * mob.alertDismiss();//Automatically press on 'Cancel' button in the alert pop-up. 
 */
-module.exports = function() {
+module.exports = async function() {
     try {
-        this.driver.dismissAlert();
+        await this.driver.dismissAlert();
     } catch (e) {
         if (e.name === 'no such alert') {
             throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR);

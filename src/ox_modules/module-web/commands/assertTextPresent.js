@@ -18,16 +18,16 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertTextPresent("John Doe");// Asserts if a text is presented somewhere on the page.
  */
-module.exports = function(text, timeout) {
+module.exports = async function(text, timeout) {
     this.helpers.assertArgumentNonEmptyString(text, 'text');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     if (timeout) {
-        this.helpers.setTimeoutImplicit(timeout);
+        await this.helpers.setTimeoutImplicit(timeout);
     }
 
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             var els = await this.driver.$$('//*[contains(text(),"' + text + '")]');
             return els.length !== 0;
         },

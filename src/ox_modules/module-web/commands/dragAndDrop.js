@@ -20,13 +20,13 @@
  * web.dragAndDrop('id=overlay', '/html/body/section/div[1]');
  * web.pause(10*1000);
  */
-module.exports = function(srcElement, dstElement, duration, timeout) {
+module.exports = async function(srcElement, dstElement, duration, timeout) {
     this.helpers.assertArgument(srcElement, 'srcElement');
     this.helpers.assertArgument(dstElement, 'dstElement');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var srcEl = this.helpers.getElement(srcElement, false, timeout);
-    var dstEl = this.helpers.getElement(dstElement, false, timeout);
+    var srcEl = await this.helpers.getElement(srcElement, false, timeout);
+    var dstEl = await this.helpers.getElement(dstElement, false, timeout);
 
-    srcEl.dragAndDrop(dstEl, duration);
+    await srcEl.dragAndDrop(dstEl, duration);
 };

@@ -19,13 +19,13 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getAttribute("id=UserName","value");//Gets an attribute from an element.
  */
-module.exports = function(locator, attribute, timeout) {
+module.exports = async function(locator, attribute, timeout) {
     this.helpers.assertArgumentNonEmptyString(attribute, 'attribute');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    var attrValue = el.getAttribute(attribute);
+    var attrValue = await el.getAttribute(attribute);
     if (attrValue) {
         attrValue = attrValue.trim().replace(/\s+/g, ' ');
     }

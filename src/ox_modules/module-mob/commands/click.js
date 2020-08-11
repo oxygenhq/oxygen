@@ -17,18 +17,22 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.click("id=Submit");// Clicks an element.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
+
+    console.log('~~el', el);
+
     // if the element is outside the viewport - try to scroll it into the view first
     // taken from https://github.com/webdriverio/webdriverio/blob/master/packages/webdriverio/src/scripts/isElementClickable.js
     // TODO: once WDIO updated to newer version which has isClickable, should simply use isClickable
-    if (this.isWebViewContext() && !el.isDisplayedInViewport()) {
+    if (await this.isWebViewContext() && !el.isDisplayedInViewport()) {
         el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         if (!el.isDisplayedInViewport()) {
             el.scrollIntoView({ block: 'nearest', inline: 'nearest' });
         }
     }
-    el.click();
+    const clickRV = await el.click();
+    console.log('~~clickRV', clickRV);
 };

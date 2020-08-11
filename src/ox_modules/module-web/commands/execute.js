@@ -24,6 +24,6 @@
  * );//Executes/injects JavaScript code.
  
  */
-module.exports = function(...args) {
-    return this.driver.execute(...args);
+module.exports = async function(...args) {
+    return await this.driver.execute(...args);
 };

@@ -16,6 +16,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * const sizeObject = web.getWindowSize();
  */
-module.exports = function() {
-    return this.driver.getWindowSize();
+module.exports = async function() {
+    return await this.driver.getWindowSize();
 };

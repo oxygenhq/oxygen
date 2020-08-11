@@ -37,9 +37,9 @@ module.exports = {
         }
     },
 
-    getElement: function(locator, waitForVisible, timeout) {
+    getElement: async function(locator, waitForVisible, timeout) {
         if (timeout) {
-            module.exports.setTimeoutImplicit.call(this, timeout);
+            await module.exports.setTimeoutImplicit.call(this, timeout);
         }
 
         var el;
@@ -47,7 +47,7 @@ module.exports = {
             el = locator;
         } else {
             locator = this.helpers.getWdioLocator(locator);
-            el = this.driver.$(locator);
+            el = await this.driver.$(locator);
         }
 
         if (el.error && (
@@ -55,17 +55,17 @@ module.exports = {
             (el.error.message && el.error.message.startsWith('no such element') ||
             el.error.message && /*winappdriver*/el.error.message.startsWith('An element could not be located')))) {
             if (timeout) {
-                module.exports.restoreTimeoutImplicit.call(this);
+                await module.exports.restoreTimeoutImplicit.call(this);
             }
             throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (waitForVisible) {
             try {
-                el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
+                await el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
             } catch (e) {
                 if (timeout) {
-                    module.exports.restoreTimeoutImplicit.call(this);
+                    await module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
                     throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
@@ -75,55 +75,55 @@ module.exports = {
         }
 
         if (timeout) {
-            module.exports.restoreTimeoutImplicit.call(this);
+            await module.exports.restoreTimeoutImplicit.call(this);
         }
 
         return el;
     },
 
-    getElements: function(locator, timeout) {
+    getElements: async function(locator, timeout) {
         if (timeout) {
-            module.exports.setTimeoutImplicit.call(this, timeout);
+            await module.exports.setTimeoutImplicit.call(this, timeout);
         }
 
-        var els = this.driver.$$(this.helpers.getWdioLocator(locator));
+        var els = await this.driver.$$(this.helpers.getWdioLocator(locator));
 
         if (els.error && els.error.error === 'no such element') {
             if (timeout) {
-                module.exports.restoreTimeoutImplicit.call(this);
+                await module.exports.restoreTimeoutImplicit.call(this);
             }
             throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (timeout) {
-            module.exports.restoreTimeoutImplicit.call(this);
+            await module.exports.restoreTimeoutImplicit.call(this);
         }
 
         return els;
     },
 
-    getChildElement: function(locator, parentElement, waitForVisible, timeout) {
+    getChildElement: async function(locator, parentElement, waitForVisible, timeout) {
         if (timeout) {
-            module.exports.setTimeoutImplicit.call(this, timeout);
+            await module.exports.setTimeoutImplicit.call(this, timeout);
         }
 
         locator = this.helpers.getWdioLocator(locator);
 
-        var el = parentElement.$(locator);
+        var el = await parentElement.$(locator);
 
         if (el.error && el.error.error === 'no such element') {
             if (timeout) {
-                module.exports.restoreTimeoutImplicit.call(this);
+                await module.exports.restoreTimeoutImplicit.call(this);
             }
             throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (waitForVisible) {
             try {
-                el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
+                await el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
             } catch (e) {
                 if (timeout) {
-                    module.exports.restoreTimeoutImplicit.call(this);
+                    await module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
                     throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
@@ -133,36 +133,36 @@ module.exports = {
         }
 
         if (timeout) {
-            module.exports.restoreTimeoutImplicit.call(this);
+            await module.exports.restoreTimeoutImplicit.call(this);
         }
 
         return el;
     },
 
-    getChildElements: function(locator, parentElement, timeout) {
+    getChildElements: async function(locator, parentElement, timeout) {
         if (timeout) {
             module.exports.setTimeoutImplicit.call(this, timeout);
         }
 
         locator = this.helpers.getWdioLocator(locator);
 
-        var els = parentElement.$$(locator);
+        var els = await parentElement.$$(locator);
 
         if (els.error && els.error.error === 'no such element') {
             if (timeout) {
-                module.exports.restoreTimeoutImplicit.call(this);
+                await module.exports.restoreTimeoutImplicit.call(this);
             }
             throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (timeout) {
-            module.exports.restoreTimeoutImplicit.call(this);
+            await module.exports.restoreTimeoutImplicit.call(this);
         }
 
         return els;
     },
 
-    setTimeoutImplicit: function(timeout) {
+    setTimeoutImplicit: async function(timeout) {
         if (!this.driver) {
             return;
         }
@@ -187,7 +187,7 @@ module.exports = {
                 ) {
                     //ignore
                 } else {
-                    timeouts = this.driver.getTimeouts();
+                    timeouts = await this.driver.getTimeouts();
                 }
             } catch (e) {
                 // fails on perfecto mobile
@@ -202,13 +202,13 @@ module.exports = {
             this._prevImplicitTimeout = timeouts.implicit;
         }
         if (this.driver.setTimeout) {
-            this.driver.setTimeout({ 'implicit': timeout });
+            await this.driver.setTimeout({ 'implicit': timeout });
         }
     },
 
-    restoreTimeoutImplicit: function() {
+    restoreTimeoutImplicit: async function() {
         if (this._prevImplicitTimeout && this.driver.setTimeout) {
-            this.driver.setTimeout({ 'implicit': this._prevImplicitTimeout });
+            await this.driver.setTimeout({ 'implicit': this._prevImplicitTimeout });
         }
     },
 

@@ -18,13 +18,13 @@
  * web.type("id=Password", "Password");//Types a password to a field.
  * web.clear("id=Password");//Clears the characters from the field of an element.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, true, timeout);
+    const el = await this.helpers.getElement(locator, true, timeout);
 
     try {
-        el.clearValue();
+        await el.clearValue();
     } catch (e) {
         if (e.name === 'invalid element state') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);

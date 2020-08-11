@@ -17,34 +17,34 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForNotExist("id=UserName");//Waits for an element to not exist in DOM.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    this.helpers.setTimeoutImplicit(0);
+    await this.helpers.setTimeoutImplicit(0);
 
     var el;
     if (locator && locator.constructor && locator.constructor.name === 'Element') {
         el = locator;
     } else {
-        locator = this.helpers.getWdioLocator(locator);
-        el = this.driver.$(locator);
+        locator = await this.helpers.getWdioLocator(locator);
+        el = await this.driver.$(locator);
     }
 
     if (el.error && el.error.error === 'no such element') {
-        this.helpers.restoreTimeoutImplicit();
+        await this.helpers.restoreTimeoutImplicit();
         return;
     }
 
     try {
-        el.waitForExist({timeout: (!timeout ? this.waitForTimeout : timeout), reverse: true});
+        await el.waitForExist({timeout: (!timeout ? this.waitForTimeout : timeout), reverse: true});
     } catch (e) {
 
-        this.helpers.restoreTimeoutImplicit();
+        await this.helpers.restoreTimeoutImplicit();
         if (e.message && e.message.includes('still existing')) {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STILL_EXISTS);
         }
         throw e;
     }
 
-    this.helpers.restoreTimeoutImplicit();
+    await this.helpers.restoreTimeoutImplicit();
 };

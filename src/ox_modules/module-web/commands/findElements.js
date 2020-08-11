@@ -21,13 +21,13 @@
  *   log.info(text);
  * }
 */
-module.exports = function(locator, parent, timeout = 60 * 1000) {
+module.exports = async function(locator, parent, timeout = 60 * 1000) {
 
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     if (parent) {
-        return this.helpers.getChildElements(locator, parent, timeout);
+        return await this.helpers.getChildElements(locator, parent, timeout);
     } else {
-        return this.helpers.getElements(locator, timeout);
+        return await this.helpers.getElements(locator, timeout);
     }
 };

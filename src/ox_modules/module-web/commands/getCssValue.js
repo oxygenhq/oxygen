@@ -19,13 +19,13 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getCssValue("id=UserName","color");//Gets a CSS value from an element.
  */
-module.exports = function(locator, propertyName, timeout) {
+module.exports = async function(locator, propertyName, timeout) {
     this.helpers.assertArgumentNonEmptyString(propertyName, 'propertyName');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    var css = el.getCSSProperty(propertyName);
+    var css = await el.getCSSProperty(propertyName);
     if (css) {
         return css.value.trim().replace(/\s+/g, ' ');
     }

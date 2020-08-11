@@ -21,16 +21,16 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.assertText("id=UserName","John Doe");// Asserts if an element’s text is as expected.
  */
-module.exports = function(locator, pattern, timeout) {
+module.exports = async function(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    const el = await this.helpers.getElement(locator, false, timeout);
 
-    var text;
+    let text;
     try {
-        this.driver.waitUntil(() => {
-            text = el.getText();
+        this.driver.waitUntil(async() => {
+            text = await el.getText();
             return this.helpers.matchPattern(text, pattern);
         },
         (!timeout ? this.waitForTimeout : timeout));

@@ -17,7 +17,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForExist("id=UserName");//Waits for an element to exist in DOM.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    this.helpers.getElement(locator, false, timeout);
+    await this.helpers.getElement(locator, false, timeout);
 };
