@@ -13,18 +13,18 @@
  * @param {String} pattern - Value pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(locator, pattern, timeout) {
+module.exports = async function(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
     var text;
     var actualError;
     try {
-        this.driver.waitUntil(() => {
+        await this.driver.waitUntil(async() => {
             try {
-                text = el.getValue();
+                text = await el.getValue();
                 // uiautomator1 simply returns an error if element not found
                 if (text.error) {
                     actualError = text;

@@ -21,33 +21,33 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.scrollIntoElement('id=bottomPanel','id=Button',0,-30,50);//Scrolls the view element until a specified target element inside the view is found.
 */
-module.exports = function(scrollElmLocator, findElmLocator, xoffset = 0, yoffset = -30, retries = 50, timeout) {
+module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, yoffset = -30, retries = 50, timeout) {
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
     this.helpers.assertArgumentNumber(retries, 'retries');
 
-    var scrollElm = this.helpers.getElement(scrollElmLocator, false, timeout);
-    var findElmWDLocator = this.helpers.getWdioLocator(findElmLocator);
+    var scrollElm = await this.helpers.getElement(scrollElmLocator, false, timeout);
+    var findElmWDLocator = await this.helpers.getWdioLocator(findElmLocator);
 
     var retry = 0;
 
-    this.helpers.setTimeoutImplicit(500);
+    await this.helpers.setTimeoutImplicit(500);
 
     while (retry < retries) {
-        var el = this.driver.$(findElmWDLocator);
+        var el = await this.driver.$(findElmWDLocator);
 
         if (el.error && el.error.error === 'no such element') {
             retry++;
-            scrollElm.touchAction([
+            await scrollElm.touchAction([
                 'press',
                 { action: 'moveTo', x: xoffset, y: yoffset },
                 'release'
             ]);
         } else if (el.error) {
-            this.helpers.restoreTimeoutImplicit();
+            await this.helpers.restoreTimeoutImplicit();
             throw el.error;
         } else {
-            this.helpers.restoreTimeoutImplicit();
+            await this.helpers.restoreTimeoutImplicit();
             return;
         }
     }

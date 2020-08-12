@@ -21,8 +21,8 @@
  * mob.type("id=Password", "Password");//Types a password to a field.
  * mob.hideKeyboard("pressKey", "Done");//Hides device keyboard.
  */
-module.exports = function(strategy, key, keyCode, keyName) {
+module.exports = async function(strategy, key, keyCode, keyName) {
     this.helpers.assertArgumentNonEmptyString(strategy, 'strategy');
 
-    return this.driver.hideKeyboard(strategy, key, keyCode, keyName);
+    return await this.driver.hideKeyboard(strategy, key, keyCode, keyName);
 };

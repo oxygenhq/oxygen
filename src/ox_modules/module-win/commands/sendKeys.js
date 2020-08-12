@@ -22,7 +22,7 @@
  * // Unicode representation can be used directly as well:
  * win.sendKeys("Hello World\uE003\uE003\uE007");
 */
-module.exports = function(value) {
+module.exports = async function(value) {
     this.helpers.assertArgument(value);
 
     var valArray = [];
@@ -34,9 +34,9 @@ module.exports = function(value) {
         for (var val of value) {
             valArray.push(val);
         }
-        this.driver.keys(valArray);
+        await this.driver.keys(valArray);
         return;
     } else {                                // string
-        this.driver.keys(value);
+        await this.driver.keys(value);
     }
 };

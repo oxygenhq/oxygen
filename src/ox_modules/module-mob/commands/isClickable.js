@@ -18,9 +18,9 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isClickable("id=Element");//Determines if element is clickable.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    return el.getAttribute('clickable') == 'true';
+    var el = await this.helpers.getElement(locator, false, timeout);
+    return await el.getAttribute('clickable') == 'true';
 };

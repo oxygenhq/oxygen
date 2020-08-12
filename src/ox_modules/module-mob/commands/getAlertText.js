@@ -17,6 +17,6 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * var a = mob.getAlertText();//Gets alert text.
  */
-module.exports = function() {
-    return this.driver.getAlertText();
+module.exports = async function() {
+    return await this.driver.getAlertText();
 };

@@ -13,11 +13,11 @@
  * @param {Number} x - x offset.
  * @param {Number} y - y offset.
  */
-module.exports = function(x, y) {
+module.exports = async function(x, y) {
     this.helpers.assertArgumentNumberNonNegative(x, 'x');
     this.helpers.assertArgumentNumberNonNegative(y, 'y');
 
-    this.driver.touchAction({
+    await this.driver.touchAction({
         action: 'tap',
         x: x,
         y: y

@@ -14,13 +14,13 @@
  * @param {String} pattern - Assertion text or pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(pattern, timeout) {
+module.exports = async function(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var title;
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             title = await this.driver.getTitle();
             return this.helpers.matchPattern(title, pattern);
         },

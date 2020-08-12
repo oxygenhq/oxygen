@@ -18,7 +18,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.waitForExist('id=Element');//Wait for an element for the provided amount of milliseconds to exist in DOM.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    this.helpers.getElement(locator, false, timeout);
+    await this.helpers.getElement(locator, false, timeout);
 };

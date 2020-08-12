@@ -25,7 +25,7 @@
 */
 var checkUnicode = require('webdriverio/build/utils').checkUnicode;
 
-module.exports = function(value) {
+module.exports = async function(value) {
     this.helpers.assertArgument(value);
 
     let keySequence = [];
@@ -56,7 +56,7 @@ module.exports = function(value) {
      * JsonWireProtocol action
      */
     if (!this.driver.isW3C) {
-        this.driver.sendKeys(keySequence);
+        await this.driver.sendKeys(keySequence);
         return;
     }
 
@@ -66,7 +66,7 @@ module.exports = function(value) {
     const keyDownActions = keySequence.map((value) => ({ type: 'keyDown', value }));
     const keyUpActions = keySequence.map((value) => ({ type: 'keyUp', value }));
 
-    this.driver.performActions([{
+    await this.driver.performActions([{
         type: 'key',
         id: 'keyboard',
         actions: [...keyDownActions, ...keyUpActions]

@@ -29,7 +29,7 @@ module.exports = async function(locator, pattern, timeout) {
 
     let text;
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             text = await el.getText();
             return this.helpers.matchPattern(text, pattern);
         },

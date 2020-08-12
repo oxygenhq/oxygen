@@ -16,7 +16,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.pause(10*1000);//Pauses the execution for 10 seconds (10000ms)
  */
-module.exports = function(ms) {
+module.exports = async function(ms) {
     this.helpers.assertArgumentNumberNonNegative(ms, 'ms');
-    this.driver.pause(ms);
+    await this.driver.pause(ms);
 };

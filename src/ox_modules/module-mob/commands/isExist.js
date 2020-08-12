@@ -19,11 +19,11 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isExist("id=Element");//Determines if element exists.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
-        this.helpers.getElement(locator, false, timeout);
+        await this.helpers.getElement(locator, false, timeout);
         return true;
     } catch (e) {
         return false;

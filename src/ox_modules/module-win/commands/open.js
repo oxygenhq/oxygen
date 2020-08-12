@@ -13,7 +13,7 @@
  * @function open
  * @param {String} url - The URL to open; may be relative or absolute.
  */
-module.exports = function(url) {
+module.exports = async function(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
-    this.driver.url(url);
+    await this.driver.url(url);
 };

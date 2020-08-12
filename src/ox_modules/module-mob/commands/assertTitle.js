@@ -24,7 +24,7 @@ module.exports = async function(pattern, timeout) {
 
     let title;
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             title = await this.driver.getTitle();
             return this.helpers.matchPattern(title, pattern);
         },

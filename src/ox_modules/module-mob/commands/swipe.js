@@ -19,16 +19,16 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.swipe("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
 */
-module.exports = function(locator, xoffset, yoffset, timeout) {
+module.exports = async function(locator, xoffset, yoffset, timeout) {
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    const location = el.getLocation();
+    const location = await el.getLocation();
 
-    return this.driver.touchPerform([
+    return await this.driver.touchPerform([
         {
             action: 'press',
             options: {

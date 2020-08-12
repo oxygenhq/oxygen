@@ -14,12 +14,12 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Element[]} - Collection of Element objects.
 */
-module.exports = function(locator, parent, timeout) {
+module.exports = async function(locator, parent, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     if (parent) {
-        return this.helpers.getChildElements(locator, parent, timeout);
+        return await this.helpers.getChildElements(locator, parent, timeout);
     } else {
-        return this.helpers.getElements(locator, timeout);
+        return await this.helpers.getElements(locator, timeout);
     }
 };

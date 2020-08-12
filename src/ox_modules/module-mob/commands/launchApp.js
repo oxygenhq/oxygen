@@ -15,6 +15,6 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * mob.launchApp(); // Launch the app defined in the session's capabilities.
 */
-module.exports = function() {
-    this.driver.launchApp();
+module.exports = async function() {
+    await this.driver.launchApp();
 };

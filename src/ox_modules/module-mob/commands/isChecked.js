@@ -18,9 +18,9 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isChecked("id=checkBox");//Determines if checkbox or radio element is checked.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    return el.getAttribute('checked') == 'true';
+    var el = await this.helpers.getElement(locator, false, timeout);
+    return await el.getAttribute('checked') == 'true';
 };

@@ -14,13 +14,13 @@
  * @param {Number} duration - Touch duration in milliseconds.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(locator, duration, timeout) {
+module.exports = async function(locator, duration, timeout) {
     this.helpers.assertArgumentNumberNonNegative(duration, 'duration');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    el.touchAction([
+    await el.touchAction([
         'press',
         { action: 'wait', ms: duration },
         'release'

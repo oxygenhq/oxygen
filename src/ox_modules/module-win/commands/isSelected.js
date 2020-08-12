@@ -14,10 +14,10 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is selected. false otherwise.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    return el.isSelected();
+    return await el.isSelected();
 };

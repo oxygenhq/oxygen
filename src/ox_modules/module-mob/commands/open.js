@@ -17,15 +17,21 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.open('www.yourwebsite.com');//Opens an URL.
  */
-module.exports = function(url) {
+module.exports = async function(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
     try {
-        this.driver.url(url);
+        await this.driver.url(url);
     } catch (e) {
-        if (e && e.message.startsWith('Specified URL')) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
+
+        if (e && e.message.includes('socket hang up')) {
+            //try again
+            await this.driver.url(url);
         } else {
-            throw e;
+            if (e && e.message.startsWith('Specified URL')) {
+                throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
+            } else {
+                throw e;
+            }
         }
     }
 };

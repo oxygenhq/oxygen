@@ -18,7 +18,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.swipeElement("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
 */
-module.exports = function(locator, xoffset, yoffset) {
+module.exports = async function(locator, xoffset, yoffset) {
     this.helpers.assertArgument(locator, 'locator');
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
@@ -27,15 +27,15 @@ module.exports = function(locator, xoffset, yoffset) {
     if (typeof locator === 'object') {
         elm = locator;
     } else {
-        elm = this.findElement(locator);
+        elm = await this.findElement(locator);
         if (!elm) {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
         }
     }
 
-    const location = elm.getLocation();
+    const location = await elm.getLocation();
 
-    return this.driver.touchPerform([
+    return await this.driver.touchPerform([
         {
             action: 'press',
             options: {

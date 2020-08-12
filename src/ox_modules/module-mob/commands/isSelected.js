@@ -23,9 +23,9 @@
  *   ...
  * }
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    return el.getAttribute('selected') == 'true';
+    var el = await this.helpers.getElement(locator, false, timeout);
+    return await el.getAttribute('selected') == 'true';
 };

@@ -20,22 +20,22 @@
  * mob.click("id=sendSmS");// Clicks an element.
  * var a = mob.smsGetText(60000);//Gets SMS text on Android phone.
 */
-module.exports = function(timeout) {
+module.exports = async function(timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var locSms = 'id=android:id/message';
     var locSmsClose = 'id=android:id/button2';
 
-    this.waitForExist(locSms, timeout);
+    await this.waitForExist(locSms, timeout);
 
-    var sms = this.findElement(locSms);
+    var sms = await this.findElement(locSms);
 
     var text = null;
     if (sms) {
         text = sms.getText();
     }
     // timeout doesn't really matter here since if popup is open close button will always exist
-    this.waitForExist(locSmsClose);
-    this.click(locSmsClose);
+    await this.waitForExist(locSmsClose);
+    await this.click(locSmsClose);
     return text;
 };

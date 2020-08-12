@@ -13,13 +13,13 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
     try {
-        el.clearValue();
+        await el.clearValue();
     } catch (e) {
         if (e.name === 'invalid element state') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);

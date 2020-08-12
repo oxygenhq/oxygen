@@ -19,11 +19,11 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isVisible("id=Selection");//Determines if element is visible.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
-        this.helpers.getElement(locator, true, timeout);
+        await this.helpers.getElement(locator, true, timeout);
         return true;
     } catch (e) {
         return false;

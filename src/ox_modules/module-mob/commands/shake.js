@@ -16,6 +16,6 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.shake();//Perform shake action on the device.
  */
-module.exports = function() {
-    this.driver.shake();
+module.exports = async function() {
+    await this.driver.shake();
 };

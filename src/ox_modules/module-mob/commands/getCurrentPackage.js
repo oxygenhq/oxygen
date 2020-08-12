@@ -15,6 +15,6 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * let package = mob.getCurrentPackage(); // Gets current Android package.
 */
-module.exports = function() {
-    return this.driver.getCurrentPackage();
+module.exports = async function() {
+    return await this.driver.getCurrentPackage();
 };

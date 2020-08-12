@@ -19,13 +19,13 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.swipeScreen(100, 20, 300, 500);//Perform a swipe on the screen
 */
-module.exports = function(x1, y1, x2, y2) {
+module.exports = async function(x1, y1, x2, y2) {
     this.helpers.assertArgumentNumber(x1, 'x1');
     this.helpers.assertArgumentNumber(y1, 'y1');
     this.helpers.assertArgumentNumber(x2, 'x2');
     this.helpers.assertArgumentNumber(y2, 'y2');
 
-    this.driver.touchAction([
+    await this.driver.touchAction([
         { action: 'press', x: x1, y: y1 },
         { action: 'moveTo', x: x2, y: y2 },
         'release'

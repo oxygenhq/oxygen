@@ -15,6 +15,6 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * mob.resetApp(); // Reset curently running app
  */
-module.exports = function() {
-    this.driver.reset();
+module.exports = async function() {
+    await this.driver.reset();
 };

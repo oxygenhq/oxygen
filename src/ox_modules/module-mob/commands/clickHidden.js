@@ -17,13 +17,13 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.clickHidden("id=hiddenContent);// Clicks an hidden element.
 */
-module.exports = function(locator, clickParent) {
+module.exports = async function(locator, clickParent) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
 
-    var el = this.helpers.getElement(locator);
+    var el = await this.helpers.getElement(locator);
     // NOTE: adding comments inside the passed function is not allowed!
     /*global document*/
-    var ret = this.driver.execute(function (domEl, clickParent) {
+    var ret = await this.driver.execute(function (domEl, clickParent) {
         // createEvent won't be available won't be available on IE in < 9 compatibility mode
         if (!document.createEvent) {
             return false;

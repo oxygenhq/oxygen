@@ -14,7 +14,7 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Time in milliseconds to wait for the element. Default is 60 seconds.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    this.helpers.getElement(locator, false, timeout);
+    await this.helpers.getElement(locator, false, timeout);
 };

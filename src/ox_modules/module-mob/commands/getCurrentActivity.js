@@ -15,6 +15,6 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * let activity = mob.getCurrentActivity(); // Gets current Android activity.
 */
-module.exports = function() {
-    return this.driver.getCurrentActivity();
+module.exports = async function() {
+    return await this.driver.getCurrentActivity();
 };

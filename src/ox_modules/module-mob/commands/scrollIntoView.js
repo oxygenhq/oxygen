@@ -27,9 +27,9 @@
  *   inline: 'start'   // Optional. Defines horizontal alignment - `start`, `center`, `end`, `nearest`. Defaults to `start`.
  * });
 */
-module.exports = function(locator, options = true, timeout) {
+module.exports = async function(locator, options = true, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
-    el.scrollIntoView(options);
+    var el = await this.helpers.getElement(locator, false, timeout);
+    await el.scrollIntoView(options);
 };

@@ -11,6 +11,6 @@
  * @summary Navigate backwards in the browser history or simulates back button on Android device.
  * @function back
  */
-module.exports = function() {
-    this.driver.back();
+module.exports = async function() {
+    await this.driver.back();
 };

@@ -14,16 +14,16 @@
  * @param {Number} taps - Number of taps.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(locator, taps, timeout) {
+module.exports = async function(locator, taps, timeout) {
     this.helpers.assertArgumentNumberNonNegative(taps, 'taps');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
     var actions = [];
     for (var i = 0; i < taps; i++) {
         actions.push('tap');
     }
 
-    el.touchAction(actions);
+    await el.touchAction(actions);
 };

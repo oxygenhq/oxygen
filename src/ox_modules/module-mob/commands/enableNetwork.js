@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.enableNetwork(true,false);//Enable wifi and disable data.
  */
-module.exports = function(wifi, data) {
+module.exports = async function(wifi, data) {
     this.helpers.assertArgumentBool(wifi, 'wifi');
     this.helpers.assertArgumentBool(data, 'data');
 
@@ -42,7 +42,7 @@ module.exports = function(wifi, data) {
     }
 
     try {
-        this.driver.setNetworkConnection(mode);
+        await this.driver.setNetworkConnection(mode);
     } catch (e) { // ignore any errors
     }
 

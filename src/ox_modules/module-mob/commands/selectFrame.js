@@ -23,19 +23,19 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.selectFrame("//iframe[@id='frame1']", "//iframe[@id='nested_frame']");
  */
-module.exports = function(frameLocator) {
+module.exports = async function(frameLocator) {
     if (frameLocator === 'parent') {                // parent
-        this.driver.switchToParentFrame();
+        await this.driver.switchToParentFrame();
     } else if (frameLocator === 'top') {            // top
-        this.driver.switchToFrame(null);
+        await this.driver.switchToFrame(null);
     } else if (!isNaN(frameLocator)) {              // frame index
-        this.driver.switchToFrame(frameLocator);
+        await this.driver.switchToFrame(frameLocator);
     } else {                                        // frame locator(s)
-        this.driver.switchToFrame(null);
+        await this.driver.switchToFrame(null);
         for (var i = 0; i < arguments.length; i++) {
             var locator = arguments[i];
-            var el = this.helpers.getElement(locator);
-            this.driver.switchToFrame(el);
+            var el = await this.helpers.getElement(locator);
+            await this.driver.switchToFrame(el);
         }
     }
 };

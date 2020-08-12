@@ -17,6 +17,6 @@
  * var ss = mob.takeScreenshot();//Take a screenshot of the current page or screen and return it as base64 encoded string.
  * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
  */
-module.exports = function() {
-    return this.driver.takeScreenshot();
+module.exports = async function() {
+    return await this.driver.takeScreenshot();
 };

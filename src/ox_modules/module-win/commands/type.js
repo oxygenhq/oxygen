@@ -16,14 +16,14 @@
  * @param {String} value - The value to type.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = function(locator, value, timeout) {
+module.exports = async function(locator, value, timeout) {
     this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, true, timeout);
+    var el = await this.helpers.getElement(locator, true, timeout);
 
     try {
-        el.setValue(value.toString());
+        await el.setValue(value.toString());
     } catch (e) {
         if (e.name === 'invalid element state') {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);

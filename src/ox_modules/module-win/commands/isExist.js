@@ -15,11 +15,11 @@
  * @param {Number=} timeout - Time in milliseconds to wait for the element. Default is 60 seconds.
  * @return {Boolean} - true if the element exists. false otherwise.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
-        this.helpers.getElement(locator, false, timeout);
+        await this.helpers.getElement(locator, false, timeout);
         return true;
     } catch (e) {
         return false;

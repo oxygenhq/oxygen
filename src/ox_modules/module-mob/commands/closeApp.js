@@ -16,6 +16,6 @@
  * mob.launchApp(); // Launch the app.
  * mob.closeApp(); // Close the app.
 */
-module.exports = function() {
-    this.driver.closeApp();
+module.exports = async function() {
+    await this.driver.closeApp();
 };

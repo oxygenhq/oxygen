@@ -16,10 +16,10 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getDeviceLogs(); //Collects logs from the browser console or mobile device
  */
-module.exports = function() {
+module.exports = async function() {
     // currently supports only Android logs
     if (this.caps && this.caps.platformName && this.caps.platformName === 'Android') {
-        return this.driver.getLogs('logcat');
+        return await this.driver.getLogs('logcat');
     }
     return null;
 };

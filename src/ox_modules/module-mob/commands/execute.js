@@ -21,6 +21,6 @@
  *    angular.element("#closeBtn").trigger('ng-click').click()
  * });//Executes / injects a javascript functions.
  */
-module.exports = function(...args) {
-    return this.driver.execute(...args);
+module.exports = async function(...args) {
+    return await this.driver.execute(...args);
 };

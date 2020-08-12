@@ -18,13 +18,13 @@
  * mob.init(caps);
  * var a = mob.getValue("id=ValueArea");//Gets the value from an element.
  */
-module.exports = function(locator, timeout) {
+module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
     try {
-        var text = el.getValue();
+        var text = await el.getValue();
         // uiautomator1 simply returns an error if element not found
         if (text && text.error) {
             if (text.error === 'no such element') {

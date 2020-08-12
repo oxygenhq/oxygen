@@ -17,11 +17,11 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.tap(60,300);//Perform tap at the specified coordinate.
  */
-module.exports = function(x, y) {
+module.exports = async function(x, y) {
     this.helpers.assertArgumentNumberNonNegative(x, 'x');
     this.helpers.assertArgumentNumberNonNegative(y, 'y');
 
-    this.driver.touchAction({
+    await this.driver.touchAction({
         action: 'tap',
         x: x,
         y: y

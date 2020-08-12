@@ -22,20 +22,20 @@
  * a b c
  * @for android
  */
-module.exports = function(locator, cols, rows, pattern, timeout) {
+module.exports = async function(locator, cols, rows, pattern, timeout) {
     this.helpers.assertArgument(locator, 'locator');
     this.helpers.assertArgumentNumberNonNegative(cols, 'cols');
     this.helpers.assertArgumentNumberNonNegative(rows, 'rows');
     this.helpers.assertArgumentNonEmptyString(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = this.helpers.getElement(locator, false, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    var loc = el.getLocation();
+    var loc = await el.getLocation();
     var locX = loc.x;
     var locY = loc.y;
 
-    var cellSize = el.getSize();
+    var cellSize = await el.getSize();
     var cellW = Math.round(cellSize.width / cols);
     var cellH = Math.round(cellSize.height / rows);
 
@@ -80,5 +80,5 @@ module.exports = function(locator, cols, rows, pattern, timeout) {
     // final release action
     actions.push('release');
 
-    this.driver.touchAction(actions);
+    await this.driver.touchAction(actions);
 };

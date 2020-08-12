@@ -19,8 +19,8 @@
  * mob.click("id=sendSmS");// Clicks an element.
  * mob.smsClickLink(60000);//Clicks SMS message URL.
 */
-module.exports = function(timeout) {
+module.exports = async function(timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    this.waitForExist('id=android:id/message', timeout);
-    this.click('id=android:id/button1');
+    await this.waitForExist('id=android:id/message', timeout);
+    await this.click('id=android:id/button1');
 };

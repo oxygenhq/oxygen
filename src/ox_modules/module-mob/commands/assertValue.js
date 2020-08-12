@@ -26,7 +26,7 @@ module.exports = async function(locator, pattern, timeout) {
     var text;
     var actualError;
     try {
-        this.driver.waitUntil(async() => {
+        await this.driver.waitUntil(async() => {
             try {
                 text = await el.getValue();
                 // uiautomator1 simply returns an error if element not found
