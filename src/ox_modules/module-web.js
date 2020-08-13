@@ -563,22 +563,6 @@ export default class WebModule extends WebDriverModule {
 
                             if (title) {
                                 const textToImage = require('text-to-image');
-                                let lineImage;
-
-                                this.driver.call(() => {
-                                    return new Promise((resolve, reject) => {
-                                        const pr = textToImage.generate('', { debug: false, bgColor: '#000000', fontFamily: 'Arial' });
-
-                                        pr.then((val) => {
-                                            lineImage = val;
-                                            resolve();
-                                        });
-                                    });
-                                });
-
-                                lineImage = lineImage.replace('data:image/png;base64,', '');
-                                images.push(lineImage);
-
                                 let titleImage;
                                 this.driver.call(() => {
                                     return new Promise((resolve, reject) => {
