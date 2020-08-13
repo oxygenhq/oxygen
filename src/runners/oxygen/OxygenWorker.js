@@ -95,7 +95,7 @@ export default class OxygenWorker extends EventEmitter {
         }
 
         // In some cases step result generation takes some time to make screenshot
-        await this._oxygen.waitStepResult();
+        await this._oxygen._waitStepResult();
 
         if (error) {
             error = errorHelper.getFailureFromError(error);
