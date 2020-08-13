@@ -10,18 +10,16 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
+// eslint-disable-next-line no-global-assign
+require = require('esm')(module);
+var td = require('testdouble');
+
 import * as Cucumber from 'cucumber';
-import mockery from 'mockery';
 import isGlob from 'is-glob';
 import glob from 'glob';
-
-import {
-    executeSync,
-    executeAsync
-} from '@wdio/sync'; //'wdio-sync';
+import { executeSync, executeAsync } from '@wdio/sync';
 import { isFunctionAsync, hasWdioSyncSupport, runFnInFiberContext } from '@wdio/utils';
 import { EventEmitter } from 'events';
-
 import CucumberEventListener from './CucumberEventListener';
 import CucumberReporter from './CucumberReporter';
 import Oxygen from '../../core/OxygenCore';
@@ -219,22 +217,17 @@ export default class CucumberWorker {
     }
 
     loadRequireFiles () {
-        // we use mockery to allow people to import 'our' cucumber even though their spec files are in their folders
+        // we use testdouble (mockery conflicts with esm here) to allow people to import 'our'
+        // cucumber even though their spec files are in their folders
         // because of that we don't have to attach anything to the global object, and the current cucumber spec files
         // should just work with no changes with this framework
-        mockery.enable({
-            useCleanCache: true,
-            warnOnReplace: false,
-            warnOnUnregistered: false
-        });
-        mockery.registerMock('cucumber', Cucumber);
+        td.replace('cucumber', Cucumber);
 
         this.requiredFiles().forEach((codePath) => {
             // This allows rerunning a stepDefinitions file
             delete require.cache[require.resolve(codePath)];
             require(codePath);
         });
-        mockery.disable();
     }
 
     resolveSpecFiles (specs) {

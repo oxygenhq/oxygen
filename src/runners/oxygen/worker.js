@@ -11,28 +11,8 @@
  * Boilerplate code for user scripts.
  * Provides everything necessary for executing JS test scripts.
  */
-
-require('@babel/register')({
-    // Since babel ignores all files outside the cwd, it does not compile sibling packages
-    // So rewrite the ignore list to only include node_modules
-    ignore: [__dirname + '/../../../node_modules', /node_modules/, /app\/node_modules/],
-    retainLines: true,
-    overrides: [{
-        'test': [/underscore.js/, /websocket.js/, /worker.js/, /WorkerProcess.js/],
-        'sourceType': 'script',
-    },{
-        'exclude': /app\/node_modules/
-    },{
-        'exclude': /node_modules/
-    },{
-        'exclude': /worker.js/
-    },{
-        'exclude': /WorkerProcess.js/
-    }],
-});
-
-const { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } = require('../../lib/logger');
-const OxygenWorker = require('./OxygenWorker').default;
+import { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } from '../../lib/logger';
+import OxygenWorker from './OxygenWorker';
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
 

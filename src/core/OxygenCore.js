@@ -9,9 +9,11 @@ import { EOL } from 'os';
 import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
+import * as coreUtils from './utils';
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
+import * as Modules from '../ox_modules/index';
 
 // setup logger
 import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
@@ -318,7 +320,22 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadModules() {
-        const oxModulesDirPath = path.resolve(this.oxBaseDir, './ox_modules');
+        this.logger.debug('Loading internal modules...');
+        this._loadInternalModules();
+        this.logger.debug('Loading external modules...');
+        this._loadExternalModules();
+    }
+
+    _loadExternalModules() {
+        let modulesFolderPath = './modules';
+        if (this.opts.modules_ext && typeof this.opts.modules_ext === 'string') {
+            modulesFolderPath = this.opts.modules_ext;
+        }
+        //const oxModulesDirPath = path.resolve(this.oxBaseDir, './ox_modules');
+        const oxModulesDirPath = path.resolve(this.cwd, modulesFolderPath);
+        if (!fs.existsSync(oxModulesDirPath)) {
+            return false;
+        }
         let moduleFiles = [];
         // if particular module names are defined in the config, then load only these modules
         if (Array.isArray(this.opts.modules) && this.opts.modules.length > 0) {
@@ -328,14 +345,25 @@ export default class Oxygen extends OxygenEvents {
         else {
             moduleFiles = glob.sync('module-*.js', { cwd: oxModulesDirPath });
         }
-        // initialize all modules
-        this.logger.debug('Loading modules...');
+        // initialize all modules        
         for (let moduleFileName of moduleFiles) {
             // extract name from the module file name based on module name pattern
             const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
 
             try {
-                this._loadModule(moduleName, moduleFileName, oxModulesDirPath, this.opts);
+                const startTime = new Date();
+                // initialize new logger for the module
+                const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
+                // initialize new module instance
+                const mod = coreUtils.loadModuleFromFile(moduleName, moduleFileName, moduleLogger, oxModulesDirPath, this);
+                // call onModuleLoaded hook
+                this._callServicesOnModuleLoaded(mod);
+                // add the module to the module list
+                this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
+                // wrap up
+                const endTime = new Date();
+                const duration = (endTime - startTime) / 1000;
+                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
@@ -347,51 +375,33 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
-    _loadModule(moduleName, moduleFileName, oxModulesDirPath) {
-        const start = new Date();
-        let ModuleClass = require(path.join(oxModulesDirPath, moduleFileName));
-        if (ModuleClass.default) {
-            ModuleClass = ModuleClass.default;
-        }
-        const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
-        // load external commands for this module, if defined
-        const cmdDir = path.join(oxModulesDirPath, 'module-' + moduleName, 'commands');
-        // ModuleClass.prototype.name => make sure this is ES6 module
-        if (ModuleClass.prototype.name && fs.existsSync(cmdDir)) {
-            var commandName = null;
+    _loadInternalModules() {
+        for (let moduleName of Object.keys(Modules)) {
+            const ModuleClass = Modules[moduleName];
+            const oxModulesDirPath = oxutil.getOxModulesDir();
             try {
-                const files = fs.readdirSync(cmdDir);
-                for (var fileName of files) {
-                    commandName = fileName.slice(0, -3);
-                    if (commandName.indexOf('.') !== 0) {   // ignore possible hidden files (i.e. starting with '.')
-                        var cmdFunc = require(path.join(cmdDir, commandName));
-                        ModuleClass.prototype[commandName] = cmdFunc;
-                    }
-                }
+                const startTime = new Date();
+                // initialize new logger for the module
+                const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
+                // initialize new module instance
+                const mod = coreUtils.loadModuleFromClass(moduleName, ModuleClass, moduleLogger, oxModulesDirPath, this);
+                // call onModuleLoaded hook
+                this._callServicesOnModuleLoaded(mod);
+                // add the module to the module list
+                this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
+                // wrap up
+                const endTime = new Date();
+                const duration = (endTime - startTime) / 1000;
+                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
-                this.logger.error("Can't load command '" + commandName + ': ' + e.message);
-                this.logger.debug(e.stack);
-            }
-        }
-        const mod = new ModuleClass(this.opts, this.ctx, this.resultStore, moduleLogger, this.modules, this.services);
-        if (!mod.name) {
-            mod.name = moduleName;
-        }
-        // apply this for functions inside 'helpers' methods collection if found
-        if (mod.helpers || (mod._this && mod._this.helpers)) {
-            const helpers = mod.helpers || mod._this.helpers;
-            for (var funcName in helpers) {
-                if (typeof helpers[funcName] === 'function') {
-                    helpers[funcName] = helpers[funcName].bind(mod._this || mod);
+                this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
+                // ignore any module that failed to load, except Web and Mob modules
+                // without Mob and Web modules loaded, the initialization process shall fail
+                if (moduleName === 'web' || moduleName === 'mob') {
+                    break;
                 }
             }
         }
-
-        this._callServicesOnModuleLoaded(mod);
-        this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
-        const end = new Date();
-        const duration = (end - start)/1000;
-        this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
     }
 
     _wrapModule(name, module) {
