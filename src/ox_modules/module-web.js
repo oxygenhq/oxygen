@@ -602,7 +602,7 @@ export default class WebModule extends WebDriverModule {
                     let retval;
                     this.driver.call(() => {
                         return new Promise((resolve, reject) => {
-                            const mergeImages = require('merge-base64');
+                            const mergeImages = require('../lib/img-merge');
                             const mg = mergeImages(images, { direction: true });
 
                             mg.then((retvalImage) => {
