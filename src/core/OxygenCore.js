@@ -81,7 +81,7 @@ export default class Oxygen extends OxygenEvents {
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
         this._disposed = false;
-        this._waitStepResult = [];
+        this._waitStepResultList = [];
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -560,12 +560,12 @@ export default class Oxygen extends OxygenEvents {
 
         if (publicMethod) {
             const waitId = +new Date();
-            this._waitStepResult.push(waitId);
+            this._waitStepResultList.push(waitId);
 
             stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
 
-            const index = this._waitStepResult.indexOf(waitId);
-            this._waitStepResult.splice(index, 1);
+            const index = this._waitStepResultList.indexOf(waitId);
+            this._waitStepResultList.splice(index, 1);
 
             //stepResult.location = cmdLocation;
 
@@ -942,14 +942,17 @@ export default class Oxygen extends OxygenEvents {
         return props;
     }
 
-    waitStepResult() {
+    _checkStepResult(resolve, reject) {
+        if (this._waitStepResultList.length === 0) {
+            resolve();
+        } else {
+            this._checkStepResult(resolve, reject);
+        }
+    }
+
+    _waitStepResult() {
         return new Promise((resolve, reject) => {
-            let intervalId = setInterval(() => {
-                if (this._waitStepResult.length === 0) {
-                    resolve();
-                    clearInterval(intervalId);
-                }
-            }, 1000);
+            this._checkStepResult(resolve, reject);
         });
     }
 }

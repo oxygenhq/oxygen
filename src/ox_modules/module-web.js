@@ -590,13 +590,8 @@ export default class WebModule extends WebDriverModule {
                             const mg = mergeImages(images, { direction: true });
 
                             mg.then((retvalImage) => {
-                                retvalImage = retvalImage.replace('data:image/jpeg;base64,', '');
-
-                                // if return at once sometimes nodejs crash
-                                setTimeout(() => {
-                                    retval = retvalImage;
-                                    resolve(retval);
-                                }, 5000);
+                                retval = retvalImage.replace('data:image/jpeg;base64,', '');
+                                resolve();
                             });
                         });
                     });
