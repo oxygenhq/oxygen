@@ -184,10 +184,10 @@ export default class WindowsModule extends WebDriverModule {
      * @function dispose
      * @summary Ends the current session.
      */
-    dispose() {
+    async dispose() {
         if (this.driver && this.isInitialized) {
             try {
-                this.driver.deleteSession();
+                await this.driver.deleteSession();
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }

@@ -23,13 +23,13 @@
  *                             Default is 60 seconds.
  * @return {String} windowHandle of the previously selected window.
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.selectWindow("title=Website");// Selects and focus a window. 
+ * win.init();//Opens browser session.
+ * win.open("www.yourwebsite.com");// Opens a website.
+ * win.selectWindow("title=Website");// Selects and focus a window. 
  */
-module.exports = function (windowHandle, timeout) {
+module.exports = async function (windowHandle, timeout) {
     try {
-        this.driver.switchToWindow(windowHandle);
+        await this.driver.switchToWindow(windowHandle);
     }
     catch (err) {
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable1 to find window: ${windowHandle} - ${err.message}`);
