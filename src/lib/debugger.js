@@ -31,7 +31,13 @@ const slash = path => {
     return path.replace(/\\/g, '/');
 };
 
-const FILE_PART = 'file:///';
+let FILE_PART;
+
+if (process.platform === 'win32') {
+    FILE_PART = 'file:///';
+} else {
+    FILE_PART = 'file://';
+}
 
 const transformToDebuggerStyle = (inputFileName) => {
     let fileName = inputFileName;
@@ -45,7 +51,9 @@ const transformToDebuggerStyle = (inputFileName) => {
 const transformToIDEStyle = (inputFileName) => {
     let fileName = inputFileName;
     fileName = fileName.replace(FILE_PART,'');
-    fileName = fileName.replace(/\//gi, '\\');
+    if (process.platform === 'win32') {
+        fileName = fileName.replace(/\//gi, '\\');
+    }
     return fileName;
 };
 
