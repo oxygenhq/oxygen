@@ -18,6 +18,36 @@ import logger from '../lib/logger';
 const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
+import { addSlashes } from 'slashes';
+
+const slash = path => {
+    const isExtendedLengthPath = /^\\\\\?\\/.test(path);
+    const hasNonAscii = /[^\u0000-\u0080]+/.test(path); // eslint-disable-line no-control-regex
+
+    if (isExtendedLengthPath || hasNonAscii) {
+        return path;
+    }
+
+    return path.replace(/\\/g, '/');
+};
+
+const FILE_PART = 'file:///';
+
+const transformToDebuggerStyle = (inputFileName) => {
+    let fileName = inputFileName;
+    fileName = addSlashes(fileName);
+    fileName = slash(fileName);
+    fileName = fileName.replace(/\/\//gi, '/');
+    fileName = FILE_PART+fileName;
+    return fileName;
+};
+
+const transformToIDEStyle = (inputFileName) => {
+    let fileName = inputFileName;
+    fileName = fileName.replace(FILE_PART,'');
+    fileName = fileName.replace(/\//gi, '\\');
+    return fileName;
+};
 
 const CONNECT_RETRIES = 4;
 const CONNECT_SNOOZE_INTERVAL_MULT = 2;
@@ -58,6 +88,8 @@ function extractBreakpointData(bpStr) {
     if (!bpStr || typeof bpStr !== 'string') {
         return null;
     }
+
+    bpStr = transformToIDEStyle(bpStr);
     const parts = bpStr.split(':');
     try {
 
@@ -521,7 +553,7 @@ export default class Debugger extends EventEmitter {
 
                             breakpointData = {
                                 lineNumber: eCallFrames[0].location.lineNumber,
-                                fileName: eCallFrames[0].url
+                                fileName: transformToIDEStyle(eCallFrames[0].url)
                             };
 
                             if (saveValue) {
@@ -541,24 +573,48 @@ export default class Debugger extends EventEmitter {
                                     item.origin.lineNumber &&
                                     parseInt(item.origin.lineNumber)+1 === parseInt(breakpointData.lineNumber)
                                 ) {
-                                    return true;
+                                    return item;
                                 } else if (
                                     item &&
                                     item.locations &&
                                     Array.isArray(item.locations) &&
                                     item.locations.length > 0 &&
-                                    item.locations.find(loc => parseInt(loc.lineNumber) === parseInt(breakpointData.lineNumber)) &&
+                                    item.locations.find(loc => {
+                                        return parseInt(loc.lineNumber) === parseInt(breakpointData.lineNumber);
+                                    }) &&
                                     parseInt(item.origin.lineNumber) !== 1 &&
                                     parseInt(breakpointData.lineNumber) !== 1
                                 ) {
-                                    return true;
+                                    return item;
                                 } else {
                                     return false;
                                 }
                             });
 
                             if (isset) {
-                                breakpointData.resolved = true;
+                                let realBrfinded = false;
+                                this._breakpointErrors.map((breakpointError) => {
+                                    if (
+                                        this._breakpoints &&
+                                        Array.isArray(this._breakpoints) &&
+                                        this._breakpoints.length > 0
+                                    ) {
+                                        this._breakpoints.map((br) => {
+                                            const brFileName = transformToIDEStyle(br.origin.scriptPath);
+
+                                            if (
+                                                brFileName === breakpointData.fileName &&
+                                                breakpointData.lineNumber+1 === br.origin.lineNumber
+                                            ) {
+                                                realBrfinded = true;
+                                            }
+                                        });
+                                    }
+                                });
+
+                                if (!realBrfinded) {
+                                    breakpointData.resolved = true;
+                                }
                             }
                         }
 
@@ -576,6 +632,9 @@ export default class Debugger extends EventEmitter {
 
                                     if (possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0) {
                                         possibleBreakpointsData.map((item) => {
+
+                                            item.file = transformToIDEStyle(item.file);
+
                                             if (item && item.file === breakpointError.fileName) {
                                                 let line;
 
@@ -702,6 +761,7 @@ export default class Debugger extends EventEmitter {
             fileName = aliasResult;
         }
 
+        fileName = transformToDebuggerStyle(fileName);
         let err = null;
 
         let breakpoint = await this._Debugger.setBreakpointByUrl({

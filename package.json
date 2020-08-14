@@ -81,6 +81,7 @@
     "request": "2.88.2",
     "saucelabs": "3.0.1",
     "serialport": "9.0.1",
+    "slashes": "^2.0.2",
     "soap": "0.32.0",
     "source-map-support": "0.5.19",
     "testdouble": "3.16.1",
