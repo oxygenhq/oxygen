@@ -505,18 +505,10 @@ export default class Debugger extends EventEmitter {
                                     if (scriptSourceSplit && Array.isArray(scriptSourceSplit) && scriptSourceSplit.length > 0) {
                                         fileLineNumbersLength = scriptSourceSplit.length;
                                         // to see how debbuger see script
+
                                         // scriptSourceSplit.map((scriptSourceItem, idx) => {
                                         //     console.log((idx) + ' ' + scriptSourceItem);
                                         // });
-
-                                        if (possibleBreakpoints && Array.isArray(possibleBreakpoints) && possibleBreakpoints.length) {
-                                            if (possibleBreakpoints[0] === 1) {
-                                                if (scriptSourceSplit[0].endsWith(', __dirname) { ')) {
-                                                    // first line is empty
-                                                    possibleBreakpoints.shift();
-                                                }
-                                            }
-                                        }
                                     }
 
                                     possibleBreakpointsData.push({
@@ -624,6 +616,24 @@ export default class Debugger extends EventEmitter {
                                     breakpointData.resolved = true;
                                 }
                             }
+                        }
+
+                        let possibleBreakpointData;
+
+                        if (
+                            possibleBreakpointsData &&
+                            Array.isArray(possibleBreakpointsData) &&
+                            possibleBreakpointsData.length > 0
+                        ) {
+                            possibleBreakpointData = possibleBreakpointsData.find((item) => item.file === eCallFrames[0].url);
+                        }
+
+                        if (
+                            possibleBreakpointData &&
+                            possibleBreakpointData.fileLineNumbersLength &&
+                            breakpointData.lineNumber+1 >= possibleBreakpointData.fileLineNumbersLength
+                        ) {
+                            breakpointData.lineNumber = possibleBreakpointData.fileLineNumbersLength - 2;
                         }
 
                         this.emit('break', breakpointData);
@@ -913,7 +923,15 @@ export default class Debugger extends EventEmitter {
         }
 
         if (result && Array.isArray(result) && result.length > 0) {
-            result.pop();
+            let p = result.pop();
+
+            if (result.includes(p-1)) {
+                //ingore
+            } else {
+                if (p-1 > 1) {
+                    result.push(p-1);
+                }
+            }
         }
 
         return result;
