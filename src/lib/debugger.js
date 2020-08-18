@@ -602,9 +602,21 @@ export default class Debugger extends EventEmitter {
                                         this._breakpoints.map((br) => {
                                             const brFileName = transformToIDEStyle(br.origin.scriptPath);
 
+                                            let possibleBreakpointData;
+                                            if (
+                                                possibleBreakpointsData &&
+                                                Array.isArray(possibleBreakpointsData) &&
+                                                possibleBreakpointsData.length > 0
+                                            ) {
+                                                possibleBreakpointData = possibleBreakpointsData.find((item) => item.file === eCallFrames[0].url);
+                                            }
+
                                             if (
                                                 brFileName === breakpointData.fileName &&
-                                                breakpointData.lineNumber+1 === br.origin.lineNumber
+                                                (
+                                                    breakpointData.lineNumber+1 === br.origin.lineNumber ||
+                                                    br.origin.lineNumber+1 === possibleBreakpointData.fileLineNumbersLength
+                                                )
                                             ) {
                                                 realBrfinded = true;
                                             }
@@ -647,6 +659,7 @@ export default class Debugger extends EventEmitter {
                                 if (breakpointError && breakpointError.msg && breakpointError.fileName && breakpointError.line) {
 
                                     let msg;
+                                    let ignore = false;
 
                                     if (possibleBreakpointsData && Array.isArray(possibleBreakpointsData) && possibleBreakpointsData.length > 0) {
                                         possibleBreakpointsData.map((item) => {
@@ -666,6 +679,10 @@ export default class Debugger extends EventEmitter {
                                                     if (breakpointError && breakpointError.msg && breakpointError.msg.includes('Possible breakpoint lines')) {
                                                         // ignore
                                                     } else {
+                                                        if (item.breakpoints.includes(line)) {
+                                                            ignore = true;
+                                                        }
+
                                                         msg = breakpointError.msg;
                                                         msg += `${line}. `;
                                                         msg += ` Possible breakpoint lines : ${item.breakpoints.map((line) => line).join(', ')}`;
@@ -683,11 +700,13 @@ export default class Debugger extends EventEmitter {
                                         });
                                     }
 
-                                    this.emit('breakError', {
-                                        message: msg,
-                                        lineNumber:breakpointError.line,
-                                        fileName: breakpointError.fileName
-                                    });
+                                    if (!ignore) {
+                                        this.emit('breakError', {
+                                            message: msg,
+                                            lineNumber: breakpointError.line,
+                                            fileName: breakpointError.fileName
+                                        });
+                                    }
                                 }
                             });
                         }
