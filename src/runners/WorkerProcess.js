@@ -339,7 +339,9 @@ export default class WorkerProcess extends EventEmitter {
         // handle debugger events
         this._debugger.on('ready', function(err) {
             // resume the first breakpoint which is automatically added by the debugger
-            _this._debugger.continue();
+            if (_this._debugger && _this._debugger.continue) {
+                _this._debugger.continue();
+            }
             whenDebuggerReady.resolve();
         });
         this._debugger.on('error', function(err) {
