@@ -81,7 +81,7 @@ export function getPageObjectFilePath(config, argv = {}) {
             moduleRequire(poFilePath);
             return poFilePath;
         } catch (e) {
-            const err = new Error(`Error: Unable to load file: ${poFilePath}. Reason: ${e.message}`);
+            const err = new Error(`Unable to load file: ${poFilePath}. Reason: ${e.message}`);
             throw err;
         }
     } else {
@@ -125,7 +125,7 @@ export function getEnvironments(target) {
         try {
             return moduleRequire(defaultEnvFile);
         } catch (e) {
-            const err = new Error(`Error: Unable to load file: ${defaultEnvFile}. Reason: ${e.message}`);
+            const err = new Error(`Unable to load file: ${defaultEnvFile}. Reason: ${e.message}`);
             throw err;
         }
     }
@@ -169,7 +169,7 @@ export function getConfigurations(target, argv) {
         try {
             projConfigOpts = moduleRequire(target.path);
         } catch (e) {
-            const err = new Error(`Error: Unable to load file: ${target.path}. Reason: ${e.message}`);
+            const err = new Error(`Unable to load file: ${target.path}. Reason: ${e.message}`);
             throw err;
         }
     }
