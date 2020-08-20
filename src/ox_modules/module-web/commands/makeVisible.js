@@ -16,6 +16,7 @@
  * - visibility = 'visible' if set to 'hidden'  
  * - opacity = 1 if set to 0  
  * - display = 'block' if set to 'none'  
+ * - width/height = 1px if set to 0.
  * @function makeVisible
  * @param {String|Element} locator - An element locator. If multiple elements match the locator, visibility
  *                           is applied to all.
@@ -36,6 +37,8 @@ module.exports = async function (locator) {
             var visibility = styles.visibility;
             var display = styles.display;
             var opacity = styles.opacity;
+            var height = styles.height;
+            var width = styles.width;
             if (display === 'none') {
                 // in order to override any previously set '!important' style
                 // it needs to be set via cssText
@@ -46,6 +49,12 @@ module.exports = async function (locator) {
             }
             if (opacity === '0') {
                 curElm.style.cssText += ';opacity:1 !important;';
+            }
+            if (height === '0') {
+                curElm.style.cssText += ';height:1px !important;';
+            }
+            if (width === '0') {
+                curElm.style.cssText += ';width:1px !important;';
             }
             curElm = curElm.parentElement;
         }
