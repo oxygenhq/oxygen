@@ -1,5 +1,3 @@
-import 'core-js/stable';
-import 'regenerator-runtime/runtime';
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
 const { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } = require('../../lib/logger');
