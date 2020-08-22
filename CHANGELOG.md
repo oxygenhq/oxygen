@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.7.1 (2020-08-22)
+
+#### :beetle: Bug Fix
+* Regression with `services` and `modules` settings in `oxygen.conf` being ignored.
+
 ## v1.7.0 (2020-08-20)
 
 #### :tada: New Feature
