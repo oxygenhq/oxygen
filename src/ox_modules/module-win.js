@@ -289,8 +289,23 @@ export default class WindowsModule extends WebDriverModule {
         }
     }
 
+    _getWdioLocator(locator) {
+        if (!locator)
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        else if (typeof locator === 'object')
+            return locator;
+        else if (locator.indexOf('/') === 0)
+            return locator;
+        else if (locator.indexOf('id=') === 0)
+            return `//*[@id="${locator.substr('id='.length)}"]`;
+        else if (locator.indexOf('name=') === 0)
+            return '[name="' + locator.substr('name='.length) + '"]';
+
+        return locator;
+    }
+
     _loadHelperFunctions() {
-        this.helpers.getWdioLocator = modUtils.getWdioLocator;
+        this.helpers.getWdioLocator = this._getWdioLocator;
         this.helpers.matchPattern = modUtils.matchPattern;
         this.helpers.getElement = modUtils.getElement;
         this.helpers.getElements = modUtils.getElements;
