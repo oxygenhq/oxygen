@@ -13,7 +13,7 @@
  * @description Provides methods for mobile automation.
  * @sample **Locators:**  
  * 
- * Native application locators for![](../../.gitbook/assets/android.png) 
+ * Native application locators for![](../../.gitbook/assets/android.png)  
  * * `/XPATH` - Locates element using an XPath 1.0 expression.
  * * `id=ID` - Locates element by its id.
  * * `class=CLASS` - Locates element by its class.
@@ -21,16 +21,16 @@
  * * `text-contains=TEXT` - Locates element whose visible text contains the specified string.
  * * `desc=DESCRIPTION` - Locates element by its description.
  * * `desc-contains=DESCRIPTION` - Locates element whose description contains the specified string.
- * * `scrollable` - Locates elements that are scrollable.
- *   
- *  Native application locators for![](../../.gitbook/assets/apple.png) 
- * 
+ * * `scrollable` - Locates elements that are scrollable.  
+ *  
+ * Native application locators for![](../../.gitbook/assets/apple.png)  
+ *  
  * * `/XPATH` - Locates element using an XPath 1.0 expression.
  * * `id=ID` - Locates element by its ID.
- * * `~ACCESSIBILITY_ID` - Locates element by its Accessibility Id.
- * 
- *  Hybrid![](../../.gitbook/assets/hybrid.png)  and Web![](../../.gitbook/assets/web.png)  application locators for![](../../.gitbook/assets/android.png)  ![](../../.gitbook/assets/apple.png) 
- * 
+ * * `~ACCESSIBILITY_ID` - Locates element by its Accessibility Id.  
+ *  
+ * Hybrid![](../../.gitbook/assets/hybrid.png)  and Web![](../../.gitbook/assets/web.png)  application locators for![](../../.gitbook/assets/android.png)  ![](../../.gitbook/assets/apple.png)  
+ *  
  * * `/XPATH` - Locates element using an XPath 1.0 expression.
  * * `id=ID` - Locates element by its id.
  * * `name=NAME` - Locates element by its name attribute.

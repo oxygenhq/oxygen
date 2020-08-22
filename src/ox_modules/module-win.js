@@ -13,15 +13,16 @@
  * @description Provides methods for Windows native applications automation.
  * @sample **Locators:**  
  *   
- *  * `/XPATH` - Locates element using an XPath 1.0 expression.  
- *   
- *  **Pattern arguments:**  
- *   
+ *  * `/XPATH` - Locates element using an XPath 1.0 expression.
+ *  * `name=NAME` - Locates element by its name. Matched attribute in inspect.exe - Name.
+ *  * `id=ID` -  Locates element by its ID. Matched attribute in inspect.exe - RuntimeID.  
+ *  
+ * **Pattern arguments:**
+ *  
  *  Commands which expect a string matching pattern in their arguments, support following patterns unless specified otherwise:
- *     
- *  * `regex:PATTERN` - Match using regular expression.  
+ *  
+ *  * `regex:PATTERN` - Match using regular expression.
  *  * `PATTERN` - Verbatim matching.
- *     
  */
 
 import URL from 'url';

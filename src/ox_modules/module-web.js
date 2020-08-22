@@ -25,7 +25,9 @@
  *  * `exact:STRING` - Match the string verbatim.
  *  * `glob:PATTERN` - Match using case-insensitive glob pattern. `?` will match any single character except new line \(\n\). `*` will match any sequence \(0 or more\) of characters except new line. Empty     PATTERN will match only other empty strings.
  *  * `PATTERN` - Same as glob matching.  
- *  
+ *
+ * **Locators:** 
+ * 
  *  Commands which expect an element locator in their arguments, support following locator types unless specified otherwise:
  * 
  *  * `id=ID` - Locates element by its ID attribute.
@@ -35,9 +37,7 @@
  *  * `name=NAME` - Locates element by its NAME attribute.
  *  * `tag=NAME` - Locates element by its tag name.
  *  * `/XPATH` - Locates element using an XPath 1.0 expression.
- *  * `(XPATH)[]` - Locates element using an XPath 1.0 expression.  
- *   
- *    
+ *  * `(XPATH)[]` - Locates element using an XPath 1.0 expression.
  */
 
 /* eslint-disable quotes */
