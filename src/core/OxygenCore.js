@@ -376,7 +376,14 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadInternalModules() {
+        // if `modules` is empty or undefined in oxygen.conf then load all modules
+        // otherwise, load only those implicitly defined
+        const excludeUndefinedMods = this.opts.modules && this.opts.modules.length > 0;
+
         for (let moduleName of Object.keys(Modules)) {
+            if (excludeUndefinedMods && !this.opts.modules.includes(moduleName)) {
+                continue;
+            }
             const ModuleClass = Modules[moduleName];
             const oxModulesDirPath = oxutil.getOxModulesDir();
             try {
