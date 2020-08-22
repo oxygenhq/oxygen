@@ -294,13 +294,22 @@ export default class Oxygen extends OxygenEvents {
         // initialize all services
         this.logger.debug('Loading services...');
 
+        // if `services` is empty or undefined in oxygen.conf then load all services
+        // otherwise, load only those implicitly defined
+        const excludeUndefinedSvs = this.opts.services && this.opts.services.length > 0;
+
         for (var i = 0; i < serviceFiles.length; i++) {
             const serviceFileName = serviceFiles[i];
             const serviceFilePath = path.join(oxServicesDirPath, serviceFileName);
             const result = serviceFileName.match(SERVICE_NAME_MATCH_REGEX);
             const serviceName = result[1];
 
+            if (excludeUndefinedSvs && !this.opts.services.includes(serviceName)) {
+                continue;
+            }
+
             try {
+                this.logger.debug('Loading service: ' + serviceName);
                 const service = this._loadService(serviceName, serviceFilePath);
                 service.init();
                 this.services[serviceName] = service;
