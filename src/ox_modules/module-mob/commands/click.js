@@ -23,7 +23,9 @@ module.exports = async function(locator, timeout) {
     var el = await this.helpers.getElement(locator, false, timeout);
 
     // if the element is outside the viewport - try to scroll it into the view first
-    await el.isClickable();
+    if (await this.isWebViewContext()) {
+        await el.isClickable();
+    }
 
     await el.click();
 };
