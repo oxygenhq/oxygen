@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.7.2 (2020-08-23)
+
+#### :beetle: Bug Fix
+* `ID` locators not working in `win` module.
+* `web.click` working in asynchronous mode instead of synchronous.
+
+#### :book: Documentation
+* Fixed `win`, `web`, and `mob` modules formatting.
+
+#### :house: Internal
+* Bump and cleanup dependencies.
+
 ## v1.7.1 (2020-08-22)
 
 #### :beetle: Bug Fix
