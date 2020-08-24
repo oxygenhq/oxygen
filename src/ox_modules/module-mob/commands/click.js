@@ -22,9 +22,10 @@ module.exports = async function(locator, timeout) {
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
-    // if the element is outside the viewport - try to scroll it into the view first
-    if (await this.isWebViewContext()) {
-        await el.isClickable();
+    // if the element is outside the viewport - check interactability and try to scroll it into the view first
+    if (await this.isWebViewContext() && !(await el.isClickable())) {
+        // if not visible, center is overlapped with another element, or disabled
+        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
     }
 
     await el.click();
