@@ -44,6 +44,7 @@ const transformToDebuggerStyle = (inputFileName) => {
     fileName = addSlashes(fileName);
     fileName = slash(fileName);
     fileName = fileName.replace(/\/\//gi, '/');
+    fileName = encodeURI(fileName);
     fileName = FILE_PART+fileName;
     return fileName;
 };
@@ -54,6 +55,7 @@ const transformToIDEStyle = (inputFileName) => {
     if (process.platform === 'win32') {
         fileName = fileName.replace(/\//gi, '\\');
     }
+    fileName = decodeURI(fileName);
     return fileName;
 };
 
