@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.8.0 (2020-08-25)
+
+#### :tada: New Feature
+* Add `web.getHTML`.
+
+#### :nail_care: Polish
+* Throw proper error on `mob.click` in webview context if element is not interactable.
+
+#### :house: Internal
+* Fix filename handling in debugger.
+* Bump WDIO to v6.4.2.
+
 ## v1.7.2 (2020-08-23)
 
 #### :beetle: Bug Fix
