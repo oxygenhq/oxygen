@@ -45,6 +45,8 @@ const transformToDebuggerStyle = (inputFileName) => {
     fileName = slash(fileName);
     fileName = fileName.replace(/\/\//gi, '/');
     fileName = encodeURI(fileName);
+    fileName = fileName.replace(/%5C/g, '/');
+    fileName = fileName.replace(/\/\//g, '/');
     fileName = FILE_PART+fileName;
     return fileName;
 };
