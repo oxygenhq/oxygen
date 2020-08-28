@@ -402,7 +402,7 @@ export default class WebModule extends WebDriverModule {
                     } else if (isBrowserstack) {
                         this.deleteSession();
                     } else if (['PASSED','FAILED'].includes(status.toUpperCase())) {
-                        await this.closeBrowserWindows();
+                        await this.closeBrowserWindows(status.toUpperCase());
                     } else {
                         this.disposeContinue();
                     }
@@ -437,56 +437,64 @@ export default class WebModule extends WebDriverModule {
         this.disposeContinue();
     }
 
-    async closeBrowserWindows() {
-        try {
-            const handles = await this.driver.getWindowHandles();
-            if (
-                handles &&
-                Array.isArray(handles) &&
-                handles.length > 0
-            ) {
-                for (const handle of handles) {
-                    await this.switchAndCloseWindow(handle);
+    async closeBrowserWindows(status) {
+        if (status && 'FAILED' === status.toUpperCase() && this.options && this.options.seleniumPid) {
+            this.disposeContinue(status);
+        } else {
+            try {
+                const handles = await this.driver.getWindowHandles();
+                if (
+                    handles &&
+                    Array.isArray(handles) &&
+                    handles.length > 0
+                ) {
+                    for (const handle of handles) {
+                        await this.switchAndCloseWindow(handle);
+                    }
                 }
+            } catch (e) {
+                this.logger.warn('Failed to close browser window:', e);
             }
-        } catch (e) {
-            this.logger.warn('Failed to close browser window:', e);
+            this.disposeContinue();
         }
-        this.disposeContinue();
     }
 
-    disposeContinue() {
+    disposeContinue(status) {
 
         this.driver = null;
         this.lastNavigationStartTime = null;
         super.dispose();
 
-        try {
-            if (process.platform === 'win32') {
-                if (this.options && this.options.seleniumPid) {
-                    execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
-                }
-            } else {
-                if (this.options && this.options.seleniumPid) {
-                    try {
-                        let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
+        if (status && 'FAILED' === status.toUpperCase() && this.options && this.options.seleniumPid) {
+            // ignore, don't close browser in ide mode if test failed
+        } else {
+            try {
+                if (process.platform === 'win32') {
+                    if (this.options && this.options.seleniumPid) {
+                        execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
+                    }
+                } else {
+                    if (this.options && this.options.seleniumPid) {
+                        try {
+                            let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
 
-                        if (pgrepResult && pgrepResult.toString) {
+                            if (pgrepResult && pgrepResult.toString) {
 
-                            pgrepResult = pgrepResult.toString();
-                            pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
+                                pgrepResult = pgrepResult.toString();
+                                pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
 
-                            if (pgrepResult) {
-                                execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                                if (pgrepResult) {
+                                    execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                                }
                             }
+                        } catch (e) {
+                            // ignore
                         }
-                    } catch (e) {
-                        // ignore
                     }
                 }
+            } catch (e) {
+                // ignore errors
             }
-        } catch (e) {
-            // ignore errors
         }
 
         this._whenWebModuleDispose.resolve(null);
