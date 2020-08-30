@@ -132,7 +132,7 @@ module.exports = function() {
      * @summary Returns SOAP service description.
      * @function describe
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
-     * @return {String} JSON containing the service description.
+     * @return {Object} Service description.
      */
     module.describe = function(wsdlUrl) {
         var resultClient = null;
@@ -158,7 +158,7 @@ module.exports = function() {
                 client.setSecurity(auth);
             }
 
-            resultClient = JSON.stringify(client.describe(), null, 2);
+            resultClient = client.describe();
         });
 
         deasync.loopWhile(() => !resultClient);
