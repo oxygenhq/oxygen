@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.8.1 (2020-08-30)
+
+#### :house: Internal
+* Simplify debugger's path to url conversion.
+* Do not close browser on failed tests (when running through IDE).
+* Bump dependencies.
+
 ## v1.8.0 (2020-08-25)
 
 #### :tada: New Feature
