@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.8.2 (2020-08-30)
+
+#### :house: Internal
+* Downgrade WDIO due to a regression.
+
 ## v1.8.1 (2020-08-30)
 
 #### :house: Internal
