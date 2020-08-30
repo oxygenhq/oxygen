@@ -13,56 +13,23 @@
 
 'use strict';
 
-// setup logger
 import logger from '../lib/logger';
 const log = logger('Debugger');
 const { EventEmitter } = require('events');
 const CDP = require('ox-chrome-remote-interface');
-import { addSlashes } from 'slashes';
-
-const slash = path => {
-    const isExtendedLengthPath = /^\\\\\?\\/.test(path);
-    const hasNonAscii = /[^\u0000-\u0080]+/.test(path); // eslint-disable-line no-control-regex
-
-    if (isExtendedLengthPath || hasNonAscii) {
-        return path;
-    }
-
-    return path.replace(/\\/g, '/');
-};
-
-let FILE_PART;
-
-if (process.platform === 'win32') {
-    FILE_PART = 'file:///';
-} else {
-    FILE_PART = 'file://';
-}
-
-const transformToDebuggerStyle = (inputFileName) => {
-    let fileName = inputFileName;
-    fileName = addSlashes(fileName);
-    fileName = slash(fileName);
-    fileName = fileName.replace(/\/\//gi, '/');
-    fileName = encodeURI(fileName);
-    fileName = FILE_PART+fileName;
-    return fileName;
-};
-
-const transformToIDEStyle = (inputFileName) => {
-    let fileName = inputFileName;
-    fileName = fileName.replace(FILE_PART,'');
-    if (process.platform === 'win32') {
-        fileName = fileName.replace(/\//gi, '\\');
-    }
-    fileName = decodeURI(fileName);
-    return fileName;
-};
+import url from 'url';
 
 const CONNECT_RETRIES = 4;
 const CONNECT_SNOOZE_INTERVAL_MULT = 2;
 const MAX_DEPTH = 5;
 let maxFindedDepth = 0;
+
+const transformToIDEStyle = (fileName) => {
+    const uriIndex = fileName.indexOf('file:');
+    const bpData = fileName.substring(0, uriIndex);
+    const uri = fileName.substring(uriIndex);
+    return bpData + url.fileURLToPath(uri);
+};
 
 // snooze function - async wrapper around setTimeout function
 const snooze = ms => new Promise(resolve => setTimeout(resolve, ms));
@@ -800,7 +767,7 @@ export default class Debugger extends EventEmitter {
             fileName = aliasResult;
         }
 
-        fileName = transformToDebuggerStyle(fileName);
+        fileName = url.pathToFileURL(fileName).toString();
         let err = null;
 
         let breakpoint = await this._Debugger.setBreakpointByUrl({
@@ -818,7 +785,6 @@ export default class Debugger extends EventEmitter {
         if (err) {
             // ignore
         } else {
-
             breakpoint.origin = {
                 scriptPath: fileName,
                 lineNumber: lineNumber
@@ -828,7 +794,6 @@ export default class Debugger extends EventEmitter {
         }
 
         return breakpoint;
-
     }
 
     async setBreakpointsActive(active) {
