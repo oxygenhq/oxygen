@@ -25,8 +25,9 @@ module.exports = async function(url) {
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
         } else if (e && e.message.startsWith('Reached error page:')) {  // geckodriver - site cannot be reached
             throw new this.OxError(this.errHelper.errorCode.URL_OPEN_ERROR, e.message);
-        } else {
-            throw e;
+        } else if (e && e.message.startsWith('unknown error: net::')) { // chromedriver 85
+            throw new this.OxError(this.errHelper.errorCode.URL_OPEN_ERROR, e.message);
         }
+        throw e;
     }
 };
