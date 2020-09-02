@@ -598,6 +598,11 @@ export default class Oxygen extends OxygenEvents {
             if (!error.location && cmdLocation) {
                 error.location = cmdLocation;
             }
+
+            if (stepResult && stepResult.failure && stepResult.failure.location) {
+                error.location = stepResult.failure.location;
+            }
+
             throw error;
         }
 
@@ -743,10 +748,7 @@ export default class Oxygen extends OxygenEvents {
                 //ignore
             } else {
                 step.failure = errorHelper.getFailureFromError(err);
-                // if getFailureFromError was not able to retrieve error location, then take it from command location
-                if (!step.failure.location) {
-                    step.failure.location = location;
-                }
+                step.failure.location = location;
                 // let the module decide whether a screenshot should be taken on error or not
 
                 if (typeof module._takeScreenshotSilent === 'function') {
