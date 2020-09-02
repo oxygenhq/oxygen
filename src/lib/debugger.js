@@ -27,7 +27,11 @@ let maxFindedDepth = 0;
 const transformToIDEStyle = (fileName) => {
     const uriIndex = fileName.indexOf('file:');
     const bpData = fileName.substring(0, uriIndex);
-    const uri = fileName.substring(uriIndex);
+    let uri = fileName.substring(uriIndex);
+    // fix UNC paths
+    if (process.platform === 'win32' && uri.startsWith('file:///')) {
+        uri = 'file://' + uri.substring('file:///'.length);
+    }
     return bpData + url.fileURLToPath(uri);
 };
 
