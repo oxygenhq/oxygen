@@ -30,7 +30,6 @@ module.exports = async function(locator, value, timeout) {
         if (
             this.driver &&
             this.driver.capabilities &&
-            this.driver.capabilities.browserName &&
             this.driver.capabilities.browserName === 'MicrosoftEdge'
         ) {
             //https://github.com/webdriverio/webdriverio/issues/3324

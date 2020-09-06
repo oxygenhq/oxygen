@@ -171,9 +171,7 @@ module.exports = {
 
         if (
             this.driver.capabilities &&
-            this.driver.capabilities.browserName &&
-            this.driver.capabilities.browserName.toLowerCase &&
-            this.driver.capabilities.browserName.toLowerCase().includes('edge')
+            this.driver.capabilities.browserName === 'MicrosoftEdge'
         ) {
             // not supported on Edge
             return;

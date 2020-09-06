@@ -136,17 +136,19 @@ export default class WebModule extends WebDriverModule {
                 'Failed to initialize `web` module - browserName must be specified.');
         }
 
-        if (this.caps && this.caps['lamda:options']) {
-            // lambdatest expects origin case names
-        } else {
-            // webdriver expects lower case names
+        // adjust browserName-s
+        if (this.caps.browserName === 'ie') {
+            // IE is specified as 'ie' through the command line and possibly suites
+            // but selenium standalone server expects 'internet explorer'
+            this.caps.browserName = 'internet explorer';
+        } else if (this.caps['lamda:options']) {
+            // lambdatest expects original case names
+        } else if (this.caps.browserName !== 'MicrosoftEdge') {
+            // selenium standalone server expects all browserNames to be lowercase
+            // except "MicrosoftEdge"
             this.caps.browserName = this.caps.browserName.toLowerCase();
         }
 
-        // IE is specified as 'ie' through the command line and possibly suites but webdriver expects 'internet explorer'
-        if (this.caps.browserName === 'ie') {
-            this.caps.browserName = 'internet explorer';
-        }
         // adjust capabilities to enable collecting browser and performance stats in Chrome 
         if (this.options.recordHAR && this.caps.browserName === 'chrome') {
             this.caps['goog:loggingPrefs'] = {     // for ChromeDriver >= 75
