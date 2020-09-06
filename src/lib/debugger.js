@@ -70,20 +70,18 @@ function extractBreakpointData(bpStr) {
         return null;
     }
 
-    bpStr = transformToIDEStyle(bpStr);
-    const parts = bpStr.split(':');
     try {
+        bpStr = transformToIDEStyle(bpStr);
+        const parts = bpStr.split(':');
 
-        let fileName;
-        let lineNumber;
+        const lineNumber = parseInt(parts[1]);
 
-        if (process.platform === 'win32') { // path may contain a Drive letter on win32
-            fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-            lineNumber = parseInt(parts[1]);
-        } else {
-            fileName = parts[parts.length-1];
-            lineNumber = parseInt(parts[1]);
-        }
+        // romove file number, line number, column number
+        parts.splice(0, 3);
+
+        // looks line need only for windows path whith disk, like C://
+        // for windows network folders and mac not need
+        const fileName = parts.join(':');
 
         return {
             fileName: fileName,
@@ -696,17 +694,7 @@ export default class Debugger extends EventEmitter {
         });
 
         this._client.on('Debugger.breakpointResolved', (e) => {
-            // breakpoints set before the script was loaded will be resolved once it loads
-            for (var bp of this._breakpoints) {
-                if (bp && bp.breakpointId === e.breakpointId) {
-                    bp.locations = [e.location];
-                    const validateResult = validateBreakpoint(bp);
-
-                    if (validateResult) {
-                        this._breakpointErrors.push(validateResult);
-                    }
-                }
-            }
+            this.onBreakpointResolved(e);
         });
 
         const { Debugger, Runtime } = this._client;
@@ -722,6 +710,32 @@ export default class Debugger extends EventEmitter {
         // await for the first breakpoint which is placed by the debugger automatically 
         await this._Debugger.paused();
         this.emit('ready');
+    }
+
+    onBreakpointResolved(e) {
+        // breakpoints set before the script was loaded will be resolved once it loads
+        for (var bp of this._breakpoints) {
+            if (
+                bp &&
+                e &&
+                bp.breakpointId === e.breakpointId
+            ) {
+
+                let validateResult;
+                if ( e.location ) {
+                    // resolved on runtime
+                    bp.locations = [e.location];
+                    validateResult = validateBreakpoint(bp);
+                } else if ( e.locations ) {
+                    // resolved on pause
+                    validateResult = validateBreakpoint(bp);
+                }
+
+                if (validateResult) {
+                    this._breakpointErrors.push(validateResult);
+                }
+            }
+        }
     }
 
     /**
@@ -785,7 +799,6 @@ export default class Debugger extends EventEmitter {
                 throw e;
             }
         });
-
         if (err) {
             // ignore
         } else {
@@ -795,6 +808,11 @@ export default class Debugger extends EventEmitter {
             };
 
             this._breakpoints.push(breakpoint);
+
+            if (breakpoint) {
+                // new breackpoint resolved success
+                this.onBreakpointResolved(breakpoint);
+            }
         }
 
         return breakpoint;
