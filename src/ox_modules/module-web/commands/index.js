@@ -65,3 +65,4 @@ export {default as waitForText} from './waitForText';
 export {default as waitForValue} from './waitForValue';
 export {default as waitForVisible} from './waitForVisible';
 export {default as waitForWindow} from './waitForWindow';
+export {default as getHTML} from './getHTML';
