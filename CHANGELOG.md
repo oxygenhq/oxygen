@@ -1,5 +1,25 @@
 # CHANGELOG
 
+## v1.9.0 (2020-09-xx)
+
+#### :boom: Breaking Change
+* `soap.describe` returns object instead of a serialized representation.
+
+#### :tada: New Feature
+* Add `web.isChecked`.
+
+#### :beetle: Bug Fix
+* `web.getHtml` wasn't available.
+* Execution on MicrosoftEdge.
+* width and height wasn't adjusted properly in `web.makeVisible`.
+* Memory leak when using multiple iterations.
+
+#### :nail_care: Polish
+* Add error handling for network errors on Chrome 85.
+
+#### :house: Internal
+* Fixed breakpoints not working with UNC paths.
+
 ## v1.8.2 (2020-08-30)
 
 #### :house: Internal
