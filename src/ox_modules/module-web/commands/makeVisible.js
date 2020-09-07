@@ -50,10 +50,10 @@ module.exports = async function (locator) {
             if (opacity === '0') {
                 curElm.style.cssText += ';opacity:1 !important;';
             }
-            if (height === '0') {
+            if (height === '0' || height === '0px') {
                 curElm.style.cssText += ';height:1px !important;';
             }
-            if (width === '0') {
+            if (width === '0' || width === '0px') {
                 curElm.style.cssText += ';width:1px !important;';
             }
             curElm = curElm.parentElement;
