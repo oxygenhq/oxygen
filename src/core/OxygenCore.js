@@ -210,6 +210,8 @@ export default class Oxygen extends OxygenEvents {
                 caps: this.capabilities,
                 resultStore: this.resultStore
             };
+
+            global.vars = this.ctx.vars;
         }
     }
 
