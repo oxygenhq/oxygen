@@ -683,7 +683,10 @@ export default class Debugger extends EventEmitter {
                         }
                     } else {
                         console.log('should continue');
-                        // this.continue();
+                        if (e.reason === 'OOM') {
+                            // Out of memory leak
+                            this.continue();
+                        }
                     }
 
                 }, reason => {

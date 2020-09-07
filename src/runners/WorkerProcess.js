@@ -54,6 +54,9 @@ export default class WorkerProcess extends EventEmitter {
             forkOpts.execArgv = Object.assign(forkOpts.execArgv, ['--inspect-brk=' + this._debugPort]);
         }
 
+        // print more information for nodejs errors
+        forkOpts.execArgv.push('--trace-warnings');
+
         if (this._npmGRootExecution) {
             try {
                 let globalNpmModulesPath;
