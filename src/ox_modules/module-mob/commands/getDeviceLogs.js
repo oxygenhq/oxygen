@@ -16,10 +16,27 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getDeviceLogs(); //Collects logs from the browser console or mobile device
  */
-module.exports = async function() {
+module.exports = async function () {
     // currently supports only Android logs
     if (this.caps && this.caps.platformName && this.caps.platformName === 'Android') {
-        return await this.driver.getLogs('logcat');
+        const allLogs = [];
+        // 'browser', 'driver'
+        const types = await this.driver.getLogTypes();
+
+        if (types && Array.isArray(types) && types.length > 0) {
+            for (let i in types) {
+                const logs = await this.driver.getLogs(types[i]);
+
+                if (logs && Array.isArray(logs) && logs.length > 0) {
+                    logs.map((log) => {
+                        allLogs.push(log);
+                    });
+                }
+            }
+        }
+
+        return allLogs;
     }
+
     return null;
 };

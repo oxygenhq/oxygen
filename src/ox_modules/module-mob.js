@@ -463,7 +463,7 @@ export default class MobileModule extends WebDriverModule {
         global._lastTransactionName = null;
     }
 
-    _iterationEnd() {
+    async _iterationEnd() {
         // ignore the rest if mob module is not initialized
         if (!this.isInitialized) {
             return;
@@ -471,7 +471,7 @@ export default class MobileModule extends WebDriverModule {
         // collect all the device logs for this session
         if (this.options.collectDeviceLogs) {
             try {
-                const logs = this.getDeviceLogs();
+                const logs = await this.getDeviceLogs();
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
                         this.rs.logs.push(this._adjustAppiumLog(log, 'device'));
