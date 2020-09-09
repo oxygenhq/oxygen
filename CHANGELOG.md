@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.9.0 (2020-09-xx)
+## v1.9.0 (2020-09-09)
 
 #### :boom: Breaking Change
 * `soap.describe` returns object instead of a serialized representation.
@@ -13,12 +13,14 @@
 * Execution on MicrosoftEdge.
 * width and height wasn't adjusted properly in `web.makeVisible`.
 * Memory leak when using multiple iterations.
+* Shared `vars` object for passing data between tests not working.
 
 #### :nail_care: Polish
 * Add error handling for network errors on Chrome 85.
 
 #### :house: Internal
 * Fixed breakpoints not working with UNC paths.
+* Fixed mobile logs not being collected.
 
 ## v1.8.2 (2020-08-30)
 
