@@ -108,6 +108,6 @@
     "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod"
   },
   "engines": {
-    "node": ">=10.14.0 <13.0"
+    "node": ">=10.18.1 <13.0"
   }
 }
