@@ -166,6 +166,23 @@ export default class Oxygen extends OxygenEvents {
     }
 
     get results() {
+        // calculate time for the transaction itself - summary of durations for all the steps in this transaction
+        // also adjust transaction end time to much end time for the last executed step within this transaction.
+        for (const transStep of this.resultStore.steps) {
+            if (transStep.name.includes('.transaction')) {
+                const transName = transStep.transaction;
+                transStep.duration = 0;
+                for (const step of this.resultStore.steps) {
+                    // step belongs to the current transaction & is not the transaction step
+                    if (step.transaction === transName && step !== transStep) {
+                        transStep.duration += step.duration;
+                        if (step.endTime > transStep.endTime) {
+                            transStep.endTime = step.endTime;
+                        }
+                    }
+                }
+            }
+        }
         return this.resultStore;
     }
 
