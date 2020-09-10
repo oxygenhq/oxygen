@@ -18,6 +18,7 @@ export default class OxygenError extends Error {
     constructor(type, message, data, isFatal, orgErr = null) {
         super(message || undefined);
         this.type = type || this.type || null;
+        this.orgErr = orgErr;
         // subtype allows to specify more particular error for a general Oxygen error type
         // for example, specify TypeError as subtype for a general SCRIPT_ERROR Oxygen type
         if (orgErr && typeof orgErr === 'string' && type !== orgErr) {
@@ -57,10 +58,35 @@ export default class OxygenError extends Error {
         const stackTrace = StackTrace.parse(this) || [];
         if (stackTrace.length > 0) {
             const call = stackTrace[0];
-            // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
-            //const extraLine = oxutil.isInDebugMode() ? 1 : 0;
-            this.location = `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`;
-            this.stacktrace = stackTrace.map(call => `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`);
+            if (call && call.fileName === 'vm.js' &&  this.orgErr && this.orgErr.stack) {
+                let location = this.orgErr.stack.split('\n')[0];
+
+                const locationSplit = location.split(':');
+
+                if (locationSplit && locationSplit[0]) {
+
+                    if (parseInt(locationSplit[locationSplit.length-1]) && parseInt(locationSplit[locationSplit.length-2])) {
+                        // line and column present
+                    } else if (parseInt(locationSplit[locationSplit.length-1])) {
+                        // line present
+                        location += ':0';
+                    } else {
+                        // only name present
+                        location += ':0:0';
+                    }
+                }
+
+                this.location = location;
+                this.stacktrace = [
+                    location,
+                    ...stackTrace.map(call => `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`)
+                ];
+            } else {
+                // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
+                //const extraLine = oxutil.isInDebugMode() ? 1 : 0;
+                this.location = `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`;
+                this.stacktrace = stackTrace.map(call => `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`);
+            }
         }
         else {
             this.location = null;
