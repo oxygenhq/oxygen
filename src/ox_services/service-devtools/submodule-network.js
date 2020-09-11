@@ -104,11 +104,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     waitForUrl(pattern, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web` module is not initialized.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(pattern, 'pattern');

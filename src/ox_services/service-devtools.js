@@ -9,7 +9,7 @@ export default class DevToolsService extends OxygenService {
         super(options, ctx, results, logger);
         // hash of webdriver based modules
         this._subModules = {};
-        this.isServiceInitialized = false;
+        this.isServiceInitialized = true;
     }
     onModuleLoaded(module) {
         // skip any module that does not implement .getDriver() method (e.g. not webdriver based)
@@ -22,16 +22,12 @@ export default class DevToolsService extends OxygenService {
         this._subModules[module.name] = networkSubmodule;
     }
     async onModuleInitialized(module) {
-        if (this.isServiceInitialized) {
-            return;
-        }
-
         // skip any module that does not implement .getDriver() method (e.g. not webdriver based)
         if (!module || !module.getDriver || typeof module.getDriver !== 'function' || !module.getCapabilities || typeof module.getCapabilities !== 'function') {
             return;
         }
         const submodule = this._subModules[module.name];
-        if (!submodule) {
+        if (!submodule || submodule.isInitialized) {
             return;
         }
 
@@ -68,7 +64,6 @@ export default class DevToolsService extends OxygenService {
                 global.browser = orgGlobalBrowser;
             }
         }
-        this.isServiceInitialized = true;
     }
     onModuleWillDispose(module) {
         const submodule = this._subModules[module.name];
@@ -76,7 +71,5 @@ export default class DevToolsService extends OxygenService {
             return;
         }
         submodule.dispose();
-        delete this._subModules[module.name];
-        this.isServiceInitialized = false;
     }
 }
