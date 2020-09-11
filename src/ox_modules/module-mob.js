@@ -357,6 +357,10 @@ export default class MobileModule extends WebDriverModule {
      */
     transaction(name) {
         global._lastTransactionName = name;
+        // temporary backward compatibility hack as a part of moving transaction() function to a global scope
+        if (global.transaction) {
+            global.transaction(name);
+        }
     }
 
     /*

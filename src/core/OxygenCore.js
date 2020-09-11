@@ -53,7 +53,7 @@ const DEFAULT_OPTS = {
 };
 const MODULE_NAME_MATCH_REGEX = /^module-(.+?)\.js$/;
 const SERVICE_NAME_MATCH_REGEX = /^service-(.+?)\.js$/;
-const DO_NOT_WRAP_METHODS = ['driver', 'getDriver'];
+const DO_NOT_WRAP_METHODS = ['driver', 'getDriver', 'transaction'];
 
 const DEFAULT_CTX = {
     params: {},
@@ -81,6 +81,7 @@ export default class Oxygen extends OxygenEvents {
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
         this._waitStepResultList = [];
+        this._stepsStack = global._oxStepsStack = [];
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -204,6 +205,7 @@ export default class Oxygen extends OxygenEvents {
     resetResults() {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
+        this._stepsStack = global._oxStepsStack = [];
         this.har = null;
     }
 
@@ -213,6 +215,7 @@ export default class Oxygen extends OxygenEvents {
 
     async onAfterCase(error = null) {
         await this._callModulesOnAfterCase(error);
+        await this._endOpenSteps();
     }
 
     makeOxGlobal() {
@@ -242,6 +245,9 @@ export default class Oxygen extends OxygenEvents {
             global.params = global.ox.ctx.params;
             global.env = global.ox.ctx.env;
             global.ctx = global.ox.ctx;
+            global.transaction = this.transaction.bind(this);
+            global.beginStep = this.beginStep.bind(this);
+            global.endStep = this.endStep.bind(this);
         }
     }
 
@@ -265,9 +271,88 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
+    beginStep(name, type = 'container') {
+        const step = new StepResult();
+        step._id = oxutil.generateUniqueId();
+        step.name = name;
+        step.type = type;
+        step.transaction = global._lastTransactionName || null;
+        step.location = null;
+        step.status = STATUS.PASSED;    
+        step.action = false;
+        step.startTime = oxutil.getTimeStamp();
+
+        // check if there is a parent step
+        if (this._stepsStack && this._stepsStack.length > 0) {
+            const parentStep = this._stepsStack[this._stepsStack.length - 1];
+            step._parentId = parentStep._id;
+            parentStep.steps.push(step);
+        }
+        else if (this._stepsStack) {
+            this._stepsStack.push(step);
+            this.resultStore.steps.push(step);
+        }
+        this.emitBeforeStep(step);
+        return step;
+    }
+
+    endStep(status = null, error = null) {
+        if (!this._stepsStack || this._stepsStack.length == 0) {
+            if (status != null || error != null) {
+                this.emitAfterStep(null, status, error);
+            }            
+            return false;
+        }
+        const step = this._stepsStack.pop();
+        step.status = status ? status : this._calculateStepStatus(step);
+        step.endTime = oxutil.getTimeStamp();
+        step.duration = step.endTime - step.startTime;
+        if (error) {
+            // check if error is a standard JS Error object or already converted Oxygen Failure object
+            if (error instanceof Error) {
+                step.failure = errorHelper.getFailureFromError(err);
+            }
+            // otherwise, assume 'error' is of Failure type
+            else {
+                step.failure = error;
+            }
+        }
+        this.emitAfterStep(step, status, error);
+        return step;
+    }
+
+    transaction(name) {
+        // make sure to close previous transaction, if open
+        if (this._stepsStack && this._stepsStack.length > 0) {
+            const parentStep = this._stepsStack[this._stepsStack.length - 1];
+            if (parentStep.type === 'transaction') {
+                this.endStep();
+            }
+        }
+        const step = this.beginStep(name, 'transaction');
+        return step;
+    }
+
     /*
      * Private Methods
      */
+    _endOpenSteps() {
+        if (!this._stepsStack || this._stepsStack.length == 0) {
+            return false;
+        }
+        while (this._stepsStack.length > 0) {
+            this.endStep();
+        }
+     }
+
+    _calculateStepStatus(step) {
+        if (!step.steps || step.steps.length == 0) {
+            return STATUS.PASSED;
+        }
+        const hasFailedSubStep = step.steps.some(x => x.status === STATUS.FAILED);
+        return hasFailedSubStep ? STATUS.FAILED : STATUS.PASSED;
+    }
+
     _wrapLogger(_logger) {
         const loggerWrap = {
             info: (...args) => this._log(_logger, 'info', args),
@@ -525,13 +610,23 @@ export default class Oxygen extends OxygenEvents {
         cmdArgs = this._populateParametersValue(cmdArgs);
         // start measuring method execution time
         const startTime = oxutil.getTimeStamp();
-
+        
+        // determine if the current command has a parent step or shall be attached to the root
+        let stepsRoot = this.resultStore.steps;
+        let parentStep = null;
+        if (global._oxStepsStack && global._oxStepsStack.length > 0) {
+            parentStep = global._oxStepsStack[global._oxStepsStack.length - 1];
+            stepsRoot = parentStep.steps;
+        }
         // add command location information (e.g. file name and command line)
         let cmdLocation = null;
+        let stepId = oxutil.generateUniqueId();
+        let parentStepId = parentStep ? parentStep._id : null;
         // do not report results or line updates on internal methods (started with '_')
         if (publicMethod) {
             cmdLocation = this._getCommandLocation();
-            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
+            //this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
+            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime, { id: stepId, parentId: parentStepId });        
         }
 
         this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
@@ -592,14 +687,26 @@ export default class Oxygen extends OxygenEvents {
             this._waitStepResultList.push(waitId);
 
             stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
+            stepResult._id = stepId;
+            stepResult._parentId = parentStep ? parentStep._id : null;
 
             const index = this._waitStepResultList.indexOf(waitId);
             this._waitStepResultList.splice(index, 1);
 
             //stepResult.location = cmdLocation;
 
-            this.resultStore.steps.push(stepResult);
-            this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
+                //this.resultStore.steps.push(stepResult);
+                // if there is a parent step, then add the current step as a substep
+                if (parentStep) {
+                    parentStep.steps.push(stepResult);
+                }
+                // else, add it directly to the result store
+                else {
+                    this.resultStore.steps.push(stepResult);
+                }     
+            }
+            //this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
+            this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult, { id: stepId, parentId: parentStepId });            
             done = true;
         }
 
@@ -740,7 +847,7 @@ export default class Oxygen extends OxygenEvents {
                 step.status = STATUS.PASSED;
             }
         }
-
+        coreUtils.setStepType(step, module, moduleName, methodName, args);
         step.action = (typeof module._isAction === 'function' ? module._isAction(methodName) : false);
         step.startTime = startTime;
         step.endTime = endTime;

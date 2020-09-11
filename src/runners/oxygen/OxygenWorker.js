@@ -45,6 +45,8 @@ export default class OxygenWorker extends EventEmitter {
                 this._oxygen = new Oxygen();
                 this._oxygen.on('command:before', this._handleBeforeCommand.bind(this));
                 this._oxygen.on('command:after', this._handleAfterCommand.bind(this));
+                this._oxygen.on('step:before', this._handleBeforeStep.bind(this));
+                this._oxygen.on('step:after', this._handleAfterStep.bind(this));
                 this._oxygen.on('log', this._handleLogEntry.bind(this));
                 await this._oxygen.init(options, caps);
                 this._testHooks = oxutil.loadTestHooks(options);
@@ -190,6 +192,25 @@ export default class OxygenWorker extends EventEmitter {
 
         this._steps && this._steps.push(e.result);
         this.emit('command:after', e);
+    }
+
+    _handleBeforeStep(e) {
+        if (!e) {
+            return;
+        }
+        this.emit('step:before', e);
+    }
+
+    _handleAfterStep(e) {
+        if (!e || !e.result) {
+            return;
+        }
+
+        if (this._disposed) {
+            //ignore
+        } else {
+            this.emit('step:after', e);
+        }
     }
 
     _handleLogEntry(e) {

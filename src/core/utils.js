@@ -56,3 +56,13 @@ function addCommandsToPrototype(cmdDirPath, moduleName, moduleClass) {
         }
     }
 }
+
+export function setStepType(step, module, moduleName, methodName, args) {
+    const WEBDRIVER_MODULES = ['web', 'mob', 'win'];
+    if (WEBDRIVER_MODULES.includes(moduleName)) {
+        step.type = 'webdriver';
+    }
+    else {
+        step.type = null;
+    }
+}
