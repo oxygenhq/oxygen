@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.10.0 (2020-09-13)
+
+#### :boom: Breaking Change
+* Minimal supported node.js version 10.18.1.
+
+#### :beetle: Bug Fix
+* No error details shown for oxygen.po/conf/env.js errors.
+* Filename not shown for certain script errors.
+* Issue with `*.network` module re-initialization.
+
+#### :nail_care: Polish
+* Make transaction's duration an aggregate of all the underlying command durations.
+
 ## v1.9.0 (2020-09-09)
 
 #### :boom: Breaking Change
