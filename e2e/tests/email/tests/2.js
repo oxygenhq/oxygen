@@ -1,0 +1,2 @@
+email.init();
+email.getLastEmail();

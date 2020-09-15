@@ -1,0 +1,60 @@
+### dependencies
+- Xcode
+- Virtual Device
+- appium
+- carthage
+
+### Env variables
+- udid
+- deviceName
+- platformVersion
+
+### mob.ios.mob
+- [x] getCapabilities
+- [x] init
+- [x] dispose
+- [x] transaction
+- [x] alertAccept
+- [x] alertDismiss
+- [x] assertText
+- [x] assertValue
+- [x] clear
+- [x] click
+- [x] clickLong
+- [x] clickMultipleTimes
+- [x] closeApp
+- :grey_question: dragAndDrop
+- [x] findElement
+- [x] findElements
+- [x] getAlertText
+- :x: getAppiumLogs
+- :x: getDeviceLogs
+- [x] getDeviceTime
+- [x] getLocation
+- [x] getSource
+- [x] getText
+- [x] getValue
+- [x] installApp
+- [x] isAppInstalled
+- [x] isExist
+- [x] isVisible
+- :grey_question: isWebViewContext
+- [x] launchApp
+- [x] pause
+- [x] removeApp
+- [x] resetApp
+- :x: scrollIntoElement
+- [x] sendKeys
+- [x] setContext
+- [x] setNativeContext
+- [x] setTimeout
+- :grey_question: setWebViewContext
+- :grey_question:  shake
+- [x] swipe
+- :x: swipeElement
+- [x] swipeScreen
+- [x] takeScreenshot
+- [x] tap
+- [x] type
+- [x] waitForExist
+- [x] waitForVisible

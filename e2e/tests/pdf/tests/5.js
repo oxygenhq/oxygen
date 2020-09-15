@@ -1,0 +1,1 @@
+pdf.assertNot('‎⁨⁨../assets/test.pdf', 'Dictumst quisque sagittis purus sit', 2, "Text found in PDF");

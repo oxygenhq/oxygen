@@ -1,0 +1,55 @@
+### dependencies
+- Xcode
+- Virtual Device
+- appium
+- carthage
+- selenium
+
+### Env variables
+- udid
+- deviceName
+- platformVersion
+
+### mob.ios.web 
+- [x] getCapabilities
+- [x] init
+- [x] dispose
+- [x] transaction
+- [x] alertAccept
+- [x] alertDismiss
+- [x] assertText
+- [x] assertTitle
+- [x] assertValue
+- :x: back
+- [x] clear
+- [x] click
+- :x: clickHidden
+- :x: clickLong
+- :x: clickMultipleTimes
+- [x] execute
+- [x] findElement
+- [x] findElements
+- [x] getAlertText
+- [x] getAppiumLogs
+- [x] getDeviceLogs
+- [x] getLocation
+- [x] getSource
+- [x] getText
+- [x] getValue
+- [x] hideKeyboard
+- [x] isExist
+- [x] isVisible
+- [x] isWebViewContext
+- [x] open
+- [x] pause
+- [x] scrollIntoView
+- [x] selectFrame
+- :x: sendKeys
+- [x] setContext
+- [x] setNativeContext
+- [x] setTimeout
+- [x] setWebViewContext
+- [x] takeScreenshot
+- [x] type
+- [x] waitForExist
+- [x] waitForVisible
