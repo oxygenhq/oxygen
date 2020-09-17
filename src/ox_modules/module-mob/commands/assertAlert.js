@@ -15,10 +15,9 @@
  * @param {String} pattern - Text pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.click("id=SaveButton");//Clicks on save – an alert would pop up
- * web.assertAlert("Your Alert's text");//Asserts the alert's text.
+ * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
+ * mob.click("id=Submit");// Clicks an element and opens an alert.
+ * mob.assertAlert("Your Alert's text");//Asserts the alert's text.
  */
 module.exports = async function(pattern, timeout) {
     let alertText = null;

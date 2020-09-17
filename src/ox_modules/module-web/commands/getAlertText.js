@@ -17,5 +17,9 @@
  * var text = web.getAlertText();//Gets the text in the alert dialog.
  */
 module.exports = async function() {
-    return await this.driver.getAlertText();
+    try {
+        return await this.driver.getAlertText();
+    } catch (e) {
+        throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
+    }
 };
