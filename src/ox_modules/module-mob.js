@@ -269,14 +269,7 @@ export default class MobileModule extends WebDriverModule {
             throw errHelper.getAppiumInitError(e);
         }
 
-        // set appContext to WEB for mobile web tests so that getWdioLocator will resolve locators properly
-        if (
-            this.driver &&
-            this.driver.capabilities &&
-            this.driver.capabilities.browserName
-        ) {
-            this.appContext = 'WEB';
-        }
+        this.appContext = await this.driver.getContext();
 
         // if we are running on Android 7+ emulator, and thus/or using a WebView Browser Tester -
         // perform an actual appContext switch to WEB
@@ -294,16 +287,6 @@ export default class MobileModule extends WebDriverModule {
             // fails on browserstack
         } else {
             await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
-        }
-
-        // clear logs if auto collect logs option is enabled
-        if (this.options.collectDeviceLogs) {
-            try {
-                // simply call this to clear the previous logs and start the test with the clean logs
-                await this.getDeviceLogs();
-            } catch (e) {
-                this.logger.error('Cannot retrieve device logs.', e);
-            }
         }
         super.init();
     }
@@ -473,7 +456,7 @@ export default class MobileModule extends WebDriverModule {
             try {
                 const logs = await this.getDeviceLogs();
                 if (logs && Array.isArray(logs)) {
-                    for (var log of logs) {
+                    for (let log of logs) {
                         this.rs.logs.push(this._adjustAppiumLog(log, 'device'));
                     }
                 }
@@ -483,6 +466,23 @@ export default class MobileModule extends WebDriverModule {
                 this.logger.error('Cannot retrieve device logs.', e);
             }
         }
+
+        // collect all the browser logs for this session
+        if (this.options.collectBrowserLogs) {
+            try {
+                const logs = await this.getBrowserLogs();
+                if (logs && Array.isArray(logs)) {
+                    for (let log of logs) {
+                        this.rs.logs.push(this._adjustAppiumLog(log, 'browser'));
+                    }
+                }
+            }
+            catch (e) {
+                // ignore errors
+                this.logger.error('Cannot retrieve browser logs.', e);
+            }
+        }
+
         // collect all Appium logs for this session
         if (this.options.collectAppiumLogs) {
             try {
@@ -568,5 +568,6 @@ export default class MobileModule extends WebDriverModule {
         this.helpers.assertArgumentBool = modUtils.assertArgumentBool;
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
+        this.helpers.getLogTypes = modUtils.getLogTypes;
     }
 }

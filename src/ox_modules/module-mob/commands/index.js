@@ -21,6 +21,7 @@ export {default as getAppiumLogs} from './getAppiumLogs';
 export {default as getCurrentActivity} from './getCurrentActivity';
 export {default as getCurrentPackage} from './getCurrentPackage';
 export {default as getDeviceLogs} from './getDeviceLogs';
+export {default as getBrowserLogs} from './getBrowserLogs';
 export {default as getDeviceTime} from './getDeviceTime';
 export {default as getLocation} from './getLocation';
 export {default as getSource} from './getSource';

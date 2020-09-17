@@ -14,25 +14,39 @@
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
- * mob.getDeviceLogs(); //Collects logs from the browser console or mobile device
+ * mob.getDeviceLogs(); //Collects logs from the mobile device
  */
 module.exports = async function () {
-    // currently supports only Android logs
+	// currently supports only Android logs
     if (this.caps && this.caps.platformName && this.caps.platformName === 'Android') {
-        const allLogs = [];
-        // 'browser', 'driver'
-        const types = await this.driver.getLogTypes();
-
-        if (types && Array.isArray(types) && types.length > 0) {
-            for (let i in types) {
-                const logs = await this.driver.getLogs(types[i]);
-
-                if (logs && Array.isArray(logs) && logs.length > 0) {
-                    logs.map((log) => {
-                        allLogs.push(log);
-                    });
+        let allLogs = [];
+        const contexts = await this.driver.getContexts();
+        if (contexts && Array.isArray(contexts) && contexts.length > 0) {
+            for (let c in contexts) {
+                const context = contexts[c];
+                try {
+                    await this.driver.switchContext(context);
+                } catch (e) {
+                    // ignore switch errors, like 
+                    // "Failed to get sockets matching: @weblayer_devtools_remote_.*4737\n  (make sure the app has its WebView/WebLayer configured for debugging)
+                    continue;
+                }
+                const types = this.helpers.getLogTypes(context);
+                if (types && Array.isArray(types) && types.length > 0) {
+                    for (let i in types) {
+                        if (types[i] !== 'browser') {
+                            const logs = await this.driver.getLogs(types[i]);
+                            if (logs && Array.isArray(logs) && logs.length > 0) {
+                                allLogs = [
+                                    ...allLogs,
+                                    ...logs
+                                ];
+                            }
+                        }
+                    }
                 }
             }
+            await this.driver.switchContext(this.appContext);
         }
 
         return allLogs;

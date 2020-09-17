@@ -280,5 +280,13 @@ module.exports = {
             return '<' + locator.substr('tag='.length) + ' />';
 
         return locator;
+    },
+
+    getLogTypes: function(context) {
+        if (context === 'NATIVE_APP') {
+            return ['logcat', 'bugreport', 'server'];
+        } else {
+            return ['browser', 'driver'];
+        }
     }
 };
