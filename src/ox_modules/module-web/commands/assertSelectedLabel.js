@@ -38,7 +38,7 @@ module.exports = async function(locator, pattern, timeout, waitForVisible = true
                 }
             }
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, text);
     }

@@ -35,7 +35,7 @@ module.exports = async function(text, timeout) {
                 return false;
             }
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         if (timeout) {
             this.helpers.restoreTimeoutImplicit();

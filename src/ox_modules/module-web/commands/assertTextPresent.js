@@ -31,7 +31,7 @@ module.exports = async function(text, timeout) {
             var els = await this.driver.$$('//*[contains(text(),"' + text + '")]');
             return els.length !== 0;
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         if (timeout) {
             this.helpers.restoreTimeoutImplicit();

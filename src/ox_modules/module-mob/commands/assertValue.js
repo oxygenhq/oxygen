@@ -44,7 +44,7 @@ module.exports = async function(locator, pattern, timeout) {
             }
             return this.helpers.matchPattern(text, pattern);
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         if (actualError) {
             if (actualError.error === 'no such element' /*uiautomator1*/ ||

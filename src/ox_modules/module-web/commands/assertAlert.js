@@ -34,7 +34,7 @@ module.exports = async function(pattern, timeout) {
                 return false;
             }
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
 
         this.driver.dismissAlert();
     } catch (e) {

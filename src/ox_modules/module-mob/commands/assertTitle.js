@@ -28,7 +28,7 @@ module.exports = async function(pattern, timeout) {
             title = await this.driver.getTitle();
             return this.helpers.matchPattern(title, pattern);
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, title);
     }

@@ -33,7 +33,7 @@ module.exports = async function(locator, pattern, timeout) {
             text = await el.getText();
             return this.helpers.matchPattern(text, pattern);
         },
-        (!timeout ? this.waitForTimeout : timeout));
+        { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, text);
     }
