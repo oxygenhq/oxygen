@@ -14,8 +14,9 @@
  * @sample **Locators:**  
  *   
  *  * `/XPATH` - Locates element using an XPath 1.0 expression.
- *  * `name=NAME` - Locates element by its name. Matched attribute in inspect.exe - Name.
- *  * `id=ID` -  Locates element by its ID. Matched attribute in inspect.exe - RuntimeID.  
+ *  * `~AccessibilityId` - Locates element by its Accessibility ID. Attribute name in inspect.exe - AutomationId.
+ *  * `name=NAME` - Locates element by its name. Attribute name in inspect.exe - Name.
+ *  * `id=ID` -  Locates element by its ID. Attribute name in inspect.exe - RuntimeID.  
  *  
  * **Pattern arguments:**
  *  
