@@ -652,7 +652,7 @@ export default class WebModule extends WebDriverModule {
      *  8. loadEventStart               - The browser have finished loading all the resources like images, swf, etc.
      *  9. loadEventEnd                 - The load event callback, if any, finished executing.
      */
-    _getStats(commandName) {
+    async _getStats(commandName) {
         if (this.options.fetchStats && this.isInitialized && this._isAction(commandName)) {
             var navigationStart;
             var domContentLoaded = 0;
@@ -663,9 +663,9 @@ export default class WebModule extends WebDriverModule {
             // if navigateStart equals to the one we got from previous attempt (we need to save it)
             // it means we are still on the same page and don't need to record load/domContentLoaded times
             try {
-                this.driver.waitUntil(() => {
+                await this.driver.waitUntil(async() => {
                     /*global window*/
-                    var timings = this.driver.execute(function() {
+                    var timings = await this.driver.execute(function() {
                         return {
                             navigationStart: window.performance.timing.navigationStart,
                             domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
@@ -682,16 +682,15 @@ export default class WebModule extends WebDriverModule {
 
                     return domContentLoadedEventStart > 0 && loadEventStart > 0;
                 },
-                90 * 1000);
+                { timeout: 30*1000 });
             } catch (e) {
+                return {};
                 // couldn't get timings.
             }
 
             this.lastNavigationStartTime = navigationStart;
-            if (samePage) {
-                return {};
-            }
-            return { DomContentLoadedEvent: domContentLoaded, LoadEvent: load };
+
+            return samePage ? {} : { DomContentLoadedEvent: domContentLoaded, LoadEvent: load };
         }
 
         return {};
