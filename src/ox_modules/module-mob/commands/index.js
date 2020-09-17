@@ -16,6 +16,7 @@ export {default as execute} from './execute';
 export {default as findElement} from './findElement';
 export {default as findElements} from './findElements';
 export {default as getAlertText} from './getAlertText';
+export {default as assertAlert} from './assertAlert';
 export {default as getAppiumLogs} from './getAppiumLogs';
 export {default as getCurrentActivity} from './getCurrentActivity';
 export {default as getCurrentPackage} from './getCurrentPackage';
