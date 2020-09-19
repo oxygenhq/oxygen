@@ -203,10 +203,9 @@ export default class WebModule extends WebDriverModule {
         let initError = null;
         const _this = this;
 
-        if (
-            wdioOpts.capabilities &&
-            wdioOpts.capabilities['perfectoMobile:options']
-        ) {
+        let provider = modUtils.determineProvider(wdioOpts);
+
+        if (provider === modUtils.provider.PERFECTO) {
             wdioOpts.capabilities.maxInstances = 1;
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
             wdioOpts.port = 80;
@@ -218,12 +217,9 @@ export default class WebModule extends WebDriverModule {
 
         try {
             this.driver = await wdio.remote(wdioOpts);
+            this.driver.provider = provider;
 
-            if (
-                wdioOpts.capabilities &&
-                wdioOpts.capabilities['perfectoMobile:options']
-            ) {
-
+            if (provider === modUtils.provider.PERFECTO) {
                 const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {
                         executeScript: (command, params) => {
@@ -253,11 +249,8 @@ export default class WebModule extends WebDriverModule {
         }
         // maximize browser window
         try {
-            if (
-                this.driver &&
-                this.driver.capabilities &&
-                this.driver.capabilities.browserName === 'MicrosoftEdge'
-            ) {
+            if (this.driver.capabilities.browserName === 'MicrosoftEdge') {
+                // FIXME: this should be refactored
                 // ignore
                 // fails on lambdatest
             } else {
@@ -270,46 +263,35 @@ export default class WebModule extends WebDriverModule {
         }
         super.init();
     }
+
     /**
      * @function dispose
      * @summary Ends the current session.
      */
-
     async dispose(status) {
-
         this._whenWebModuleDispose = defer();
         if (this.driver && this.isInitialized) {
             try {
                 if (!status) {
-                    // ignore
                     await this.closeBrowserWindows();
                 } else if (status && typeof status === 'string') {
+                    status = status.toUpperCase();
 
-                    let isSaucelabs = false;
-                    let isLambdatest = false;
-                    let isTestingBot = false;
-                    let isPerfecto = false;
-                    let isBrowserstack = false;
-
-                    if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('saucelabs')) {
-                        isSaucelabs = true;
+                    if (this.driver.provider === modUtils.provider.SAUCELABS) {
                         const username = this.wdioOpts.capabilities['sauce:options']['username'];
                         const accessKey = this.wdioOpts.capabilities['sauce:options']['accessKey'];
-                        const passed = status.toUpperCase() === 'PASSED';
+                        const passed = status === 'PASSED';
                         const id = this.driver.sessionId;
                         const body = "{\"passed\":"+passed+"}";
 
                         const myAccount = new SauceLabs({ user: username, key: accessKey});
                         myAccount.updateJob(username, id, body);
-                    }
-                    if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('lambdatest')) {
-                        isLambdatest = true;
+                    } else if (this.driver.provider === modUtils.provider.LAMBDATEST) {
                         const lambdaCredentials = {
                             username: this.wdioOpts.user,
                             accessKey: this.wdioOpts.key
                         };
 
-                        const passed = status.toUpperCase() === 'PASSED';
                         const sessionId = this.driver.sessionId;
 
                         const lambdaAutomationClient = lambdaRestClient.AutomationClient(
@@ -317,7 +299,7 @@ export default class WebModule extends WebDriverModule {
                         );
 
                         const requestBody = {
-                            status_ind: passed ? 'passed' : 'failed'
+                            status_ind: status === 'PASSED' ? 'passed' : 'failed'
                         };
 
                         let done = false;
@@ -327,53 +309,29 @@ export default class WebModule extends WebDriverModule {
                         });
 
                         deasync.loopWhile(() => !done);
-                    }
-                    if (this.wdioOpts && this.wdioOpts.hostname && typeof this.wdioOpts.hostname === 'string' && this.wdioOpts.hostname.includes('testingbot')) {
-                        isTestingBot = true;
+                    } else if (this.driver.provider === modUtils.provider.TESTINGBOT) {
                         const sessionId = this.driver.sessionId;
                         const tb = new TestingBot({
                             api_key: this.wdioOpts.user,
                             api_secret: this.wdioOpts.key
                         });
-                        const passed = status.toUpperCase() === 'PASSED';
                         let done = false;
-                        const testData = { "test[success]" : passed ? "1" : "0" };
+                        const testData = { "test[success]" : status === 'PASSED' ? "1" : "0" };
                         tb.updateTest(testData, sessionId, function(error, testDetails) {
                             done = true;
                         });
                         deasync.loopWhile(() => !done);
-                    }
-
-                    if (
-                        this.wdioOpts &&
-                        this.wdioOpts.capabilities &&
-                        this.wdioOpts.capabilities['perfectoMobile:options']
-                    ) {
-                        isPerfecto = true;
-                        const passed = status.toUpperCase() === 'PASSED';
-
-                        let perfectoStatus = perfectoReporting.Constants.results.failed;
-                        if (passed) {
-                            perfectoStatus = perfectoReporting.Constants.results.passed;
-                        }
-
+                    } else if (this.driver.provider === modUtils.provider.PERFECTO) {
                         this.reportingClient.testStop({
-                            status: perfectoStatus
+                            status: status === 'PASSED' ?
+                                        perfectoReporting.Constants.results.passed :
+                                        perfectoReporting.Constants.results.failed
                         });
                         // avoid request abort
                         deasync.sleep(10*1000);
-                    }
-
-                    if (
-                        this.wdioOpts &&
-                        this.wdioOpts.capabilities &&
-                        this.wdioOpts.capabilities['browserstack:options']
-                    ) {
-                        isBrowserstack = true;
-                        const passed = status.toUpperCase() === 'PASSED';
-
+                    } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
                         const requestBody = {
-                            status: passed ? 'passed' : 'failed'
+                            status: status === 'PASSED' ? 'passed' : 'failed'
                         };
 
                         var result = null;
@@ -394,18 +352,8 @@ export default class WebModule extends WebDriverModule {
                         deasync.loopWhile(() => !result);
                     }
 
-                    if (isSaucelabs) {
-                        this.disposeContinue();
-                    } else if (isLambdatest) {
-                        this.disposeContinue();
-                    } else if (isTestingBot) {
-                        this.disposeContinue();
-                    } else if (isPerfecto) {
-                        this.disposeContinue();
-                    } else if (isBrowserstack) {
-                        this.deleteSession();
-                    } else if (['PASSED','FAILED'].includes(status.toUpperCase())) {
-                        await this.closeBrowserWindows(status.toUpperCase());
+                    if (this.driver.provider === null && ['PASSED','FAILED'].includes(status)) {
+                        await this.closeBrowserWindows(status);
                     } else {
                         this.disposeContinue();
                     }
@@ -463,7 +411,6 @@ export default class WebModule extends WebDriverModule {
     }
 
     disposeContinue(status) {
-
         this.driver = null;
         this.lastNavigationStartTime = null;
         super.dispose();

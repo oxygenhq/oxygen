@@ -10,6 +10,14 @@
 const errHelper = require('../errors/helper');
 import OxError from '../errors/OxygenError';
 
+const providers = {
+    PERFECTO: 'perfecto',
+    BROWSERSTACK: 'browserstack',
+    SAUCELABS: 'sauce',
+    LAMBDATEST: 'lambda',
+    TESTINGBOT: 'testingbot'
+};
+
 module.exports = {
     matchPattern: function(val, pattern) {
         if (!val && !pattern) {
@@ -288,5 +296,27 @@ module.exports = {
         } else {
             return ['browser', 'driver'];
         }
+    },
+
+    provider: providers,
+
+    determineProvider: function(wdioOpts) {
+        if (!wdioOpts || !wdioOpts.capabilities) {
+            return null;
+        }
+
+        if (wdioOpts.capabilities['perfectoMobile:options']) {
+            return providers.PERFECTO;
+        } else if (wdioOpts.capabilities['browserstack:options']) {
+            return providers.BROWSERSTACK;
+        } else if (wdioOpts.capabilities['sauce:options']) {
+            return providers.SAUCELABS;
+        } else if (wdioOpts.hostname.includes('lambdatest')) {
+            return providers.LAMBDATEST;
+        } else if (wdioOpts.capabilities['testingBot:options']) {
+            return providers.TESTINGBOT;
+        }
+
+        return null;
     }
 };

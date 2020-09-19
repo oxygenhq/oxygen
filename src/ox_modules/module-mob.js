@@ -121,29 +121,23 @@ export default class MobileModule extends WebDriverModule {
             return;
         }
 
-        if (
-            caps &&
-            this.ctx.caps &&
-            this.ctx.caps['perfectoMobile:options']
-        ) {
-            delete caps.platformName;
-            delete caps.platformVersion;
-            delete caps.deviceName;
-            delete caps.browserName;
-            delete caps.automationName;
-            delete caps.udid;
+        // FIXME: this should be refactored
+        if (this.ctx.caps && this.ctx.caps['perfectoMobile:options']) {
+            if (caps) {
+                delete caps.platformName;
+                delete caps.platformVersion;
+                delete caps.deviceName;
+                delete caps.browserName;
+                delete caps.automationName;
+                delete caps.udid;
 
-            if (caps && caps.app) {
-                caps.enableAppiumBehavior = true;
+                if (caps.app) {
+                    caps.enableAppiumBehavior = true;
+                } else {
+                    caps.useAppiumForWeb = true;
+                    caps.enableAppiumBehavior = true;
+                }
             } else {
-                caps.useAppiumForWeb = true;
-                caps.enableAppiumBehavior = true;
-            }
-        } else {
-            if (
-                this.ctx.caps &&
-                this.ctx.caps['perfectoMobile:options']
-            ) {
                 this.ctx.caps.useAppiumForWeb = true;
                 this.ctx.caps.enableAppiumBehavior = true;
             }
@@ -217,19 +211,13 @@ export default class MobileModule extends WebDriverModule {
             connectionRetryCount: 1
         };
 
-        if (
-            wdioOpts.capabilities &&
-            wdioOpts.capabilities['sauce:options'] &&
-            wdioOpts.capabilities['sauce:options']['testobject_api_key']
-        ) {
+        let provider = modUtils.determineProvider(wdioOpts);
+
+        if (provider === modUtils.provider.SAUCELABS &&
+            wdioOpts.capabilities['sauce:options']['testobject_api_key']) {
             wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
             wdioOpts.capabilities.maxInstances = 1;
-        }
-
-        if (
-            wdioOpts.capabilities &&
-            wdioOpts.capabilities['perfectoMobile:options']
-        ) {
+        } else if (provider === modUtils.provider.PERFECTO) {
             wdioOpts.capabilities.maxInstances = 1;
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
             wdioOpts.port = 80;
@@ -246,12 +234,8 @@ export default class MobileModule extends WebDriverModule {
         // init webdriver
         try {
             this.driver = await wdio.remote(wdioOpts);
-
-            if (
-                wdioOpts.capabilities &&
-                wdioOpts.capabilities['perfectoMobile:options']
-            ) {
-
+            this.driver.provider = provider;
+            if (provider === modUtils.provider.PERFECTO) {
                 const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {
                         executeScript: (command, params) => {
@@ -265,8 +249,7 @@ export default class MobileModule extends WebDriverModule {
                 // avoid request abort
                 deasync.sleep(10*1000);
             }
-        }
-        catch (e) {
+        } catch (e) {
             throw errHelper.getAppiumInitError(e);
         }
 
@@ -279,11 +262,7 @@ export default class MobileModule extends WebDriverModule {
             await this.setWebViewContext();
         }
 
-        if (
-            this.wdioOpts &&
-            this.wdioOpts.capabilities &&
-            this.wdioOpts.capabilities['browserstack:options']
-        ) {
+        if (provider === modUtils.provider.BROWSERSTACK) {
             // ignore
             // fails on browserstack
         } else {
@@ -299,34 +278,17 @@ export default class MobileModule extends WebDriverModule {
     async dispose(status) {
         if (this.driver && this.isInitialized) {
 
-            if (
-                this.wdioOpts &&
-                this.wdioOpts.capabilities &&
-                this.wdioOpts.capabilities['perfectoMobile:options']
-            ) {
-                const passed = status && status.toUpperCase() === 'PASSED';
-
-                let perfectoStatus = perfectoReporting.Constants.results.failed;
-                if (passed) {
-                    perfectoStatus = perfectoReporting.Constants.results.passed;
-                }
-
+            if (this.driver.provider === modUtils.provider.PERFECTO) {
                 this.reportingClient.testStop({
-                    status: perfectoStatus
+                    status: status === 'PASSED' ?
+                                perfectoReporting.Constants.results.passed :
+                                perfectoReporting.Constants.results.failed
                 });
                 // avoid request abort
                 deasync.sleep(10*1000);
-            }
-
-            if (
-                this.wdioOpts &&
-                this.wdioOpts.capabilities &&
-                this.wdioOpts.capabilities['browserstack:options']
-            ) {
-                const passed = status.toUpperCase() === 'PASSED';
-
+            } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
                 const requestBody = {
-                    status: passed ? 'passed' : 'failed'
+                    status: status.toUpperCase() === 'PASSED' ? 'passed' : 'failed'
                 };
 
                 var result = null;

@@ -22,7 +22,7 @@ export default class DevToolsService extends OxygenService {
         this._subModules[module.name] = networkSubmodule;
     }
     async onModuleInitialized(module) {
-        // skip any module that does not implement .getDriver() method (e.g. not webdriver based)
+        // skip any module that does not implement getDriver method (e.g. not webdriver based)
         if (!module || !module.getDriver || typeof module.getDriver !== 'function' || !module.getCapabilities || typeof module.getCapabilities !== 'function') {
             return;
         }
@@ -44,9 +44,8 @@ export default class DevToolsService extends OxygenService {
             options.debuggerAddress = this._driver.capabilities['goog:chromeOptions']['debuggerAddress'];
         }
 
-        if (capabilities && (capabilities['sauce:options'] || capabilities['lamda:options'] || capabilities['testingBot:options'] || capabilities['browserstack:options'])) {
-            submodule.init();
-        } else {
+        // if we are not using any 3rd party provider
+        if (this._driver.provider === null) {
             // initialize DevToolsService and hook it to the current webdriver object
             const devToolsSvc = new WDIODevToolsService(options);
             const UNSUPPORTED_ERROR_MESSAGE = devToolsSvc.beforeSession(null, capabilities);
