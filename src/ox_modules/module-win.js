@@ -166,6 +166,7 @@ export default class WindowsModule extends WebDriverModule {
             capabilities: this.caps,
             logLevel: 'silent',
             runner: 'repl',
+            waitforTimeout: 5000, // increase the default 3000
             connectionRetryTimeout: 310*1000,
             connectionRetryCount: 1
         };
