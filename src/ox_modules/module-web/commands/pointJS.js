@@ -22,14 +22,24 @@ module.exports = async function(locator, timeout) {
     var isIE = await this.getCapabilities().browserName === 'internet explorer';
 
     /*global MouseEvent,document,window*/
-    await this.execute(function(e, isIE) {
+    var ret = await this.execute(function(e, isIE) {
         var ev;
         if (isIE) {
+            // createEvent won't be available won't be available on IE in < 9 compatibility mode
+            if (!document.createEvent) {
+                return 'pointJS is not supported on IE with compatibility mode "IE' +
+                        document.documentMode + ' ' + document.compatMode + '"';
+            }
             ev = document.createEvent('MouseEvent');
             ev.initMouseEvent('mouseover', true, true, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
         } else {
             ev = new MouseEvent('mouseover', { bubbles: true, cancelable: true });
         }
         e.dispatchEvent(ev);
+        return null;
     }, el, isIE);
+
+    if (ret) {
+        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, ret);
+    }
 };
