@@ -15,9 +15,7 @@
  * @param {String|Element} locator - An element locator.
  * @param {Boolean=} clickParent - If true, then parent of the element is clicked.
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.clickHidden("id=HiddenLink");//Clicks on a hidden / invisible element.
+ * web.clickHidden("id=HiddenLink");
  */
 module.exports = async function(locator, clickParent) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
@@ -28,7 +26,8 @@ module.exports = async function(locator, clickParent) {
     var ret = await this.driver.execute(function (domEl, clickParent) {
         // createEvent won't be available won't be available on IE in < 9 compatibility mode
         if (!document.createEvent) {
-            return false;
+            return 'clickHidden is not supported on IE with compatibility mode "IE' +
+                    document.documentMode + ' ' + document.compatMode + '"';
         }
 
         var clckEv = document.createEvent('MouseEvent');
@@ -39,10 +38,10 @@ module.exports = async function(locator, clickParent) {
             domEl.dispatchEvent(clckEv);
         }
 
-        return true;
+        return null;
     }, el, clickParent);
 
-    if (!ret) {
-        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, 'clickHidden() is not supported on the current page');
+    if (ret) {
+        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, ret);
     }
 };
