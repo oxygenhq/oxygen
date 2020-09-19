@@ -44,7 +44,11 @@ module.exports = function () {
             bom = true;
         }
 
-        var table = parse(data, { bom: bom, columns: true, trim: true });
+        try {
+            var table = parse(data, { bom: bom, columns: true, trim: true });
+        } catch (e) {
+            _doneReading.reject(e);
+        }
 
         _doneReading.resolve(table);
 
