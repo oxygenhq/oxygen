@@ -1,5 +1,30 @@
 # CHANGELOG
 
+## v1.11.0 (2020-09-21)
+
+#### :tada: New Feature
+* Add `mob.assertAlert`.
+* Add `mob.getBrowserLogs`.
+
+#### :beetle: Bug Fix
+* `timeout` argument being ignored in some commands.
+* Number of issues in `alert` related commands.
+
+#### :book: Documentation
+* Add missing accessibility id locator to win docs.
+
+#### :nail_care: Polish
+* Make CSV parsing errors more user-friendly.
+* Increase default 3000ms `waitFor*` timeout to 5000ms.
+* Produce proper error if `web.pointJS` is not supported on IE.
+* Throw a more detailed error when `web.clickHidden` is not supported on IE.
+
+#### :house: Internal
+* Fix performance stats not being fetched correctly.
+* Fix logs retrieval.
+* Code refactoring.
+* Bump dependencies.
+
 ## v1.10.0 (2020-09-13)
 
 #### :boom: Breaking Change
