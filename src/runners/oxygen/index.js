@@ -528,8 +528,7 @@ export default class OxygenRunner extends EventEmitter {
             this._reporter.onIterationEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
         }
 
-        // When should we call dispose ?
-        // await (this._worker && this._worker_DisposeModules(caseResult.status));
+        await (this._worker && this._worker_DisposeModules(caseResult.status));
 
         return caseResult;
     }
