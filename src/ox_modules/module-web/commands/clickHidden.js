@@ -24,7 +24,7 @@ module.exports = async function(locator, clickParent) {
     // NOTE: adding comments inside the passed function is not allowed!
     /*global document*/
     var ret = await this.driver.execute(function (domEl, clickParent) {
-        // createEvent won't be available won't be available on IE in < 9 compatibility mode
+        // createEvent won't be available in IE < 9 compatibility mode
         if (!document.createEvent) {
             return 'clickHidden is not supported on IE with compatibility mode "IE' +
                     document.documentMode + ' ' + document.compatMode + '"';

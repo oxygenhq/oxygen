@@ -25,7 +25,7 @@ module.exports = async function(locator, timeout) {
     var ret = await this.execute(function(e, isIE) {
         var ev;
         if (isIE) {
-            // createEvent won't be available won't be available on IE in < 9 compatibility mode
+            // createEvent won't be available in IE < 9 compatibility mode
             if (!document.createEvent) {
                 return 'pointJS is not supported on IE with compatibility mode "IE' +
                         document.documentMode + ' ' + document.compatMode + '"';

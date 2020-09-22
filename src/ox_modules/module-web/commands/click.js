@@ -29,6 +29,15 @@ module.exports = async function(locator, timeout) {
         await el.click();
     } else {
         // if element is not clickable, try clicking it using JS injection
-        this.clickHidden(locator);
+        /*global document*/
+        await this.driver.execute(function(domEl) {
+            // createEvent won't be available in IE < 9 compatibility mode
+            if (!document.createEvent) {
+                return; // fail silently
+            }
+            var clckEv = document.createEvent('MouseEvent');
+            clckEv.initEvent('click', true, true);
+            domEl.dispatchEvent(clckEv);
+        }, el);
     }
 };
