@@ -249,10 +249,11 @@ export default class WebModule extends WebDriverModule {
         }
         // maximize browser window
         try {
-            if (this.driver.capabilities.browserName === 'MicrosoftEdge') {
+            if (['MicrosoftEdge', 'msedge'].includes(this.driver.capabilities.browserName)) {
                 // FIXME: this should be refactored
                 // ignore
                 // fails on lambdatest
+                // fails on browserstack sometimes
             } else {
                 await this.driver.maximizeWindow();
                 await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
