@@ -29,6 +29,16 @@ module.exports = async function() {
 
             return retval;
         }
+        case 'MicrosoftEdge': {
+            const retval = await this.driver.execute(() => {
+                // eslint-disable-next-line no-undef
+                var xmlEl = document.getElementById('webkit-xml-viewer-source-xml');
+
+                return xmlEl ? xmlEl.innerHTML : null;
+            });
+
+            return retval;
+        }
         case 'ie':
             var src = await this.driver.getPageSource();
             src = src.replace(/<head>(.|\n)*?<\/head>/g, '');
