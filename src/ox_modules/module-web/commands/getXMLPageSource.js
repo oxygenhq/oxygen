@@ -19,14 +19,13 @@
 module.exports = async function() {
     var browser = this.caps.browserName;
     switch (browser) {
-        case 'chrome': {
+        case 'chrome':
+        case 'MicrosoftEdge': {
             const retval = await this.driver.execute(() => {
                 // eslint-disable-next-line no-undef
                 var xmlEl = document.getElementById('webkit-xml-viewer-source-xml');
-
                 return xmlEl ? xmlEl.innerHTML : null;
             });
-
             return retval;
         }
         case 'ie':
