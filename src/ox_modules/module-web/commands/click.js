@@ -26,18 +26,31 @@ module.exports = async function(locator, timeout) {
 
     var clickable = await el.isClickable();
     if (clickable) {
-        await el.click();
+        try {
+            await el.click();
+        } catch (e) {
+            // chromedriver doesn't seem to support clicking on elements in Shadow DOM
+            if (e.message.startsWith("javascript error: Cannot read property 'defaultView' of undefined")) {
+                await clickJS.call(this, el);
+            } else {
+                throw e;
+            }
+        }
     } else {
         // if element is not clickable, try clicking it using JS injection
-        /*global document*/
-        await this.driver.execute(function(domEl) {
-            // createEvent won't be available in IE < 9 compatibility mode
-            if (!document.createEvent) {
-                return; // fail silently
-            }
-            var clckEv = document.createEvent('MouseEvent');
-            clckEv.initEvent('click', true, true);
-            domEl.dispatchEvent(clckEv);
-        }, el);
+        await clickJS.call(this, el);
     }
 };
+
+async function clickJS(el) {
+    /*global document*/
+    await this.driver.execute(function(domEl) {
+        // createEvent won't be available in IE < 9 compatibility mode
+        if (!document.createEvent) {
+            return; // fail silently
+        }
+        var clckEv = document.createEvent('MouseEvent');
+        clckEv.initEvent('click', true, true);
+        domEl.dispatchEvent(clckEv);
+    }, el);
+}
