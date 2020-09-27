@@ -1,5 +1,21 @@
 # CHANGELOG
 
+## v1.12.0 (2020-09-27)
+
+#### :boom: Breaking Change
+* Execute each Case using new browser session when executing Suites.
+
+#### :beetle: Bug Fix
+* Test initialization on Edge + BrowserStack.
+* `web.getXMLPageSource` to work on Edge.
+
+#### :nail_care: Polish
+* Fail silently if click fails due to js injection error.
+* Fallback to js click when ChromeDriver fails due to element being located in Shadow DOM.
+
+#### :house: Internal
+* Fixed an issue with performance timings not being recorded.
+
 ## v1.11.0 (2020-09-21)
 
 #### :tada: New Feature
