@@ -351,6 +351,7 @@ export default class WebModule extends WebDriverModule {
 
                         request(options, (err, res, body) => { result = err || res; });
                         deasync.loopWhile(() => !result);
+                        await this.deleteSession();
                     }
 
                     if (this.driver.provider === null && ['PASSED','FAILED'].includes(status)) {
@@ -382,11 +383,12 @@ export default class WebModule extends WebDriverModule {
 
     async deleteSession() {
         try {
-            await this.driver.deleteSession();
+            if (this.driver && this.driver.deleteSession) {
+                await this.driver.deleteSession();
+            }
         } catch (e) {
             this.logger.error('deleteSession error', e);
         }
-        this.disposeContinue();
     }
 
     async closeBrowserWindows(status) {
