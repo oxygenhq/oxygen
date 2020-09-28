@@ -70,7 +70,7 @@ module.exports = {
 
         if (waitForVisible) {
             try {
-                await el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
+                await el.waitForDisplayed({ timeout:timeout ? timeout : this.waitForTimeout});
             } catch (e) {
                 if (timeout) {
                     await module.exports.restoreTimeoutImplicit.call(this);
@@ -128,7 +128,7 @@ module.exports = {
 
         if (waitForVisible) {
             try {
-                await el.waitForDisplayed(timeout ? timeout : this.waitForTimeout);
+                await el.waitForDisplayed({ timeout: timeout ? timeout : this.waitForTimeout});
             } catch (e) {
                 if (timeout) {
                     await module.exports.restoreTimeoutImplicit.call(this);
