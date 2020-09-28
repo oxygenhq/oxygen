@@ -50,7 +50,8 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
                 _whenInitialized.resolve(null);
             })
             .catch(function(err) {
-                _whenInitialized.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, err.message));
+                _whenInitialized.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, `${errHelper.errorCode.PARAMETERS_ERROR}: Unable to load parameters file. 
+${err.message}`));
             });
 
         return _whenInitialized.promise;
