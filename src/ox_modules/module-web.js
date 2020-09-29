@@ -268,14 +268,22 @@ export default class WebModule extends WebDriverModule {
     /**
      * @function dispose
      * @summary Ends the current session.
+     * @param {String=} status - Test status, should be passed or failed
      */
     async dispose(status) {
         this._whenWebModuleDispose = defer();
+
+        if (!status) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status field is required and should be passed or failed');
+        }
+
+        if (!['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status field should be passed or failed');
+        }
+
         if (this.driver && this.isInitialized) {
             try {
-                if (!status) {
-                    await this.closeBrowserWindows();
-                } else if (status && typeof status === 'string') {
+                if (status && typeof status === 'string') {
                     status = status.toUpperCase();
 
                     if (this.driver.provider === modUtils.provider.SAUCELABS) {
@@ -356,6 +364,7 @@ export default class WebModule extends WebDriverModule {
                     if (this.driver.provider === null && ['PASSED','FAILED'].includes(status)) {
                         await this.closeBrowserWindows(status);
                     } else {
+                        // canceled or other status
                         this.disposeContinue();
                     }
                 } else {
