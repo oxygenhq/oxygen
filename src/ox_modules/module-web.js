@@ -286,7 +286,8 @@ export default class WebModule extends WebDriverModule {
                         const body = "{\"passed\":"+passed+"}";
 
                         const myAccount = new SauceLabs({ user: username, key: accessKey});
-                        myAccount.updateJob(username, id, body);
+                        await myAccount.updateJob(username, id, body);
+                        await myAccount.stopJob(username, id);
                     } else if (this.driver.provider === modUtils.provider.LAMBDATEST) {
                         const lambdaCredentials = {
                             username: this.wdioOpts.user,
