@@ -277,13 +277,8 @@ export default class MobileModule extends WebDriverModule {
      * @param {String=} status - Test status, should be passed or failed
      */
     async dispose(status) {
-
-        if (!status) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status field is required and should be passed or failed');
-        }
-
-        if (!['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status field should be passed or failed');
+        if (!status || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'status argument is required and should be "passed" or "failed"');
         }
 
         if (this.driver && this.isInitialized) {
