@@ -274,7 +274,7 @@ export default class MobileModule extends WebDriverModule {
     /**
      * @function dispose
      * @summary Ends the current session.
-     * @param {String=} status - Test status, should be passed or failed
+     * @param {String=} status - Test status, either `passed` or `failed`.
      */
     async dispose(status) {
         if (!status || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
