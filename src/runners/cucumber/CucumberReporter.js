@@ -196,6 +196,10 @@ export default class CucumberReporter {
         if (result.exception) {
             //console.log('result.exception', result.exception)   
             stepResult.failure = errorHelper.getFailureFromError(result.exception);
+
+            if (this.currentStep && this.currentStep.location) {
+                stepResult.failure.cucumberLocation = this.currentStep.location;
+            }
         }
         // call test hook if defined
         if (typeof this.testHooks.afterStep === 'function') {
