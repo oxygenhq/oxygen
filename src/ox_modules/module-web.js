@@ -628,17 +628,21 @@ export default class WebModule extends WebDriverModule {
                                         loadEventStart: window.performance.timing.loadEventStart
                                     };
                                 });
-
-                                samePage = this.lastNavigationStartTime && this.lastNavigationStartTime == timings.navigationStart;
-                                navigationStart = this.lastNavigationStartTime = timings.navigationStart;
-                                var domContentLoadedEventStart = timings.domContentLoadedEventStart;
-                                var loadEventStart = timings.loadEventStart;
-
-                                domContentLoaded = domContentLoadedEventStart - navigationStart;
-                                load = loadEventStart - navigationStart;
-
                                 lastError = false;
-                                return domContentLoadedEventStart > 0 && loadEventStart > 0;
+
+                                if (timings.domContentLoadedEventStart > 0 && timings.loadEventStart > 0) {
+                                    samePage = this.lastNavigationStartTime && this.lastNavigationStartTime == timings.navigationStart;
+                                    navigationStart = this.lastNavigationStartTime = timings.navigationStart;
+                                    var domContentLoadedEventStart = timings.domContentLoadedEventStart;
+                                    var loadEventStart = timings.loadEventStart;
+
+                                    domContentLoaded = domContentLoadedEventStart - navigationStart;
+                                    load = loadEventStart - navigationStart;
+
+                                    return domContentLoadedEventStart > 0 && loadEventStart > 0;
+                                } else {
+                                    return false;
+                                }
                             } catch (executeError) {
                                 // collect error inside driver.execute or driver.waitUntil
                                 lastError = executeError;
