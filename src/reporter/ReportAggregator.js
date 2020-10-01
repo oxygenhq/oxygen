@@ -165,17 +165,17 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
-    onIterationStart(rid, suiteId, caseId, caseResult) {
-        if (caseResult && caseResult.iterationNum) {
-            const msg = `Iteration #${caseResult.iterationNum} started...`;
+    onIterationStart(rid, iteration, start) {
+        if (iteration) {
+            const msg = `${start} Iteration #${iteration} started...`;
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
         }
     }
 
-    onIterationEnd(rid, suiteId, caseId, caseResult) {
-        if (caseResult && caseResult.iterationNum && caseResult.status && caseResult.status.toUpperCase) {
-            const msg = `Iteration #${caseResult.iterationNum} ended with status: ${caseResult.status.toUpperCase()}.`;
+    onIterationEnd(rid, result, start) {
+        if (result && result.iterationNum && result.status && result.status.toUpperCase) {
+            const msg = `${start} Iteration #${result.iterationNum} ended with status: ${result.status.toUpperCase()}.`;
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
         }

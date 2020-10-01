@@ -147,6 +147,7 @@ export function getConfigurations(target, argv) {
         seleniumUrl : 'http://localhost:4444/wd/hub',
         appiumUrl : 'http://localhost:4723/wd/hub',
         reopenSession: false,
+        reRunOnFailed: false,
         iterations : 1,
         debugPort: null,
         delay: null,
