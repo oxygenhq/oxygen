@@ -378,14 +378,17 @@ export default class OxygenRunner extends EventEmitter {
         if (!suite.iterationCount) {
             suite.iterationCount = 1;
         }
-        let showIterationsMessages = false;
+        let showSuiteIterationsMessages = false;
         if (suite.iterationCount > 1) {
-            showIterationsMessages = true;
+            showSuiteIterationsMessages = true;
         }
 
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
+            if (showSuiteIterationsMessages) {
+                this._reporter.onIterationStart(this._id, suiteIteration, 'Suite');
+            }
             const suiteResult = new TestSuiteResult();
             suiteIterations.push(suiteResult);
             suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
@@ -407,30 +410,50 @@ export default class OxygenRunner extends EventEmitter {
                 }
                 for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
 
-                    if (showIterationsMessages) {
-                        this._reporter.onIterationStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, suiteResult);
+                    let showCaseIterationsMessages = false;
+                    if (caze && caze.iterationCount && caze.iterationCount > 1) {
+                        showCaseIterationsMessages = true;
                     }
-
-                    const caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
+                    if (showCaseIterationsMessages) {
+                        this._reporter.onIterationStart(this._id, caseIteration, 'Case');
+                    }
+                    let reRunCount = 0;
+                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
                     if (!caseResult) {
-
                         continue;
                     }
+
+                    if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
+                        reRunCount = 1;
+                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
+
+                        if (!caseResult) {
+                            continue;
+                        }
+                    }
+                    caseResult.reRunCount = reRunCount;
+                    if (showCaseIterationsMessages) {
+                        this._reporter.onIterationEnd(this._id, caseResult, 'Case');
+                    }
+                    await this._worker_callAfterCaseHook(caze, caseResult);
+                    this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+                    await (this._worker && this._worker_DisposeModules(caseResult.status));
+
                     suiteResult.cases.push(caseResult);
                     // if test case iteration has failed, then mark the entire test case as failed, 
                     // stop iterating over it and move to the next test case
                     if (caseResult.status === Status.FAILED) {
                         suiteResult.status = Status.FAILED;
                     }
-
-                    if (showIterationsMessages) {
-                        this._reporter.onIterationEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, suiteResult);
-                    }
-
                 }
             }
             suiteResult.endTime = oxutil.getTimeStamp();
             suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
+
+            if (showSuiteIterationsMessages) {
+                this._reporter.onIterationEnd(this._id, suiteResult, 'Suite');
+            }
+
             await this._worker_callAfterSuiteHook(suite, suiteResult);
             this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult);
         }
@@ -438,12 +461,6 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _runCase(suite, caze, suiteIteration, caseIteration) {
-
-        let showIterationsMessages = false;
-        if (caze && caze.iterationCount && caze.iterationCount > 1) {
-            showIterationsMessages = true;
-        }
-
         const params = {};
         // get test suite's parameters if defined
         // get them first and then override with test case level parameters if defined
@@ -474,10 +491,6 @@ export default class OxygenRunner extends EventEmitter {
         caseResult.name = caze.name;
         caseResult.location = caze.path;
         caseResult.iterationNum = caseIteration;
-
-        if (showIterationsMessages) {
-            this._reporter.onIterationStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caseResult);
-        }
 
         // try to initialize Oxygen and handle any possible error
         try {
@@ -521,14 +534,6 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.status = Status.FAILED;
 
         }
-        await this._worker_callAfterCaseHook(caze, caseResult);
-        this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
-
-        if (showIterationsMessages) {
-            this._reporter.onIterationEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
-        }
-
-        await (this._worker && this._worker_DisposeModules(caseResult.status));
 
         return caseResult;
     }

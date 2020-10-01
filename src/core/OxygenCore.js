@@ -572,7 +572,7 @@ export default class Oxygen extends OxygenEvents {
             }
 
         } catch (e) {
-            if (e && e.message && e.message.includes('invalid session id')) {
+            if (e && e.message && typeof e.message === 'string' && e.message.includes('invalid session id')) {
                 // ignore
                 return;
             } else {
