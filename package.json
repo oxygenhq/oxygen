@@ -48,9 +48,9 @@
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.23.1",
     "@lambdatest/node-rest-client": "1.0.0",
-    "@wdio/cli": "6.4.2",
-    "@wdio/devtools-service": "6.4.2",
-    "@wdio/sync": "6.4.0",
+    "@wdio/cli": "6.6.0",
+    "@wdio/devtools-service": "6.6.0",
+    "@wdio/sync": "6.6.0",
     "async": "3.2.0",
     "chai": "4.2.0",
     "chrome-har": "0.11.12",
@@ -86,7 +86,7 @@
     "testingbot-api": "1.0.7",
     "text-to-image": "2.3.0",
     "twilio": "3.49.4",
-    "webdriverio": "6.4.2",
+    "webdriverio": "6.6.0",
     "when": "3.7.8",
     "xlsx": "0.16.7"
   },

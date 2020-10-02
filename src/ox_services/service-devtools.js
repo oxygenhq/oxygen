@@ -56,11 +56,11 @@ export default class DevToolsService extends OxygenService {
 
             if (devToolsSvc.isSupported) {
                 // change global.browser to the current module's webdriver instance
-                const orgGlobalBrowser = global.browser;
+                // const orgGlobalBrowser = global.browser;
                 global.browser = module.getDriver();
                 await devToolsSvc.before();
                 submodule.init(devToolsSvc);
-                global.browser = orgGlobalBrowser;
+                // global.browser = orgGlobalBrowser;
             }
         }
     }
