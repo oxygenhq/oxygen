@@ -515,53 +515,81 @@ export default class WebModule extends WebDriverModule {
                     this.driver &&
                     this.driver.takeScreenshot
                 ) {
-                    let images = [];
-                    const handles = this.driver.getWindowHandles();
-
-                    if (
-                        handles &&
-                        Array.isArray(handles) &&
-                        handles.length > 0
-                    ) {
-                        for (const handle of handles) {
-                            this.driver.switchToWindow(handle);
-                            const image = this.driver.takeScreenshot();
-                            const title = this.driver.getTitle();
-
-                            if (title) {
-                                const textToImage = require('text-to-image');
-                                let titleImage;
-                                this.driver.call(() => {
-                                    return new Promise((resolve, reject) => {
-                                        const pr = textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
-
-                                        pr.then((val) => {
-                                            titleImage = val;
-                                            resolve();
-                                        });
-                                    });
-                                });
-
-                                titleImage = titleImage.replace('data:image/png;base64,', '');
-                                images.push(titleImage);
-                            }
-
-                            images.push(image);
-                        }
-                    }
-
                     let retval;
+                    let error;
                     this.driver.call(() => {
                         return new Promise((resolve, reject) => {
-                            const mergeImages = require('../lib/img-merge');
-                            const mg = mergeImages(images, { direction: true });
+                            const waitUntilRetVal = this.driver.waitUntil(async() => {
+                                try {
+                                    let images = [];
 
-                            mg.then((retvalImage) => {
-                                retval = retvalImage.replace('data:image/jpeg;base64,', '');
+                                    // collect all (screenshot and title) images
+                                    const handles = await this.driver.getWindowHandles();
+                                    if (
+                                        handles &&
+                                        Array.isArray(handles) &&
+                                        handles.length > 0
+                                    ) {
+                                        for (const handle of handles) {
+                                            await this.driver.switchToWindow(handle);
+                                            const image = await this.driver.takeScreenshot();
+                                            const title = await this.driver.getTitle();
+
+                                            if (title) {
+                                                const textToImage = require('text-to-image');
+                                                let titleImage;
+                                                await this.driver.call(() => {
+                                                    return new Promise((resolve, reject) => {
+                                                        const pr = textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
+
+                                                        pr.then((val) => {
+                                                            titleImage = val;
+                                                            resolve();
+                                                        });
+                                                    });
+                                                });
+
+                                                titleImage = titleImage.replace('data:image/png;base64,', '');
+                                                images.push(titleImage);
+                                            }
+
+                                            images.push(image);
+                                        }
+                                    }
+
+                                    // merge all images into one
+                                    await this.driver.call(() => {
+                                        return new Promise((resolve, reject) => {
+                                            const mergeImages = require('../lib/img-merge');
+                                            const mg = mergeImages(images, { direction: true });
+
+                                            mg.then((retvalImage) => {
+                                                retval = retvalImage.replace('data:image/jpeg;base64,', '');
+                                                resolve();
+                                            });
+                                        });
+                                    });
+
+                                    return true;
+                                } catch (e) {
+                                    error = e;
+                                    return false;
+                                }
+                            },
+                            { timeout: 30*1000 });
+
+                            waitUntilRetVal.then(() => {
                                 resolve();
+                            }).catch((err) => {
+                                reject(err);
                             });
                         });
                     });
+
+                    if (error) {
+                        this.logger.error('Cannot get screenshot', error);
+                    }
+
                     return retval;
                 }
             } catch (e) {
