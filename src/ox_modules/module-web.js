@@ -206,7 +206,6 @@ export default class WebModule extends WebDriverModule {
         let provider = modUtils.determineProvider(wdioOpts);
 
         if (provider === modUtils.provider.PERFECTO) {
-            wdioOpts.capabilities.maxInstances = 1;
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
             wdioOpts.port = 80;
             wdioOpts.protocol = 'http';
