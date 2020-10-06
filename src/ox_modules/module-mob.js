@@ -282,6 +282,7 @@ export default class MobileModule extends WebDriverModule {
         }
 
         if (this.driver && this.isInitialized) {
+            status = status.toUpperCase();
 
             if (this.driver.provider === modUtils.provider.PERFECTO) {
                 this.reportingClient.testStop({
@@ -293,7 +294,7 @@ export default class MobileModule extends WebDriverModule {
                 deasync.sleep(10*1000);
             } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
                 const requestBody = {
-                    status: status.toUpperCase() === 'PASSED' ? 'passed' : 'failed'
+                    status: status === 'PASSED' ? 'passed' : 'failed'
                 };
 
                 var result = null;
