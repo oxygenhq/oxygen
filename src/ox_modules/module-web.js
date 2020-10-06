@@ -268,104 +268,100 @@ export default class WebModule extends WebDriverModule {
     /**
      * @function dispose
      * @summary Ends the current session.
-     * @param {String=} status - Test status, either `passed` or `failed`.
+     * @param {String} status - Test status, either `passed` or `failed`.
      */
     async dispose(status) {
         this._whenWebModuleDispose = defer();
 
-        if (!status || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
+        if (!status || typeof status !== 'string' || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status argument is required and should be "passed" or "failed"');
         }
 
         if (this.driver && this.isInitialized) {
             try {
-                if (status && typeof status === 'string') {
-                    status = status.toUpperCase();
+                status = status.toUpperCase();
 
-                    if (this.driver.provider === modUtils.provider.SAUCELABS) {
-                        const username = this.wdioOpts.capabilities['sauce:options']['username'];
-                        const accessKey = this.wdioOpts.capabilities['sauce:options']['accessKey'];
-                        const passed = status === 'PASSED';
-                        const id = this.driver.sessionId;
-                        const body = "{\"passed\":"+passed+"}";
+                if (this.driver.provider === modUtils.provider.SAUCELABS) {
+                    const username = this.wdioOpts.capabilities['sauce:options']['username'];
+                    const accessKey = this.wdioOpts.capabilities['sauce:options']['accessKey'];
+                    const passed = status === 'PASSED';
+                    const id = this.driver.sessionId;
+                    const body = "{\"passed\":"+passed+"}";
 
-                        const myAccount = new SauceLabs({ user: username, key: accessKey});
-                        await myAccount.updateJob(username, id, body);
-                        await myAccount.stopJob(username, id);
-                    } else if (this.driver.provider === modUtils.provider.LAMBDATEST) {
-                        const lambdaCredentials = {
-                            username: this.wdioOpts.user,
-                            accessKey: this.wdioOpts.key
-                        };
+                    const myAccount = new SauceLabs({ user: username, key: accessKey});
+                    await myAccount.updateJob(username, id, body);
+                    await myAccount.stopJob(username, id);
+                } else if (this.driver.provider === modUtils.provider.LAMBDATEST) {
+                    const lambdaCredentials = {
+                        username: this.wdioOpts.user,
+                        accessKey: this.wdioOpts.key
+                    };
 
-                        const sessionId = this.driver.sessionId;
+                    const sessionId = this.driver.sessionId;
 
-                        const lambdaAutomationClient = lambdaRestClient.AutomationClient(
-                            lambdaCredentials
-                        );
+                    const lambdaAutomationClient = lambdaRestClient.AutomationClient(
+                        lambdaCredentials
+                    );
 
-                        const requestBody = {
-                            status_ind: status === 'PASSED' ? 'passed' : 'failed'
-                        };
+                    const requestBody = {
+                        status_ind: status === 'PASSED' ? 'passed' : 'failed'
+                    };
 
-                        let done = false;
+                    let done = false;
 
-                        lambdaAutomationClient.updateSessionById(sessionId, requestBody, () => {
-                            done = true;
-                        });
+                    lambdaAutomationClient.updateSessionById(sessionId, requestBody, () => {
+                        done = true;
+                    });
 
-                        deasync.loopWhile(() => !done);
-                    } else if (this.driver.provider === modUtils.provider.TESTINGBOT) {
-                        const sessionId = this.driver.sessionId;
-                        const tb = new TestingBot({
-                            api_key: this.wdioOpts.user,
-                            api_secret: this.wdioOpts.key
-                        });
-                        let done = false;
-                        const testData = { "test[success]" : status === 'PASSED' ? "1" : "0" };
-                        tb.updateTest(testData, sessionId, function(error, testDetails) {
-                            done = true;
-                        });
-                        deasync.loopWhile(() => !done);
-                    } else if (this.driver.provider === modUtils.provider.PERFECTO) {
-                        this.reportingClient.testStop({
-                            status: status === 'PASSED' ?
-                                        perfectoReporting.Constants.results.passed :
-                                        perfectoReporting.Constants.results.failed
-                        });
-                        // avoid request abort
-                        deasync.sleep(10*1000);
-                    } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
-                        const requestBody = {
-                            status: status === 'PASSED' ? 'passed' : 'failed'
-                        };
+                    deasync.loopWhile(() => !done);
+                } else if (this.driver.provider === modUtils.provider.TESTINGBOT) {
+                    const sessionId = this.driver.sessionId;
+                    const tb = new TestingBot({
+                        api_key: this.wdioOpts.user,
+                        api_secret: this.wdioOpts.key
+                    });
+                    let done = false;
+                    const testData = { "test[success]" : status === 'PASSED' ? "1" : "0" };
+                    tb.updateTest(testData, sessionId, function(error, testDetails) {
+                        done = true;
+                    });
+                    deasync.loopWhile(() => !done);
+                } else if (this.driver.provider === modUtils.provider.PERFECTO) {
+                    this.reportingClient.testStop({
+                        status: status === 'PASSED' ?
+                                    perfectoReporting.Constants.results.passed :
+                                    perfectoReporting.Constants.results.failed
+                    });
+                    // avoid request abort
+                    deasync.sleep(10*1000);
+                } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
+                    const requestBody = {
+                        status: status === 'PASSED' ? 'passed' : 'failed'
+                    };
 
-                        var result = null;
-                        var options = {
-                            url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
-                            method: 'PUT',
-                            json: true,
-                            rejectUnauthorized: false,
-                            body: requestBody,
-                            'auth': {
-                                'user': this.wdioOpts.user,
-                                'pass': this.wdioOpts.key,
-                                'sendImmediately': false
-                            },
-                        };
+                    var result = null;
+                    var options = {
+                        url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
+                        method: 'PUT',
+                        json: true,
+                        rejectUnauthorized: false,
+                        body: requestBody,
+                        'auth': {
+                            'user': this.wdioOpts.user,
+                            'pass': this.wdioOpts.key,
+                            'sendImmediately': false
+                        },
+                    };
 
-                        request(options, (err, res, body) => { result = err || res; });
-                        deasync.loopWhile(() => !result);
-                        await this.deleteSession();
-                    }
+                    request(options, (err, res, body) => { result = err || res; });
+                    deasync.loopWhile(() => !result);
+                    await this.deleteSession();
+                }
 
-                    if (this.driver.provider === null && ['PASSED','FAILED'].includes(status)) {
-                        await this.closeBrowserWindows(status);
-                    } else {
-                        // canceled or other status
-                        this.disposeContinue();
-                    }
+                if (this.driver.provider === null && ['PASSED','FAILED'].includes(status)) {
+                    await this.closeBrowserWindows(status);
                 } else {
+                    // canceled or other status
                     this.disposeContinue();
                 }
             } catch (e) {

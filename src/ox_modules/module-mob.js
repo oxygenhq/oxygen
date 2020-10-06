@@ -274,10 +274,10 @@ export default class MobileModule extends WebDriverModule {
     /**
      * @function dispose
      * @summary Ends the current session.
-     * @param {String=} status - Test status, either `passed` or `failed`.
+     * @param {String} status - Test status, either `passed` or `failed`.
      */
     async dispose(status) {
-        if (!status || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
+        if (!status || typeof status !== 'string' || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'status argument is required and should be "passed" or "failed"');
         }
 
