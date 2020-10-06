@@ -1,5 +1,23 @@
 # CHANGELOG
 
+## v1.13.0 (2020-10-xx)
+
+#### :boom: Breaking Change
+* `web.dispose` and `mob.dispose` now expect a mandatory status argument.
+
+#### :beetle: Bug Fix
+* `web.waitForVisible` was ignoring the timeout argument.
+
+#### :nail_care: Polish
+* Made CSV parsing errors more user friendly.
+* Print more detailed failure information for Cucumber tests.
+
+#### :house: Internal
+* Added BrowserStack integration.
+* Fixed issue with SauceLab session disposal.
+* Fixed domContentLoadedEvent and loadEvent calculation.
+* Add internal option to re-run failed tests.
+
 ## v1.12.0 (2020-09-27)
 
 #### :boom: Breaking Change
