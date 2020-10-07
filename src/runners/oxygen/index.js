@@ -737,12 +737,35 @@ export default class OxygenRunner extends EventEmitter {
         });
     }
 
-    _handleBeforeCommand(e) {
+    async _handleBeforeCommand(e) {
         this._reporter && this._reporter.onStepStart(this._id, e);
+
+        try {
+            if (e && e.module && e.module === 'log') {
+                // ignore
+            } else {
+                await (this._worker && this._worker.invokeTestHook('beforeCommand', [e]));
+            }
+        }
+        catch (e) {
+            log.error('"beforeCommand" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeCommand" hook failed:'+e, DEFAULT_ISSUER);
+        }
     }
 
-    _handleAfterCommand(e) {
+    async _handleAfterCommand(e) {
         this._reporter && this._reporter.onStepEnd(this._id, e.result);
+        try {
+            if (e && e.module && e.module === 'log') {
+                // ignore
+            } else {
+                await (this._worker && this._worker.invokeTestHook('afterCommand', [e.result]));
+            }
+        }
+        catch (e) {
+            log.error('"afterCommand" hook failed:', e);
+            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterCommand" hook failed:'+e, DEFAULT_ISSUER);
+        }
     }
 
     _resetGlobalVariables() {
