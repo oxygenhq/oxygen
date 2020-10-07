@@ -137,7 +137,7 @@ export default class WebModule extends WebDriverModule {
         }
 
         // adjust browserName-s
-        if (this.caps.browserName === 'ie') {
+        if (this.caps.browserName.toLowerCase() === 'ie') {
             // IE is specified as 'ie' through the command line and possibly suites
             // but selenium standalone server expects 'internet explorer'
             this.caps.browserName = 'internet explorer';
