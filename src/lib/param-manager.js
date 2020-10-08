@@ -62,6 +62,7 @@ ${err.message}`));
     };
 
     module.readNext = function () {
+        this.prevRow = this.currentRow;
         if (this.mode === 'random') {
             this.currentRow = random(0, this.table.length);
         } else {
@@ -70,6 +71,12 @@ ${err.message}`));
 
         if (this.currentRow > this.table.length - 1) {
             this.currentRow = 0;
+        }
+    };
+
+    module.readPrev = function () {
+        if (typeof this.prevRow !== 'undefined') {
+            this.currentRow = this.prevRow;
         }
     };
 
