@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.13.1 (2020-10-08)
+
+#### :house: Internal
+* Added internal option for disabling screenshots on failure.
+
 ## v1.13.0 (2020-10-08)
 
 #### :tada: New Feature
