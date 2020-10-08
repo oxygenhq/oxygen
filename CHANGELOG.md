@@ -1,9 +1,12 @@
 # CHANGELOG
 
-## v1.13.0 (2020-10-xx)
+## v1.13.0 (2020-10-08)
+
+#### :tada: New Feature
+* Support for `beforeCommand` and `afterCommand` hooks.
 
 #### :boom: Breaking Change
-* `web.dispose` and `mob.dispose` now expect a mandatory status argument.
+* `web.dispose` and `mob.dispose` now expects a mandatory status argument.
 
 #### :beetle: Bug Fix
 * `web.waitForVisible` was ignoring the timeout argument.
@@ -16,7 +19,8 @@
 * Added BrowserStack integration.
 * Fixed issue with SauceLab session disposal.
 * Fixed domContentLoadedEvent and loadEvent calculation.
-* Add internal option to re-run failed tests.
+* Added internal option to re-run failed tests.
+* Updated WDIO to v6.6.0.
 
 ## v1.12.0 (2020-09-27)
 
