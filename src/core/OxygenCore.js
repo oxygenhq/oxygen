@@ -770,7 +770,7 @@ export default class Oxygen extends OxygenEvents {
                 step.failure.location = location;
                 // let the module decide whether a screenshot should be taken on error or not
 
-                if (typeof module._takeScreenshotSilent === 'function') {
+                if (typeof module._takeScreenshotSilent === 'function' && !this.opts.disableScreenshot) {
                     try {
                         step.screenshot = module._takeScreenshotSilent(methodName);
                     }
