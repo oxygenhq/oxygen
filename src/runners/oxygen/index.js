@@ -418,7 +418,7 @@ export default class OxygenRunner extends EventEmitter {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
                     let reRunCount = 0;
-                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
+                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false);
                     if (!caseResult) {
                         continue;
                     }
@@ -426,7 +426,7 @@ export default class OxygenRunner extends EventEmitter {
                     if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
                         reRunCount = 1;
                         await (this._worker && this._worker_DisposeModules('passed'));
-                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration);
+                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true);
 
                         if (!caseResult) {
                             continue;
@@ -461,16 +461,22 @@ export default class OxygenRunner extends EventEmitter {
         return suiteIterations;
     }
 
-    async _runCase(suite, caze, suiteIteration, caseIteration) {
+    async _runCase(suite, caze, suiteIteration, caseIteration, reRun = false) {
         const params = {};
         // get test suite's parameters if defined
         // get them first and then override with test case level parameters if defined
         if (suite.paramManager) {
+            if (reRun) {
+                suite.paramManager.readPrev();
+            }
             _.extend(params, suite.paramManager.getValues());
             suite.paramManager.readNext();
         }
         // read test case's next lines of parameters if parameter manager is defined
         if (caze.paramManager) {
+            if (reRun) {
+                caze.paramManager.readPrev();
+            }
             _.extend(params, caze.paramManager.getValues());
             caze.paramManager.readNext();
         }
