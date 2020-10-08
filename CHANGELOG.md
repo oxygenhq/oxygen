@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.13.2 (2020-10-08)
+
+#### :house: Internal
+* Fixed parameter handling when using re-run option.
+
 ## v1.13.1 (2020-10-08)
 
 #### :house: Internal
