@@ -249,14 +249,19 @@ var self = module.exports = {
             return null;
         }
         try {
-            const chai = require('chai');
-            const mockery = require('mockery');
-            mockery.enable({
-                useCleanCache: true,
-                warnOnReplace: false,
-                warnOnUnregistered: false
-            });
-            mockery.registerMock('chai', chai);
+            if (global.chaiAndMockeryLoaded) {
+                // ignore
+            } else {
+                const chai = require('chai');
+                const mockery = require('mockery');
+                mockery.enable({
+                    useCleanCache: true,
+                    warnOnReplace: false,
+                    warnOnUnregistered: false
+                });
+                mockery.registerMock('chai', chai);
+                global.chaiAndMockeryLoaded = true;
+            }
 
             await hooks[method].apply(undefined, args);
         }

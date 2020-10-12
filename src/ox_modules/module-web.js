@@ -57,6 +57,7 @@ import TestingBot from 'testingbot-api';
 import { execSync } from 'child_process';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
+import mergeImages from '../lib/img-merge';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -532,20 +533,11 @@ export default class WebModule extends WebDriverModule {
 
                                             if (title) {
                                                 const textToImage = require('text-to-image');
-                                                let titleImage;
-                                                await this.driver.call(() => {
-                                                    return new Promise((resolve, reject) => {
-                                                        const pr = textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
-
-                                                        pr.then((val) => {
-                                                            titleImage = val;
-                                                            resolve();
-                                                        });
-                                                    });
-                                                });
-
-                                                titleImage = titleImage.replace('data:image/png;base64,', '');
-                                                images.push(titleImage);
+                                                let titleImage = await textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
+                                                if (titleImage && typeof titleImage === 'string') {
+                                                    titleImage = titleImage.replace('data:image/png;base64,', '');
+                                                    images.push(titleImage);
+                                                }
                                             }
 
                                             images.push(image);
@@ -553,17 +545,10 @@ export default class WebModule extends WebDriverModule {
                                     }
 
                                     // merge all images into one
-                                    await this.driver.call(() => {
-                                        return new Promise((resolve, reject) => {
-                                            const mergeImages = require('../lib/img-merge');
-                                            const mg = mergeImages(images, { direction: true });
-
-                                            mg.then((retvalImage) => {
-                                                retval = retvalImage.replace('data:image/jpeg;base64,', '');
-                                                resolve();
-                                            });
-                                        });
-                                    });
+                                    const mergedImage = await mergeImages(images, { direction: true });
+                                    if (mergedImage && typeof mergedImage === 'string') {
+                                        retval = mergedImage.replace('data:image/jpeg;base64,', '');
+                                    }
 
                                     return true;
                                 } catch (e) {

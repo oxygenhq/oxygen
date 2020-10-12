@@ -1,6 +1,6 @@
 // https://github.com/ragrag/merge-base64
 
-const Jimp = require('jimp');
+import Jimp from 'jimp';
 
 function alignImage(total, size, align) {
     if (align === 'center') {
