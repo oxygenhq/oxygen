@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.13.3 (2020-10-12)
+
+#### :beetle: Bug Fix
+* Add option to enable SNI in `email` module. This fixes issue with connection to Gmail.
+
 ## v1.13.2 (2020-10-08)
 
 #### :house: Internal
