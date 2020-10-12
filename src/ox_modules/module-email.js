@@ -35,8 +35,9 @@ module.exports = function() {
      * @param {Number} port - Port number (e.g. 993).
      * @param {Boolean} tls - true to use TLS, false otherwise.
      * @param {Number} authTimeout - Authentication timeout in milliseconds.
+     * @param {Boolean=} enableSNI - Enable sending SNI when establishing the connection. This is required for some mail servers. Default is false. 
      */
-    module.init = function(user, password, host, port, tls, authTimeout) {
+    module.init = function(user, password, host, port, tls, authTimeout, enableSNI) {
         utils.assertArgumentNonEmptyString(user, 'user');
         utils.assertArgumentNonEmptyString(password, 'password');
         utils.assertArgumentNonEmptyString(host, 'host');
@@ -54,6 +55,11 @@ module.exports = function() {
                 authTimeout: authTimeout
             }
         };
+
+        // set servername if SNI is enabled or we are using Gmail
+        if (enableSNI || host === 'imap.gmail.com') {
+            _config.imap.tlsOptions = { servername: host };
+        }
     };
 
     /**
