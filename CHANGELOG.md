@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.13.4 (2020-10-13)
+
+#### :beetle: Bug Fix
+* Fixed maximum call stack size exceeded issue (#102).
+
 ## v1.13.3 (2020-10-12)
 
 #### :beetle: Bug Fix
