@@ -11,6 +11,7 @@
  * Oxygen Error class
  */
 import StackTrace from 'stack-trace';
+import * as stackTraceParser from 'stacktrace-parser';
 
 const STACKTRACE_FILTERS = ['\\node_modules\\', '/node_modules/', '/oxygen-node/', '\\oxygen-node\\', '(module.js', '(internal/module.js', 'at <anonymous>', 'internal/', 'internal\\'];
 
@@ -55,10 +56,33 @@ export default class OxygenError extends Error {
     }
 
     generateLocation() {
+        let anotherFile;
+        let anotherLineNumber;
+        let anotherColumn;
+
+        if (this.orgErr && this.orgErr.stack) {
+            const anotherStack = stackTraceParser.parse(this.orgErr.stack);
+
+            // 0 element don't have correct information about lineNumber and column
+            if (
+                anotherStack &&
+                anotherStack[0] &&
+                anotherStack[1]['file'] &&
+                anotherStack[0]['file'] &&
+                anotherStack[1]['file'] === anotherStack[0]['file'] &&
+                anotherStack[1]['lineNumber'] &&
+                anotherStack[1]['column']
+            ) {
+                anotherFile = anotherStack[1]['file'];
+                anotherLineNumber = anotherStack[1]['lineNumber'];
+                anotherColumn = anotherStack[1]['column'];
+            }
+        }
+
         const stackTrace = StackTrace.parse(this) || [];
         if (stackTrace.length > 0) {
             const call = stackTrace[0];
-            if (call && call.fileName === 'vm.js' &&  this.orgErr && this.orgErr.stack) {
+            if (call && call.fileName === 'vm.js' && this.orgErr && this.orgErr.stack) {
                 let location = this.orgErr.stack.split('\n')[0];
 
                 const locationSplit = location.split(':');
@@ -81,6 +105,9 @@ export default class OxygenError extends Error {
                     location,
                     ...stackTrace.map(call => `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`)
                 ];
+            } else if (anotherFile && anotherLineNumber && anotherColumn) {
+                this.location = `${this.patchFilePathOnWindows(anotherFile)}:${anotherLineNumber}:${anotherColumn}`;
+                this.stacktrace = [this.location];
             } else {
                 // add extra line if we are running in debugger mode (V8 debugger adds an extra line at the beginning of the file)
                 //const extraLine = oxutil.isInDebugMode() ? 1 : 0;
