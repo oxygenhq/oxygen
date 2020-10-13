@@ -71,6 +71,7 @@ function stringify(obj) {
     return (typeof obj === 'string' || obj instanceof String ? obj : JSON.stringify(obj, null, 2));
 }
 
+oxutil.hookLogs(logger);
 // redirect stdout and stderr to the logger
 //process.stdout.write = logger.debug;
 //process.stderr.write = logger.error;
