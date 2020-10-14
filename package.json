@@ -82,6 +82,7 @@
     "serialport": "9.0.1",
     "soap": "0.33.0",
     "source-map-support": "0.5.19",
+    "stacktrace-parser": "^0.1.10",
     "testdouble": "3.16.1",
     "testingbot-api": "1.0.7",
     "text-to-image": "2.3.0",
