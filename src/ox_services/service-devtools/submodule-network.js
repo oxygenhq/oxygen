@@ -37,7 +37,7 @@ export default class NetworkSubModule extends OxygenSubModule {
     }
 
     async dispose() {
-        console.log('submodule network dispose')
+        console.log('submodule network dispose');
         try {
             if (this._devTools) {
                 await this._devTools.session.removeListener('Network.responseReceived', () => {});

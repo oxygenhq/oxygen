@@ -168,13 +168,13 @@ export default class HttpModule extends OxygenModule {
         var result = null;
 
         var options = {
-            url: url,
+            //url: url,
             method: 'POST',
             json: true,
             timeout: RESPONSE_TIMEOUT,
             rejectUnauthorized: false,
-            body: data,
-            headers: headers || {}
+            //body: data,
+            //headers: headers || {}
         };
 
         request(options, (err, res, body) => { result = err || res; });
@@ -188,13 +188,13 @@ export default class HttpModule extends OxygenModule {
         else if ((result.statusCode < 200 || result.statusCode >= 300) && this._options && !this._options.httpAutoThrowError) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }        
+        }
         return result;
         //return result.body;
     }
 
-    async dispose() {
-        await super.dispose();
+    dispose() {
+        super.dispose();
     }
 
     _httpRequestSync(httpOpts) {
@@ -210,7 +210,7 @@ export default class HttpModule extends OxygenModule {
         else if ((result.statusCode < 200 || result.statusCode >= 300) && this.options && !this.options.httpAutoThrowError) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }        
+        }
         return result;
 
     }

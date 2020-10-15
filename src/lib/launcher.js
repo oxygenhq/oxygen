@@ -43,7 +43,7 @@ export default class Launcher {
             else {
                 _this._queue.push({});
             }
-            
+
         }
         await this._queue.drain();
     }
