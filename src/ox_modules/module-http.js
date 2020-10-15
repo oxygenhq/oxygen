@@ -11,12 +11,13 @@
  * @name http
  * @description Provides methods for working with HTTP(S)
  */
+import request from 'request';
+const deasync = require('deasync');
 
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
-import request from 'request';
-const deasync = require('deasync');
+import modUtils from './utils';
 
 const MODULE_NAME = 'http';
 const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
@@ -26,6 +27,8 @@ export default class HttpModule extends OxygenModule {
         super(options, context, rs, logger, modules, services);
         this._lastResponse = null;
         this._baseUrl = null;
+        // pre-initialize the module
+        this._isInitialized = true;
     }
 
     /**
@@ -133,68 +136,128 @@ export default class HttpModule extends OxygenModule {
         };
         return this._httpRequestSync(httpOpts);
     }
+    
+    /**
+     * @summary Returns last response object
+     * @function getResponse
+     * @return {Object} Response object.
+     */
+    getResponse() {
+        return this._lastResponse;
+    }
 
     /**
      * @summary Returns response headers
      * @function getResponseHeaders
-     * @param {String} url - URL.
      * @return {Object} Response headers.
      */
-    getResponseHeaders(url) {
-        var httpOpts = {
-            url: url,
-            method: 'GET',
-            followRedirect: false,
-            timeout: RESPONSE_TIMEOUT,
-            rejectUnauthorized: false
-        };
-        const result = this._httpRequestSync(httpOpts);
-        return result.headers;
+    getResponseHeaders() {
+        if (!this._lastResponse) {
+            return null;
+        }
+        return this._lastResponse.headers;
+    }
+
+    /**
+     * @summary Returns response URL
+     * @function getResponseUrl
+     * @return {String} Response URL.
+     */
+    getResponseUrl() {
+        if (!this._lastResponse) {
+            return null;
+        }
+        return this._lastResponse.url;
+    }
+
+    /**
+     * @summary Assert if HTTP header is presented in the response
+     * @function assertHeader
+     * @param {String} headerName - A HTTP header name.
+     * @param {String} [headerValuePattern] - An optional HTTP header value pattern.
+     */
+    assertText(pattern) {
+        if (!this._lastResponse) {
+            return false;
+        }
+        if (!this._lastResponse.body) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Response body is empty');
+        }
+        const respContent = typeof this._lastResponse.body === 'string' ? this._lastResponse.body : JSON.stringify(this._lastResponse.body);
+        if (!modUtils.matchPattern(respContent, pattern)) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP response content to match: "${pattern}" but got: "${respContent}"`);
+        }
+        return true;
+    }
+
+    /**
+     * @summary Assert response time
+     * @function assertResponseTime
+     * @param {Number} maxTime - Maximum response time in milliseconds.
+     */
+    assertResponseTime(maxTime) {
+        throw new Error('Not implemented');
+    }
+
+    /**
+     * @summary Assert if HTTP header is presented in the response
+     * @function assertHeader
+     * @param {String} headerName - A HTTP header name.
+     * @param {String} [headerValuePattern] - An optional HTTP header value pattern.
+     */
+    assertHeader(headerName, headerValuePattern = null) {
+        if (!headerName || typeof headerName !== 'string' || headerName.length == 0) {
+            return false;
+        }
+        headerName = headerName.toLowerCase();
+        const headers = this._lastResponse.headers;
+        if (!headers[headerName]) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Expected HTTP header "${headerName}" to be present');
+        }
+        else if (headerValuePattern && typeof headerValuePattern === 'string') {
+            const actualHeaderValue = headers[headerName];
+            if (!modUtils.matchPattern(actualHeaderValue, headerValuePattern)) {
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP header "${headerName}" value to match: "${headerValuePattern}" but got: "${actualHeaderValue}"`);
+            }
+        }
+    }
+
+    /**
+     * @summary Assert if HTTP cookie is presented in the response
+     * @function assertCookie
+     * @param {String} cookieName - A HTTP cookie name.
+     * @param {String} [cookieValuePattern] - An optional HTTP cookie value pattern.
+     */
+    assertCookie(cookieName, cookieValuePattern) {
+        throw new Error('Not implemented');
     }
 
     /**
      * @summary Assert the last HTTP response's status code
-     * @function assertStatusCode
+     * @function assertCode
      * @param {Number|Array} codeList - A single status code or a list of codes.
      */
-    assertStatusCode(codeList) {
-        if (!codeList) {
+    assertStatus(codeList) {
+        if (!this._lastResponse || !codeList) {
             return false;
         }
         // if we got a single value, then convert it to an array
         if (!Array.isArray(codeList)) {
             codeList = [codeList];
         }
-        var result = null;
-
-        var options = {
-            //url: url,
-            method: 'POST',
-            json: true,
-            timeout: RESPONSE_TIMEOUT,
-            rejectUnauthorized: false,
-            //body: data,
-            //headers: headers || {}
-        };
-
-        request(options, (err, res, body) => { result = err || res; });
-        deasync.loopWhile(() => !result);
-        // store last response to allow further assertions and validations
-        this._lastResponse = result;
-
-        if (result instanceof Error && this._options && !this._options.httpAutoThrowError) {
-            throw result;
+        const statusCode = this._lastResponse.statusCode;
+        if (!codeList.includes(statusCode)) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP status to be: "${codeList}" but got: "${statusCode}"`);
         }
-        else if ((result.statusCode < 200 || result.statusCode >= 300) && this._options && !this._options.httpAutoThrowError) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }
-        return result;
-        //return result.body;
+        return true;
     }
 
-    dispose() {
-        super.dispose();
+    /**
+     * @summary Assert HTTP 200 OK status
+     * @function assertStatusOk
+     */
+    assertStatusOk() {        
+        return this.assertStatus(200);
     }
 
     _httpRequestSync(httpOpts) {
