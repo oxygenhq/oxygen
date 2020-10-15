@@ -63,7 +63,8 @@ const ERROR_CODES = {
     TWILIO_ERROR: 'TWILIO_ERROR',
     HOOK_ERROR: 'HOOK_ERROR',
     NOT_SUPPORTED: 'NOT_SUPPORTED',
-    ASSERT_PASSED: 'ASSERT_PASSED'
+    ASSERT_PASSED: 'ASSERT_PASSED',
+    NETWORK_ERROR: 'NETWORK_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
@@ -177,6 +178,12 @@ module.exports = {
         // when driver (IEDriverServer, ChromeDriver, etc) crashes
         else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
             return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
+        }
+        else if (err.message && err.message.startsWith('getaddrinfo ENOTFOUND')) {
+            return new OxError(ERROR_CODES.NETWORK_ERROR, 'Domain name or network address cannot be reached or resolved: ' + err.message);
+        }
+        else if (err.message && err.message.startsWith('socket hang up')) {
+            return new OxError(ERROR_CODES.NETWORK_ERROR, 'Cannot open network port or socket: ' + err.message);
         }
 
         // try to resolve Chai error code

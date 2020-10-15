@@ -545,7 +545,9 @@ export default class Oxygen extends OxygenEvents {
         try {
             // emit before events
             if (cmdName === 'dispose') {
+                console.log('before')
                 this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
+                console.log('after')
             }
 
             const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
@@ -640,18 +642,22 @@ export default class Oxygen extends OxygenEvents {
             // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
             if (!Fiber.current) {
                 const retval = fn.apply(self, args);
-
+                console.log('retval', retval)
                 let done = false;
                 let error = null;
                 let finalVal = null;
 
+                console.log('retval.then', retval.then)
+                console.log('typeof retval', typeof retval)
                 if (retval && retval.then) {
-                    Promise.resolve(retval)
+                    retval
                     .then((val) => {
+                        console.log('done val', val)
                         finalVal = val;
                         done = true;
                     })
                     .catch((e) => {
+                        console.log('carch error', e)
                         error = e;
                         done = true;
                     });
@@ -661,10 +667,17 @@ export default class Oxygen extends OxygenEvents {
                 }
 
                 try {
-                    deasync.loopWhile(() => !done && !error);
+                    console.log('before deasync.loopWhile')  
+                    while (!done && !error) {
+                        deasync.runLoopOnce();
+                    }                  
+                    /*deasync.loopWhile(function() {
+                        return !done && !error;
+                    });*/
+                    console.log('after deasync.loopWhile')
                 }
                 catch (e) {
-
+                    console.log('Error!', e)
                     if (e && e.message && typeof e.message === 'string' && e.message.includes('readyState')) {
                         return undefined;
                     }
@@ -904,13 +917,17 @@ export default class Oxygen extends OxygenEvents {
             }
             try {
                 if (service.onModuleWillDispose) {
-                    service.onModuleWillDispose(module);
+                    console.log('before onModuleWillDispose', serviceName)
+                    await service.onModuleWillDispose(module);
+                    console.log('after onModuleWillDispose')
                 }
             }
             catch (e) {
+                console.log('error', e)
                 this.logger.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
             }
         }
+        console.log('ended _callServicesOnModuleWillDispose')
     }
     _populateParametersValue(args) {
         if (!args || !Array.isArray(args) || args.length == 0) {
