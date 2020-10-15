@@ -14,6 +14,7 @@ import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
 import * as Modules from '../ox_modules/index';
+import * as globalFunctions from './global-functions';
 
 // setup logger
 import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
@@ -227,6 +228,11 @@ export default class Oxygen extends OxygenEvents {
                 caps: this.capabilities,
                 resultStore: this.resultStore
             };
+            // add global functions to 'ox'
+            for (let funcName in globalFunctions) {
+                const func = globalFunctions[funcName];
+                global.ox[funcName] = func.bind(this);
+            }
 
             global.vars = this.ctx.vars;
         }
@@ -245,9 +251,16 @@ export default class Oxygen extends OxygenEvents {
             global.params = global.ox.ctx.params;
             global.env = global.ox.ctx.env;
             global.ctx = global.ox.ctx;
-            global.transaction = this.transaction.bind(this);
-            global.beginStep = this.beginStep.bind(this);
-            global.endStep = this.endStep.bind(this);
+            // TODO replace the functions below with global functions
+            /*global.transaction = this.transaction.bind(this);
+            global.startStep = this.startStep.bind(this);
+            global.endStep = this.endStep.bind(this);*/
+
+            // add global functions to 'global'
+            for (let funcName in globalFunctions) {
+                const func = globalFunctions[funcName];
+                global[funcName] = func.bind(this);
+            }
         }
     }
 
@@ -271,7 +284,7 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
-    beginStep(name, type = 'container') {
+    startStep(name, type = 'container') {
         const step = new StepResult();
         step._id = oxutil.generateUniqueId();
         step.name = name;
@@ -329,7 +342,7 @@ export default class Oxygen extends OxygenEvents {
                 this.endStep();
             }
         }
-        const step = this.beginStep(name, 'transaction');
+        const step = this.startStep(name, 'transaction');
         return step;
     }
 
