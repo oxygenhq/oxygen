@@ -142,7 +142,7 @@ export default class WebModule extends WebDriverModule {
             // IE is specified as 'ie' through the command line and possibly suites
             // but selenium standalone server expects 'internet explorer'
             this.caps.browserName = 'internet explorer';
-        } else if (this.caps['lamda:options']) {
+        } else if (this.caps['lambda:options']) {
             // lambdatest expects original case names
         } else if (this.caps.browserName !== 'MicrosoftEdge') {
             // selenium standalone server expects all browserNames to be lowercase
@@ -247,15 +247,17 @@ export default class WebModule extends WebDriverModule {
                 this.logger.error('Cannot retrieve browser logs.', e);
             }
         }
-        // maximize browser window
+
         try {
-            if (['MicrosoftEdge', 'msedge'].includes(this.driver.capabilities.browserName)) {
-                // FIXME: this should be refactored
+            if (
+                [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) &&
+                ['MicrosoftEdge', 'msedge', 'Edge'].includes(this.driver.capabilities.browserName)
+            ) {
                 // ignore
-                // fails on lambdatest
-                // fails on browserstack sometimes
             } else {
+                // maximize browser window
                 await this.driver.maximizeWindow();
+                // set initial Timeout
                 await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
             }
 
