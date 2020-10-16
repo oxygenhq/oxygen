@@ -7,11 +7,13 @@
  * (at your option) any later version.
  */
 
+import oxutil from '../lib/util';
 /*
  * Test Suite Result
  */
 module.exports = function () {
     return {
+        sid: oxutil.generateUniqueId(),
         name: null,
         iterationNum: 1,
         startTime: null,
