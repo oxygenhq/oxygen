@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.13.5 (2020-10-19)
+
+#### :beetle: Bug Fix
+* Fixed `web.sendKeys` throwing an error if currently active window is closed during the command execution.
+* Fixed `web.click` and `web.clickHidden` to work in IE < 9 compatibility mode.
+* RegExp arguments not properly displayed in reports.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.13.4 (2020-10-13)
 
 #### :beetle: Bug Fix
