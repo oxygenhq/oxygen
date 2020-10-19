@@ -26,17 +26,22 @@ module.exports = async function(value) {
     this.helpers.assertArgument(value);
 
     var valArray = [];
-    if (Array.isArray(value)) {             // array
-        // `instanceof Array` behaves strange when executed through vm.runInNewContext,
-        // it returns false for arrays and `driver.keys()` tests for arrays using `instaceof Array`
-        // thus we recreate the array.
-        // https://github.com/felixge/node-sandboxed-module/issues/13#issuecomment-299585213
-        for (var val of value) {
-            valArray.push(val);
+    // try-catch is for OI-1049
+    try {
+        if (Array.isArray(value)) {             // array
+            // `instanceof Array` behaves strange when executed through vm.runInNewContext,
+            // it returns false for arrays and `driver.keys()` tests for arrays using `instaceof Array`
+            // thus we recreate the array.
+            // https://github.com/felixge/node-sandboxed-module/issues/13#issuecomment-299585213
+            for (var val of value) {
+                valArray.push(val);
+            }
+            await this.driver.keys(valArray);
+            return;
+        } else {                                // string
+            await this.driver.keys(value);
         }
-        await this.driver.keys(valArray);
-        return;
-    } else {                                // string
-        await this.driver.keys(value);
+    } catch (e) {
+        this.logger.warn('web.sendKeys error', e);
     }
 };
