@@ -59,12 +59,13 @@ export default class OxygenWorker extends EventEmitter {
         }
     }
 
-    async run({ scriptPath, context, poFile = null }) {
+    async run({ cid, scriptPath, context, poFile = null }) {
         // assign up to date context to Oxygen Core to reflect new parameters and other context data
         if (!this._oxygen) {
             throw Error ('Oxygen is not initialized');
         }
         this._oxygen.context = context;
+        this._oxygen.cid = cid;
         this._oxygen.loadPageObjectFile(poFile);
         this._steps = [];
         if (this._cwd && !path.isAbsolute(scriptPath)) {

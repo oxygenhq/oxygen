@@ -301,8 +301,6 @@ export default class WorkerProcess extends EventEmitter {
     async _handleWorkerEvent(name, args) {
         if (name && this._eventHandlers && this._eventHandlers[name]) {
             try {
-                console.log('~~name', name);
-                console.log('~~args', args);
                 await this._eventHandlers[name].apply(undefined, args);
             }
             catch (e) {

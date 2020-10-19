@@ -510,7 +510,7 @@ export default class Oxygen extends OxygenEvents {
         if (cmdName !== 'dispose' && this._disposed) {
             return undefined;
         }
-
+        var step = new StepResult(this.cid);
         let retval = null;
         let error = null;
         const cmdFn = module[cmdName];
@@ -537,7 +537,7 @@ export default class Oxygen extends OxygenEvents {
         // do not report results or line updates on internal methods (started with '_')
         if (publicMethod) {
             cmdLocation = this._getCommandLocation();
-            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
+            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime, step);
         }
 
         this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
@@ -597,7 +597,7 @@ export default class Oxygen extends OxygenEvents {
             const waitId = +new Date();
             this._waitStepResultList.push(waitId);
 
-            stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
+            stepResult = this._getStepResult(step, module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
 
             const index = this._waitStepResultList.indexOf(waitId);
             this._waitStepResultList.splice(index, 1);
@@ -727,8 +727,7 @@ export default class Oxygen extends OxygenEvents {
         return null;
     }
 
-    _getStepResult(module, moduleName, methodName, args, location, startTime, endTime, retval, err) {
-        var step = new StepResult();
+    _getStepResult(step, module, moduleName, methodName, args, location, startTime, endTime, retval, err) {
 
         step.name = oxutil.getMethodSignature(moduleName, methodName, args);
         step.transaction = global._lastTransactionName;                    // FIXME: why is this here if it's already populated in rs?

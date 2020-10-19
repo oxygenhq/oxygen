@@ -7,11 +7,14 @@
  * (at your option) any later version.
  */
 
+import oxutil from '../lib/util';
 /*
  * Test Step Results
  */
-module.exports = function () {
+module.exports = function (cid) {
     return {
+        sid: oxutil.generateUniqueId(),
+        cid: cid,
         name: null,
         location: null,
         status: null,

@@ -11,9 +11,10 @@ import oxutil from '../lib/util';
 /*
  * Test Case Results
  */
-module.exports = function () {
+module.exports = function (sid) {
     return {
         cid: oxutil.generateUniqueId(),
+        sid: sid,
         name: null,
         iterationNum: 1,
         location: null,

@@ -418,7 +418,7 @@ export default class OxygenRunner extends EventEmitter {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
                     let reRunCount = 0;
-                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false);
+                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false, suiteResult.sid);
                     if (!caseResult) {
                         continue;
                     }
@@ -426,7 +426,7 @@ export default class OxygenRunner extends EventEmitter {
                     if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
                         reRunCount = 1;
                         await (this._worker && this._worker_DisposeModules('passed'));
-                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true);
+                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true, suiteResult.sid);
 
                         if (!caseResult) {
                             continue;
@@ -461,7 +461,7 @@ export default class OxygenRunner extends EventEmitter {
         return suiteIterations;
     }
 
-    async _runCase(suite, caze, suiteIteration, caseIteration, reRun = false) {
+    async _runCase(suite, caze, suiteIteration, caseIteration, reRun = false, sid) {
         const params = {};
         // get test suite's parameters if defined
         // get them first and then override with test case level parameters if defined
@@ -493,8 +493,9 @@ export default class OxygenRunner extends EventEmitter {
         }
         //this.emit('iteration:start', caseIteration);
         await this._worker_callBeforeCaseHook(caze);
-        this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
-        const caseResult = new TestCaseResult();
+
+        const caseResult = new TestCaseResult(sid);
+        this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze, caseResult);
         caseResult.name = caze.name;
         caseResult.location = caze.path;
         caseResult.iterationNum = caseIteration;
@@ -516,7 +517,7 @@ export default class OxygenRunner extends EventEmitter {
         try {
             caseResult.startTime = oxutil.getTimeStamp();
             if (this._worker) {
-                const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+                const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params, caseResult.cid);
                 this._processTestResults({ resultStore, context, error, moduleCaps });
                 caseResult.endTime = oxutil.getTimeStamp();
                 caseResult.duration = caseResult.endTime - caseResult.startTime;
@@ -545,7 +546,7 @@ export default class OxygenRunner extends EventEmitter {
         return caseResult;
     }
 
-    async _worker_Run(suite, caze, suiteIteration, caseIteration, params) {
+    async _worker_Run(suite, caze, suiteIteration, caseIteration, params, cid) {
         if (!this._worker) {
             log.error('_worker is null but not suppose to!');
 
@@ -556,6 +557,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         // start running the test
         return await this._worker.run({
+            cid: cid,
             scriptName: caze.name,
             scriptPath: caze.path,
             context: {

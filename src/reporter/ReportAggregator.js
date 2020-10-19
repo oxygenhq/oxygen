@@ -204,13 +204,16 @@ export default class ReportAggregator extends EventEmitter {
         });
     }
 
-    onCaseStart(rid, suiteId, caseId, caseDef) {
+    onCaseStart(rid, suiteId, caseId, caseDef, caseResult) {
         console.log(`- Case "${caseDef.name}" has started...`);
         this.emit('case:start', {
             rid,
             suiteId,
             caseId,
-            case: caseDef,
+            case: {
+                ...caseResult,
+                ...caseDef
+            },
         });
     }
 
