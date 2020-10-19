@@ -26,8 +26,13 @@ module.exports = async function(locator, clickParent) {
     var ret = await this.driver.execute(function (domEl, clickParent) {
         // createEvent won't be available in IE < 9 compatibility mode
         if (!document.createEvent) {
-            return 'clickHidden is not supported on IE with compatibility mode "IE' +
+            if (document.createEventObject) {
+                var ev = document.createEventObject();
+                domEl.fireEvent('onclick', ev);
+            } else {
+                return 'clickHidden is not supported on IE with compatibility mode "IE' +
                     document.documentMode + ' ' + document.compatMode + '"';
+            }
         }
 
         var clckEv = document.createEvent('MouseEvent');

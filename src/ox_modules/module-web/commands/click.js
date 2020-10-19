@@ -47,7 +47,12 @@ async function clickJS(el) {
     await this.driver.execute(function(domEl) {
         // createEvent won't be available in IE < 9 compatibility mode
         if (!document.createEvent) {
-            return; // fail silently
+            if (document.createEventObject) {
+                var ev = document.createEventObject();
+                domEl.fireEvent('onclick', ev);
+            } else {
+                return; // fail silently
+            }
         }
         var clckEv = document.createEvent('MouseEvent');
         clckEv.initEvent('click', true, true);
