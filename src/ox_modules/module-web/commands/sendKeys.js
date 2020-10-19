@@ -26,6 +26,7 @@ module.exports = async function(value) {
     this.helpers.assertArgument(value);
 
     var valArray = [];
+    // try-catch is for OI-1049
     try {
         if (Array.isArray(value)) {             // array
             // `instanceof Array` behaves strange when executed through vm.runInNewContext,
