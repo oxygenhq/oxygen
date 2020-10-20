@@ -120,7 +120,7 @@ export default class CucumberReporter {
         const caseId = `${uri}:${caseLocation.line}`;
         const suiteResult = this.suites[suiteId];
         const cases = suiteResult.cases;
-        const caseResult = this.currentCase = new TestCaseResult();
+        const caseResult = this.currentCase = new TestCaseResult(suiteResult.sid);
         caseResult.name = scenario.name;
         caseResult.tags = this.simplifyCucumberTags(scenario.tags);
         caseResult.location = caseId;
@@ -132,7 +132,7 @@ export default class CucumberReporter {
         }
         // call report generator
         if (this.reportDispatcher.onCaseStart && typeof this.reportDispatcher.onCaseStart === 'function') {
-            this.reportDispatcher.onCaseStart(this.runnerId, uri, caseId, scenario);
+            this.reportDispatcher.onCaseStart(this.runnerId, uri, caseId, scenario, caseResult);
         }
     }
 
@@ -164,7 +164,7 @@ export default class CucumberReporter {
         const suiteResult = this.suites[suiteId];
         const cases = suiteResult.cases;
         const caseResult = cases.find(x => x.location === caseId);
-        const stepResult = this.currentStep = new TestStepResult();
+        const stepResult = this.currentStep = new TestStepResult(caseResult.cid);
         caseResult.steps.push(stepResult);
 
         stepResult.name = step.text;
