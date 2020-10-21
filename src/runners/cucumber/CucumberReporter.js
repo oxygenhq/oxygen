@@ -126,6 +126,12 @@ export default class CucumberReporter {
         caseResult.location = caseId;
         caseResult.startTime = oxutil.getTimeStamp();
         cases.push(caseResult);
+
+        // call oxygen onBeforeCase if defined
+        if (typeof this.oxygenEventListener.onBeforeCase === 'function') {
+            this.oxygenEventListener.onBeforeCase();
+        }
+
         // call test hook if defined
         if (typeof this.testHooks.beforeCase === 'function') {
             this.testHooks.beforeCase(this.runnerId, scenario);
@@ -148,6 +154,12 @@ export default class CucumberReporter {
         caseResult.endTime = oxutil.getTimeStamp();
         caseResult.duration = caseResult.endTime - caseResult.startTime;
         caseResult.status = this.determineCaseStatus(caseResult);
+
+        // call oxygen onAfterCase if defined
+        if (typeof this.oxygenEventListener.onAfterCase === 'function') {
+            this.oxygenEventListener.onAfterCase();
+        }
+
         // call test hook if defined
         if (typeof this.testHooks.afterCase === 'function') {
             this.testHooks.afterCase(this.runnerId, caseResult);
