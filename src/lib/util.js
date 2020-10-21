@@ -202,6 +202,8 @@ var self = module.exports = {
                     return '__UNDEFINED';
                 } else if (value instanceof Error) {
                     return value.toString();
+                } else if (value instanceof RegExp) {
+                    return '/' + value.source + '/' + value.flags;
                 }
                 return value;
             }, indentation);
