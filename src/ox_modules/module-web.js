@@ -251,7 +251,7 @@ export default class WebModule extends WebDriverModule {
         try {
             if (
                 [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) &&
-                ['MicrosoftEdge', 'msedge', 'Edge'].includes(this.driver.capabilities.browserName)
+                ['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
             ) {
                 // ignore
             } else {
