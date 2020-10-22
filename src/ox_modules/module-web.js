@@ -228,7 +228,11 @@ export default class WebModule extends WebDriverModule {
                     }
                 });
                 this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
-                this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
+                let name = 'name';
+                if (wdioOpts.capabilities['perfectoMobile:options'] && wdioOpts.capabilities['perfectoMobile:options']['name']) {
+                    name = wdioOpts.capabilities['perfectoMobile:options']['name'];
+                }
+                this.reportingClient.testStart(name);
 
                 // avoid request abort
                 deasync.sleep(10*1000);
