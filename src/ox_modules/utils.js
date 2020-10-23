@@ -305,7 +305,7 @@ module.exports = {
             return null;
         }
 
-        if (wdioOpts.capabilities['perfectoMobile:options']) {
+        if (wdioOpts.capabilities['perfectoMobile:options'] || (wdioOpts.hostname && wdioOpts.hostname.includes('perfectomobile.com'))) {
             return providers.PERFECTO;
         } else if (wdioOpts.capabilities['browserstack:options']) {
             return providers.BROWSERSTACK;
