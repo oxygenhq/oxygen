@@ -787,6 +787,11 @@ export default class Oxygen extends OxygenEvents {
                 }
             }
         }
+
+        if (!step.screenshot && typeof module._takeScreenshotSilent === 'function' && this.opts.unableScreenshotAfterEachStep) {
+            step.screenshot = module._takeScreenshotSilent(methodName);
+        }
+
         return step;
     }
 

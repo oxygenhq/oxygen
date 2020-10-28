@@ -394,7 +394,6 @@ export default class OxygenRunner extends EventEmitter {
             suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
             suiteResult.startTime = oxutil.getTimeStamp();
             suiteResult.iterationNum = suiteIteration;
-            suiteResult.status = Status.PASSED;
             await this._worker_callBeforeSuiteHook(suite);
             this._reporter.onSuiteStart(this._id, suite.uri, suiteResult);
             for (let caze of suite.cases) {
