@@ -32,6 +32,6 @@ module.exports = async function (windowHandle, timeout) {
         await this.driver.switchToWindow(windowHandle);
     }
     catch (err) {
-        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable1 to find window: ${windowHandle} - ${err.message}`);
+        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle} - ${err.message}`);
     }
 };
