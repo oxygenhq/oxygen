@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.13.6 (2020-10-27)
+
+#### :beetle: Bug Fix
+* `onBeforeCase` and `onAfterCase` support in Cucumber tests.
+* Fixed number of issues with Edge when using cloud providers.
+
+#### :house: Internal
+* Collect logs and HAR for Cucumber tests.
+
 ## v1.13.5 (2020-10-19)
 
 #### :beetle: Bug Fix

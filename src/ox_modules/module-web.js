@@ -228,7 +228,11 @@ export default class WebModule extends WebDriverModule {
                     }
                 });
                 this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
-                this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
+                let name = 'name';
+                if (wdioOpts.capabilities['perfectoMobile:options'] && wdioOpts.capabilities['perfectoMobile:options']['name']) {
+                    name = wdioOpts.capabilities['perfectoMobile:options']['name'];
+                }
+                this.reportingClient.testStart(name);
 
                 // avoid request abort
                 deasync.sleep(10*1000);
@@ -251,7 +255,7 @@ export default class WebModule extends WebDriverModule {
         try {
             if (
                 [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) &&
-                ['MicrosoftEdge', 'msedge', 'Edge'].includes(this.driver.capabilities.browserName)
+                ['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
             ) {
                 // ignore
             } else {

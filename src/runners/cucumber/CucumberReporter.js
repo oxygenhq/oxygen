@@ -154,6 +154,8 @@ export default class CucumberReporter {
         caseResult.endTime = oxutil.getTimeStamp();
         caseResult.duration = caseResult.endTime - caseResult.startTime;
         caseResult.status = this.determineCaseStatus(caseResult);
+        caseResult.logs = this.oxygenEventListener.resultStore && this.oxygenEventListener.resultStore.logs ? this.oxygenEventListener.resultStore.logs : [];
+        caseResult.har = this.oxygenEventListener.resultStore && this.oxygenEventListener.resultStore.har ? this.oxygenEventListener.resultStore.har : null;
 
         // call oxygen onAfterCase if defined
         if (typeof this.oxygenEventListener.onAfterCase === 'function') {
