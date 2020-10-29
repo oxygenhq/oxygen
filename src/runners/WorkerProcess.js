@@ -56,6 +56,7 @@ export default class WorkerProcess extends EventEmitter {
 
         // print more information for nodejs errors
         forkOpts.execArgv.push('--trace-warnings');
+        forkOpts.execArgv.push('--abort-on-uncaught-exception');
 
         if (this._npmGRootExecution) {
             try {

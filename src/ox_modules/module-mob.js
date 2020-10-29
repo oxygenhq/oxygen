@@ -333,7 +333,9 @@ export default class MobileModule extends WebDriverModule {
             }
 
             try {
-                await this.driver.deleteSession();
+                if (!['CANCELED', 'FAILED'].includes(status)) {
+                    await this.driver.deleteSession();
+                }
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
