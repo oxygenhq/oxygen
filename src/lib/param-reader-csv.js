@@ -7,6 +7,26 @@
  * (at your option) any later version.
  */
 
+function replaceQuotesInString(str) {
+    str = str.replace(/___SINGLE_QUOTE___/g, "'");
+    str = str.replace(/___DOUBLE_QUOTE___/g, '"');
+    return str;
+}
+
+function replaceQuotes(obj) {
+    if (Object.keys(obj)) {
+        Object.keys(obj).map(function(key, index) {
+            let newKey = replaceQuotesInString(key);
+            let newValue = replaceQuotesInString(obj[key]);
+
+            delete obj[key];
+            obj[newKey] = newValue;
+        });
+    }
+
+    return obj;
+}
+
 module.exports = function () {
     var module = {};
     const parse = require('csv-parse/lib/sync');
@@ -36,6 +56,9 @@ module.exports = function () {
         // CSVs produced by OS X Excel have header terminated with 0d0d0a
         data = data.replace(/\r\r/g, '\r');
 
+        data = data.replace(/'/g, '___SINGLE_QUOTE___');
+        data = data.replace(/"/g, '___DOUBLE_QUOTE___');
+
         // strip BOM for UTF-8
         var bom = false;
         // catches 0xEFBBBF (UTF-8 BOM) because the buffer-to-string
@@ -45,7 +68,14 @@ module.exports = function () {
         }
 
         try {
-            var table = parse(data, { bom: bom, columns: true, trim: true });
+            var table = parse(data, { bom: bom, columns: true, trim: true, delimiter:',', quote: '"' });
+
+            if (table && Array.isArray(table) && table.length > 0) {
+                for (var i = 0; i < table.length; i++) {
+                    table[i] = replaceQuotes(table[i]);
+                }
+            }
+
         } catch (e) {
             _doneReading.reject(e);
         }
