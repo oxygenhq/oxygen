@@ -425,6 +425,7 @@ export default class OxygenRunner extends EventEmitter {
 
                     if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
                         reRunCount = 1;
+                        // failed on canceled status not close browser window
                         await (this._worker && this._worker_DisposeModules('passed'));
                         caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true);
 
