@@ -80,7 +80,6 @@ export default class Oxygen extends OxygenEvents {
         this.opts = null;
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
-        this._disposed = false;
         this._waitStepResultList = [];
     }
 
@@ -117,8 +116,6 @@ export default class Oxygen extends OxygenEvents {
     }
 
     async dispose(status = null) {
-        this._disposed = true;
-
         try {
             await this._disposeModules(status);
             await this._disposeServices();
@@ -507,9 +504,6 @@ export default class Oxygen extends OxygenEvents {
         if (!module || !module[cmdName]) {
             return undefined;
         }
-        if (cmdName !== 'dispose' && this._disposed) {
-            return undefined;
-        }
 
         let retval = null;
         let error = null;
@@ -604,11 +598,7 @@ export default class Oxygen extends OxygenEvents {
 
             //stepResult.location = cmdLocation;
 
-            if (this._disposed) {
-                // ignore
-            } else {
-                this.resultStore.steps.push(stepResult);
-            }
+            this.resultStore.steps.push(stepResult);
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
             done = true;
         }

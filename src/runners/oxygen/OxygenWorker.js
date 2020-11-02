@@ -33,7 +33,6 @@ export default class OxygenWorker extends EventEmitter {
         this._testHooks = {};
         this._reporter = reporter;
         this._runId = null;
-        this._disposed = false;
     }
 
     async init(runId, options, caps) {
@@ -132,7 +131,7 @@ export default class OxygenWorker extends EventEmitter {
     }
 
     async dispose(status = null) {
-        if (this._oxygen && !this._disposed) {
+        if (this._oxygen) {
             try {
                 await this._oxygen.dispose(status);
             }
@@ -140,7 +139,6 @@ export default class OxygenWorker extends EventEmitter {
                 this._logger.error('Failed to dispose Oxygen', null, e);
             }
             finally {
-                this._disposed = true;
                 this._steps = null;
             }
         }
@@ -190,12 +188,8 @@ export default class OxygenWorker extends EventEmitter {
             return;
         }
 
-        if (this._disposed) {
-            //ignore
-        } else {
-            this._steps && this._steps.push(e.result);
-            this.emit('command:after', e);
-        }
+        this._steps && this._steps.push(e.result);
+        this.emit('command:after', e);
     }
 
     _handleLogEntry(e) {
