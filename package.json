@@ -80,7 +80,7 @@
     "request": "2.88.2",
     "saucelabs": "3.0.1",
     "serialport": "9.0.2",
-    "soap": "0.33.0",
+    "soap": "0.34.0",
     "source-map-support": "0.5.19",
     "stacktrace-parser": "0.1.10",
     "testdouble": "3.16.1",
