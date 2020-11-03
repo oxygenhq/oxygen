@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.13.7 (2020-11-03)
+
+#### :beetle: Bug Fix
+* Fixed issue with stopping `mob` and `win` tests.
+* Fixed issue with re-running failed tests.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.13.6 (2020-10-27)
 
 #### :beetle: Bug Fix
