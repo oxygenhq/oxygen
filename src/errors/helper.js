@@ -63,7 +63,8 @@ const ERROR_CODES = {
     TWILIO_ERROR: 'TWILIO_ERROR',
     HOOK_ERROR: 'HOOK_ERROR',
     NOT_SUPPORTED: 'NOT_SUPPORTED',
-    ASSERT_PASSED: 'ASSERT_PASSED'
+    ASSERT_PASSED: 'ASSERT_PASSED',
+    MODULE_NOT_FOUND: 'MODULE_NOT_FOUND'
 };
 
 // Chai to Oxygen error codes mapping
@@ -177,6 +178,11 @@ module.exports = {
         // when driver (IEDriverServer, ChromeDriver, etc) crashes
         else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
             return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
+        }
+
+        else if (err.code && err.code === 'MODULE_NOT_FOUND') {
+            let msg = err.message.replace('Cannot find module', '');
+            return new OxError(ERROR_CODES.MODULE_NOT_FOUND, 'Cannot find required file:'+msg);
         }
 
         // try to resolve Chai error code
