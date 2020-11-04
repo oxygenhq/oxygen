@@ -94,13 +94,12 @@ module.exports = {
             await module.exports.setTimeoutImplicit.call(this, timeout);
         }
 
-        var els = await this.driver.$$(this.helpers.getWdioLocator(locator));
+        let els = [];
 
-        if (els.error && els.error.error === 'no such element') {
-            if (timeout) {
-                await module.exports.restoreTimeoutImplicit.call(this);
-            }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+        try {
+            els = await this.driver.$$(this.helpers.getWdioLocator(locator));
+        } catch (e) {
+            // ignore errors
         }
 
         if (timeout) {
@@ -116,6 +115,10 @@ module.exports = {
         }
 
         locator = this.helpers.getWdioLocator(locator);
+
+        if (!(parentElement && parentElement.$)) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
+        }
 
         var el = await parentElement.$(locator);
 
@@ -153,6 +156,10 @@ module.exports = {
         }
 
         locator = this.helpers.getWdioLocator(locator);
+
+        if (!(parentElement && parentElement.$$)) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
+        }
 
         var els = await parentElement.$$(locator);
 
