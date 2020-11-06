@@ -21,6 +21,49 @@
  */
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    this.retryCount = 3;
+    this.firstError = null;
+    this.clickJS = async (el) =>  {
+        try {
+            /*global document*/
+            const retVal = await this.driver.execute(function(domEl) {
+                // createEvent won't be available in IE < 9 compatibility mode
+                if (!document.createEvent) {
+                    if (document.createEventObject) {
+                        var ev = document.createEventObject();
+                        domEl.fireEvent('onclick', ev);
+                    } else {
+                        return; // fail silently
+                    }
+                }
+                var clckEv = document.createEvent('MouseEvent');
+                clckEv.initEvent('click', true, true);
+                domEl.dispatchEvent(clckEv);
+            }, el);
+
+            /*
+                {
+                    error: 'no such element',
+                    message: 'Error executing JavaScript',
+                    stacktrace: ''
+                }
+            */
+            if (retVal && retVal.error && retVal.message) {
+                throw new Error(retVal.error + ' ' + retVal.message);
+            }
+
+        } catch (e) {
+            if (this.retryCount) {
+                if (!this.firstError) {
+                    this.firstError = e;
+                }
+                --this.retryCount;
+                await this.clickJS(el);
+            } else {
+                throw this.firstError;
+            }
+        }
+    };
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
@@ -31,31 +74,13 @@ module.exports = async function(locator, timeout) {
         } catch (e) {
             // chromedriver doesn't seem to support clicking on elements in Shadow DOM
             if (e.message.startsWith("javascript error: Cannot read property 'defaultView' of undefined")) {
-                await clickJS.call(this, el);
+                await this.clickJS(el);
             } else {
                 throw e;
             }
         }
     } else {
         // if element is not clickable, try clicking it using JS injection
-        await clickJS.call(this, el);
+        await this.clickJS(el);
     }
 };
-
-async function clickJS(el) {
-    /*global document*/
-    await this.driver.execute(function(domEl) {
-        // createEvent won't be available in IE < 9 compatibility mode
-        if (!document.createEvent) {
-            if (document.createEventObject) {
-                var ev = document.createEventObject();
-                domEl.fireEvent('onclick', ev);
-            } else {
-                return; // fail silently
-            }
-        }
-        var clckEv = document.createEvent('MouseEvent');
-        clckEv.initEvent('click', true, true);
-        domEl.dispatchEvent(clckEv);
-    }, el);
-}

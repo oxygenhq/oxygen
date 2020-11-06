@@ -178,6 +178,10 @@ module.exports = {
         else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
             return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
         }
+        // stale element reference
+        else if (err.name && err.name.includes('stale element reference')) {
+            return new OxError(ERROR_CODES.STALE_ELEMENT_REFERENCE, err.name + ' ' + err.message);
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
