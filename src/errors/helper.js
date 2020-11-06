@@ -178,6 +178,10 @@ module.exports = {
         else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
             return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
         }
+        //  when doing an operation on an element (e.g. click) but the window was already closed
+        else if (err.message && err.message.includes('no such window') && err.message.includes('target window already closed') && err.message.includes('web view not found')) {
+            return new OxError(ERROR_CODES.WINDOW_NOT_FOUND, err.message);
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
