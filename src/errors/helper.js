@@ -182,6 +182,10 @@ module.exports = {
         else if (err.code && err.code === 'MODULE_NOT_FOUND') {
             return new OxError(ERROR_CODES.MODULE_NOT_FOUND, err.message);
         }
+        //  when doing an operation on an element (e.g. click) but the window was already closed
+        else if (err.message && err.message.includes('no such window') && err.message.includes('target window already closed') && err.message.includes('web view not found')) {
+            return new OxError(ERROR_CODES.WINDOW_NOT_FOUND, err.message);
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
