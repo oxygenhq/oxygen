@@ -179,10 +179,8 @@ module.exports = {
         else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
             return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
         }
-
         else if (err.code && err.code === 'MODULE_NOT_FOUND') {
-            let msg = err.message.replace('Cannot find module', '');
-            return new OxError(ERROR_CODES.MODULE_NOT_FOUND, 'Cannot find required file:'+msg);
+            return new OxError(ERROR_CODES.MODULE_NOT_FOUND, err.message);
         }
 
         // try to resolve Chai error code
