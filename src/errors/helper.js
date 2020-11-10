@@ -186,6 +186,11 @@ module.exports = {
         else if (err.message && err.message.includes('no such window') && err.message.includes('target window already closed') && err.message.includes('web view not found')) {
             return new OxError(ERROR_CODES.WINDOW_NOT_FOUND, err.message);
         }
+        // example: The element with selector *** you trying to pass into the execute method wasn't found
+        // when element was deleted from DOM
+        else if (err.message && err.message.includes('you trying to pass into the execute method wasn\'t found')) {
+            return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND,  err.message);
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
