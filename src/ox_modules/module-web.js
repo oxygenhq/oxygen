@@ -513,13 +513,13 @@ export default class WebModule extends WebDriverModule {
 
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            let error;
             try {
                 if (
                     this.driver &&
                     this.driver.takeScreenshot
                 ) {
                     let retval;
-                    let error;
                     this.driver.call(() => {
                         return new Promise((resolve, reject) => {
                             const waitUntilRetVal = this.driver.waitUntil(async() => {
@@ -581,6 +581,9 @@ export default class WebModule extends WebDriverModule {
                 }
             } catch (e) {
                 this.logger.error('Cannot get screenshot', e);
+                if (error) {
+                    this.logger.error('Cannot get screenshot inner error', error);
+                }
                 // ignore
             }
         }
