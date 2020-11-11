@@ -18,6 +18,19 @@ const providers = {
     TESTINGBOT: 'testingbot'
 };
 
+const isElementNotFound = (el) => {
+    let result = false;
+    if (
+        el.error && (
+        el.error.error === 'no such element' ||
+        (el.error.message && /* winappdriver win.rightClick */ el.error.message.startsWith('no such element') ||
+        el.error.message && /* winappdriver */ el.error.message.startsWith('An element could not be located')))
+    ) {
+        result = true;
+    }
+    return result;
+};
+
 module.exports = {
     matchPattern: function(val, pattern) {
         if (!val && !pattern) {
@@ -58,10 +71,8 @@ module.exports = {
             el = await this.driver.$(locator);
         }
 
-        if (el.error && (
-            el.error.error === 'no such element' ||
-            (el.error.message && el.error.message.startsWith('no such element') ||
-            el.error.message && /*winappdriver*/el.error.message.startsWith('An element could not be located')))) {
+        const elementNotFound = isElementNotFound(el);
+        if (elementNotFound) {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
@@ -99,7 +110,13 @@ module.exports = {
         try {
             els = await this.driver.$$(this.helpers.getWdioLocator(locator));
         } catch (e) {
-            // ignore errors
+            const elementsNotFound = isElementNotFound(els);
+            if (elementsNotFound) {
+                // ignore errors
+            } else {
+                throw e;
+            }
+
         }
 
         if (timeout) {
@@ -122,7 +139,8 @@ module.exports = {
 
         var el = await parentElement.$(locator);
 
-        if (el.error && el.error.error === 'no such element') {
+        const elementNotFound = isElementNotFound(el);
+        if (elementNotFound) {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
@@ -161,13 +179,16 @@ module.exports = {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
         }
 
-        var els = await parentElement.$$(locator);
-
-        if (els.error && els.error.error === 'no such element') {
-            if (timeout) {
-                await module.exports.restoreTimeoutImplicit.call(this);
+        let els = [];
+        try {
+            els = await parentElement.$$(locator);
+        } catch (e) {
+            const elementsNotFound = isElementNotFound(els);
+            if (elementsNotFound) {
+                // ignore errors
+            } else {
+                throw e;
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (timeout) {
