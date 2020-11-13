@@ -19,34 +19,57 @@
  */
 module.exports = async function(locator, clickParent) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
+    this.retryCount = 3;
+    this.firstError = null;
+    this.clickJS = async (domEl, clickParent) =>  {
+        try {
+            /*global document*/
+            const retVal = await this.driver.execute(function(domEl) {
+                // createEvent won't be available in IE < 9 compatibility mode
+                if (!document.createEvent) {
+                    if (document.createEventObject) {
+                        var ev = document.createEventObject();
+                        domEl.fireEvent('onclick', ev);
+                    } else {
+                        return 'clickHidden is not supported on IE with compatibility mode "IE' +
+                            document.documentMode + ' ' + document.compatMode + '"';
+                    }
+                }
+                var clckEv = document.createEvent('MouseEvent');
+                clckEv.initEvent('click', true, true);
+                if (clickParent) {
+                    domEl.parentElement.dispatchEvent(clckEv);
+                } else {
+                    domEl.dispatchEvent(clckEv);
+                }
+            }, el);
 
-    var el = await this.helpers.getElement(locator);
-    // NOTE: adding comments inside the passed function is not allowed!
-    /*global document*/
-    var ret = await this.driver.execute(function (domEl, clickParent) {
-        // createEvent won't be available in IE < 9 compatibility mode
-        if (!document.createEvent) {
-            if (document.createEventObject) {
-                var ev = document.createEventObject();
-                domEl.fireEvent('onclick', ev);
+            /*
+                {
+                    error: 'no such element',
+                    message: 'Error executing JavaScript',
+                    stacktrace: ''
+                }
+            */
+            if (retVal && retVal.error && retVal.message) {
+                throw new Error(retVal.error + ' ' + retVal.message);
+            } else if (retVal && retVal.startsWith && retVal.startsWith('clickHidden is not supported on IE')) {
+                throw new Error(retVal);
+            }
+
+        } catch (e) {
+            if (this.retryCount) {
+                if (!this.firstError) {
+                    this.firstError = e;
+                }
+                --this.retryCount;
+                await this.clickJS(el, domEl);
             } else {
-                return 'clickHidden is not supported on IE with compatibility mode "IE' +
-                    document.documentMode + ' ' + document.compatMode + '"';
+                throw this.firstError;
             }
         }
+    };
 
-        var clckEv = document.createEvent('MouseEvent');
-        clckEv.initEvent('click', true, true);
-        if (clickParent) {
-            domEl.parentElement.dispatchEvent(clckEv);
-        } else {
-            domEl.dispatchEvent(clckEv);
-        }
-
-        return null;
-    }, el, clickParent);
-
-    if (ret) {
-        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, ret);
-    }
+    var el = await this.helpers.getElement(locator);
+    await this.clickJS(el, clickParent);
 };

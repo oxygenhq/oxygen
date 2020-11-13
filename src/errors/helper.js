@@ -179,6 +179,10 @@ module.exports = {
         else if (err.message === 'java.net.ConnectException: Connection refused: connect') {
             return new OxError(ERROR_CODES.WEBDRIVER_ERROR, 'The underlying WebDriver seems to have crashed: ' + err.message);
         }
+        // stale element reference
+        else if (err.name && err.name.includes('stale element reference')) {
+            return new OxError(ERROR_CODES.STALE_ELEMENT_REFERENCE, err.name + ' ' + err.message);
+        }
         else if (err.code && err.code === 'MODULE_NOT_FOUND') {
             return new OxError(ERROR_CODES.MODULE_NOT_FOUND, err.message);
         }
