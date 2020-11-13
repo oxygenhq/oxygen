@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.14.0 (2020-11-08)
+
+#### :boom: Breaking Change
+* `*.findElements` will return an empty array instead of failing when no elements are found.
+
+#### :beetle: Bug Fix
+* `win.selectWindow` not working with `title=` prefix.
+* Test name not being set for tests executed on PerfectoMobile provider.
+
 ## v1.13.7 (2020-11-03)
 
 #### :beetle: Bug Fix

@@ -63,7 +63,8 @@ const ERROR_CODES = {
     TWILIO_ERROR: 'TWILIO_ERROR',
     HOOK_ERROR: 'HOOK_ERROR',
     NOT_SUPPORTED: 'NOT_SUPPORTED',
-    ASSERT_PASSED: 'ASSERT_PASSED'
+    ASSERT_PASSED: 'ASSERT_PASSED',
+    MODULE_NOT_FOUND: 'MODULE_NOT_FOUND'
 };
 
 // Chai to Oxygen error codes mapping
@@ -181,6 +182,18 @@ module.exports = {
         // stale element reference
         else if (err.name && err.name.includes('stale element reference')) {
             return new OxError(ERROR_CODES.STALE_ELEMENT_REFERENCE, err.name + ' ' + err.message);
+        }
+        else if (err.code && err.code === 'MODULE_NOT_FOUND') {
+            return new OxError(ERROR_CODES.MODULE_NOT_FOUND, err.message);
+        }
+        //  when doing an operation on an element (e.g. click) but the window was already closed
+        else if (err.message && err.message.includes('no such window') && err.message.includes('target window already closed') && err.message.includes('web view not found')) {
+            return new OxError(ERROR_CODES.WINDOW_NOT_FOUND, err.message);
+        }
+        // example: The element with selector *** you trying to pass into the execute method wasn't found
+        // when element was deleted from DOM
+        else if (err.message && err.message.includes('you trying to pass into the execute method wasn\'t found')) {
+            return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND,  err.message);
         }
 
         // try to resolve Chai error code

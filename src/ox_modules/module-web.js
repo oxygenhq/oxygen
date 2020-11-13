@@ -213,6 +213,11 @@ export default class WebModule extends WebDriverModule {
             wdioOpts.openDeviceTimeout = 15;
         }
 
+        let name = 'name';
+        if (wdioOpts.capabilities['perfectoMobile:options'] && wdioOpts.capabilities['perfectoMobile:options']['name']) {
+            name = wdioOpts.capabilities['perfectoMobile:options']['name'];
+            delete wdioOpts.capabilities['perfectoMobile:options'];
+        }
         this.wdioOpts = wdioOpts;
 
         try {
@@ -228,10 +233,6 @@ export default class WebModule extends WebDriverModule {
                     }
                 });
                 this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
-                let name = 'name';
-                if (wdioOpts.capabilities['perfectoMobile:options'] && wdioOpts.capabilities['perfectoMobile:options']['name']) {
-                    name = wdioOpts.capabilities['perfectoMobile:options']['name'];
-                }
                 this.reportingClient.testStart(name);
 
                 // avoid request abort
@@ -512,13 +513,13 @@ export default class WebModule extends WebDriverModule {
 
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            let error;
             try {
                 if (
                     this.driver &&
                     this.driver.takeScreenshot
                 ) {
                     let retval;
-                    let error;
                     this.driver.call(() => {
                         return new Promise((resolve, reject) => {
                             const waitUntilRetVal = this.driver.waitUntil(async() => {
@@ -580,6 +581,9 @@ export default class WebModule extends WebDriverModule {
                 }
             } catch (e) {
                 this.logger.error('Cannot get screenshot', e);
+                if (error) {
+                    this.logger.error('Cannot get screenshot inner error', error);
+                }
                 // ignore
             }
         }
