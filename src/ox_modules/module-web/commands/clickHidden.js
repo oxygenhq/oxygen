@@ -17,19 +17,25 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.clickHidden("id=HiddenLink");
  */
-module.exports = async function(locator, clickParent) {
+module.exports = async function(locator, clickParent = false) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
     this.retryCount = 3;
     this.firstError = null;
-    this.clickJS = async (domEl, clickParent) =>  {
+    this.clickJS = async (domEl, clickParent = false) =>  {
         try {
             /*global document*/
-            const retVal = await this.driver.execute(function(domEl) {
+            const retVal = await this.driver.execute(function(domEl, clickParent) {
                 // createEvent won't be available in IE < 9 compatibility mode
                 if (!document.createEvent) {
                     if (document.createEventObject) {
                         var ev = document.createEventObject();
-                        domEl.fireEvent('onclick', ev);
+                        if (clickParent) {
+                            domEl.parentElement.focus();
+                            domEl.parentElement.fireEvent('onclick', ev);
+                        } else {
+                            domEl.focus();
+                            domEl.fireEvent('onclick', ev);
+                        }
                     } else {
                         return 'clickHidden is not supported on IE with compatibility mode "IE' +
                             document.documentMode + ' ' + document.compatMode + '"';
@@ -38,11 +44,13 @@ module.exports = async function(locator, clickParent) {
                 var clckEv = document.createEvent('MouseEvent');
                 clckEv.initEvent('click', true, true);
                 if (clickParent) {
+                    domEl.parentElement.focus();
                     domEl.parentElement.dispatchEvent(clckEv);
                 } else {
+                    domEl.focus();
                     domEl.dispatchEvent(clckEv);
                 }
-            }, el);
+            }, el, clickParent);
 
             /*
                 {
@@ -63,7 +71,7 @@ module.exports = async function(locator, clickParent) {
                     this.firstError = e;
                 }
                 --this.retryCount;
-                await this.clickJS(el, domEl);
+                await this.clickJS(el, clickParent);
             } else {
                 throw this.firstError;
             }

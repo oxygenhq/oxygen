@@ -23,10 +23,15 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.retryCount = 3;
     this.firstError = null;
+
+    this.focusRetryCount = 3;
+    this.focusFirstError = null;
+
     this.clickJS = async (el) =>  {
         try {
             /*global document*/
             const retVal = await this.driver.execute(function(domEl) {
+                domEl.focus();
                 // createEvent won't be available in IE < 9 compatibility mode
                 if (!document.createEvent) {
                     if (document.createEventObject) {
@@ -65,11 +70,30 @@ module.exports = async function(locator, timeout) {
         }
     };
 
+    this.focus = async (el) =>  {
+        try {
+            await this.driver.execute(function(domEl) {
+                domEl.focus();
+            }, el);
+        } catch (e) {
+            if (this.focusRetryCount) {
+                if (!this.focusFirstError) {
+                    this.focusFirstError = e;
+                }
+                --this.focusRetryCount;
+                await this.focus(el);
+            } else {
+                throw this.focusFirstError;
+            }
+        }
+    };
+
     var el = await this.helpers.getElement(locator, false, timeout);
 
     var clickable = await el.isClickable();
     if (clickable) {
         try {
+            await this.focus(el);
             await el.click();
         } catch (e) {
             // chromedriver doesn't seem to support clicking on elements in Shadow DOM
