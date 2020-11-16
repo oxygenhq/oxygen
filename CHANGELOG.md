@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.14.1 (2020-11-16)
+
+#### :tada: New Feature
+* Automatic retry on `STALE_ELEMENT_REFERENCE`.
+
+#### :beetle: Bug Fix
+* Fixed `*.findElements` to throw errors instead of returning an empty array for anything else except `ELEMENT_NOT_FOUND`.
+
+#### :nail_care: Polish
+* Process "module not found" errors.
+* Process "window not found" errors.
+* Process "The element with selector * you trying to pass into the execute method wasn't found" errors.
+
 ## v1.14.0 (2020-11-08)
 
 #### :boom: Breaking Change
