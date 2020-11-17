@@ -12,6 +12,7 @@
  */
 import StackTrace from 'stack-trace';
 import * as stackTraceParser from 'stacktrace-parser';
+import fs from 'fs';
 
 const STACKTRACE_FILTERS = ['\\node_modules\\', '/node_modules/', '/oxygen-node/', '\\oxygen-node\\', '(module.js', '(internal/module.js', 'at <anonymous>', 'internal/', 'internal\\'];
 
@@ -79,7 +80,11 @@ export default class OxygenError extends Error {
             }
         }
 
-        const stackTrace = StackTrace.parse(this) || [];
+        let stackTrace = StackTrace.parse(this) || [];
+        stackTrace = stackTrace.filter((item) => {
+            const exist = fs.existsSync(item.fileName);
+            return exist;
+        });
         if (stackTrace.length > 0) {
             const call = stackTrace[0];
             if (call && call.fileName === 'vm.js' && this.orgErr && this.orgErr.stack) {
@@ -114,8 +119,10 @@ export default class OxygenError extends Error {
                 this.location = `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`;
                 this.stacktrace = stackTrace.map(call => `${this.patchFilePathOnWindows(call.getFileName())}:${call.getLineNumber()}:${call.getColumnNumber()}`);
             }
-        }
-        else {
+        } else if (anotherFile && anotherLineNumber && anotherColumn) {
+            this.location = `${this.patchFilePathOnWindows(anotherFile)}:${anotherLineNumber}:${anotherColumn}`;
+            this.stacktrace = [this.location];
+        } else {
             this.location = null;
         }
     }
