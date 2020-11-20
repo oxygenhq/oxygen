@@ -214,7 +214,7 @@ export default class WebModule extends WebDriverModule {
         }
 
         let name = 'name';
-        if (wdioOpts.capabilities['perfectoMobile:options'] && wdioOpts.capabilities['perfectoMobile:options']['name']) {
+        if (provider === modUtils.provider.PERFECTO && wdioOpts.capabilities['perfectoMobile:options']['name']) {
             name = wdioOpts.capabilities['perfectoMobile:options']['name'];
             delete wdioOpts.capabilities['perfectoMobile:options'];
         }
@@ -254,17 +254,17 @@ export default class WebModule extends WebDriverModule {
         }
 
         try {
-            if (
-                [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) &&
-                ['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
-            ) {
-                // ignore
-            } else {
-                // maximize browser window
-                await this.driver.maximizeWindow();
-                // set initial Timeout
-                await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
-            }
+            // if (
+            //     [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) &&
+            //     ['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
+            // ) {
+            //     // ignore
+            // } else {
+            // maximize browser window
+            await this.driver.maximizeWindow();
+            // set initial Timeout
+            await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+            // }
 
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));

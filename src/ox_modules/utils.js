@@ -214,11 +214,7 @@ module.exports = {
         } else if (this.driver.getTimeouts) {
             // chrome >= 75
             try {
-                if (
-                    this.driver.capabilities &&
-                    this.driver.capabilities.stopUrl &&
-                    this.driver.capabilities.stopUrl.includes('perfectomobile.com')
-                ) {
+                if (this.driver.provider === providers.PERFECTO) {
                     //ignore
                 } else {
                     timeouts = await this.driver.getTimeouts();
