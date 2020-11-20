@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.14.2 (2020-11-20)
+
+#### :beetle: Bug Fix
+* Regression in `web.clickHidden`.
+* Invalid filename printed in error details for certain errors.
+
 ## v1.14.1 (2020-11-16)
 
 #### :tada: New Feature
