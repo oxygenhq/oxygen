@@ -427,30 +427,17 @@ export default class WebModule extends WebDriverModule {
         this.lastNavigationStartTime = null;
         super.dispose();
 
-        if (status && 'FAILED' === status.toUpperCase() && this.options && this.options.seleniumPid) {
-            // ignore, don't close browser in ide mode if test failed
-        } else {
+        // cleanup chromedriver's only when running from within the IDE and test did not fail
+        if (this.options && this.options.seleniumPid && (!status || 'FAILED' !== status.toUpperCase())) {
             try {
                 if (process.platform === 'win32') {
-                    if (this.options && this.options.seleniumPid) {
-                        execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
-                    }
+                    execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
                 } else {
-                    if (this.options && this.options.seleniumPid) {
-                        try {
-                            let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
-
-                            if (pgrepResult && pgrepResult.toString) {
-
-                                pgrepResult = pgrepResult.toString();
-                                pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
-
-                                if (pgrepResult) {
-                                    execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
-                                }
-                            }
-                        } catch (e) {
-                            // ignore
+                    let pgrepResult = execSync("pgrep -d' ' chromedriver");
+                    if (pgrepResult && pgrepResult.toString) {
+                        pgrepResult = pgrepResult.toString();
+                        if (pgrepResult) {
+                            execSync('kill -9 ' + pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
                         }
                     }
                 }
