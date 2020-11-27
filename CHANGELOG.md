@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.14.3 (2020-11-27)
+
+#### :beetle: Bug Fix
+* Fix ChromeDriver cleanup on Linux.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.14.2 (2020-11-20)
 
 #### :beetle: Bug Fix
