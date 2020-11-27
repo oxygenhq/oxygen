@@ -99,6 +99,11 @@ export default class FileReporterBase extends ReporterBase {
             step.screenshot = null; // don't save base64 screenshot date to the file
         }
     }
+
+    writeToFile(filePath, content) {
+        fs.writeFileSync(filePath, content);
+    }
+
     _populateStepsWithScreenshots(steps, stepsWithScreenshot) {
         for (let step of steps) {
             if (step.screenshot) {

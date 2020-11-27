@@ -14,6 +14,7 @@ import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
 import * as Modules from '../ox_modules/index';
+import * as Services from '../ox_services/index';
 
 // setup logger
 import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
@@ -305,37 +306,30 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadServices() {
-        const oxServicesDirPath = path.resolve(this.oxBaseDir, './ox_services');
-        const serviceFiles = glob.sync('service-*.js', { cwd: oxServicesDirPath });
         // initialize all services
         this.logger.debug('Loading services...');
 
-        // if `services` is empty or undefined in oxygen.conf then load all services
-        // otherwise, load only those implicitly defined
-        const excludeUndefinedSvs = this.opts.services && this.opts.services.length > 0;
-
-        for (var i = 0; i < serviceFiles.length; i++) {
-            const serviceFileName = serviceFiles[i];
-            const serviceFilePath = path.join(oxServicesDirPath, serviceFileName);
-            const result = serviceFileName.match(SERVICE_NAME_MATCH_REGEX);
-            const serviceName = result[1];
-
-            if (excludeUndefinedSvs && !this.opts.services.includes(serviceName)) {
+        const loadServicesList = this.opts.services || [];
+        for (let serviceName of Object.keys(Services)) {
+            // only load service that are explicitly defined in the conf file
+            if (!loadServicesList.includes(serviceName)) {
                 continue;
             }
-
+            const ServiceClass = Services[serviceName];
+            const oxServicesDirPath = oxutil.getOxServicesDir();
             try {
                 this.logger.debug('Loading service: ' + serviceName);
-                const service = this._loadService(serviceName, serviceFilePath);
+                const service = this._loadService(serviceName, ServiceClass);
                 service.init();
                 this.services[serviceName] = service;
             } catch (e) {
                 this.logger.error('Error initializing service "' + serviceName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
             }
-        }
+        }        
     }
-    _loadService(serviceName, servicePath) {
-        let ServiceClass = require(servicePath);
+    
+    _loadService(serviceName, servicePathOrClass) {
+        const ServiceClass = typeof servicePathOrClass === 'string' ? require(servicePathOrClass) : servicePathOrClass;
         // ES6 class will be under 'default' property
         if (ServiceClass.default) {
             ServiceClass = ServiceClass.default;

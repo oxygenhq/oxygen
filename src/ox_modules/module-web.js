@@ -194,7 +194,7 @@ export default class WebModule extends WebDriverModule {
             port: port,
             path: path,
             capabilities: this.caps,
-            logLevel: 'silent',
+            logLevel: this.options.wdioOpts && this.options.wdioOpts.logLevel ? this.options.wdioOpts.logLevel : 'silent',
             runner: 'repl',
             waitforTimeout: 5000, // increase the default 3000
             connectionRetryTimeout: 310*1000,

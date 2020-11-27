@@ -371,7 +371,7 @@ export default class OxygenRunner extends EventEmitter {
             log.error('suite is null in _runSuite()!!!');
         }
         // ignore suite with missing mandatory properties
-        if (!suite.name && !suite.path) {
+        if (!suite.name) {
             return [];
         }
         // make sure to always specify suite.iterationCount

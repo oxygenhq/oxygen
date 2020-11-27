@@ -62,6 +62,9 @@ var self = module.exports = {
             tc.path = self.resolvePath(caseDef.path, testConfig.target.cwd);
             tc.format = 'js';
             tc.iterationCount = caseDef.iterations || 1;
+            if (caseDef.load) {
+                tc.load = caseDef.load;
+            }
             suite.cases.push(tc);
         });
         return suite;
@@ -275,5 +278,9 @@ var self = module.exports = {
 
     getOxModulesDir: function() {
         return path.join(__dirname, '..', 'ox_modules');
+    },
+
+    getOxServicesDir: function() {
+        return path.join(__dirname, '..', 'ox_services');
     }
 };

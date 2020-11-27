@@ -21,6 +21,7 @@ import JsonReporter from '../ox_reporters/reporter-json';
 import JUnitReporter from '../ox_reporters/reporter-junit';
 import HtmlReporter from '../ox_reporters/reporter-html';
 import ExcelReporter from '../ox_reporters/reporter-excel';
+import CsvReporter from '../ox_reporters/reporter-csv';
 import errorHelper from '../errors/helper';
 import Status from '../model/status';
 
@@ -28,7 +29,8 @@ const Reporters = {
     json: JsonReporter,
     junit: JUnitReporter,
     html: HtmlReporter,
-    excel: ExcelReporter
+    excel: ExcelReporter,
+    csv: CsvReporter
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
@@ -39,6 +41,8 @@ export default class ReportAggregator extends EventEmitter {
         super();
         // results hash table based on runner id key
         this.results = [];
+        // active runners indicator
+        this.activeRunners = 0;
         // a hash list of runnerEnd event promises, keyed by runner id
         this.runnerEndPromises = {};
         this.options = options;
@@ -106,6 +110,7 @@ export default class ReportAggregator extends EventEmitter {
         if (!rid) {
             throw new Error('"rid" cannot be empty.');
         }
+        this.activeRunners++;
         const testResult = new TestResult();
         testResult.rid = rid;
         testResult.name = opts.name || DEFAULT_TEST_NAME;
@@ -124,7 +129,7 @@ export default class ReportAggregator extends EventEmitter {
         });
     }
 
-    onRunnerEnd(rid, finalResult, fatalError) {
+    onRunnerEnd(rid, finalResult, fatalError) {        
         const testResult = this.results.find(x => x.rid === rid);
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
@@ -153,6 +158,7 @@ export default class ReportAggregator extends EventEmitter {
             }
             console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }
+        this.activeRunners--;
         this.emit('runner:end', {
             rid,
             result: testResult,

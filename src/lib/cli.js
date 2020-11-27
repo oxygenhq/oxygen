@@ -9,8 +9,22 @@
  */
 import * as cliutil from './cli-util';
 import Launcher from './launcher';
+import LoadLauncher from './launcher-load';
 import ReportAggregator from '../reporter/ReportAggregator';
+/*
+import CsvReporter from '../ox_reporters/reporter-csv';
+const results = require('/Users/n/Documents/CloudBeat/Code/oxygen-examples-loadtest/reports/2020-11-27_113705/report.json');
 
+const opts = {
+    target: {
+        cwd: '/Users/n/Documents/CloudBeat/Code/oxygen-examples-loadtest'
+    },
+    reporting: {}
+};
+const reporter = new CsvReporter(opts);
+reporter.generate(results);
+process.exit(0);
+*/
 process.on('SIGINT', handleSigInt);
 process.on('uncaughtException', error => {
     console.error('uncaughtException', error);
@@ -66,8 +80,9 @@ async function prepareAndStartTheTest(options) {
     let exitCode = 0;
     // start launcher
     try {
+        const LauncherClass = options.launcher && options.launcher === 'loadtest' ? LoadLauncher : Launcher;
         const reporter = new ReportAggregator(options);
-        const launcher = new Launcher(options, reporter);
+        const launcher = new LauncherClass(options, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();
