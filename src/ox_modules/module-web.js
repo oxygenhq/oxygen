@@ -446,7 +446,12 @@ export default class WebModule extends WebDriverModule {
                                 pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
 
                                 if (pgrepResult) {
-                                    execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                                    if (process.platform === 'linux') {
+                                        // ignore
+                                        // Bad effect: kill selenium with exid code 137 and message Killed
+                                    } else {
+                                        execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                                    }
                                 }
                             }
                         } catch (e) {
