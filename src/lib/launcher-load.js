@@ -11,6 +11,7 @@ import _ from 'lodash';
 import * as Runners from '../runners';
 import queue from 'async/queue';
 import { parseUrlEncoded } from 'chrome-har/lib/util';
+import oxutil from './util';
 
 export default class LoadLauncher {
     constructor(config, reporter) {
@@ -53,7 +54,7 @@ export default class LoadLauncher {
                 continue;
             }
             const caseKey = cs.key || cs.id || cs.name;
-            const suiteKey = `LT-${caseKey}`;
+            const suiteKey = this._config.testName || `LT-${caseKey}`;
             const suiteDef = {
                 name: suiteKey,
                 cases: [ cs ]
@@ -101,6 +102,8 @@ export default class LoadLauncher {
             return;
         }
         try {
+            // generate firefox "profile" value if profile options are specified
+            await oxutil.generateFirefoxOptionsProfile(testCaps);
             // initialize oxygen
             await runner.init(testConfig, testCaps, this.reporter);
             // run Oxygen test 

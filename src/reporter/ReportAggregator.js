@@ -226,11 +226,12 @@ export default class ReportAggregator extends EventEmitter {
         this._emit_StepStart(rid, step);                   
     }
 
-    onStepEnd(rid, stepResult) {
+    onStepEnd(rid, stepEndEvent) {
+        const stepResult = stepEndEvent.result;
         const status = stepResult.status.toUpperCase();
         const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
         console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
-        this._emit_StepEnd(rid, stepResult);                   
+        this._emit_StepEnd(rid, stepEndEvent);                   
     }
 
     onLogEntry(time, level, msg, src = null) {
@@ -332,20 +333,20 @@ export default class ReportAggregator extends EventEmitter {
         this._notifyRealTimeReporters('onCaseEnd', [rid, suiteId, caseId, caseResult, this.activeRunners]);
     } 
 
-    _emit_StepStart(rid, step) {
+    _emit_StepStart(rid, event) {
         this._emitEvent('step:start', {
             rid,
-            step: step,
+            step: event,
         });
-        this._notifyRealTimeReporters('onStepStart', [rid, step, this.activeRunners]);
+        this._notifyRealTimeReporters('onStepStart', [rid, event, this.activeRunners]);
     }
 
-    _emit_StepEnd(rid, stepResult) {
+    _emit_StepEnd(rid, event) {
         this._emitEvent('step:end', {
             rid,
-            step: stepResult,
+            step: event.result,
         });
-        this._notifyRealTimeReporters('onStepEnd', [rid, stepResult, this.activeRunners]);
+        this._notifyRealTimeReporters('onStepEnd', [rid, event, this.activeRunners]);
     }
 
     _emitEvent(eventName, eventArgs) {

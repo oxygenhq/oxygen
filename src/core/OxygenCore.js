@@ -88,9 +88,9 @@ export default class Oxygen extends OxygenEvents {
         this.opts = Object.assign(DEFAULT_OPTS, options);
         this.cwd = this.opts.cwd || process.cwd();
         this.ctx = Object.assign(DEFAULT_CTX, ctx || {});
-        this.ctx.caps = { ...ctx.caps || {}, ...caps, };
+        //this.ctx.caps = { ...ctx.caps || {}, ...caps, };
         this.resultStore = Object.assign(DEFAULT_RESULT_STORE, results || {});
-        this.capabilities = this.ctx.caps = caps;
+        this.capabilities = this.ctx.caps = caps;        
 
         // define 'ox' object in global JS scope
         // we will use this object to access Oxygen modules and test context from modules used in the test (if any)        

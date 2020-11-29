@@ -761,7 +761,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _handleAfterCommand(e) {
-        this._reporter && this._reporter.onStepEnd(this._id, e.result);
+        this._reporter && this._reporter.onStepEnd(this._id, e);
         try {
             if (e && e.module && e.module === 'log') {
                 // ignore

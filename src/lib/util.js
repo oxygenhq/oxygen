@@ -14,6 +14,8 @@ const path = require('path');
 const fs = require('fs');
 const moment = require('moment');
 const crypto = require('crypto');
+const { func } = require('testdouble');
+const FirefoxProfile = require('firefox-profile');
 
 const DUMMY_HOOKS = {
     beforeTest: () => {},
@@ -282,5 +284,32 @@ var self = module.exports = {
 
     getOxServicesDir: function() {
         return path.join(__dirname, '..', 'ox_services');
+    },
+
+    generateFirefoxOptionsProfile: async function(caps) {
+        if (!caps.browserName || !caps.browserName === 'firefox' || !caps['moz:firefoxOptions']) {
+            return caps;
+        }
+        const profilePrefs = caps['moz:firefoxOptions'].prefs;
+        if (!profilePrefs || typeof profilePrefs !== 'object') {
+            return caps;
+        }
+        
+        const profile = new FirefoxProfile();
+        
+        for (let prefName in profilePrefs) {
+            profile.setPreference(prefName, profilePrefs[prefName]);
+        }        
+        profile.updatePreferences();
+        
+        return new Promise((resolve, reject) => {
+            profile.encoded((err, zippedProfile) => {
+                if (err) {
+                    return reject(err);
+                }
+                caps['moz:firefoxOptions'].profile = zippedProfile;
+                return resolve();
+            });
+        });
     }
 };

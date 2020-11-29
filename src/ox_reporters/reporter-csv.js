@@ -51,7 +51,7 @@ export default class CsvReporter extends FileReporterBase {
                         name: step.transaction,
                         case: caseResult.name,
                         suite: suiteResult.name,
-                        duration: step.duration || 0,
+                        duration: 0, //step.duration || 0,
                         startTime: step.startTime,
                         failed: 0,
                         screenshot: null,
