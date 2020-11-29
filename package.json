@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.23.1",
+    "@elastic/elasticsearch": "^7.10.0",
     "@lambdatest/node-rest-client": "1.0.0",
     "@wdio/cli": "6.6.6",
     "@wdio/devtools-service": "6.6.6",
@@ -69,6 +70,7 @@
     "imap-simple": "5.0.0",
     "is-glob": "4.0.1",
     "jimp": "0.16.1",
+    "json2csv": "^5.0.5",
     "junit-report-builder": "2.1.0",
     "lodash": "4.17.20",
     "minimist": "1.2.5",

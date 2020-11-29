@@ -22,15 +22,18 @@ import JUnitReporter from '../ox_reporters/reporter-junit';
 import HtmlReporter from '../ox_reporters/reporter-html';
 import ExcelReporter from '../ox_reporters/reporter-excel';
 import CsvReporter from '../ox_reporters/reporter-csv';
+import ElasticSearchReporter from '../ox_reporters/reporter-es';
 import errorHelper from '../errors/helper';
 import Status from '../model/status';
+import RealTimeReporterBase from './RealTimeReporterBase';
 
 const Reporters = {
     json: JsonReporter,
     junit: JUnitReporter,
     html: HtmlReporter,
     excel: ExcelReporter,
-    csv: CsvReporter
+    csv: CsvReporter,
+    es: ElasticSearchReporter
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
@@ -39,6 +42,8 @@ const DEFAULT_REPORTERS = [];
 export default class ReportAggregator extends EventEmitter {
     constructor(options) {
         super();
+        this.reporters = [];
+        this.rtReports = [];
         // results hash table based on runner id key
         this.results = [];
         // active runners indicator
@@ -83,7 +88,13 @@ export default class ReportAggregator extends EventEmitter {
             const reporterOpts = typeof reporter === 'object' ? reporter : generalReportingOpts;
 
             if (Object.prototype.hasOwnProperty.call(Reporters, reporterName)) {
-                this.reporters.push(new Reporters[reporterName](this.options, reporterOpts));
+                const reporter = new Reporters[reporterName](this.options, reporterOpts);                
+                if (reporter instanceof RealTimeReporterBase) {
+                    this.rtReports.push(reporter);
+                }
+                else {
+                    this.reporters.push(reporter);
+                }
             }
         }
     }
@@ -122,11 +133,7 @@ export default class ReportAggregator extends EventEmitter {
         // create a new promise for later to be resolved on runner:end event
         this.runnerEndPromises[rid] = defer();
         console.log(`Test ${rid} has started...`);
-        this.emit('runner:start', {
-            rid,
-            opts,
-            caps
-        });
+        this._emit_RunnerStart(rid, opts, caps, testResult);
     }
 
     onRunnerEnd(rid, finalResult, fatalError) {        
@@ -158,11 +165,8 @@ export default class ReportAggregator extends EventEmitter {
             }
             console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }
-        this.activeRunners--;
-        this.emit('runner:end', {
-            rid,
-            result: testResult,
-        });
+        this.activeRunners--;        
+        this._emit_RunnerEnd(rid, testResult);
         if (this.runnerEndPromises[rid]) {
             // calling nextTick() will help us to insure that we resolve the promise after emit('runner:end') has completed
             process.nextTick(() => {
@@ -187,13 +191,9 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
-    onSuiteStart(rid, suiteId, suite) {
-        console.log(`Suite "${suite.name}" has started...`);
-        this.emit('suite:start', {
-            rid,
-            suiteId: suiteId,
-            suite: suite,
-        });
+    onSuiteStart(rid, suiteId, suiteDef) {
+        console.log(`Suite "${suiteDef.name}" has started...`);
+        this._emit_SuiteStart(rid, suiteId, suiteDef)        
     }
 
     onSuiteEnd(rid, suiteId, suiteResult) {
@@ -203,31 +203,17 @@ export default class ReportAggregator extends EventEmitter {
         }
         testResult.suites.push(suiteResult);
         console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
-        this.emit('suite:end', {
-            rid,
-            suiteId,
-            result: suiteResult,
-        });
+        this._emit_SuiteEnd(rid, suiteId, suiteResult)        
     }
 
     onCaseStart(rid, suiteId, caseId, caseDef) {
         console.log(`- Case "${caseDef.name}" has started...`);
-        this.emit('case:start', {
-            rid,
-            suiteId,
-            caseId,
-            case: caseDef,
-        });
+        this._emit_CaseStart(rid, suiteId, caseId, caseDef);   
     }
 
     onCaseEnd(rid, suiteId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
-        this.emit('case:end', {
-            rid,
-            suiteId,
-            caseId,
-            result: caseResult,
-        });
+        this._emit_CaseEnd(rid, suiteId, caseId, caseResult);           
     }
 
     onStepStart(rid, step) {
@@ -237,21 +223,14 @@ export default class ReportAggregator extends EventEmitter {
             const fullPath = path.resolve(this.options.rootPath, step.location);
             step.location = fullPath+':1';
         }
-
-        this.emit('step:start', {
-            rid,
-            step: step,
-        });
+        this._emit_StepStart(rid, step);                   
     }
 
     onStepEnd(rid, stepResult) {
         const status = stepResult.status.toUpperCase();
         const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
         console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
-        this.emit('step:end', {
-            rid,
-            step: stepResult,
-        });
+        this._emit_StepEnd(rid, stepResult);                   
     }
 
     onLogEntry(time, level, msg, src = null) {
@@ -293,5 +272,96 @@ export default class ReportAggregator extends EventEmitter {
             }
         }
         return null;
+    }
+    /*
+     * Emmiters
+     */
+    _emit_RunnerStart(rid, opts, caps, testResult) {
+        this._emitEvent('runner:start', {
+            rid,
+            opts,
+            caps
+        });
+        this._notifyRealTimeReporters('onRunnerStart', [rid, opts, caps, testResult, this.activeRunners]);
+    }
+    
+    _emit_RunnerEnd(rid, testResult) {
+        this._emitEvent('runner:end', {
+            rid,
+            result: testResult,
+        });
+        this._notifyRealTimeReporters('onRunnerEnd', [rid, testResult, this.activeRunners]);
+    }
+
+    _emit_SuiteStart(rid, suiteId, suiteDef) {
+        this._emitEvent('suite:start', {
+            rid,
+            suiteId: suiteId,
+            suite: suiteDef,
+        });
+        this._notifyRealTimeReporters('onSuiteStart', [rid, suiteDef, this.activeRunners]);
+    }
+
+    _emit_SuiteEnd(rid, suiteId, suiteResult) {
+        this._emitEvent('suite:end', {
+            rid,
+            suiteId,
+            result: suiteResult,
+        });
+        this._notifyRealTimeReporters('onSuiteEnd', [rid, suiteId, suiteResult, this.activeRunners]);
+    }
+
+    
+    _emit_CaseStart(rid, suiteId, caseId, caseDef) {
+        this._emitEvent('case:start', {
+            rid,
+            suiteId,
+            caseId,
+            case: caseDef,
+        });
+        this._notifyRealTimeReporters('onCaseStart', [rid, suiteId, caseId, caseDef, this.activeRunners]);
+    } 
+
+    _emit_CaseEnd(rid, suiteId, caseId, caseResult) {
+        this._emitEvent('case:end', {
+            rid,
+            suiteId,
+            caseId,
+            result: caseResult,
+        });
+        this._notifyRealTimeReporters('onCaseEnd', [rid, suiteId, caseId, caseResult, this.activeRunners]);
+    } 
+
+    _emit_StepStart(rid, step) {
+        this._emitEvent('step:start', {
+            rid,
+            step: step,
+        });
+        this._notifyRealTimeReporters('onStepStart', [rid, step, this.activeRunners]);
+    }
+
+    _emit_StepEnd(rid, stepResult) {
+        this._emitEvent('step:end', {
+            rid,
+            step: stepResult,
+        });
+        this._notifyRealTimeReporters('onStepEnd', [rid, stepResult, this.activeRunners]);
+    }
+
+    _emitEvent(eventName, eventArgs) {
+        this.emit(eventName, eventArgs);
+    }
+
+    _notifyRealTimeReporters(methodName, argsArray) {
+        for (var reporter of this.rtReports) {
+            if (reporter[methodName] && typeof reporter[methodName] === 'function') {
+                try {
+                    reporter[methodName].apply(reporter, argsArray);
+                }
+                catch (e) {
+                    console.error(`Error occured in ${reporter.name} reporter:`, e);
+                }
+            }
+        }
     }
 }
