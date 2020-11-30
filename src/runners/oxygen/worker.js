@@ -76,6 +76,7 @@ function stringify(obj) {
 //process.stderr.write = logger.error;
 
 process.on('unhandledRejection', async(err, origin) => {
+    console.log('~~unhandledRejection', err);
     logger.error(err.message, ISSUERS.USER);
     processSend({
         event: 'workerError',
@@ -84,6 +85,7 @@ process.on('unhandledRejection', async(err, origin) => {
 });
 
 process.on('uncaughtException', async(err, origin) => {
+    console.log('~~uncaughtException', err);
     logger.error(err.message, ISSUERS.USER);
     processSend({
         event: 'workerError',

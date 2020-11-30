@@ -325,12 +325,35 @@ export default class Debugger extends EventEmitter {
         return result;
     }
 
+    printm(m) {
+        if (m.sourceMapURL) {
+            delete m.sourceMapURL;
+        }
+        console.log('~~scriptParsed', m);
+
+        if (m.stackTrace && m.stackTrace.callFrames) {
+            m.stackTrace.callFrames.map((item) => {
+                console.log('~~item', item);
+            });
+        }
+    }
+
     async continueConnect() {
 
         this._client.on('Debugger.scriptParsed', async(m) => {
+            // console.log('~~scriptParsed', JSON.stringify(m, null, 2));
+            if (m && m.url && (
+                m.url.includes('/projects/oxygen/build') ||
+                m.url.includes('node_modules')
+            )) {
+                // ignore
+            } else {
+                this.printm(m);
+            }
             if (m && m.url) {
                 if (m.url.toLowerCase) {
                     const filelc = m.url.toLowerCase();
+                    // console.log('~~filelc', filelc);
                     let breakpointForChange;
                     const findResult = this._breakpoints.find((item) => {
                         if (item.origin && item.origin.scriptPath && item.origin.scriptPath.toLowerCase) {
@@ -401,7 +424,12 @@ export default class Debugger extends EventEmitter {
             }
         });
 
+        this._client.on('Debugger.scriptFailedToParse ', (e) => {
+            console.log('~~Debugger.scriptFailedToParse', e);
+        });
+
         this._client.on('Debugger.paused', (e) => {
+            console.log('~~Debugger.paused', e);
             this._paused = true;
             if (e.reason === 'Break on start') {
                 this._brokeOnStart = true;

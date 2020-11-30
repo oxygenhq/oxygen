@@ -77,9 +77,11 @@ export default class OxygenWorker extends EventEmitter {
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
+                    console.log('~~scriptPath', scriptPath);
                     require(scriptPath);
                 }
                 catch (e) {
+                    console.log('~~e1', e);
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
 
                     if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
@@ -90,6 +92,7 @@ export default class OxygenWorker extends EventEmitter {
                 }
             });
         } catch (e) {
+            console.log('~~e2', e);
             error = e;
         }
 
