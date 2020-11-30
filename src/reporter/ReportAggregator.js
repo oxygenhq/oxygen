@@ -180,6 +180,7 @@ export default class ReportAggregator extends EventEmitter {
             const msg = `${start} Iteration #${iteration} started...`;
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
+            this._emit_IterationStart(rid, iteration);
         }
     }
 
@@ -188,7 +189,8 @@ export default class ReportAggregator extends EventEmitter {
             const msg = `${start} Iteration #${result.iterationNum} ended with status: ${result.status.toUpperCase()}.`;
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
-        }
+            this._emit_IterationEnd(rid, result);
+        }        
     }
 
     onSuiteStart(rid, suiteId, suiteDef) {
@@ -347,6 +349,22 @@ export default class ReportAggregator extends EventEmitter {
             step: event.result,
         });
         this._notifyRealTimeReporters('onStepEnd', [rid, event, this.activeRunners]);
+    }
+
+    _emit_IterationStart(rid, iterationNum) {
+        this._emitEvent('iteration:start', {
+            rid,
+            iterationNum: iterationNum,
+        });
+        this._notifyRealTimeReporters('onIterationStart', [rid, iterationNum, this.activeRunners]);
+    }
+
+    _emit_IterationEnd(rid, result) {
+        this._emitEvent('iteration:end', {
+            rid,
+            result: result,
+        });
+        this._notifyRealTimeReporters('onIterationEnd', [rid, result, this.activeRunners]);
     }
 
     _emitEvent(eventName, eventArgs) {

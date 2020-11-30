@@ -414,9 +414,9 @@ export default class OxygenRunner extends EventEmitter {
                     if (caze && caze.iterationCount && caze.iterationCount > 1) {
                         showCaseIterationsMessages = true;
                     }
-                    if (showCaseIterationsMessages) {
+                    //if (showCaseIterationsMessages) {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
-                    }
+                    //}
                     let reRunCount = 0;
                     let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false);
                     if (!caseResult) {
@@ -434,9 +434,9 @@ export default class OxygenRunner extends EventEmitter {
                         }
                     }
                     caseResult.reRunCount = reRunCount;
-                    if (showCaseIterationsMessages) {
+                    //if (showCaseIterationsMessages) {
                         this._reporter.onIterationEnd(this._id, caseResult, 'Case');
-                    }
+                    //}
                     await this._worker_callAfterCaseHook(caze, caseResult);
                     this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
                     await (this._worker && this._worker_DisposeModules(caseResult.status));

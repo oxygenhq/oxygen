@@ -27,12 +27,15 @@ const ES_STEP_ENTRY = {
     suite_name: null,
     iteration_num: null,
     status: null,
-    failure: null,
+    //failure: null,
+    //screenshot: null,
 };
 
 const ES_FAILURE_TYPE = {
 
 }
+
+const ES_STEPS_INDEX_NAME = '<cbrt-steps-{now/M}>';
 
 export default class ElasticSearchReporter extends RealTimeReporterBase {
     constructor(options) {
@@ -70,12 +73,24 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
         //console.log('ElasticSearchReporter - onRunnerEnd')
     }
 
-    onIterationStart(rid, iteration, start) {
-        //console.log('ElasticSearchReporter - onIterationStart')
+    onIterationStart(rid, iterationNum) {
+        //console.log('=== ElasticSearchReporter - onIterationStart')
     }
 
-    onIterationEnd(rid, result, start) {
-        //console.log('ElasticSearchReporter - onIterationEnd')
+    async onIterationEnd(rid, result) {
+        const lastTransEntry = this.lastTransactionByRunner[rid];
+        if (lastTransEntry) {
+            delete this.lastTransactionByRunner[rid];
+            try {
+                await this.esClient.index({
+                    index: ES_STEPS_INDEX_NAME,
+                    body: lastTransEntry
+                });
+            }
+            catch (e) {
+                console.error('Failed to write to Elastic:', e);
+            }
+        }
     }
 
     onSuiteStart(rid, suiteDef) {
@@ -83,7 +98,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
     }
 
     onSuiteEnd(rid, suiteId, suiteResult, totalRunners) {
-        console.log('ElasticSearchReporter - onSuiteEnd')
+        //console.log('ElasticSearchReporter - onSuiteEnd')
     }
 
     onCaseStart(rid, suiteId, caseId, caseDef) {
@@ -105,14 +120,15 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
         try {            
             if (endedTransactionEntry) {
                 await this.esClient.index({
-                    index: 'cbrt-steps',
+                    index: ES_STEPS_INDEX_NAME,
                     body: endedTransactionEntry
                 });
             }
-            await this.esClient.index({
-                index: 'cbrt-steps',
+            const status = await this.esClient.index({
+                index: ES_STEPS_INDEX_NAME,
                 body: esStepEntry
             });
+            //console.log('es status', status)
         }
         catch (e) {
             console.error('Failed to index step:', e);
@@ -120,6 +136,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
     }
 
     _handleTransactionStep(esStepEntry) {
+        //console.log('esStepEntry', JSON.stringify(esStepEntry, null, 4));
         const lastTransEntry = this.lastTransactionByRunner[esStepEntry.rid] || null;
         // case we are seeing transaction method for the first time in the script
         if (!lastTransEntry && esStepEntry.transaction_name && esStepEntry.step_name.indexOf('transaction(') > -1) {
@@ -154,14 +171,16 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
         entry.case_name = stepEvent.ctx.test.case.name;
         entry.iteration_num = stepEvent.ctx.test.case.iteration;
         entry.suite_name = stepEvent.ctx.test.suite.name;
-        entry.start_time = moment(stepResult.startTime).format('yyyy-MM-DDTHH:mm:ss');
+        entry.start_time = moment(stepResult.startTime).format('yyyy-MM-DDTHH:mm:ssZ');        
         entry.duration = stepResult.duration / 1000;
         entry.step_name = stepResult.name;
         entry.location = stepResult.location;
         entry.transaction_name = stepResult.transaction;
         entry.status = stepResult.status;
         entry.failure_rate = stepResult.status === 'failed' ? 1 : 0;
-        entry.screenshot = stepResult.screenshot;
+        if (stepResult.screenshot) {
+            entry.screenshot = stepResult.screenshot;
+        }        
         entry.active_users = totalRunners;
         if (stepResult.failure) {
             entry.failure = {
