@@ -47,8 +47,6 @@ module.exports = async function (windowHandle, timeout) {
                 }
                 this.pause(1000);
             }
-            // if window not found - switch to original one and throw
-            await this.driver.switchToWindow(currentHandle);
             e = new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle}`);
             throw e;
         } else {

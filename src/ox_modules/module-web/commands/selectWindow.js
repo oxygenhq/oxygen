@@ -65,8 +65,6 @@ module.exports = async function(windowLocator, timeout) {
             }
             this.pause(1000);
         }
-        // if window not found - switch to original one and throw
-        await this.driver.switchToWindow(currentHandle);
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else if (windowLocator.indexOf('url=') === 0) {
         let pattern = windowLocator.substring('url='.length);
@@ -88,8 +86,6 @@ module.exports = async function(windowLocator, timeout) {
             }
             this.pause(1000);
         }
-        // if window not found - switch to original one and throw
-        await this.driver.switchToWindow(currentHandle);
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else {
         await this.driver.switchToWindow(windowLocator);

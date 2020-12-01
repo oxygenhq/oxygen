@@ -17,6 +17,7 @@
   * @function waitForWindow
   * @param {String} windowLocator - A window locator.
   * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+  * @return {String} windowHandle of the previously selected window.
   * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
@@ -57,7 +58,7 @@ module.exports = async function(windowLocator, timeout) {
                         windowHandles = await this.driver.getWindowHandles();
                         await this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
                     }
-                    return;
+                    return currentHandle;
                 }
             }
             this.pause(1000);
@@ -84,7 +85,7 @@ module.exports = async function(windowLocator, timeout) {
                         windowHandles = await this.driver.getWindowHandles();
                         await this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
                     }
-                    return;
+                    return currentHandle;
                 }
             }
             await this.pause(1000);
