@@ -65,6 +65,7 @@
     "ejs": "3.0.2",
     "esm": "3.2.25",
     "fibers": "4.0.2",
+    "firefox-profile": "4.0.0",
     "glob": "7.1.6",
     "glob-to-regexp": "0.4.1",
     "imap-simple": "5.0.0",
