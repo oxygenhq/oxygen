@@ -446,6 +446,25 @@ export default class WebModule extends WebDriverModule {
             }
         }
 
+        // cleanup edgedriver's only when running from within the IDE and test did not fail
+        if (this.options && this.options.seleniumPid && (!status || 'FAILED' !== status.toUpperCase())) {
+            try {
+                if (process.platform === 'win32') {
+                    // ignore for now
+                } else {
+                    let pgrepResult = execSync("pgrep -d' ' msedgedriver");
+                    if (pgrepResult && pgrepResult.toString) {
+                        pgrepResult = pgrepResult.toString();
+                        if (pgrepResult) {
+                            execSync('kill -9 ' + pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                        }
+                    }
+                }
+            } catch (e) {
+                // ignore errors
+            }
+        }
+
         this._whenWebModuleDispose.resolve(null);
     }
 
