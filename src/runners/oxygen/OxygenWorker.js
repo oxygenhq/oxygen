@@ -21,6 +21,9 @@ const errorHelper = require('../../errors/helper');
 // eslint-disable-next-line no-global-assign
 require = require('esm')(module);
 
+var acorn = require('acorn');
+const fs = require('fs');
+
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
 
@@ -58,6 +61,16 @@ export default class OxygenWorker extends EventEmitter {
         }
     }
 
+    parseAndValidateScript(scriptPath) {
+        try {
+            const text = fs.readFileSync(scriptPath,'utf8');
+            acorn.parse(text, {ecmaVersion: 2020});
+        } catch (e) {
+            e.path = scriptPath;
+            throw e;
+        }
+    }
+
     async run({ scriptPath, context, poFile = null }) {
         // assign up to date context to Oxygen Core to reflect new parameters and other context data
         if (!this._oxygen) {
@@ -77,6 +90,7 @@ export default class OxygenWorker extends EventEmitter {
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
+                    this.parseAndValidateScript(scriptPath);
                     require(scriptPath);
                 }
                 catch (e) {

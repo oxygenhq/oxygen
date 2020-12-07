@@ -125,6 +125,12 @@ export default class OxygenError extends Error {
         } else {
             this.location = null;
         }
+
+        // acorn error
+        if (this.orgErr && this.orgErr.loc && this.orgErr.path) {
+            this.location = `${this.patchFilePathOnWindows(this.orgErr.path)}:${this.orgErr.loc.line}:${this.orgErr.loc.column}`;
+            this.stacktrace = [this.location];
+        }
     }
 
     patchFilePathOnWindows(filePath) {

@@ -51,6 +51,7 @@
     "@wdio/cli": "6.6.6",
     "@wdio/devtools-service": "6.6.6",
     "@wdio/sync": "6.6.4",
+    "acorn": "^8.0.4",
     "async": "3.2.0",
     "chai": "4.2.0",
     "chrome-har": "0.11.12",
