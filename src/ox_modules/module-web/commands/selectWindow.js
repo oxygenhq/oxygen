@@ -30,6 +30,9 @@
  */
 module.exports = async function(windowLocator, timeout) {
     var currentHandle;
+    var currentHandleTitle;
+    var currentHandleUrl;
+    var swithToCurrentHandleErrorMsg = 'Unable to switch to previous selected window';
 
     // getWindowHandle() could possibly fail if there is no active window,
     // so we select the last opened one in such case
@@ -39,6 +42,11 @@ module.exports = async function(windowLocator, timeout) {
         var wnds = await this.driver.getWindowHandles();
         await this.driver.switchToWindow(wnds[wnds.length - 1]);
         currentHandle = await this.driver.getWindowHandle();
+    }
+
+    if (currentHandle) {
+        currentHandleTitle = await this.driver.getTitle();
+        currentHandleUrl = await this.driver.getUrl();
     }
 
     var windowHandles;
@@ -65,8 +73,18 @@ module.exports = async function(windowLocator, timeout) {
             }
             this.pause(1000);
         }
-        // if window not found - switch to original one and throw
-        await this.driver.switchToWindow(currentHandle);
+
+        try {
+            // if window not found - switch to original one and throw
+            await this.driver.switchToWindow(currentHandle);
+        } catch (err) { // in case window was closed
+
+            if (currentHandleTitle) {
+                swithToCurrentHandleErrorMsg += `: ${currentHandleTitle}`;
+            }
+
+            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+        }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else if (windowLocator.indexOf('url=') === 0) {
         let pattern = windowLocator.substring('url='.length);
@@ -88,11 +106,23 @@ module.exports = async function(windowLocator, timeout) {
             }
             this.pause(1000);
         }
-        // if window not found - switch to original one and throw
-        await this.driver.switchToWindow(currentHandle);
+
+        try {
+            // if window not found - switch to original one and throw
+            await this.driver.switchToWindow(currentHandle);
+        } catch (err) {
+            if (currentHandleUrl) {
+                swithToCurrentHandleErrorMsg += `: ${currentHandleUrl}`;
+            }
+            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+        }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else {
-        await this.driver.switchToWindow(windowLocator);
+        try {
+            await this.driver.switchToWindow(windowLocator);
+        } catch (err) {
+            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+        }
     }
 
     return currentHandle;
