@@ -24,10 +24,15 @@
  * win.selectWindow("title=FolderName");// Selects and focus a window. 
  */
 module.exports = async function (windowHandle, timeout) {
+    var currentHandleTitle;
+    var swithToCurrentHandleErrorMsg = 'Unable to switch to previous selected window';
     let e;
     try {
         let currentHandle = await this.driver.getWindowHandle();
         if (windowHandle.indexOf('title=') === 0) {
+            if (currentHandle) {
+                currentHandleTitle = await this.driver.getTitle();
+            }
             let pattern = windowHandle.substring('title='.length);
             let start = (new Date()).getTime();
             timeout = !timeout ? this.waitForTimeout : timeout;
@@ -47,8 +52,15 @@ module.exports = async function (windowHandle, timeout) {
                 }
                 this.pause(1000);
             }
-            // if window not found - switch to original one and throw
-            await this.driver.switchToWindow(currentHandle);
+            try {
+                // if window not found - switch to original one and throw
+                await this.driver.switchToWindow(currentHandle);
+            } catch (err) { // in case window was closed
+                if (currentHandleTitle) {
+                    swithToCurrentHandleErrorMsg += `: ${currentHandleTitle}`;
+                }
+                throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+            }
             e = new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle}`);
             throw e;
         } else {
