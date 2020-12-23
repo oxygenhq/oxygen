@@ -126,6 +126,12 @@ export default class WorkerProcess extends EventEmitter {
         if (this._debugger) {
             await this._debugger.close();
         }
+
+        this._send({
+            type: 'exit',
+            status: status,
+        });
+        this._childProc.kill('SIGINT');
         this._reset();
     }
 
