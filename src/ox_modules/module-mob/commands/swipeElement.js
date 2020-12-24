@@ -10,30 +10,26 @@
 /**
  * @summary Perform swipe on the element.
  * @function swipeElement
- * @param {String=} locator - Locator of the element to swipe on.
- * @param {Number} xoffset - Horizontal offset.
- * @param {Number} yoffset - Vertical offset. Negative value indicates swipe down and positive indicates swipe up direction.
+ * @param {String} locator - Locator of the element to swipe on.
+ * @param {Number=} xoffset - Horizontal offset (positive - scroll right, negative - scroll left). Default is 0.
+ * @param {Number=} yoffset - Vertical offset (positive - scroll down, negative - scroll up). Default is 30.
+ * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} duration - Duration of swipe. Default is 3000 (3sec)
  * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.swipeElement("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
 */
-module.exports = async function(locator, xoffset, yoffset) {
+module.exports = async function(locator, xoffset = 0, yoffset = 30, timeout, duration = 3000) {
     this.helpers.assertArgument(locator, 'locator');
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    this.helpers.assertArgumentNumber(duration, 'duration');
 
-    var elm = null;
-    if (typeof locator === 'object') {
-        elm = locator;
-    } else {
-        elm = await this.findElement(locator);
-        if (!elm) {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND);
-        }
-    }
+    var el = await this.helpers.getElement(locator, false, timeout);
 
-    const location = await elm.getLocation();
+    const location = await el.getLocation();
 
     return await this.driver.touchPerform([
         {
@@ -46,7 +42,7 @@ module.exports = async function(locator, xoffset, yoffset) {
         {
             action: 'wait',
             options: {
-                ms: 100,
+                ms: duration,
             },
         },
         {
