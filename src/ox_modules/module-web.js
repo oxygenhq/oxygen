@@ -571,11 +571,15 @@ export default class WebModule extends WebDriverModule {
                             },
                             { timeout: 30*1000 });
 
-                            waitUntilRetVal.then(() => {
+                            if (waitUntilRetVal && waitUntilRetVal.then) {
+                                waitUntilRetVal.then(() => {
+                                    resolve();
+                                }).catch((err) => {
+                                    reject(err);
+                                });
+                            } else {
                                 resolve();
-                            }).catch((err) => {
-                                reject(err);
-                            });
+                            }
                         });
                     });
 
@@ -679,19 +683,23 @@ export default class WebModule extends WebDriverModule {
                         },
                         { timeout: 30*1000 });
 
-                        waitUntilRetVal.then(() => {
-                            if (lastError) {
-                                // print error from driver.execute or driver.waitUntil
-                                console.log(lastError);
-                            }
+                        if (waitUntilRetVal && waitUntilRetVal.then) {
+                            waitUntilRetVal.then(() => {
+                                if (lastError) {
+                                    // print error from driver.execute or driver.waitUntil
+                                    console.log(lastError);
+                                }
+                                resolve();
+                            }).catch((err) => {
+                                if (lastError) {
+                                    // print error from driver.execute or driver.waitUntil
+                                    console.log(lastError);
+                                }
+                                reject(err);
+                            });
+                        } else {
                             resolve();
-                        }).catch((err) => {
-                            if (lastError) {
-                                // print error from driver.execute or driver.waitUntil
-                                console.log(lastError);
-                            }
-                            reject(err);
-                        });
+                        }
                     });
                 });
             } catch (e) {
