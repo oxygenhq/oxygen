@@ -33,3 +33,4 @@ export {default as tap} from './tap';
 export {default as type} from './type';
 export {default as waitForExist} from './waitForExist';
 export {default as waitForVisible} from './waitForVisible';
+export {default as waitForInteractable} from './waitForInteractable';
