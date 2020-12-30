@@ -532,6 +532,7 @@ export default class OxygenRunner extends EventEmitter {
                 if (error) {
                     caseResult.failure = error;
                     caseResult.status = Status.FAILED;
+                    caseResult.steps = oxutil.makeTransactionFailedIfStepFailed(caseResult.steps);
                 }
             } else {
                 return;
