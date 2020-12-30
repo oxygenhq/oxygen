@@ -1,5 +1,20 @@
 # CHANGELOG
 
+## v1.15.0 (2020-xx-xx)
+
+#### :tada: New Feature
+* Added `*.waitForInteractable`.
+
+#### :beetle: Bug Fix
+* `web.switchToWindow` crashes when one of the windows closes mid-way.
+* `web.switchToWindow` crashing in certain situations.
+* Memory leak during test disposal.
+* Various issues with `mob.scrollIntoElement`, `mob.swipe`, `mob.swipeElement`, `mob.swipeScreen`.
+
+#### :house: Internal
+* Pass console output from child process to external libraries.
+* Bump dependencies.
+
 ## v1.14.3 (2020-11-27)
 
 #### :beetle: Bug Fix
