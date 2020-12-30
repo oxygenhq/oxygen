@@ -321,5 +321,25 @@ var self = module.exports = {
             origError.apply(this, argumentArray);
             logger.error(processArgs(argumentArray));
         };
+    },
+
+    makeTransactionFailedIfStepFailed(steps) {
+        if (steps && steps.length && steps.length > 0) {
+            let lastFindedTransactionIndex = false;
+            const newSteps = [...steps];
+            steps.map((item, idx) => {
+                if (item.name && item.name.includes && item.name.includes('.transaction(')) {
+                    lastFindedTransactionIndex = idx;
+                }
+
+                if (typeof lastFindedTransactionIndex === 'number' && item.status && item.status === 'failed') {
+                    newSteps[lastFindedTransactionIndex]['status'] = 'failed';
+                }
+            });
+
+            return newSteps;
+        }
+
+        return steps;
     }
 };
