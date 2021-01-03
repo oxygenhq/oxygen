@@ -73,11 +73,14 @@ export default class CucumberRunner {
     }
 
     async run () {
+        // prepare environment variables
+        const envVars = this.getEnvironmentVariablesFromOptions();
         try {
             this.reporter.onRunnerStart(this.id, this.config, this.capabilities);
             await this.worker.run({
                 context: {
-                    caps: this.capabilities
+                    caps: this.capabilities,
+                    env: envVars,
                 },
                 poFile: this.config.po || null,
             });
@@ -119,5 +122,27 @@ export default class CucumberRunner {
         if (this.reporter && this.reporter[method] && typeof this.reporter[method] === 'function') {
             this.reporter[method].apply(this.reporter, args);
         }
+    }
+
+    getEnvironmentVariablesFromOptions() {
+        let optEnv = {};
+        const options = this.config;
+        if (options.env) {
+            // 'env' option might be defined either as a name of the environment or as an object that lists all environment variables
+            // if 'env' is a string, then resolve the actual variables from 'envs' object
+            if (typeof options.env === 'string' && typeof options.envs === 'object' && options.envs[options.env]) {
+                optEnv = options.envs[options.env];
+
+            }
+            // if 'env' is an object, use the variables defined in it
+            else if (typeof options.env === 'object' && Object.keys(options.env)) {
+                optEnv = options.env;
+            }
+        }
+
+        if (options.envVars && Object.keys(options.envVars)) {
+            optEnv = { ...optEnv, ...options.envVars };
+        }
+        return optEnv;
     }
 }

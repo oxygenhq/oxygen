@@ -15,6 +15,7 @@ import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
 import * as Modules from '../ox_modules/index';
 import * as Services from '../ox_services/index';
+import WebDriverModule from './WebDriverModule';
 
 // setup logger
 import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
@@ -81,6 +82,7 @@ export default class Oxygen extends OxygenEvents {
         this.opts = null;
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
+        this._disposed = false;
         this._waitStepResultList = [];
     }
 
@@ -90,7 +92,7 @@ export default class Oxygen extends OxygenEvents {
         this.ctx = Object.assign(DEFAULT_CTX, ctx || {});
         //this.ctx.caps = { ...ctx.caps || {}, ...caps, };
         this.resultStore = Object.assign(DEFAULT_RESULT_STORE, results || {});
-        this.capabilities = this.ctx.caps = caps;        
+        this.capabilities = this.ctx.caps = caps;
 
         // define 'ox' object in global JS scope
         // we will use this object to access Oxygen modules and test context from modules used in the test (if any)        
@@ -306,6 +308,10 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadServices() {
+        // if 'services' property value in oxygen.conf file is "false" then do not load any services
+        if (this.opts.services != undefined && typeof this.opts.services === 'boolean' && this.opts.services === false) {
+            return;
+        }
         // initialize all services
         this.logger.debug('Loading services...');
 
@@ -325,7 +331,7 @@ export default class Oxygen extends OxygenEvents {
             } catch (e) {
                 this.logger.error('Error initializing service "' + serviceName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
             }
-        }        
+        }
     }
     
     _loadService(serviceName, servicePathOrClass) {
@@ -498,6 +504,9 @@ export default class Oxygen extends OxygenEvents {
         if (!module || !module[cmdName]) {
             return undefined;
         }
+        if (cmdName !== 'dispose' && this._disposed) {
+            return undefined;
+        }
 
         let retval = null;
         let error = null;
@@ -532,7 +541,7 @@ export default class Oxygen extends OxygenEvents {
 
         try {
             // emit before events
-            if (cmdName === 'dispose') {
+            if (cmdName === 'dispose' && module instanceof WebDriverModule) {
                 this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
             }
 
@@ -593,6 +602,11 @@ export default class Oxygen extends OxygenEvents {
             //stepResult.location = cmdLocation;
 
             this.resultStore.steps.push(stepResult);
+            if (this._disposed) {
+                // ignore
+            } else {
+                this.resultStore.steps.push(stepResult);
+            }
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
             done = true;
         }
@@ -624,7 +638,6 @@ export default class Oxygen extends OxygenEvents {
             // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
             if (!Fiber.current) {
                 const retval = fn.apply(self, args);
-
                 let done = false;
                 let error = null;
                 let finalVal = null;
@@ -888,7 +901,7 @@ export default class Oxygen extends OxygenEvents {
             }
             try {
                 if (service.onModuleWillDispose) {
-                    service.onModuleWillDispose(module);
+                    await service.onModuleWillDispose(module);
                 }
             }
             catch (e) {

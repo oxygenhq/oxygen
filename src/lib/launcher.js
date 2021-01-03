@@ -33,9 +33,17 @@ export default class Launcher {
             // make sure capsSet is an array 
             capsSet = Array.isArray(capsSet) ? capsSet : [capsSet];
             const _this = this;
-            _.each(capsSet, function(caps) {
-                _this._queue.push(caps);
-            });
+            // the caps array might be empty in case of non-UI tests
+            if (capsSet.length > 0) {
+                _.each(capsSet, function(caps) {
+                    _this._queue.push(caps);
+                });
+            }
+            // handle non-UI tests by running the test with an empty caps object
+            else {
+                _this._queue.push({});
+            }
+
         }
         await this._queue.drain();
     }

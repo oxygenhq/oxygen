@@ -64,11 +64,10 @@ export default class DevToolsService extends OxygenService {
             }
         }
     }
-    onModuleWillDispose(module) {
+    async onModuleWillDispose(module) {
         const submodule = this._subModules[module.name];
-        if (!submodule) {
-            return;
+        if (submodule && submodule.isInitialized ) {
+            await submodule.dispose();
         }
-        submodule.dispose();
     }
 }
