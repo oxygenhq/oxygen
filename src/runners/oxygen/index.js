@@ -234,7 +234,6 @@ export default class OxygenRunner extends EventEmitter {
 
     async kill(status = null) {
         this._testKilled = true;
-
         if (this._worker && this._worker.isRunning) {
             await this._worker.kill(status);
         }
@@ -719,6 +718,7 @@ export default class OxygenRunner extends EventEmitter {
                 }
             }
             else if (msg.event && msg.event === 'workerError') {
+                log.error('Fatal worker error', msg);
                 await this.dispose('failed');
                 this.kill();
             }

@@ -14,3 +14,4 @@ export {default as soap} from './module-soap';
 export {default as twilio} from './module-twilio';
 export {default as web} from './module-web';
 export {default as win} from './module-win';
+export {default as stomp} from './module-stomp';

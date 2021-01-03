@@ -59,6 +59,26 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
+     * @summary Sets the base URL value that each request will be prefixed with
+     * @function setBaseUrl
+     * @param {String} url - Base URL.
+     */
+    setBaseUrl(url) {
+        this._baseUrl = url;
+    }
+
+    /**
+     * @summary Opens new transaction.
+     * @description The transaction will persist till a new one is opened. Transaction names must be
+     *              unique.
+     * @function transaction
+     * @param {String} name - The transaction name.
+     */
+    transaction(name) {
+        global._lastTransactionName = name;
+    }
+
+    /**
      * @summary Performs HTTP GET
      * @function get
      * @param {String} url - URL.
@@ -67,7 +87,7 @@ export default class HttpModule extends OxygenModule {
      */
     get(url, headers) {
         const httpOpts = {
-            url: url,
+            url: `${this._baseUrl || ''}${url}`,
             method: 'GET',
             json: true,
             timeout: RESPONSE_TIMEOUT,
@@ -87,7 +107,7 @@ export default class HttpModule extends OxygenModule {
      */
     post(url, data, headers) {
         const httpOpts = {
-            url: url,
+            url: `${this._baseUrl || ''}${url}`,
             method: 'POST',
             json: true,
             timeout: RESPONSE_TIMEOUT,
@@ -258,6 +278,51 @@ export default class HttpModule extends OxygenModule {
      */
     assertStatusOk() {
         return this.assertStatus(200);
+    }
+
+    /**
+     * @summary Assert the last HTTP response is of JSON type
+     * @function assertJsonResponse
+     */
+    assertJsonResponse() {
+        if (!this._lastResponse) {
+            return false;
+        }
+        const body = this._lastResponse.body;
+        if (!body) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Expected HTTP response to be of JSON type but got an empty body instead');
+        }
+        else if (body && typeof body !== 'object') {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Expected HTTP response to be of JSON type but other response type instead');
+        }
+        return true;
+    }
+
+    /**
+     * @summary Assert HTTP 200 OK status
+     * @function assertStatusOk
+     */
+    assert(assertText, assertFunc) {
+        if (!this._lastResponse || !assertText || !assertFunc || typeof assertFunc !== 'function') {
+            return false;
+        }
+        let passed = false;
+        let error = null;
+        try {
+            passed = assertFunc(this._lastResponse) || true;
+        }
+        catch (e) {
+            error = e;
+        }
+        if (!passed) {
+            if (error) {
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, `${assertText} has failed: ${error.message}`, null, true, error);
+            }
+            else {
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, `${assertText} has failed.`, null, true);
+            }
+        }
+        return true;
     }
 
     _httpRequestSync(httpOpts) {

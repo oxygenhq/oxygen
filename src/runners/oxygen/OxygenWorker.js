@@ -35,6 +35,10 @@ export default class OxygenWorker extends EventEmitter {
         this._runId = null;
     }
 
+    get isDisposed() {
+        return !this._oxygen || !this._oxygen.isInitialized;
+    }
+
     async init(runId, options, caps) {
         this._runId = runId;
         this._opts = options;
@@ -72,12 +76,17 @@ export default class OxygenWorker extends EventEmitter {
         let error = null;
         // load and run the test script
         try {
-            await this._runFnInFiberContext(() => {
+            await this._runFnInFiberContext(async () => {
                 this._oxygen && this._oxygen.onBeforeCase && this._oxygen.onBeforeCase(context);
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
-                    require(scriptPath);
+                    // either try to run the required script in full or check if it exports a default function
+                    const result = require(scriptPath);
+                    // if the script file returns a function - run it (it might be async)
+                    if (result && result.default) {
+                        await result.default();
+                    }
                 }
                 catch (e) {
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;

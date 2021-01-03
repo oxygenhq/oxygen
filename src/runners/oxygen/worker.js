@@ -76,10 +76,13 @@ function stringify(obj) {
 //process.stderr.write = logger.error;
 
 process.on('unhandledRejection', async(err, origin) => {
+    console.log('unhandledRejection', err)
     logger.error(err.message, ISSUERS.USER);
     processSend({
         event: 'workerError',
+        errType: err.type,
         errMessage: err.message,
+        origin: origin
     });
 });
 
@@ -87,12 +90,15 @@ process.on('uncaughtException', async(err, origin) => {
     logger.error(err.message, ISSUERS.USER);
     processSend({
         event: 'workerError',
+        errType: err.type,
         errMessage: err.message,
+        origin: origin
     });
 });
 
 process.on('SIGINT', async function() {
     await dispose('CANCELED');
+    process.exit(0);
 });
 
 process.on('message', async function (msg) {
@@ -117,7 +123,7 @@ process.on('message', async function (msg) {
 });
 
 async function dispose(status= null) {
-    if (_worker) {
+    if (_worker && !_worker.isDisposed) {
         try {
             await _worker.dispose(status);
         }

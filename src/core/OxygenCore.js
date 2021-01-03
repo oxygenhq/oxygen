@@ -226,8 +226,10 @@ export default class Oxygen extends OxygenEvents {
                 caps: this.capabilities,
                 resultStore: this.resultStore
             };
-
+            // add context variables
             global.vars = this.ctx.vars;
+            // add global pause function
+            global.pause = (ms) => new Promise(resolve => setTimeout(resolve, ms));
         }
     }
 
@@ -465,7 +467,6 @@ export default class Oxygen extends OxygenEvents {
             else if (methodName.indexOf('_') === 0 || methodName.indexOf('on') === 0) {
                 wrapper[methodName] = function() {
                     var args = Array.prototype.slice.call(arguments);
-
                     _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
 
                     try {
@@ -549,7 +550,6 @@ export default class Oxygen extends OxygenEvents {
                 let promiseDone = false;
 
                 retvalPromise.then((value) => {
-
                     retval = value;
                     promiseDone = true;
                 }, (e) => {
@@ -582,7 +582,6 @@ export default class Oxygen extends OxygenEvents {
                 error = errorHelper.getOxygenError(e, moduleName, cmdName, cmdArgs);
             }
         }
-
         const endTime = oxutil.getTimeStamp();
 
         let stepResult;
@@ -639,7 +638,6 @@ export default class Oxygen extends OxygenEvents {
                 let done = false;
                 let error = null;
                 let finalVal = null;
-
                 if (retval && retval.then) {
                     Promise.resolve(retval)
                     .then((val) => {
@@ -681,12 +679,12 @@ export default class Oxygen extends OxygenEvents {
             let retval = null;
 
             try {
-
                 // otherwise, if we are inside the Fiber context, then use Fiber's Future
                 const future = new Future();
                 var result = fn.apply(self, args);
                 if (result && typeof result.then === 'function') {
-                    result.then((val) => future.return(val), (err) => future.throw(err));
+                    result
+                        .then((val) => future.return(val), (err) => future.throw(err));
                     return future.wait();
                 }
                 return result;

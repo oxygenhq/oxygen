@@ -119,12 +119,24 @@ export default class WorkerProcess extends EventEmitter {
                 await this._debugger.resumeTerminate();
             }
             await this.invoke('dispose', status);
-            await snooze(100);
+            await snooze(100);            
         } else if (this._childProc) {
             await snooze(100);
         }
         if (this._debugger) {
             await this._debugger.close();
+        }
+        if (this._childProc) {
+            try {
+                /*this._send({
+                    type: 'exit',
+                    status: status,
+                });*/
+                this._childProc.kill('SIGINT');
+            }
+            catch (e) {
+                // ignore any error while killing the process
+            }            
         }
         this._reset();
     }
@@ -281,7 +293,7 @@ export default class WorkerProcess extends EventEmitter {
                             promise.reject(msg.error);
                         }
                         else {
-                            promise.resolve(msg.retval);
+                            promise.resolve(msg.retval || null);
                         }
                         delete this._calls[msg.callId];
                     }
@@ -333,6 +345,7 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     _handleChildSigInt() {
+        console.log(`Worker ${this._pid} received SIGINT signal.`);
         log.debug(`Worker ${this._pid} received SIGINT signal.`);
     }
 
