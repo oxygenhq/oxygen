@@ -54,7 +54,6 @@ const DEFAULT_OPTS = {
     timeout: DEFAULT_TIMEOUT // <number> timeout for step definitions in milliseconds
 };
 const MODULE_NAME_MATCH_REGEX = /^module-(.+?)\.js$/;
-const SERVICE_NAME_MATCH_REGEX = /^service-(.+?)\.js$/;
 const DO_NOT_WRAP_METHODS = ['driver', 'getDriver'];
 
 const DEFAULT_CTX = {
@@ -322,7 +321,6 @@ export default class Oxygen extends OxygenEvents {
                 continue;
             }
             const ServiceClass = Services[serviceName];
-            const oxServicesDirPath = oxutil.getOxServicesDir();
             try {
                 this.logger.debug('Loading service: ' + serviceName);
                 const service = this._loadService(serviceName, ServiceClass);
@@ -333,9 +331,9 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     }
-    
+
     _loadService(serviceName, servicePathOrClass) {
-        const ServiceClass = typeof servicePathOrClass === 'string' ? require(servicePathOrClass) : servicePathOrClass;
+        let ServiceClass = typeof servicePathOrClass === 'string' ? require(servicePathOrClass) : servicePathOrClass;
         // ES6 class will be under 'default' property
         if (ServiceClass.default) {
             ServiceClass = ServiceClass.default;

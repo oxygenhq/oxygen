@@ -109,6 +109,7 @@
     "prepublishOnly": "npm run build && node tools/dos2unix src/lib/cli.js",
     "postpublish": "node tools/unix2dos src/lib/cli.js",
     "lint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
+    "lint:fix": "eslint \"src/**/*.js\" \"tools/**/*.js\" --fix",
     "apidoc": "node -r esm tools/apidoc",
     "prod": "node ./build/lib/cli.js",
     "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod"

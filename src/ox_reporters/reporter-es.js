@@ -31,10 +31,6 @@ const ES_STEP_ENTRY = {
     //screenshot: null,
 };
 
-const ES_FAILURE_TYPE = {
-
-}
-
 const ES_STEPS_INDEX_NAME = '<cbrt-steps-{now/M}>';
 
 export default class ElasticSearchReporter extends RealTimeReporterBase {
@@ -60,8 +56,8 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
                     password: esUserOpts.password
                 };
             }
-            
-        }   
+
+        }
         this.esClient = new Client(esOpts);
     }
 
@@ -117,7 +113,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
         const esStepEntry = this._generateStepEntry(rid, stepEvent, totalRunners);
         const endedTransactionEntry = this._handleTransactionStep(esStepEntry);
         //const esTransactionEntry = this._generateTransactionEntry(rid, stepEvent, totalRunners);
-        try {            
+        try {
             if (endedTransactionEntry) {
                 await this.esClient.index({
                     index: ES_STEPS_INDEX_NAME,
@@ -128,7 +124,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
                 index: ES_STEPS_INDEX_NAME,
                 body: esStepEntry
             });
-            //console.log('es status', status)
+            console.log('es status', status);
         }
         catch (e) {
             console.error('Failed to index step:', e);
@@ -158,7 +154,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
             }
         }
         else if (lastTransEntry && esStepEntry.transaction_name !== lastTransEntry.transaction_name) {
-            this.lastTransactionByRunner[esStepEntry.rid] = { ...esStepEntry, step_name: esStepEntry.transaction_name, step_type: 'transaction' };            
+            this.lastTransactionByRunner[esStepEntry.rid] = { ...esStepEntry, step_name: esStepEntry.transaction_name, step_type: 'transaction' };
             return lastTransEntry;  // return the previous transaction so it will to be added to ES
         }
         return null;
@@ -171,7 +167,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
         entry.case_name = stepEvent.ctx.test.case.name;
         entry.iteration_num = stepEvent.ctx.test.case.iteration;
         entry.suite_name = stepEvent.ctx.test.suite.name;
-        entry.start_time = moment(stepResult.startTime).format('yyyy-MM-DDTHH:mm:ssZ');        
+        entry.start_time = moment(stepResult.startTime).format('yyyy-MM-DDTHH:mm:ssZ');
         entry.duration = stepResult.duration / 1000;
         entry.step_name = stepResult.name;
         entry.location = stepResult.location;
@@ -180,7 +176,7 @@ export default class ElasticSearchReporter extends RealTimeReporterBase {
         entry.failure_rate = stepResult.status === 'failed' ? 1 : 0;
         if (stepResult.screenshot) {
             entry.screenshot = stepResult.screenshot;
-        }        
+        }
         entry.active_users = totalRunners;
         if (stepResult.failure) {
             entry.failure = {

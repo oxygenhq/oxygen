@@ -64,7 +64,7 @@ const ERROR_CODES = {
     HOOK_ERROR: 'HOOK_ERROR',
     NOT_SUPPORTED: 'NOT_SUPPORTED',
     ASSERT_PASSED: 'ASSERT_PASSED',
-    MODULE_NOT_FOUND: 'MODULE_NOT_FOUND'
+    MODULE_NOT_FOUND: 'MODULE_NOT_FOUND',
     NETWORK_ERROR: 'NETWORK_ERROR'
 };
 
@@ -185,7 +185,6 @@ module.exports = {
         }
         else if (err.message && err.message.startsWith('socket hang up')) {
             return new OxError(ERROR_CODES.NETWORK_ERROR, 'Cannot open network port or socket: ' + err.message);
-            return new OxError(ERROR_CODES.MODULE_NOT_FOUND, err.message);
         }
         //  when doing an operation on an element (e.g. click) but the window was already closed
         else if (err.message && err.message.includes('no such window') && err.message.includes('target window already closed') && err.message.includes('web view not found')) {

@@ -7,10 +7,8 @@
  * (at your option) any later version.
  */
 
-import _ from 'lodash';
 import * as Runners from '../runners';
 import queue from 'async/queue';
-import { parseUrlEncoded } from 'chrome-har/lib/util';
 import oxutil from './util';
 
 export default class LoadLauncher {
@@ -37,14 +35,13 @@ export default class LoadLauncher {
         }
         const totalThreadsCount = allCases.reduce((total, cs) => { return cs.load && cs.load.threads ? total + cs.load.threads : total; }, 0);
         if (totalThreadsCount == 0) {
-            throw new Error('Cannot start the load test - no cases with "load" property are defined.')
+            throw new Error('Cannot start the load test - no cases with "load" property are defined.');
         }
         this._queue = queue((task, cb) => this._launchTest(task, cb), totalThreadsCount);
         this._queue.error((err, task) => {
             console.log('Error in queue:', err);
         });
 
-        
         // if no capabilities are specified, run single instance with default arguments
         // alternatively, pick the first capabilities set (load test is limited to a single browser type)
         const testCaps = capsSet ? (Array.isArray(capsSet) ? capsSet[0] : capsSet) : null;
@@ -72,7 +69,7 @@ export default class LoadLauncher {
                 startupDelay += delayBetweenThreads;
             }
         }
-        
+
         await this._queue.drain();
     }
 

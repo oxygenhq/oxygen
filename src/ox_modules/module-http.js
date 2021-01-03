@@ -136,7 +136,7 @@ export default class HttpModule extends OxygenModule {
         };
         return this._httpRequestSync(httpOpts);
     }
-    
+
     /**
      * @summary Returns last response object
      * @function getResponse
@@ -256,7 +256,7 @@ export default class HttpModule extends OxygenModule {
      * @summary Assert HTTP 200 OK status
      * @function assertStatusOk
      */
-    assertStatusOk() {        
+    assertStatusOk() {
         return this.assertStatus(200);
     }
 

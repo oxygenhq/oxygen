@@ -88,7 +88,7 @@ export default class ReportAggregator extends EventEmitter {
             const reporterOpts = typeof reporter === 'object' ? reporter : generalReportingOpts;
 
             if (Object.prototype.hasOwnProperty.call(Reporters, reporterName)) {
-                const reporter = new Reporters[reporterName](this.options, reporterOpts);                
+                const reporter = new Reporters[reporterName](this.options, reporterOpts);
                 if (reporter instanceof RealTimeReporterBase) {
                     this.rtReports.push(reporter);
                 }
@@ -136,7 +136,7 @@ export default class ReportAggregator extends EventEmitter {
         this._emit_RunnerStart(rid, opts, caps, testResult);
     }
 
-    onRunnerEnd(rid, finalResult, fatalError) {        
+    onRunnerEnd(rid, finalResult, fatalError) {
         const testResult = this.results.find(x => x.rid === rid);
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
@@ -165,7 +165,7 @@ export default class ReportAggregator extends EventEmitter {
             }
             console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }
-        this.activeRunners--;        
+        this.activeRunners--;
         this._emit_RunnerEnd(rid, testResult);
         if (this.runnerEndPromises[rid]) {
             // calling nextTick() will help us to insure that we resolve the promise after emit('runner:end') has completed
@@ -190,12 +190,12 @@ export default class ReportAggregator extends EventEmitter {
             console.log(msg);
             this.onLogEntry(null, 'INFO', msg, 'user');
             this._emit_IterationEnd(rid, result);
-        }        
+        }
     }
 
     onSuiteStart(rid, suiteId, suiteDef) {
         console.log(`Suite "${suiteDef.name}" has started...`);
-        this._emit_SuiteStart(rid, suiteId, suiteDef)        
+        this._emit_SuiteStart(rid, suiteId, suiteDef);
     }
 
     onSuiteEnd(rid, suiteId, suiteResult) {
@@ -205,17 +205,17 @@ export default class ReportAggregator extends EventEmitter {
         }
         testResult.suites.push(suiteResult);
         console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
-        this._emit_SuiteEnd(rid, suiteId, suiteResult)        
+        this._emit_SuiteEnd(rid, suiteId, suiteResult);
     }
 
     onCaseStart(rid, suiteId, caseId, caseDef) {
         console.log(`- Case "${caseDef.name}" has started...`);
-        this._emit_CaseStart(rid, suiteId, caseId, caseDef);   
+        this._emit_CaseStart(rid, suiteId, caseId, caseDef);
     }
 
     onCaseEnd(rid, suiteId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
-        this._emit_CaseEnd(rid, suiteId, caseId, caseResult);           
+        this._emit_CaseEnd(rid, suiteId, caseId, caseResult);
     }
 
     onStepStart(rid, step) {
@@ -225,7 +225,7 @@ export default class ReportAggregator extends EventEmitter {
             const fullPath = path.resolve(this.options.rootPath, step.location);
             step.location = fullPath+':1';
         }
-        this._emit_StepStart(rid, step);                   
+        this._emit_StepStart(rid, step);
     }
 
     onStepEnd(rid, stepEndEvent) {
@@ -233,7 +233,7 @@ export default class ReportAggregator extends EventEmitter {
         const status = stepResult.status.toUpperCase();
         const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
         console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
-        this._emit_StepEnd(rid, stepEndEvent);                   
+        this._emit_StepEnd(rid, stepEndEvent);
     }
 
     onLogEntry(time, level, msg, src = null) {
@@ -287,7 +287,7 @@ export default class ReportAggregator extends EventEmitter {
         });
         this._notifyRealTimeReporters('onRunnerStart', [rid, opts, caps, testResult, this.activeRunners]);
     }
-    
+
     _emit_RunnerEnd(rid, testResult) {
         this._emitEvent('runner:end', {
             rid,
@@ -314,7 +314,6 @@ export default class ReportAggregator extends EventEmitter {
         this._notifyRealTimeReporters('onSuiteEnd', [rid, suiteId, suiteResult, this.activeRunners]);
     }
 
-    
     _emit_CaseStart(rid, suiteId, caseId, caseDef) {
         this._emitEvent('case:start', {
             rid,
@@ -323,7 +322,7 @@ export default class ReportAggregator extends EventEmitter {
             case: caseDef,
         });
         this._notifyRealTimeReporters('onCaseStart', [rid, suiteId, caseId, caseDef, this.activeRunners]);
-    } 
+    }
 
     _emit_CaseEnd(rid, suiteId, caseId, caseResult) {
         this._emitEvent('case:end', {
@@ -333,7 +332,7 @@ export default class ReportAggregator extends EventEmitter {
             result: caseResult,
         });
         this._notifyRealTimeReporters('onCaseEnd', [rid, suiteId, caseId, caseResult, this.activeRunners]);
-    } 
+    }
 
     _emit_StepStart(rid, event) {
         this._emitEvent('step:start', {

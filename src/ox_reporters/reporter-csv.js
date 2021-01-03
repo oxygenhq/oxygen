@@ -36,7 +36,7 @@ export default class CsvReporter extends FileReporterBase {
         if (rows.length > 0) {
             const csvData = this._getCsvData(rows);
             this.writeToFile(resultFilePath, csvData);
-        }    
+        }
 
         return resultFilePath;
     }
@@ -46,7 +46,7 @@ export default class CsvReporter extends FileReporterBase {
             let lastTransaction = null;
             for (let step of caseResult.steps) {
                 // identify fist time we see this transaction
-                if (step.transaction && (!lastTransaction || lastTransaction.name !== step.transaction)) {                   
+                if (step.transaction && (!lastTransaction || lastTransaction.name !== step.transaction)) {
                     lastTransaction = {
                         name: step.transaction,
                         case: caseResult.name,
@@ -64,7 +64,7 @@ export default class CsvReporter extends FileReporterBase {
                     // make sure we are not counting sleep time
                     if (step.name.indexOf('web.pause') == -1 && step.name.indexOf('mob.pause') == -1) {
                         lastTransaction.duration += step.duration || 0;
-                    }                        
+                    }
                 }
                 // check if the current step has failed
                 if (step.status === 'failed' && lastTransaction) {
@@ -83,12 +83,12 @@ export default class CsvReporter extends FileReporterBase {
         }
         rows.push(trans);
     }
-    
+
     _getCsvData(rows) {
         const opts = {};
         const parser = new Json2csvParser(opts);
         const csvData = parser.parse(rows);
-    
+
         return csvData;
     }
 }
