@@ -116,7 +116,11 @@ export default class WorkerProcess extends EventEmitter {
     async stop(status = null) {
         if (this._isInitialized && this._childProc) {
             if (this._debugger && this._debugger._paused) {
-                await this._debugger.resumeTerminate();
+                if ('CANCELED' === status) {
+                    await this._debugger.disable();
+                } else {
+                    await this._debugger.resumeTerminate();
+                }
             }
             await this.invoke('dispose', status);
             await snooze(100);
