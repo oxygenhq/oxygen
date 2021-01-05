@@ -63,20 +63,35 @@ export default class OxygenError extends Error {
 
         if (this.orgErr && this.orgErr.stack) {
             const anotherStack = stackTraceParser.parse(this.orgErr.stack);
-
+            let callIndex = null;
             // 0 element don't have correct information about lineNumber and column
             if (
                 anotherStack &&
+                anotherStack.length > 1 &&
                 anotherStack[0] &&
                 anotherStack[1]['file'] &&
                 anotherStack[0]['file'] &&
-                anotherStack[1]['file'] === anotherStack[0]['file'] &&
-                anotherStack[1]['lineNumber'] &&
-                anotherStack[1]['column']
+                anotherStack[1]['file'] === anotherStack[0]['file']
             ) {
-                anotherFile = anotherStack[1]['file'];
-                anotherLineNumber = anotherStack[1]['lineNumber'];
-                anotherColumn = anotherStack[1]['column'];
+                callIndex = 1;
+            }
+            else if (
+                anotherStack &&
+                anotherStack.length > 0 &&
+                anotherStack[0]
+            ) {
+                callIndex = 0;                
+            }
+
+            if (callIndex != null) {
+                anotherFile = anotherStack[callIndex]['file'];
+                anotherLineNumber = anotherStack[callIndex]['lineNumber'];
+                anotherColumn = anotherStack[callIndex]['column'];
+                this.location = anotherColumn ? 
+                    `${this.patchFilePathOnWindows(anotherFile)}:${anotherLineNumber}:${anotherColumn}` :
+                    `${this.patchFilePathOnWindows(anotherFile)}:${anotherLineNumber}`;
+                this.stacktrace = [this.location];
+                return;
             }
         }
 

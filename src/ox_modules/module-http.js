@@ -335,7 +335,12 @@ export default class HttpModule extends OxygenModule {
         if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
             throw result;
         }
-        else if ((result.statusCode < 200 || result.statusCode >= 300) && this.options && !this.options.httpAutoThrowError) {
+        else if (
+            (result.statusCode < 200 || result.statusCode >= 300) &&
+            this.options && 
+            (this.options.httpAutoThrowError == undefined ||
+            this.options.httpAutoThrowError == true)
+        ) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
         }

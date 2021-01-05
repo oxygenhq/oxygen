@@ -118,8 +118,10 @@ export default class WorkerProcess extends EventEmitter {
             if (this._debugger && this._debugger._paused) {
                 await this._debugger.resumeTerminate();
             }
+            /*console.log('stop - before dispose')
             await this.invoke('dispose', status);
-            await snooze(100);            
+            console.log('stop - after dispose')
+            await snooze(100);            */
         } else if (this._childProc) {
             await snooze(100);
         }
@@ -132,17 +134,19 @@ export default class WorkerProcess extends EventEmitter {
                     type: 'exit',
                     status: status,
                 });*/
-                this._childProc.kill('SIGINT');
+                //this._childProc.kill('SIGINT');
+                await this._killChildProc();                
             }
             catch (e) {
                 // ignore any error while killing the process
             }            
         }
+        this._rejectAllPendingCalls();
         this._reset();
     }
 
     kill() {
-        this._childProc.kill('SIGINT');
+        this._childProc.kill('SIGTERM');
     }
 
     async init(rid, options, caps) {
@@ -249,6 +253,21 @@ export default class WorkerProcess extends EventEmitter {
         });
         this._calls[callId] = defer();
         return this._calls[callId].promise;
+    }
+
+    _rejectAllPendingCalls() {
+        for (let callId of Object.keys(this._calls)) {
+            this._calls[callId].reject('SIGINT');
+        }
+    }
+
+    async _killChildProc() {
+        if (this._childProc) {
+            this._calls['SIGINT'] = defer();   
+            //setTimeout(() => this._childProc.kill('SIGINT'), 100);
+            //this._childProc.kill('SIGINT');
+            return this._calls['SIGINT'].promise;
+        }        
     }
 
     _send(message) {

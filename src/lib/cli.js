@@ -11,6 +11,8 @@ import * as cliutil from './cli-util';
 import Launcher from './launcher';
 import LoadLauncher from './launcher-load';
 import ReportAggregator from '../reporter/ReportAggregator';
+
+let launcher = null;
 /*
 import CsvReporter from '../ox_reporters/reporter-csv';
 const results = require('/Users/n/Documents/CloudBeat/Code/oxygen-examples-loadtest/reports/2020-11-27_113705/report.json');
@@ -82,7 +84,7 @@ async function prepareAndStartTheTest(options) {
     try {
         const LauncherClass = options.launcher && options.launcher === 'loadtest' ? LoadLauncher : Launcher;
         const reporter = new ReportAggregator(options);
-        const launcher = new LauncherClass(options, reporter);
+        launcher = new LauncherClass(options, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();
@@ -96,9 +98,13 @@ async function prepareAndStartTheTest(options) {
     return exitCode;
 }
 
-function handleSigInt() {
+async function handleSigInt() {
+    if (launcher) {
+        await launcher.kill();
+        launcher = null;
+    }
     // delay process exit to let Oxygen to properly dispose
-    setTimeout(() => process.exit(0), 2000);
+    setTimeout(() => process.exit(0), 5000);
 }
 
 function printUsage() {

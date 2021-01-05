@@ -17,6 +17,18 @@ export default class Launcher {
         this.reporter = reporter;
         this._results = [];
         this._queue = null;
+        this._runnerList = [];
+    }
+
+    async kill() {
+        if (this._queue) {
+            await this._queue.pause();
+            await this._stopAllRunners();
+            await this._queue.resume();
+            console.log('killing queue')
+            await this._queue.kill();
+            console.log('after killing queue')
+        }
     }
 
     async run(capsSet) {
@@ -61,6 +73,16 @@ export default class Launcher {
         return new Runners.oxygen();
     }
 
+    async _stopAllRunners() {
+        if (!this._runnerList || this._runnerList.length == 0) {
+            return;
+        }
+        let runner;
+        while (runner = this._runnerList.shift()) {
+            await runner.stop();
+        }
+    }
+
     async _launchTest(caps, callback) {
         if (!callback) {
             return;
@@ -71,6 +93,7 @@ export default class Launcher {
             callback(new Error(`Cannot find runner for the specified framework: ${framework}.`));
             return;
         }
+        this._runnerList.push(runner);
         try {
             // initialize oxygen
             await runner.init(this._config, caps, this.reporter);

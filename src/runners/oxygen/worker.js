@@ -98,6 +98,10 @@ process.on('uncaughtException', async(err, origin) => {
 
 process.on('SIGINT', async function() {
     await dispose('CANCELED');
+    processSend({
+        event: 'invoke:result',
+        callId: 'SIGINT',
+    });
     process.exit(0);
 });
 

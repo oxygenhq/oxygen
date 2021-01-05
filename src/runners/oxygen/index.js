@@ -217,6 +217,7 @@ export default class OxygenRunner extends EventEmitter {
             result = await this._runTest();
         }
         catch (e) {
+            console.log('e', e)
             error = e;
         }
 
@@ -236,6 +237,12 @@ export default class OxygenRunner extends EventEmitter {
         this._testKilled = true;
         if (this._worker && this._worker.isRunning) {
             await this._worker.kill(status);
+        }
+    }
+
+    async stop(status = null) {
+        if (this._worker && this._worker.isRunning) {
+            await this._worker.stop(status);
         }
     }
 
@@ -530,9 +537,7 @@ export default class OxygenRunner extends EventEmitter {
             log.error('_worker_Run() thrown an error:', e);
             caseResult.failure = errorHelper.getFailureFromError(e);
             caseResult.status = Status.FAILED;
-
         }
-
         return caseResult;
     }
 

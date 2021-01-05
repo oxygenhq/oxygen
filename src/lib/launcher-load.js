@@ -17,6 +17,15 @@ export default class LoadLauncher {
         this.reporter = reporter;
         this._queue = null;
         this._activeThreads = 0;
+        this._runnerList = [];
+    }
+
+    async kill() {
+        if (this._queue) {
+            await this._queue.pause();
+            await this._stopAllRunners();
+            await this._queue.kill();
+        }
     }
 
     async run(capsSet) {
@@ -86,18 +95,29 @@ export default class LoadLauncher {
         return new Runners.oxygen();
     }
 
+    async _stopAllRunners() {
+        if (!this._runnerList || this._runnerList.length == 0) {
+            return;
+        }
+        let runner;
+        while (runner = this._runnerList.shift()) {
+            await runner.kill();
+        }
+    }
+
     async _launchTest({ threadKey, testConfig, testCaps, startupDelay }, callback) {
         if (!callback) {
             return;
         }
         await this._sleep(startupDelay);
         this._activeThreads++;
-        const runner = this._instantiateRunner();
+        const runner = this._instantiateRunner();        
         if (!runner) {
             const framework = this._config.framework;
             callback(new Error(`Cannot find runner for the specified framework: ${framework}.`));
             return;
         }
+        this._runnerList.push(runner);
         try {
             // generate firefox "profile" value if profile options are specified
             await oxutil.generateFirefoxOptionsProfile(testCaps);

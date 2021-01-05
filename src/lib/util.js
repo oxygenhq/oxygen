@@ -46,28 +46,35 @@ var self = module.exports = {
         const suiteFilePath = suiteDef.path || path.join(testConfig.target.cwd, 'suites', `${suiteDef.name}.json`);
         suite.paramManager = await self.getParameterManager(suiteFilePath, testConfig.parameters, testConfig.target.cwd);
         if (suite.paramManager && suite.paramManager.getMode() == 'all') {
-            suite.iterationCount = suite.paramManajuger.rows;
+            suite.iterationCount = suite.paramManager.rows;
         }
         suite.capabilities = suiteDef.capabilities || testConfig.capabilities || {};
         suite.environment = testConfig.environment || null;
         suite.options = testConfig.options || null;
         suite.parallel = suiteDef.parallel || testConfig.parallel || testConfig.concurrency || 1;
         // initialize each test case
-        suiteDef.cases.forEach(caseDef => {
+        for (let caseDef of suiteDef.cases) {
             // initialize testcase object
             const tc = new require('../model/testcase.js')();
             if (caseDef.name)
                 tc.name = caseDef.name;
             else
                 tc.name = self.getFileNameWithoutExt(caseDef.path);
+            tc.iterationCount = caseDef.iterations || 1;
             tc.path = self.resolvePath(caseDef.path, testConfig.target.cwd);
             tc.format = 'js';
-            tc.iterationCount = caseDef.iterations || 1;
+            // handle parameters if defined in the test case
+            if (caseDef.parameters) {
+                tc.paramManager = await self.getParameterManager(tc.path, caseDef.parameters, testConfig.target.cwd);
+                if (tc.paramManager && tc.paramManager.getMode() == 'all') {
+                    tc.iterationCount = tc.paramManager.rows;
+                }
+            }
             if (caseDef.load) {
                 tc.load = caseDef.load;
             }
             suite.cases.push(tc);
-        });
+        };
         return suite;
     },
 
@@ -286,7 +293,7 @@ var self = module.exports = {
     },
 
     generateFirefoxOptionsProfile: async function(caps) {
-        if (!caps.browserName || !caps.browserName === 'firefox' || !caps['moz:firefoxOptions']) {
+        if (!caps || !caps.browserName || !caps.browserName === 'firefox' || !caps['moz:firefoxOptions']) {
             return caps;
         }
         const profilePrefs = caps['moz:firefoxOptions'].prefs;
