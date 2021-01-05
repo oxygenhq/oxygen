@@ -1,0 +1,4 @@
+{
+    "start" : "\\build\\lib\\cli.js", 
+    "startDarwin" : "/build/lib/cli.js"
+}

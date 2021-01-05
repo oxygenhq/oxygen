@@ -1,0 +1,1 @@
+shell.exec('node', ['--version']);

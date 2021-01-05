@@ -38,11 +38,11 @@
     "@babel/core": "7.10.5",
     "@babel/preset-env": "7.10.4",
     "babel-plugin-source-map-support": "2.1.3",
-    "cross-env": "7.0.2",
     "doctrine": "3.0.0",
     "eslint": "6.8.0",
     "husky": "4.2.5",
     "md-reverse": "1.0.0",
+    "mocha": "^8.1.3",
     "npm-run-all": "4.1.5"
   },
   "dependencies": {
@@ -106,7 +106,23 @@
     "lint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
     "apidoc": "node -r esm tools/apidoc",
     "prod": "node ./build/lib/cli.js",
-    "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod"
+    "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod",
+    "test-web": "mocha 'e2e/tests/web.js' --timeout 1000000",
+    "test-win": "mocha 'e2e/tests/win.js' --timeout 1000000",
+    "test-mob-web": "mocha 'e2e/tests/mob.web.js' --timeout 1000000",
+    "test-mob-android": "mocha 'e2e/tests/mob.android.js' --timeout 1000000",
+    "test-mob-ios": "mocha 'e2e/tests/mob.ios.js' --timeout 1000000",
+    "test-twilio": "mocha 'e2e/tests/twilio.js' --timeout 1000000",
+    "test-soap": "mocha 'e2e/tests/soap.js' --timeout 1000000",
+    "test-shell": "mocha 'e2e/tests/shell.js' --timeout 1000000",
+    "test-serial": "mocha 'e2e/tests/serial.js' --timeout 1000000",
+    "test-pdf": "mocha 'e2e/tests/pdf.js' --timeout 1000000",
+    "test-log": "mocha 'e2e/tests/log.js' --timeout 1000000",
+    "test-http": "mocha 'e2e/tests/http.js' --timeout 1000000",
+    "test-email": "mocha 'e2e/tests/email.js' --timeout 1000000",
+    "test-db": "mocha 'e2e/tests/db.js' --timeout 1000000",
+    "test-date": "mocha 'e2e/tests/date.js' --timeout 1000000",
+    "test-assert": "mocha 'e2e/tests/assert.js' --timeout 1000000"
   },
   "engines": {
     "node": ">=10.18.1 <13.0"

@@ -1,0 +1,43 @@
+### dependencies
+- Windows
+- appium
+
+### win
+- [x] getCapabilities
+- [x] init
+- [x] dispose
+- [x] transaction
+- [x] assertText
+- [x] assertTitle
+- :x: assertValue
+- :x: back
+- [x] clear
+- [x] click
+- [x] clickLong
+- [x] clickMultipleTimes
+- [x] findElement
+- [x] findElements
+- :x: getAppiumLogs
+- :x: getLocation
+- [x] getSource
+- [x] getText
+- :x: getValue
+- :x: isCheckable
+- :x: isChecked
+- :x: isClickable
+- [x] isExist
+- [x] isSelected
+- [x] isVisible
+- :x: open
+- [x] pause
+- [x] rightClick
+- :x: sendKeys
+- [x] setTimeout
+- [x] takeScreenshot
+- :x: tap
+- [x] type
+- [x] waitForExist
+- [x] waitForVisible
+- :grey_question: getCurrentWindowHandle
+- :grey_question: getWindowHandles
+- :grey_question: selectWindow
