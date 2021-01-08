@@ -111,7 +111,7 @@ export default class LoadLauncher {
         }
         await this._sleep(startupDelay);
         this._activeThreads++;
-        const runner = this._instantiateRunner();        
+        const runner = this._instantiateRunner();
         if (!runner) {
             const framework = this._config.framework;
             callback(new Error(`Cannot find runner for the specified framework: ${framework}.`));

@@ -80,14 +80,14 @@ export default class OxygenError extends Error {
                 anotherStack.length > 0 &&
                 anotherStack[0]
             ) {
-                callIndex = 0;                
+                callIndex = 0;
             }
 
             if (callIndex != null) {
                 anotherFile = anotherStack[callIndex]['file'];
                 anotherLineNumber = anotherStack[callIndex]['lineNumber'];
                 anotherColumn = anotherStack[callIndex]['column'];
-                this.location = anotherColumn ? 
+                this.location = anotherColumn ?
                     `${this.patchFilePathOnWindows(anotherFile)}:${anotherLineNumber}:${anotherColumn}` :
                     `${this.patchFilePathOnWindows(anotherFile)}:${anotherLineNumber}`;
                 this.stacktrace = [this.location];

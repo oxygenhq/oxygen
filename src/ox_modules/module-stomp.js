@@ -12,18 +12,13 @@
  * @description Provides methods for working with Stomp protocol over Web Socket
  */
 import { EventEmitter } from 'events';
-import StompJs, { Client, Message } from '@stomp/stompjs';
+import { Client } from '@stomp/stompjs';
 // workaround to fix "WebSocket is not defined" issue
 Object.assign(global, { WebSocket: require('ws') });
 
 import OxygenModule from '../core/OxygenModule';
-import OxError from '../errors/OxygenError';
-import errHelper from '../errors/helper';
-import modUtils from './utils';
-import { listen } from 'soap';
 
 const MODULE_NAME = 'stomp';
-const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
 
 export default class StompModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -33,8 +28,8 @@ export default class StompModule extends OxygenModule {
         this._attemptToConnect = false;
         this._connectPromiseResolve = null;
         this._connectPromiseReject = null;
-        this._client = null;      
-        this._emmiter = new EventEmitter();  
+        this._client = null;
+        this._emmiter = new EventEmitter();
         // pre-initialize the module
         this._isInitialized = true;
     }
@@ -82,7 +77,7 @@ export default class StompModule extends OxygenModule {
      * @function connect
      * @param {Object=} opts - Stomp options.
      */
-    async connect(opts = {}, brokerUrl = null) {        
+    async connect(opts = {}, brokerUrl = null) {
         const clientOpts = {
             brokerURL: this.brokerUrl || brokerUrl,
             ...opts
@@ -100,11 +95,11 @@ export default class StompModule extends OxygenModule {
         const client = new Client(clientOpts);
         this._client = client;
         this._attemptToConnect = true;
-          
-        client.onConnect = this._handleConnect.bind(this);          
-        client.onStompError = this._handleStompError.bind(this); 
+
+        client.onConnect = this._handleConnect.bind(this);
+        client.onStompError = this._handleStompError.bind(this);
         client.onWebSocketError = this._handleWSError.bind(this);
-          
+
         client.activate();
         return new Promise((resolve, reject) => { this._connectPromiseResolve = resolve; this._connectPromiseReject = reject; });
     }
@@ -135,7 +130,7 @@ export default class StompModule extends OxygenModule {
     }
 
     _handleWSError(error) {
-        console.log('onWebSocketError event: ', error)
+        console.log('onWebSocketError event: ', error);
         if (this._connectPromiseReject) {
             this._connectPromiseReject(error);
             this._resetConnectPromise();
@@ -148,8 +143,8 @@ export default class StompModule extends OxygenModule {
         if (this._connectPromiseResolve) {
             this._connectPromiseResolve();
             this._resetConnectPromise();
-        }        
-    };
+        }
+    }
 
     _handleStompError(frame) {
         // Will be invoked in case of error encountered at Broker
@@ -163,7 +158,7 @@ export default class StompModule extends OxygenModule {
             this._connectPromiseReject(frame);
             this._resetConnectPromise();
         }
-    };
+    }
 
     _resetConnectPromise() {
         this._connectPromiseReject = this._connectPromiseResolve = null;

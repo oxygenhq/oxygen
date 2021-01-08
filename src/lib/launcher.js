@@ -25,9 +25,9 @@ export default class Launcher {
             await this._queue.pause();
             await this._stopAllRunners();
             await this._queue.resume();
-            console.log('killing queue')
+            console.log('killing queue');
             await this._queue.kill();
-            console.log('after killing queue')
+            console.log('after killing queue');
         }
     }
 

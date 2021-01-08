@@ -71,12 +71,13 @@ function stringify(obj) {
     return (typeof obj === 'string' || obj instanceof String ? obj : JSON.stringify(obj, null, 2));
 }
 
+oxutil.hookLogs(logger);
 // redirect stdout and stderr to the logger
 //process.stdout.write = logger.debug;
 //process.stderr.write = logger.error;
 
 process.on('unhandledRejection', async(err, origin) => {
-    console.log('unhandledRejection', err)
+    console.log('unhandledRejection', err);
     logger.error(err.message, ISSUERS.USER);
     processSend({
         event: 'workerError',

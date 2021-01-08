@@ -861,6 +861,13 @@ export default class Debugger extends EventEmitter {
         }
     }
 
+    async disable() {
+        if (this._paused) {
+            this._paused = false;
+            await this._Debugger.disable(true);
+        }
+    }
+
     async removeBreakpointByValue(filePath, inputLine) {
 
         const filePathAlias = this.inFileNameAliases(filePath);

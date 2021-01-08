@@ -116,7 +116,11 @@ export default class WorkerProcess extends EventEmitter {
     async stop(status = null) {
         if (this._isInitialized && this._childProc) {
             if (this._debugger && this._debugger._paused) {
-                await this._debugger.resumeTerminate();
+                if ('CANCELED' === status) {
+                    await this._debugger.disable();
+                } else {
+                    await this._debugger.resumeTerminate();
+                }
             }
             /*console.log('stop - before dispose')
             await this.invoke('dispose', status);
@@ -135,11 +139,11 @@ export default class WorkerProcess extends EventEmitter {
                     status: status,
                 });*/
                 //this._childProc.kill('SIGINT');
-                await this._killChildProc();                
+                await this._killChildProc();
             }
             catch (e) {
                 // ignore any error while killing the process
-            }            
+            }
         }
         this._rejectAllPendingCalls();
         this._reset();
@@ -263,11 +267,11 @@ export default class WorkerProcess extends EventEmitter {
 
     async _killChildProc() {
         if (this._childProc) {
-            this._calls['SIGINT'] = defer();   
+            this._calls['SIGINT'] = defer();
             //setTimeout(() => this._childProc.kill('SIGINT'), 100);
             //this._childProc.kill('SIGINT');
             return this._calls['SIGINT'].promise;
-        }        
+        }
     }
 
     _send(message) {

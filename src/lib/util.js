@@ -14,6 +14,7 @@ const path = require('path');
 const fs = require('fs');
 const moment = require('moment');
 const crypto = require('crypto');
+const util = require('util');
 const FirefoxProfile = require('firefox-profile');
 
 const DUMMY_HOOKS = {
@@ -74,7 +75,7 @@ var self = module.exports = {
                 tc.load = caseDef.load;
             }
             suite.cases.push(tc);
-        };
+        }
         return suite;
     },
 
@@ -286,6 +287,71 @@ var self = module.exports = {
 
     getOxModulesDir: function() {
         return path.join(__dirname, '..', 'ox_modules');
+    },
+
+    hookLogs(logger) {
+        const origlog = console.log;
+        const origDebug = console.debug;
+        const origInfo = console.info;
+        const origWarn = console.warn;
+        const origError = console.error;
+
+        const processArgs = (argumentArray) => {
+            let result = [];
+
+            if (argumentArray && argumentArray.map) {
+                argumentArray.map((item) => {
+                    if (typeof item === 'string') {
+                        result.push(`${item}`);
+                    } else {
+                        result.push(`${util.inspect(item)}`);
+                    }
+                });
+            }
+
+            return result.join(' ');
+        };
+
+        console.log = function (...argumentArray) {
+            origlog.apply(this, argumentArray);
+            logger.info(processArgs(argumentArray));
+        };
+        console.debug = function (...argumentArray) {
+            origDebug.apply(this, argumentArray);
+            logger.debug(processArgs(argumentArray));
+        };
+        console.info = function (...argumentArray) {
+            origInfo.apply(this, argumentArray);
+            logger.info(processArgs(argumentArray));
+        };
+        console.warn = function (...argumentArray) {
+            origWarn.apply(this, argumentArray);
+            logger.warn(processArgs(argumentArray));
+        };
+        console.error = function (...argumentArray) {
+            origError.apply(this, argumentArray);
+            logger.error(processArgs(argumentArray));
+        };
+    },
+
+    makeTransactionFailedIfStepFailed(steps) {
+        if (steps && steps.length && steps.length > 0) {
+            let lastFindedTransactionIndex = false;
+            const newSteps = [...steps];
+            steps.map((item, idx) => {
+                if (item.name && item.name.includes && item.name.includes('.transaction(')) {
+                    lastFindedTransactionIndex = idx;
+                }
+
+                if (typeof lastFindedTransactionIndex === 'number' && item.status && item.status === 'failed') {
+                    newSteps[lastFindedTransactionIndex]['status'] = 'failed';
+                }
+            });
+
+            return newSteps;
+        }
+
+        return steps;
     },
 
     getOxServicesDir: function() {

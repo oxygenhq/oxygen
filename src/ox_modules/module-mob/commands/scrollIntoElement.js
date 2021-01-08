@@ -13,35 +13,67 @@
  * @param {String} scrollElmLocator - View element to scroll.
  * @param {String} findElmLocator - Target element to find in the view.
  * @param {Number=} xoffset - Indicates the size in pixels of the horizontal scroll step (positive - scroll right, negative - scroll left). Default is 0.
- * @param {Number=} yoffset - Indicates the size in pixels of the vertical scroll step (positive - scroll up, negative - scroll down). Default is -30.
+ * @param {Number=} yoffset - Indicates the size in pixels of the vertical scroll step (positive - scroll down, negative - scroll up). Default is 30.
  * @param {Number=} retries - Indicates the number of scroll retries before giving up if element not found. Default is 50.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
+ * @param {Number=} duration - Duration of swipe. Default is 3000 (3sec)
  * @for android, ios
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
- * mob.scrollIntoElement('id=bottomPanel','id=Button',0,-30,50);//Scrolls the view element until a specified target element inside the view is found.
+ * mob.scrollIntoElement('id=bottomPanel','id=Button',0,30,50);//Scrolls the view element until a specified target element inside the view is found.
 */
-module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, yoffset = -30, retries = 50, timeout) {
+module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, yoffset = 30, retries = 50, timeout, duration = 3000) {
+    this.helpers.assertArgument(scrollElmLocator, 'scrollElmLocator');
+    this.helpers.assertArgument(findElmLocator, 'findElmLocator');
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
     this.helpers.assertArgumentNumber(retries, 'retries');
+    this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    this.helpers.assertArgumentNumber(duration, 'duration');
 
     var scrollElm = await this.helpers.getElement(scrollElmLocator, false, timeout);
-    var findElmWDLocator = await this.helpers.getWdioLocator(findElmLocator);
 
     var retry = 0;
 
     await this.helpers.setTimeoutImplicit(500);
 
     while (retry < retries) {
-        var el = await this.driver.$(findElmWDLocator);
+        var err = false;
+        try {
+            var el = await this.helpers.getElement(findElmLocator, true, 1000);
+        } catch (e) {
+            err = true;
+        }
 
-        if (el.error && el.error.error === 'no such element') {
+        if ((el && el.error && el.error.error === 'no such element') || err) {
             retry++;
-            await scrollElm.touchAction([
-                'press',
-                { action: 'moveTo', x: xoffset, y: yoffset },
-                'release'
+
+            const location = await scrollElm.getLocation();
+            await this.driver.touchPerform([
+                {
+                    action: 'press',
+                    options: {
+                        x: location.x,
+                        y: location.y,
+                    },
+                },
+                {
+                    action: 'wait',
+                    options: {
+                        ms: duration,
+                    },
+                },
+                {
+                    action: 'moveTo',
+                    options: {
+                        x: xoffset,
+                        y: yoffset,
+                    },
+                },
+                {
+                    action: 'release',
+                    options: {},
+                },
             ]);
         } else if (el.error) {
             await this.helpers.restoreTimeoutImplicit();

@@ -427,30 +427,36 @@ export default class WebModule extends WebDriverModule {
         this.lastNavigationStartTime = null;
         super.dispose();
 
-        if (status && 'FAILED' === status.toUpperCase() && this.options && this.options.seleniumPid) {
-            // ignore, don't close browser in ide mode if test failed
-        } else {
+        // cleanup chromedriver's only when running from within the IDE and test did not fail
+        if (this.options && this.options.seleniumPid && (!status || 'FAILED' !== status.toUpperCase())) {
             try {
                 if (process.platform === 'win32') {
-                    if (this.options && this.options.seleniumPid) {
-                        execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
-                    }
+                    execSync('taskkill /IM chromedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
                 } else {
-                    if (this.options && this.options.seleniumPid) {
-                        try {
-                            let pgrepResult = execSync("pgrep -d' ' -f chromedriver");
+                    let pgrepResult = execSync("pgrep -d' ' chromedriver");
+                    if (pgrepResult && pgrepResult.toString) {
+                        pgrepResult = pgrepResult.toString();
+                        if (pgrepResult) {
+                            execSync('kill -9 ' + pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
+                        }
+                    }
+                }
+            } catch (e) {
+                // ignore errors
+            }
+        }
 
-                            if (pgrepResult && pgrepResult.toString) {
-
-                                pgrepResult = pgrepResult.toString();
-                                pgrepResult = pgrepResult.replace(this.options.seleniumPid, '');
-
-                                if (pgrepResult) {
-                                    execSync("kill -9 "+pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
-                                }
-                            }
-                        } catch (e) {
-                            // ignore
+        // cleanup edgedriver's only when running from within the IDE and test did not fail
+        if (this.options && this.options.seleniumPid && (!status || 'FAILED' !== status.toUpperCase())) {
+            try {
+                if (process.platform === 'win32') {
+                    // ignore for now
+                } else {
+                    let pgrepResult = execSync("pgrep -d' ' msedgedriver");
+                    if (pgrepResult && pgrepResult.toString) {
+                        pgrepResult = pgrepResult.toString();
+                        if (pgrepResult) {
+                            execSync('kill -9 ' + pgrepResult, { stdio: ['ignore', 'ignore', 'ignore'] });
                         }
                     }
                 }
@@ -565,11 +571,15 @@ export default class WebModule extends WebDriverModule {
                             },
                             { timeout: 30*1000 });
 
-                            waitUntilRetVal.then(() => {
+                            if (waitUntilRetVal && waitUntilRetVal.then) {
+                                waitUntilRetVal.then(() => {
+                                    resolve();
+                                }).catch((err) => {
+                                    reject(err);
+                                });
+                            } else {
                                 resolve();
-                            }).catch((err) => {
-                                reject(err);
-                            });
+                            }
                         });
                     });
 
@@ -673,19 +683,23 @@ export default class WebModule extends WebDriverModule {
                         },
                         { timeout: 30*1000 });
 
-                        waitUntilRetVal.then(() => {
-                            if (lastError) {
-                                // print error from driver.execute or driver.waitUntil
-                                console.log(lastError);
-                            }
+                        if (waitUntilRetVal && waitUntilRetVal.then) {
+                            waitUntilRetVal.then(() => {
+                                if (lastError) {
+                                    // print error from driver.execute or driver.waitUntil
+                                    console.log(lastError);
+                                }
+                                resolve();
+                            }).catch((err) => {
+                                if (lastError) {
+                                    // print error from driver.execute or driver.waitUntil
+                                    console.log(lastError);
+                                }
+                                reject(err);
+                            });
+                        } else {
                             resolve();
-                        }).catch((err) => {
-                            if (lastError) {
-                                // print error from driver.execute or driver.waitUntil
-                                console.log(lastError);
-                            }
-                            reject(err);
-                        });
+                        }
                     });
                 });
             } catch (e) {

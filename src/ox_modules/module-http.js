@@ -337,7 +337,7 @@ export default class HttpModule extends OxygenModule {
         }
         else if (
             (result.statusCode < 200 || result.statusCode >= 300) &&
-            this.options && 
+            this.options &&
             (this.options.httpAutoThrowError == undefined ||
             this.options.httpAutoThrowError == true)
         ) {

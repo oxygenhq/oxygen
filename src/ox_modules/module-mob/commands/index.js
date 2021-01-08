@@ -65,3 +65,4 @@ export {default as type} from './type';
 export {default as unlockPattern} from './unlockPattern';
 export {default as waitForExist} from './waitForExist';
 export {default as waitForVisible} from './waitForVisible';
+export {default as waitForInteractable} from './waitForInteractable';

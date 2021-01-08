@@ -61,6 +61,9 @@ function stringify(obj) {
 //process.stderr.write = logger.error;
 
 let _worker = new CucumberWorker(reporter);
+
+oxutil.hookLogs(logger);
+
 process.on('uncaughtException', async(err, origin) => {
     logger.error(err.message, ISSUERS.USER);
     processSend({

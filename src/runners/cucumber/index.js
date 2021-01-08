@@ -13,9 +13,12 @@
 import glob from 'glob';
 import isGlob from 'is-glob';
 import path from 'path';
-
+import { EventEmitter } from 'events';
 import oxutil from '../../lib/util';
 import WorkerProcess from '../WorkerProcess';
+import logger from '../../lib/logger';
+const log = logger('CucumberRunner');
+const DEFAULT_ISSUER = 'user';
 
 const DEFAULT_TIMEOUT = 30000;
 const DEFAULT_OPTS = {
@@ -37,8 +40,9 @@ const DEFAULT_OPTS = {
     timeout: DEFAULT_TIMEOUT // <number> timeout for step definitions in milliseconds
 };
 
-export default class CucumberRunner {
+export default class CucumberRunner extends EventEmitter {
     constructor (config) {
+        super();
 
         this._debugMode =  (config && config.debugPortIde) ? true : false;
         this._debugPort = null;
@@ -115,6 +119,24 @@ export default class CucumberRunner {
         if (!this.worker) {
             return;
         }
+
+        this.worker.on('message', async (msg) => {
+            if (msg.event && msg.event === 'log') {
+                if (msg.level === 'DEBUG') {
+                    log.debug(msg.msg);
+                } else if (msg.level === 'INFO') {
+                    log.info(msg.msg);
+                } else if (msg.level === 'ERROR') {
+                    log.error(msg.msg, msg.err);
+                } else if (msg.level === 'WARN') {
+                    log.warn(msg.msg);
+                }
+
+                this.emit('log', msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
+                this.reporter && this.reporter.onLogEntry(msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
+            }
+        });
+
         this.worker.on('reporter', this.callReporter.bind(this));
     }
 
