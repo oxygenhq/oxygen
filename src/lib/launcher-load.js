@@ -100,7 +100,7 @@ export default class LoadLauncher {
             return;
         }
         let runner;
-        while (runner = this._runnerList.shift()) {
+        while ((runner = this._runnerList.shift())) {
             await runner.kill();
         }
     }

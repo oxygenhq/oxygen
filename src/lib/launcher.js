@@ -78,7 +78,7 @@ export default class Launcher {
             return;
         }
         let runner;
-        while (runner = this._runnerList.shift()) {
+        while ((runner = this._runnerList.shift())) {
             await runner.stop();
         }
     }

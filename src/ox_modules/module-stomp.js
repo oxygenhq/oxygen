@@ -13,8 +13,9 @@
  */
 import { EventEmitter } from 'events';
 import { Client } from '@stomp/stompjs';
+const WebSocket = require('ws');
 // workaround to fix "WebSocket is not defined" issue
-Object.assign(global, { WebSocket: require('ws') });
+Object.assign(global, { WebSocket });
 
 import OxygenModule from '../core/OxygenModule';
 
