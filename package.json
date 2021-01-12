@@ -50,6 +50,7 @@
     "@applitools/eyes-webdriverio": "5.23.1",
     "@elastic/elasticsearch": "^7.10.0",
     "@lambdatest/node-rest-client": "1.0.0",
+    "@stomp/stompjs": "6.0.0",
     "@wdio/cli": "6.6.6",
     "@wdio/devtools-service": "6.6.6",
     "@wdio/sync": "6.6.4",
