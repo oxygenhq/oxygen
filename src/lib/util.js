@@ -46,7 +46,7 @@ var self = module.exports = {
         const suiteFilePath = suiteDef.path || path.join(testConfig.target.cwd, 'suites', `${suiteDef.name}.json`);
         suite.paramManager = await self.getParameterManager(suiteFilePath, testConfig.parameters, testConfig.target.cwd);
         if (suite.paramManager && suite.paramManager.getMode() == 'all') {
-            suite.iterationCount = suite.paramManajuger.rows;
+            suite.iterationCount = suite.paramManager.rows;
         }
         suite.capabilities = suiteDef.capabilities || testConfig.capabilities || {};
         suite.environment = testConfig.environment || null;
