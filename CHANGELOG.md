@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.15.0 (2020-xx-xx)
+## v1.15.0 (2021-01-16)
 
 #### :tada: New Feature
 * Added `*.waitForInteractable`.
@@ -10,9 +10,12 @@
 * `web.switchToWindow` crashing in certain situations.
 * Memory leak during test disposal.
 * Various issues with `mob.scrollIntoElement`, `mob.swipe`, `mob.swipeElement`, `mob.swipeScreen`.
+* Script errors not being processed.
+* Handling of missing locator arguments in `mob` module.
 
 #### :house: Internal
 * Pass console output from child process to external libraries.
+* Number of internal fixes.
 * Bump dependencies.
 
 ## v1.14.3 (2020-11-27)
