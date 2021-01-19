@@ -45,7 +45,7 @@ module.exports = function() {
 
             connection = await db.connect(this.connString);
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, e.message);
+            throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, errHelper.getDbErrorMessage(e));
         }
     };
 
@@ -83,7 +83,7 @@ module.exports = function() {
             var firstCol = firstRow[Object.keys(firstRow)[0]];
             return firstCol;
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
         } finally {
             await connection.close();
         }
@@ -101,9 +101,7 @@ module.exports = function() {
             const querySyncRetval = await connection.query(query);
             return querySyncRetval;
         } catch (e) {
-            const errorMessage = errHelper.getDbErrorMessage(e);
-
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errorMessage);
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
         } finally {
             await connection.close();
         }
@@ -120,7 +118,7 @@ module.exports = function() {
         try {
             await connection.query(query);
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, e.message);
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
         } finally {
             await connection.close();
         }
