@@ -291,7 +291,7 @@ export default class Oxygen extends OxygenEvents {
         step.type = type;
         step.transaction = global._lastTransactionName || null;
         step.location = null;
-        step.status = STATUS.PASSED;    
+        step.status = STATUS.PASSED;
         step.action = false;
         step.startTime = oxutil.getTimeStamp();
 
@@ -313,7 +313,7 @@ export default class Oxygen extends OxygenEvents {
         if (!this._stepsStack || this._stepsStack.length == 0) {
             if (status != null || error != null) {
                 this.emitAfterStep(null, status, error);
-            }            
+            }
             return false;
         }
         const step = this._stepsStack.pop();
@@ -323,7 +323,7 @@ export default class Oxygen extends OxygenEvents {
         if (error) {
             // check if error is a standard JS Error object or already converted Oxygen Failure object
             if (error instanceof Error) {
-                step.failure = errorHelper.getFailureFromError(err);
+                step.failure = errorHelper.getFailureFromError(error);
             }
             // otherwise, assume 'error' is of Failure type
             else {
@@ -356,7 +356,7 @@ export default class Oxygen extends OxygenEvents {
         while (this._stepsStack.length > 0) {
             this.endStep();
         }
-     }
+    }
 
     _calculateStepStatus(step) {
         if (!step.steps || step.steps.length == 0) {
@@ -623,7 +623,7 @@ export default class Oxygen extends OxygenEvents {
         cmdArgs = this._populateParametersValue(cmdArgs);
         // start measuring method execution time
         const startTime = oxutil.getTimeStamp();
-        
+
         // determine if the current command has a parent step or shall be attached to the root
         let stepsRoot = this.resultStore.steps;
         let parentStep = null;
@@ -639,7 +639,7 @@ export default class Oxygen extends OxygenEvents {
         if (publicMethod) {
             cmdLocation = this._getCommandLocation();
             //this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
-            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime, { id: stepId, parentId: parentStepId });        
+            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime, { id: stepId, parentId: parentStepId });
         }
 
         this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
@@ -706,20 +706,17 @@ export default class Oxygen extends OxygenEvents {
             const index = this._waitStepResultList.indexOf(waitId);
             this._waitStepResultList.splice(index, 1);
 
-            //stepResult.location = cmdLocation;
-
-                //this.resultStore.steps.push(stepResult);
-                // if there is a parent step, then add the current step as a substep
-                if (parentStep) {
-                    parentStep.steps.push(stepResult);
-                }
-                // else, add it directly to the result store
-                else {
-                    this.resultStore.steps.push(stepResult);
-                }     
+            //this.resultStore.steps.push(stepResult);
+            // if there is a parent step, then add the current step as a substep
+            if (parentStep) {
+                parentStep.steps.push(stepResult);
             }
-            //this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
-            this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult, { id: stepId, parentId: parentStepId });            
+            // else, add it directly to the result store
+            else {
+                this.resultStore.steps.push(stepResult);
+            }
+
+            this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult, { id: stepId, parentId: parentStepId });
             done = true;
         }
 

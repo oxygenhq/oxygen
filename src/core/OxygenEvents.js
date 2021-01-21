@@ -37,7 +37,7 @@ export default class OxygenEvents extends EventEmitter {
 
     emitAfterStep(step, status = null, error = null) {
         if (step) {
-            this.emit('step:after', step);   
+            this.emit('step:after', step);
         }
         else {
             this.emit('step:after', {

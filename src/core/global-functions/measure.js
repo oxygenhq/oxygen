@@ -1,3 +1,5 @@
+import STATUS from '../../model/status.js';
+
 export function measure(name, value, opts = {}) {
     const step = this.startStep(name, 'measurement');
     step.meta = {

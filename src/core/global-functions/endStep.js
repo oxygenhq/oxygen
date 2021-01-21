@@ -1,3 +1,5 @@
+import STATUS from '../../model/status.js';
+
 export function endStep(step = null, status = STATUS.PASSED, opts = {}) {
     if (!step) {
         return this.endStep(status);
