@@ -48,6 +48,7 @@
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.23.1",
     "@lambdatest/node-rest-client": "1.0.0",
+    "@oxygenhq/mitmproxy-node": "1.0.1",
     "@wdio/cli": "6.6.6",
     "@wdio/devtools-service": "6.6.6",
     "@wdio/sync": "6.6.4",
