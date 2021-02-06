@@ -809,7 +809,7 @@ export default class Oxygen extends OxygenEvents {
 
             if (mod.dispose) {
                 try {
-                    mod.dispose(status);
+                    await mod.dispose(status);
                 }
                 catch (e) {
                     // ignore module disposal error 
