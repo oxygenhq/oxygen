@@ -9,7 +9,7 @@
 
 /**
  * @summary Perform right click on an element.
- * @function performRightClick
+ * @function rightClickActions
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @param {Number=} xOffset - x offset in pixels. Default is 0.
@@ -17,7 +17,7 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.init();
  * web.open("www.yourwebsite.com");
- * web.performRightClick("id=someElement", 10, -5);
+ * web.rightClickActions("id=someElement", 10, -5);
  */
 module.exports = async function(locator, xOffset = 0, yOffset = 0, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
