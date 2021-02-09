@@ -1,7 +1,18 @@
 # CHANGELOG
 
-## v1.15.0 (2021-01-16)
+## v1.16.0 (2021-02-09)
 
+#### :tada: New Feature
+* New command `mob.longPressKeyCode`.
+* New command `web.rightClickActions`
+* Node module `proxy`.
+
+#### :beetle: Bug Fix
+* Error parsing in `db` module.
+* Number of issues with session disposal.
+
+## v1.15.0 (2021-01-16)
+git
 #### :tada: New Feature
 * Added `*.waitForInteractable`.
 
