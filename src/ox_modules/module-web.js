@@ -381,15 +381,6 @@ export default class WebModule extends WebDriverModule {
         return this._whenWebModuleDispose.promise;
     }
 
-    async switchAndCloseWindow(handle) {
-        try {
-            await this.driver.switchToWindow(handle);
-            await this.driver.closeWindow();
-        } catch (e) {
-            // ignore switch and close window errors
-        }
-    }
-
     async deleteSession() {
         try {
             if (this.driver && this.driver.deleteSession) {
@@ -405,18 +396,9 @@ export default class WebModule extends WebDriverModule {
             this.disposeContinue(status);
         } else {
             try {
-                const handles = await this.driver.getWindowHandles();
-                if (
-                    handles &&
-                    Array.isArray(handles) &&
-                    handles.length > 0
-                ) {
-                    for (const handle of handles) {
-                        await this.switchAndCloseWindow(handle);
-                    }
-                }
+                await this.deleteSession();
             } catch (e) {
-                this.logger.warn('Failed to close browser window:', e);
+                this.logger.warn('Failed to close browser windows:', e);
             }
             this.disposeContinue();
         }
