@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.16.1 (2021-02-15)
+
+#### :beetle: Bug Fix
+* Issue with module disposal.
+
 ## v1.16.0 (2021-02-09)
 
 #### :tada: New Feature
