@@ -56,15 +56,15 @@ export default class NetworkSubModule extends OxygenSubModule {
     /**
      * @summary Begin collecting network requests.
      * @description Any previously collected requests will be discarded. Network request collection is supported only on Chrome 63 and later.
-     * @function networkCollectStart
+     * @function start
      * @example <caption>[javascript] Usage example</caption>
      * web.init();
      * web.network.start();
      * web.open("https://www.yourwebsite.com");
      * // print the collected request so far:
-     * let requests = web.networkGetRequests();
+     * let requests = web.network.getRequests();
      * for (let req of requests) {
-     *   log.info(JSON.stringify(req, null, 2));
+     *   log.info(req);
      * }
      * // wait for a request using a verbatim URL match:
      * web.network.waitForUrl('https://www.yourwebsite.com/foo/bar');
@@ -81,7 +81,7 @@ export default class NetworkSubModule extends OxygenSubModule {
     }
     /**
      * @summary Stop collecting network requests.
-     * @function networkCollectStop
+     * @function stop
      */
     stop() {
         this._collectData = false;
@@ -103,7 +103,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     waitForUrl(pattern, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` module is not initialized.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
@@ -133,7 +133,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     waitFor(matcher, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web` module is not initialized.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` module is not initialized.');
         }
 
         if (!this._collectData) {
@@ -163,7 +163,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     assertUrl(url, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web` module is not initialized.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
@@ -195,7 +195,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async assertStatusCode(url, statusCode, failureMessage = null, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web` module is not initialized.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
@@ -236,7 +236,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async assertResponseContent(url, content, failureMessage = null, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web` module is not initialized.');
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {

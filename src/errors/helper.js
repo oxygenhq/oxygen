@@ -115,7 +115,7 @@ module.exports = {
                     item &&
                     item.message
                 ) {
-                    message += ' ' +item.message;
+                    message += ': ' +item.message;
                 }
             });
         }

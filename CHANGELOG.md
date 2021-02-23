@@ -1,7 +1,23 @@
 # CHANGELOG
 
-## v1.15.0 (2020-xx-xx)
+## v1.16.1 (2021-02-15)
 
+#### :beetle: Bug Fix
+* Issue with module disposal.
+
+## v1.16.0 (2021-02-09)
+
+#### :tada: New Feature
+* New command `mob.longPressKeyCode`.
+* New command `web.rightClickActions`
+* Node module `proxy`.
+
+#### :beetle: Bug Fix
+* Error parsing in `db` module.
+* Number of issues with session disposal.
+
+## v1.15.0 (2021-01-16)
+git
 #### :tada: New Feature
 * Added `*.waitForInteractable`.
 
@@ -10,9 +26,12 @@
 * `web.switchToWindow` crashing in certain situations.
 * Memory leak during test disposal.
 * Various issues with `mob.scrollIntoElement`, `mob.swipe`, `mob.swipeElement`, `mob.swipeScreen`.
+* Script errors not being processed.
+* Handling of missing locator arguments in `mob` module.
 
 #### :house: Internal
 * Pass console output from child process to external libraries.
+* Number of internal fixes.
 * Bump dependencies.
 
 ## v1.14.3 (2020-11-27)

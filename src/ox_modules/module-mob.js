@@ -472,7 +472,10 @@ export default class MobileModule extends WebDriverModule {
     }
 
     _getWdioLocator(locator) {
-        if (!locator || typeof locator !== 'string') {
+        if (!locator) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+        }
+        if (typeof locator !== 'string') {
             return locator;
         }
         if (locator.indexOf('/') === 0) {

@@ -812,7 +812,11 @@ export default class Oxygen extends OxygenEvents {
 
             if (mod.dispose) {
                 try {
-                    mod.dispose(status);
+                    const disposeResult = mod.dispose(status);
+                    if (disposeResult && typeof disposeResult.then === 'function') {
+                        // probably a promise
+                        await disposeResult();
+                    }
                 }
                 catch (e) {
                     // ignore module disposal error 

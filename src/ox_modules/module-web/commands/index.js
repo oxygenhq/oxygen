@@ -48,6 +48,7 @@ export {default as point} from './point';
 export {default as pointJS} from './pointJS';
 export {default as refresh} from './refresh';
 export {default as rightClick} from './rightClick';
+export {default as rightClickActions} from './rightClickActions';
 export {default as scrollToElement} from './scrollToElement';
 export {default as select} from './select';
 export {default as selectFrame} from './selectFrame';
