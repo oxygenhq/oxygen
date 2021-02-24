@@ -196,6 +196,10 @@ module.exports = {
         else if (err.message && err.message.includes('you trying to pass into the execute method wasn\'t found')) {
             return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND,  err.message);
         }
+        // when doing an operation on an element reference (e.g. click) but the page was already changed
+        else if (err.message && err.message.includes('element not interactable')) {
+            return new OxError(ERROR_CODES.ELEMENT_NOT_INTERACTABLE, err.message);
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
