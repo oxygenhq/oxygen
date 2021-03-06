@@ -439,7 +439,9 @@ export default class OxygenRunner extends EventEmitter {
                     }
                     await this._worker_callAfterCaseHook(caze, caseResult);
                     this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
-                    await (this._worker && this._worker_DisposeModules(caseResult.status));
+                    if (typeof this._options.autoDispose !== 'boolean' || this._options.autoDispose === true) {
+                        await (this._worker && this._worker_DisposeModules(caseResult.status));
+                    }                    
 
                     suiteResult.cases.push(caseResult);
                     // if test case iteration has failed, then mark the entire test case as failed, 
