@@ -29,7 +29,13 @@ module.exports = async function(locator, clickParent = false) {
                 if (!document.createEvent) {
                     if (document.createEventObject) {
                         var ev = document.createEventObject();
-                        domEl.fireEvent('onclick', ev);
+                        if (clickParent) {
+                            domEl.parentElement.focus();
+                            domEl.parentElement.fireEvent('onclick', ev);
+                        } else {
+                            domEl.focus();
+                            domEl.fireEvent('onclick', ev);
+                        }
                     } else {
                         return 'clickHidden is not supported on IE with compatibility mode "IE' +
                             document.documentMode + ' ' + document.compatMode + '"';
@@ -38,8 +44,10 @@ module.exports = async function(locator, clickParent = false) {
                 var clckEv = document.createEvent('MouseEvent');
                 clckEv.initEvent('click', true, true);
                 if (clickParent) {
+                    domEl.parentElement.focus();
                     domEl.parentElement.dispatchEvent(clckEv);
                 } else {
+                    domEl.focus();
                     domEl.dispatchEvent(clckEv);
                 }
             }, el, clickParent);
