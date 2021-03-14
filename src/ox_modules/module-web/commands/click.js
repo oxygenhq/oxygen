@@ -32,6 +32,7 @@ module.exports = async function(locator, timeout) {
                     if (document.createEventObject) {
                         var ev = document.createEventObject();
                         domEl.fireEvent('onclick', ev);
+                        return;
                     } else {
                         return; // fail silently
                     }

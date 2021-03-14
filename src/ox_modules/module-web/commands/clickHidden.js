@@ -30,6 +30,7 @@ module.exports = async function(locator, clickParent = false) {
                     if (document.createEventObject) {
                         var ev = document.createEventObject();
                         domEl.fireEvent('onclick', ev);
+                        return;
                     } else {
                         return 'clickHidden is not supported on IE with compatibility mode "IE' +
                             document.documentMode + ' ' + document.compatMode + '"';
