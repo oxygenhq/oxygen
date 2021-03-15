@@ -19,10 +19,25 @@ module.exports = function() {
     var request = require('request');
     var deasync = require('deasync');
 
+    let proxyOptions = {};
     const _responseTimeout = 1000 * 30;   // in ms
 
     module.isInitialized = function() {
         return true;
+    };
+    /**
+     * @summary Sets proxy url to be used for connections with the service.
+     * @function setProxy
+     * @param {String} url - proxu url. Call without arguments will clean up proxy url.
+     */
+    module.setProxy = function(url) {
+        if (url) {
+            proxyOptions = {
+                proxy:  url
+            };
+        } else {
+            proxyOptions = {};
+        }
     };
 
     /**
@@ -36,6 +51,7 @@ module.exports = function() {
         var result = null;
 
         var options = {
+            ...proxyOptions,
             url: url,
             method: 'GET',
             json: true,
@@ -44,12 +60,22 @@ module.exports = function() {
             headers: headers || {}
         };
 
-        request(options, (err, res, body) => { result = err || res; });
+        try {
+            request(options, (err, res, body) => {
+                result = err || res;
+            });
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
+        }
         deasync.loopWhile(() => !result);
 
         if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
+        }
+
+        if (result instanceof Error) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
         }
 
         return result.body;
@@ -67,6 +93,7 @@ module.exports = function() {
         var result = null;
 
         var options = {
+            ...proxyOptions,
             url: url,
             method: 'POST',
             json: true,
@@ -76,12 +103,20 @@ module.exports = function() {
             headers: headers || {}
         };
 
-        request(options, (err, res, body) => { result = err || res; });
+        try {
+            request(options, (err, res, body) => { result = err || res; });
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
+        }
         deasync.loopWhile(() => !result);
 
         if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
+        }
+
+        if (result instanceof Error) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
         }
 
         return result.body;
@@ -99,6 +134,7 @@ module.exports = function() {
         var result = null;
 
         var options = {
+            ...proxyOptions,
             url: url,
             method: 'PUT',
             json: true,
@@ -108,12 +144,20 @@ module.exports = function() {
             headers: headers || {}
         };
 
-        request(options, (err, res, body) => { result = err || res; });
+        try {
+            request(options, (err, res, body) => { result = err || res; });
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
+        }
         deasync.loopWhile(() => !result);
 
         if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
+        }
+
+        if (result instanceof Error) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
         }
 
         return result.body;
@@ -129,6 +173,7 @@ module.exports = function() {
         var result = null;
 
         var options = {
+            ...proxyOptions,
             url: url,
             method: 'DELETE',
             json: true,
@@ -137,12 +182,20 @@ module.exports = function() {
             headers: headers || {}
         };
 
-        request(options, (err, res, body) => { result = err || res; });
+        try {
+            request(options, (err, res, body) => { result = err || res; });
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
+        }
         deasync.loopWhile(() => !result);
 
         if (result.statusCode < 200 || result.statusCode >= 300) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
+        }
+
+        if (result instanceof Error) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
         }
     };
 
@@ -156,6 +209,7 @@ module.exports = function() {
         var result = null;
 
         var options = {
+            ...proxyOptions,
             url: url,
             method: 'GET',
             followRedirect: false,
@@ -163,8 +217,16 @@ module.exports = function() {
             rejectUnauthorized: false
         };
 
-        request(options, (err, res, body) => { result = err || res; });
+        try {
+            request(options, (err, res, body) => { result = err || res; });
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
+        }
         deasync.loopWhile(() => !result);
+
+        if (result instanceof Error) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
+        }
 
         return result.headers;
     };
