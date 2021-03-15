@@ -20,7 +20,6 @@
 module.exports = async function(locator, clickParent = false) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
     this.retryCount = 3;
-    this.firstError = null;
     this.clickJS = async (domEl, clickParent = false) =>  {
         try {
             /*global document*/
@@ -60,13 +59,10 @@ module.exports = async function(locator, clickParent = false) {
 
         } catch (e) {
             if (this.retryCount) {
-                if (!this.firstError) {
-                    this.firstError = e;
-                }
                 --this.retryCount;
                 await this.clickJS(el, clickParent);
             } else {
-                throw this.firstError;
+                throw e;
             }
         }
     };
