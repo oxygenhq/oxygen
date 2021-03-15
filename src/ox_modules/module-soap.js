@@ -19,9 +19,25 @@ module.exports = function() {
     var deasync = require('deasync');
     var soap = require('soap');
     var auth = null;
+    var proxyOptions = {};
+    var options = {
+        rejectUnauthorized: false
+    };
 
     module.isInitialized = function() {
         return true;
+    };
+    /**
+     * @summary Sets proxy url to be used for connections with the service.
+     * @function setProxy
+     * @param {String} url - proxu url. Call without arguments will clean proxy url.
+     */
+    module.setProxy = function(url) {
+        if (url) {
+            proxyOptions =  { proxy: url };
+        } else {
+            proxyOptions = {};
+        }
     };
 
     /**
@@ -77,7 +93,7 @@ module.exports = function() {
         var resultClient = null;
         var result = null;
 
-        soap.createClient(wsdlUrl, { wsdl_options: { rejectUnauthorized: false }}, (err, client) => {
+        soap.createClient(wsdlUrl, { wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
             if (client === undefined) {
                 var msg =  'Error creating client';
                 if (err.message) {
@@ -112,7 +128,7 @@ module.exports = function() {
                 }
 
                 result = res;
-            }, { rejectUnauthorized: false });
+            }, { ...options, ...proxyOptions });
         });
 
         deasync.loopWhile(() => !resultClient);
@@ -137,7 +153,7 @@ module.exports = function() {
     module.describe = function(wsdlUrl) {
         var resultClient = null;
 
-        soap.createClient(wsdlUrl,{ wsdl_options: { rejectUnauthorized: false }}, (err, client) => {
+        soap.createClient(wsdlUrl,{ wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
             if (client === undefined) {
                 var msg =  'Error creating client';
                 if (err.message) {
