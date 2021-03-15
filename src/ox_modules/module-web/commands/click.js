@@ -68,7 +68,20 @@ module.exports = async function(locator, timeout) {
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
-    var clickable = await el.isClickable();
+    try {
+        var clickable = await el.isClickable();
+    } catch (e) {
+        if (
+            this.driver &&
+            this.driver.capabilities &&
+            this.driver.capabilities.browserName === 'internet explorer' &&
+            [5, 6, 7, 8, 9, 10].includes(parseInt(this.driver.capabilities.browserVersion))
+        ) {
+            clickable = true;
+        } else {
+            throw e;
+        }
+    }
     if (clickable) {
         try {
             await el.click();
