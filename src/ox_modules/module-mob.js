@@ -15,6 +15,7 @@
  * 
  * Native application locators for![](../../.gitbook/assets/android.png)  
  * * `/XPATH` - Locates element using an XPath 1.0 expression.
+ * * `~ACCESSIBILITY_ID` - Locates element by its Accessibility Id.
  * * `id=ID` - Locates element by its id.
  * * `class=CLASS` - Locates element by its class.
  * * `text=TEXT` - Locates element by its visible text.

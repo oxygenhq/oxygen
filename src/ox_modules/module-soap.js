@@ -30,7 +30,7 @@ module.exports = function() {
     /**
      * @summary Sets proxy url to be used for connections with the service.
      * @function setProxy
-     * @param {String} url - proxu url. Call without arguments will clean proxy url.
+     * @param {String} url - Proxy url. Invocation without arguments will remove any previously set url.
      */
     module.setProxy = function(url) {
         if (url) {
