@@ -134,12 +134,14 @@ export default class WorkerProcess extends EventEmitter {
             type: 'exit',
             status: status,
         });
-        this._childProc.kill('SIGINT');
+        this.kill();
         this._reset();
     }
 
     kill() {
-        this._childProc.kill('SIGINT');
+        if (this._childProc) {
+            this._childProc.kill('SIGINT');
+        }
     }
 
     async init(rid, options, caps) {
@@ -170,7 +172,7 @@ export default class WorkerProcess extends EventEmitter {
                 type: 'exit',
                 status: status,
             });
-            this._childProc.kill('SIGINT');
+            this.kill();
 
         } else if (this._childProc) {
             this._isInitialized = false;
@@ -178,7 +180,7 @@ export default class WorkerProcess extends EventEmitter {
                 type: 'exit',
                 status: status,
             });
-            this._childProc.kill('SIGINT');
+            this.kill();
         }
     }
 
