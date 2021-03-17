@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -140,6 +140,8 @@ module.exports = function() {
      * @summary Write data to the port.
      * @function write
      * @param {(String|Array)} data - Data to send. Either a string or an array of bytes.
+     * @example <caption>[javascript] Usage example</caption>
+     * serial.write('Hello\r\n');
      */
     module.write = function(data) {
         utils.assertArgument(data, 'data');
@@ -152,7 +154,7 @@ module.exports = function() {
         }
     };
 
-    /*
+    /**
      * @summary Return data buffer.
      * @function getBuffer
      * @return {CircularStringBuffer} Data buffer.

@@ -22,7 +22,6 @@
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.retryCount = 3;
-    this.firstError = null;
     this.clickJS = async (el) =>  {
         try {
             /*global document*/
@@ -32,6 +31,7 @@ module.exports = async function(locator, timeout) {
                     if (document.createEventObject) {
                         var ev = document.createEventObject();
                         domEl.fireEvent('onclick', ev);
+                        return;
                     } else {
                         return; // fail silently
                     }
@@ -54,13 +54,10 @@ module.exports = async function(locator, timeout) {
 
         } catch (e) {
             if (this.retryCount) {
-                if (!this.firstError) {
-                    this.firstError = e;
-                }
                 --this.retryCount;
                 await this.clickJS(el);
             } else {
-                throw this.firstError;
+                throw e;
             }
         }
     };
