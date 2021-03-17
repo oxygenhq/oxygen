@@ -733,7 +733,7 @@ export default class OxygenRunner extends EventEmitter {
             else if (msg.event && msg.event === 'workerError') {
                 console.log('workerError:', msg);
                 await this.dispose('failed');
-                await this.kill();
+                await this.kill('failed');
             }
         });
     }
