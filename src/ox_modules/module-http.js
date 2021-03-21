@@ -11,34 +11,95 @@
  * @name http
  * @description Provides methods for working with HTTP(S)
  */
+ import request from 'request';
+ const deasync = require('deasync');
+ 
+ import OxygenModule from '../core/OxygenModule';
+ import OxError from '../errors/OxygenError';
+ import errHelper from '../errors/helper';
+ import modUtils from './utils';
+ 
+ const MODULE_NAME = 'http';
+ const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
+ const DEFAULT_HTTP_OPTIONS = {
+    json: true,
+    gzip: true,
+    chunked: true,
+    timeout: RESPONSE_TIMEOUT,
+    rejectUnauthorized: false,
+ };
+ 
+ export default class HttpModule extends OxygenModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this._lastResponse = null;
+        this._baseUrl = null;
+        this._userHttpOptions = {};
+        // pre-initialize the module
+        this._isInitialized = true;
+    }
 
-import OxError from '../errors/OxygenError';
-var errHelper = require('../errors/helper');
+    /**
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "http".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
 
-module.exports = function() {
-    var request = require('request');
-    var deasync = require('deasync');
+    /**
+     * @summary Gets the base URL value that each request will be prefixed with
+     * @function baseUrl
+     * @return {String} Base URL if was defined by the user.
+     */
+    get baseUrl() {
+        return this._baseUrl;
+    }
 
-    let proxyOptions = {};
-    const _responseTimeout = 1000 * 30;   // in ms
+    /**
+     * @summary Sets the base URL value that each request will be prefixed with
+     * @function baseUrl
+     * @param {String} url - Base URL.
+     */
+    set baseUrl(url) {
+        this._baseUrl = url;
+    }
 
-    module.isInitialized = function() {
-        return true;
-    };
+    /**
+     * @summary Gets user defined HTTP options (such as proxy, gzip and etc.)
+     * @function options
+     * @return {Object} HTTP request options object, see {@link https://github.com/request/request#requestoptions-callback Request Options}.
+     */
+    get options() {
+        return this._userHttpOptions;
+    }
+
+    /**
+     * @summary Sets user defined HTTP options (such as proxy, gzip and etc.)
+     * @function options
+     * @param {Object} opts - HTTP request options object, see {@link https://github.com/request/request#requestoptions-callback Request Options}.
+     */
+    set options(opts) {
+        this._userHttpOptions = opts;
+    }
+
     /**
      * @summary Sets proxy url to be used for connections with the service.
      * @function setProxy
-     * @param {String} url - proxu url. Call without arguments will clean up proxy url.
+     * @param {String} url - Proxy server URL. Not passing this argument will reset the proxy settings.
      */
-    module.setProxy = function(url) {
+    setProxy(url) {
         if (url) {
-            proxyOptions = {
+            this._userHttpOptions = {
+                ...this._userHttpOptions || {},
                 proxy:  url
             };
-        } else {
-            proxyOptions = {};
+        } else if (this._userHttpOptions && this._userHttpOptions.proxy) {
+            delete this._userHttpOptions.proxy;
         }
-    };
+    }
+    
 
     /**
      * @summary Performs HTTP GET
@@ -47,39 +108,16 @@ module.exports = function() {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
      */
-    module.get = function(url, headers) {
-        var result = null;
-
-        var options = {
-            ...proxyOptions,
+    get(url, headers) {
+        const httpOpts = {
+            ...DEFAULT_HTTP_OPTIONS,
+            ...this._userHttpOptions || {},
             url: url,
             method: 'GET',
-            json: true,
-            timeout: _responseTimeout,
-            rejectUnauthorized: false,
             headers: headers || {}
         };
-
-        try {
-            request(options, (err, res, body) => {
-                result = err || res;
-            });
-        } catch (e) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
-        }
-        deasync.loopWhile(() => !result);
-
-        if (result.statusCode < 200 || result.statusCode >= 300) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }
-
-        if (result instanceof Error) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
-        }
-
-        return result.body;
-    };
+        return this._httpRequestSync(httpOpts);
+    }
 
     /**
      * @summary Performs HTTP POST
@@ -89,38 +127,17 @@ module.exports = function() {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
      */
-    module.post = function(url, data, headers) {
-        var result = null;
-
-        var options = {
-            ...proxyOptions,
+    post(url, data, headers) {
+        const httpOpts = {
+            ...DEFAULT_HTTP_OPTIONS,
+            ...this._userHttpOptions || {},
             url: url,
             method: 'POST',
-            json: true,
-            timeout: _responseTimeout,
-            rejectUnauthorized: false,
             body: data,
             headers: headers || {}
         };
-
-        try {
-            request(options, (err, res, body) => { result = err || res; });
-        } catch (e) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
-        }
-        deasync.loopWhile(() => !result);
-
-        if (result.statusCode < 200 || result.statusCode >= 300) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }
-
-        if (result instanceof Error) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
-        }
-
-        return result.body;
-    };
+        return this._httpRequestSync(httpOpts);
+    }
 
     /**
      * @summary Performs HTTP PUT
@@ -130,38 +147,17 @@ module.exports = function() {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
      */
-    module.put = function(url, data, headers) {
-        var result = null;
-
-        var options = {
-            ...proxyOptions,
+    put(url, data, headers) {
+        const httpOpts = {
+            ...DEFAULT_HTTP_OPTIONS,
+            ...this._userHttpOptions || {},
             url: url,
             method: 'PUT',
-            json: true,
-            timeout: _responseTimeout,
-            rejectUnauthorized: false,
             body: data,
             headers: headers || {}
         };
-
-        try {
-            request(options, (err, res, body) => { result = err || res; });
-        } catch (e) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
-        }
-        deasync.loopWhile(() => !result);
-
-        if (result.statusCode < 200 || result.statusCode >= 300) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }
-
-        if (result instanceof Error) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
-        }
-
-        return result.body;
-    };
+        return this._httpRequestSync(httpOpts);
+    }
 
     /**
      * @summary Performs HTTP DELETE
@@ -169,67 +165,177 @@ module.exports = function() {
      * @param {String} url - URL.
      * @param {Object=} headers - HTTP headers.
      */
-    module.delete = function(url, headers) {
-        var result = null;
-
-        var options = {
-            ...proxyOptions,
+    delete(url, headers) {
+        const httpOpts = {
+            ...DEFAULT_HTTP_OPTIONS,
+            ...this._userHttpOptions || {},
             url: url,
             method: 'DELETE',
-            json: true,
-            timeout: _responseTimeout,
-            rejectUnauthorized: false,
             headers: headers || {}
         };
+        return this._httpRequestSync(httpOpts);
+    }
+    
+    /**
+     * @summary Returns last response object
+     * @function getResponse
+     * @return {Object} Response object.
+     */
+    getResponse() {
+        return this._lastResponse;
+    }
 
-        try {
-            request(options, (err, res, body) => { result = err || res; });
-        } catch (e) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
-        }
-        deasync.loopWhile(() => !result);
-
-        if (result.statusCode < 200 || result.statusCode >= 300) {
-            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
-        }
-
-        if (result instanceof Error) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
-        }
-    };
-
+    /**
+     * @summary Returns last response object
+     * @function getResponseBody
+     * @return {String} Response body.
+     */
+    getResponseBody() {
+        return this._lastResponse && this._lastResponse.body ? this._lastResponse.body : null;
+    }
+ 
     /**
      * @summary Returns response headers
      * @function getResponseHeaders
-     * @param {String} url - URL.
      * @return {Object} Response headers.
      */
-    module.getResponseHeaders = function(url) {
-        var result = null;
-
-        var options = {
-            ...proxyOptions,
-            url: url,
-            method: 'GET',
-            followRedirect: false,
-            timeout: _responseTimeout,
-            rejectUnauthorized: false
-        };
-
-        try {
-            request(options, (err, res, body) => { result = err || res; });
-        } catch (e) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, e.message);
+    getResponseHeaders() {
+        if (!this._lastResponse) {
+            return null;
         }
+        return this._lastResponse.headers;
+    }
+ 
+    /**
+     * @summary Returns response URL
+     * @function getResponseUrl
+     * @return {String} Response URL.
+     */
+    getResponseUrl() {
+        if (!this._lastResponse) {
+            return null;
+        }
+        return this._lastResponse.url;
+    }
+ 
+    /**
+     * @summary Assert if HTTP header is presented in the response
+     * @function assertHeader
+     * @param {String} headerName - A HTTP header name.
+     * @param {String} [headerValuePattern] - An optional HTTP header value pattern.
+     */
+    assertText(pattern) {
+        if (!this._lastResponse) {
+            return false;
+        }
+        if (!this._lastResponse.body) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Response body is empty');
+        }
+        const respContent = typeof this._lastResponse.body === 'string' ? this._lastResponse.body : JSON.stringify(this._lastResponse.body);
+        if (!modUtils.matchPattern(respContent, pattern)) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP response content to match: "${pattern}" but got: "${respContent}"`);
+        }
+        return true;
+    }
+
+    /**
+     * @summary Assert response time
+     * @function assertResponseTime
+     * @param {Number} maxTime - Maximum response time in milliseconds.
+     */
+    assertResponseTime(maxTime) {
+        throw new Error('Not implemented');
+    }
+
+    /**
+     * @summary Assert if HTTP header is presented in the response
+     * @function assertHeader
+     * @param {String} headerName - A HTTP header name.
+     * @param {String} [headerValuePattern] - An optional HTTP header value pattern.
+     */
+    assertHeader(headerName, headerValuePattern = null) {
+        if (!headerName || typeof headerName !== 'string' || headerName.length == 0) {
+            return false;
+        }
+        headerName = headerName.toLowerCase();
+        const headers = this._lastResponse.headers;
+        if (!headers[headerName]) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Expected HTTP header "${headerName}" to be present');
+        }
+        else if (headerValuePattern && typeof headerValuePattern === 'string') {
+            const actualHeaderValue = headers[headerName];
+            if (!modUtils.matchPattern(actualHeaderValue, headerValuePattern)) {
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP header "${headerName}" value to match: "${headerValuePattern}" but got: "${actualHeaderValue}"`);
+            }
+        }
+    }
+
+    /**
+     * @summary Assert if HTTP cookie is presented in the response
+     * @function assertCookie
+     * @param {String} cookieName - A HTTP cookie name.
+     * @param {String} [cookieValuePattern] - An optional HTTP cookie value pattern.
+     */
+    assertCookie(cookieName, cookieValuePattern) {
+        throw new Error('Not implemented');
+    }
+
+    /**
+     * @summary Assert the last HTTP response's status code
+     * @function assertCode
+     * @param {Number|Array} codeList - A single status code or a list of codes.
+     */
+    assertStatus(codeList) {
+        if (!this._lastResponse || !codeList) {
+            return false;
+        }
+        // if we got a single value, then convert it to an array
+        if (!Array.isArray(codeList)) {
+            codeList = [codeList];
+        }
+        const statusCode = this._lastResponse.statusCode;
+        if (!codeList.includes(statusCode)) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP status to be: "${codeList}" but got: "${statusCode}"`);
+        }
+        return true;
+    }
+
+    /**
+     * @summary Assert HTTP 200 OK status
+     * @function assertStatusOk
+     */
+    assertStatusOk() {        
+        return this.assertStatus(200);
+    }
+
+    /**
+     * @summary Opens new transaction.
+     * @description The transaction will persist till a new one is opened. Transaction names must be
+     *              unique.
+     * @function transaction
+     * @param {String} name - The transaction name.
+     */
+    async transaction(name) {
+        global._lastTransactionName = name;
+    }
+
+    _httpRequestSync(httpOpts) {
+        let result;
+        request(httpOpts, 
+            (err, res, body) => { result = err || res; }
+        );
         deasync.loopWhile(() => !result);
+        // store last response to allow further assertions and validations
+        this._lastResponse = result;
 
-        if (result instanceof Error) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
+        if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
+            throw result;
         }
-
-        return result.headers;
-    };
-
-    return module;
-};
+        else if ((result.statusCode < 200 || result.statusCode >= 300) && this.options && !this.options.httpAutoThrowError) {
+            var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
+        }
+        return result;
+    }
+ }
+ 
