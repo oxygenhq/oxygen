@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.17.0 (2021-03-xx)
+## v1.17.0 (2021-03-22)
 
 #### :boom: Breaking Change
 * `http` module has been rewritten to support more features. As a result some methods, their arguments, and return types were substantially changed. See API documentation for more details.
