@@ -1,5 +1,26 @@
 # CHANGELOG
 
+## v1.17.0 (2021-03-xx)
+
+#### :boom: Breaking Change
+* `http` module has been rewritten to support more features. As a result some methods, their arguments, and return types were substantially changed. See API documentation for more details.
+
+#### :tada: New Feature
+* Add `soap.setProxy`.
+* Add `autoDispose` setting to `oxygen.conf` to control whether to dispose modules automatically between test iterations.
+
+#### :beetle: Bug Fix
+* `web.click` and `web.clickHidden` not working on IE < 11.
+* `web.fileBrowse` not working.
+* Issue with hooks in Cucumber tests.
+* Various other fixes.
+
+#### :nail_care: Polish
+* Process "element not interactable" errors.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.16.1 (2021-02-15)
 
 #### :beetle: Bug Fix
@@ -17,7 +38,7 @@
 * Number of issues with session disposal.
 
 ## v1.15.0 (2021-01-16)
-git
+
 #### :tada: New Feature
 * Added `*.waitForInteractable`.
 
