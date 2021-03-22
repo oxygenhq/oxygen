@@ -24,9 +24,8 @@ const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
 const DEFAULT_HTTP_OPTIONS = {
     json: true,
     gzip: true,
-    chunked: true,
     timeout: RESPONSE_TIMEOUT,
-    rejectUnauthorized: false,
+    rejectUnauthorized: false
 };
 
 export default class HttpModule extends OxygenModule {
@@ -39,7 +38,7 @@ export default class HttpModule extends OxygenModule {
         this._isInitialized = true;
     }
 
-    /**
+    /*
      * @summary Gets module name
      * @function name
      * @return {String} Constant value "http".
@@ -49,39 +48,17 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
-     * @summary Gets the base URL value that each request will be prefixed with
-     * @function baseUrl
-     * @return {String} Base URL if was defined by the user.
-     */
-    get baseUrl() {
-        return this._baseUrl;
-    }
-
-    /**
-     * @summary Sets the base URL value that each request will be prefixed with
-     * @function baseUrl
-     * @param {String} url - Base URL.
-     */
-    set baseUrl(url) {
-        this._baseUrl = url;
-    }
-
-    /**
-     * @summary Gets user defined HTTP options (such as proxy, gzip and etc.)
-     * @function options
-     * @return {Object} HTTP request options object, see {@link https://github.com/request/request#requestoptions-callback Request Options}.
-     */
-    get options() {
-        return this._userHttpOptions;
-    }
-
-    /**
      * @summary Sets user defined HTTP options (such as proxy, gzip and etc.)
      * @function options
-     * @param {Object} opts - HTTP request options object, see {@link https://github.com/request/request#requestoptions-callback Request Options}.
+     * @param {Object} opts - HTTP request options object, see {@link https://github.com/request/request#requestoptions-callback Request Options}. 
+     * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
      */
-    set options(opts) {
+    setOptions(opts) {
         this._userHttpOptions = opts;
+        if (opts.deflateRaw) {
+            this._userHttpOptions.encoding = null;
+            this._userHttpOptions.gzip = false;     // gzip=true in default options so we override it
+        }
     }
 
     /**
@@ -106,6 +83,22 @@ export default class HttpModule extends OxygenModule {
      * @param {String} url - URL.
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
+     * @example <caption>[javascript] Usage example</caption>
+     * // Basic usage example:
+     * var response = http.get(
+     * 'https://api.github.com/repos/oxygenhq/oxygen-ide/releases', 
+     * {
+     *   'Accept-Encoding': 'gzip, deflate',
+     *   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0'
+     * });
+     * log.info(response);
+     *
+     * // If server returns Deflate-compressed stream without headers, `deflateRaw` can be used to decompress the content.
+     * http.setOptions({
+     *   deflateRaw: true
+     * });
+     * var response = http.get('https://FOO.BAR');
+     * log.info(response);
      */
     get(url, headers) {
         const httpOpts = {
@@ -321,16 +314,41 @@ export default class HttpModule extends OxygenModule {
     _httpRequestSync(httpOpts) {
         let result;
         request(httpOpts,
-            (err, res, body) => { result = err || res; }
+            (err, res, body) => {
+                // support for raw (without headers) content-encoding: deflate
+                // https://github.com/request/request/issues/2197
+                if (httpOpts.deflateRaw && !err) {
+                    var zlib = require('zlib');
+                    if (res.headers['content-encoding'] === 'deflate') {
+                        let decomp = zlib.createInflateRaw();
+                        decomp.write(res.body);
+                        decomp.on('data', (data) =>
+                        {
+                            res.body = data.toString();
+                            if (res.headers['content-type'] === 'application/json') {
+                                try {
+                                    res.body = JSON.parse(res.body);
+                                } catch (e) {
+                                    // if parsing fails just return the original string
+                                }
+                            }
+                            result = res;
+                        });
+                    } else {
+                        result = res;
+                    }
+                } else {
+                    result = err || res;
+                }
+            }
         );
         deasync.loopWhile(() => !result);
         // store last response to allow further assertions and validations
         this._lastResponse = result;
 
         if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
-            throw result;
-        }
-        else if ((result.statusCode < 200 || result.statusCode >= 300) && this.options && !this.options.httpAutoThrowError) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result);
+        } else if ((result.statusCode < 200 || result.statusCode >= 300) && this.options && !this.options.httpAutoThrowError) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
             throw new OxError(errHelper.errorCode.HTTP_ERROR, msg);
         }
