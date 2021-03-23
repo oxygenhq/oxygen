@@ -50,7 +50,7 @@ export default class HttpModule extends OxygenModule {
     /**
      * @summary Sets user defined HTTP options (such as proxy, gzip and etc.)
      * @function options
-     * @param {Object} opts - HTTP request options object, see {@link https://github.com/request/request#requestoptions-callback Request Options}. 
+     * @param {Object} opts - HTTP request options object, see [Request Options](https://github.com/request/request#requestoptions-callback). 
      * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
      */
     setOptions(opts) {
@@ -82,7 +82,7 @@ export default class HttpModule extends OxygenModule {
      * @function get
      * @param {String} url - URL.
      * @param {Object=} headers - HTTP headers.
-     * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
+     * @return {Object} Response object.
      * @example <caption>[javascript] Usage example</caption>
      * // Basic usage example:
      * var response = http.get(
@@ -91,14 +91,14 @@ export default class HttpModule extends OxygenModule {
      *   'Accept-Encoding': 'gzip, deflate',
      *   'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:86.0) Gecko/20100101 Firefox/86.0'
      * });
-     * log.info(response);
+     * log.info(response.body);
      *
      * // If server returns Deflate-compressed stream without headers, `deflateRaw` can be used to decompress the content.
      * http.setOptions({
      *   deflateRaw: true
      * });
      * var response = http.get('https://FOO.BAR');
-     * log.info(response);
+     * log.info(response.body);
      */
     get(url, headers) {
         const httpOpts = {
@@ -117,7 +117,7 @@ export default class HttpModule extends OxygenModule {
      * @param {String} url - URL.
      * @param {Object} data - Data.
      * @param {Object=} headers - HTTP headers.
-     * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
+     * @return {Object} Response object.
      */
     post(url, data, headers) {
         const httpOpts = {
@@ -137,7 +137,7 @@ export default class HttpModule extends OxygenModule {
      * @param {String} url - URL.
      * @param {Object} data - Data.
      * @param {Object=} headers - HTTP headers.
-     * @return {Object} Either a parsed out JSON if Content-Type is application/json or a string.
+     * @return {Object} Response object.
      */
     put(url, data, headers) {
         const httpOpts = {
@@ -156,6 +156,7 @@ export default class HttpModule extends OxygenModule {
      * @function delete
      * @param {String} url - URL.
      * @param {Object=} headers - HTTP headers.
+     * @return {Object} Response object.
      */
     delete(url, headers) {
         const httpOpts = {
@@ -178,7 +179,7 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
-     * @summary Returns last response object
+     * @summary Returns last response body
      * @function getResponseBody
      * @return {String} Response body.
      */
@@ -211,10 +212,9 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
-     * @summary Assert if HTTP header is presented in the response
-     * @function assertHeader
-     * @param {String} headerName - A HTTP header name.
-     * @param {String} [headerValuePattern] - An optional HTTP header value pattern.
+     * @summary Assert whether the specified pattern is present in the response body.
+     * @function assertText
+     * @param {String} pattern - Pattern to assert.
      */
     assertText(pattern) {
         if (!this._lastResponse) {
@@ -243,7 +243,7 @@ export default class HttpModule extends OxygenModule {
      * @summary Assert if HTTP header is presented in the response
      * @function assertHeader
      * @param {String} headerName - A HTTP header name.
-     * @param {String} [headerValuePattern] - An optional HTTP header value pattern.
+     * @param {String=} headerValuePattern - An optional HTTP header value pattern.
      */
     assertHeader(headerName, headerValuePattern = null) {
         if (!headerName || typeof headerName !== 'string' || headerName.length == 0) {
@@ -266,7 +266,7 @@ export default class HttpModule extends OxygenModule {
      * @summary Assert if HTTP cookie is presented in the response
      * @function assertCookie
      * @param {String} cookieName - A HTTP cookie name.
-     * @param {String} [cookieValuePattern] - An optional HTTP cookie value pattern.
+     * @param {String=} cookieValuePattern - An optional HTTP cookie value pattern.
      */
     assertCookie(cookieName, cookieValuePattern) {
         throw new Error('Not implemented');
