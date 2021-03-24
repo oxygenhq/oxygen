@@ -67,17 +67,33 @@ module.exports = async function(locator, timeout) {
     try {
         var clickable = await el.isClickable();
     } catch (e) {
+        let documentMode;
         if (
             this.driver &&
             this.driver.capabilities &&
-            this.driver.capabilities.browserName === 'internet explorer' &&
-            [5, 6, 7, 8, 9, 10].includes(parseInt(this.driver.capabilities.browserVersion))
+            this.driver.capabilities.browserName === 'internet explorer'
         ) {
-            clickable = true;
-        } else {
-            throw e;
+            try {
+                documentMode = await this.driver.execute(function(domEl) {
+                    // eslint-disable-next-line no-undef
+                    var documentMode = window.document.documentMode;
+                    return documentMode;
+                });
+            } catch (e) {
+                // ignore
+            }
+
+            if (
+                documentMode &&
+                [5, 6, 7, 8, 9, 10].includes(parseInt(documentMode))
+            ) {
+                clickable = true;
+            } else {
+                throw e;
+            }
         }
     }
+
     if (clickable) {
         try {
             await el.click();
