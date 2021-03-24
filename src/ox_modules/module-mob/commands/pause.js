@@ -8,9 +8,9 @@
  */
 
 /**
- * @summary Pauses test execution for given amount of milliseconds.
+ * @summary Pause test execution for the given amount of milliseconds.
  * @function pause
- * @param {Number} ms - milliseconds to pause the execution.
+ * @param {Number} ms - Milliseconds to pause the execution for.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities

@@ -8,9 +8,9 @@
  */
 
 /**
- * @summary Pauses test execution for given amount of milliseconds.
+ * @summary Pause test execution for the given amount of milliseconds.
  * @function pause
- * @param {Number} ms - milliseconds to pause the execution.
+ * @param {Number} ms - Milliseconds to pause the execution for.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();//Opens browser session.
  * web.pause(10*1000);//Pauses the execution for 10 seconds (10000ms)

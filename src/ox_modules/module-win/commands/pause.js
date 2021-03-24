@@ -8,9 +8,9 @@
  */
 
 /**
- * @summary Pauses test execution for given amount of milliseconds.
+ * @summary Pause test execution for the given amount of milliseconds.
  * @function pause
- * @param {Number} ms - milliseconds to pause the execution.
+ * @param {Number} ms - Milliseconds to pause the execution for.
  */
 module.exports = async function(ms) {
     this.helpers.assertArgumentNumberNonNegative(ms, 'ms');

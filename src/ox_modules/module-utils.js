@@ -9,7 +9,7 @@
 
 /**
  * @name utils
- * @description Provides oxygen utils methods.
+ * @description Provides miscellaneous utility methods.
  */
 
 const MODULE_NAME = 'utils';
@@ -33,12 +33,12 @@ export default class UtilsModule extends OxygenModule {
     }
 
     /**
-     * @summary Makes pause in script
-     * @function pause 
-     * @param {Number=} timeout - Timeout in milliseconds.
+     * @summary Pause test execution for the given amount of milliseconds.
+     * @function pause
+     * @param {Number} ms - Milliseconds to pause the execution for.
      */
-    pause(timeout) {
-        utils.assertArgumentNumberNonNegative(timeout, 'timeout');
-        deasync.sleep(timeout);
+    pause(ms) {
+        utils.assertArgumentNumberNonNegative(ms, 'ms');
+        deasync.sleep(ms);
     }
 }
