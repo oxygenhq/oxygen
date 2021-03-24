@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.18.0 (2021-03-24)
+
+#### :tada: New Feature
+* Add `utils.pause`.
+
+#### :beetle: Bug Fix
+* `web.click`, `web.rightClick`, `web.doubleClick` not working on IE < 11.
+
+#### :nail_care: Polish
+* Print more details on `http` module failures.
+* Documentation updates.
+
 ## v1.17.0 (2021-03-22)
 
 #### :boom: Breaking Change
