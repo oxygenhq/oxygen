@@ -32,10 +32,9 @@ module.exports = async function(locator, timeout) {
             this.driver.capabilities.browserName === 'internet explorer'
         ) {
             try {
-                documentMode = await this.driver.execute(function(domEl) {
+                documentMode = await this.driver.execute(function() {
                     // eslint-disable-next-line no-undef
-                    var documentMode = window.document.documentMode;
-                    return documentMode;
+                    return window.document.documentMode;
                 });
             } catch (e) {
                 // ignore
