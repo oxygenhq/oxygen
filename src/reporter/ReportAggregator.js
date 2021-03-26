@@ -21,6 +21,7 @@ import JsonReporter from '../ox_reporters/reporter-json';
 import JUnitReporter from '../ox_reporters/reporter-junit';
 import HtmlReporter from '../ox_reporters/reporter-html';
 import ExcelReporter from '../ox_reporters/reporter-excel';
+import PdfReporter from '../ox_reporters/reporter-pdf';
 import errorHelper from '../errors/helper';
 import Status from '../model/status';
 
@@ -28,7 +29,8 @@ const Reporters = {
     json: JsonReporter,
     junit: JUnitReporter,
     html: HtmlReporter,
-    excel: ExcelReporter
+    excel: ExcelReporter,
+    pdf: PdfReporter
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';

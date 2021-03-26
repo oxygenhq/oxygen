@@ -10,29 +10,11 @@
 /*
  * Oxygen PDF Reporter
  */
-var path = require('path');
-var fs = require('fs');
-var HtmlReporter = require('../lib/reporter/html-reporter');
+import FileReporterBase from '../reporter/FileReporterBase';
+import HtmlReporter from './reporter-html';
+import path from 'path';
+import fs from 'fs';
 var exec = require('child_process').execFileSync;
-
-var ReporterFileBase = require('../lib/reporter-file-base');
-var util = require('util');
-util.inherits(PdfReporter, ReporterFileBase);
-
-function PdfReporter(results, options) {
-    PdfReporter.super_.call(this, results, options);
-}
-
-PdfReporter.prototype.generate = function(results) {
-    var resultFilePath = this.createFolderStructureAndFilePath('.xml');
-    var resultFolderPath = path.dirname(resultFilePath);
-    this.replaceScreenshotsWithFiles(results, resultFolderPath);
-
-    var reporter = new HtmlReporter(results, this.options);
-    var htmlPath = reporter.generate();
-
-    return convertToPdf(htmlPath);
-};
 
 function convertToPdf(htmlFile) {
     var binPath;
@@ -46,7 +28,7 @@ function convertToPdf(htmlFile) {
         //binPath = path.join(__dirname, 'pdf', 'wkhtmltopdf-osx');
     }
 
-    var pdfPath = htmlFile.replace(new RegExp('.htm', 'g'), '.pdf');
+    var pdfPath = htmlFile.replace(new RegExp('.html', 'g'), '.pdf');
 
     exec(binPath, ['-q', '--viewport-size', '1600x900', '-O', 'Landscape', '-L', '10mm', '-R', '10mm', '-T', '10mm', '-B', '10mm', htmlFile, pdfPath], {stdio:[0,1,2]});
 
@@ -55,4 +37,20 @@ function convertToPdf(htmlFile) {
     return pdfPath;
 }
 
-module.exports = PdfReporter;
+export default class PdfReporter extends FileReporterBase {
+    constructor(options) {
+        super(options);
+    }
+
+    generate(results) {
+        var resultFilePath = this.createFolderStructureAndFilePath('.xml');
+        var resultFolderPath = path.dirname(resultFilePath);
+
+        this.replaceScreenshotsWithFiles(results, resultFolderPath);
+
+        var reporter = new HtmlReporter(this.options);
+        var htmlPath = reporter.generate(results);
+
+        return convertToPdf(htmlPath);
+    }
+}
