@@ -10,38 +10,84 @@
 /*
  * Oxygen XML Reporter
  */
+
+import path from 'path';
+import fs from 'fs';
+import FileReporterBase from '../reporter/FileReporterBase';
 var EasyXml = require('easyxml');
-var path = require('path');
-var fs = require('fs');
 
-var ReporterFileBase = require('../lib/reporter-file-base');
-var util = require('util');
-util.inherits(XmlReporter, ReporterFileBase);
+export default class XmlReporter extends FileReporterBase {
+    constructor(options) {
+        super(options);
+    }
 
-function XmlReporter(results, options) {
-    XmlReporter.super_.call(this, results, options);
+    generate(results) {
+        var resultFilePath = this.createFolderStructureAndFilePath('.xml');
+        var resultFolderPath = path.dirname(resultFilePath);
+
+        var serializer = new EasyXml({
+            singularize: true,
+            rootElement: 'test-results',
+            rootArray: 'test-results',
+            dateFormat: 'ISO',
+            manifest: true,
+            unwrapArrays: false,
+            filterNulls: true
+        });
+
+        this.replaceScreenshotsWithFiles(results, resultFolderPath);
+        const forXmlRender = [];
+
+        if (results && Array.isArray(results) && results.length > 0) {
+            results.map((result) => {
+                forXmlRender.push({
+                    name: result.name,
+                    status: result.status,
+                    startTime: result.startTime,
+                    endTime: result.endTime,
+                    duration: result.duration,
+                    failure: result.failure,
+                    environment: result.environment,
+                    capabilities: result.capabilities,
+                    options: {
+                        cwd: result.options.cwd,
+                        target:  result.options.target,
+                        browserName: result.options.browserName,
+                        seleniumUrl: result.options.seleniumUrl,
+                        appiumUrl: result.options.appiumUrl,
+                        reopenSession: result.options.reopenSession,
+                        reRunOnFailed: result.options.reRunOnFailed,
+                        iterations: result.options.iterations,
+                        debugPort: result.options.debugPort,
+                        delay: result.options.delay,
+                        collectDeviceLogs: result.options.collectDeviceLogs,
+                        collectAppiumLogs: result.options.collectAppiumLogs,
+                        collectBrowserLogs: result.options.collectBrowserLogs,
+                        reporting: result.options.reporting,
+                        parameters: result.options.parameters,
+                        // suites: result.options.suites, // ignore, function inside
+                        concurrency: result.options.concurrency,
+                        capabilities: result.options.capabilities,
+                        services: result.options.services,
+                        modules: result.options.modules,
+                        framework: result.options.framework,
+                        applitoolsOpts: result.options.applitoolsOpts,
+                        // hooks: result.options.hooks, // ignore, function inside
+                        envs: result.options.envs,
+                        name: result.options.name,
+                        env: result.options.env,
+                        po: result.options.po,
+                        scriptContentLineOffset: result.options.scriptContentLineOffset
+                    },
+                    suites: result.suites
+                });
+            });
+        }
+
+        // serialize test results to XML and save to file
+        var xml = serializer.render(forXmlRender);
+        fs.writeFileSync(resultFilePath, xml);
+
+        return resultFilePath;
+    }
 }
-
-XmlReporter.prototype.generate = function(results) {
-    var resultFilePath = this.createFolderStructureAndFilePath('.xml');
-    var resultFolderPath = path.dirname(resultFilePath);
-
-    var serializer = new EasyXml({
-        singularize: true,
-        rootElement: 'test-results',
-        rootArray: 'test-results',
-        dateFormat: 'ISO',
-        manifest: true,
-        unwrapArrays: true,
-        filterNulls: true
-    });
-
-    this.replaceScreenshotsWithFiles(results, resultFolderPath);
-    // serialize test results to XML and save to file
-    var xml = serializer.render(this.results);
-    fs.writeFileSync(resultFilePath, xml);
-
-    return resultFilePath;
-};
-
-module.exports = XmlReporter;
