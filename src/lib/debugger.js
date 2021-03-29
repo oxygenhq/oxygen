@@ -25,14 +25,20 @@ const MAX_DEPTH = 5;
 let maxFindedDepth = 0;
 
 const transformToIDEStyle = (fileName) => {
-    const uriIndex = fileName.indexOf('file:');
-    const bpData = fileName.substring(0, uriIndex);
-    let uri = fileName.substring(uriIndex);
-    // fix UNC paths
-    if (process.platform === 'win32' && uri.startsWith('file:///')) {
-        uri = 'file://' + uri.substring('file:///'.length);
+    try {
+        const uriIndex = fileName.indexOf('file:');
+        const bpData = fileName.substring(0, uriIndex);
+        let uri = fileName.substring(uriIndex);
+        // fix UNC paths
+        if (process.platform === 'win32' && uri.startsWith('file:///')) {
+            uri = 'file://' + uri.substring('file:///'.length);
+        }
+        return bpData + url.fileURLToPath(uri);
+    } catch (e) {
+        console.log('transformToIDEStyle fileName', fileName);
+        console.log('transformToIDEStyle error', e);
+        throw e;
     }
-    return bpData + url.fileURLToPath(uri);
 };
 
 // snooze function - async wrapper around setTimeout function
@@ -584,6 +590,8 @@ export default class Debugger extends EventEmitter {
 
                                             if (
                                                 brFileName === breakpointData.fileName &&
+                                                possibleBreakpointData &&
+                                                typeof possibleBreakpointData.fileLineNumbersLength !== 'undefined' &&
                                                 (
                                                     breakpointData.lineNumber+1 === br.origin.lineNumber ||
                                                     br.origin.lineNumber+1 === possibleBreakpointData.fileLineNumbersLength
@@ -613,7 +621,7 @@ export default class Debugger extends EventEmitter {
 
                         if (
                             possibleBreakpointData &&
-                            possibleBreakpointData.fileLineNumbersLength &&
+                            typeof possibleBreakpointData.fileLineNumbersLength !== 'undefined' &&
                             breakpointData.lineNumber+1 >= possibleBreakpointData.fileLineNumbersLength
                         ) {
                             breakpointData.lineNumber = possibleBreakpointData.fileLineNumbersLength - 2;
@@ -637,7 +645,11 @@ export default class Debugger extends EventEmitter {
 
                                             item.file = transformToIDEStyle(item.file);
 
-                                            if (item && item.file === breakpointError.fileName) {
+                                            if (
+                                                item &&
+                                                item.file === breakpointError.fileName &&                                                possibleBreakpointData &&
+                                                typeof item.fileLineNumbersLength !== 'undefined'
+                                            ) {
                                                 let line;
 
                                                 if (breakpointError.line >= item.fileLineNumbersLength) {
