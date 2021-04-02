@@ -20,23 +20,19 @@ var deasync = require('deasync');
 
 function countRows(searchStr, rows, reverse) {
     let result = 0;
+    var strRegex = new RegExp(searchStr, 'g');
+    var reverseStrRegex = reverse ? new RegExp(searchStr.split('').reverse().join(''), 'g') : null;
 
     Object.keys(rows) // => array of y-positions (type: float)
         .sort((y1, y2) => parseFloat(y1) - parseFloat(y2)) // sort float positions
         .some(y => {
             var line = (rows[y] || []).join('').replace(/\s/g, '');
-            let inludes;
 
-            if (reverse) {
-                const reverseSearchStr = searchStr.split('').reverse().join('');
-                inludes = line.includes(searchStr) || line.includes(reverseSearchStr);
-            } else {
-                inludes = line.includes(searchStr);
+            var count = (line.match(strRegex) || []).length;
+            if (count === 0 && reverseStrRegex) {
+                count = (line.match(reverseStrRegex) || []).length;
             }
-
-            if (inludes) {
-                result++;
-            }
+            result += count;
         });
 
     return result;
@@ -115,9 +111,9 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
 function processText(rows, texts) {
     for (var t in texts) {
         var item = texts[t];
-        item.text = decodeURIComponent(item.R[0].T);
+        var text = decodeURIComponent(item.R[0].T);
         // accumulate text items into rows object, per line
-        (rows[item.y] = rows[item.y] || []).push(item.text);
+        (rows[item.y] = rows[item.y] || []).push(text);
     }
 }
 
