@@ -15,7 +15,7 @@
 import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 const path = require('path');
-var pdfreader = require('pdfreader');
+var PDFParser = require('pdf2json/pdfparser');
 var deasync = require('deasync');
 
 function countRows(searchStr, rows, reverse) {
@@ -71,157 +71,96 @@ function checkRows(searchStr, rows, reverse) {
 
 function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
     let rows = {}; // indexed by y-position
-    let currentPage = 1;
 
     return new Promise(function(resolve, reject) {
         const searchStr = text.replace(/\s/g, '');
 
-        new pdfreader.PdfReader().parseFileItems(pdfFilePath, function(
-            err,
-            item
-        ) {
-            if (err) {
-                let errorMessage = 'unexpected PdfReader error';
-                if (err.data && err.data.message) {
-                    errorMessage = err.data.message;
-                }
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage );
-            }
-
-            if (item && item.page) {
-                currentPage = item.page - 1;
-                let hold = true;
-
-                if (pageNum) {
-                    if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
-                        // hold
-                    } else {
-                        hold = false;
-                    }
-                }
-
-                if (hold && currentPage > 0) {
-                    let result = checkRows(searchStr, rows, reverse);
-
-                    if (result) {
-                        resolve(true);
-                    }
-                }
-
-                rows = {}; // clear rows for next page
-            } else if (item && item.text) {
-                // accumulate text items into rows object, per line
-                (rows[item.y] = rows[item.y] || []).push(item.text);
-            } else {
-                if (typeof item === 'undefined') {
-                    // end of file
-                    let hold = true;
-                    currentPage++;
-
-                    if (pageNum) {
-                        if (pageNum > currentPage) {
-                            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${currentPage} pages`);
-                        } else if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
-                            // hold
-                        } else {
-                            hold = false;
-                        }
-                    }
-
-                    if (hold && currentPage > 0) {
-
-                        //check in the last page
-                        let result = checkRows(searchStr, rows);
-
-                        if (result) {
-                            resolve(true);
-                        }
-                    }
-
-                    resolve(false);
-                }
-            }
+        let pdfParser = new PDFParser();
+        pdfParser.on('pdfParser_dataError', function(err) {
+            let errorMessage = err.parserError ? err.parserError : 'Error parsing the PDF.';
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage);
         });
+
+        pdfParser.on('pdfParser_dataReady', function (pdfData) {
+            var totalPages = pdfData.formImage.Pages.length;
+            if (pageNum && totalPages < pageNum - 1) {
+                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
+            }
+
+            // locate on a specific page
+            if (pageNum) {
+                processText(rows, pdfData.formImage.Pages[pageNum-1].Texts);
+                let isFound = checkRows(searchStr, rows, reverse);
+                resolve(!!isFound);
+                return;
+            }
+
+            // locate on any page
+            for (let p in pdfData.formImage.Pages) {
+                processText(rows, pdfData.formImage.Pages[p].Texts);
+                let isFound = checkRows(searchStr, rows, reverse);
+                if (isFound) {
+                    resolve(true);
+                    break;
+                }
+                rows = {}; // clear rows for next page
+            }
+
+            resolve(false);
+        });
+        pdfParser.loadPDF(pdfFilePath, 0);
     });
+}
+
+function processText(rows, texts) {
+    for (var t in texts) {
+        var item = texts[t];
+        item.text = decodeURIComponent(item.R[0].T);
+        // accumulate text items into rows object, per line
+        (rows[item.y] = rows[item.y] || []).push(item.text);
+    }
 }
 
 function count(pdfFilePath, text, pageNum = 0, reverse = false) {
     let rows = {}; // indexed by y-position
-    let currentPage = 1;
-    let totalResult = 0;
+    let totalCount = 0;
 
     return new Promise(function(resolve, reject) {
         const searchStr = text.replace(/\s/g, '');
 
-        new pdfreader.PdfReader().parseFileItems(pdfFilePath, function(
-            err,
-            item
-        ) {
-            if (err) {
-                let errorMessage = 'unexpected PdfReader error';
-                if (err.data && err.data.message) {
-                    errorMessage = err.data.message;
-                }
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage );
-            }
-
-            if (item && item.page) {
-                currentPage = item.page - 1;
-                let hold = true;
-
-                if (pageNum) {
-                    if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
-                        // hold
-                    } else {
-                        hold = false;
-                    }
-                }
-
-                if (hold && currentPage > 0) {
-
-                    //check in the last page
-                    let result = countRows(searchStr, rows, reverse);
-
-                    if (result && result > 0) {
-                        totalResult+=result;
-                    }
-                }
-
-                rows = {}; // clear rows for next page
-            } else if (item && item.text) {
-                // accumulate text items into rows object, per line
-                (rows[item.y] = rows[item.y] || []).push(item.text);
-            } else {
-                if (typeof item === 'undefined') {
-                    // end of file
-
-                    let hold = true;
-                    currentPage++;
-
-                    if (pageNum) {
-                        if (pageNum > currentPage) {
-                            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${currentPage} pages`);
-                        } else if (currentPage && parseInt(currentPage) === parseInt(pageNum)) {
-                            // hold
-                        } else {
-                            hold = false;
-                        }
-                    }
-
-                    if (hold && currentPage > 0) {
-
-                        //check in the last page
-                        let result = countRows(searchStr, rows);
-
-                        if (result && result > 0) {
-                            totalResult+=result;
-                        }
-                    }
-
-                    resolve(totalResult);
-                }
-            }
+        let pdfParser = new PDFParser();
+        pdfParser.on('pdfParser_dataError', function(err) {
+            let errorMessage = err.parserError ? err.parserError : 'Error parsing the PDF.';
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage);
         });
+
+        pdfParser.on('pdfParser_dataReady', function (pdfData) {
+            let totalPages = pdfData.formImage.Pages.length;
+            if (pageNum && totalPages < pageNum - 1) {
+                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
+            }
+
+            // count on a specific page
+            if (pageNum) {
+                processText(rows, pdfData.formImage.Pages[pageNum-1].Texts);
+                let count = countRows(searchStr, rows, reverse);
+                resolve(count);
+                return;
+            }
+
+            // count on all pages
+            for (var p in pdfData.formImage.Pages) {
+                processText(rows, pdfData.formImage.Pages[p].Texts);
+                let count = countRows(searchStr, rows, reverse);
+                if (count > 0) {
+                    totalCount += count;
+                }
+                rows = {}; // clear rows for next page
+            }
+
+            resolve(totalCount);
+        });
+        pdfParser.loadPDF(pdfFilePath, 0);
     });
 }
 
@@ -309,38 +248,28 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         let error;
         try {
-            let actual = null;
-            const expected = true;
+            let ret = null;
             assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
-                    actual = result;
-
-                    if (actual === expected) {
-                        // ignore;
-                    } else {
-                        let savaMessage = text+' is not found in the PDF';
-
-                        if (pageNum) {
-                            savaMessage+= ` in page ${pageNum}`;
-                        }
-
-                        if (message) {
-                            // show message in result
-                            savaMessage = message;
-                        }
-
-                        error = new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
-                    }
+                    ret = result;
                 },
                 e => {
                     error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
-                    actual = false;
+                    ret = false;
                 }
             );
+            deasync.loopWhile(() => typeof ret !== 'boolean');
 
-            deasync.loopWhile(() => typeof actual !== 'boolean');
-        }
-        catch (e) {
+            if (!ret) {
+                if (message) {
+                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+                }
+
+                let msg = `"${text}" is not found in the PDF ${pageNum ? 'on page ' + pageNum : ''}`;
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, msg);
+            }
+
+        } catch (e) {
             error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
         }
 
@@ -370,35 +299,26 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         let error;
         try {
-            let actual = null;
-            const expected = false;
+            let ret = null;
             assertion(pdfFilePath, text, pageNum, reverse).then(
                 result => {
-                    actual = result;
+                    ret = result;
                 },
                 e => {
                     error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
-                    actual = false;
+                    ret = false;
                 }
             );
 
-            deasync.loopWhile(() => typeof actual !== 'boolean');
+            deasync.loopWhile(() => typeof ret !== 'boolean');
 
-            if (actual === expected) {
-                // ignore;
-            } else {
-                let savaMessage = text+' is found in the PDF';
-
-                if (pageNum) {
-                    savaMessage+= ` in page ${pageNum}`;
-                }
-
+            if (ret) {
                 if (message) {
-                    // show message in result
-                    savaMessage = message;
+                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
                 }
 
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, savaMessage);
+                let msg = `"${text}" is found in the PDF ${pageNum ? 'on page ' + pageNum : ''}`;
+                throw new OxError(errHelper.errorCode.ASSERT_ERROR, msg);
             }
         }
         catch (e) {

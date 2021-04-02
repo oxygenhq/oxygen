@@ -76,7 +76,7 @@
     "moment": "2.29.1",
     "ox-chrome-remote-interface": "0.29.0",
     "oxygen-logger": "0.5.0",
-    "pdfreader": "1.2.8",
+    "pdf2json": "1.2.1",
     "perfecto-reporting": "2.5.3",
     "request": "2.88.2",
     "saucelabs": "3.0.1",
