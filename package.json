@@ -48,6 +48,8 @@
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.29.8",
     "@lambdatest/node-rest-client": "1.0.0",
+    "@oxygenhq/chrome-remote-interface": "0.30.0",
+    "@oxygenhq/logger": "0.5.1",
     "@oxygenhq/mitmproxy-node": "1.0.1",
     "@wdio/cli": "6.6.6",
     "@wdio/devtools-service": "6.6.6",
@@ -74,8 +76,6 @@
     "minimist": "1.2.5",
     "mockery": "2.1.0",
     "moment": "2.29.1",
-    "ox-chrome-remote-interface": "0.29.0",
-    "oxygen-logger": "0.5.0",
     "pdf2json": "1.2.1",
     "perfecto-reporting": "2.5.3",
     "request": "2.88.2",

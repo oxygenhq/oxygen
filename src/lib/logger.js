@@ -8,9 +8,9 @@ const path = require('path');
 let originalNodeCfgDir = process.env.NODE_CONFIG_DIR;
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../..', 'config');
 
-// import config and oxygen-logger modules
+// import config and @oxygen/logger modules
 const config = require('config');
-const loggerFactory = require('oxygen-logger');
+const loggerFactory = require('@oxygenhq/logger');
 
 // setup logger
 loggerFactory.init(config.get('logger'));
