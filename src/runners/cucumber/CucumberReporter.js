@@ -195,6 +195,10 @@ export default class CucumberReporter {
     }
 
     onAfterStep(uri, feature, scenario, step, result, sourceLocation) {
+        //ignore skipped steps
+        if (result.status === 'skipped') {
+            return;
+        }
         const suiteId = `${uri}:${feature.location.line}`;
         const caseId = `${uri}:${sourceLocation.line}`;
         const suiteResult = this.suites[suiteId];
