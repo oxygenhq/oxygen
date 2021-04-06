@@ -366,7 +366,7 @@ export default class WorkerProcess extends EventEmitter {
             this.emit('debugger:error', Object.assign(err, { pid: this._pid }));
             // reject the promise only if we got an error right after _debugger.connect() call below - we need this to indicate debugger initialization error
             if (!whenDebuggerReady.isResolved) {
-                whenDebuggerReady.reject(err);
+                whenDebuggerReady.reject(err.message);
             }
         });
         this._debugger.on('break', function(breakpointData) {
@@ -390,8 +390,7 @@ export default class WorkerProcess extends EventEmitter {
         } catch (e) {
             log.error('Cannot connect to the debugger: ', e);
             const message = 'Cannot connect to the debugger: ' + e.message;
-            const error = new Error(message);
-            whenDebuggerReady.reject(error);
+            whenDebuggerReady.reject(message);
         }
 
         return whenDebuggerReady.promise;
