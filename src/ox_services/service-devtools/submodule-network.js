@@ -126,6 +126,34 @@ export default class NetworkSubModule extends OxygenSubModule {
     }
 
     /**
+     * @summary Fail the test if request with a matching URL was received within the specified time frame.
+     * @function waitForNotUrl
+     * @param {String|RegExp} pattern - An URL to match verbatim or a RegExp.
+     * @param {Number=} timeout - Timeout. Default is 60 seconds.
+     */
+    waitForNotUrl(pattern, timeout = 60*1000) {
+        if (!this._driver || !this._isInitialized || !this._parent) {
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
+        }
+
+        if (!this._collectData) {
+            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network.start()` must be executed prior to using `network` commands.');
+        }
+
+        this._parent.helpers.assertArgument(pattern, 'pattern');
+        this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
+        const start = Date.now();
+        while (Date.now() - start < timeout) {
+            for (let req of this._networkRequests) {
+                if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
+                    throw new OxError(errHelper.errorCode.TIMEOUT, `A request matching the URL "${pattern}" was found.`);
+                }
+            }
+            this._driver.pause(500);
+        }
+    }
+
+    /**
      * @summary Wait for a network request.
      * @function networkWaitFor
      * @param {Function} matcher - Matching function. Should return true on match, or false otherwise.
