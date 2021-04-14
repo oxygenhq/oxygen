@@ -201,6 +201,13 @@ module.exports = {
         else if (err.message && err.message.includes('element not interactable')) {
             return new OxError(ERROR_CODES.ELEMENT_NOT_INTERACTABLE, err.message);
         }
+        // invalid selector: java.lang.IllegalArgumentException: Unable to compile selector ...
+        else if (
+            err.name &&
+            err.name === 'invalid selector'
+        ) {
+            return new OxError(ERROR_CODES.SCRIPT_ERROR, err.message);
+        }
 
         // try to resolve Chai error code
         var oxErrorCode = CHAI_ERROR_CODES[errType];
