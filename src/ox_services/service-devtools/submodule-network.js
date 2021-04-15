@@ -303,15 +303,78 @@ export default class NetworkSubModule extends OxygenSubModule {
         }
     }
 
-    _onNetworkResponseReceived(params) {
+    async _onNetworkResponseReceived(params) {
         if (this._collectData) {
-            this._networkRequests.push({ requestId: params.requestId, ...params.response });
+            let responseBody;
+            try {
+                responseBody = await this._driver.cdp('Network','getResponseBody', {
+                    requestId: params.requestId
+                });
+            } catch (e) {
+                // ignore getResponseBody errors
+                console.log('onNetworkResponseReceived Network.getResponseBody e', e);
+            }
+
+            let requestPostData;
+            try {
+                requestPostData = await this._driver.cdp('Network','getRequestPostData', {
+                    requestId: params.requestId
+                });
+            } catch (e) {
+                // ignore getRequestPostData errors
+                console.log('onNetworkResponseReceived Network.getRequestPostData e', e);
+            }
+
+            if (
+                params &&
+                params.response &&
+                params.response.mimeType === 'application/json'
+            ) {
+                try {
+                    if (responseBody && responseBody.body) {
+                        responseBody.body = JSON.parse(responseBody.body);
+                    }
+                } catch (e) {
+                    // ignore json parse response Body errors
+                    console.log('onNetworkResponseReceived responseBody parse e', e);
+                }
+                try {
+                    if (requestPostData && requestPostData.postData) {
+                        requestPostData.postData = JSON.parse(requestPostData.postData);
+                    }
+                } catch (e) {
+                    // ignore json parse request Post Data errors
+                    console.log('onNetworkResponseReceived requestPostData parse e', e);
+                }
+            }
+
+            this._networkRequests.push({ requestId: params.requestId, ...params.response, responseBody, requestPostData });
         }
     }
 
-    _onNetworkRequestWillBeSent(params) {
+    async _onNetworkRequestWillBeSent(params) {
         if (this._collectData && params.redirectResponse) {
-            this._networkRequests.push({ requestId: params.requestId, ...params.redirectResponse });
+
+            let requestPostData;
+            try {
+                requestPostData = await this._driver.cdp('Network','getRequestPostData', {
+                    requestId: params.requestId
+                });
+            } catch (e) {
+                // ignore getRequestPostData errors
+                console.log('onNetworkRequestWillBeSent Network.getRequestPostData e', e);
+            }
+
+            try {
+                if (requestPostData && requestPostData.postData) {
+                    requestPostData.postData = JSON.parse(requestPostData.postData);
+                }
+            } catch (e) {
+                // ignore json parse request Post Data errors
+                console.log('onNetworkRequestWillBeSent requestPostData parse e', e);
+            }
+
+            this._networkRequests.push({ requestId: params.requestId, ...params.redirectResponse, requestPostData });
         }
     }
 }
