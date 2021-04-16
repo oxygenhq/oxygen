@@ -15,7 +15,6 @@ require = require('esm')(module);
 var td = require('testdouble');
 
 import Fiber from 'fibers';
-import deasync from 'deasync';
 import * as Cucumber from 'cucumber';
 import isGlob from 'is-glob';
 import glob from 'glob';
@@ -105,133 +104,81 @@ export default class CucumberWorker {
     }
 
     async run ({ scriptPath, context, poFile = null }) {
-        let result = null;
-        try {
-            const retval = (async() => {
-                Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
+        Cucumber.supportCodeLibraryBuilder.reset(this.cwd);
 
-                if (context && this.oxygen) {
-                    this.oxygen.context = context;
-                    this.oxygen.loadPageObjectFile(poFile);
-                } else {
-                    if (!this.oxygen) {
-                        console.warn('this.oxygen is undefined');
-                    } else {
-                        console.warn('context in runOpts is undefined');
-                    }
-                }
-                //wrapCommand(this.beforeCommandHandler, this.afterCommandHandler)
-
-                this.registerCompilers();
-                this.loadRequireFiles();
-                this.wrapSteps();
-                Cucumber.setDefaultTimeout(this.cucumberOpts.timeout);
-                const supportCodeLibrary = Cucumber.supportCodeLibraryBuilder.finalize();
-                const eventBroadcaster = new EventEmitter();
-                this.hookInCucumberEvents(eventBroadcaster);
-                this.cucumberReporter = new CucumberReporter(this.rid, this.config, this.cucumberEventListener, this.oxygen, this.reporter, this.testHooks);
-                const pickleFilter = new Cucumber.PickleFilter({
-                    featurePaths: this.specs,
-                    names: this.cucumberOpts.name,
-                    tagExpression: this.cucumberOpts.tagExpression
-                });
-                const testCases = await Cucumber.getTestCasesFromFilesystem({
-                    cwd: this.cwd,
-                    eventBroadcaster,
-                    featurePaths: this.specs.map(spec => spec.replace(/(:\d+)*$/g, '')),
-                    order: this.cucumberOpts.order,
-                    pickleFilter
-                });
-                const runtime = new Cucumber.Runtime({
-                    eventBroadcaster,
-                    options: this.cucumberOpts,
-                    supportCodeLibrary,
-                    testCases
-                });
-
-                // call 'beforeTest' hook
-                let hookError = await this._runFnInFiberContext(this.testHooks['beforeTest'], [this.rid, this.config, this.capabilities]);
-
-                if (hookError) {
-                    throw hookError;
-                }
-                // run the test
-                let error = null;
-                try {
-                    result = await runtime.start() ? 0 : 1;
-                }
-                catch (e) {
-                    error = e;
-                }
-                // call 'afterTest' hook
-
-                let testResultStatus = Status.PASSED;
-
-                if (this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)) {
-                    const suites = this.cucumberReporter.suites;
-                    Object.keys(suites).forEach(function (key) {
-                        const suite = suites[key];
-                        if (suite.status === Status.FAILED) {
-                            testResultStatus = Status.FAILED;
-                        }
-                    });
-                }
-
-                this.cucumberReporter.status = testResultStatus;
-                hookError = await this._runFnInFiberContext(this.testHooks['afterTest'], [this.rid, this.cucumberReporter, error]);
-                if (hookError) {
-                    throw hookError;
-                }
-                return testResultStatus;
-            })();
-
-            if (!Fiber.current) {
-                let done = false;
-                let error = null;
-                let finalVal = null;
-
-                if (retval && retval.then) {
-                    Promise.resolve(retval)
-                    .then((val) => {
-                        finalVal = val;
-                        done = true;
-                    })
-                    .catch((e) => {
-                        error = e;
-                        done = true;
-                    });
-                } else {
-                    finalVal = retval;
-                    done = true;
-                }
-
-                try {
-                    deasync.loopWhile(() => !done && !error);
-                }
-                catch (e) {
-                    if (e && e.message && typeof e.message === 'string' && e.message.includes('readyState')) {
-                        return undefined;
-                    }
-
-                    // ignore this error as it usually happens 
-                    // when Oxygen is disposed and process is being killed
-                    console.error('deasync.loopWhile() failed:', e);
-                    return undefined;
-                }
-
-                if (error) {
-                    throw error;
-                } else {
-                    return finalVal;
-                }
+        if (context && this.oxygen) {
+            this.oxygen.context = context;
+            this.oxygen.loadPageObjectFile(poFile);
+        } else {
+            if (!this.oxygen) {
+                console.warn('this.oxygen is undefined');
+            } else {
+                console.warn('context in runOpts is undefined');
             }
+        }
 
-            return result;
+        this.registerCompilers();
+        this.loadRequireFiles();
+        this.wrapSteps();
+        Cucumber.setDefaultTimeout(this.cucumberOpts.timeout);
+        const supportCodeLibrary = Cucumber.supportCodeLibraryBuilder.finalize();
+        const eventBroadcaster = new EventEmitter();
+        this.hookInCucumberEvents(eventBroadcaster);
+        this.cucumberReporter = new CucumberReporter(this.rid, this.config, this.cucumberEventListener, this.oxygen, this.reporter, this.testHooks);
+        const pickleFilter = new Cucumber.PickleFilter({
+            featurePaths: this.specs,
+            names: this.cucumberOpts.name,
+            tagExpression: this.cucumberOpts.tagExpression
+        });
+        const testCases = await Cucumber.getTestCasesFromFilesystem({
+            cwd: this.cwd,
+            eventBroadcaster,
+            featurePaths: this.specs.map(spec => spec.replace(/(:\d+)*$/g, '')),
+            order: this.cucumberOpts.order,
+            pickleFilter
+        });
+        const runtime = new Cucumber.Runtime({
+            eventBroadcaster,
+            options: this.cucumberOpts,
+            supportCodeLibrary,
+            testCases
+        });
+
+        // call 'beforeTest' hook
+        let hookError = await this._runFnInFiberContext(this.testHooks['beforeTest'], [this.rid, this.config, this.capabilities]);
+
+        if (hookError) {
+            throw hookError;
+        }
+        // run the test
+        let error = null;
+        try {
+            await runtime.start();
         }
         catch (e) {
-            console.log('Fatal error in CucumberWorker:', e);
-            throw e;
+            error = e;
         }
+        // call 'afterTest' hook
+
+        let testResultStatus = Status.PASSED;
+
+        if (this.cucumberReporter && this.cucumberReporter.suites && Object.keys(this.cucumberReporter.suites)) {
+            const suites = this.cucumberReporter.suites;
+            Object.keys(suites).forEach(function (key) {
+                const suite = suites[key];
+                if (suite.status === Status.FAILED) {
+                    testResultStatus = Status.FAILED;
+                }
+            });
+        }
+
+        this.cucumberReporter.status = testResultStatus;
+        hookError = await this._runFnInFiberContext(this.testHooks['afterTest'], [this.rid, this.cucumberReporter, error]);
+        if (hookError) {
+            throw hookError;
+        }
+        return testResultStatus;
+
     }
 
     async initializeOxygenCore() {
