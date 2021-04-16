@@ -51,6 +51,10 @@ cliutil.generateTestOptions(config, argv).then(
                 process.exit(1);
             }
         );
+    },
+    (e) => {
+        console.error('Test failed on generate state: ', e);
+        process.exit(1);
     }
 );
 
