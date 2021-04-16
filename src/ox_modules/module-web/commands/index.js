@@ -42,6 +42,7 @@ export {default as isExist} from './isExist';
 export {default as isSelected} from './isSelected';
 export {default as isVisible} from './isVisible';
 export {default as makeVisible} from './makeVisible';
+export {default as newWindow} from './newWindow';
 export {default as open} from './open';
 export {default as pause} from './pause';
 export {default as point} from './point';
