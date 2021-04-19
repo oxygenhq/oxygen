@@ -280,11 +280,11 @@ export default class WebModule extends WebDriverModule {
     async dispose(status) {
         this._whenWebModuleDispose = defer();
 
-        if (!status || typeof status !== 'string' || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
+        /*if (!status || typeof status !== 'string' || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status argument is required and should be "passed" or "failed"');
-        }
+        }*/
 
-        if (this.driver && this.isInitialized) {
+        if (status && this.driver && this.isInitialized) {
             try {
                 status = status.toUpperCase();
 
