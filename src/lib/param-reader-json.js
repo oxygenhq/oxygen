@@ -10,29 +10,27 @@
 module.exports = function () {
     var module = {};
     var path = require('path');
-    var defer = require('when').defer;
-    var _doneReading = defer();
 
     module.read = function(filePath, extOverride) {
-        var ext = path.extname(filePath);
-        if (extOverride) {
-            ext = extOverride;
-        }
-        if (ext !== '.json' && ext !== '.js') {
-            _doneReading.reject(new Error('Unsupported file extension: ' + ext));
-        }
-
-        try {
-            const rows = require(filePath);
-            if (!Array.isArray(rows)) {
-                _doneReading.reject(new Error('Unsupported file content'));
+        return new Promise((resolve, reject) => {
+            var ext = path.extname(filePath);
+            if (extOverride) {
+                ext = extOverride;
             }
-            _doneReading.resolve(rows);
-        } catch (e) {
-            _doneReading.reject(new Error('Unable to read parameters file: ' + e));
-        }
+            if (ext !== '.json' && ext !== '.js') {
+                reject(new Error('Unsupported file extension: ' + ext));
+            }
 
-        return _doneReading.promise;
+            try {
+                const rows = require(filePath);
+                if (!Array.isArray(rows)) {
+                    reject(new Error('Unsupported file content'));
+                }
+                resolve(rows);
+            } catch (e) {
+                reject(new Error('Unable to read parameters file: ' + e));
+            }
+        });
     };
 
     return module;
