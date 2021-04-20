@@ -275,13 +275,20 @@ export default class WebModule extends WebDriverModule {
     /**
      * @function dispose
      * @summary Ends the current session.
-     * @param {String} status - Test status, either `passed` or `failed`.
+     * @param {String=} status - Test status, either `passed` or `failed`.
      */
     async dispose(status) {
         this._whenWebModuleDispose = defer();
 
-        if (!status || typeof status !== 'string' || !['passed', 'failed', 'canceled'].includes(status.toLowerCase())) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Status argument is required and should be "passed" or "failed"');
+        if (!status) {
+            status = 'passed';
+
+            if (this.rs.steps && Array.isArray(this.rs.steps) && this.rs.steps.length > 0) {
+                const failedFinded = this.rs.steps.find((item) => item.status === 'failed');
+                if (failedFinded) {
+                    status = 'failed';
+                }
+            }
         }
 
         if (this.driver && this.isInitialized) {
