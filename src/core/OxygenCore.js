@@ -924,6 +924,7 @@ export default class Oxygen extends OxygenEvents {
             {
                 const paramValue = this.ctx.params[paramName];
                 arg = arg.replace(new RegExp('\\${' + paramName + '}', 'g'), paramValue);
+                arg = arg.replace(new RegExp('\\${params.' + paramName + '}', 'g'), paramValue);
             }
         }
         // replace environment variables with values
@@ -932,6 +933,7 @@ export default class Oxygen extends OxygenEvents {
             {
                 const envValue = this.ctx.env[envName];
                 arg = arg.replace(new RegExp('\\${' + envName + '}', 'g'), envValue);
+                arg = arg.replace(new RegExp('\\${env.' + envName + '}', 'g'), envValue);
             }
         }
         return arg;
