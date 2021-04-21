@@ -1,5 +1,27 @@
 # CHANGELOG
 
+## v1.19.0 (2021-04-xx)
+
+#### :tada: New Feature
+* Add `web.network.waitForNotUrl`.
+* Return `responseBody` and `requestPostData` in requests recorded with `web.network`.
+* Add `web.newWindow`.
+
+#### :beetle: Bug Fix
+* PDF and XML reporter not working.
+* `pdf.count` ignoring strings which appear multiple times on the same line.
+* Ignore "ignored" steps in Cucumber.
+* Make status argument in `web.dispose` and `mob.dispose` optional.
+* Various other fixes.
+
+#### :nail_care: Polish
+* Better error handling in debugger.
+* Better error handling when parsing JSON/CSV/XLSX parameter files.
+* Process "invalid selector" errors.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.18.0 (2021-03-24)
 
 #### :tada: New Feature
