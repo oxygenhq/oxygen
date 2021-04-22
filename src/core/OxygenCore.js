@@ -32,7 +32,7 @@ Object.defineProperty(global, '__stack', {
     }
 });
 
-const DEFAULT_TIMEOUT = 30000;
+const DEFAULT_TIMEOUT = 300000;
 const DEFAULT_OPTS = {
     backtrace: false, // <boolean> show full backtrace for errors
     compiler: [], // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
