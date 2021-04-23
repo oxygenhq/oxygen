@@ -11,9 +11,9 @@
  * @summary Start debug
  * @function debug
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.debug();//Start debug
+ * mob.init();//Starts a mobile session
+ * mob.open("www.yourwebsite.com");// Opens a website.
+ * mob.debug();//Start debug
  */
 
 module.exports = async function() {

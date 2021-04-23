@@ -307,14 +307,14 @@ export default class OxygenRunner extends EventEmitter {
     async replClose() {
         await this._worker._send({
             event: 'repl',
-            name: 'stop'
+            name: 'repl_stop'
         });
     }
 
     async replSend(cmd) {
         await this._worker._send({
             event: 'repl',
-            name: 'eval',
+            name: 'repl_eval',
             content: {
                 cmd: cmd
             }
