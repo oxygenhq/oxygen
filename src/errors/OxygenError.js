@@ -63,11 +63,11 @@ export default class OxygenError extends Error {
 
         if (this.orgErr && this.orgErr.stack) {
             const anotherStack = stackTraceParser.parse(this.orgErr.stack);
-
             // 0 element don't have correct information about lineNumber and column
             if (
                 anotherStack &&
-                anotherStack[0] &&
+                anotherStack.length &&
+                anotherStack.length > 1 &&
                 anotherStack[1]['file'] &&
                 anotherStack[0]['file'] &&
                 anotherStack[1]['file'] === anotherStack[0]['file'] &&
