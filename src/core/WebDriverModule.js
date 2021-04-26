@@ -5,12 +5,14 @@ export default class WebDriverModule extends OxygenModule {
         super(options, context, rs, logger, modules, services);
         this.driver = null;
         this.caps = null;
-
-        console.log('~~WebDriverModule this.driver', this.driver);
+    }
+    init(driver) {
+        this.driver = driver;
 
         process.send({
             event: 'repl',
             name: 'repl_canStart',
+            value: true
         });
 
         process.on('message', async(m) => {
@@ -18,10 +20,20 @@ export default class WebDriverModule extends OxygenModule {
                 return;
             }
 
-            if (m.name === 'start') {
-                this.replStart();
+            if (m.name === 'repl_start' && this.driver) {
+                await this.replStart();
             }
         });
+
+        super.init();
+    }
+    dispose() {
+        process.send({
+            event: 'repl',
+            name: 'repl_canStart',
+            value: false
+        });
+        super.dispose();
     }
     getDriver() {
         return this.driver;

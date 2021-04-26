@@ -269,7 +269,7 @@ export default class WebModule extends WebDriverModule {
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
-        super.init();
+        super.init(this.driver);
     }
 
     /**

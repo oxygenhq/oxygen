@@ -180,7 +180,7 @@ export default class WindowsModule extends WebDriverModule {
 
         await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
 
-        super.init();
+        super.init(this.driver);
     }
 
     /**

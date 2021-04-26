@@ -321,6 +321,10 @@ export default class OxygenRunner extends EventEmitter {
         });
     }
 
+    async replStart() {
+        await this._worker.invoke('replStart');
+    }
+
     setBreakpoint(line) {
         /*
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {

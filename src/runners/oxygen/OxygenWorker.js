@@ -176,6 +176,34 @@ export default class OxygenWorker extends EventEmitter {
         }).run());
     }
 
+    async replStart() {
+        let commandResolve = () => { };
+
+        setTimeout(async() => {
+            if (this._oxygen && this._oxygen.modules) {
+                const keys = Object.keys(this._oxygen.modules);
+                let debug;
+                keys.map((item) => {
+                    const driver = this._oxygen.modules[item]['getDriver'] && this._oxygen.modules[item]['getDriver']();
+                    if (driver) {
+                        debug = this._oxygen.modules[item]['debug'];
+                    }
+                });
+
+                if (debug) {
+                    await debug();
+                    commandResolve();
+                } else {
+                    commandResolve();
+                }
+            } else {
+                commandResolve();
+            }
+        }, 10);
+
+        return new Promise((resolve) => (commandResolve = resolve));
+    }
+
     _handleBeforeCommand(e) {
         if (!e) {
             return;
