@@ -1,4 +1,5 @@
 import OxygenModule from './OxygenModule';
+import OxError from '../errors/OxygenError';
 
 export default class WebDriverModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -81,12 +82,22 @@ export default class WebDriverModule extends OxygenModule {
         const serialize_error = require('serialize-error');
         await this.repl.eval(cmd, global, null, (e, result) => {
             if (e) {
+                const serialized_err = serialize_error.serializeError(e);
+                const err = new OxError(serialized_err);
+                let message = '';
+
+                if (err.type && err.type.type) {
+                    message = err.type.type + ' - ' + err.type.message;
+                } else {
+                    message = err.type.message;
+                }
+
                 process.send({
                     event: 'repl',
                     name: 'repl_result',
                     params: {
                         error: true,
-                        ...serialize_error.serializeError(e)
+                        message: message
                     }
                 });
             }
