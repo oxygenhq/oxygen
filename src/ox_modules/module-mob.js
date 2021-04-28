@@ -269,7 +269,7 @@ export default class MobileModule extends WebDriverModule {
         } else {
             await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
         }
-        super.init();
+        super.init(this.driver);
     }
 
     /**

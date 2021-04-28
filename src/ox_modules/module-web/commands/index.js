@@ -14,6 +14,7 @@ export {default as clear} from './clear';
 export {default as click} from './click';
 export {default as clickHidden} from './clickHidden';
 export {default as closeWindow} from './closeWindow';
+export {default as debug} from './debug';
 export {default as deleteCookies} from './deleteCookies';
 export {default as deselect} from './deselect';
 export {default as doubleClick} from './doubleClick';

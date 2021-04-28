@@ -304,6 +304,27 @@ export default class OxygenRunner extends EventEmitter {
         }
     }
 
+    async replClose() {
+        await this._worker._send({
+            event: 'repl',
+            name: 'repl_stop'
+        });
+    }
+
+    async replSend(cmd) {
+        await this._worker._send({
+            event: 'repl',
+            name: 'repl_eval',
+            content: {
+                cmd: cmd
+            }
+        });
+    }
+
+    async replStart() {
+        await this._worker.invoke('replStart');
+    }
+
     setBreakpoint(line) {
         /*
         if (this.debugMode && this._worker && this._worker.debugger && this._suite && this._suite.testcases) {
@@ -734,6 +755,9 @@ export default class OxygenRunner extends EventEmitter {
                 console.log('workerError:', msg);
                 await this.dispose('failed');
                 await this.kill('failed');
+            }
+            else if (msg.event && msg.event === 'repl') {
+                _this.emit('repl', msg);
             }
         });
     }

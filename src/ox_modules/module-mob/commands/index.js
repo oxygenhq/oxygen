@@ -10,6 +10,7 @@ export {default as clickHidden} from './clickHidden';
 export {default as clickLong} from './clickLong';
 export {default as clickMultipleTimes} from './clickMultipleTimes';
 export {default as closeApp} from './closeApp';
+export {default as debug} from './debug';
 export {default as dragAndDrop} from './dragAndDrop';
 export {default as enableNetwork} from './enableNetwork';
 export {default as execute} from './execute';

@@ -78,6 +78,7 @@ oxutil.hookLogs(logger);
 
 process.on('unhandledRejection', async(err, origin) => {
     logger.error(err.message, ISSUERS.USER);
+    console.log('unhandledRejection', err);
     processSend({
         event: 'workerError',
         errMessage: err.message,
@@ -86,6 +87,7 @@ process.on('unhandledRejection', async(err, origin) => {
 
 process.on('uncaughtException', async(err, origin) => {
     logger.error(err.message, ISSUERS.USER);
+    console.log('uncaughtException', err);
     processSend({
         event: 'workerError',
         errMessage: err.message,
