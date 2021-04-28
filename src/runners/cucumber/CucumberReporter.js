@@ -194,11 +194,7 @@ export default class CucumberReporter {
         }
     }
 
-    onAfterStep(uri, feature, scenario, step, result, sourceLocation) {
-        //ignore skipped steps
-        if (result.status === 'skipped') {
-            return;
-        }
+    onAfterStep(uri, feature, scenario, step, result, sourceLocation) {        
         const suiteId = `${uri}:${feature.location.line}`;
         const caseId = `${uri}:${sourceLocation.line}`;
         const suiteResult = this.suites[suiteId];
@@ -212,16 +208,14 @@ export default class CucumberReporter {
         stepResult.status = result.status;
         // get failure details if error was thrown in the step
         if (result.exception) {
-            //console.log('result.exception', result.exception)   
             stepResult.failure = errorHelper.getFailureFromError(result.exception);
-
             if (this.currentStep && this.currentStep.location) {
                 stepResult.failure.cucumberLocation = this.currentStep.location;
             }
         }
         // call test hook if defined
         if (typeof this.testHooks.afterStep === 'function') {
-            this.testHooks.afterStep(this.runnerId, stepResult, result.exception);
+            this.testHooks.afterStep(this.runnerId, stepResult, result.exception);            
         }
         // call report generator
         if (this.reportDispatcher.onStepEnd && typeof this.reportDispatcher.onStepEnd === 'function') {
