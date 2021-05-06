@@ -12,6 +12,15 @@
  * @description Provides methods for working with Twilio service.
  */
 import OxErrorContsructor from '../errors/OxygenError';
+import request from 'request';
+const URL = 'http://localhost:3000';
+const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
+const DEFAULT_HTTP_OPTIONS = {
+    json: true,
+    gzip: true,
+    timeout: RESPONSE_TIMEOUT,
+    rejectUnauthorized: false
+};
 
 module.exports = function() {
     const deasync = require('deasync');
@@ -21,6 +30,8 @@ module.exports = function() {
     const helpers = this.helpers = {};
 
     var _client;
+    var _accountSid;
+    var _authToken;
 
     module.isInitialized = function() {
         return _client !== undefined;
@@ -33,6 +44,8 @@ module.exports = function() {
      * @param {String} authToken - Authentication token.
      */
     module.init = function(accountSid, authToken) {
+        _accountSid = accountSid;
+        _authToken = authToken;
         _client = require('twilio')(accountSid, authToken);
     };
 
@@ -133,6 +146,51 @@ module.exports = function() {
         }
 
         return response;
+    };
+
+    /**
+     * @summary Make call.
+     * @function call
+     * @param {String} from - Phone number to send from.
+     * @param {String} to - Phone number to send to.
+     * @return {String} Call SID.
+     * @example <caption>[javascript] Usage example</caption>
+     * twilio.init('Account Sid', 'Account Token');
+     * twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
+     */
+    module.call = function(fromNumber, toNumber) {
+        helpers.assertArgumentNonEmptyString(fromNumber, 'fromNumber');
+        helpers.assertArgumentNonEmptyString(toNumber, 'toNumber');
+        helpers.assertArgumentNonEmptyString(_accountSid, 'accountSid');
+        helpers.assertArgumentNonEmptyString(_authToken, 'authToken');
+
+        let result;
+        request({
+            ...DEFAULT_HTTP_OPTIONS,
+            url: URL+'/calls/new',
+            method: 'POST',
+            form: {
+                accountSid: _accountSid,
+                authToken: _authToken,
+                toNumber: toNumber,
+                fromNumber: fromNumber
+            }
+        },
+            (err, res, body) => {
+                result = err || res;
+            }
+        );
+
+        deasync.loopWhile(() => !result);
+
+        if (
+            result &&
+            result.body &&
+            result.body.statusCode &&
+            result.body.statusCode === 400
+        ) {
+            throw new OxError(errHelper.errorCode.TWILIO_ERROR, result.body.message);
+        }
     };
 
     helpers.assertArgument = (val, name) => utils.assertArgument.call(this, val, name);
