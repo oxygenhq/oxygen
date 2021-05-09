@@ -21,7 +21,8 @@ import errHelper from '../errors/helper';
 
 const MODULE_NAME = 'twilio';
 
-const BRIDGE_RESPONSE_TIMEOUT = 30 * 1000;
+// FIXME: find good timeout
+const BRIDGE_RESPONSE_TIMEOUT = 240 * 1000;
 
 export default class TwilioModule extends OxygenModule {
 
@@ -165,11 +166,68 @@ export default class TwilioModule extends OxygenModule {
     }
 
     // TODO: add timeout which should be apssed to the bridge
-    async waitForAnswer(sid) {
+
+    // FIXME: "hello, welocme" VS "say something"
+    // FIXME: timeout desc
+    /**
+     * @param {Integer=} timeout - Message to send.
+     */
+    async waitForAnswer(sid, timeout) {
+        utils.assertArgumentNonEmptyString(sid, 'sid');
+        utils.assertArgumentTimeout(timeout, 'timeout');
+
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/wait/answer`,
+            {
+                timeout: timeout
+            });
+
+        console.log('================================================================= wait for answer');
+        console.log(JSON.stringify(response, null,2 ));
+        return response;
+    }
+
+    // FIXME: not working yet
+    async waitForSpeech(sid, text, language, timeout) {
+        utils.assertArgumentNonEmptyString(sid, 'sid');
+        utils.assertArgumentTimeout(timeout, 'timeout');
+
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/wait/speech`,
+            {
+                textToSpeech: text,
+                language: language,
+                timeout: timeout
+            });
+
+        console.log('================================================================= wait for speech');
+        console.log(JSON.stringify(response, null,2 ));
+        return response;
+    }
+
+    async speak(sid, text, language) {
         utils.assertArgumentNonEmptyString(sid, 'sid');
 
-        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/wait/answer`);
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/input/speech`,
+            {
+                textToSpeech: text,
+                language: language
+            });
 
+        console.log('================================================================= speak');
+        console.log(JSON.stringify(response, null,2 ));
+        return response;
+    }
+
+    // FIXME: not working yet
+    async inputDigits(sid, digits) {
+        utils.assertArgumentNonEmptyString(sid, 'sid');
+        utils.assertArgumentNonEmptyString(digits, 'digits'); // FIXME: add proper validation
+
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/input/digits`,
+            {
+                digits: digits
+            });
+
+        console.log('================================================================= input digits');
         console.log(JSON.stringify(response, null,2 ));
         return response;
     }
