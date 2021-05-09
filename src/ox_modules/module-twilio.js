@@ -11,20 +11,30 @@
  * @name twilio
  * @description Provides methods for working with Twilio service.
  */
-import OxErrorContsructor from '../errors/OxygenError';
+const deasync = require('deasync');
+const utils = require('./utils');
+import OxygenModule from '../core/OxygenModule';
+import OxError from '../errors/OxygenError';
+import errHelper from '../errors/helper';
 
-module.exports = function() {
-    const deasync = require('deasync');
-    const utils = require('./utils');
-    const OxError = this.OxError = OxErrorContsructor;
-    const errHelper = this.errHelper = require('../errors/helper');
-    const helpers = this.helpers = {};
+const MODULE_NAME = 'twilio';
 
-    var _client;
+export default class TwilioModule extends OxygenModule {
 
-    module.isInitialized = function() {
-        return _client !== undefined;
-    };
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+
+        this._client = null;
+    }
+
+    /*
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "http".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
 
     /**
      * @summary Set Twilio authentication details.
@@ -32,9 +42,10 @@ module.exports = function() {
      * @param {String} accountSid - Account SID.
      * @param {String} authToken - Authentication token.
      */
-    module.init = function(accountSid, authToken) {
-        _client = require('twilio')(accountSid, authToken);
-    };
+    init(accountSid, authToken) {
+        this._client = require('twilio')(accountSid, authToken);
+        this._isInitialized = true;
+    }
 
     /**
      * @summary Retrieves last SMS message.
@@ -45,9 +56,9 @@ module.exports = function() {
      *                                 Default is 4 minutes.
      * @return {String} SMS text.
      */
-    module.getLastSms = function(removeOnRead, timeout, notOlderThan) {
-        helpers.assertArgumentBool(removeOnRead, 'removeOnRead');
-        helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
+    async getLastSms(removeOnRead, timeout, notOlderThan) {
+        utils.assertArgumentBool(removeOnRead, 'removeOnRead');
+        utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
         if (!notOlderThan) {
             notOlderThan = 4*60*1000;
@@ -57,25 +68,26 @@ module.exports = function() {
         var earliestMessageDate = new Date(now - notOlderThan);
 
         while (!msg && (Date.now() - now) < timeout) {
-            var msgsProcessed = false;
-            _client.messages.list({ dateSentAfter: earliestMessageDate }, function(err, messages) {
-                var _msg;
-                if (messages && typeof messages[Symbol.iterator] === 'function') {
-                    for (_msg of messages) {
-                        if (_msg.direction == 'inbound') {
-                            var _msgDate = Date.parse(_msg.dateCreated);
-                            // if message is newer than the previous one - save it
-                            if (msg && Date.parse(msg.dateCreated) < _msgDate) {
-                                msg = _msg;
-                            } else if (!msg) {
-                                msg = _msg;
-                            }
+            var messages;
+            try {
+                messages = await this._client.messages.list({ dateSentAfter: earliestMessageDate });
+            } catch (e) {
+                 // ignored
+            }
+
+            if (messages && typeof messages[Symbol.iterator] === 'function') {
+                for (var _msg of messages) {
+                    if (_msg.direction == 'inbound') {
+                        var _msgDate = Date.parse(_msg.dateCreated);
+                        // if message is newer than the previous one - save it
+                        if (msg && Date.parse(msg.dateCreated) < _msgDate) {
+                            msg = _msg;
+                        } else if (!msg) {
+                            msg = _msg;
                         }
                     }
                 }
-                msgsProcessed = true;
-            });
-            deasync.loopWhile(() => !msgsProcessed);
+            }
             deasync.sleep(800);
         }
 
@@ -83,14 +95,12 @@ module.exports = function() {
             throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't get the SMS within " + timeout + 'ms.');
         }
 
-        var removed;
         if (removeOnRead) {
-            _client.messages(msg.sid).remove().then(() => { removed = true; });
-            deasync.loopWhile(() => !removed);
+            await this._client.messages(msg.sid).remove();
         }
 
         return msg.body;
-    };
+    }
 
     /**
      * @summary Send an SMS.
@@ -103,45 +113,30 @@ module.exports = function() {
      * twilio.init('Account Sid', 'Account Token');
      * twilio.sendSms('+1xxxxxxxxxx', '+972xxxxxxxxx', 'Hello World!');
      */
-    module.sendSms = function(from, to, message) {
-        helpers.assertArgumentNonEmptyString(from, 'from');
-        helpers.assertArgumentNonEmptyString(to, 'to');
-        helpers.assertArgumentNonEmptyString(message, 'message');
+    async sendSms(from, to, message) {
+        utils.assertArgumentNonEmptyString(from, 'from');
+        utils.assertArgumentNonEmptyString(to, 'to');
+        utils.assertArgumentNonEmptyString(message, 'message');
 
-        var response = null;
-
-        _client.messages.create({
-            body: message,
-            from: from,
-            to: to
-        }).then(message => {
-            response = message.sid;
-        }).catch(err => {
-            response = err;
-        });
-
-        deasync.loopWhile(() => !response);
-
-        if (response.message) {
-            var msg = response.message;
-            if (response.moreInfo) {
-                msg += ' For more info: ' + response.moreInfo;
-            } else if (response.code) {
-                msg = 'Unable to connect to Twilio: ' + msg;
+        var msg;
+        try {
+            msg = await this._client.messages.create({
+                body: message,
+                from: from,
+                to: to
+            });
+        } catch (e) {
+            if (e.message) {
+                var errorTxt = e.message;
+                if (e.moreInfo) {
+                    errorTxt += ' For more info: ' + e.moreInfo;
+                } else if (e.code) {
+                    errorTxt = 'Unable to connect to Twilio: ' + errorTxt;
+                }
+                throw new OxError(errHelper.errorCode.TWILIO_ERROR, errorTxt);
             }
-            throw new OxError(errHelper.errorCode.TWILIO_ERROR, msg);
         }
 
-        return response;
-    };
-
-    helpers.assertArgument = (val, name) => utils.assertArgument.call(this, val, name);
-    helpers.assertArgumentNonEmptyString = (val, name) => utils.assertArgumentNonEmptyString.call(this, val, name);
-    helpers.assertArgumentNumber = (val, name) => utils.assertArgumentNumber.call(this, val, name);
-    helpers.assertArgumentNumberNonNegative = (val, name) => utils.assertArgumentNumberNonNegative.call(this, val, name);
-    helpers.assertArgumentBool = (val, name) => utils.assertArgumentBool.call(this, val, name);
-    helpers.assertArgumentBoolOptional = (val, name) => utils.assertArgumentBoolOptional.call(this, val, name);
-    helpers.assertArgumentTimeout = (val, name) => utils.assertArgumentTimeout.call(this, val, name);
-
-    return module;
-};
+        return msg.sid;
+    }
+}
