@@ -23,8 +23,6 @@ const MODULE_NAME = 'twilio';
 
 const BRIDGE_RESPONSE_TIMEOUT = 30 * 1000;
 
-const BRIDGE_CALL_NEW = '/calls/new';
-
 export default class TwilioModule extends OxygenModule {
 
     constructor(options, context, rs, logger, modules, services) {
@@ -154,7 +152,7 @@ export default class TwilioModule extends OxygenModule {
         utils.assertArgumentNonEmptyString(from, 'from');
         utils.assertArgumentNonEmptyString(to, 'to');
 
-        var response = await this.httpRequest('POST', this._bridgeUrl + BRIDGE_CALL_NEW,
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/new`,
             {
                 accountSid: this._accountSid,
                 authToken: this._authToken,
@@ -163,6 +161,16 @@ export default class TwilioModule extends OxygenModule {
             });
 
         //console.log(JSON.stringify(response, null,2 ));
+        return response.body;
+    }
+
+    // TODO: add timeout which should be apssed to the bridge
+    async waitForAnswer(sid) {
+        utils.assertArgumentNonEmptyString(sid, 'sid');
+
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/wait/answer`);
+
+        console.log(JSON.stringify(response, null,2 ));
         return response;
     }
 
@@ -180,8 +188,8 @@ export default class TwilioModule extends OxygenModule {
         try {
             const response = await requestPromise(opts);
             if ((response.statusCode < 200 || response.statusCode >= 300)) {
-                const msg = response.statusCode ? 'Status Code - ' + response.statusCode + ' ' + response.error : 'Error - ' + JSON.stringify(response);
-                throw new OxError(errHelper.errorCode.TWILIO_ERROR, 'Error executing bridge command. ' + msg);
+                const msg = response.body ? `${response.statusCode} (${response.body.message})` : response.statusCode;
+                throw new OxError(errHelper.errorCode.TWILIO_ERROR, 'Error executing bridge command: ' + msg);
             }
             return response;
         } catch (e) {
