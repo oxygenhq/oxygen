@@ -11,13 +11,19 @@
  * @name twilio
  * @description Provides methods for working with Twilio service.
  */
+const util = require('util');
 const deasync = require('deasync');
 const utils = require('./utils');
+import request from 'request';
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
 
 const MODULE_NAME = 'twilio';
+
+const BRIDGE_RESPONSE_TIMEOUT = 30 * 1000;
+
+const BRIDGE_CALL_NEW = '/calls/new';
 
 export default class TwilioModule extends OxygenModule {
 
@@ -41,9 +47,13 @@ export default class TwilioModule extends OxygenModule {
      * @function init
      * @param {String} accountSid - Account SID.
      * @param {String} authToken - Authentication token.
+     * @param {String=} bridgeUrl - URL of the Twilio bridge service. This argument is required only for methods which deal with voice calls.
      */
-    init(accountSid, authToken) {
+    init(accountSid, authToken, bridgeUrl) {
         this._client = require('twilio')(accountSid, authToken);
+        this._accountSid = accountSid;
+        this._authToken = authToken;
+        this._bridgeUrl = bridgeUrl;
         this._isInitialized = true;
     }
 
@@ -138,5 +148,47 @@ export default class TwilioModule extends OxygenModule {
         }
 
         return msg.sid;
+    }
+
+    async call(from, to) {
+        utils.assertArgumentNonEmptyString(from, 'from');
+        utils.assertArgumentNonEmptyString(to, 'to');
+
+        var response = await this.httpRequest('POST', this._bridgeUrl + BRIDGE_CALL_NEW,
+            {
+                accountSid: this._accountSid,
+                authToken: this._authToken,
+                toNumber: to,
+                fromNumber: from
+            });
+
+        //console.log(JSON.stringify(response, null,2 ));
+        return response;
+    }
+
+    async httpRequest(method, url, body) {
+        var opts = {
+            url: url,
+            method: method,
+            form: body,
+            json: true,
+            timeout: BRIDGE_RESPONSE_TIMEOUT,
+            rejectUnauthorized: false
+        };
+
+        const requestPromise = util.promisify(request);
+        try {
+            const response = await requestPromise(opts);
+            if ((response.statusCode < 200 || response.statusCode >= 300)) {
+                const msg = response.statusCode ? 'Status Code - ' + response.statusCode + ' ' + response.error : 'Error - ' + JSON.stringify(response);
+                throw new OxError(errHelper.errorCode.TWILIO_ERROR, 'Error executing bridge command. ' + msg);
+            }
+            return response;
+        } catch (e) {
+            if (e instanceof OxError) {
+                throw e;
+            }
+            throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't connect to the bridge. " + e);
+        }
     }
 }
