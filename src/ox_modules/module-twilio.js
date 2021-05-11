@@ -196,30 +196,38 @@ export default class TwilioModule extends OxygenModule {
         return response;
     }
 
-    // FIXME: not working yet
-    // FIXME: timeout
     /**
      * @summary Wait for the specified speech to be heard over the the line.
      * @function waitForSpeech
      * @param {String} sid - Call session ID.
      * @param {String} text - Text to wait for.
      * @param {String} language - Speech language. See https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-alice
-     * @param {Integer=} timeout - Timeout for waiting in milliseconds. Default is 60 seconds.
+     * @param {(Integer|String)} speechTimeout - Stop listening to the speech after the specified amount of second. 'auto' to stop listening when there is a pause in speech.
      */
-    async waitForSpeech(sid, text, language, timeout = 60 * 1000) {
+    async waitForSpeech(sid, text, language, speechTimeout) {
         utils.assertArgumentNonEmptyString(sid, 'sid');
-        utils.assertArgumentTimeout(timeout, 'timeout');
+
+        if (speechTimeout !== 'auto' && (!Number.isInteger(speechTimeout) || speechTimeout <= 0)) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - 'speechTimeout'. Should be 'auto' or a positive integer.");
+        }
 
         var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/wait/speech`,
             {
                 textToSpeech: text,
                 language: language,
-                timeout: timeout
+                timeout: speechTimeout
             });
 
         console.log('================================================================= wait for speech');
         console.log(JSON.stringify(response, null,2 ));
-        return response;
+
+        if (!response.body.success) {
+            var msg = "The specified speech wasn't received.";
+            if (response.body.outcome) {
+                msg += ' Received instead: ' + response.body.outcome;
+            }
+            throw new OxError(errHelper.errorCode.TWILIO_ERROR, msg);
+        }
     }
 
     /**
