@@ -154,12 +154,13 @@ export default class TwilioModule extends OxygenModule {
      * @function call
      * @param {String} from - Phone number to call from.
      * @param {String} to - Phone number to call.
+     * @param {Boolean=} record - Specifies whether to record the call or not.
      * @return {String} Session ID.
      * @example <caption>[javascript] Usage example</caption>
      * twilio.init('Account Sid', 'Account Token');
      * var sid = twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
      */
-    async call(from, to) {
+    async call(from, to, record) {
         utils.assertArgumentNonEmptyString(from, 'from');
         utils.assertArgumentNonEmptyString(to, 'to');
 
@@ -168,7 +169,8 @@ export default class TwilioModule extends OxygenModule {
                 accountSid: this._accountSid,
                 authToken: this._authToken,
                 toNumber: to,
-                fromNumber: from
+                fromNumber: from,
+                record: record
             });
 
         return response.body.sessionId;
@@ -307,6 +309,11 @@ export default class TwilioModule extends OxygenModule {
         console.log('================================================================= audio');
         console.log(JSON.stringify(response, null,2 ));
         return response;
+    }
+
+    // TODO: should we save sid(s) somewhere?
+    async dispose() {
+        //await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/hangup`);
     }
 
     async httpRequest(method, url, body) {
