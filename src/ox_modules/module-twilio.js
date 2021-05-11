@@ -149,6 +149,16 @@ export default class TwilioModule extends OxygenModule {
         return msg.sid;
     }
 
+    /**
+     * @summary Initiate a call
+     * @function call
+     * @param {String} from - Phone number to call from.
+     * @param {String} to - Phone number to call.
+     * @return {String} Session ID.
+     * @example <caption>[javascript] Usage example</caption>
+     * twilio.init('Account Sid', 'Account Token');
+     * var sid = twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
+     */
     async call(from, to) {
         utils.assertArgumentNonEmptyString(from, 'from');
         utils.assertArgumentNonEmptyString(to, 'to');
@@ -161,18 +171,18 @@ export default class TwilioModule extends OxygenModule {
                 fromNumber: from
             });
 
-        //console.log(JSON.stringify(response, null,2 ));
-        return response.body;
+        return response.body.sessionId;
     }
 
-    // TODO: add timeout which should be apssed to the bridge
+    // TODO: add timeout which should be passed to the bridge
 
-    // FIXME: "hello, welocme" VS "say something"
-    // FIXME: timeout desc
     /**
-     * @param {Integer=} timeout - Message to send.
+     * @summary Wait for the call to be answered
+     * @function waitForAnswer
+     * @param {String} sid - Call session ID.
+     * @param {Integer=} timeout - Timeout for waiting in milliseconds. Default is 60 seconds.
      */
-    async waitForAnswer(sid, timeout) {
+    async waitForAnswer(sid, timeout = 60 * 1000) {
         utils.assertArgumentNonEmptyString(sid, 'sid');
         utils.assertArgumentTimeout(timeout, 'timeout');
 
@@ -187,7 +197,16 @@ export default class TwilioModule extends OxygenModule {
     }
 
     // FIXME: not working yet
-    async waitForSpeech(sid, text, language, timeout) {
+    // FIXME: timeout
+    /**
+     * @summary Wait for the specified speech to be heard over the the line.
+     * @function waitForSpeech
+     * @param {String} sid - Call session ID.
+     * @param {String} text - Text to wait for.
+     * @param {String} language - Speech language. See https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-alice
+     * @param {Integer=} timeout - Timeout for waiting in milliseconds. Default is 60 seconds.
+     */
+    async waitForSpeech(sid, text, language, timeout = 60 * 1000) {
         utils.assertArgumentNonEmptyString(sid, 'sid');
         utils.assertArgumentTimeout(timeout, 'timeout');
 
@@ -203,6 +222,13 @@ export default class TwilioModule extends OxygenModule {
         return response;
     }
 
+    /**
+     * @summary Speak
+     * @function speak
+     * @param {String} sid - Call session ID.
+     * @param {String} text - Text to speak.
+     * @param {String} language - Speech language. See https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-alice
+     */
     async speak(sid, text, language) {
         utils.assertArgumentNonEmptyString(sid, 'sid');
 
@@ -217,10 +243,18 @@ export default class TwilioModule extends OxygenModule {
         return response;
     }
 
-    // FIXME: not working yet
+    /**
+     * @summary Input DTMF tones.
+     * @function inputDigits
+     * @param {String} sid - Call session ID.
+     * @param {String} digits - DTMF tones to send: `1234567890#*`
+     */
     async inputDigits(sid, digits) {
         utils.assertArgumentNonEmptyString(sid, 'sid');
-        utils.assertArgumentNonEmptyString(digits, 'digits'); // FIXME: add proper validation
+
+        if (!/^[1234567890*#]+$/.test(digits)) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - 'digits'. Should contain only '1234567890*#' characters.");
+        }
 
         var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/input/digits`,
             {
@@ -228,6 +262,41 @@ export default class TwilioModule extends OxygenModule {
             });
 
         console.log('================================================================= input digits');
+        console.log(JSON.stringify(response, null,2 ));
+        return response;
+    }
+
+    /**
+     * @summary Hangup the call
+     * @function hangup
+     * @param {String} sid - Call session ID.
+     */
+    async hangup(sid) {
+        utils.assertArgumentNonEmptyString(sid, 'sid');
+        await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/hangup`);
+    }
+
+    /**
+     * @summary Play an audio file over the line.
+     * @function playAudio
+     * @param {String} sid - Call session ID.
+     * @param {String} url - URL of the audio file. Supported formats: mp3, wav, x-wav, aiff, gsm, ulaw.
+     * @example <caption>[javascript] Usage example</caption>
+     * twilio.init('Account Sid', 'Account Token');
+     * var sid = twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
+     * twilio.waitForAnswer(sid);
+     * twilio.playAudio(sid, 'https://api.twilio.com/cowbell.mp3');
+     */
+    async playAudio(sid, url) {
+        utils.assertArgumentNonEmptyString(sid, 'sid');
+        utils.assertArgumentNonEmptyString(sid, 'url');
+
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/input/audio`,
+            {
+                url : url
+            });
+
+        console.log('================================================================= audio');
         console.log(JSON.stringify(response, null,2 ));
         return response;
     }
