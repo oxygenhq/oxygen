@@ -30,6 +30,7 @@ export default class TwilioModule extends OxygenModule {
         super(options, context, rs, logger, modules, services);
 
         this._client = null;
+        this._callSids = [];
     }
 
     /*
@@ -173,6 +174,8 @@ export default class TwilioModule extends OxygenModule {
                 record: record
             });
 
+        this._callSids.push(response.body.sessionId);
+
         return response.body.sessionId;
     }
 
@@ -311,9 +314,14 @@ export default class TwilioModule extends OxygenModule {
         return response;
     }
 
-    // TODO: should we save sid(s) somewhere?
     async dispose() {
-        //await this.httpRequest('POST', `${this._bridgeUrl}/calls/${sid}/op/hangup`);
+        console.log('================================================================= disposing sid: ' + JSON.stringify(this._callSids));
+
+        var i = this._callSids.length;
+        while (i--) {
+            await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSids[i]}/op/hangup`);
+            this._callSids.splice(i, 1);
+        }
     }
 
     async httpRequest(method, url, body) {
@@ -339,6 +347,23 @@ export default class TwilioModule extends OxygenModule {
                 throw e;
             }
             throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't connect to the bridge. " + e);
+        }
+    }
+
+    async httpRequestSilent(method, url) {
+        var opts = {
+            url: url,
+            method: method,
+            json: true,
+            timeout: BRIDGE_RESPONSE_TIMEOUT,
+            rejectUnauthorized: false
+        };
+
+        const requestPromise = util.promisify(request);
+        try {
+            await requestPromise(opts);
+        } catch (e) {
+            // ignored
         }
     }
 }
