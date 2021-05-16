@@ -156,14 +156,35 @@ export default class TwilioModule extends OxygenModule {
      * @param {String} from - Phone number to call from.
      * @param {String} to - Phone number to call.
      * @param {Boolean=} record - Specifies whether to record the call or not.
+     * @param {String=} liveAudioStreamWSS - Specifies WebSocket address to receive live audio stream of the call.   FIXME
      * @return {String} Session ID.
      * @example <caption>[javascript] Usage example</caption>
      * twilio.init('Account Sid', 'Account Token');
      * var sid = twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
      */
-    async call(from, to, record) {
+    async call(from, to, record, liveAudioStream) {
         utils.assertArgumentNonEmptyString(from, 'from');
         utils.assertArgumentNonEmptyString(to, 'to');
+
+        if (liveAudioStream) {
+            // TODO: dispose
+            const WebSocket = require('ws');
+            const wss = new WebSocket.Server({ port: 3001 });
+
+            wss.on('connection', function connection(ws) {
+                ws.on('message', function incoming(message) {
+                    console.log('WS message: ', message);
+                });
+
+                ws.on('close', function incoming() {
+                    console.log('WS close');
+                });
+
+                ws.on('error', function incoming(error) {
+                    console.log('WS error: ', error);
+                });
+            });
+        }
 
         var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/new`,
             {
@@ -171,7 +192,8 @@ export default class TwilioModule extends OxygenModule {
                 authToken: this._authToken,
                 toNumber: to,
                 fromNumber: from,
-                record: record
+                record: record,
+                liveAudioStreamWSS: 'wss://94d7f388e7a2.ngrok.io'
             });
 
         this._callSids.push(response.body.sessionId);
