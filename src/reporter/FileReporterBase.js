@@ -99,6 +99,22 @@ export default class FileReporterBase extends ReporterBase {
             step.screenshot = null; // don't save base64 screenshot date to the file
         }
     }
+    // format total duration like : 56.2 sec / 31 min 59 sec / 1 hr 31 min 59 sec
+    formatTotalDuration(results) {
+        if (!Array.isArray(results)) {
+            throw new Error('Invalid argument "results" - must be an array.');
+        }
+
+        for (let result of results) {
+            for (let suite of result.suites) {
+                for (let caze of suite.cases) {
+                    for (let step of caze.steps) {
+                        step.duration = this.formatDuration(step.duration);
+                    }
+                }
+            }
+        }
+    }
     _populateStepsWithScreenshots(steps, stepsWithScreenshot) {
         for (let step of steps) {
             if (step.screenshot) {
@@ -109,5 +125,25 @@ export default class FileReporterBase extends ReporterBase {
                 this._populateStepsWithScreenshots(step.steps, stepsWithScreenshot);
             }
         }
+    }
+    formatDuration(miliseconds) {
+        var seconds = miliseconds / 1000;
+        var hh   = Math.floor(seconds / 3600);
+        var min = Math.floor((seconds - (hh * 3600)) / 60);
+        var sec = seconds - (hh * 3600) - (min * 60);
+
+        let result = '';
+
+        if (hh) {
+            result += `${hh.toFixed(0)} hr `;
+        }
+        if (min) {
+            result += `${min.toFixed(0)} min `;
+        }
+        if (sec) {
+            result += `${sec.toFixed(0)} sec`;
+        }
+
+        return result;
     }
 }
