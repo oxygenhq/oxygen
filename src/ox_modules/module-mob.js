@@ -236,6 +236,15 @@ export default class MobileModule extends WebDriverModule {
         try {
             this.driver = await wdio.remote(wdioOpts);
             this.driver.provider = provider;
+
+            if (this.options.seleniumBrowserTimeout) {
+                this.driver.seleniumBrowserTimeout = this.options.seleniumBrowserTimeout;
+            }
+
+            if (this.options.seleniumTimeout) {
+                this.driver.seleniumTimeout = this.options.seleniumTimeout;
+            }
+
             if (provider === modUtils.provider.PERFECTO) {
                 const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {

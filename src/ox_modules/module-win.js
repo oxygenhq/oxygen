@@ -173,6 +173,14 @@ export default class WindowsModule extends WebDriverModule {
 
         try {
             this.driver = await wdio.remote(wdioOpts);
+
+            if (this.options.seleniumBrowserTimeout) {
+                this.driver.seleniumBrowserTimeout = this.options.seleniumBrowserTimeout;
+            }
+
+            if (this.options.seleniumTimeout) {
+                this.driver.seleniumTimeout = this.options.seleniumTimeout;
+            }
         }
         catch (e) {
             throw errHelper.getAppiumInitError(e);
