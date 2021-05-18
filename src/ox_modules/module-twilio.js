@@ -193,7 +193,7 @@ export default class TwilioModule extends OxygenModule {
                 toNumber: to,
                 fromNumber: from,
                 record: record,
-                liveAudioStreamWSS: 'wss://94d7f388e7a2.ngrok.io'
+                liveAudioStreamWSS: liveAudioStream ? 'wss://94d7f388e7a2.ngrok.io' : null
             });
 
         this._callSids.push(response.body.sessionId);
