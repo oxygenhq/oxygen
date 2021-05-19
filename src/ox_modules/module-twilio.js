@@ -30,7 +30,7 @@ export default class TwilioModule extends OxygenModule {
         super(options, context, rs, logger, modules, services);
 
         this._client = null;
-        this._callSids = [];
+        this._callSid = null;
     }
 
     /*
@@ -196,7 +196,7 @@ export default class TwilioModule extends OxygenModule {
                 liveAudioStreamWSS: liveAudioStream ? 'wss://94d7f388e7a2.ngrok.io' : null
             });
 
-        this._callSids.push(response.body.sessionId);
+        this._callSid = response.body.sessionId;
 
         return response.body.sessionId;
     }
@@ -337,12 +337,14 @@ export default class TwilioModule extends OxygenModule {
     }
 
     async dispose() {
-        console.log('================================================================= disposing sid: ' + JSON.stringify(this._callSids));
+        await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/hangup`);
 
-        var i = this._callSids.length;
-        while (i--) {
-            await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSids[i]}/op/hangup`);
-            this._callSids.splice(i, 1);
+        const response = await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/get/recording`);
+
+        if (response.statusCode === 200 && response.body) {
+            console.log('================================================================= recording url');
+            console.log(response.body);
+            this.ctx.audio = { url: response.body };
         }
     }
 
@@ -383,7 +385,7 @@ export default class TwilioModule extends OxygenModule {
 
         const requestPromise = util.promisify(request);
         try {
-            await requestPromise(opts);
+            return await requestPromise(opts);
         } catch (e) {
             // ignored
         }
