@@ -720,7 +720,12 @@ export default class WebModule extends WebDriverModule {
             }
         }
 
-        global._lastTransactionName = name;
+        if (typeof this.transactions[name] !== 'undefined') {
+            const counter = Object.keys(this.transactions).filter((item) => item.startsWith(name)).length + 1;
+            global._lastTransactionName = name+'(#'+counter+')';
+        } else {
+            global._lastTransactionName = name;
+        }
     }
 
     _loadHelperFunctions() {
