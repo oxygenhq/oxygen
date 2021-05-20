@@ -54,6 +54,7 @@ const ERROR_CODES = {
     APPIUM_CONNECTION_ERROR: 'APPIUM_CONNECTION_ERROR',
     APPIUM_SESSION_ERROR: 'APPIUM_SESSION_ERROR',
     SELENIUM_SESSION_ERROR: 'SELENIUM_SESSION_ERROR',
+    SELENIUM_SESSION_TIMEOUT: 'SELENIUM_SESSION_TIMEOUT',
     SELENIUM_CONNECTION_ERROR: 'SELENIUM_CONNECTION_ERROR',
     URL_OPEN_ERROR: 'URL_OPEN_ERROR',
     OPTION_NOT_FOUND: 'OPTION_NOT_FOUND',
@@ -207,6 +208,10 @@ module.exports = {
             err.name === 'invalid selector'
         ) {
             return new OxError(ERROR_CODES.SCRIPT_ERROR, err.message);
+        }
+        // RequestError: Timeout awaiting 'request' for 310000ms, name: 'TimeoutError'
+        else if (err.message && err.message.includes('Timeout awaiting \'request\'')) {
+            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT ,  err.message);
         }
 
         // try to resolve Chai error code
