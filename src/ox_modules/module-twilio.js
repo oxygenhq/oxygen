@@ -341,10 +341,10 @@ export default class TwilioModule extends OxygenModule {
 
         const response = await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/get/recording`);
 
-        if (response.statusCode === 200 && response.body) {
+        if (response && response.statusCode === 200 && response.body) {
             console.log('================================================================= recording url');
             console.log(response.body);
-            this.ctx.audio = { url: response.body };
+            global.ox.ctx.audio = { url: response.body };
         }
     }
 
