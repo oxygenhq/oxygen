@@ -77,13 +77,10 @@
                                                             </tr>
                                                         <% } %>
                                                         <% caseResult.steps.forEach(function(stepResult, index) { %>
-                                                            <%
-                                                                const duration = (stepResult.duration / 1000).toFixed(1);
-                                                            %>
                                                             <tr>
                                                                 <td><%= index + 1 %></td>
                                                                 <td style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" title="<%= stepResult.name %>"><%= stepResult.name %></td>
-                                                                <td><%= duration %> sec</td>
+                                                                <td><%= stepResult.duration %></td>
                                                                 <td>
                                                                     <%- stepResult.status === 'passed' ? PASSED_LABEL : (stepResult.status === 'skipped' ? SKIPPED_LABEL : FAILED_LABEL) %>
                                                                 </td>
