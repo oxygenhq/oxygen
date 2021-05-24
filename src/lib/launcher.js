@@ -69,7 +69,6 @@ export default class Launcher {
             // run Oxygen test 
             const result = await runner.run();
             this._results.push(result);
-            await runner.dispose(result.status || null);
             callback();
         }
         catch (e) {
