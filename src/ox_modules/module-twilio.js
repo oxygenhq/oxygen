@@ -232,10 +232,10 @@ export default class TwilioModule extends OxygenModule {
      * @summary Wait for the specified speech to be heard over the line.
      * @function waitForSpeech
      * @param {String} text - Text to wait for.
-     * @param {String} language - Speech language. See https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-alice
+     * @param {String} language - Speech language. Default is en-US. See https://www.twilio.com/docs/voice/twiml/gather#languagetags for a list of supported languages.
      * @param {Integer} timeout - Stop listening to the speech after the specified amount of second.
      */
-    async waitForSpeech(text, language, timeout) {
+    async waitForSpeech(text, language = 'en-US', timeout) {
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
         this.assertCallSid();
 
@@ -259,10 +259,15 @@ export default class TwilioModule extends OxygenModule {
      * @summary Speak
      * @function speak
      * @param {String} text - Text to speak.
-     * @param {String} language - Speech language. See https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-alice
+     * @param {String=} language - Language to use: en, en-gb, es, fr, de. Default is en.
      */
-    async speak(text, language) {
+    async speak(text, language = 'en') {
         this.assertCallSid();
+
+        // about supported languages: https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-manwoman
+        if (!['en', 'en-gb', 'es', 'fr', 'de'].includes(language)) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - 'language'. Should be one of: en, en-gb, es, fr, de.");
+        }
 
         var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/input/speech`,
             {
