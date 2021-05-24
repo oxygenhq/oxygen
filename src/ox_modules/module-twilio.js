@@ -161,7 +161,7 @@ export default class TwilioModule extends OxygenModule {
      * @return {String} Call SID.
      * @example <caption>[javascript] Usage example</caption>
      * twilio.init('Account Sid', 'Account Token');
-     * var sid = twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx', true, false);
+     * twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx', true, false);
      */
     async call(from, to, record, liveAudioStream) {
         utils.assertArgumentNonEmptyString(from, 'from');
@@ -273,7 +273,7 @@ export default class TwilioModule extends OxygenModule {
      * @function inputDigits
      * @param {String} digits - DTMF tones to send: `1234567890#*`. `w` can be used to produce a 0.5 seconds pause.
      */
-    async inputDigits(sid, digits) {
+    async inputDigits(digits) {
         this.assertCallSid();
 
         if (!/^[1234567890*#w]+$/.test(digits)) {
@@ -291,7 +291,7 @@ export default class TwilioModule extends OxygenModule {
      * @summary Hangup currently active call
      * @function hangup
      */
-    async hangup(sid) {
+    async hangup() {
         this.assertCallSid();
         await this.httpRequest('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/hangup`);
         this._callSid = null;
@@ -303,8 +303,8 @@ export default class TwilioModule extends OxygenModule {
      * @param {String} url - URL of the audio file. Supported formats: mp3, wav, x-wav, aiff, gsm, ulaw.
      * @example <caption>[javascript] Usage example</caption>
      * twilio.init('Account Sid', 'Account Token');
-     * var sid = twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
-     * twilio.waitForAnswer(sid);
+     * twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx');
+     * twilio.waitForAnswer();
      * twilio.playAudio('https://api.twilio.com/cowbell.mp3');
      */
     async playAudio(url) {
