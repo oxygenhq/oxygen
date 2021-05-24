@@ -156,16 +156,21 @@ export default class TwilioModule extends OxygenModule {
      * @function call
      * @param {String} from - Phone number to call from.
      * @param {String} to - Phone number to call.
-     * @param {Boolean=} record - Specifies whether to record the call or not.
+     * @param {Number} timeout - Limit in seconds to wait for the call to be answered. Default is 30 seconds.
+     * @param {Boolean} record - Specifies whether to record the call or not.
      * @param {String=} liveAudioStream - Specifies WebSocket address to receive live audio stream of the call.
      * @return {String} Call SID.
      * @example <caption>[javascript] Usage example</caption>
      * twilio.init('Account Sid', 'Account Token');
-     * twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx', true, false);
+     * twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx', 40, true, false);
      */
-    async call(from, to, record, liveAudioStream) {
+    async call(from, to, timeout, record, liveAudioStream) {
         utils.assertArgumentNonEmptyString(from, 'from');
         utils.assertArgumentNonEmptyString(to, 'to');
+
+        if (typeof(timeout) !== 'number' || timeout < 1 || timeout > 600 ) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + timeout + "' should be between 1 and 600 seconds.");
+        }
 
         if (liveAudioStream) {
             // TODO: dispose
@@ -194,7 +199,8 @@ export default class TwilioModule extends OxygenModule {
                 toNumber: to,
                 fromNumber: from,
                 record: record,
-                liveAudioStreamWSS: liveAudioStream ? 'wss://TODO' : null
+                liveAudioStreamWSS: liveAudioStream ? 'wss://TODO' : null,
+                timeout: timeout
             });
 
         this._callSid = response.body.sessionId;
@@ -207,17 +213,22 @@ export default class TwilioModule extends OxygenModule {
     /**
      * @summary Wait for the call to be answered
      * @function waitForAnswer
-     * @param {Integer=} timeout - Timeout for waiting in milliseconds. Default is 60 seconds.
      */
-    async waitForAnswer(timeout = 60 * 1000) {
-        utils.assertArgumentTimeout(timeout, 'timeout');
+    async waitForAnswer() {
         this.assertCallSid();
 
-        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/wait/answer`,
-            {
-                timeout: timeout
-            });
-        return response;
+        var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/wait/answer`);
+
+        console.log('====================================================');
+        console.log(JSON.stringify(response, null, 2));
+
+        if (!response.body.success) {
+            if (response.body.error === 'no-answer') {
+                throw new OxError(errHelper.errorCode.TWILIO_ERROR, 'The called party did not answer.');
+            } else if (response.body.error === 'busy') {
+                throw new OxError(errHelper.errorCode.TWILIO_ERROR, 'The line is busy.');
+            }
+        }
     }
 
     // FIXME: speechTimeout - auto
