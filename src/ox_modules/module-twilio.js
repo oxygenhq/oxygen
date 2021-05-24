@@ -28,7 +28,7 @@ export default class TwilioModule extends OxygenModule {
 
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
-
+        this.transactions = {};
         this._client = null;
         this._callSid = null;
         this._callIsRecorded = false;
@@ -56,6 +56,22 @@ export default class TwilioModule extends OxygenModule {
         this._authToken = authToken;
         this._bridgeUrl = bridgeUrl;
         this._isInitialized = true;
+    }
+
+    /**
+     * @summary Opens new transaction.
+     * @description The transaction will persist till a new one is opened. Transaction names must be
+     *              unique.
+     * @function transaction
+     * @param {String} name - The transaction name.
+     */
+    transaction(name) {
+        global._lastTransactionName = name;
+    }
+
+    _iterationStart() {
+        // clear transaction name saved in previous iteration if any
+        global._lastTransactionName = null;
     }
 
     /**
