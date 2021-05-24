@@ -22,7 +22,7 @@ import errHelper from '../errors/helper';
 const MODULE_NAME = 'twilio';
 
 // FIXME: find good timeout
-const BRIDGE_RESPONSE_TIMEOUT = 240 * 1000;
+const BRIDGE_RESPONSE_TIMEOUT = 600 * 1000;
 
 export default class TwilioModule extends OxygenModule {
 
@@ -31,6 +31,7 @@ export default class TwilioModule extends OxygenModule {
 
         this._client = null;
         this._callSid = null;
+        this._callIsRecorded = false;
     }
 
     /*
@@ -161,13 +162,13 @@ export default class TwilioModule extends OxygenModule {
      * @param {String=} liveAudioStream - Specifies WebSocket address to receive live audio stream of the call.
      * @return {String} Call SID.
      * @example <caption>[javascript] Usage example</caption>
-     * twilio.init('Account Sid', 'Account Token');
+     * twilio.init('Account Sid', 'Account Token', 'http://bridge_url');
      * twilio.call('+1xxxxxxxxxx', '+972xxxxxxxxx', 40, true, false);
      */
     async call(from, to, timeout, record, liveAudioStream) {
         utils.assertArgumentNonEmptyString(from, 'from');
         utils.assertArgumentNonEmptyString(to, 'to');
-
+        utils.assertArgumentBool(record, 'record');
         if (typeof(timeout) !== 'number' || timeout < 1 || timeout > 600 ) {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + timeout + "' should be between 1 and 600 seconds.");
         }
@@ -204,11 +205,10 @@ export default class TwilioModule extends OxygenModule {
             });
 
         this._callSid = response.body.sessionId;
+        this._callIsRecorded = record;
 
         return response.body.sessionId;
     }
-
-    // TODO: add timeout which should be passed to the bridge
 
     /**
      * @summary Wait for the call to be answered
@@ -219,9 +219,6 @@ export default class TwilioModule extends OxygenModule {
 
         var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/wait/answer`);
 
-        console.log('====================================================');
-        console.log(JSON.stringify(response, null, 2));
-
         if (!response.body.success) {
             if (response.body.error === 'no-answer') {
                 throw new OxError(errHelper.errorCode.TWILIO_ERROR, 'The called party did not answer.');
@@ -231,26 +228,22 @@ export default class TwilioModule extends OxygenModule {
         }
     }
 
-    // FIXME: speechTimeout - auto
     /**
      * @summary Wait for the specified speech to be heard over the line.
      * @function waitForSpeech
      * @param {String} text - Text to wait for.
      * @param {String} language - Speech language. See https://www.twilio.com/docs/voice/twiml/say?code-sample=code-say-verb-defaulting-on-alices-voice&code-language=Node.js&code-sdk-version=3.x#attributes-alice
-     * @param {(Integer|String)} speechTimeout - Stop listening to the speech after the specified amount of second. 'auto' to stop listening when there is a pause in speech.
+     * @param {Integer} timeout - Stop listening to the speech after the specified amount of second.
      */
-    async waitForSpeech(text, language, speechTimeout) {
+    async waitForSpeech(text, language, timeout) {
+        utils.assertArgumentNumberNonNegative(timeout, 'timeout');
         this.assertCallSid();
-
-        if (speechTimeout !== 'auto' && (!Number.isInteger(speechTimeout) || speechTimeout <= 0)) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - 'speechTimeout'. Should be 'auto' or a positive integer.");
-        }
 
         var response = await this.httpRequest('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/wait/speech`,
             {
                 textToSpeech: text,
                 language: language,
-                timeout: speechTimeout
+                timeout: timeout
             });
 
         if (!response.body.success) {
@@ -331,11 +324,15 @@ export default class TwilioModule extends OxygenModule {
 
     async onAfterCase() {
         await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/hangup`);
-        const response = await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/get/recording`);
-        if (response && response.statusCode === 200 && response.body) {
-            global.ox.ctx.audio = { url: response.body };
+
+        if (this._callIsRecorded) {
+            const response = await this.httpRequestSilent('POST', `${this._bridgeUrl}/calls/${this._callSid}/op/get/recording`);
+            if (response && response.statusCode === 200 && response.body) {
+                global.ox.ctx.audio = { url: response.body };
+            }
         }
         this._callSid = null;
+        this._callIsRecorded = false;
     }
 
     async httpRequest(method, url, body) {
