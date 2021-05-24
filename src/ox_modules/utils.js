@@ -203,6 +203,13 @@ module.exports = {
             return;
         }
 
+        if (this.driver.seleniumTimeout && timeout > this.driver.seleniumTimeout * 1000) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `timeout must be less than ${this.driver.seleniumTimeout * 1000}`);
+        }
+        if (this.driver.seleniumBrowserTimeout && timeout > this.driver.seleniumBrowserTimeout * 1000) {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `timeout must be less than ${this.driver.seleniumBrowserTimeout * 1000}`);
+        }
+
         let timeouts;
 
         if (
