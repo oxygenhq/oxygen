@@ -845,7 +845,7 @@ export default class Oxygen extends OxygenEvents {
                 continue;
             }
             try {
-                module.onAfterCase && module.onAfterCase(error);
+                module.onAfterCase && await module.onAfterCase(error);
                 module._iterationEnd && await module._iterationEnd();
             }
             catch (e) {
