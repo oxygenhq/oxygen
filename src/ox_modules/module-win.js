@@ -32,6 +32,7 @@ import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
+import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'win';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
@@ -200,7 +201,12 @@ export default class WindowsModule extends WebDriverModule {
         if (this.driver && this.isInitialized) {
             try {
                 if (!['CANCELED', 'FAILED'].includes(status)) {
-                    await this.driver.deleteSession();
+                    if (this.seleniumSessionTimeout) {
+                        // ignore
+                        // deleteSession will take 5 min to call
+                    } else {
+                        await this.driver.deleteSession();
+                    }
                 }
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
@@ -228,16 +234,6 @@ export default class WindowsModule extends WebDriverModule {
 
     _isAction(name) {
         return ACTION_COMMANDS.includes(name);
-    }
-
-    _takeScreenshot(name) {
-        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
-            try {
-                return this.takeScreenshot();
-            } catch (e) {
-                throw errHelper.getOxygenError(e);
-            }
-        }
     }
 
     _takeScreenshotSilent(name) {
@@ -280,7 +276,14 @@ export default class WindowsModule extends WebDriverModule {
         global._lastTransactionName = null;
     }
 
-    _iterationEnd() {
+    _iterationEnd(error) {
+        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+            this.seleniumSessionTimeout = true;
+            return;
+        } else {
+            this.seleniumSessionTimeout = false;
+        }
+
         // ignore the rest if mob module is not initialized
         if (!this.isInitialized) {
             return;

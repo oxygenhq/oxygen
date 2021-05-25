@@ -24,10 +24,10 @@ export default class OxygenModule {
             this._isInitialized = false;
         }
     }
-    onBeforeCase(suite, suiteIterationNum, caze, caseIterationNum) {
+    onBeforeCase(context) {
 
     }
-    onAfterCase(suiteResult, caseResult) {
+    onAfterCase(error) {
 
     }
     addCommand(name, func, thisArg) {

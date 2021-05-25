@@ -72,8 +72,8 @@ export default class OxygenWorker extends EventEmitter {
         let error = null;
         // load and run the test script
         try {
+            this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
             await this._runFnInFiberContext(() => {
-                this._oxygen && this._oxygen.onBeforeCase && this._oxygen.onBeforeCase(context);
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
