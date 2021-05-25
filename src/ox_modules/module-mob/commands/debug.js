@@ -8,12 +8,12 @@
  */
 
 /**
- * @summary Start debug
+ * @summary Stop test execution and allow interactive command execution (REPL).
  * @function debug
  * @example <caption>[javascript] Usage example</caption>
- * mob.init();//Starts a mobile session
- * mob.open("www.yourwebsite.com");// Opens a website.
- * mob.debug();//Start debug
+ * mob.init();
+ * mob.open("www.yourwebsite.com");
+ * mob.debug();
  */
 
 module.exports = async function() {

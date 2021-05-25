@@ -8,12 +8,12 @@
  */
 
 /**
- * @summary Start debug
+ * @summary Stop test execution and allow interactive command execution (REPL).
  * @function debug
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.debug();//Start debug
+ * web.init();
+ * web.open("www.yourwebsite.com");
+ * web.debug();
  */
 
 module.exports = async function() {
