@@ -1,6 +1,9 @@
 # CHANGELOG
 
-## v1.19.0 (2021-04-xx)
+## v1.19.0 (2021-05-25)
+
+#### :boom: Breaking Change
+* `http` module will no longer throw on erroneous HTTP status codes, and will return the request/response details instead.
 
 #### :tada: New Feature
 * Add `web.network.waitForNotUrl`.
@@ -12,15 +15,20 @@
 * `pdf.count` ignoring strings which appear multiple times on the same line.
 * Ignore "ignored" steps in Cucumber.
 * Make status argument in `web.dispose` and `mob.dispose` optional.
+* Issue with converting Chai assertions to Oxygen errors.
 * Various other fixes.
 
 #### :nail_care: Polish
 * Better error handling in debugger.
 * Better error handling when parsing JSON/CSV/XLSX parameter files.
 * Process "invalid selector" errors.
+* Improved duration formatting in test reports.
+* Add validation for timeout arguments and notify the user in case of invalid values.
+* Removed redundant module disposal.
 
 #### :house: Internal
 * Bump dependencies.
+* Support for REPL.
 
 ## v1.18.0 (2021-03-24)
 
