@@ -57,6 +57,7 @@ import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
+import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'mob';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
@@ -351,7 +352,12 @@ export default class MobileModule extends WebDriverModule {
 
             try {
                 if (!['CANCELED', 'FAILED'].includes(status)) {
-                    await this.driver.deleteSession();
+                    if (this.seleniumSessionTimeout) {
+                        // ignore
+                        // deleteSession will take 5 min to call
+                    } else {
+                        await this.driver.deleteSession();
+                    }
                 }
             } catch (e) {
                 this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
@@ -382,16 +388,6 @@ export default class MobileModule extends WebDriverModule {
 
     _isAction(name) {
         return ACTION_COMMANDS.includes(name);
-    }
-
-    _takeScreenshot(name) {
-        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
-            try {
-                return this.takeScreenshot();
-            } catch (e) {
-                throw errHelper.getOxygenError(e);
-            }
-        }
     }
 
     _takeScreenshotSilent(name) {
@@ -434,7 +430,13 @@ export default class MobileModule extends WebDriverModule {
         global._lastTransactionName = null;
     }
 
-    async _iterationEnd() {
+    async _iterationEnd(error) {
+        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+            this.seleniumSessionTimeout = true;
+            return;
+        } else {
+            this.seleniumSessionTimeout = false;
+        }
         // ignore the rest if mob module is not initialized
         if (!this.isInitialized) {
             return;

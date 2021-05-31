@@ -114,7 +114,7 @@ export default class CucumberReporter {
         }
     }
 
-    onBeforeScenario(uri, feature, scenario) {
+    async onBeforeScenario(uri, feature, scenario) {
         const suiteId = `${uri}:${feature.location.line}`;
         const caseLocation = scenario.locations.length > 0 ? scenario.locations[0] : { line: 1 };
         const caseId = `${uri}:${caseLocation.line}`;
@@ -129,7 +129,7 @@ export default class CucumberReporter {
 
         // call oxygen onBeforeCase if defined
         if (typeof this.oxygenEventListener.onBeforeCase === 'function') {
-            this.oxygenEventListener.onBeforeCase();
+            await this.oxygenEventListener.onBeforeCase();
         }
 
         // call test hook if defined
@@ -142,7 +142,7 @@ export default class CucumberReporter {
         }
     }
 
-    onAfterScenario(uri, feature, scenario, sourceLocation) {
+    async onAfterScenario(uri, feature, scenario, sourceLocation) {
         const suiteId = `${uri}:${feature.location.line}`;
         const caseId = `${uri}:${sourceLocation.line}`;
         const suiteResult = this.suites[suiteId];
@@ -159,7 +159,7 @@ export default class CucumberReporter {
 
         // call oxygen onAfterCase if defined
         if (typeof this.oxygenEventListener.onAfterCase === 'function') {
-            this.oxygenEventListener.onAfterCase();
+            await this.oxygenEventListener.onAfterCase();
         }
 
         // call test hook if defined

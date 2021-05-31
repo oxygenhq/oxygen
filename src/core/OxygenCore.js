@@ -207,12 +207,37 @@ export default class Oxygen extends OxygenEvents {
         this.har = null;
     }
 
-    onBeforeCase(ctx) {
-        this._callModulesOnBeforeCase();
+    async onBeforeCase(context) {
+        for (let moduleName in this.modules) {
+            const module = this.modules[moduleName];
+            if (!module) {
+                continue;
+            }
+            try {
+                module.onBeforeCase && await module.onBeforeCase(context);
+                module._iterationStart && await module._iterationStart();
+            }
+            catch (e) {
+                this.logger.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
+            }
+        }
     }
 
     async onAfterCase(error = null) {
-        await this._callModulesOnAfterCase(error);
+        for (let moduleName in this.modules) {
+            const module = this.modules[moduleName];
+            if (!module) {
+                continue;
+            }
+            try {
+                // await for avoid stuck on *.dispose call
+                module.onAfterCase && await module.onAfterCase(error);
+                module._iterationEnd && await module._iterationEnd(error);
+            }
+            catch (e) {
+                this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
+            }
+        }
     }
 
     makeOxGlobal() {
@@ -752,6 +777,8 @@ export default class Oxygen extends OxygenEvents {
         if (err) {
             if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
                 //ignore
+            } else if (err && err.type && err.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+                //ignore
             } else {
                 step.failure = errorHelper.getFailureFromError(err);
                 step.failure.location = location;
@@ -819,39 +846,6 @@ export default class Oxygen extends OxygenEvents {
             }
         }
         return true;
-    }
-    /*
-     * Modules Event Emitters
-     */
-    _callModulesOnBeforeCase(context) {
-        for (let moduleName in this.modules) {
-            const module = this.modules[moduleName];
-            if (!module) {
-                continue;
-            }
-            try {
-                module.onBeforeCase && module.onBeforeCase();
-                module._iterationStart && module._iterationStart();
-            }
-            catch (e) {
-                this.logger.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
-            }
-        }
-    }
-    async _callModulesOnAfterCase(error = null) {
-        for (let moduleName in this.modules) {
-            const module = this.modules[moduleName];
-            if (!module) {
-                continue;
-            }
-            try {
-                module.onAfterCase && await module.onAfterCase(error);
-                module._iterationEnd && await module._iterationEnd();
-            }
-            catch (e) {
-                this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
-            }
-        }
     }
     /*
      * Services Event Emitters

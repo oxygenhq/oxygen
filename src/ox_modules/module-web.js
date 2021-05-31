@@ -58,6 +58,7 @@ import { execSync } from 'child_process';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
 import mergeImages from '../lib/img-merge';
+import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -399,7 +400,12 @@ export default class WebModule extends WebDriverModule {
     async deleteSession() {
         try {
             if (this.driver && this.driver.deleteSession) {
-                await this.driver.deleteSession();
+                if (this.seleniumSessionTimeout) {
+                    // ignore
+                    // deleteSession will take 5 min to call
+                } else {
+                    await this.driver.deleteSession();
+                }
             }
         } catch (e) {
             this.logger.error('deleteSession error', e);
@@ -470,7 +476,14 @@ export default class WebModule extends WebDriverModule {
         global._lastTransactionName = null;
     }
 
-    async _iterationEnd() {
+    async _iterationEnd(error) {
+        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+            this.seleniumSessionTimeout = true;
+            return;
+        } else {
+            this.seleniumSessionTimeout = false;
+        }
+
         if (!this.isInitialized) {
             return;
         }
@@ -502,16 +515,6 @@ export default class WebModule extends WebDriverModule {
 
     _isAction(name) {
         return ACTION_COMMANDS.includes(name);
-    }
-
-    _takeScreenshot(name) {
-        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
-            try {
-                return this.takeScreenshot();
-            } catch (e) {
-                throw errHelper.getOxygenError(e);
-            }
-        }
     }
 
     _takeScreenshotSilent(name) {
