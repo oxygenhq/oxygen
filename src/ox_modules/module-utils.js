@@ -20,6 +20,7 @@ const deasync = require('deasync');
 export default class UtilsModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
+        this._alwaysInitialized = true;
         this._isInitialized = true;
     }
 

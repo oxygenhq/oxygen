@@ -31,6 +31,7 @@ const DEFAULT_HTTP_OPTIONS = {
 export default class HttpModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
+        this._alwaysInitialized = true;
         this._lastResponse = null;
         this._baseUrl = null;
         this._userHttpOptions = {};
