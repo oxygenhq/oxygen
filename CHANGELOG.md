@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.19.1 (2021-06-01)
+
+#### :beetle: Bug Fix
+* `http` and `utils` module not working when using multiple iteration.
+
+#### :nail_care: Polish
+* Do not invoke module disposal mechanism on dead sessions (which previously led to test finalization taking a few minutes in certain situations).
+* Miscellaneous internal cleanups.
+
 ## v1.19.0 (2021-05-25)
 
 #### :boom: Breaking Change
