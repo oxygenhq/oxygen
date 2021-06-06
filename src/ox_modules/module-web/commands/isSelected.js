@@ -8,7 +8,7 @@
  */
 
 /**
- * @summary Determines if an element is selected.
+ * @summary Determines whether an <option> or <input> element of type checkbox or radio is currently selected or not.
  * @function isSelected
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
@@ -27,5 +27,5 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
-    return el.getAttribute('selected') == 'true';
+    return await el.isSelected();
 };
