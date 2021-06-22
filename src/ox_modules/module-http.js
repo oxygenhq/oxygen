@@ -275,7 +275,7 @@ export default class HttpModule extends OxygenModule {
 
     /**
      * @summary Assert the last HTTP response's status code
-     * @function assertCode
+     * @function assertStatus
      * @param {Number|Array} codeList - A single status code or a list of codes.
      */
     assertStatus(codeList) {
