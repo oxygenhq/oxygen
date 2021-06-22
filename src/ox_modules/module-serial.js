@@ -33,20 +33,8 @@ module.exports = function() {
      * @function list
      * @return {Object[]} Array of port descriptions.
      */
-    module.list = function() {
-        var ret;
-
-        SerialPort.list()
-            .then((ports) => { ret = ports; })
-            .catch((err) => { ret = err; });
-
-        deasync.loopWhile(() => !ret);
-
-        if (ret.type == 'Error') {
-            throw ret;
-        }
-
-        return ret;
+    module.list = async function() {
+        return await SerialPort.list();
     };
 
     /**
@@ -76,32 +64,25 @@ module.exports = function() {
         utils.assertArgumentNumberNonNegative(bufferSize, 'bufferSize');
 
         if (port) {
-            serialPort = new SerialPort(port, opts);
+            return new Promise((resolve, reject) => {
+                serialPort = new SerialPort(port, opts);
 
-            var opened = false;
-            serialPort.on('open', () => {
-                opened = true;
+                serialPort.on('open', () => {
+                    resolve(serialPort);
+                });
+
+                serialPort.on('error', (err) => {
+                    reject(new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, err.message));
+                });
+
+                var parser = serialPort.pipe(new SerialPort.parsers.Readline());
+                stringBuffer = new CircularStringBuffer(bufferSize);
+                parser.on('data', (data) => {
+                    stringBuffer.push(data.toString());
+                });
             });
-
-            var error;
-            serialPort.on('error', (err) => {
-                error = err;
-            });
-
-            var parser = serialPort.pipe(new SerialPort.parsers.Readline());
-            stringBuffer = new CircularStringBuffer(bufferSize);
-            parser.on('data', (data) => {
-                stringBuffer.push(data.toString());
-            });
-
-            deasync.loopWhile(() => !error && !opened);
-
-            if (error) {
-                throw new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, error.message);
-            }
         }
 
-        return serialPort;
     };
 
     /**
@@ -147,10 +128,12 @@ module.exports = function() {
         utils.assertArgument(data, 'data');
 
         if (serialPort) {
-            var done;
-            serialPort.write(data);
-            serialPort.drain(() => { done = true;});
-            deasync.loopWhile(() => !done);
+            return new Promise((resolve, reject) => {
+                serialPort.write(data);
+                serialPort.drain(() => {
+                    resolve();
+                });
+            });
         }
     };
 
