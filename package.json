@@ -46,7 +46,7 @@
     "npm-run-all": "4.1.5"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.31.2",
+    "@applitools/eyes-webdriverio": "5.31.8",
     "@lambdatest/node-rest-client": "1.0.0",
     "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",
@@ -68,7 +68,7 @@
     "fibers": "4.0.3",
     "glob": "7.1.6",
     "glob-to-regexp": "0.4.1",
-    "imap-simple": "5.0.0",
+    "imap-simple": "5.1.0",
     "is-glob": "4.0.1",
     "jimp": "0.16.1",
     "junit-report-builder": "3.0.0",
@@ -76,12 +76,12 @@
     "minimist": "1.2.5",
     "mockery": "2.1.0",
     "moment": "2.29.1",
-    "pdf2json": "1.2.1",
+    "pdf2json": "1.2.3",
     "perfecto-reporting": "2.5.3",
     "request": "2.88.2",
     "saucelabs": "3.0.1",
-    "serialport": "9.0.8",
-    "soap": "0.38.0",
+    "serialport": "9.2.0",
+    "soap": "0.39.0",
     "source-map-support": "0.5.19",
     "stacktrace-parser": "0.1.10",
     "testdouble": "3.16.1",
@@ -90,7 +90,7 @@
     "twilio": "3.60.0",
     "webdriverio": "6.6.6",
     "when": "3.7.8",
-    "xlsx": "0.16.9"
+    "xlsx": "0.17.0"
   },
   "optionalDependencies": {
     "odbc": "2.3.6"
