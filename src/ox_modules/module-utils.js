@@ -46,10 +46,22 @@ export default class UtilsModule extends OxygenModule {
         deasync.sleep(ms);
     }
 
+    /**
+     * @summary Decrypt text
+     * @function decrypt
+     * @param {String} text - Text
+     * @return {Object} DecryptResult Object with getDecryptResult method
+     */
     decrypt(text) {
         return libUtils.decrypt(text);
     }
 
+    /**
+     * @summary Encrypt text
+     * @function encrypt
+     * @param {String} text - Text
+     * @return {String} Encrypted text
+     */
     encrypt(text) {
         return libUtils.encrypt(text);
     }
