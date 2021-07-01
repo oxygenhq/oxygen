@@ -41,9 +41,9 @@ module.exports = function() {
      * @function getLastSms
      * @param {Boolean} removeOnRead - Specifies whether to delete the message after reading it.
      * @param {Number} timeout - Timeout in milliseconds for waiting for the message to arrive.
-     * @param {Number=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms).
-     *                                 Default is 4 minutes.
+     * @param {Number=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms). Default is 4 minutes.
      * @param {String=} fromNumber - From number to filter message
+     * @return {String} SMS text.
      */
     module.getLastSms = async function(removeOnRead, timeout, notOlderThan, fromNumber) {
         helpers.assertArgumentBool(removeOnRead, 'removeOnRead');
