@@ -15,8 +15,8 @@
 const MODULE_NAME = 'utils';
 import OxygenModule from '../core/OxygenModule';
 import utils from './utils';
+import libUtils from '../lib/util';
 const deasync = require('deasync');
-
 export default class UtilsModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
@@ -41,5 +41,13 @@ export default class UtilsModule extends OxygenModule {
     pause(ms) {
         utils.assertArgumentNumberNonNegative(ms, 'ms');
         deasync.sleep(ms);
+    }
+
+    decrypt(text) {
+        return libUtils.decrypt(text);
+    }
+
+    encrypt(text) {
+        return libUtils.encrypt(text);
     }
 }

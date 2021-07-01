@@ -543,6 +543,10 @@ export default class Oxygen extends OxygenEvents {
         if (!module.isInitialized && publicMethod && cmdName !== 'init' && cmdName !== 'transaction') {
             throw new OxError(errorHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, 'Missing ' + moduleName + '.init()');
         }
+
+        // dectypt arguments
+        const decryptedArgs = this._getDecryptedArgsForApply(cmdArgs, moduleName);
+
         // replace parameters in method arguments with corresponding values
         cmdArgs = this._populateParametersValue(cmdArgs);
         // start measuring method execution time
@@ -564,7 +568,7 @@ export default class Oxygen extends OxygenEvents {
                 this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
             }
 
-            const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, cmdArgs);
+            const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, decryptedArgs);
 
             if (retvalPromise && retvalPromise.then) {
                 let promiseDone = false;
@@ -908,6 +912,10 @@ export default class Oxygen extends OxygenEvents {
         return _newArgs;
     }
     _replaceParameterInArgument(arg) {
+        if (arg && typeof arg.getDecryptResult === 'function') {
+            return 'ENCRYPTED';
+        }
+
         if (!arg || typeof arg !== 'string') {
             return arg;
         }
@@ -957,5 +965,28 @@ export default class Oxygen extends OxygenEvents {
         return new Promise((resolve, reject) => {
             this._checkStepResult(resolve, reject);
         });
+    }
+
+    _getDecryptedArgsForApply(args, moduleName) {
+        if (!args || !Array.isArray(args) || args.length == 0) {
+            return args;
+        }
+        const _newArgs = [];
+        for (let arg of args) {
+            _newArgs.push(this._decryptParameterForApplyInArgument(arg, moduleName));
+        }
+        return _newArgs;
+    }
+
+    _decryptParameterForApplyInArgument(arg, moduleName) {
+        if (arg && typeof arg.getDecryptResult === 'function') {
+            if (moduleName === 'log') {
+                return 'ENCRYPTED';
+            } else {
+                return arg.getDecryptResult();
+            }
+        }
+
+        return arg;
     }
 }
