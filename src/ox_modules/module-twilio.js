@@ -41,13 +41,16 @@ module.exports = function() {
      * @function getLastSms
      * @param {Boolean} removeOnRead - Specifies whether to delete the message after reading it.
      * @param {Number} timeout - Timeout in milliseconds for waiting for the message to arrive.
-     * @param {Number=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms).
-     *                                 Default is 4 minutes.
+     * @param {Number=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms). Default is 4 minutes.
+     * @param {String=} fromNumber - From number to filter message
      * @return {String} SMS text.
      */
-    module.getLastSms = function(removeOnRead, timeout, notOlderThan) {
+    module.getLastSms = async function(removeOnRead, timeout, notOlderThan, fromNumber) {
         helpers.assertArgumentBool(removeOnRead, 'removeOnRead');
         helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
+        if (fromNumber) {
+            helpers.assertArgumentString(fromNumber, 'fromNumber');
+        }
 
         if (!notOlderThan) {
             notOlderThan = 4*60*1000;
@@ -55,26 +58,36 @@ module.exports = function() {
         var msg;
         var now = Date.now();
         var earliestMessageDate = new Date(now - notOlderThan);
+        var msgsProcessed = false;
 
         while (!msg && (Date.now() - now) < timeout) {
-            var msgsProcessed = false;
-            _client.messages.list({ dateSentAfter: earliestMessageDate }, function(err, messages) {
-                var _msg;
-                if (messages && typeof messages[Symbol.iterator] === 'function') {
-                    for (_msg of messages) {
-                        if (_msg.direction == 'inbound') {
-                            var _msgDate = Date.parse(_msg.dateCreated);
-                            // if message is newer than the previous one - save it
-                            if (msg && Date.parse(msg.dateCreated) < _msgDate) {
-                                msg = _msg;
-                            } else if (!msg) {
-                                msg = _msg;
+            await (() => {
+                return new Promise((resolve, reject) => {
+                    _client.messages.list({ dateSentAfter: earliestMessageDate }, function(err, messages) {
+                        var _msg;
+                        if (messages && typeof messages[Symbol.iterator] === 'function') {
+                            for (_msg of messages) {
+                                if (_msg.direction == 'inbound') {
+                                    if (fromNumber && _msg.from !== fromNumber) {
+                                        // ignore
+                                    } else {
+                                        var _msgDate = Date.parse(_msg.dateCreated);
+                                        // if message is newer than the previous one - save it
+                                        if (msg && Date.parse(msg.dateCreated) < _msgDate) {
+                                            msg = _msg;
+                                        } else if (!msg) {
+                                            msg = _msg;
+                                        }
+                                    }
+                                }
                             }
                         }
-                    }
-                }
-                msgsProcessed = true;
-            });
+                        msgsProcessed = true;
+
+                        resolve();
+                    });
+                });
+            })();
             deasync.loopWhile(() => !msgsProcessed);
             deasync.sleep(800);
         }
@@ -137,6 +150,7 @@ module.exports = function() {
 
     helpers.assertArgument = (val, name) => utils.assertArgument.call(this, val, name);
     helpers.assertArgumentNonEmptyString = (val, name) => utils.assertArgumentNonEmptyString.call(this, val, name);
+    helpers.assertArgumentString = (val, name) => utils.assertArgumentString.call(this, val, name);
     helpers.assertArgumentNumber = (val, name) => utils.assertArgumentNumber.call(this, val, name);
     helpers.assertArgumentNumberNonNegative = (val, name) => utils.assertArgumentNumberNonNegative.call(this, val, name);
     helpers.assertArgumentBool = (val, name) => utils.assertArgumentBool.call(this, val, name);

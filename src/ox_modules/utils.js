@@ -259,6 +259,12 @@ module.exports = {
         }
     },
 
+    assertArgumentString: function(arg, name) {
+        if (typeof arg !== 'string') {
+            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a string.");
+        }
+    },
+
     assertArgumentNonEmptyString: function(arg, name) {
         if (!arg || typeof arg !== 'string') {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
