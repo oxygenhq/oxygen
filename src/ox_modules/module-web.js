@@ -755,6 +755,7 @@ export default class WebModule extends WebDriverModule {
         this.helpers.assertArgumentBool = modUtils.assertArgumentBool;
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
+        this.helpers.assertArgumentString = modUtils.assertArgumentString;
     }
 
     async _getHAR() {
@@ -784,6 +785,12 @@ export default class WebModule extends WebDriverModule {
         } catch (e) {
             this.logger.error('Unable to fetch HAR: ' + e.toString());
             return null;
+        }
+    }
+
+    async checkWaitForAngular() {
+        if (this.autoWaitForAngular) {
+            await this.waitForAngular(this.autoWaitForAngularRootSelector, this.autoWaitForAngularTimeout);
         }
     }
 }

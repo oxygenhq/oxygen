@@ -46,4 +46,5 @@ module.exports = async function(locator, value, timeout) {
         }
         throw e;
     }
+    await this.checkWaitForAngular();
 };

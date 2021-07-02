@@ -25,4 +25,5 @@
 module.exports = async function(selectLocator, optionLocator, timeout) {
     // select acts as deselect if option is already selected
     await this.select(selectLocator, optionLocator, timeout);
+    await this.checkWaitForAngular();
 };

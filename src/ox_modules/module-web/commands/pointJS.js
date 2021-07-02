@@ -42,4 +42,5 @@ module.exports = async function(locator, timeout) {
     if (ret) {
         throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, ret);
     }
+    await this.checkWaitForAngular();
 };

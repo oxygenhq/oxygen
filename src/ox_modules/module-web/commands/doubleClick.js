@@ -61,4 +61,5 @@ module.exports = async function(locator, timeout) {
             domEl.dispatchEvent(clckEv);
         }, el);
     }
+    await this.checkWaitForAngular();
 };

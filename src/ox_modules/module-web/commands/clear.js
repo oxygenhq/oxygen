@@ -31,4 +31,5 @@ module.exports = async function(locator, timeout) {
         }
         throw e;
     }
+    await this.checkWaitForAngular();
 };

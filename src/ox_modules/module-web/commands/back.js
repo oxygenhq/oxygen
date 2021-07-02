@@ -18,4 +18,5 @@
  */
 module.exports = async function() {
     await this.driver.back();
+    await this.checkWaitForAngular();
 };

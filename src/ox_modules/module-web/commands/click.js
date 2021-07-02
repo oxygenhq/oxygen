@@ -108,4 +108,6 @@ module.exports = async function(locator, timeout) {
         // if element is not clickable, try clicking it using JS injection
         await this.clickJS(el);
     }
+
+    await this.checkWaitForAngular();
 };

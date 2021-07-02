@@ -29,4 +29,5 @@ module.exports = async function(srcElement, dstElement, duration, timeout) {
     var dstEl = await this.helpers.getElement(dstElement, false, timeout);
 
     await srcEl.dragAndDrop(dstEl, duration);
+    await this.checkWaitForAngular();
 };
