@@ -10,6 +10,7 @@
 /**
  * @summary Returns the title of the currently active window.
  * @function getTitle
+ * @for web
  * @return {String} The page title.
  */
 module.exports = async function(locator) {

@@ -12,6 +12,7 @@
  * @description Text pattern can be any of the supported
  *  string matching patterns(on the top of page).
  * @function assertAlert
+ * @for web
  * @param {String} pattern - Text pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>

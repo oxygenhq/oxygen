@@ -10,6 +10,7 @@
 /**
  * @summary Gets the URL of the currently active window.
  * @function getUrl
+ * @for web
  * @return {String} The page URL.
  * @example <caption>[javascript] Usage example</caption>
  * mob.init();//Opens browser session.

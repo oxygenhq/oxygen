@@ -15,6 +15,7 @@
  *              test.  
  *              The default time-out is 60 seconds.
  * @function setTimeout
+ * @for android, ios, hybrid, web
  * @param {Number} timeout - A time-out in milliseconds.
  * @example <caption>[javascript] Usage example</caption>
  * mob.init();//Opens browser session.
