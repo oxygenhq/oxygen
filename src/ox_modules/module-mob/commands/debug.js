@@ -10,6 +10,7 @@
 /**
  * @summary Stop test execution and allow interactive command execution (REPL).
  * @function debug
+ * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init();
  * mob.open("www.yourwebsite.com");
