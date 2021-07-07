@@ -51,6 +51,21 @@ export default class UtilsModule extends OxygenModule {
      * @function decrypt
      * @param {String} text - Text
      * @return {Object} DecryptResult Object with getDecryptResult method
+     * @example <caption>[javascript] Usage example</caption>
+     * // to encrypt plaintext into ciphertext 
+     * const encrypt = utils.encrypt('https://www.wikipedia.org/');
+     * log.info(encrypt); // will print b757ba2c2fc50fbb511d596816ca06c4fa56f4e98ce222f30bc58d5251ed635e
+     * 
+     * // to decrypt ciphertext and use it in script  
+     * const decrypt = utils.decrypt(encrypt);
+     * log.info(decrypt); // will print ENCRYPTED
+     * 
+     * web.init();
+     * web.open(decrypt); // will open https://www.wikipedia.org/
+     * 
+     * // to get original plaintext use getDecryptResult
+     * const value = decrypt.getDecryptResult();
+     * log.info(value); //will print https://www.wikipedia.org/
      */
     decrypt(text) {
         return libUtils.decrypt(text);
@@ -61,6 +76,21 @@ export default class UtilsModule extends OxygenModule {
      * @function encrypt
      * @param {String} text - Text
      * @return {String} Encrypted text
+     * @example <caption>[javascript] Usage example</caption>
+     * // to encrypt plaintext into ciphertext 
+     * const encrypt = utils.encrypt('https://www.wikipedia.org/');
+     * log.info(encrypt); // will print b757ba2c2fc50fbb511d596816ca06c4fa56f4e98ce222f30bc58d5251ed635e
+     * 
+     * // to decrypt ciphertext and use it in script  
+     * const decrypt = utils.decrypt(encrypt);
+     * log.info(decrypt); // will print ENCRYPTED
+     * 
+     * web.init();
+     * web.open(decrypt); // will open https://www.wikipedia.org/
+     * 
+     * // to get original plaintext use getDecryptResult
+     * const value = decrypt.getDecryptResult();
+     * log.info(value); //will print https://www.wikipedia.org/
      */
     encrypt(text) {
         return libUtils.encrypt(text);
