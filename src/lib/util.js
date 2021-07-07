@@ -15,6 +15,18 @@ const fs = require('fs');
 const moment = require('moment');
 const crypto = require('crypto');
 const util = require('util');
+const password = require('../../package.json').version;
+const key = crypto.scryptSync(password, 'GfG', 24);
+const iv = Buffer.alloc(16, 0);
+const algorithm = 'aes-192-cbc';
+
+function DecryptResult(result) {
+    const decryptResult = result;
+
+    this.getDecryptResult = () => {
+        return decryptResult;
+    };
+}
 
 const DUMMY_HOOKS = {
     beforeTest: () => {},
@@ -341,5 +353,21 @@ var self = module.exports = {
         }
 
         return steps;
+    },
+
+    decrypt(text) {
+        let encryptedText = Buffer.from(text, 'hex');
+        let decipher = crypto.createDecipheriv(algorithm, key, iv);
+        let decrypted = decipher.update(encryptedText);
+        decrypted = Buffer.concat([decrypted, decipher.final()]);
+        const retVal = decrypted.toString();
+        return new DecryptResult(retVal);
+    },
+
+    encrypt(text) {
+        let cipher = crypto.createCipheriv(algorithm, key, iv);
+        let encrypted = cipher.update(text);
+        encrypted = Buffer.concat([encrypted, cipher.final()]);
+        return encrypted.toString('hex');
     }
 };
