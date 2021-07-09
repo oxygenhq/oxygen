@@ -20,6 +20,7 @@
  */
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    await this.helpers.assertContext(this.helpers.contextList.android);
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.getAttribute('checked') == 'true';

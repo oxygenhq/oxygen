@@ -18,6 +18,7 @@
 */
 module.exports = async function(appLocalPath) {
     this.helpers.assertArgumentNonEmptyString(appLocalPath, 'appLocalPath');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     await this.driver.installApp(appLocalPath);
 };

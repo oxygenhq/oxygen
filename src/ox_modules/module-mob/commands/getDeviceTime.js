@@ -17,5 +17,6 @@
  * mob.getDeviceTime(); //Gets the device time
  */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
     return await this.driver.getDeviceTime();
 };

@@ -21,6 +21,7 @@
 module.exports = async function(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
     let title;
     try {

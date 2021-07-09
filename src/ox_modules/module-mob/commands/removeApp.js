@@ -17,6 +17,7 @@
  * mob.removeApp('com.android.calculator2'); // Remove the calculator app from the device.
  */
 module.exports = async function(app) {
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
     this.helpers.assertArgument(app, 'app');
 
     await this.driver.removeApp(app);

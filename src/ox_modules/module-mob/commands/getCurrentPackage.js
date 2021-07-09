@@ -16,5 +16,6 @@
  * let package = mob.getCurrentPackage(); // Gets current Android package.
 */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.android);
     return await this.driver.getCurrentPackage();
 };

@@ -24,6 +24,7 @@
  * mob.selectFrame("//iframe[@id='frame1']", "//iframe[@id='nested_frame']");
  */
 module.exports = async function(frameLocator) {
+    await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
     if (frameLocator === 'parent') {                // parent
         await this.driver.switchToParentFrame();
     } else if (frameLocator === 'top') {            // top

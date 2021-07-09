@@ -561,6 +561,8 @@ export default class MobileModule extends WebDriverModule {
         this.helpers.assertArgumentBool = modUtils.assertArgumentBool;
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
+        this.helpers.assertContext = modUtils.assertContext;
+        this.helpers.contextList = modUtils.contextList;
         this.helpers.getLogTypes = modUtils.getLogTypes;
     }
 }

@@ -30,6 +30,7 @@ module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, y
     this.helpers.assertArgumentNumber(retries, 'retries');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.helpers.assertArgumentNumber(duration, 'duration');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     var scrollElm = await this.helpers.getElement(scrollElmLocator, false, timeout);
 

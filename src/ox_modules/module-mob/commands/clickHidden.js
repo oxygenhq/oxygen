@@ -19,6 +19,7 @@
 */
 module.exports = async function(locator, clickParent) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
+    await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
     var el = await this.helpers.getElement(locator);
     // NOTE: adding comments inside the passed function is not allowed!

@@ -17,5 +17,6 @@
  * mob.back();//Navigate back to previous page.
  */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.hybrid, this.helpers.contextList.web);
     await this.driver.back();
 };

@@ -18,6 +18,13 @@ const providers = {
     TESTINGBOT: 'testingbot'
 };
 
+const contextList = {
+    android: 'android',
+    ios: 'ios',
+    hybrid: 'hybrid',
+    web: 'web'
+};
+
 const isElementNotFound = (el) => {
     let result = false;
     if (
@@ -298,6 +305,27 @@ module.exports = {
     assertArgumentTimeout: function(arg, name) {
         if (arg && (typeof(arg) !== 'number' || arg < 0)) {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
+        }
+    },
+
+    contextList: contextList,
+
+    assertContext: async function(...alowedContexts) {
+        var context = await this.driver.getContext();
+        const isWeb = (context && (context.indexOf('WEBVIEW') > -1 || context.indexOf('CHROMIUM') > -1));
+
+        if (isWeb) {
+            if (alowedContexts.includes(contextList.web) || alowedContexts.includes(contextList.hybrid)) {
+                // ignore, all is ok
+            } else {
+                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid context');
+            }
+        } else {
+            if (alowedContexts.includes(contextList.android) || alowedContexts.includes(contextList.ios)) {
+                // ignore, all is ok
+            } else {
+                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid context');
+            }
         }
     },
 

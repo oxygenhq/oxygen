@@ -14,5 +14,6 @@
  * @return {String} The page title.
  */
 module.exports = async function(locator) {
+    await this.helpers.assertContext(this.helpers.contextList.web);
     return await this.driver.getTitle();
 };

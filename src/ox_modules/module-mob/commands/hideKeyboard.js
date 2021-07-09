@@ -23,6 +23,7 @@
  */
 module.exports = async function(strategy, key, keyCode, keyName) {
     this.helpers.assertArgumentNonEmptyString(strategy, 'strategy');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
     return await this.driver.hideKeyboard(strategy, key, keyCode, keyName);
 };

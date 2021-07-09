@@ -26,6 +26,7 @@ module.exports = async function(locator, xoffset = 0, yoffset = 30, timeout, dur
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.helpers.assertArgumentNumber(duration, 'duration');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     var el = await this.helpers.getElement(locator, false, timeout);
 

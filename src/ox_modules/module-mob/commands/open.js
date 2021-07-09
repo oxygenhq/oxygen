@@ -19,6 +19,7 @@
  */
 module.exports = async function(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
+    await this.helpers.assertContext(this.helpers.contextList.web);
     try {
         await this.driver.url(url);
     } catch (e) {

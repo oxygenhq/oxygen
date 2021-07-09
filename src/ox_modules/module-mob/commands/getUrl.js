@@ -18,5 +18,6 @@
  * mob.getUrl();//Gets the url from the current page.
  */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.web);
     return await this.driver.getUrl();
 };
