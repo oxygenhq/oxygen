@@ -16,5 +16,6 @@
  * let activity = mob.getCurrentActivity(); // Gets current Android activity.
 */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.android);
     return await this.driver.getCurrentActivity();
 };

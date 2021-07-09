@@ -16,5 +16,6 @@
  * mob.launchApp(); // Launch the app defined in the session's capabilities.
 */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
     await this.driver.launchApp();
 };

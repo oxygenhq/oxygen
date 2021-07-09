@@ -20,6 +20,7 @@
 module.exports = async function(x, y) {
     this.helpers.assertArgumentNumberNonNegative(x, 'x');
     this.helpers.assertArgumentNumberNonNegative(y, 'y');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     await this.driver.touchAction({
         action: 'tap',

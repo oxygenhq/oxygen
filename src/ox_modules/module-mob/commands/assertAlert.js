@@ -21,6 +21,7 @@
  * mob.assertAlert("Your Alert's text");//Asserts the alert's text.
  */
 module.exports = async function(pattern, timeout) {
+    await this.helpers.assertContext(this.helpers.contextList.web);
     let alertText = null;
     try {
         await this.driver.waitUntil(async() => {

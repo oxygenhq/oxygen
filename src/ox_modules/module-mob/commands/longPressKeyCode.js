@@ -20,5 +20,6 @@
  */
 module.exports = async function(keycode) {
     this.helpers.assertArgumentNumberNonNegative(keycode, 'keycode');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.web);
     await this.driver.longPressKeyCode(keycode);
 };

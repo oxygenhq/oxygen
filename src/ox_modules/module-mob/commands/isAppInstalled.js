@@ -18,6 +18,7 @@
  */
 module.exports = async function(app) {
     this.helpers.assertArgument(app, 'app');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     return await this.driver.isAppInstalled(app);
 };

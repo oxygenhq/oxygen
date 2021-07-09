@@ -17,5 +17,6 @@
  * mob.shake();//Perform shake action on the device.
  */
 module.exports = async function() {
+    await this.helpers.assertContext(this.helpers.contextList.ios);
     await this.driver.shake();
 };

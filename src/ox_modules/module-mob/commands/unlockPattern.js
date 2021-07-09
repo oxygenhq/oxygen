@@ -28,6 +28,7 @@ module.exports = async function(locator, cols, rows, pattern, timeout) {
     this.helpers.assertArgumentNumberNonNegative(rows, 'rows');
     this.helpers.assertArgumentNonEmptyString(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    await this.helpers.assertContext(this.helpers.contextList.android);
 
     var el = await this.helpers.getElement(locator, false, timeout);
 

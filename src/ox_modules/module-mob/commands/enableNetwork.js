@@ -20,6 +20,7 @@
 module.exports = async function(wifi, data) {
     this.helpers.assertArgumentBool(wifi, 'wifi');
     this.helpers.assertArgumentBool(data, 'data');
+    await this.helpers.assertContext(this.helpers.contextList.android);
 
     /* According to Appium docs (https://appium.io/docs/en/writing-running-appium/other/network-connection/):
         Real Devices

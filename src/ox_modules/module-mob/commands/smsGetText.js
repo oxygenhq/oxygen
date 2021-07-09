@@ -22,6 +22,7 @@
 */
 module.exports = async function(timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
+    await this.helpers.assertContext(this.helpers.contextList.android);
 
     var locSms = 'id=android:id/message';
     var locSmsClose = 'id=android:id/button2';

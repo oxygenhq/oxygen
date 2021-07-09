@@ -26,6 +26,7 @@ module.exports = async function(x1 = 0, y1 = 0, x2, y2, duration = 3000) {
     this.helpers.assertArgumentNumber(x2, 'x2');
     this.helpers.assertArgumentNumber(y2, 'y2');
     this.helpers.assertArgumentNumber(duration, 'duration');
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     await this.driver.touchPerform([
         {
