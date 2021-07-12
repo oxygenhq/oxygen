@@ -56,4 +56,5 @@ module.exports = async function(locator, timeout) {
         // not visibile, center is overlapped with another element, or disabled
         throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
     }
+    await this.checkWaitForAngular();
 };

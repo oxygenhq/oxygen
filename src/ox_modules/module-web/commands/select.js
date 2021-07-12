@@ -45,4 +45,5 @@ module.exports = async function(selectLocator, optionLocator, timeout) {
         }
         throw e;
     }
+    await this.checkWaitForAngular();
 };

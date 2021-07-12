@@ -44,4 +44,5 @@ module.exports = async function(value) {
     } catch (e) {
         this.logger.warn('web.sendKeys error', e);
     }
+    await this.checkWaitForAngular();
 };

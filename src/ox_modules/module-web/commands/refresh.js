@@ -17,4 +17,5 @@
  */
 module.exports = async function() {
     await this.driver.refresh();
+    await this.checkWaitForAngular();
 };

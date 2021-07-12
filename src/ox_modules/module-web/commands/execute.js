@@ -25,5 +25,7 @@
  
  */
 module.exports = async function(...args) {
-    return await this.driver.execute(...args);
+    const executeRetVal = await this.driver.execute(...args);
+    await this.checkWaitForAngular();
+    return executeRetVal;
 };

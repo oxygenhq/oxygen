@@ -52,5 +52,7 @@ module.exports = async function(locator, xOffset = 0, yOffset = 0, timeout) {
             }
         ]
     }]);
-    return await this.driver.releaseActions();
+    const releaseActionsRetVal = await this.driver.releaseActions();
+    await this.checkWaitForAngular();
+    return releaseActionsRetVal;
 };
