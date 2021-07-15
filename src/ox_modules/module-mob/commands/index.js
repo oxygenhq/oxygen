@@ -49,6 +49,7 @@ export {default as removeApp} from './removeApp';
 export {default as resetApp} from './resetApp';
 export {default as scrollIntoElement} from './scrollIntoElement';
 export {default as scrollIntoView} from './scrollIntoView';
+export {default as select} from './select';
 export {default as selectFrame} from './selectFrame';
 export {default as sendKeys} from './sendKeys';
 export {default as setContext} from './setContext';
