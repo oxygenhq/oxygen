@@ -57,6 +57,7 @@ import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
+import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'mob';
@@ -392,15 +393,91 @@ export default class MobileModule extends WebDriverModule {
 
     _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
+            let error;
             try {
                 if (
                     this.driver &&
                     this.driver.takeScreenshot
                 ) {
-                    return this.driver.takeScreenshot();
+                    let retval;
+                    this.driver.call(() => {
+                        return new Promise((resolve, reject) => {
+                            const waitUntilRetVal = this.driver.waitUntil(async() => {
+                                try {
+                                    let images = [];
+
+                                    const pushImageToImages = async(fetchTitle = true) => {
+                                        const image = await this.driver.takeScreenshot();
+                                        if (fetchTitle) {
+                                            const title = await this.driver.getTitle();
+                                            if (title) {
+                                                const textToImage = require('text-to-image');
+                                                let titleImage = await textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
+                                                if (titleImage && typeof titleImage === 'string') {
+                                                    titleImage = titleImage.replace('data:image/png;base64,', '');
+                                                    images.push(titleImage);
+                                                }
+                                            }
+                                        }
+
+                                        images.push(image);
+                                    };
+
+                                    const isWebViewContext = await this.isWebViewContext();
+                                    if (isWebViewContext) {
+                                        // collect all (screenshot and title) images
+                                        const handles = await this.driver.getWindowHandles();
+                                        if (
+                                            handles &&
+                                            Array.isArray(handles) &&
+                                            handles.length > 0
+                                        ) {
+                                            for (const handle of handles) {
+                                                await this.driver.switchToWindow(handle);
+                                                await pushImageToImages();
+                                            }
+                                        }
+                                    } else {
+                                        await pushImageToImages(false);
+                                    }
+
+                                    // merge all images into one
+                                    const mergedImage = await mergeImages(images, { direction: true });
+                                    if (mergedImage && typeof mergedImage === 'string') {
+                                        retval = mergedImage.replace('data:image/jpeg;base64,', '');
+                                    }
+
+                                    return true;
+                                } catch (e) {
+                                    error = e;
+                                    return false;
+                                }
+                            },
+                            { timeout: 30*1000 });
+
+                            if (waitUntilRetVal && waitUntilRetVal.then) {
+                                waitUntilRetVal.then(() => {
+                                    resolve();
+                                }).catch((err) => {
+                                    reject(err);
+                                });
+                            } else {
+                                resolve();
+                            }
+                        });
+                    });
+
+                    if (error) {
+                        this.logger.error('Cannot get screenshot', error);
+                    }
+
+                    return retval;
                 }
             } catch (e) {
                 this.logger.error('Cannot get screenshot', e);
+                if (error) {
+                    this.logger.error('Cannot get screenshot inner error', error);
+                }
                 // ignore
             }
         }
