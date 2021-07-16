@@ -215,6 +215,7 @@ export default class MobileModule extends WebDriverModule {
         };
 
         let provider = modUtils.determineProvider(wdioOpts);
+        let name = 'name';
 
         if (provider === modUtils.provider.SAUCELABS &&
             wdioOpts.capabilities['sauce:options']['testobject_api_key']) {
@@ -230,6 +231,9 @@ export default class MobileModule extends WebDriverModule {
             delete wdioOpts.capabilities.manufacturer;
             delete wdioOpts.capabilities.model;
             delete wdioOpts.capabilities.browserName;
+
+            name = wdioOpts.capabilities['perfectoMobile:options']['name'];
+            delete wdioOpts.capabilities['perfectoMobile:options'];
         }
 
         this.wdioOpts = wdioOpts;
@@ -256,7 +260,7 @@ export default class MobileModule extends WebDriverModule {
                     }
                 });
                 this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
-                this.reportingClient.testStart(wdioOpts.capabilities['perfectoMobile:options']['name']);
+                this.reportingClient.testStart(name);
 
                 // avoid request abort
                 deasync.sleep(10*1000);
