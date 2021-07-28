@@ -13,7 +13,7 @@
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is selected. false otherwise.
- * @for android
+ * @for android, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init(caps);
  * var a = mob.isSelected("id=Selection");
@@ -25,7 +25,7 @@
  */
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    await this.helpers.assertContext(this.helpers.contextList.android);
+    await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.getAttribute('selected') == 'true';
