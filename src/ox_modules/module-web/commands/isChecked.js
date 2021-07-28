@@ -8,7 +8,7 @@
  */
 
 /**
- * @summary Determines if checkbox or radio element is checked.
+ * @summary _**deprecated**_ Use isSelected instead. Determines if checkbox or radio element is checked.
  * @function isChecked
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
