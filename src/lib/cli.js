@@ -113,6 +113,7 @@ General options:
                              sequentially. This option is mutually exclusive with
                              -i option.
       --dbgport=PORT         Debugger port.
+      --suites                   Filter out suites by name
   -h, --help                 Display this information and exit.
   -v, --version              Display version information and exit.
 
