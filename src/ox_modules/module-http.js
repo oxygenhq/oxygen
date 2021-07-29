@@ -348,7 +348,7 @@ export default class HttpModule extends OxygenModule {
         this._lastResponse = result;
 
         if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
-            throw result;
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
         }
         return result;
     }
