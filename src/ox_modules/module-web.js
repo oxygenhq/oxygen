@@ -287,6 +287,7 @@ export default class WebModule extends WebDriverModule {
      * @param {String=} status - Test status, either `passed` or `failed`.
      */
     async dispose(status) {
+        this.transactions = {};
         this._whenWebModuleDispose = defer();
 
         if (!status) {
@@ -733,7 +734,7 @@ export default class WebModule extends WebDriverModule {
 
         if (typeof this.transactions[name] !== 'undefined') {
             const counter = Object.keys(this.transactions).filter((item) => item.startsWith(name)).length + 1;
-            global._lastTransactionName = name+'(#'+counter+')';
+            global._lastTransactionName = name+' (#'+counter+')';
         } else {
             global._lastTransactionName = name;
         }
