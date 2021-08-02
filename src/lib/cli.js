@@ -31,6 +31,15 @@ if (argv.v || argv.version) {
     process.exit(1);
 }
 
+if (argv.d || argv.delay) {
+    const delay = argv.d || argv.delay;
+    if (!(parseInt(delay) > 0)) {
+        console.error("Invalid argument - 'delay' should be a non-negative number.");
+        printUsage();
+        process.exit(1);
+    }
+}
+
 const targetFile = cliutil.processTargetPath(argv._[0]);
 if (targetFile == null) {
     printUsage();
