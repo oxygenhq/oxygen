@@ -533,10 +533,13 @@ export default class Oxygen extends OxygenEvents {
         const publicMethod = !cmdName.startsWith('_') && cmdName !== 'dispose';
 
         // delay the command execution if required
-        if (this.opts.delay && publicMethod &&
+        if (
+            this.opts.delay &&
+            publicMethod &&
             cmdName !== 'init' &&
-            cmdName !== 'transaction') {
-            deasync.sleep(this.opts.delay*1000);
+            cmdName !== 'transaction'
+        ) {
+            deasync.sleep(this.opts.delay * 1000);
         }
 
         // throw if a command executed on unitialized module (except internal methods and a few other)
