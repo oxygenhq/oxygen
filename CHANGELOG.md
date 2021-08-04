@@ -1,5 +1,32 @@
 # CHANGELOG
 
+## v1.20.0 (2021-08-04)
+
+#### :boom: Breaking Change
+* `web.isChecked` has been deprecated and will be removed in future versions. Use `web.isSelected` instead.
+
+#### :tada: New Feature
+* Support for NodeJS 14.
+* Added `utils.readCsv` and `utils.writeCsv`.
+* Allow filtering by source number in `twilio.getLastSms`.
+* Added `utils.encrypt` and `utils.decrypt`.
+* Added `web.waitForAngular` and `web.setAutoWaitForAngular`.
+* Added `mob.selectWindow`, `mob.select`.
+* Added `http.patch`.
+
+#### :beetle: Bug Fix
+* `web.isSelected` not working in certain situations.
+* Index repeating transactions to prevent duplicate transaction names in results.
+* Failure taking mobile screenshots in certain situations.
+
+#### :nail_care: Polish
+* Documentation improvements.
+* Notify when `mob` command is being used in wrong mobile context.
+* Improve error handling in `http` module.
+
+#### :house: Internal
+* Upgrade to WDIO v7 and bump other dependencies.
+
 ## v1.19.1 (2021-06-01)
 
 #### :beetle: Bug Fix
