@@ -217,11 +217,7 @@ export default class MobileModule extends WebDriverModule {
         let provider = modUtils.determineProvider(wdioOpts);
         let name = 'name';
 
-        if (provider === modUtils.provider.SAUCELABS &&
-            wdioOpts.capabilities['sauce:options']['testobject_api_key']) {
-            wdioOpts.capabilities.testobject_api_key = wdioOpts.capabilities['sauce:options']['testobject_api_key'];
-            wdioOpts.capabilities.maxInstances = 1;
-        } else if (provider === modUtils.provider.PERFECTO) {
+        if (provider === modUtils.provider.PERFECTO) {
             wdioOpts.capabilities.maxInstances = 1;
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
             wdioOpts.port = 80;
