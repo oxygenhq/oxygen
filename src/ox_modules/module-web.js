@@ -247,10 +247,10 @@ export default class WebModule extends WebDriverModule {
             }
 
             if (provider === modUtils.provider.PERFECTO) {
-                const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
+                const perfectoExecutionContext = await new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {
-                        executeScript: (command, params) => {
-                            this.driver.execute(command, params);
+                        executeScript: async (command, params) => {
+                            return await this.driver.execute(command, params);
                         }
                     }
                 });
@@ -364,7 +364,7 @@ export default class WebModule extends WebDriverModule {
                     });
                     deasync.loopWhile(() => !done);
                 } else if (this.driver.provider === modUtils.provider.PERFECTO) {
-                    this.reportingClient.testStop({
+                    const reportingClientTestStopRV = await this.reportingClient.testStop({
                         status: status === 'PASSED' ?
                                     perfectoReporting.Constants.results.passed :
                                     perfectoReporting.Constants.results.failed
