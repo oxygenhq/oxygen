@@ -153,6 +153,26 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
+     * @summary Performs HTTP PATCH
+     * @function patch
+     * @param {String} url - URL.
+     * @param {Object} data - Data.
+     * @param {Object=} headers - HTTP headers.
+     * @return {Object} Response object.
+     */
+    patch(url, data, headers) {
+        const httpOpts = {
+            ...DEFAULT_HTTP_OPTIONS,
+            ...this._userHttpOptions || {},
+            url: url,
+            method: 'PATCH',
+            body: data,
+            headers: headers || {}
+        };
+        return this._httpRequestSync(httpOpts);
+    }
+
+    /**
      * @summary Performs HTTP DELETE
      * @function delete
      * @param {String} url - URL.
