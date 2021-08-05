@@ -20,6 +20,9 @@ const key = crypto.scryptSync(password, 'GfG', 24);
 const iv = Buffer.alloc(16, 0);
 const algorithm = 'aes-192-cbc';
 
+import OxygenError from '../errors/OxygenError';
+import errorHelper from '../errors/helper';
+
 function DecryptResult(result) {
     const decryptResult = result;
 
@@ -356,12 +359,16 @@ var self = module.exports = {
     },
 
     decrypt(text) {
-        let encryptedText = Buffer.from(text, 'hex');
-        let decipher = crypto.createDecipheriv(algorithm, key, iv);
-        let decrypted = decipher.update(encryptedText);
-        decrypted = Buffer.concat([decrypted, decipher.final()]);
-        const retVal = decrypted.toString();
-        return new DecryptResult(retVal);
+        try {
+            let encryptedText = Buffer.from(text, 'hex');
+            let decipher = crypto.createDecipheriv(algorithm, key, iv);
+            let decrypted = decipher.update(encryptedText);
+            decrypted = Buffer.concat([decrypted, decipher.final()]);
+            const retVal = decrypted.toString();
+            return new DecryptResult(retVal);
+        } catch (e) {
+            throw new OxygenError(errorHelper.errorCode.CRYPTO_ERROR, "The provided argument doesn't seem to be a valid cipher produced by 'utils.encrypt'");
+        }
     },
 
     encrypt(text) {
