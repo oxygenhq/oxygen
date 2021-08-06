@@ -26,7 +26,7 @@
 var checkUnicode = require('webdriverio/build/utils').checkUnicode;
 
 module.exports = async function(value) {
-    this.helpers.assertArgument(value);
+    this.helpers.assertArgument(value, 'value');
 
     let keySequence = [];
 
