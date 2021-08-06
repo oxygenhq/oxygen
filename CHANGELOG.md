@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.20.1 (2021-08-06)
+
+#### :beetle: Bug Fix
+* Issue with test execution on Perfecto Mobile.
+
+#### :nail_care: Polish
+* Improve error handling in `utils.decrypt`.
+
 ## v1.20.0 (2021-08-04)
 
 #### :boom: Breaking Change
