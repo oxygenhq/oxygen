@@ -145,6 +145,8 @@ export default class WebModule extends WebDriverModule {
             this.caps.browserName = 'internet explorer';
         } else if (this.caps['lambda:options']) {
             // lambdatest expects original case names
+        } else if (this.caps['perfectoMobile:options']) {
+            // perfectoMobile expects original case names
         } else if (this.caps.browserName !== 'MicrosoftEdge') {
             // selenium standalone server expects all browserNames to be lowercase
             // except "MicrosoftEdge"
