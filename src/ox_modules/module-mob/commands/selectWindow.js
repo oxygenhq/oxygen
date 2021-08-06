@@ -16,8 +16,7 @@
  * - `url=URL` Switch to the first window which matches the specified URL. `URL` can be any of
  * the supported string matching patterns (see top of the page). When using url locator, this command
  * will wait for the window to appear first similarly to `waitForWindow` command.  
- * - `windowHandle` Switch to a window using its unique handle.  
- * - `unspecified` _**deprecated**_ Switch to the last opened window.
+ * - `windowHandle` Switch to a window using its unique handle.
  * @function selectWindow
  * @param {String=} windowLocator - Window locator.
  * @param {Number=} timeout - Timeout in milliseconds when using 'title' window locating strategy. 
@@ -30,6 +29,7 @@
  * mob.selectWindow("title=Website");// Selects and focus a window. 
  */
 module.exports = async function(windowLocator, timeout) {
+    this.helpers.assertArgument(windowLocator, 'windowLocator');
     var currentHandle;
     var currentHandleTitle;
     var currentHandleUrl;
@@ -51,10 +51,7 @@ module.exports = async function(windowLocator, timeout) {
     }
 
     var windowHandles;
-    if (!windowLocator) {
-        windowHandles = await this.driver.getWindowHandles();
-        await this.driver.switchToWindow(windowHandles[windowHandles.length - 1]);
-    } else if (windowLocator.indexOf('title=') === 0) {
+    if (windowLocator.indexOf('title=') === 0) {
         let pattern = windowLocator.substring('title='.length);
         let start = (new Date()).getTime();
         timeout = !timeout ? this.waitForTimeout : timeout;
