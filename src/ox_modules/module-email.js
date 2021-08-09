@@ -100,28 +100,17 @@ module.exports = function() {
 
                     return connection.search(searchCriteria, fetchOptions).then(function (results) {
                         for (var result of results) {
-                            if (subject.constructor.name === 'RegExp') {
-                                if (subject.test(result.parts[0].body.subject[0])) {
-                                    let to = result.parts[0].body.to ? result.parts[0].body.to[0] : null;
-                                    mail = {
-                                        from: result.parts[0].body.from[0],
-                                        to: to,
-                                        subject: result.parts[0].body.subject[0],
-                                        date: result.parts[0].body.date[0],
-                                        body: result.parts[1].body
-                                    };
-                                }
-                            } else {
-                                if (subject === result.parts[0].body.subject[0]) {
-                                    let to = result.parts[0].body.to ? result.parts[0].body.to[0] : null;
-                                    mail = {
-                                        from: result.parts[0].body.from[0],
-                                        to: to,
-                                        subject: result.parts[0].body.subject[0],
-                                        date: result.parts[0].body.date[0],
-                                        body: result.parts[1].body
-                                    };
-                                }
+
+                            if (subject.constructor.name === 'RegExp' && subject.test(result.parts[0].body.subject[0]) ||
+                                subject === result.parts[0].body.subject[0]) {
+                                let to = result.parts[0].body.to ? result.parts[0].body.to[0] : null;
+                                mail = {
+                                    from: result.parts[0].body.from[0],
+                                    to: to,
+                                    subject: result.parts[0].body.subject[0],
+                                    date: result.parts[0].body.date[0],
+                                    body: result.parts[1].body
+                                };
                             }
                         }
                         done = true;
