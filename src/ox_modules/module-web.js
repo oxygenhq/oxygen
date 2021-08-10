@@ -287,7 +287,10 @@ export default class WebModule extends WebDriverModule {
                 // maximize browser window
                 await this.driver.maximizeWindow();
                 // set initial Timeout
-                await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
+                await this.driver.setTimeout({
+                    'implicit': this.waitForTimeout,
+                    'pageLoad': this.waitForTimeout
+                });
             }
 
         } catch (err) {

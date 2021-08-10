@@ -216,6 +216,8 @@ module.exports = {
         }
         else if (err && err.message.includes('socket hang up')) {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
+        } else if (err && err.message.includes('Timed out receiving message from rendere')) {
+            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
         }
 
         // try to resolve Chai error code
