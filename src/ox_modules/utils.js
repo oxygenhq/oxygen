@@ -249,14 +249,23 @@ module.exports = {
         if (timeouts && timeouts.implicit) {
             this._prevImplicitTimeout = timeouts.implicit;
         }
+        if (timeouts && timeouts.pageLoad) {
+            this._prevPageLoadTimeout = timeouts.pageLoad;
+        }
         if (this.driver.setTimeout) {
-            await this.driver.setTimeout({ 'implicit': timeout });
+            await this.driver.setTimeout({
+                'implicit': timeout,
+                'pageLoad': timeout
+            });
         }
     },
 
     restoreTimeoutImplicit: async function() {
         if (this._prevImplicitTimeout && this.driver.setTimeout) {
             await this.driver.setTimeout({ 'implicit': this._prevImplicitTimeout });
+        }
+        if (this._prevPageLoadTimeout && this.driver.setTimeout) {
+            await this.driver.setTimeout({ 'pageLoad': this._prevPageLoadTimeout });
         }
     },
 
