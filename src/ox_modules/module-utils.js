@@ -154,4 +154,27 @@ export default class UtilsModule extends OxygenModule {
             throw new OxError(errorHelper.errorCode.CSV_ERROR, e.message);
         }
     }
+
+    /**
+     * @summary Uses the DNS protocol to resolve a host name
+     * @function dnsResolve
+     * @param {String} hostname - Host name to resolve.
+     * @param {String=} rrType - Resource record type. Default: 'A'.
+     * @return {String[] | Object} - Array or Object of resource records. The type and structure of individual results vary based on rrtype
+     */
+    async dnsResolve(hostname, rrType = 'A') {
+        utils.assertArgumentNonEmptyString(hostname, 'hostname');
+        const rrTypes = ['A', 'AAAA', 'ANY', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SRV', 'TXT'];
+
+        if (!rrTypes.includes(rrType)) {
+            throw new OxError(errorHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'rrType'. Available rrType values: ${rrTypes.join(', ')}`);
+        }
+
+        const dnsPromises = require('dns').promises;
+        try {
+            return await dnsPromises.resolve(hostname, rrType);
+        } catch (e) {
+            throw new OxError(errorHelper.errorCode.DNS_ERROR, e.message);
+        }
+    }
 }
