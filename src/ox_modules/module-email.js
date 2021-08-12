@@ -14,11 +14,11 @@
 
 import OxError from '../errors/OxygenError';
 import utils from './utils';
+import _ from 'lodash';
 var errHelper = require('../errors/helper');
 
 module.exports = function() {
     var imaps = require('imap-simple');
-    var deasync = require('deasync');
 
     var _config;
 
@@ -74,7 +74,7 @@ module.exports = function() {
      * var mail = email.getLastEmail(60, 'email subject', 5000);
      * log.info(mail);
      */
-    module.getLastEmail = function(sinceMinutes, subject, timeout) {
+    module.getLastEmail = async function(sinceMinutes, subject, timeout) {
         utils.assertArgumentNumberNonNegative(sinceMinutes, 'sinceMinutes');
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
@@ -83,45 +83,51 @@ module.exports = function() {
         var err;
 
         while (!err && !mail && ((new Date()).getTime() - now) < timeout) {
-            var done = false;
-            imaps.connect(_config).then(function (connection) {
-                return connection.openBox('INBOX').then(function () {
-                    // fetch unseen emails from the last sinceMinutes
-                    var startDate = new Date();
-                    startDate.setTime(Date.now() - (sinceMinutes * 60 * 1000));
-                    startDate = startDate.toISOString();
-                    var searchCriteria = ['UNSEEN', ['SINCE', startDate]];
+            try {
+                const connection = await imaps.connect(_config);
+                await connection.openBox('INBOX');
 
-                    // fetch certain headers and stripped down body
-                    var fetchOptions = {
-                        bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)', '1'],
-                        markSeen: false
-                    };
+                // fetch unseen emails from the last sinceMinutes
+                var startDate = new Date();
+                startDate.setTime(Date.now() - (sinceMinutes * 60 * 1000));
+                startDate = startDate.toISOString();
+                var searchCriteria = ['UNSEEN', ['SINCE', startDate]];
 
-                    return connection.search(searchCriteria, fetchOptions).then(function (results) {
-                        for (var result of results) {
+                // fetch certain headers and stripped down body
+                var fetchOptions = {
+                    bodies: ['HEADER.FIELDS (FROM TO SUBJECT DATE)', 'TEXT'],
+                    struct: true,
+                    markSeen: false
+                };
 
-                            if (subject.constructor.name === 'RegExp' && subject.test(result.parts[0].body.subject[0]) ||
-                                subject === result.parts[0].body.subject[0]) {
-                                let to = result.parts[0].body.to ? result.parts[0].body.to[0] : null;
-                                mail = {
-                                    from: result.parts[0].body.from[0],
-                                    to: to,
-                                    subject: result.parts[0].body.subject[0],
-                                    date: result.parts[0].body.date[0],
-                                    body: result.parts[1].body
-                                };
-                            }
+                const results = await connection.search(searchCriteria, fetchOptions);
+
+                for (var result of results) {
+                    const headerPart = _.find(result.parts, { 'which': fetchOptions.bodies[0] });
+                    const bodyPart = _.find(result.parts, { 'which': fetchOptions.bodies[1] });
+
+                    if (headerPart) {
+                        if (
+                            subject && (
+                                (subject.constructor.name === 'RegExp' && subject.test(headerPart.body.subject[0])) ||
+                                (subject === headerPart.body.subject[0])
+                            )
+                         ) {
+                            let to = headerPart.body.to ? headerPart.body.to[0] : null;
+
+                            mail = {
+                                from: headerPart.body.from[0],
+                                to: to,
+                                subject: headerPart.body.subject[0],
+                                date: headerPart.body.date[0],
+                                body: bodyPart.body
+                            };
                         }
-                        done = true;
-                    });
-                });
-            }).catch(function (e) {
+                    }
+                }
+            } catch (e) {
                 err = e;
-            });
-
-            deasync.loopWhile(() => !done && !err);
-            deasync.sleep(500);
+            }
         }
 
         if (err) {
