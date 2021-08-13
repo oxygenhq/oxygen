@@ -16,7 +16,6 @@ const MODULE_NAME = 'utils';
 import OxygenModule from '../core/OxygenModule';
 import utils from './utils';
 import libUtils from '../lib/util';
-const deasync = require('deasync');
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 
@@ -41,9 +40,9 @@ export default class UtilsModule extends OxygenModule {
      * @function pause
      * @param {Number} ms - Milliseconds to pause the execution for.
      */
-    pause(ms) {
+    async pause(ms) {
         utils.assertArgumentNumberNonNegative(ms, 'ms');
-        deasync.sleep(ms);
+        await libUtils.sleep(ms);
     }
 
     /**

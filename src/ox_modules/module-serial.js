@@ -13,10 +13,10 @@
  */
 import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
+import libUtils from '../lib/util';
 
 module.exports = function() {
     var SerialPort = require('serialport');
-    var deasync = require('deasync');
     var utils = require('./utils');
 
     var serialPort;
@@ -93,27 +93,28 @@ module.exports = function() {
      * @param {String} pattern - Text pattern.
      * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
      */
-    module.waitForText = function(pattern, timeout = 60000) {
+    module.waitForText = async function(pattern, timeout = 60000) {
         utils.assertArgumentNonEmptyString(pattern, 'pattern');
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
         if (stringBuffer) {
             var now = (new Date).getTime();
-            deasync.loopWhile(() => {
+            let done = false;
+            while (!done && (Date.now() - now) < timeout) {
                 var i;
                 for (i = stringBuffer.length; i >= 0; i--) {
                     if (utils.matchPattern(stringBuffer[i], pattern)) {
-                        return false;
+                        done = true;
+                        break;
                     }
                 }
 
-                if ((new Date).getTime() - now >= timeout) {
-                    throw new OxError(errHelper.errorCode.TIMEOUT);
-                }
+                await libUtils.sleep(500);
+            }
 
-                deasync.sleep(500);
-                return true;
-            });
+            if ((new Date).getTime() - now >= timeout) {
+                throw new OxError(errHelper.errorCode.TIMEOUT);
+            }
         }
     };
 

@@ -12,9 +12,9 @@
  * @description Provides methods for working with Twilio service.
  */
 import OxErrorContsructor from '../errors/OxygenError';
+import libUtils from '../lib/util';
 
 module.exports = function() {
-    const deasync = require('deasync');
     const utils = require('./utils');
     const OxError = this.OxError = OxErrorContsructor;
     const errHelper = this.errHelper = require('../errors/helper');
@@ -58,8 +58,6 @@ module.exports = function() {
         var msg;
         var now = Date.now();
         var earliestMessageDate = new Date(now - notOlderThan);
-        var msgsProcessed = false;
-
         while (!msg && (Date.now() - now) < timeout) {
             await (() => {
                 return new Promise((resolve, reject) => {
@@ -82,24 +80,23 @@ module.exports = function() {
                                 }
                             }
                         }
-                        msgsProcessed = true;
-
                         resolve();
                     });
                 });
             })();
-            deasync.loopWhile(() => !msgsProcessed);
-            deasync.sleep(800);
+            await libUtils.sleep(800);
         }
 
         if (!msg) {
             throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't get the SMS within " + timeout + 'ms.');
         }
 
-        var removed;
         if (removeOnRead) {
-            _client.messages(msg.sid).remove().then(() => { removed = true; });
-            deasync.loopWhile(() => !removed);
+            await (() => {
+                return new Promise((resolve, reject) => {
+                    _client.messages(msg.sid).remove().then(() => { resolve(); });
+                });
+            })();
         }
 
         return msg.body;
@@ -116,24 +113,28 @@ module.exports = function() {
      * twilio.init('Account Sid', 'Account Token');
      * twilio.sendSms('+1xxxxxxxxxx', '+972xxxxxxxxx', 'Hello World!');
      */
-    module.sendSms = function(from, to, message) {
+    module.sendSms = async function(from, to, message) {
         helpers.assertArgumentNonEmptyString(from, 'from');
         helpers.assertArgumentNonEmptyString(to, 'to');
         helpers.assertArgumentNonEmptyString(message, 'message');
 
         var response = null;
 
-        _client.messages.create({
-            body: message,
-            from: from,
-            to: to
-        }).then(message => {
-            response = message.sid;
-        }).catch(err => {
-            response = err;
-        });
-
-        deasync.loopWhile(() => !response);
+        await (() => {
+            return new Promise((resolve, reject) => {
+                _client.messages.create({
+                    body: message,
+                    from: from,
+                    to: to
+                }).then(message => {
+                    response = message.sid;
+                    resolve();
+                }).catch(err => {
+                    response = err;
+                    resolve();
+                });
+            });
+        })();
 
         if (response.message) {
             var msg = response.message;

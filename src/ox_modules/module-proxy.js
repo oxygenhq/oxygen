@@ -13,7 +13,7 @@
  * @description Provides methods for intercepting network traffic via mitmproxy.
  */
 
-import deasync from 'deasync';
+import libUtils from '../lib/util';
 import OxygenModule from '../core/OxygenModule';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
@@ -126,7 +126,7 @@ export default class ProxyModule extends OxygenModule {
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      * @return {Object} Network request details if the network request was found.
      */
-    waitForUrl(pattern, timeout = 60*1000) {
+    async waitForUrl(pattern, timeout = 60*1000) {
         if (!this._isInitialized) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
@@ -144,7 +144,7 @@ export default class ProxyModule extends OxygenModule {
                     return req;
                 }
             }
-            deasync.sleep(500);
+            await libUtils.sleep(500);
         }
         throw new OxError(errHelper.errorCode.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
     }
@@ -156,7 +156,7 @@ export default class ProxyModule extends OxygenModule {
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      * @return {Object} Network request details if the network request was found.
      */
-    waitFor(matcher, timeout = 60*1000) {
+    async waitFor(matcher, timeout = 60*1000) {
         if (!this._isInitialized || !this._parent) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
@@ -174,7 +174,7 @@ export default class ProxyModule extends OxygenModule {
                     return req;
                 }
             }
-            deasync.sleep(500);
+            await libUtils.sleep(500);
         }
         throw new OxError(errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher.');
     }
@@ -186,7 +186,7 @@ export default class ProxyModule extends OxygenModule {
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      * @return {Object} Network request details if the network request was found.
      */
-    assertUrl(url, timeout = 60*1000) {
+    async assertUrl(url, timeout = 60*1000) {
         if (!this._isInitialized || !this._parent) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
@@ -204,7 +204,7 @@ export default class ProxyModule extends OxygenModule {
                     return req;
                 }
             }
-            deasync.sleep(500);
+            await libUtils.sleep(500);
         }
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
     }
@@ -239,7 +239,7 @@ export default class ProxyModule extends OxygenModule {
                     break;
                 }
             }
-            !matchedReq && deasync.sleep(500);
+            !matchedReq && await libUtils.sleep(500);
         }
         if (!matchedReq) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);

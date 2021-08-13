@@ -50,7 +50,6 @@
  */
 import URL from 'url';
 import * as wdio from 'webdriverio';
-import deasync from 'deasync';
 import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
@@ -253,18 +252,15 @@ export default class MobileModule extends WebDriverModule {
             }
 
             if (provider === modUtils.provider.PERFECTO) {
-                const perfectoExecutionContext = new perfectoReporting.Perfecto.PerfectoExecutionContext({
+                const perfectoExecutionContext = await new perfectoReporting.Perfecto.PerfectoExecutionContext({
                     webdriver: {
-                        executeScript: (command, params) => {
-                            this.driver.execute(command, params);
+                        executeScript: async (command, params) => {
+                            return await this.driver.execute(command, params);
                         }
                     }
                 });
                 this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
-                this.reportingClient.testStart(name);
-
-                // avoid request abort
-                deasync.sleep(10*1000);
+                await this.reportingClient.testStart(name);
             }
         } catch (e) {
             throw errHelper.getAppiumInitError(e);
@@ -309,51 +305,14 @@ export default class MobileModule extends WebDriverModule {
             status = status.toUpperCase();
 
             if (this.driver.provider === modUtils.provider.PERFECTO) {
-                this.reportingClient.testStop({
+                await this.reportingClient.testStop({
                     status: status === 'PASSED' ?
                                 perfectoReporting.Constants.results.passed :
                                 perfectoReporting.Constants.results.failed
                 });
-                // avoid request abort
-                deasync.sleep(10*1000);
             } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
-                const requestBody = {
-                    status: status === 'PASSED' ? 'passed' : 'failed'
-                };
-
-                var result = null;
-                var options;
-
-                if (this.wdioOpts.capabilities.browserName) {
-                    options = {
-                        url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
-                        method: 'PUT',
-                        json: true,
-                        rejectUnauthorized: false,
-                        body: requestBody,
-                        'auth': {
-                            'user': this.wdioOpts.user,
-                            'pass': this.wdioOpts.key,
-                            'sendImmediately': false
-                        },
-                    };
-                } else {
-                    options = {
-                        url: `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json`,
-                        method: 'PUT',
-                        json: true,
-                        rejectUnauthorized: false,
-                        body: requestBody,
-                        'auth': {
-                            'user': this.wdioOpts.capabilities['browserstack.user'],
-                            'pass': this.wdioOpts.capabilities['browserstack.key'],
-                            'sendImmediately': false
-                        },
-                    };
-                }
-
-                request(options, (err, res, body) => { result = err || res; });
-                deasync.loopWhile(() => !result);
+                await this._sendResultStatusToBrowserstack(status);
+                await this.deleteSession();
             }
 
             try {
@@ -646,5 +605,62 @@ export default class MobileModule extends WebDriverModule {
         this.helpers.assertContext = modUtils.assertContext;
         this.helpers.contextList = modUtils.contextList;
         this.helpers.getLogTypes = modUtils.getLogTypes;
+    }
+
+    async deleteSession() {
+        try {
+            if (this.driver && this.driver.deleteSession) {
+                await this.driver.deleteSession();
+            }
+        } catch (e) {
+            this.logger.error('deleteSession error', e);
+        }
+    }
+
+    async _sendResultStatusToBrowserstack(status) {
+        return new Promise((resolve, reject) => {
+            const requestBody = {
+                status: status === 'PASSED' ? 'passed' : 'failed'
+            };
+
+            let options;
+
+            if (this.wdioOpts.capabilities.browserName) {
+                options = {
+                    url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
+                    method: 'PUT',
+                    json: true,
+                    rejectUnauthorized: false,
+                    body: requestBody,
+                    'auth': {
+                        'user': this.wdioOpts.user,
+                        'pass': this.wdioOpts.key,
+                        'sendImmediately': false
+                    },
+                };
+            } else {
+                options = {
+                    url: `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json`,
+                    method: 'PUT',
+                    json: true,
+                    rejectUnauthorized: false,
+                    body: requestBody,
+                    'auth': {
+                        'user': this.wdioOpts.capabilities['browserstack.user'],
+                        'pass': this.wdioOpts.capabilities['browserstack.key'],
+                        'sendImmediately': false
+                    },
+                };
+            }
+
+            try {
+                request(options, (err, res, body) => {
+                    resolve();
+                });
+            } catch (e) {
+                this.logger.error('Unable to send result status to Browserstack: ' + e.toString());
+                resolve();
+            }
+        });
     }
 }

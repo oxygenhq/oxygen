@@ -376,5 +376,9 @@ var self = module.exports = {
         let encrypted = cipher.update(text);
         encrypted = Buffer.concat([encrypted, cipher.final()]);
         return encrypted.toString('hex');
+    },
+
+    sleep: function(timeout) {
+        return new Promise((resolve) => setTimeout(resolve, timeout));
     }
 };

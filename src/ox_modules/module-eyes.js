@@ -16,7 +16,6 @@ import OxygenModule from '../core/OxygenModule';
 import ModuleError from '../errors/ModuleError';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
-var deasync = require('deasync');
 
 const DEFAULT_VIEWPORT = {
     width: 1440,
@@ -136,27 +135,14 @@ export default class ApplitoolsModule extends OxygenModule {
      * @param {number} [matchTimeout=-1] - The amount of time to retry matching (Milliseconds).
      * @return {boolean} A promise which is resolved when the validation is finished.
      */
-    checkWindow(name, matchTimeout) {
+    async checkWindow(name, matchTimeout) {
         if (!this._eyes) {
             return false;
         }
 
-        let done = false;
-        let result;
-
-        this._driver.call(async() => {
-            const resultPromise = this._eyes.checkWindow(name, matchTimeout);
-
-            if (resultPromise && resultPromise.then) {
-                result = await resultPromise;
-                done = true;
-            } else {
-                done = true;
-                result = resultPromise;
-            }
+        const result = await this._driver.call(async() => {
+            return await this._eyes.checkWindow(name, matchTimeout);
         });
-
-        deasync.loopWhile(() => { return !done; });
 
         if (result._asExpected) {
             return true;
