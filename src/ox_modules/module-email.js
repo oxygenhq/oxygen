@@ -19,7 +19,7 @@ var errHelper = require('../errors/helper');
 
 module.exports = function() {
     var imaps = require('imap-simple');
-
+    const simpleParser = require('mailparser').simpleParser;
     var _config;
 
     module.isInitialized = function() {
@@ -68,7 +68,7 @@ module.exports = function() {
      * @param {Number} sinceMinutes - Search for emails received since the specified amount of minutes into past.
      * @param {String|Regex} subject - Return email matching the specified subject.
      * @param {Number} timeout - Timeout (in milliseconds) for waiting for the message to arrive.
-     * @return {Object} Email body and TO, FROM, SUBJECT, DATE headers.
+     * @return {Object} Email body(possible keys: html,text,textAsHtml) and TO, FROM, SUBJECT, DATE headers.
      * @example <caption>[javascript] Usage example</caption>
      * email.init('[YOUR_EMAIL]@gmail.com', 'password', 'imap.gmail.com', 993, true, 3000);
      * var mail = email.getLastEmail(60, 'email subject', 5000);
@@ -106,13 +106,32 @@ module.exports = function() {
                     const headerPart = _.find(result.parts, { 'which': fetchOptions.bodies[0] });
                     const bodyPart = _.find(result.parts, { 'which': fetchOptions.bodies[1] });
 
+                    const id = result.attributes.uid;
+                    const idHeader = 'Imap-Id: '+id+'\r\n';
+                    const simple = await simpleParser(idHeader+bodyPart.body);
+
+                    let body;
+                    if (simple.html || simple.text || simple.textAsHtml) {
+                        // parsed success
+                        body = {
+                            html: simple.html,
+                            text: simple.text,
+                            textAsHtml: simple.textAsHtml
+                        };
+                    } else {
+                        // don't parsed
+                        body = {
+                            text: bodyPart.body
+                        };
+                    }
+
                     if (headerPart) {
                         if (
                             subject && (
                                 (subject.constructor.name === 'RegExp' && subject.test(headerPart.body.subject[0])) ||
                                 (subject === headerPart.body.subject[0])
                             )
-                         ) {
+                        ) {
                             let to = headerPart.body.to ? headerPart.body.to[0] : null;
 
                             mail = {
@@ -120,7 +139,7 @@ module.exports = function() {
                                 to: to,
                                 subject: headerPart.body.subject[0],
                                 date: headerPart.body.date[0],
-                                body: bodyPart.body
+                                body: body
                             };
                         }
                     }
