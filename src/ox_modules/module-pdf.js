@@ -16,7 +16,6 @@ import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 const path = require('path');
 var PDFParser = require('pdf2json/pdfparser');
-var deasync = require('deasync');
 
 function countRows(searchStr, rows, reverse) {
     let result = 0;
@@ -233,7 +232,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assert = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+    module.assert = async function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -244,17 +243,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         let error;
         try {
-            let ret = null;
-            assertion(pdfFilePath, text, pageNum, reverse).then(
-                result => {
-                    ret = result;
-                },
-                e => {
-                    error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
-                    ret = false;
-                }
-            );
-            deasync.loopWhile(() => typeof ret !== 'boolean');
+            const ret = await assertion(pdfFilePath, text, pageNum, reverse);
 
             if (!ret) {
                 if (message) {
@@ -284,7 +273,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assertNot = function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+    module.assertNot = async function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -295,18 +284,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         let error;
         try {
-            let ret = null;
-            assertion(pdfFilePath, text, pageNum, reverse).then(
-                result => {
-                    ret = result;
-                },
-                e => {
-                    error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message || e);
-                    ret = false;
-                }
-            );
-
-            deasync.loopWhile(() => typeof ret !== 'boolean');
+            const ret = await assertion(pdfFilePath, text, pageNum, reverse);
 
             if (ret) {
                 if (message) {
@@ -335,7 +313,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {Boolean=} reverse - Check also reverse variant of string.
      * @return {Number} Number of times the specified text was found.
      */
-    module.count = function(pdfFilePath, text, pageNum = null, reverse = false) {
+    module.count = async function(pdfFilePath, text, pageNum = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -343,19 +321,12 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
         pdfFilePath = resolvePath(pdfFilePath, options);
 
-        let actual = null;
-        count(pdfFilePath, text, pageNum, reverse).then(
-            result => {
-                actual = result;
-            },
-            error => {
-                throw new OxError(errHelper.errorCode.PDF_ERROR, error.message || error);
-            }
-        );
-
-        deasync.loopWhile(() => { return typeof actual !== 'number'; });
-
-        return actual;
+        try {
+            return await count(pdfFilePath, text, pageNum, reverse);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.PDF_ERROR, e.message || e);
+        }
     };
 
     return module;

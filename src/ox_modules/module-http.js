@@ -12,7 +12,6 @@
  * @description Provides methods for working with HTTP(S)
  */
 import request from 'request';
-const deasync = require('deasync');
 
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
@@ -101,7 +100,7 @@ export default class HttpModule extends OxygenModule {
      * var response = http.get('https://FOO.BAR');
      * log.info(response.body);
      */
-    get(url, headers) {
+    async get(url, headers) {
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
@@ -109,7 +108,7 @@ export default class HttpModule extends OxygenModule {
             method: 'GET',
             headers: headers || {}
         };
-        return this._httpRequestSync(httpOpts);
+        return await this._httpRequestSync(httpOpts);
     }
 
     /**
@@ -120,7 +119,7 @@ export default class HttpModule extends OxygenModule {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Response object.
      */
-    post(url, data, headers) {
+    async post(url, data, headers) {
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
@@ -129,7 +128,7 @@ export default class HttpModule extends OxygenModule {
             body: data,
             headers: headers || {}
         };
-        return this._httpRequestSync(httpOpts);
+        return await this._httpRequestSync(httpOpts);
     }
 
     /**
@@ -140,7 +139,7 @@ export default class HttpModule extends OxygenModule {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Response object.
      */
-    put(url, data, headers) {
+    async put(url, data, headers) {
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
@@ -149,7 +148,7 @@ export default class HttpModule extends OxygenModule {
             body: data,
             headers: headers || {}
         };
-        return this._httpRequestSync(httpOpts);
+        return await this._httpRequestSync(httpOpts);
     }
 
     /**
@@ -160,7 +159,7 @@ export default class HttpModule extends OxygenModule {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Response object.
      */
-    patch(url, data, headers) {
+    async patch(url, data, headers) {
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
@@ -169,7 +168,7 @@ export default class HttpModule extends OxygenModule {
             body: data,
             headers: headers || {}
         };
-        return this._httpRequestSync(httpOpts);
+        return await this._httpRequestSync(httpOpts);
     }
 
     /**
@@ -179,7 +178,7 @@ export default class HttpModule extends OxygenModule {
      * @param {Object=} headers - HTTP headers.
      * @return {Object} Response object.
      */
-    delete(url, headers) {
+    async delete(url, headers) {
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
@@ -187,7 +186,7 @@ export default class HttpModule extends OxygenModule {
             method: 'DELETE',
             headers: headers || {}
         };
-        return this._httpRequestSync(httpOpts);
+        return await this._httpRequestSync(httpOpts);
     }
 
     /**
@@ -332,38 +331,50 @@ export default class HttpModule extends OxygenModule {
         global._lastTransactionName = name;
     }
 
-    _httpRequestSync(httpOpts) {
+    async _httpRequestSync(httpOpts) {
         let result;
-        request(httpOpts,
-            (err, res, body) => {
-                // support for raw (without headers) content-encoding: deflate
-                // https://github.com/request/request/issues/2197
-                if (httpOpts.deflateRaw && !err) {
-                    var zlib = require('zlib');
-                    if (res.headers['content-encoding'] === 'deflate') {
-                        let decomp = zlib.createInflateRaw();
-                        decomp.write(res.body);
-                        decomp.on('data', (data) =>
-                        {
-                            res.body = data.toString();
-                            if (res.headers['content-type'] === 'application/json') {
-                                try {
-                                    res.body = JSON.parse(res.body);
-                                } catch (e) {
-                                    // if parsing fails just return the original string
+
+        await (() => {
+            return new Promise((resolve, reject) => {
+                try {
+                    request(httpOpts,
+                        (err, res, body) => {
+                            // support for raw (without headers) content-encoding: deflate
+                            // https://github.com/request/request/issues/2197
+                            if (httpOpts.deflateRaw && !err) {
+                                var zlib = require('zlib');
+                                if (res.headers['content-encoding'] === 'deflate') {
+                                    let decomp = zlib.createInflateRaw();
+                                    decomp.write(res.body);
+                                    decomp.on('data', (data) =>
+                                    {
+                                        res.body = data.toString();
+                                        if (res.headers['content-type'] === 'application/json') {
+                                            try {
+                                                res.body = JSON.parse(res.body);
+                                            } catch (e) {
+                                                // if parsing fails just return the original string
+                                            }
+                                        }
+                                        result = res;
+                                        resolve();
+                                    });
+                                } else {
+                                    result = res;
+                                    resolve();
                                 }
+                            } else {
+                                result = err || res;
+                                resolve();
                             }
-                            result = res;
-                        });
-                    } else {
-                        result = res;
-                    }
-                } else {
-                    result = err || res;
+                        }
+                    );
+                } catch (e) {
+                    reject(e);
                 }
-            }
-        );
-        deasync.loopWhile(() => !result);
+            });
+        })();
+
         // store last response to allow further assertions and validations
         this._lastResponse = result;
 

@@ -42,7 +42,6 @@
 
 /* eslint-disable quotes */
 import { harFromMessages } from 'chrome-har';
-import deasync from 'deasync';
 import URL from 'url';
 import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
@@ -233,7 +232,6 @@ export default class WebModule extends WebDriverModule {
             name = wdioOpts.capabilities['browserstack:options']['name'];
             delete wdioOpts.capabilities['browserstack:options'];
         }
-
         this.wdioOpts = wdioOpts;
 
         try {
@@ -257,10 +255,7 @@ export default class WebModule extends WebDriverModule {
                     }
                 });
                 this.reportingClient = new perfectoReporting.Perfecto.PerfectoReportingClient(perfectoExecutionContext);
-                this.reportingClient.testStart(name);
-
-                // avoid request abort
-                deasync.sleep(10*1000);
+                await this.reportingClient.testStart(name);
             }
         }
         catch (e) {
@@ -334,69 +329,19 @@ export default class WebModule extends WebDriverModule {
                     await myAccount.updateJob(username, id, body);
                     await myAccount.stopJob(username, id);
                 } else if (this.driver.provider === modUtils.provider.LAMBDATEST) {
-                    const lambdaCredentials = {
-                        username: this.wdioOpts.user,
-                        accessKey: this.wdioOpts.key
-                    };
-
-                    const sessionId = this.driver.sessionId;
-
-                    const lambdaAutomationClient = lambdaRestClient.AutomationClient(
-                        lambdaCredentials
-                    );
-
-                    const requestBody = {
-                        status_ind: status === 'PASSED' ? 'passed' : 'failed'
-                    };
-
-                    let done = false;
-
-                    lambdaAutomationClient.updateSessionById(sessionId, requestBody, () => {
-                        done = true;
-                    });
-
-                    deasync.loopWhile(() => !done);
+                    await this._sendResultStatusToLambdaTest(status);
+                    await this.deleteSession();
                 } else if (this.driver.provider === modUtils.provider.TESTINGBOT) {
-                    const sessionId = this.driver.sessionId;
-                    const tb = new TestingBot({
-                        api_key: this.wdioOpts.user,
-                        api_secret: this.wdioOpts.key
-                    });
-                    let done = false;
-                    const testData = { "test[success]" : status === 'PASSED' ? "1" : "0" };
-                    tb.updateTest(testData, sessionId, function(error, testDetails) {
-                        done = true;
-                    });
-                    deasync.loopWhile(() => !done);
+                    await this._sendResultStatusToTestingBot(status);
+                    await this.deleteSession();
                 } else if (this.driver.provider === modUtils.provider.PERFECTO) {
-                    const reportingClientTestStopRV = await this.reportingClient.testStop({
+                    await this.reportingClient.testStop({
                         status: status === 'PASSED' ?
                                     perfectoReporting.Constants.results.passed :
                                     perfectoReporting.Constants.results.failed
                     });
-                    // avoid request abort
-                    deasync.sleep(10*1000);
                 } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
-                    const requestBody = {
-                        status: status === 'PASSED' ? 'passed' : 'failed'
-                    };
-
-                    var result = null;
-                    var options = {
-                        url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
-                        method: 'PUT',
-                        json: true,
-                        rejectUnauthorized: false,
-                        body: requestBody,
-                        'auth': {
-                            'user': this.wdioOpts.user,
-                            'pass': this.wdioOpts.key,
-                            'sendImmediately': false
-                        },
-                    };
-
-                    request(options, (err, res, body) => { result = err || res; });
-                    deasync.loopWhile(() => !result);
+                    await this._sendResultStatusToBrowserstack(status);
                     await this.deleteSession();
                 }
 
@@ -811,6 +756,79 @@ export default class WebModule extends WebDriverModule {
         if (this.autoWaitForAngular) {
             await this.waitForAngular(this.autoWaitForAngularRootSelector, this.autoWaitForAngularTimeout);
         }
+    }
+
+    async _sendResultStatusToLambdaTest(status) {
+        return new Promise((resolve, reject) => {
+            const lambdaCredentials = {
+                username: this.wdioOpts.user,
+                accessKey: this.wdioOpts.key
+            };
+            const sessionId = this.driver.sessionId;
+            const lambdaAutomationClient = lambdaRestClient.AutomationClient(
+                lambdaCredentials
+            );
+            const requestBody = {
+                status_ind: status === 'PASSED' ? 'passed' : 'failed'
+            };
+            try {
+                lambdaAutomationClient.updateSessionById(sessionId, requestBody, (error) => {
+                    resolve();
+                });
+            } catch (e) {
+                this.logger.error('Unable to send result status to LambdaTest: ' + e.toString());
+                resolve();
+            }
+        });
+    }
+
+    async _sendResultStatusToTestingBot(status) {
+        return new Promise((resolve, reject) => {
+            const sessionId = this.driver.sessionId;
+            const tb = new TestingBot({
+                api_key: this.wdioOpts.user,
+                api_secret: this.wdioOpts.key
+            });
+            const testData = { "test[success]" : status === 'PASSED' ? "1" : "0" };
+            try {
+                tb.updateTest(testData, sessionId, function(error, testDetails) {
+                    resolve();
+                });
+            } catch (e) {
+                this.logger.error('Unable to send result status to TestingBot: ' + e.toString());
+                resolve();
+            }
+        });
+    }
+
+    async _sendResultStatusToBrowserstack(status) {
+        return new Promise((resolve, reject) => {
+            const requestBody = {
+                status: status === 'PASSED' ? 'passed' : 'failed'
+            };
+
+            const options = {
+                url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
+                method: 'PUT',
+                json: true,
+                rejectUnauthorized: false,
+                body: requestBody,
+                'auth': {
+                    'user': this.wdioOpts.user,
+                    'pass': this.wdioOpts.key,
+                    'sendImmediately': false
+                },
+            };
+
+            try {
+                request(options, (err, res, body) => {
+                    resolve();
+                });
+            } catch (e) {
+                this.logger.error('Unable to send result status to Browserstack: ' + e.toString());
+                resolve();
+            }
+        });
     }
 }
 

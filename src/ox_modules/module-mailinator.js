@@ -14,10 +14,10 @@
 
 import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
+import libUtils from '../lib/util';
 
 module.exports = function() {
     var request = require('request');
-    var deasync = require('deasync');
 
     const apiBase = 'https://api.mailinator.com/api';
 
@@ -30,27 +30,11 @@ module.exports = function() {
 
     var _currentTry;
 
-    // wait synchronously in a non-blocking manner
-    function wait() {
-        var isDone = false;
-        var start = new Date().getTime();
-
-        var interval = setInterval(() => {
-            var now = new Date().getTime();
-            if ((now - start) >= _retryInterval) {
-                clearInterval(interval);
-                isDone = true;
-            }
-        }, 50);
-
-        deasync.loopWhile(() => !isDone);
-    }
-
     function apiSettings() {
         return 'token=' + _token + (_privateDomain ? '&private_domain=true' : '');
     }
 
-    function invoke(url) {
+    async function invoke(url) {
         var result = null;
 
         var options = {
@@ -60,14 +44,24 @@ module.exports = function() {
             timeout: _responseTimeout
         };
 
-        request(options, (err, res, body) => { result = err || res; });
-        deasync.loopWhile(() => !result);
+        await (() => {
+            return new Promise((resolve, reject) => {
+                try {
+                    request(options, (err, res, body) => {
+                        result = err || res;
+                        resolve();
+                    });
+                } catch (e) {
+                    reject(e);
+                }
+            });
+        })();
 
         // retry
         if (_currentTry < _retries && (!result.statusCode || result.statusCode >= 500)) {
             _currentTry++;
-            wait();
-            result = invoke(url);
+            await libUtils.sleep(_retryInterval);
+            result = await invoke(url);
         }
 
         if (result.statusCode !== 200) {
@@ -114,9 +108,9 @@ module.exports = function() {
      *   ]
      * }
      */
-    module.list = function(inbox) {
+    module.list = async function(inbox) {
         _currentTry = 0;
-        return invoke(apiBase + '/inbox?' + apiSettings() + (inbox ? '&to=' + inbox : ''));
+        return await invoke(apiBase + '/inbox?' + apiSettings() + (inbox ? '&to=' + inbox : ''));
     };
 
     /**
@@ -152,9 +146,9 @@ module.exports = function() {
      *   "apiEmailFetchesLeft":1999
      * }
      */
-    module.fetch = function(id) {
+    module.fetch = async function(id) {
         _currentTry = 0;
-        return invoke(apiBase + '/email?' + apiSettings() + '&id=' + id);
+        return await invoke(apiBase + '/email?' + apiSettings() + '&id=' + id);
     };
 
     /**
@@ -189,9 +183,9 @@ module.exports = function() {
      *   "status": "ok"
      * }
      */
-    module.delete = function(id) {
+    module.delete = async function(id) {
         _currentTry = 0;
-        return invoke(apiBase + '/delete?' + apiSettings() + '&id=' + id);
+        return await invoke(apiBase + '/delete?' + apiSettings() + '&id=' + id);
     };
 
     return module;

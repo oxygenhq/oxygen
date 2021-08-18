@@ -1,7 +1,6 @@
 import { fork, execSync, exec } from 'child_process';
 import { EventEmitter } from 'events';
 import { defer } from 'when';
-import deasync from 'deasync';
 
 // setup logger
 import logger from '../lib/logger';
@@ -62,20 +61,24 @@ export default class WorkerProcess extends EventEmitter {
                 let globalNpmModulesPath;
 
                 if (process.platform === 'darwin') {
-                    let done = false;
-
-                    exec('npm root -g', {cwd: process.cwd()}, function (err, stdout) {
-                        if (err) {
-                            console.log('darwin npm root error:', err);
-                            done = true;
-                        }
-                        if (stdout && stdout.toString) {
-                            globalNpmModulesPath = stdout.toString().trim();
-                        }
-                        done = true;
-                    });
-
-                    deasync.loopWhile(() => !done);
+                    await (() => {
+                        return new Promise((resolve, reject) => {
+                            try {
+                                exec('npm root -g', {cwd: process.cwd()}, function (err, stdout) {
+                                    if (err) {
+                                        console.log('darwin npm root error:', err);
+                                        resolve();
+                                    }
+                                    if (stdout && stdout.toString) {
+                                        globalNpmModulesPath = stdout.toString().trim();
+                                        resolve();
+                                    }
+                                });
+                            } catch (e) {
+                                reject(e);
+                            }
+                        });
+                    })();
                 } else {
                     const execResult = execSync('npm root -g');
 

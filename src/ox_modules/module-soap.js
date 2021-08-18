@@ -16,7 +16,6 @@ import OxError from '../errors/OxygenError';
 var errHelper = require('../errors/helper');
 
 module.exports = function() {
-    var deasync = require('deasync');
     var soap = require('soap');
     var auth = null;
     var proxyOptions = {};
@@ -89,54 +88,61 @@ module.exports = function() {
      * var result = soap.get(serviceUrl, 'NumberToWords', { 'ubiNum': 2019 });
      * log.info(result.NumberToWordsResult);
      */
-    module.get = function(wsdlUrl, method, args) {
+    module.get = async function(wsdlUrl, method, args) {
         var resultClient = null;
         var result = null;
 
-        soap.createClient(wsdlUrl, { wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
-            if (client === undefined) {
-                var msg =  'Error creating client';
-                if (err.message) {
-                    var soapMsg = err.message;
-                    var firstBreakIndex = soapMsg.indexOf('\n');
-                    if (firstBreakIndex > 0) {
-                        soapMsg = err.message.substring(0, firstBreakIndex);
+        await (() => {
+            return new Promise((resolve, reject) => {
+                soap.createClient(wsdlUrl, { wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
+                    if (client === undefined) {
+                        var msg =  'Error creating client';
+                        if (err.message) {
+                            var soapMsg = err.message;
+                            var firstBreakIndex = soapMsg.indexOf('\n');
+                            if (firstBreakIndex > 0) {
+                                soapMsg = err.message.substring(0, firstBreakIndex);
+                            }
+                            msg += ': ' + soapMsg;
+                        } else if (err && (typeof err === 'string' || err instanceof String)) {
+                            msg += ': ' + err;
+                        }
+                        resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
+                        resolve();
+                        return;
                     }
-                    msg += ': ' + soapMsg;
-                } else if (err && (typeof err === 'string' || err instanceof String)) {
-                    msg += ': ' + err;
-                }
-                resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
-                return;
-            }
 
-            resultClient = client;
+                    resultClient = client;
 
-            if (typeof client[method] !== 'function') {
-                resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, 'No method named ' + method + ' was found.');
-                return;
-            }
+                    if (typeof client[method] !== 'function') {
+                        resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, 'No method named ' + method + ' was found.');
+                        resolve();
+                        return;
+                    }
 
-            if (auth) {
-                client.setSecurity(auth);
-            }
+                    if (auth) {
+                        client.setSecurity(auth);
+                    }
 
-            client[method](args, (err, res) => {
-                if (err !== null) {
-                    result = new OxError(errHelper.errorCode.SOAP_ERROR, err.root.Envelope.Body.Fault.faultstring);
-                    return;
-                }
+                    client[method](args, (err, res) => {
+                        if (err !== null) {
+                            result = new OxError(errHelper.errorCode.SOAP_ERROR, err.root.Envelope.Body.Fault.faultstring);
+                            resolve();
+                            return;
+                        }
 
-                result = res;
-            }, { ...options, ...proxyOptions });
-        });
+                        result = res;
+                        resolve();
+                        return;
+                    }, { ...options, ...proxyOptions });
+                });
+            });
+        })();
 
-        deasync.loopWhile(() => !resultClient);
         if (resultClient.type === errHelper.errorCode.SOAP_ERROR) {
             throw resultClient;
         }
 
-        deasync.loopWhile(() => !result);
         if (result.type === errHelper.errorCode.SOAP_ERROR) {
             throw result;
         }
@@ -150,34 +156,40 @@ module.exports = function() {
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
      * @return {Object} Service description.
      */
-    module.describe = function(wsdlUrl) {
+    module.describe = async function(wsdlUrl) {
         var resultClient = null;
 
-        soap.createClient(wsdlUrl,{ wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
-            if (client === undefined) {
-                var msg =  'Error creating client';
-                if (err.message) {
-                    var soapMsg = err.message;
-                    var firstBreakIndex = soapMsg.indexOf('\n');
-                    if (firstBreakIndex > 0) {
-                        soapMsg = err.message.substring(0, firstBreakIndex);
+        await (() => {
+            return new Promise((resolve, reject) => {
+                soap.createClient(wsdlUrl,{ wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
+                    if (client === undefined) {
+                        var msg =  'Error creating client';
+                        if (err.message) {
+                            var soapMsg = err.message;
+                            var firstBreakIndex = soapMsg.indexOf('\n');
+                            if (firstBreakIndex > 0) {
+                                soapMsg = err.message.substring(0, firstBreakIndex);
+                            }
+                            msg += ': ' + soapMsg;
+                        } else if (err && (typeof err === 'string' || err instanceof String)) {
+                            msg += ': ' + err;
+                        }
+                        resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
+                        resolve();
+                        return;
                     }
-                    msg += ': ' + soapMsg;
-                } else if (err && (typeof err === 'string' || err instanceof String)) {
-                    msg += ': ' + err;
-                }
-                resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
-                return;
-            }
 
-            if (auth) {
-                client.setSecurity(auth);
-            }
+                    if (auth) {
+                        client.setSecurity(auth);
+                    }
 
-            resultClient = client.describe();
-        });
+                    resultClient = client.describe();
+                    resolve();
+                    return;
+                });
+            });
+        })();
 
-        deasync.loopWhile(() => !resultClient);
         if (resultClient.type === errHelper.errorCode.SOAP_ERROR) {
             throw resultClient;
         }
