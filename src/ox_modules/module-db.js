@@ -40,7 +40,7 @@ module.exports = function() {
             } catch (e) {
                 // could happen only on unix due to missing unixodbc binaries
                 const ModuleUnavailableError = require('../errors/ModuleUnavailableError');
-                throw new ModuleUnavailableError('`unixodbc` binaries not installed');
+                throw new ModuleUnavailableError('Unable to load DB module. '+e.message);
             }
 
             connection = await db.connect(this.connString);
