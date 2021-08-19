@@ -49,7 +49,7 @@ export default class HttpModule extends OxygenModule {
 
     /**
      * @summary Sets user defined HTTP options (such as proxy, gzip and etc.)
-     * @function options
+     * @function setOptions
      * @param {Object} opts - HTTP request options object, see [Request Options](https://github.com/request/request#requestoptions-callback). 
      * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
      */
