@@ -548,7 +548,8 @@ export default class Oxygen extends OxygenEvents {
         }
 
         // dectypt arguments
-        const decryptedArgs = this._getDecryptedArgsForApply(cmdArgs, moduleName);
+        let decryptedArgs = this._getDecryptedArgsForApply(cmdArgs, moduleName);
+        decryptedArgs = this._populateParametersValue(decryptedArgs);
 
         // replace parameters in method arguments with corresponding values
         cmdArgs = this._populateParametersValue(cmdArgs);
