@@ -7,10 +7,12 @@
  * (at your option) any later version.
  */
 
+import oxutil from '../lib/util';
+
 module.exports = function () {
     return {
         name: null,
-        id: null,
+        id: oxutil.generateUniqueId(),
         format: null,
         content: null,
         iterationCount: 1,

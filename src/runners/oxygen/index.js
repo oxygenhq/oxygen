@@ -16,7 +16,7 @@ import { EventEmitter } from 'events';
 import _  from 'lodash';
 import { defer } from 'when';
 import path from 'path';
-
+import async from 'async';
 import TestSuiteResult from '../../model/suite-result';
 import TestCaseResult from '../../model/case-result';
 import TestResult from '../../model/test-result';
@@ -388,6 +388,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _runSuite(suite) {
+        let parallel = true;
         if (!suite) {
             log.error('suite is null in _runSuite()!!!');
         }
@@ -406,83 +407,116 @@ export default class OxygenRunner extends EventEmitter {
 
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
-        for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
-            if (showSuiteIterationsMessages) {
-                this._reporter.onIterationStart(this._id, suiteIteration, 'Suite');
+        if (parallel) {
+            const collection = [];
+            const self = this;
+            for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
+                collection.push(function(callback) {
+                    self._runSuiteIteration(suite, showSuiteIterationsMessages, suiteIteration).then((suiteIterationsResult) => {
+                        // console.log('~~suiteIterationsResult', suiteIterationsResult);
+                        suiteIterations.push(suiteIterationsResult);
+                        callback(null, suiteIterationsResult);
+                    })
+                    .catch(error => {
+                        callback(error, null);
+                    });
+                });
             }
-            const suiteResult = new TestSuiteResult();
-            suiteIterations.push(suiteResult);
-            suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
-            suiteResult.startTime = oxutil.getTimeStamp();
-            suiteResult.iterationNum = suiteIteration;
-            suiteResult.status = Status.PASSED;
-            await this._worker_callBeforeSuiteHook(suite);
-            this._reporter.onSuiteStart(this._id, suite.uri, suiteResult);
-            for (let caze of suite.cases) {
-                // ignore cases with missing mandatory 'path' property 
-                if (!caze.path) {
+
+            try {
+                // const parallelResults = 
+                await async.parallel(collection);
+                // console.log('~~parallelResults', JSON.stringify(parallelResults, null, 2));
+            }
+            catch (err) {
+                console.log('~~parallel err', err);
+            }
+        } else {
+            for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
+                const suiteIterationsResult = await this._runSuiteIteration(suite, showSuiteIterationsMessages, suiteIteration);
+                suiteIterations.push(suiteIterationsResult);
+            }
+        }
+        return suiteIterations;
+    }
+
+    async _runSuiteIteration(suite, showSuiteIterationsMessages, suiteIteration) {
+        if (showSuiteIterationsMessages) {
+            this._reporter.onIterationStart(this._id, suiteIteration, 'Suite');
+        }
+        const suiteResult = new TestSuiteResult();
+        // suiteIterations.push(suiteResult);
+        suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
+        suiteResult.startTime = oxutil.getTimeStamp();
+        suiteResult.iterationNum = suiteIteration;
+        suiteResult.status = Status.PASSED;
+        await this._worker_callBeforeSuiteHook(suite);
+        this._reporter.onSuiteStart(this._id, suite.uri, suiteResult);
+        for (let caze of suite.cases) {
+            // ignore cases with missing mandatory 'path' property 
+            if (!caze.path) {
+                continue;
+            }
+            if (!caze.name) {
+                caze.name = oxutil.getFileNameWithoutExt(caze.path);
+            }
+            if (!caze.iterationCount) {
+                caze.iterationCount = 1;
+            }
+            for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
+
+                let showCaseIterationsMessages = false;
+                if (caze && caze.iterationCount && caze.iterationCount > 1) {
+                    showCaseIterationsMessages = true;
+                }
+                if (showCaseIterationsMessages) {
+                    this._reporter.onIterationStart(this._id, caseIteration, 'Case');
+                }
+                let reRunCount = 0;
+                let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false);
+                if (!caseResult) {
                     continue;
                 }
-                if (!caze.name) {
-                    caze.name = oxutil.getFileNameWithoutExt(caze.path);
-                }
-                if (!caze.iterationCount) {
-                    caze.iterationCount = 1;
-                }
-                for (let caseIteration=1; caseIteration <= caze.iterationCount; caseIteration++) {
 
-                    let showCaseIterationsMessages = false;
-                    if (caze && caze.iterationCount && caze.iterationCount > 1) {
-                        showCaseIterationsMessages = true;
-                    }
-                    if (showCaseIterationsMessages) {
-                        this._reporter.onIterationStart(this._id, caseIteration, 'Case');
-                    }
-                    let reRunCount = 0;
-                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false);
+                if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
+                    reRunCount = 1;
+                    // failed on canceled status not close browser window
+                    await (this._worker && this._worker_DisposeModules('passed'));
+                    caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true);
+
                     if (!caseResult) {
                         continue;
                     }
+                }
+                caseResult.reRunCount = reRunCount;
+                if (showCaseIterationsMessages) {
+                    this._reporter.onIterationEnd(this._id, caseResult, 'Case');
+                }
+                await this._worker_callAfterCaseHook(caze, caseResult);
+                this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+                if (typeof this._options.autoDispose !== 'boolean' || this._options.autoDispose === true) {
+                    await (this._worker && this._worker_DisposeModules(caseResult.status));
+                }
 
-                    if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
-                        reRunCount = 1;
-                        // failed on canceled status not close browser window
-                        await (this._worker && this._worker_DisposeModules('passed'));
-                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true);
-
-                        if (!caseResult) {
-                            continue;
-                        }
-                    }
-                    caseResult.reRunCount = reRunCount;
-                    if (showCaseIterationsMessages) {
-                        this._reporter.onIterationEnd(this._id, caseResult, 'Case');
-                    }
-                    await this._worker_callAfterCaseHook(caze, caseResult);
-                    this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
-                    if (typeof this._options.autoDispose !== 'boolean' || this._options.autoDispose === true) {
-                        await (this._worker && this._worker_DisposeModules(caseResult.status));
-                    }
-
-                    suiteResult.cases.push(caseResult);
-                    // if test case iteration has failed, then mark the entire test case as failed, 
-                    // stop iterating over it and move to the next test case
-                    if (caseResult.status === Status.FAILED) {
-                        suiteResult.status = Status.FAILED;
-                    }
+                suiteResult.cases.push(caseResult);
+                // if test case iteration has failed, then mark the entire test case as failed, 
+                // stop iterating over it and move to the next test case
+                if (caseResult.status === Status.FAILED) {
+                    suiteResult.status = Status.FAILED;
                 }
             }
-            suiteResult.endTime = oxutil.getTimeStamp();
-            suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
-
-            if (showSuiteIterationsMessages) {
-                this._reporter.onIterationEnd(this._id, suiteResult, 'Suite');
-            }
-
-            await this._worker_callAfterSuiteHook(suite, suiteResult);
-            this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult);
         }
-        return suiteIterations;
+        suiteResult.endTime = oxutil.getTimeStamp();
+        suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
+
+        if (showSuiteIterationsMessages) {
+            this._reporter.onIterationEnd(this._id, suiteResult, 'Suite');
+        }
+
+        await this._worker_callAfterSuiteHook(suite, suiteResult);
+        this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult);
+
+        return suiteResult;
     }
 
     async _runCase(suite, caze, suiteIteration, caseIteration, reRun = false) {
@@ -590,16 +624,18 @@ export default class OxygenRunner extends EventEmitter {
                 vars: this._vars,
                 test: {
                     case: {
+                        caseId: caze.id,
                         name: caze.name,
                         iteration: caseIteration
                     },
                     suite: {
+                        suiteId: suite.id,
                         name: suite.name,
                         iteration: suiteIteration
                     }
                 }
             },
-            poFile: this._options.po || null,
+            poFile: this._options.po || null
         });
     }
 

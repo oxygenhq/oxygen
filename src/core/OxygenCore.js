@@ -202,9 +202,10 @@ export default class Oxygen extends OxygenEvents {
     }
 
     resetResults() {
-        this.resultStore.steps = [];
-        this.resultStore.logs = [];
-        this.har = null;
+        console.log('~~rs reset results TODO');
+        // this.resultStore.steps = [];
+        // this.resultStore.logs = [];
+        // this.har = null;
     }
 
     async onBeforeCase(context) {
@@ -356,6 +357,7 @@ export default class Oxygen extends OxygenEvents {
             }
         }
     }
+
     _loadService(serviceName, servicePath) {
         let ServiceClass = require(servicePath);
         // ES6 class will be under 'default' property
@@ -627,6 +629,14 @@ export default class Oxygen extends OxygenEvents {
             this._waitStepResultList.splice(index, 1);
 
             //stepResult.location = cmdLocation;
+
+            // console.log('~~cc globalThis', globalThis);
+            // console.log('~~cc globalThis.suiteIteration', globalThis.suiteIteration);
+
+            // console.log('~~this.ctx.test', this.ctx.test);
+            // console.log('~~this.suiteAndCaseInfo', this.suiteAndCaseInfo);
+            // console.log('~~stepResult', stepResult);
+            stepResult.contextTest = this.ctx.test;
 
             this.resultStore.steps.push(stepResult);
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);

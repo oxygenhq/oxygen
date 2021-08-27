@@ -10,6 +10,7 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
+import _  from 'lodash';
 const Fiber = require('fibers');
 const path = require('path');
 const { EventEmitter } = require('events');
@@ -58,7 +59,13 @@ export default class OxygenWorker extends EventEmitter {
         }
     }
 
-    async run({ scriptPath, context, poFile = null }) {
+    async run(input) {
+
+        // console.log('~~input', input);
+
+        const { context, poFile = null } = input;
+        let scriptPath = input.scriptPath;
+
         // assign up to date context to Oxygen Core to reflect new parameters and other context data
         if (!this._oxygen) {
             throw Error ('Oxygen is not initialized');
@@ -128,6 +135,7 @@ export default class OxygenWorker extends EventEmitter {
         }
         oxContext.vars = global.vars;
 
+        resultStore = filterResultStore(resultStore, context.test);
         return { error, moduleCaps, resultStore, context: oxContext };
     }
 
@@ -232,3 +240,20 @@ export default class OxygenWorker extends EventEmitter {
         }
     }
 }
+
+const filterResultStore = (resultStore, contextTest) => {
+
+    if (
+        resultStore &&
+        resultStore.steps &&
+        Array.isArray(resultStore.steps) &&
+        resultStore.steps.length > 0
+    ) {
+        resultStore.steps = resultStore.steps.filter((item) => {
+            const isEqual = _.isEqual(item.contextTest, contextTest);
+            return isEqual;
+        });
+    }
+
+    return resultStore;
+};

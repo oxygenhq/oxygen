@@ -6,11 +6,12 @@
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
  */
+import oxutil from '../lib/util';
 
 module.exports = function () {
     return {
         name: null,
-        id: null,
+        id: oxutil.generateUniqueId(),
         iterationCount: 1,
         cases: [],
         paramManager: null,

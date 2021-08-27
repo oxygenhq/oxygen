@@ -94,7 +94,7 @@ var self = module.exports = {
 
         var suite = new require('../model/testsuite.js')();
         suite.name = testcase.name;
-        suite.id = testcase.id;
+        // suite.id = testcase.id;
         suite.iterationCount = iterationCount;
         suite.cases.push(testcase);
         if (testcase.reopenSession) {
