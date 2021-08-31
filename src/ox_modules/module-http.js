@@ -11,8 +11,7 @@
  * @name http
  * @description Provides methods for working with HTTP(S)
  */
-import request from 'request';
-
+import got from 'got';
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
@@ -20,11 +19,23 @@ import modUtils from './utils';
 
 const MODULE_NAME = 'http';
 const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
+const DAFAULT_HTTP2 = false;
 const DEFAULT_HTTP_OPTIONS = {
-    json: true,
-    gzip: true,
-    timeout: RESPONSE_TIMEOUT,
-    rejectUnauthorized: false
+    decompress: true,
+    responseType: 'json',
+    timeout: {
+        lookup: 100,
+        connect: 50,
+        secureConnect: 50,
+        socket: 10000,
+        send: 10000,
+        response: RESPONSE_TIMEOUT
+    },
+    http2: DAFAULT_HTTP2,
+    https: {
+        rejectUnauthorized: false
+    },
+    dnsLookupIpVersion: 'ipv4'
 };
 
 export default class HttpModule extends OxygenModule {
@@ -48,16 +59,15 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
-     * @summary Sets user defined HTTP options (such as proxy, gzip and etc.)
+     * @summary Sets user defined HTTP options (such as proxy, decompress and etc.)
      * @function setOptions
-     * @param {Object} opts - HTTP request options object, see [Request Options](https://github.com/request/request#requestoptions-callback). 
+     * @param {Object} opts - HTTP request options object, see [Request Options](https://github.com/sindresorhus/got/blob/main/documentation/2-options.md). 
      * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
      */
     setOptions(opts) {
         this._userHttpOptions = opts;
         if (opts.deflateRaw) {
-            this._userHttpOptions.encoding = null;
-            this._userHttpOptions.gzip = false;     // gzip=true in default options so we override it
+            this._userHttpOptions.decompress = false;     // decompress=true in default options so we override it
         }
     }
 
@@ -334,46 +344,32 @@ export default class HttpModule extends OxygenModule {
     async _httpRequestSync(httpOpts) {
         let result;
 
-        await (() => {
-            return new Promise((resolve, reject) => {
-                try {
-                    request(httpOpts,
-                        (err, res, body) => {
-                            // support for raw (without headers) content-encoding: deflate
-                            // https://github.com/request/request/issues/2197
-                            if (httpOpts.deflateRaw && !err) {
-                                var zlib = require('zlib');
-                                if (res.headers['content-encoding'] === 'deflate') {
-                                    let decomp = zlib.createInflateRaw();
-                                    decomp.write(res.body);
-                                    decomp.on('data', (data) =>
-                                    {
-                                        res.body = data.toString();
-                                        if (res.headers['content-type'] === 'application/json') {
-                                            try {
-                                                res.body = JSON.parse(res.body);
-                                            } catch (e) {
-                                                // if parsing fails just return the original string
-                                            }
-                                        }
-                                        result = res;
-                                        resolve();
-                                    });
-                                } else {
-                                    result = res;
-                                    resolve();
+        try {
+            result = await got(httpOpts);
+            if (httpOpts.deflateRaw && result.headers['content-encoding'] === 'deflate') {
+                const zlib = require('zlib');
+                const decomp = zlib.createInflateRaw();
+                decomp.write(result.body);
+                await (() => {
+                    return new Promise((resolve, reject) => {
+                        decomp.on('data', (data) => {
+                            result.body = data.toString();
+                            if (result.headers['content-type'] === 'application/json') {
+                                try {
+                                    result.body = JSON.parse(result.body);
+                                } catch (e) {
+                                    // if parsing fails just return the original string
                                 }
-                            } else {
-                                result = err || res;
-                                resolve();
                             }
-                        }
-                    );
-                } catch (e) {
-                    reject(e);
-                }
-            });
-        })();
+                            resolve();
+                        });
+                    });
+                })();
+            }
+
+        } catch (e) {
+            result = e;
+        }
 
         // store last response to allow further assertions and validations
         this._lastResponse = result;
