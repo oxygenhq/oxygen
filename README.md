@@ -28,6 +28,25 @@ npm install -g oxygen-cli
 Debian/Ubuntu - `sudo apt-get install unixodbc unixodbc-dev`  
 RedHat/CentOS - `sudo dnf install unixODBC unixODBC-devel`
 
+*getDns
+```shell
+sudo apt install libunbound-dev libidn2-dev libssl-dev libevent-dev libuv1-dev libev-dev check
+
+git clone 'https://github.com/getdnsapi/getdns.git'
+
+cd getdns
+
+mkdir build
+
+cd build
+
+cmake ..
+
+make
+
+sudo apt install libgetdns-dev
+```
+
 #### OS X
 * [Optional.  Required for DB support] unixodbc binaries and development libraries: `brew install unixodbc`
 
