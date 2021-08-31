@@ -20,14 +20,12 @@
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    await this.helpers.setTimeoutImplicit(0);
-
     var el;
     if (locator && locator.constructor && locator.constructor.name === 'Element') {
         el = locator;
     } else {
         locator = await this.helpers.getWdioLocator(locator);
-        el = await this.driver.$(locator);
+        el = await this.helpers.getElement(locator, false, timeout);
     }
 
     if (el.error && el.error.error === 'no such element') {
@@ -38,7 +36,6 @@ module.exports = async function(locator, timeout) {
     try {
         await el.waitForExist({timeout: (!timeout ? this.waitForTimeout : timeout), reverse: true});
     } catch (e) {
-
         await this.helpers.restoreTimeoutImplicit();
         if (e.message && e.message.includes('still existing')) {
             throw new this.OxError(this.errHelper.errorCode.ELEMENT_STILL_EXISTS);
