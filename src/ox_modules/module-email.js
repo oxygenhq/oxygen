@@ -68,11 +68,31 @@ module.exports = function() {
      * @param {Number} sinceMinutes - Search for emails received since the specified amount of minutes into past.
      * @param {String|Regex} subject - Return email matching the specified subject.
      * @param {Number} timeout - Timeout (in milliseconds) for waiting for the message to arrive.
-     * @return {Object} Email body(possible keys: html,text,textAsHtml) and TO, FROM, SUBJECT, DATE headers.
+     * @return {Object} Email body(possible keys: html,text,textAsHtml), attachments(every attachment have filename<String> and data<Buffer>) and TO, FROM, SUBJECT, DATE headers.
      * @example <caption>[javascript] Usage example</caption>
      * email.init('[YOUR_EMAIL]@gmail.com', 'password', 'imap.gmail.com', 993, true, 3000);
      * var mail = email.getLastEmail(60, 'email subject', 5000);
      * log.info(mail);
+     * 
+     * if(r.attachments && r.attachments.length > 0){
+     * 	const fs = require('fs');
+     * 	r.attachments.map((attachment) => {
+     * 		let fileDescriptor;
+     * 		try{
+     * 			fileDescriptor = fs.openSync(attachment.filename, 'w');
+     * 		} catch(e) {
+     * 			throw 'could not open file: ' + e;
+     * 		}
+     * 		
+     * 		try{
+     * 			fs.writeFileSync(fileDescriptor, attachment.data);
+     * 		} catch(e) {
+     * 			throw 'error writing file: ' + e;
+     * 		}
+     * 		
+     * 		fs.closeSync(fileDescriptor);
+     * 	});
+     * }
      */
     module.getLastEmail = async function(sinceMinutes, subject, timeout) {
         utils.assertArgumentNumberNonNegative(sinceMinutes, 'sinceMinutes');
@@ -109,6 +129,18 @@ module.exports = function() {
                     const id = result.attributes.uid;
                     const idHeader = 'Imap-Id: '+id+'\r\n';
                     const simple = await simpleParser(idHeader+bodyPart.body);
+                    const attachments = [];
+                    const parts = imaps.getParts(result.attributes.struct);
+
+                    for (const part of parts) {
+                        if (part.disposition && part.disposition.type.toUpperCase() === 'ATTACHMENT') {
+                            const partData = await connection.getPartData(result, part);
+                            attachments.push({
+                                filename: part.disposition.params.filename,
+                                data: partData
+                            });
+                        }
+                    }
 
                     let body;
                     if (simple.html || simple.text || simple.textAsHtml) {
@@ -139,7 +171,8 @@ module.exports = function() {
                                 to: to,
                                 subject: headerPart.body.subject[0],
                                 date: headerPart.body.date[0],
-                                body: body
+                                body: body,
+                                attachments: attachments
                             };
                         }
                     }

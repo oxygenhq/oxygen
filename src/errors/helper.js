@@ -163,7 +163,7 @@ module.exports = {
             return new OxError(ERROR_CODES.CHROMEDRIVER_ERROR, extractOriginalError(err.message));
         }
         // handle various types of 'Original error'
-        else if (err.message.includes(ORIGINAL_ERROR_MESSAGE)) {
+        else if (err.message && err.message.includes(ORIGINAL_ERROR_MESSAGE)) {
             return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
         }
         // invalid URL in open command
@@ -215,9 +215,9 @@ module.exports = {
         else if (err.message && err.message.includes('Timeout awaiting \'request\'')) {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT ,  err.message);
         }
-        else if (err && err.message.includes('socket hang up')) {
+        else if (err && err.message && err.message.includes('socket hang up')) {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
-        } else if (err && err.message.includes('Timed out receiving message from rendere')) {
+        } else if (err && err.message && err.message.includes('Timed out receiving message from rendere')) {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
         }
 
