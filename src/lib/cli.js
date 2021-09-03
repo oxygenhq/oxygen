@@ -9,6 +9,7 @@
  */
 import * as cliutil from './cli-util';
 import Launcher from './launcher';
+import ParallelLauncher from './parallel-launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
 
 process.on('SIGINT', handleSigInt);
@@ -80,7 +81,7 @@ async function prepareAndStartTheTest(options) {
     // start launcher
     try {
         const reporter = new ReportAggregator(options);
-        const launcher = new Launcher(options, reporter);
+        const launcher = options.parallel ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();

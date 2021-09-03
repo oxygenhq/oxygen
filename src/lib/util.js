@@ -22,6 +22,7 @@ const algorithm = 'aes-192-cbc';
 
 import OxygenError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
+import ParameterManager from './param-manager';
 
 function DecryptResult(result) {
     const decryptResult = result;
@@ -56,10 +57,10 @@ var self = module.exports = {
         var suite = new require('../model/testsuite.js')();
         suite.id = null;
         suite.name = suiteDef.name;
-        suite.id = suiteDef.id;
+        suite.id = suiteDef.id || null;
         suite.iterationCount = suiteDef.iterations || testConfig.iterations || iterationCount;
         const suiteFilePath = suiteDef.path || path.join(testConfig.target.cwd, 'suites', `${suiteDef.name}.json`);
-        suite.paramManager = await self.getParameterManager(suiteFilePath, testConfig.parameters, testConfig.target.cwd);
+        suite.paramManager = await self.getParameterManager(suiteFilePath, suiteDef.parameters || testConfig.parameters, testConfig.target.cwd);
         if (suite.paramManager && suite.paramManager.getMode() == 'all') {
             suite.iterationCount = suite.paramManager.rows;
         }
@@ -68,7 +69,8 @@ var self = module.exports = {
         suite.options = testConfig.options || null;
         suite.parallel = suiteDef.parallel || testConfig.parallel || testConfig.concurrency || 1;
         // initialize each test case
-        suiteDef.cases.forEach(caseDef => {
+        for (const caseDef of suiteDef.cases) {
+        //suiteDef.cases.forEach(caseDef => async {
             // initialize testcase object
             const tc = new require('../model/testcase.js')();
             if (caseDef.name)
@@ -78,8 +80,15 @@ var self = module.exports = {
             tc.path = self.resolvePath(caseDef.path, testConfig.target.cwd);
             tc.format = 'js';
             tc.iterationCount = caseDef.iterations || 1;
+            // allow to have an individual parameter file per each test case
+            if (caseDef.parameters) {
+                tc.paramManager = await self.getParameterManager(tc.path, caseDef.parameters, testConfig.target.cwd);
+                if (tc.paramManager && tc.paramManager.getMode() == 'all') {
+                    tc.iterationCount = tc.paramManager.rows;
+                }
+            }            
             suite.cases.push(tc);
-        });
+        }
         return suite;
     },
 
@@ -110,14 +119,21 @@ var self = module.exports = {
     },
 
     getParameterManager: async function(mainFilePath, paramOpts = null, cwd = null, autoSearch = false) {
-        let paramFilePath = paramOpts && paramOpts.file ? paramOpts.file : null;
-        let paramMode = paramOpts && paramOpts.mode ? paramOpts.mode : 'seq';
+        const paramFilePath = paramOpts && paramOpts.file ? paramOpts.file : null;
+        const paramMode = paramOpts && paramOpts.mode ? paramOpts.mode : 'seq';
+        const values = paramOpts.values || null;
 
         if (paramFilePath && cwd && !path.isAbsolute(paramFilePath)) {
             paramFilePath = path.join(cwd, paramFilePath);
         }
 
-        return await self.loadParameterManager(mainFilePath, paramFilePath, paramMode, autoSearch);
+        if (paramFilePath) {
+            return await self.loadParameterManagerFromFile(mainFilePath, paramFilePath, paramMode, autoSearch);
+        }
+        else if (values) {
+            return await self.loadParameterManagerFromValues(values, paramMode);
+        }
+        return null;        
     },
 
     generateTestSuiteFromJsonFile: async function (filePath, paramFile, paramMode = null, options = {}) {
@@ -140,7 +156,7 @@ var self = module.exports = {
         return filePathNoExt;
     },
 
-    loadParameterManager: async function(mainFile, paramFile, paramMode, autoSearch = false) {
+    loadParameterManagerFromFile: async function(mainFile, paramFile, paramMode, autoSearch = false) {
         var paramManager = null;
         // if param file is not specified, then check if JS file is coming in pair with a parameter file 
         // (currently supporting CSV or TXT)
@@ -162,11 +178,15 @@ var self = module.exports = {
             }
         }
         if (paramFile) {
-            paramManager = new require('./param-manager')(paramFile, paramMode || 'sequential');
+            paramManager = new ParameterManager({ paramFile, paramMode: paramMode || 'sequential' });
             await paramManager.init();
             return paramManager;
         }
         return null;
+    },
+
+    loadParameterManagerFromValues: async function(values, paramMode) {
+        return new ParameterManager({ values, paramMode });
     },
 
     resolvePath: function(pathToResolve, baseFolder) {

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-present CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -7,24 +7,44 @@
  * (at your option) any later version.
  */
 import OxError from '../errors/OxygenError';
-module.exports = function (filePath, mode, fileType /*optional*/) {
-    var defer = require('when').defer;
-    var path = require('path');
-    var ExcelReader = require('./param-reader-excel');
-    var CsvReader = require('./param-reader-csv');
-    var JsonReader = require('./param-reader-json');
-    var errHelper = require('../errors/helper');
-    var module = {};
-    var _whenInitialized = defer();
 
-    module.init = function() {
-        var ext = path.extname(filePath);
+const defer = require('when').defer;
+const path = require('path');
+const ExcelReader = require('./param-reader-excel');
+const CsvReader = require('./param-reader-csv');
+const JsonReader = require('./param-reader-json');
+const errHelper = require('../errors/helper');
 
-        if (fileType) {
-            ext = fileType;
+const DEFAULT_MODE = 'seq';
+
+export default class ParameterManager {
+    constructor({ filePath = null, fileType = null, mode = DEFAULT_MODE, values = null}) {
+        this.mode = mode || DEFAULT_MODE;
+        this.filePath = filePath;
+        this.fileType = fileType;
+        this.mode = mode;
+        this.table = null;
+        this.currentRow = null;
+        this.prevRow = null;
+        // if values were provided, initialize manager with pre-defined table
+        if (values && Array.isArray(values)) {
+            this.table = values;
+            // initialize currentRow according with parameter reading mode (random or sequential)
+            this.currentRow = this.mode === 'random' ? random(0, this.table.length) : 0;
         }
-        var reader = null;
-        var self = this;
+        
+    }
+
+    async init() {
+        if (!this.filePath) {
+            return;
+        }
+        let ext = path.extname(this.filePath);
+
+        if (this.fileType) {
+            ext = this.fileType;
+        }
+        let reader = null;
         // choose the right converter based on either xls or xlsx file extension
         if (ext === '.xlsx' || ext === '.xls') {
             reader = new ExcelReader();
@@ -36,37 +56,28 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
             reader = new JsonReader();
         }
         else {
-            _whenInitialized.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Unsupported parameters file type: ' + ext));
-            return _whenInitialized.promise;
+            new OxError(errHelper.errorCode.PARAMETERS_ERROR, `Unsupported parameters file type: ${ext}`);
+            return;
         }
 
-        this.mode = mode;
-
-        reader.read(filePath, fileType || null)
-            .then(function(result) {
-                self.table = result;
-                // initialize currentRow according with parameter reading mode (random or sequential)
-                self.currentRow = self.mode === 'random' ? random(0, self.table.length) : 0;
-                _whenInitialized.resolve(null);
-            })
-            .catch(function(err) {
-                _whenInitialized.reject(
-                    new OxError(
-                        errHelper.errorCode.PARAMETERS_ERROR,
-                        `${errHelper.errorCode.PARAMETERS_ERROR}: Unable to load parameters file. 
-${err.message}`
-                    )
-                );
-            });
-
-        return _whenInitialized.promise;
-    };
-
-    module.getMode = function() {
+        try {
+            const result = await reader.read(filePath, fileType || null)
+            this.table = result;
+            // initialize currentRow according with parameter reading mode (random or sequential)
+            this.currentRow = this.mode === 'random' ? random(0, this.table.length) : 0;
+        }        
+        catch (e) {
+            new OxError(
+                errHelper.errorCode.PARAMETERS_ERROR,
+                `${errHelper.errorCode.PARAMETERS_ERROR}: Unable to load parameters file.\n${e.message}`
+            )
+        }           
+    }
+    getMode() {
         return this.mode;
-    };
+    }
 
-    module.readNext = function () {
+    readNext() {
         this.prevRow = this.currentRow;
         if (this.mode === 'random') {
             this.currentRow = random(0, this.table.length);
@@ -77,28 +88,26 @@ ${err.message}`
         if (this.currentRow > this.table.length - 1) {
             this.currentRow = 0;
         }
-    };
+    }
 
-    module.readPrev = function () {
-        if (typeof this.prevRow !== 'undefined') {
+    readPrev() {
+        if (typeof this.prevRow !== 'undefined' && this.prevRow != null) {
             this.currentRow = this.prevRow;
         }
-    };
+    }
 
-    module.getValues = function() {
+    getValues = function() {
         if (!this.table || this.table.length === 0) {
             throw new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Parameters table is empty');
         }
         return this.table[this.currentRow];
-    };
-
-    module.__defineGetter__('rows', function() {
-        return this.table.length;
-    });
-
-    function random(min, max) {
-        return Math.floor(Math.random() * (max - min)) + min;
     }
 
-    return module;
-};
+    get rows() {
+        return this.table.length;
+    }
+}
+
+function random(min, max) {
+    return Math.floor(Math.random() * (max - min)) + min;
+}
