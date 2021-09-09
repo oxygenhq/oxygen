@@ -10,7 +10,6 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
-const Fiber = require('fibers');
 const path = require('path');
 const { EventEmitter } = require('events');
 
@@ -73,11 +72,12 @@ export default class OxygenWorker extends EventEmitter {
         // load and run the test script
         try {
             this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
-            await this._runFnInFiberContext(() => {
+            await this._runFnInFiberContext(async () => {
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
-                    require(scriptPath);
+                    const call = require(scriptPath);
+                    await call();
                 }
                 catch (e) {
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
@@ -167,14 +167,14 @@ export default class OxygenWorker extends EventEmitter {
     }
 
     async _runFnInFiberContext (fn) {
-        return new Promise((resolve, reject) => Fiber(() => {
+        return new Promise((resolve, reject) => (async () => {
             try {
-                const result = fn.apply(this);
+                const result = await fn.apply(this);
                 return resolve(result);
             } catch (err) {
                 return reject(err);
             }
-        }).run());
+        })());
     }
 
     async replStart() {

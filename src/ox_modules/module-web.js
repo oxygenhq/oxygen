@@ -481,7 +481,7 @@ export default class WebModule extends WebDriverModule {
         return ACTION_COMMANDS.includes(name);
     }
 
-    _takeScreenshotSilent(name) {
+    async _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             let error;
             try {
@@ -490,7 +490,7 @@ export default class WebModule extends WebDriverModule {
                     this.driver.takeScreenshot
                 ) {
                     let retval;
-                    this.driver.call(() => {
+                    await this.driver.call(() => {
                         return new Promise((resolve, reject) => {
                             const waitUntilRetVal = this.driver.waitUntil(async() => {
                                 try {
