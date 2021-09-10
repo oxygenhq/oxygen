@@ -18,6 +18,7 @@ import utils from './utils';
 import libUtils from '../lib/util';
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
+import ExcelReader from '../lib/param-reader-excel';
 
 export default class UtilsModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -152,6 +153,17 @@ export default class UtilsModule extends OxygenModule {
         } catch (e) {
             throw new OxError(errorHelper.errorCode.CSV_ERROR, e.message);
         }
+    }
+
+    /**
+     * @summary Reads data from Xlsx file
+     * @function readXlsx
+     * @param {String} filePath - Absolute path to file
+     * @return {Array} - Array of xlsx data
+     */
+    async readXlsx(filePath) {
+        const reader = new ExcelReader();
+        return await reader.read(filePath);
     }
 
     /**
