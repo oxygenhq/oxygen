@@ -45,14 +45,20 @@ export default class ParallelLauncher {
         let suiteIndex = 0;
 
         suites.forEach(suiteDef => {
+            const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
             if (concurrency == 0 && suiteDef.paramManager) {
                 for (let i = 0; i < suiteDef.paramManager.rows; i++) {
                     const mockParamManager = new ParamManagerMock(suiteDef.paramManager.getValues());
-                    suiteDef.paramManager.readNext();
-                    const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
+                    suiteDef.paramManager.readNext();                    
                     const workerId = `${suiteKey}-${suiteIndex}/${i}`;
                     const suiteCopy = { ...suiteDef, iterationCount: 1, paramManager: mockParamManager };
-                    const testConfig = { ...this._config, suites: [ suiteCopy ] };
+                    const testConfig = { 
+                        ...this._config, suites: [ suiteCopy ],
+                        _groupResult: {
+                            suiteKey: suiteKey,
+                            _meta: { suiteIterationNum: i + 1 }
+                        }
+                    };
                     workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
                     workersCount++;
                 }
@@ -62,7 +68,7 @@ export default class ParallelLauncher {
             else if (concurrency == 0 && Array.isArray(suiteDef.cases)) {
                 let caseIndex = 0;
                 suiteDef.cases.forEach(caseDef => {
-                    const caseKey = caseDef.key || caseDef.id || caseDef.name;                    
+                    const caseKey = caseDef.key || caseDef.id || caseDef.name;   
                     if (caseDef.paramManager) {
                         //workersCount += caseDef.paramManager.rows;
                         for (let i = 0; i < caseDef.paramManager.rows; i++) {
@@ -71,7 +77,14 @@ export default class ParallelLauncher {
                             const workerId = `${caseKey}-${suiteIndex}/${caseIndex}/${i}`;
                             const caseCopy = { ...caseDef, iterationCount: 1, paramManager: mockParamManager };
                             const suiteCopy = { ...suiteDef, cases: [ caseCopy ]};
-                            const testConfig = { ...this._config, suites: [ suiteCopy ] };
+                            const testConfig = { 
+                                ...this._config, suites: [ suiteCopy ],
+                                _groupResult: {
+                                    suiteKey: suiteKey,
+                                    caseKey: caseKey,
+                                    _meta: { caseIterationNum: i + 1 }
+                                }
+                            };
                             workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
                             workersCount++;
                         }
@@ -102,10 +115,14 @@ export default class ParallelLauncher {
             console.log('Error in queue:', err);
         });
 
+        this.reporter.onBeforeStart();
+
         // push all workers to the queue
         workersConfig.forEach(workerConfig => this._queue.push(workerConfig));                
-        
+                
         await this._queue.drain();
+
+        this.reporter.onAfterEnd();
     }
 
     /*********************************

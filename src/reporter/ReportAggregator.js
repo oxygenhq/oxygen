@@ -92,11 +92,67 @@ export default class ReportAggregator extends EventEmitter {
         if (!Array.isArray(this.reporters) || this.reporters.length == 0) {
             return false;
         }
+        const results = this.groupResults();
         for (let reporter of this.reporters) {
-            const reportPath = reporter.generate(this.results);
+            const reportPath = reporter.generate(results);
             console.log(`Your report is ready: ${reportPath}`);
         }
         return true;
+    }
+
+    groupResults() {
+        const groupedResults = {};
+        const suiteIndexHash = {}, caseIndexHash = {};
+        if (!Array.isArray(this.results) || this.results.length == 0) {
+            return false;
+        }
+        for (let result of this.results) {
+            if (!result.options._groupResult) {
+                continue;
+            }
+            const groupKey = `${result.options._groupResult.suiteKey || '*'}-${result.options._groupResult.caseKey || '*'}`;
+            const suiteKey = result.options._groupResult.suiteKey;
+            const caseKey = result.options._groupResult.caseKey;
+            const suiteGroupResults = groupedResults[suiteKey];
+            if (!suiteGroupResults) {
+                groupedResults[suiteKey] = result;
+                if (caseKey) {
+                    caseIndexHash[groupKey] = 1;                    
+                }
+                else {
+                    suiteIndexHash[groupKey] = 1;
+                }
+                delete result.options['_groupResult'];
+                continue;
+            }
+            // merge suites with the same key only
+            if (suiteKey && !caseKey) {
+                Array.prototype.push.apply(
+                    suiteGroupResults.suites, 
+                    result.suites.map(suiteResult => {
+                        suiteIndexHash[groupKey]++;
+                        const iterationNum = result.options._groupResult._meta && result.options._groupResult._meta.suiteIterationNum ?
+                            result.options._groupResult._meta.suiteIterationNum : suiteIndexHash[groupKey];                        
+                        return { ...suiteResult, iterationNum };
+                    })
+                );
+            }
+            else if (caseKey && suiteGroupResults.suites.length > 0 && result.suites.length > 0) {
+                const firstGroupedSuiteResult = suiteGroupResults.suites[0];
+                console.log('result.options._groupResult._meta', result.options._groupResult._meta)
+                Array.prototype.push.apply(
+                    firstGroupedSuiteResult.cases, 
+                    result.suites[0].cases.map(caseResult => {
+                        caseIndexHash[groupKey]++;
+                        const iterationNum = result.options._groupResult._meta && result.options._groupResult._meta.caseIterationNum ?
+                            result.options._groupResult._meta.caseIterationNum : caseIndexHash[groupKey];                            
+                        return { ...caseResult, iterationNum };
+                    })
+                );
+            }
+        }
+        // convert grouped results hash to an array
+        return Object.keys(groupedResults).map(groupKey => groupedResults[groupKey]);
     }
 
     async waitForResult(rid) {
@@ -104,6 +160,14 @@ export default class ReportAggregator extends EventEmitter {
             return null;
         }
         return this.runnerEndPromises[rid];
+    }
+
+    onBeforeStart() {
+
+    }
+
+    onAfterEnd() {
+
     }
 
     onRunnerStart(rid, opts, caps) {
