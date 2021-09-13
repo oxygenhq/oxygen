@@ -13,7 +13,6 @@ import * as coreUtils from './utils';
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
-import * as Modules from '../ox_modules/index';
 
 // setup logger
 import logger, { DEFAULT_LOGGER_ISSUER, ISSUERS } from '../lib/logger';
@@ -427,12 +426,18 @@ export default class Oxygen extends OxygenEvents {
         // otherwise, load only those implicitly defined
         const excludeUndefinedMods = this.opts.modules && this.opts.modules.length > 0;
 
-        for (let moduleName of Object.keys(Modules)) {
+        const oxModulesDirPath = oxutil.getOxModulesDir();
+        const modulesFiles = glob.sync('module-*.js', { cwd: oxModulesDirPath });
+
+        for (let moduleFileName of modulesFiles) {
+
+            const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
+
             if (excludeUndefinedMods && !this.opts.modules.includes(moduleName)) {
                 continue;
             }
-            const ModuleClass = Modules[moduleName];
-            const oxModulesDirPath = oxutil.getOxModulesDir();
+            const modulePath = path.join(oxModulesDirPath, moduleFileName);
+            const ModuleClass = require(modulePath);
             try {
                 const startTime = new Date();
                 // initialize new logger for the module
