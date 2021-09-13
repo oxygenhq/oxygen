@@ -62,7 +62,7 @@ export default class CucumberRunner extends EventEmitter {
     getId() {
         return this._id;
     }
-    
+
     async init(config, caps, reporter) {
         this.config = config;
         this.cwd = this.config.cwd || process.cwd();

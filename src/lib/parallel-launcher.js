@@ -7,14 +7,14 @@
  * (at your option) any later version.
  */
 
-import _ from 'lodash';
+// import _ from 'lodash';
 import * as Runners from '../runners';
 import queue from 'async/queue';
-import { parseUrlEncoded } from 'chrome-har/lib/util';
-import oxutil from './util';
+// import { parseUrlEncoded } from 'chrome-har/lib/util';
+// import oxutil from './util';
 
-const SCOPE_SUITE = 'suite';
-const SCOPE_CASE = 'case';
+// const SCOPE_SUITE = 'suite';
+// const SCOPE_CASE = 'case';
 
 export default class ParallelLauncher {
     constructor(config, reporter) {
@@ -29,7 +29,7 @@ export default class ParallelLauncher {
             throw new Error('Cannot start the parallel testing - "parallel" settings are missing.');
         }
         const concurrency = !isNaN(this._config.parallel.concurrency) ? this._config.parallel.concurrency : 1;
-        const scope = this._config.parallel.scope;
+        // const scope = this._config.parallel.scope;
         // flatten all suites and create one unified array of all the test cases
         const suites = this._config.suites;
         if (!suites || !Array.isArray(suites)) {
@@ -49,10 +49,10 @@ export default class ParallelLauncher {
             if (concurrency == 0 && suiteDef.paramManager) {
                 for (let i = 0; i < suiteDef.paramManager.rows; i++) {
                     const mockParamManager = new ParamManagerMock(suiteDef.paramManager.getValues());
-                    suiteDef.paramManager.readNext();                    
+                    suiteDef.paramManager.readNext();
                     const workerId = `${suiteKey}-${suiteIndex}/${i}`;
                     const suiteCopy = { ...suiteDef, iterationCount: 1, paramManager: mockParamManager };
-                    const testConfig = { 
+                    const testConfig = {
                         ...this._config, suites: [ suiteCopy ],
                         _groupResult: {
                             suiteKey: suiteKey,
@@ -62,13 +62,12 @@ export default class ParallelLauncher {
                     workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
                     workersCount++;
                 }
-                
             }
             // check if any of cases have param file attached
             else if (concurrency == 0 && Array.isArray(suiteDef.cases)) {
                 let caseIndex = 0;
                 suiteDef.cases.forEach(caseDef => {
-                    const caseKey = caseDef.key || caseDef.id || caseDef.name;   
+                    const caseKey = caseDef.key || caseDef.id || caseDef.name;
                     if (caseDef.paramManager) {
                         //workersCount += caseDef.paramManager.rows;
                         for (let i = 0; i < caseDef.paramManager.rows; i++) {
@@ -77,7 +76,7 @@ export default class ParallelLauncher {
                             const workerId = `${caseKey}-${suiteIndex}/${caseIndex}/${i}`;
                             const caseCopy = { ...caseDef, iterationCount: 1, paramManager: mockParamManager };
                             const suiteCopy = { ...suiteDef, cases: [ caseCopy ]};
-                            const testConfig = { 
+                            const testConfig = {
                                 ...this._config, suites: [ suiteCopy ],
                                 _groupResult: {
                                     suiteKey: suiteKey,
@@ -89,7 +88,8 @@ export default class ParallelLauncher {
                             workersCount++;
                         }
                     }
-                    else {                        
+                    else {
+                        const workerId = `${caseKey}-${suiteIndex}/${caseIndex}`;
                         const suiteCopy = { ...suiteDef, cases: [ caseDef ]};
                         const testConfig = { ...this._config, suites: [ suiteCopy ] };
                         workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
@@ -118,8 +118,8 @@ export default class ParallelLauncher {
         this.reporter.onBeforeStart();
 
         // push all workers to the queue
-        workersConfig.forEach(workerConfig => this._queue.push(workerConfig));                
-                
+        workersConfig.forEach(workerConfig => this._queue.push(workerConfig));
+
         await this._queue.drain();
 
         this.reporter.onAfterEnd();

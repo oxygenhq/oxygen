@@ -86,7 +86,7 @@ var self = module.exports = {
                 if (tc.paramManager && tc.paramManager.getMode() == 'all') {
                     tc.iterationCount = tc.paramManager.rows;
                 }
-            }            
+            }
             suite.cases.push(tc);
         }
         return suite;
@@ -119,7 +119,7 @@ var self = module.exports = {
     },
 
     getParameterManager: async function(mainFilePath, paramOpts = null, cwd = null, autoSearch = false) {
-        const paramFilePath = paramOpts && paramOpts.file ? paramOpts.file : null;
+        let paramFilePath = paramOpts && paramOpts.file ? paramOpts.file : null;
         const paramMode = paramOpts && paramOpts.mode ? paramOpts.mode : 'seq';
         const values = paramOpts.values || null;
 
@@ -133,7 +133,7 @@ var self = module.exports = {
         else if (values) {
             return await self.loadParameterManagerFromValues(values, paramMode);
         }
-        return null;        
+        return null;
     },
 
     generateTestSuiteFromJsonFile: async function (filePath, paramFile, paramMode = null, options = {}) {

@@ -8,7 +8,7 @@
  */
 import OxError from '../errors/OxygenError';
 
-const defer = require('when').defer;
+// const defer = require('when').defer;
 const path = require('path');
 const ExcelReader = require('./param-reader-excel');
 const CsvReader = require('./param-reader-csv');
@@ -32,7 +32,6 @@ export default class ParameterManager {
             // initialize currentRow according with parameter reading mode (random or sequential)
             this.currentRow = this.mode === 'random' ? random(0, this.table.length) : 0;
         }
-        
     }
 
     async init() {
@@ -61,17 +60,17 @@ export default class ParameterManager {
         }
 
         try {
-            const result = await reader.read(filePath, fileType || null)
+            const result = await reader.read(this.filePath, this.fileType || null);
             this.table = result;
             // initialize currentRow according with parameter reading mode (random or sequential)
             this.currentRow = this.mode === 'random' ? random(0, this.table.length) : 0;
-        }        
+        }
         catch (e) {
             new OxError(
                 errHelper.errorCode.PARAMETERS_ERROR,
                 `${errHelper.errorCode.PARAMETERS_ERROR}: Unable to load parameters file.\n${e.message}`
-            )
-        }           
+            );
+        }
     }
     getMode() {
         return this.mode;
@@ -96,7 +95,7 @@ export default class ParameterManager {
         }
     }
 
-    getValues = function() {
+    getValues() {
         if (!this.table || this.table.length === 0) {
             throw new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Parameters table is empty');
         }

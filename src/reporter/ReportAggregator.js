@@ -121,7 +121,7 @@ export default class ReportAggregator extends EventEmitter {
             if (!suiteGroupResults) {
                 groupedResults[suiteKey] = result;
                 if (caseKey) {
-                    caseIndexHash[groupKey] = 1;                    
+                    caseIndexHash[groupKey] = 1;
                 }
                 else {
                     suiteIndexHash[groupKey] = 1;
@@ -132,24 +132,24 @@ export default class ReportAggregator extends EventEmitter {
             // merge suites with the same key only
             if (suiteKey && !caseKey) {
                 Array.prototype.push.apply(
-                    suiteGroupResults.suites, 
+                    suiteGroupResults.suites,
                     result.suites.map(suiteResult => {
                         suiteIndexHash[groupKey]++;
                         const iterationNum = result.options._groupResult._meta && result.options._groupResult._meta.suiteIterationNum ?
-                            result.options._groupResult._meta.suiteIterationNum : suiteIndexHash[groupKey];                        
+                            result.options._groupResult._meta.suiteIterationNum : suiteIndexHash[groupKey];
                         return { ...suiteResult, iterationNum };
                     })
                 );
             }
             else if (caseKey && suiteGroupResults.suites.length > 0 && result.suites.length > 0) {
                 const firstGroupedSuiteResult = suiteGroupResults.suites[0];
-                console.log('result.options._groupResult._meta', result.options._groupResult._meta)
+                console.log('result.options._groupResult._meta', result.options._groupResult._meta);
                 Array.prototype.push.apply(
-                    firstGroupedSuiteResult.cases, 
+                    firstGroupedSuiteResult.cases,
                     result.suites[0].cases.map(caseResult => {
                         caseIndexHash[groupKey]++;
                         const iterationNum = result.options._groupResult._meta && result.options._groupResult._meta.caseIterationNum ?
-                            result.options._groupResult._meta.caseIterationNum : caseIndexHash[groupKey];                            
+                            result.options._groupResult._meta.caseIterationNum : caseIndexHash[groupKey];
                         return { ...caseResult, iterationNum };
                     })
                 );

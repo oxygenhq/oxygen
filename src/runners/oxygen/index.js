@@ -135,7 +135,7 @@ export default class OxygenRunner extends EventEmitter {
     getId() {
         return this._id;
     }
-    
+
     async init(options, caps = {}, reporter) {
         // make sure at least one test suite is defined
         if (!options.suites) {
