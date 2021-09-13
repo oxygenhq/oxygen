@@ -9,7 +9,8 @@
 
 // import _ from 'lodash';
 import * as Runners from '../runners';
-import queue from 'async/queue';
+// import queue from 'async/queue';
+import parallelLimit from 'async/parallelLimit';
 // import { parseUrlEncoded } from 'chrome-har/lib/util';
 // import oxutil from './util';
 
@@ -25,6 +26,10 @@ export default class ParallelLauncher {
     }
 
     async run(capsSet) {
+        const collection = [];
+        // console.log('~~this._config', JSON.stringify(this._config, null, 2));
+        // console.log('~~capsSet', capsSet);
+
         if (!this._config.parallel) {
             throw new Error('Cannot start the parallel testing - "parallel" settings are missing.');
         }
@@ -45,8 +50,15 @@ export default class ParallelLauncher {
         let suiteIndex = 0;
 
         suites.forEach(suiteDef => {
+
+            // console.log('~~suiteDef', suiteDef);
+            // console.log('~~suiteDef.paramManager', suiteDef.paramManager);
+            // console.log('~~concurrency', concurrency);
+
             const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
             if (concurrency == 0 && suiteDef.paramManager) {
+                // console.log('~~if');
+                // console.log('~~suiteDef.paramManager.rows', suiteDef.paramManager.rows);
                 for (let i = 0; i < suiteDef.paramManager.rows; i++) {
                     const mockParamManager = new ParamManagerMock(suiteDef.paramManager.getValues());
                     suiteDef.paramManager.readNext();
@@ -59,7 +71,25 @@ export default class ParallelLauncher {
                             _meta: { suiteIterationNum: i + 1 }
                         }
                     };
-                    workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
+                    workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 200 });
+
+                    const self = this;
+                    collection.push(function(callback) {
+                        const cb = (error) => {
+                            if (error) {
+                                // console.log('~~cb error', error);
+                                callback(error, null);
+                            }
+                        };
+                        self._launchTest({ workerId, testConfig, testCaps, startupDelay: 200 }, cb).then((result) => {
+                            // console.log('~~col item result', result);
+                            callback(null, result);
+                        }).catch(error => {
+                            // console.log('~~col item error', error);
+                            callback(error, null);
+                        });
+                    });
+
                     workersCount++;
                 }
             }
@@ -108,19 +138,24 @@ export default class ParallelLauncher {
             suiteIndex++;
         });
 
-        //console.log('workersConfig', JSON.stringify(workersConfig, null, 4))
+        // console.log('workersConfig', JSON.stringify(workersConfig, null, 4));
 
-        this._queue = queue((task, cb) => this._launchTest(task, cb), workersCount);
-        this._queue.error((err, task) => {
-            console.log('Error in queue:', err);
-        });
+        console.log('~~workersCount', workersCount);
+
+        // this._queue = queue((task, cb) => this._launchTest(task, cb), workersCount);
+        // this._queue.error((err, task) => {
+        //     console.log('Error in queue:', err);
+        // });
 
         this.reporter.onBeforeStart();
 
-        // push all workers to the queue
-        workersConfig.forEach(workerConfig => this._queue.push(workerConfig));
+        // console.log('~~collection', collection);
 
-        await this._queue.drain();
+        await parallelLimit(collection, 10);
+        // // push all workers to the queue
+        // workersConfig.forEach(workerConfig => this._queue.push(workerConfig));
+
+        // await this._queue.drain();
 
         this.reporter.onAfterEnd();
     }
@@ -139,6 +174,7 @@ export default class ParallelLauncher {
     }
 
     async _launchTest({ threadKey, testConfig, testCaps, startupDelay }, callback) {
+        // console.log('~~_launchTest', arguments);
         if (!callback) {
             return;
         }
@@ -154,9 +190,14 @@ export default class ParallelLauncher {
             // generate firefox "profile" value if profile options are specified
             //await oxutil.generateFirefoxOptionsProfile(testCaps);
             // initialize oxygen
+
             await runner.init(testConfig, testCaps, this.reporter);
+            // console.log('~~initRv', initRv);
+
             // run Oxygen test 
             const result = await runner.run();
+            // console.log('~~result', result);
+
             await runner.dispose(result.status || null);
             callback();
         }
