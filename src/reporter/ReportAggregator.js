@@ -88,6 +88,10 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
+    getResults() {
+        return this.results;
+    }
+
     generateReports() {
         if (!Array.isArray(this.reporters) || this.reporters.length == 0) {
             return false;
