@@ -188,7 +188,7 @@ export default class ReportAggregator extends EventEmitter {
         this.results.push(testResult);
         // create a new promise for later to be resolved on runner:end event
         this.runnerEndPromises[rid] = defer();
-        console.log(`Test ${rid} has started...`);
+        // console.log(`Test ${rid} has started...`);
         this.emit('runner:start', {
             rid,
             opts,
@@ -223,7 +223,7 @@ export default class ReportAggregator extends EventEmitter {
                     console.log(`Error: ${testResult.failure}`);
                 }
             }
-            console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
+            // console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }
         this.emit('runner:end', {
             rid,
@@ -254,7 +254,7 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onSuiteStart(rid, suiteId, suite) {
-        console.log(`Suite "${suite.name}" has started...`);
+        // console.log(`Suite "${suite.name}" has started...`);
         this.emit('suite:start', {
             rid,
             suiteId: suiteId,
@@ -268,7 +268,7 @@ export default class ReportAggregator extends EventEmitter {
             return;
         }
         testResult.suites.push(suiteResult);
-        console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
+        // console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
         this.emit('suite:end', {
             rid,
             suiteId,
@@ -277,7 +277,7 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onCaseStart(rid, suiteId, caseId, caseDef) {
-        console.log(`- Case "${caseDef.name}" has started...`);
+        // console.log(`- Case "${caseDef.name}" has started...`);
         this.emit('case:start', {
             rid,
             suiteId,
@@ -287,7 +287,7 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onCaseEnd(rid, suiteId, caseId, caseResult) {
-        console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
+        // console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
         this.emit('case:end', {
             rid,
             suiteId,
@@ -297,7 +297,7 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onStepStart(rid, step) {
-        console.log(`  - Step "${step.name}" has started...`);
+        // console.log(`  - Step "${step.name}" has started...`);
 
         if (this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber') {
             const fullPath = path.resolve(this.options.rootPath, step.location);
@@ -311,9 +311,9 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onStepEnd(rid, stepResult) {
-        const status = stepResult.status.toUpperCase();
-        const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
-        console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
+        // const status = stepResult.status.toUpperCase();
+        // const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
+        // console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
         this.emit('step:end', {
             rid,
             step: stepResult,

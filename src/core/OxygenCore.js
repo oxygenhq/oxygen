@@ -329,7 +329,7 @@ export default class Oxygen extends OxygenEvents {
         const oxServicesDirPath = path.resolve(this.oxBaseDir, './ox_services');
         const serviceFiles = glob.sync('service-*.js', { cwd: oxServicesDirPath });
         // initialize all services
-        this.logger.debug('Loading services...');
+        // this.logger.debug('Loading services...');
 
         for (var i = 0; i < serviceFiles.length; i++) {
             const serviceFileName = serviceFiles[i];
@@ -363,9 +363,9 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadModules() {
-        this.logger.debug('Loading internal modules...');
+        // this.logger.debug('Loading internal modules...');
         this._loadInternalModules();
-        this.logger.debug('Loading external modules...');
+        // this.logger.debug('Loading external modules...');
         this._loadExternalModules();
     }
 
@@ -394,7 +394,7 @@ export default class Oxygen extends OxygenEvents {
             const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
 
             try {
-                const startTime = new Date();
+                // const startTime = new Date();
                 // initialize new logger for the module
                 const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
                 // initialize new module instance
@@ -404,9 +404,9 @@ export default class Oxygen extends OxygenEvents {
                 // add the module to the module list
                 this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
                 // wrap up
-                const endTime = new Date();
-                const duration = (endTime - startTime) / 1000;
-                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
+                // const endTime = new Date();
+                // const duration = (endTime - startTime) / 1000;
+                // this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
@@ -436,7 +436,7 @@ export default class Oxygen extends OxygenEvents {
             const modulePath = path.join(oxModulesDirPath, moduleFileName);
             const ModuleClass = require(modulePath);
             try {
-                const startTime = new Date();
+                // const startTime = new Date();
                 // initialize new logger for the module
                 const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
                 // initialize new module instance
@@ -446,9 +446,9 @@ export default class Oxygen extends OxygenEvents {
                 // add the module to the module list
                 this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
                 // wrap up
-                const endTime = new Date();
-                const duration = (endTime - startTime) / 1000;
-                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
+                // const endTime = new Date();
+                // const duration = (endTime - startTime) / 1000;
+                // this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
@@ -492,7 +492,7 @@ export default class Oxygen extends OxygenEvents {
                 wrapper[methodName] = function() {
                     var args = Array.prototype.slice.call(arguments);
 
-                    _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
+                    // _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
 
                     try {
                         return module[methodName].apply(module, args);
@@ -566,7 +566,7 @@ export default class Oxygen extends OxygenEvents {
             this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
         }
 
-        this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
+        // this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
 
         try {
             // emit before events
