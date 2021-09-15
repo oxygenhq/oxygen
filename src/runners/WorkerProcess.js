@@ -57,6 +57,8 @@ export default class WorkerProcess extends EventEmitter {
         // print more information for nodejs errors
         forkOpts.execArgv.push('--trace-warnings');
 
+        this._npmGRootExecution = false;
+
         if (this._npmGRootExecution) {
             try {
                 let globalNpmModulesPath;
@@ -337,7 +339,7 @@ export default class WorkerProcess extends EventEmitter {
     _handleChildExit(exitCode, signal) {
         log.debug(`Worker ${this._pid} finished with exit code ${exitCode} and signal ${signal}.`);
         this._reset();
-        this.emit('exit', { pid: this._pid, exitCode, signal });
+        // this.emit('exit', { pid: this._pid, exitCode, signal });
     }
 
     _handleChildDisconnect() {
