@@ -262,7 +262,7 @@ export default class WorkerProcess extends EventEmitter {
         if (!this._childProc) {
             return false;
         }
-        this._childProc.postMessage(JSON.stringify(message));
+        this._childProc.postMessage(message);
         return true;
     }
 
