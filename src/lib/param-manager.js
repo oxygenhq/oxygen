@@ -18,11 +18,10 @@ const errHelper = require('../errors/helper');
 const DEFAULT_MODE = 'seq';
 
 export default class ParameterManager {
-    constructor({ filePath = null, fileType = null, mode = DEFAULT_MODE, values = null}) {
-        this.mode = mode || DEFAULT_MODE;
-        this.filePath = filePath;
+    constructor({ paramFile = null, fileType = null, paramMode = DEFAULT_MODE, values = null}) {
+        this.filePath = paramFile;
         this.fileType = fileType;
-        this.mode = mode;
+        this.mode = paramMode;
         this.table = null;
         this.currentRow = null;
         this.prevRow = null;
