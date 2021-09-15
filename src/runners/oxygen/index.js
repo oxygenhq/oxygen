@@ -682,12 +682,16 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _startWorkerProcess() {
-        const workerPath = path.join(__dirname, 'worker.js');
-        this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen', this._npmGRootExecution);
-        await this._worker.start();
-        this._hookWorkerEvents();
-        await this._worker.startDebugger();
-        this._hookWorkerDebuggerEvents();
+        if (this._worker) {
+            //ignore
+        } else {
+            const workerPath = path.join(__dirname, 'worker.js');
+            this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen', this._npmGRootExecution);
+            await this._worker.start();
+            this._hookWorkerEvents();
+            await this._worker.startDebugger();
+            this._hookWorkerDebuggerEvents();
+        }
     }
 
     _hookWorkerEvents() {
@@ -808,13 +812,13 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     _resetGlobalVariables() {
-        this._modCaps = {};
-        this._worker = null;
-        this._isRunning = false;
-        this._isDisposing = false;
-        this._isInitializing = false;
-        this._testKilled = false;
-        this._whenDisposed = defer();
+        // this._modCaps = {};
+        // this._worker = null;
+        // this._isRunning = false;
+        // this._isDisposing = false;
+        // this._isInitializing = false;
+        // this._testKilled = false;
+        // this._whenDisposed = defer();
     }
 
     _processTestResults({ resultStore, moduleCaps, context = {}, error = null }) {

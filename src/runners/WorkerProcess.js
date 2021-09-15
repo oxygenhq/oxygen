@@ -149,9 +149,9 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async kill() {
-        if (this._childProc) {
-            await this._childProc.terminate();
-        }
+        // if (this._childProc) {
+        //     await this._childProc.terminate();
+        // }
     }
 
     async init(rid, options, caps) {
@@ -269,15 +269,15 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     _reset() {
-        this._childProc = null;
-        this._debugger = null;
-        this._isRunning = false;
-        this._debugMode = null;
-        this._debugPort = null;
-        this._whenOxygenDisposed = null;
-        this._whenOxygenInitialized = null;
-        this._whenModulesDisposed = null;
-        this._isInitialized = false;
+        // this._childProc = null;
+        // this._debugger = null;
+        // this._isRunning = false;
+        // this._debugMode = null;
+        // this._debugPort = null;
+        // this._whenOxygenDisposed = null;
+        // this._whenOxygenInitialized = null;
+        // this._whenModulesDisposed = null;
+        // this._isInitialized = false;
     }
 
     _hookChildProcEvents() {

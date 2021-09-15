@@ -13,9 +13,11 @@ import * as Runners from '../runners';
 import parallelLimit from 'async/parallelLimit';
 // import { parseUrlEncoded } from 'chrome-har/lib/util';
 // import oxutil from './util';
-
+var Duration = require('duration');
 // const SCOPE_SUITE = 'suite';
 // const SCOPE_CASE = 'case';
+
+const PARALLEL_COUNT = 50;
 
 export default class ParallelLauncher {
     constructor(config, reporter) {
@@ -23,6 +25,8 @@ export default class ParallelLauncher {
         this.reporter = reporter;
         this._queue = null;
         this._activeThreads = 0;
+        this.runners = [];
+        this.createdRunnersStat = [];
     }
 
     async run(capsSet) {
@@ -41,7 +45,7 @@ export default class ParallelLauncher {
             throw new Error('Cannot start the parallel testing - no suites are defined.');
         }
         let workersConfig = [];
-        let workersCount = concurrency;
+        // let workersCount = concurrency;
         // if no capabilities are specified, run single instance with default arguments
         // alternatively, pick the first capabilities set (load test is limited to a single browser type)
         const testCaps = capsSet ? (Array.isArray(capsSet) ? capsSet[0] : capsSet) : null;
@@ -82,15 +86,13 @@ export default class ParallelLauncher {
                             }
                         };
                         self._launchTest({ workerId, testConfig, testCaps, startupDelay: 200 }, cb).then((result) => {
-                            // console.log('~~col item result', result);
                             callback(null, result);
                         }).catch(error => {
-                            // console.log('~~col item error', error);
                             callback(error, null);
                         });
                     });
 
-                    workersCount++;
+                    // workersCount++;
                 }
             }
             // check if any of cases have param file attached
@@ -115,7 +117,7 @@ export default class ParallelLauncher {
                                 }
                             };
                             workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
-                            workersCount++;
+                            // workersCount++;
                         }
                     }
                     else {
@@ -123,11 +125,11 @@ export default class ParallelLauncher {
                         const suiteCopy = { ...suiteDef, cases: [ caseDef ]};
                         const testConfig = { ...this._config, suites: [ suiteCopy ] };
                         workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
-                        workersCount++;
+                        // workersCount++;
                     }
                     caseIndex++;
                 });
-                workersCount++;
+                // workersCount++;
             }
             else {
                 const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
@@ -140,7 +142,7 @@ export default class ParallelLauncher {
 
         // console.log('workersConfig', JSON.stringify(workersConfig, null, 4));
 
-        console.log('~~workersCount', workersCount);
+        // console.log('~~workersCount', workersCount);
 
         // this._queue = queue((task, cb) => this._launchTest(task, cb), workersCount);
         // this._queue.error((err, task) => {
@@ -149,9 +151,28 @@ export default class ParallelLauncher {
 
         this.reporter.onBeforeStart();
 
-        // console.log('~~collection', collection);
+        console.log('Collections length', collection.length);
 
-        await parallelLimit(collection, 10);
+        const start = new Date();
+        await parallelLimit(collection, PARALLEL_COUNT);
+
+        let total = 0;
+        console.log('Created Runners Stat', this.createdRunnersStat);
+        const runnersIds = Object.keys(this.createdRunnersStat);
+        console.log('Created Runners count', runnersIds.length);
+
+        runnersIds.map((item) => {
+            const cazes = this.createdRunnersStat[item].length;
+            total += cazes;
+            console.log('Runner', item, ' run ', cazes, ' cases');
+        });
+
+        console.log('Parallel count', PARALLEL_COUNT);
+        console.log('Total: ', total);
+        const end = new Date();
+        const duration = new Duration(start, end);
+        console.log('Duration: ', duration.toString(1));
+
         // // push all workers to the queue
         // workersConfig.forEach(workerConfig => this._queue.push(workerConfig));
 
@@ -173,14 +194,35 @@ export default class ParallelLauncher {
         return new Runners.oxygen();
     }
 
-    async _launchTest({ threadKey, testConfig, testCaps, startupDelay }, callback) {
+    async _launchTest({ workerId, testConfig, testCaps, startupDelay }, callback) {
         // console.log('~~_launchTest', arguments);
         if (!callback) {
             return;
         }
         await this._sleep(startupDelay);
         this._activeThreads++;
-        const runner = this._instantiateRunner();
+
+        let runner;
+
+        if (PARALLEL_COUNT <= this.runners.length) {
+            runner = this.runners.shift();
+
+            let arr = this.createdRunnersStat[runner._id];
+            let newArray;
+
+            if (Array.isArray(arr)) {
+                newArray = [...arr, workerId];
+            } else {
+                newArray = [workerId];
+            }
+
+            this.createdRunnersStat[runner._id] = newArray;
+
+        } else {
+            runner = this._instantiateRunner();
+            this.createdRunnersStat[runner._id] = [workerId];
+        }
+
         if (!runner) {
             const framework = this._config.framework;
             callback(new Error(`Cannot find runner for the specified framework: ${framework}.`));
@@ -223,6 +265,8 @@ export default class ParallelLauncher {
                 callback(e);    // call back with the original exception
             }
         }
+
+        this.runners.push(runner);
     }
 
     _sleep(duration) {
