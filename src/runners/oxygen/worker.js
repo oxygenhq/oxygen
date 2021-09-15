@@ -16,6 +16,8 @@ import OxygenWorker from './OxygenWorker';
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
 
+const { parentPort } = require('worker_threads');
+
 const reporter = {
     onSuiteStart: function(...args) {
         emitReporterEvent('onSuiteStart', args);
@@ -98,7 +100,7 @@ process.on('SIGINT', async function() {
     await dispose('CANCELED');
 });
 
-process.on('message', async function (msg) {
+parentPort.on('message', async function (msg) {
     if (!msg.type) {
         return;
     }

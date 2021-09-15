@@ -204,7 +204,9 @@ export default class ParallelLauncher {
         catch (e) {
             console.error('Failed to launch the test:', e);
             // stop processing the queue
-            this._queue.kill();
+            if (this._queue) {
+                this._queue.kill();
+            }
             // if this is custom error message
             if (e.error) {
                 var errMsg = '';

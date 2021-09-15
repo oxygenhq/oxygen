@@ -1,6 +1,7 @@
-import { fork, execSync, exec } from 'child_process';
+import { execSync, exec } from 'child_process';
 import { EventEmitter } from 'events';
 import { defer } from 'when';
+const { Worker } = require('worker_threads');
 
 // setup logger
 import logger from '../lib/logger';
@@ -100,7 +101,11 @@ export default class WorkerProcess extends EventEmitter {
         }
 
         // fork worker
-        this._childProc = fork(this._workerPath, forkOpts);
+        // this._childProc = fork(this._workerPath, forkOpts);
+
+        this._childProc = new Worker(this._workerPath, {
+            workerData: {}
+        });
 
         this._hookChildProcEvents();
         // if we are in debug mode, initialize debugger and only then start modules 'init'
@@ -137,13 +142,13 @@ export default class WorkerProcess extends EventEmitter {
             type: 'exit',
             status: status,
         });
-        this.kill();
+        await this.kill();
         this._reset();
     }
 
-    kill() {
+    async kill() {
         if (this._childProc) {
-            this._childProc.kill('SIGINT');
+            await this._childProc.terminate();
         }
     }
 
@@ -175,7 +180,7 @@ export default class WorkerProcess extends EventEmitter {
                 type: 'exit',
                 status: status,
             });
-            this.kill();
+            await this.kill();
 
         } else if (this._childProc) {
             this._isInitialized = false;
@@ -183,7 +188,7 @@ export default class WorkerProcess extends EventEmitter {
                 type: 'exit',
                 status: status,
             });
-            this.kill();
+            await this.kill();
         }
     }
 
@@ -257,7 +262,7 @@ export default class WorkerProcess extends EventEmitter {
         if (!this._childProc) {
             return false;
         }
-        this._childProc.send(message);
+        this._childProc.postMessage(JSON.stringify(message));
         return true;
     }
 
