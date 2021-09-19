@@ -119,6 +119,18 @@ export default class ReportAggregator extends EventEmitter {
             const caseKey = result.options._groupResult.caseKey;
             const suiteGroupResults = groupedResults[suiteKey];
             if (!suiteGroupResults) {
+                result.suites = result.suites.map(suiteResult => {
+                    suiteIndexHash[groupKey]++;
+                    const iterationNum = result.options._groupResult._meta && result.options._groupResult._meta.suiteIterationNum ?
+                        result.options._groupResult._meta.suiteIterationNum : suiteIndexHash[groupKey];
+
+                    return {
+                        ...suiteResult,
+                        iterationNum
+                    };
+                });
+
+                // creating result
                 groupedResults[suiteKey] = result;
                 if (caseKey) {
                     caseIndexHash[groupKey] = 1;
@@ -131,6 +143,8 @@ export default class ReportAggregator extends EventEmitter {
             }
             // merge suites with the same key only
             if (suiteKey && !caseKey) {
+
+                // add suite into groupedResults[suiteKey]['suites']
                 Array.prototype.push.apply(
                     suiteGroupResults.suites,
                     result.suites.map(suiteResult => {
@@ -156,7 +170,23 @@ export default class ReportAggregator extends EventEmitter {
             }
         }
         // convert grouped results hash to an array
-        return Object.keys(groupedResults).map(groupKey => groupedResults[groupKey]);
+        const results = Object.keys(groupedResults).map(groupKey => groupedResults[groupKey]);
+        this.validateResult(results);
+        return results;
+    }
+
+    validateResult(results) {
+        const uniqueSuitesIterationIds = [];
+
+        results.map((result) => {
+            result.suites.map((suite) => {
+                if (uniqueSuitesIterationIds.includes(suite.iterationNum)) {
+                    console.warn('suite.iterationNum', suite.iterationNum, ' not unique');
+                } else {
+                    uniqueSuitesIterationIds.push(suite.iterationNum);
+                }
+            });
+        });
     }
 
     async waitForResult(rid) {
@@ -197,7 +227,30 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onRunnerEnd(rid, finalResult, fatalError) {
-        const testResult = this.results.find(x => x.rid === rid);
+        const testResult = this.results.find(x => {
+            if (x.rid === rid) {
+                if (
+                    x.options &&
+                    finalResult.options &&
+                    x.options._groupResult &&
+                    finalResult.options._groupResult &&
+                    x.options._groupResult.suiteKey &&
+                    finalResult.options._groupResult.suiteKey &&
+                    x.options._groupResult.suiteKey === finalResult.options._groupResult.suiteKey
+                ) {
+                    if (
+                        x.options._groupResult._meta &&
+                        x.options._groupResult._meta.suiteIterationNum &&
+                        finalResult.options._groupResult._meta &&
+                        finalResult.options._groupResult._meta.suiteIterationNum &&
+                        x.options._groupResult._meta.suiteIterationNum === finalResult.options._groupResult._meta.suiteIterationNum
+                    ) {
+                        return true;
+                    }
+                }
+            }
+        });
+
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
             testResult.duration = testResult.endTime - testResult.startTime;
@@ -263,7 +316,29 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     onSuiteEnd(rid, suiteId, suiteResult) {
-        const testResult = this.results.find(x => x.rid === rid);
+        const testResult = this.results.find(x => {
+            if (x.rid === rid) {
+                if (
+                    x.options &&
+                    suiteResult &&
+                    x.options._groupResult &&
+                    suiteResult._groupResult &&
+                    x.options._groupResult.suiteKey &&
+                    suiteResult._groupResult.suiteKey &&
+                    x.options._groupResult.suiteKey === suiteResult._groupResult.suiteKey
+                ) {
+                    if (
+                        x.options._groupResult._meta &&
+                        x.options._groupResult._meta.suiteIterationNum &&
+                        suiteResult._groupResult._meta &&
+                        suiteResult._groupResult._meta.suiteIterationNum &&
+                        x.options._groupResult._meta.suiteIterationNum === suiteResult._groupResult._meta.suiteIterationNum
+                    ) {
+                        return true;
+                    }
+                }
+            }
+        });
         if (!testResult) {
             return;
         }

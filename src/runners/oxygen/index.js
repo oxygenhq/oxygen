@@ -478,6 +478,7 @@ export default class OxygenRunner extends EventEmitter {
             }
             suiteResult.endTime = oxutil.getTimeStamp();
             suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
+            suiteResult._groupResult = this._options._groupResult;
 
             if (showSuiteIterationsMessages) {
                 this._reporter.onIterationEnd(this._id, suiteResult, 'Suite');
