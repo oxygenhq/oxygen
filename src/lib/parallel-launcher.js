@@ -60,23 +60,52 @@ export default class ParallelLauncher {
             // console.log('~~concurrency', concurrency);
 
             const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
-            if (concurrency == 0 && suiteDef.paramManager) {
+            if (concurrency == 0) {
                 // console.log('~~if');
                 // console.log('~~suiteDef.paramManager.rows', suiteDef.paramManager.rows);
-                for (let i = 0; i < suiteDef.paramManager.rows; i++) {
-                    const mockParamManager = new ParamManagerMock(suiteDef.paramManager.getValues());
-                    suiteDef.paramManager.readNext();
-                    const workerId = `${suiteKey}-${suiteIndex}/${i}`;
-                    const suiteCopy = { ...suiteDef, iterationCount: 1, paramManager: mockParamManager };
+                if (suiteDef.paramManager) {
+                    for (let i = 0; i < suiteDef.paramManager.rows; i++) {
+                        const mockParamManager = new ParamManagerMock(suiteDef.paramManager.getValues());
+                        suiteDef.paramManager.readNext();
+                        const workerId = `${suiteKey}-${suiteIndex}/${i}`;
+                        const suiteCopy = { ...suiteDef, iterationCount: 1, paramManager: mockParamManager };
+                        const testConfig = {
+                            ...this._config, suites: [ suiteCopy ],
+                            _groupResult: {
+                                suiteKey: suiteKey,
+                                _meta: { suiteIterationNum: i + 1 }
+                            }
+                        };
+                        workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 200 });
+
+                        const self = this;
+                        collection.push(function(callback) {
+                            const cb = (error) => {
+                                if (error) {
+                                    // console.log('~~cb error', error);
+                                    callback(error, null);
+                                }
+                            };
+                            self._launchTest({ workerId, testConfig, testCaps, startupDelay: 200 }, cb).then((result) => {
+                                callback(null, result);
+                            }).catch(error => {
+                                callback(error, null);
+                            });
+                        });
+
+                        // workersCount++;
+                    }
+                } else {
+                    const workerId = `${suiteKey}-${suiteIndex}`;
+                    const suiteCopy = { ...suiteDef, iterationCount: 1 };
                     const testConfig = {
                         ...this._config, suites: [ suiteCopy ],
                         _groupResult: {
                             suiteKey: suiteKey,
-                            _meta: { suiteIterationNum: i + 1 }
+                            _meta: { suiteIterationNum: 1 }
                         }
                     };
                     workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 200 });
-
                     const self = this;
                     collection.push(function(callback) {
                         const cb = (error) => {
@@ -91,8 +120,6 @@ export default class ParallelLauncher {
                             callback(error, null);
                         });
                     });
-
-                    // workersCount++;
                 }
             }
             // check if any of cases have param file attached
