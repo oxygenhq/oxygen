@@ -196,8 +196,10 @@ export default class ReportAggregator extends EventEmitter {
         return this.runnerEndPromises[rid];
     }
 
-    onBeforeStart() {
-
+    onBeforeStart(collectionLength) {
+        this.emit('test:start', {
+            collectionLength: collectionLength
+        });
     }
 
     onAfterEnd() {

@@ -176,7 +176,7 @@ export default class ParallelLauncher {
         //     console.log('Error in queue:', err);
         // });
 
-        this.reporter.onBeforeStart();
+        this.reporter.onBeforeStart(collection.length);
 
         console.log('Collections length', collection.length);
 
