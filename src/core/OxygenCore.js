@@ -751,7 +751,7 @@ export default class Oxygen extends OxygenEvents {
         var step = new StepResult();
 
         step.name = oxutil.getMethodSignature(moduleName, methodName, args);
-        step.transaction = global._lastTransactionName;                    // FIXME: why is this here if it's already populated in rs?
+        step.transaction = global._lastTransactionName || null;                   // FIXME: why is this here if it's already populated in rs?
         step.location = location;
 
         if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
