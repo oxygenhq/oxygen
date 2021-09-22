@@ -57,6 +57,7 @@ export default class XmlReporter extends FileReporterBase {
                         appiumUrl: result.options.appiumUrl,
                         reopenSession: result.options.reopenSession,
                         reRunOnFailed: result.options.reRunOnFailed,
+                        reRunOnFailedWaitUntil: result.options.reRunOnFailedWaitUntil,
                         iterations: result.options.iterations,
                         debugPort: result.options.debugPort,
                         delay: result.options.delay,

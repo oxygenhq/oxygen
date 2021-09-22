@@ -148,6 +148,7 @@ export function getConfigurations(target, argv) {
         appiumUrl : 'http://localhost:4723/wd/hub',
         reopenSession: false,
         reRunOnFailed: false,
+        reRunOnFailedWaitUntil: false,
         iterations : 1,
         debugPort: null,
         delay: null,

@@ -16,7 +16,7 @@ import { EventEmitter } from 'events';
 import _  from 'lodash';
 import { defer } from 'when';
 import path from 'path';
-
+import deasync from 'deasync';
 import TestSuiteResult from '../../model/suite-result';
 import TestCaseResult from '../../model/case-result';
 import TestResult from '../../model/test-result';
@@ -445,6 +445,10 @@ export default class OxygenRunner extends EventEmitter {
                     }
 
                     if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
+                        if (this._options.reRunOnFailedWaitUntil) {
+                            deasync.sleep(this._options.reRunOnFailedWaitUntil * 1000);
+                        }
+
                         reRunCount = 1;
                         // failed on canceled status not close browser window
                         await (this._worker && this._worker_DisposeModules('passed'));
