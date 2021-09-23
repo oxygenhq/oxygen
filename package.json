@@ -88,6 +88,7 @@
     "testdouble": "3.16.1",
     "testingbot-api": "1.0.7",
     "text-to-image": "2.4.4",
+    "tunnel": "0.0.6",
     "twilio": "3.66.1",
     "webdriverio": "7.11.1",
     "when": "3.7.8",

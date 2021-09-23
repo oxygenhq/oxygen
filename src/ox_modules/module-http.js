@@ -78,12 +78,43 @@ export default class HttpModule extends OxygenModule {
      */
     setProxy(url) {
         if (url) {
-            this._userHttpOptions = {
-                ...this._userHttpOptions || {},
-                proxy:  url
-            };
-        } else if (this._userHttpOptions && this._userHttpOptions.proxy) {
-            delete this._userHttpOptions.proxy;
+            const tunnel = require('tunnel');
+            const { parse } = require('url');
+            const parsedUrl = parse(url);
+
+            if (!parsedUrl.hostname) {
+                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Hostname in undefined');
+            }
+            if (!parsedUrl.port) {
+                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Port in undefined');
+            }
+            if (!parsedUrl.protocol) {
+                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Protocol in undefined');
+            }
+
+            if (parsedUrl.protocol === 'https:') {
+                this._agent = {
+                    https: tunnel.httpsOverHttps({
+                        rejectUnauthorized: false,
+                        proxy: {
+                            host: parsedUrl.hostname,
+                            port: parsedUrl.port,
+                            rejectUnauthorized: false
+                        }
+                    })
+                };
+            } else if (parsedUrl.protocol === 'http:') {
+                this._agent = {
+                    http: tunnel.httpOverHttp({
+                        proxy: {
+                            host: parsedUrl.hostname,
+                            port: parsedUrl.port
+                        }
+                    })
+                };
+            }
+        } else if (this._agent) {
+            delete this._agent;
         }
     }
 
@@ -343,6 +374,10 @@ export default class HttpModule extends OxygenModule {
 
     async _httpRequestSync(httpOpts) {
         let result;
+
+        if (this._agent) {
+            httpOpts.agent = this._agent;
+        }
 
         try {
             result = await got(httpOpts);
