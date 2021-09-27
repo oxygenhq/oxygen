@@ -8,7 +8,7 @@
  */
 
 /**
- * @summary Determines whether an <option> or <input> element of type checkbox or radio is currently selected or not.
+ * @summary Determines whether an `option` or `input` element of type checkbox or radio is currently selected or not.
  * @function isSelected
  * @param {String|Element} locator - Element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
