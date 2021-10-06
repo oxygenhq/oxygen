@@ -78,7 +78,10 @@ export default class HttpModule extends OxygenModule {
      */
     setProxy(url) {
         if (url) {
-            const tunnel = require('tunnel');
+            const {
+                bootstrap
+            } = require('global-agent');
+
             const { parse } = require('url');
             const parsedUrl = parse(url);
 
@@ -92,27 +95,8 @@ export default class HttpModule extends OxygenModule {
                 throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Protocol in undefined');
             }
 
-            if (parsedUrl.protocol === 'https:') {
-                this._agent = {
-                    https: tunnel.httpsOverHttps({
-                        rejectUnauthorized: false,
-                        proxy: {
-                            host: parsedUrl.hostname,
-                            port: parsedUrl.port,
-                            rejectUnauthorized: false
-                        }
-                    })
-                };
-            } else if (parsedUrl.protocol === 'http:') {
-                this._agent = {
-                    http: tunnel.httpOverHttp({
-                        proxy: {
-                            host: parsedUrl.hostname,
-                            port: parsedUrl.port
-                        }
-                    })
-                };
-            }
+            bootstrap();
+            global.GLOBAL_AGENT.HTTP_PROXY = url;
         } else if (this._agent) {
             delete this._agent;
         }
@@ -412,6 +396,101 @@ export default class HttpModule extends OxygenModule {
         if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
             throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
         }
+
+        /*
+            Failed to serialize command arguments:  TypeError: Converting circular structure to JSON
+                --> starting at object with constructor 'Socket'
+                |     property '_httpMessage' -> object with constructor 'ClientRequest'
+                --- property 'socket' closes the circle
+        */
+        if (result.client) {
+            delete result.client;
+        }
+        if (result.socket) {
+            delete result.socket;
+        }
+        if (result.connection) {
+            delete result.connection;
+        }
+
+        /*
+            DataCloneError Code: 25 Msg: function responseOnEnd() {
+            const req = this.req;
+
+            if (req.socket && req.timeoutCb) {
+                req.socket.rem...<omitted>...
+            } could not be cloned.
+            DOMException [DataCloneError]: function responseOnEnd() {
+            const req = this.req;
+
+            if (req.socket && req.timeoutCb) {
+                req.socket.rem...<omitted>...
+            } could not be cloned.
+        */
+        if (result._events) {
+            delete result._events;
+        }
+
+        /*
+            DataCloneError Code: 25 Msg: (source) => {
+                source.prependListener('data', unlockWrite);
+                source.on('data', lockWrite)...<omitted>... } could not be cloned.
+        */
+        if (result.request) {
+            delete result.request;
+        }
+
+        /*
+            DataCloneError Code: 25 Msg: (event, ...args) => {
+                        // Catches the `error` event
+                        if (event === 'error') {
+                    ...<omitted>... } could not be cloned.
+        */
+        if (result.emit) {
+            delete result.emit;
+        }
+
+        /*
+            DataCloneError Code: 25 Msg: error => {
+                log.error({
+                    error: (0, _serializeError.serializeError)(error)
+                }, 'request error');
+                } could not be cloned.
+        */
+        if (result.req) {
+            delete result.req;
+        }
+
+        result = {
+            _readableState: result._readableState,
+            readable: result.readable,
+            _eventsCount: result._eventsCount,
+            _maxListeners: result._maxListeners,
+            httpVersionMajor: result.httpVersionMajor,
+            httpVersionMinor: result.httpVersionMinor,
+            httpVersion: result.httpVersion,
+            complete: result.complete,
+            headers: result.headers,
+            rawHeaders: result.rawHeaders,
+            trailers: result.trailers,
+            rawTrailers: result.rawTrailers,
+            aborted: result.aborted,
+            upgrade: result.upgrade,
+            url: result.url,
+            method: result.method,
+            statusMessage: result.statusMessage,
+            _consuming: result._consuming,
+            _dumped: result._dumped,
+            timings: result.timings,
+            requestUrl: result.requestUrl,
+            redirectUrls: result.redirectUrls,
+            isFromCache: result.isFromCache,
+            ip: result.ip,
+            retryCount: result.retryCount,
+            rawBody: result.rawBody,
+            body: result.body
+        };
+
         return result;
     }
 }
