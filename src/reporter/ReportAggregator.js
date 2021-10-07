@@ -170,9 +170,30 @@ export default class ReportAggregator extends EventEmitter {
             }
         }
         // convert grouped results hash to an array
-        const results = Object.keys(groupedResults).map(groupKey => groupedResults[groupKey]);
+        let results = Object.keys(groupedResults).map(groupKey => groupedResults[groupKey]);
+        // change results status to faided if failed suites are finded
+        results = this.recalculateResultForStatus(results);
+
         this.validateResult(results);
         return results;
+    }
+
+    recalculateResultForStatus(results) {
+        return results.map((result) => {
+            if (
+                result &&
+                result.suites &&
+                Array.isArray(result.suites) &&
+                result.suites.length > 0
+            ) {
+                const failed = result.suites.find((suite) => suite.status === 'failed');
+                if (failed) {
+                    result.status = 'failed';
+                }
+            }
+
+            return result;
+        });
     }
 
     validateResult(results) {
