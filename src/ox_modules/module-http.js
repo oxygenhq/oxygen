@@ -478,6 +478,7 @@ export default class HttpModule extends OxygenModule {
             upgrade: result.upgrade,
             url: result.url,
             method: result.method,
+            statusCode: result.statusCode,
             statusMessage: result.statusMessage,
             _consuming: result._consuming,
             _dumped: result._dumped,
