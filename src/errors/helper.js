@@ -212,8 +212,12 @@ module.exports = {
             return new OxError(ERROR_CODES.SCRIPT_ERROR, err.message);
         }
         // RequestError: Timeout awaiting 'request' for 310000ms, name: 'TimeoutError'
-        else if (err.message && err.message.includes('Timeout awaiting \'request\'')) {
-            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT ,  err.message);
+        else if (err.message && err.message.includes('Timeout awaiting \'request\' for')) {
+            const errMessage = err.message.replace(
+                'Timeout awaiting \'request\' for',
+                'Couldn\'t get a response from Selenium/WebDriver within'
+            );
+            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, errMessage);
         }
         else if (err && err.message.includes('socket hang up')) {
             return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
