@@ -1,5 +1,33 @@
 # CHANGELOG
 
+## v1.21.0 (2021-xx-xx)
+
+#### :boom: Breaking Change
+* Previously deprecated `web.selectWindow` with no arguments has been removed.
+
+#### :tada: New Feature
+* `email` module: add support for base64 encoded body and option to download email attachments.
+* Add `utils.dnsResolve`.
+* Add `utils.readXlsx`.
+* Add `web.maximizeWindow`, `web.minimizeWindow`, `web.fullscreenWindow`.
+
+#### :beetle: Bug Fix
+* Fix `mob.sendKeys` argument validation.
+* `web.setTimeout` not having any effect on `web.open`.
+* `web.waitForNotExist` not working as expected.
+
+#### :nail_care: Polish
+* Documentation improvements.
+
+#### :house: Internal
+* Refactor everything for more asynchronicity.
+* Use `got` instead of the no longer supported `request` for `http` module.
+
+## v1.20.2 (2021-09-05)
+
+#### :beetle: Bug Fix
+* Fix key usage in `utils.encrypt`.
+
 ## v1.20.1 (2021-08-06)
 
 #### :beetle: Bug Fix
