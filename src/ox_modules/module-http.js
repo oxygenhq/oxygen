@@ -398,22 +398,14 @@ export default class HttpModule extends OxygenModule {
         }
 
         /*
+            Ignore result.client, result.socket, result.connection, reason:
             Failed to serialize command arguments:  TypeError: Converting circular structure to JSON
                 --> starting at object with constructor 'Socket'
                 |     property '_httpMessage' -> object with constructor 'ClientRequest'
                 --- property 'socket' closes the circle
         */
-        if (result.client) {
-            delete result.client;
-        }
-        if (result.socket) {
-            delete result.socket;
-        }
-        if (result.connection) {
-            delete result.connection;
-        }
-
         /*
+            Ignore result._events, reason:
             DataCloneError Code: 25 Msg: function responseOnEnd() {
             const req = this.req;
 
@@ -427,39 +419,27 @@ export default class HttpModule extends OxygenModule {
                 req.socket.rem...<omitted>...
             } could not be cloned.
         */
-        if (result._events) {
-            delete result._events;
-        }
-
         /*
+            Ignore result.request, reason:
             DataCloneError Code: 25 Msg: (source) => {
                 source.prependListener('data', unlockWrite);
                 source.on('data', lockWrite)...<omitted>... } could not be cloned.
         */
-        if (result.request) {
-            delete result.request;
-        }
-
         /*
+            Ignore result.emit, reason:
             DataCloneError Code: 25 Msg: (event, ...args) => {
                         // Catches the `error` event
                         if (event === 'error') {
                     ...<omitted>... } could not be cloned.
         */
-        if (result.emit) {
-            delete result.emit;
-        }
-
         /*
+            Ignore result.req, reason:
             DataCloneError Code: 25 Msg: error => {
                 log.error({
                     error: (0, _serializeError.serializeError)(error)
                 }, 'request error');
                 } could not be cloned.
         */
-        if (result.req) {
-            delete result.req;
-        }
 
         result = {
             _readableState: result._readableState,
