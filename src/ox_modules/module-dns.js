@@ -35,20 +35,44 @@ export default class DnsModule extends OxygenModule {
     }
 
     /**
-     * @summary Performs resolve dns with a type
+     * @summary Performs resolve dns with A type
      * @function resolveA
-     * @param {String} dnsServer - DNS server.
-     * @param {String} domain - domain.
+     * @param {String} server - name or IP address of the name server to query.
+     * @param {String} name - name of the resource record that is to be looked up.
      * @param {String} dnssec - dnssec.
      * @return {Object} Response object.
      */
-    async resolveA(dnsServer, domain, dnssec = false) {
-        const args = [dnsServer, domain, 'A'];
+    async resolveA(server, name, dnssec = false) {
+        const args = ['@'+server, name, 'A'];
 
         if (dnssec) {
             args.push('+dnssec');
         }
 
+        return await this.dig(args);
+    }
+
+    /**
+     * @summary Performs resolve dns with TXT type
+     * @function resolveTXT
+     * @param {String} server - name or IP address of the name server to query.
+     * @param {String} name - name of the resource record that is to be looked up.
+     * @return {Object} Response object.
+     */
+    async resolveTXT(server, name) {
+        const args = ['@'+server, name, 'TXT'];
+        return await this.dig(args);
+    }
+
+    /**
+     * @summary Performs resolve dns with CNAME type
+     * @function resolveCNAME
+     * @param {String} server - name or IP address of the name server to query.
+     * @param {String} name - name of the resource record that is to be looked up.
+     * @return {Object} Response object.
+     */
+    async resolveCNAME(server, name) {
+        const args = ['@'+server, name, 'CNAME'];
         return await this.dig(args);
     }
 
@@ -141,6 +165,7 @@ export default class DnsModule extends OxygenModule {
             process.stdout.on('end', () => {
                 try {
                     const result = this.parse(shellOutput);
+                    result.shellOutput = shellOutput;
                     resolve(result);
                 } catch (e) {
                     reject(new OxError(errorHelper.errorCode.DNS_ERROR, e.message));
