@@ -83,6 +83,9 @@ export default class DnsModule extends OxygenModule {
             case 'MX': {
                 return { priority: values[4], server: values[5] };
             }
+            case 'RRSIG': {
+                return values.slice(4).join(' ');
+            }
             default: return values[values.length - 1];
         }
     }
