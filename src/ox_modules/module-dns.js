@@ -15,6 +15,8 @@ const MODULE_NAME = 'dns';
 import _ from 'lodash';
 import child from 'child_process';
 import OxygenModule from '../core/OxygenModule';
+import OxError from '../errors/OxygenError';
+import errorHelper from '../errors/helper';
 
 export default class DnsModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -128,16 +130,20 @@ export default class DnsModule extends OxygenModule {
                 shellOutput += chunk;
             });
 
-            process.stdout.on('error', (error) => {
-                reject(error);
+            process.stdout.on('error', (e) => {
+                reject(new OxError(errorHelper.errorCode.DNS_ERROR, e.message));
+            });
+
+            process.on('error', (e) => {
+                reject(new OxError(errorHelper.errorCode.DNS_ERROR, e.message));
             });
 
             process.stdout.on('end', () => {
                 try {
                     const result = this.parse(shellOutput);
                     resolve(result);
-                } catch (err) {
-                    reject(err);
+                } catch (e) {
+                    reject(new OxError(errorHelper.errorCode.DNS_ERROR, e.message));
                 }
             });
         });
