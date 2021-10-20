@@ -165,14 +165,50 @@ export default class DnsModule extends OxygenModule {
                 reject(new OxError(errorHelper.errorCode.DNS_ERROR, e.message));
             });
 
-            process.stdout.on('end', () => {
+            let submitted = false;
+            const submitResult = (code, signal) => {
+                if (submitted) {
+                    return;
+                }
+
                 try {
                     const result = this.parse(shellOutput);
+
+                    if (!result.records) {
+                        result.error = [];
+
+                        if (code) {
+                            result.error.push(`Code: ${code}`);
+                        }
+                        if (signal) {
+                            result.error.push(`Signal: ${signal}`);
+                        }
+                        if (shellOutput) {
+                            result.error.push(shellOutput);
+                        }
+
+                        if (result.error.length > 0) {
+                            result.error = result.error.join(', ');
+                        } else {
+                            result.error = 'Unknown error';
+                        }
+                    }
+
                     result.shellOutput = shellOutput;
+                    submitted = true;
                     resolve(result);
                 } catch (e) {
+                    submitted = true;
                     reject(new OxError(errorHelper.errorCode.DNS_ERROR, e.message));
                 }
+            };
+
+            process.on('exit', (code, signal) => {
+                submitResult(code, signal);
+            });
+
+            process.on('close', (code, signal) => {
+                submitResult(code, signal);
             });
         });
     }
