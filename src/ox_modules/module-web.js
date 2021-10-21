@@ -58,7 +58,8 @@ import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
 import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
-
+import fs from 'fs';
+import path from 'path';
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
 const DEFAULT_BROWSER_NAME = 'chrome';
@@ -78,6 +79,7 @@ export default class WebModule extends WebDriverModule {
         this.errHelper = errHelper;
         // holds element operation timeout value
         this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
+        this.frameNumber = 0; // for video support
     }
 
     get name() {
@@ -561,6 +563,56 @@ export default class WebModule extends WebDriverModule {
                 // ignore
             }
         }
+    }
+
+    async _saveScreenshot() {
+        const recordingPath = path.join(this.options.cwd, 'video');
+        this.createFolderIfNotExists(recordingPath);
+
+        const filename = this.frameNumber.toString().padStart(4, '0') + '.png';
+        const filePath = path.resolve(recordingPath, filename);
+
+        let error;
+        try {
+            if (
+                this.driver &&
+                this.driver.saveScreenshot
+            ) {
+                let retval;
+                this.driver.call(() => {
+                    return new Promise((resolve, reject) => {
+                        const waitUntilRetVal = this.driver.waitUntil(async() => {
+                            return await this.driver.saveScreenshot(filePath);
+                        },
+                        { timeout: 30*1000 });
+
+                        if (waitUntilRetVal && waitUntilRetVal.then) {
+                            waitUntilRetVal.then(() => {
+                                this.frameNumber++;
+                                resolve();
+                            }).catch((err) => {
+                                reject(err);
+                            });
+                        } else {
+                            this.frameNumber++;
+                            resolve();
+                        }
+                    });
+                });
+                return filePath;
+            }
+        } catch (e) {
+            this.logger.error('Cannot saveScreenshot', e);
+        }
+    }
+
+    createFolderIfNotExists(folderPath) {
+        try {
+            fs.mkdirSync(folderPath);
+        } catch (e) {
+            if ( e.code != 'EEXIST' ) throw e;
+        }
+        return folderPath;
     }
 
     _adjustBrowserLog(log) {

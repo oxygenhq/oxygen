@@ -91,6 +91,7 @@ export default class HtmlReporter extends FileReporterBase {
         const resultFolderPath = path.dirname(resultFilePath);
 
         this.replaceScreenshotsWithFiles(results, resultFolderPath);
+        this.moveVideoToReports(results, resultFolderPath);
         this.formatTotalDuration(results);
 
         const templatePath = path.join(__dirname, '../ox_reporters/html/index.ejs');

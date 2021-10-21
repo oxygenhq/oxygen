@@ -99,6 +99,29 @@ export default class FileReporterBase extends ReporterBase {
             step.screenshot = null; // don't save base64 screenshot date to the file
         }
     }
+    // move video from cwd/video to report folder
+    moveVideoToReports(results, folderPath) {
+        let tmpVideoFolder;
+        for (let result of results) {
+            for (let suite of result.suites) {
+                for (let caze of suite.cases) {
+                    if (caze && caze.video) {
+                        const fileName = path.basename(caze.video);
+                        tmpVideoFolder = path.dirname(caze.video);
+                        const newVideoPath = path.join(folderPath, fileName);
+                        // mode video to report folder
+                        fs.renameSync(caze.video, newVideoPath);
+                        caze.video = newVideoPath;
+                    }
+                }
+            }
+        }
+
+        // remove tmp video folder
+        if (tmpVideoFolder) {
+            fs.rmdirSync(tmpVideoFolder);
+        }
+    }
     // format total duration like : 56.2 sec / 31 min 59 sec / 1 hr 31 min 59 sec
     formatTotalDuration(results) {
         if (!Array.isArray(results)) {
