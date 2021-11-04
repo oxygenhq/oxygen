@@ -393,84 +393,37 @@ export default class HttpModule extends OxygenModule {
         // store last response to allow further assertions and validations
         this._lastResponse = result;
 
-        if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
+        /*if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
             throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
+        }*/
+
+        if (result instanceof Error) {
+             result = {
+              errorMessage: result.message,
+              headers: result.response ? result.response.headers : null,
+              statusCode: result.response ? result.response.statusCode : null,
+              statusMessage: result.response ? result.response.statusMessage : null,
+              rawBody: result.response ? result.response.rawBody : null,
+              body: result.response ? result.response.body : null
+            };
+        } else {
+            result = {
+              httpVersion: result.httpVersion,
+              headers: result.headers,
+              upgrade: result.upgrade,
+              url: result.url,
+              method: result.method,
+              statusCode: result.statusCode,
+              statusMessage: result.statusMessage,
+              timings: result.timings,
+              requestUrl: result.requestUrl,
+              redirectUrls: result.redirectUrls,
+              isFromCache: result.isFromCache,
+              ip: result.ip,
+              retryCount: result.retryCount,
+              body: result.body
+            };
         }
-
-        /*
-            Ignore result.client, result.socket, result.connection, reason:
-            Failed to serialize command arguments:  TypeError: Converting circular structure to JSON
-                --> starting at object with constructor 'Socket'
-                |     property '_httpMessage' -> object with constructor 'ClientRequest'
-                --- property 'socket' closes the circle
-        */
-        /*
-            Ignore result._events, reason:
-            DataCloneError Code: 25 Msg: function responseOnEnd() {
-            const req = this.req;
-
-            if (req.socket && req.timeoutCb) {
-                req.socket.rem...<omitted>...
-            } could not be cloned.
-            DOMException [DataCloneError]: function responseOnEnd() {
-            const req = this.req;
-
-            if (req.socket && req.timeoutCb) {
-                req.socket.rem...<omitted>...
-            } could not be cloned.
-        */
-        /*
-            Ignore result.request, reason:
-            DataCloneError Code: 25 Msg: (source) => {
-                source.prependListener('data', unlockWrite);
-                source.on('data', lockWrite)...<omitted>... } could not be cloned.
-        */
-        /*
-            Ignore result.emit, reason:
-            DataCloneError Code: 25 Msg: (event, ...args) => {
-                        // Catches the `error` event
-                        if (event === 'error') {
-                    ...<omitted>... } could not be cloned.
-        */
-        /*
-            Ignore result.req, reason:
-            DataCloneError Code: 25 Msg: error => {
-                log.error({
-                    error: (0, _serializeError.serializeError)(error)
-                }, 'request error');
-                } could not be cloned.
-        */
-
-        result = {
-            _readableState: result._readableState,
-            readable: result.readable,
-            _eventsCount: result._eventsCount,
-            _maxListeners: result._maxListeners,
-            httpVersionMajor: result.httpVersionMajor,
-            httpVersionMinor: result.httpVersionMinor,
-            httpVersion: result.httpVersion,
-            complete: result.complete,
-            headers: result.headers,
-            rawHeaders: result.rawHeaders,
-            trailers: result.trailers,
-            rawTrailers: result.rawTrailers,
-            aborted: result.aborted,
-            upgrade: result.upgrade,
-            url: result.url,
-            method: result.method,
-            statusCode: result.statusCode,
-            statusMessage: result.statusMessage,
-            _consuming: result._consuming,
-            _dumped: result._dumped,
-            timings: result.timings,
-            requestUrl: result.requestUrl,
-            redirectUrls: result.redirectUrls,
-            isFromCache: result.isFromCache,
-            ip: result.ip,
-            retryCount: result.retryCount,
-            rawBody: result.rawBody,
-            body: result.body
-        };
 
         return result;
     }
