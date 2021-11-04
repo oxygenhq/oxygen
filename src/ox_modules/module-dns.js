@@ -86,6 +86,9 @@ export default class DnsModule extends OxygenModule {
             case 'RRSIG': {
                 return values.slice(4).join(' ');
             }
+            case 'TXT': {
+                return values.slice(4).join(' ').replace(/"/g, '');
+            }
             default: return values[values.length - 1];
         }
     }
