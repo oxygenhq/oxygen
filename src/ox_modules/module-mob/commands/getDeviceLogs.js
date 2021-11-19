@@ -32,19 +32,13 @@ module.exports = async function () {
                     continue;
                 }
                 const types = this.helpers.getLogTypes(context);
-                if (types && Array.isArray(types) && types.length > 0) {
-                    for (let i in types) {
-                        if (types[i] !== 'browser') {
-                            const logs = await this.driver.getLogs(types[i]);
-                            if (logs && Array.isArray(logs) && logs.length > 0) {
-                                allLogs = [
-                                    ...allLogs,
-                                    ...logs
-                                ];
-                            }
-                        }
-                    }
-                }
+				if (types && Array.isArray(types) && types.length > 0 && types.some(t => t === 'logcat')) {
+					const logs = await this.driver.getLogs('logcat');
+					allLogs = [
+                        ...allLogs,
+						...logs
+                    ];
+				}
             }
             await this.driver.switchContext(this.appContext);
         }
