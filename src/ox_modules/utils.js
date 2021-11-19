@@ -253,10 +253,17 @@ module.exports = {
             this._prevPageLoadTimeout = timeouts.pageLoad;
         }
         if (this.driver.setTimeout) {
-            await this.driver.setTimeout({
-                'implicit': timeout,
-                'pageLoad': timeout
-            });
+            if (this.driver.capabilities && this.driver.capabilities.browserName) {
+                // browserName 'default' on android 
+                await this.driver.setTimeout({
+                    'implicit': timeout,
+                    'pageLoad': timeout
+                });
+            } else {
+                await this.driver.setTimeout({
+                    'implicit': timeout,
+                });
+            }
         }
     },
 
