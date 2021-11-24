@@ -22,6 +22,7 @@ module.exports = function() {
     var options = {
         rejectUnauthorized: false
     };
+    var lastResponseHeaders = null;
 
     module.isInitialized = function() {
         return true;
@@ -125,6 +126,7 @@ module.exports = function() {
                     }
 
                     client[method](args, (err, res) => {
+                        lastResponseHeaders = client.lastResponseHeaders;
                         if (err !== null) {
                             result = new OxError(errHelper.errorCode.SOAP_ERROR, err.root.Envelope.Body.Fault.faultstring);
                             resolve();
@@ -148,6 +150,15 @@ module.exports = function() {
         }
 
         return result;
+    };
+
+    /**
+     * @summary Returns last response headers.
+     * @function getLastResponseHeaders
+     * @return {Object} IncomingHttpHeaders (https://microsoft.github.io/PowerBI-JavaScript/interfaces/_node_modules__types_node_http2_d_._http2_.incominghttpheaders.html).
+     */
+    module.getLastResponseHeaders = function() {
+        return lastResponseHeaders;
     };
 
     /**
