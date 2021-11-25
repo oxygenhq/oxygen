@@ -22,13 +22,13 @@ const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
 const DAFAULT_HTTP2 = false;
 const DEFAULT_HTTP_OPTIONS = {
     decompress: true,
-    responseType: 'json',
+    responseType: 'text',
     timeout: {
-        lookup: 100,
-        connect: 50,
-        secureConnect: 50,
-        socket: 10000,
-        send: 10000,
+        lookup: 1000,
+        connect: 500,
+        secureConnect: 500,
+        socket: 100000,
+        send: 100000,
         response: RESPONSE_TIMEOUT
     },
     http2: DAFAULT_HTTP2,
@@ -78,12 +78,27 @@ export default class HttpModule extends OxygenModule {
      */
     setProxy(url) {
         if (url) {
-            this._userHttpOptions = {
-                ...this._userHttpOptions || {},
-                proxy:  url
-            };
-        } else if (this._userHttpOptions && this._userHttpOptions.proxy) {
-            delete this._userHttpOptions.proxy;
+            const {
+                bootstrap
+            } = require('global-agent');
+
+            const { parse } = require('url');
+            const parsedUrl = parse(url);
+
+            if (!parsedUrl.hostname) {
+                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Hostname in undefined');
+            }
+            if (!parsedUrl.port) {
+                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Port in undefined');
+            }
+            if (!parsedUrl.protocol) {
+                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Protocol in undefined');
+            }
+
+            bootstrap();
+            global.GLOBAL_AGENT.HTTP_PROXY = url;
+        } else {
+            global.GLOBAL_AGENT.HTTP_PROXY = false;
         }
     }
 
@@ -354,7 +369,7 @@ export default class HttpModule extends OxygenModule {
                     return new Promise((resolve, reject) => {
                         decomp.on('data', (data) => {
                             result.body = data.toString();
-                            if (result.headers['content-type'] === 'application/json') {
+                            if (result.headers['content-type'].includes('application/json')) {
                                 try {
                                     result.body = JSON.parse(result.body);
                                 } catch (e) {
@@ -365,6 +380,14 @@ export default class HttpModule extends OxygenModule {
                         });
                     });
                 })();
+            } else {
+                if (result.headers['content-type'].includes('application/json')) {
+                    try {
+                        result.body = JSON.parse(result.body);
+                    } catch (e) {
+                        // if parsing fails just return the original string
+                    }
+                }
             }
 
         } catch (e) {
@@ -374,9 +397,34 @@ export default class HttpModule extends OxygenModule {
         // store last response to allow further assertions and validations
         this._lastResponse = result;
 
-        if (result instanceof Error && this.options && !this.options.httpAutoThrowError) {
-            throw new OxError(errHelper.errorCode.HTTP_ERROR, result.message);
+        if (result instanceof Error) {
+            result = {
+                errorMessage: result.message,
+                headers: result.response ? result.response.headers : null,
+                statusCode: result.response ? result.response.statusCode : null,
+                statusMessage: result.response ? result.response.statusMessage : null,
+                rawBody: result.response ? result.response.rawBody : null,
+                body: result.response ? result.response.body : null
+            };
+        } else {
+            result = {
+                httpVersion: result.httpVersion,
+                headers: result.headers,
+                upgrade: result.upgrade,
+                url: result.url,
+                method: result.method,
+                statusCode: result.statusCode,
+                statusMessage: result.statusMessage,
+                timings: result.timings,
+                requestUrl: result.requestUrl,
+                redirectUrls: result.redirectUrls,
+                isFromCache: result.isFromCache,
+                ip: result.ip,
+                retryCount: result.retryCount,
+                body: result.body
+            };
         }
+
         return result;
     }
 }
