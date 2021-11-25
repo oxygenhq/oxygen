@@ -78,6 +78,7 @@ module.exports = function() {
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
      * @param {String} method - Method name (case sensitive).
      * @param {Object=} args - Object containing the arguments.
+     * @param {Object=} wsdlHeaders - custom HTTP headers to be sent on WSDL requests.
      * @return {Object} The response object.
      * @example <caption>[javascript] Usage example</caption>
      * // get SOAP service description, so we can understand what methods it provides,
@@ -90,11 +91,11 @@ module.exports = function() {
      * var result = soap.get(serviceUrl, 'NumberToWords', { 'ubiNum': 2019 });
      * log.info(result.NumberToWordsResult);
      */
-    module.get = function(wsdlUrl, method, args) {
+    module.get = async function(wsdlUrl, method, args, wsdlHeaders = {}) {
         var resultClient = null;
         var result = null;
 
-        soap.createClient(wsdlUrl, { wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
+        soap.createClient(wsdlUrl, { wsdl_options: { ...options, ...proxyOptions }, wsdl_headers: wsdlHeaders}, (err, client) => {
             if (client === undefined) {
                 var msg =  'Error creating client';
                 if (err.message) {
@@ -159,12 +160,13 @@ module.exports = function() {
      * @summary Returns SOAP service description.
      * @function describe
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
+     * @param {Object=} wsdlHeaders - custom HTTP headers to be sent on WSDL requests.
      * @return {Object} Service description.
      */
-    module.describe = function(wsdlUrl) {
+    module.describe = async function(wsdlUrl, wsdlHeaders = {}) {
         var resultClient = null;
 
-        soap.createClient(wsdlUrl,{ wsdl_options: { ...options, ...proxyOptions }}, (err, client) => {
+        soap.createClient(wsdlUrl,{ wsdl_options: { ...options, ...proxyOptions }, wsdl_headers: wsdlHeaders}, (err, client) => {
             if (client === undefined) {
                 var msg =  'Error creating client';
                 if (err.message) {
