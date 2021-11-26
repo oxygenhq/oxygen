@@ -10,6 +10,8 @@
 * Add `utils.dnsResolve`.
 * Add `utils.readXlsx`.
 * Add `web.maximizeWindow`, `web.minimizeWindow`, `web.fullscreenWindow`.
+* Add `soap.getLastRequestHeaders`.
+* `soap.get`: allow passing HTTP request headers.
 
 #### :beetle: Bug Fix
 * Fix `mob.sendKeys` argument validation.
