@@ -127,13 +127,14 @@ module.exports = function() {
 
                     client[method](args, (err, res) => {
                         lastResponseHeaders = client.lastResponseHeaders;
-                        if (err !== null) {
+                        if (err !== null && err.root && err.root.Envelope && err.root.Envelope.Body && err.root.Envelope.Body.Fault) {
                             result = new OxError(errHelper.errorCode.SOAP_ERROR, err.root.Envelope.Body.Fault.faultstring);
-                            resolve();
-                            return;
+                        } else if (err !== null) {
+                            result = new OxError(errHelper.errorCode.SOAP_ERROR, JSON.stringify(err, null, 2));
+                        } else {
+                            result = res;
                         }
 
-                        result = res;
                         resolve();
                         return;
                     }, { ...options, ...proxyOptions });
