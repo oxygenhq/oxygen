@@ -126,6 +126,12 @@ module.exports = function() {
                         client.setSecurity(auth);
                     }
 
+                    if (wsdlHeaders) {
+                        for (const header in wsdlHeaders) {
+                            client.addHttpHeader(header, wsdlHeaders[header]);
+                        }
+                    }
+
                     client[method](args, (err, res) => {
                         lastResponseHeaders = client.lastResponseHeaders;
                         if (err !== null && err.root && err.root.Envelope && err.root.Envelope.Body && err.root.Envelope.Body.Fault) {
