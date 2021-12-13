@@ -403,5 +403,23 @@ module.exports = {
         }
 
         return null;
-    }
+    },
+
+    hasCircularDependency: function (obj) {
+        try {
+            JSON.stringify(obj);
+        } catch (e) {
+            if (String(e).includes('Converting circular structure to JSON')) {
+                return String(e);
+            }
+        }
+        return false;
+    },
+
+    assertCircular: function(obj) {
+        const hasCircularDependency = this.hasCircularDependency(obj);
+        if (hasCircularDependency) {
+            throw new OxError(errHelper.errorCode.CIRCULAR_ERROR, hasCircularDependency);
+        }
+    },
 };

@@ -145,13 +145,15 @@ export default class HttpModule extends OxygenModule {
      * @return {Object} Response object.
      */
     async post(url, data, headers) {
+        const resolvedData = this._resolveData(data);
+
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
             url: url,
             method: 'POST',
-            body: data,
-            headers: headers || {}
+            headers: headers || {},
+            ...resolvedData
         };
         return await this._httpRequestSync(httpOpts);
     }
@@ -165,13 +167,15 @@ export default class HttpModule extends OxygenModule {
      * @return {Object} Response object.
      */
     async put(url, data, headers) {
+        const resolvedData = this._resolveData(data);
+
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
             url: url,
             method: 'PUT',
-            body: data,
-            headers: headers || {}
+            headers: headers || {},
+            ...resolvedData
         };
         return await this._httpRequestSync(httpOpts);
     }
@@ -185,13 +189,15 @@ export default class HttpModule extends OxygenModule {
      * @return {Object} Response object.
      */
     async patch(url, data, headers) {
+        const resolvedData = this._resolveData(data);
+
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
             url: url,
             method: 'PATCH',
-            body: data,
-            headers: headers || {}
+            headers: headers || {},
+            ...resolvedData
         };
         return await this._httpRequestSync(httpOpts);
     }
@@ -201,15 +207,18 @@ export default class HttpModule extends OxygenModule {
      * @function delete
      * @param {String} url - URL.
      * @param {Object=} headers - HTTP headers.
+     * @param {Object} data - Data.
      * @return {Object} Response object.
      */
-    async delete(url, headers) {
+    async delete(url, headers, data) {
+        const resolvedData = this._resolveData(data);
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
             url: url,
             method: 'DELETE',
-            headers: headers || {}
+            headers: headers || {},
+            ...resolvedData
         };
         return await this._httpRequestSync(httpOpts);
     }
@@ -354,6 +363,19 @@ export default class HttpModule extends OxygenModule {
      */
     async transaction(name) {
         global._lastTransactionName = name;
+    }
+
+    _resolveData(data) {
+        const dataResolver = {};
+
+        if (data instanceof Object) {
+            modUtils.assertCircular(data);
+            dataResolver.json = data;
+        } else {
+            dataResolver.body = data;
+        }
+
+        return dataResolver;
     }
 
     async _httpRequestSync(httpOpts) {

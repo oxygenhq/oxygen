@@ -69,7 +69,8 @@ const ERROR_CODES = {
     FILE_BROWSE_ERROR: 'FILE_BROWSE_ERROR',
     CSV_ERROR: 'CSV_ERROR',
     CRYPTO_ERROR: 'CRYPTO_ERROR',
-    DNS_ERROR: 'DNS_ERROR'
+    DNS_ERROR: 'DNS_ERROR',
+    CIRCULAR_ERROR: 'CIRCULAR_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
