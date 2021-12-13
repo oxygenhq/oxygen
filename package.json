@@ -99,7 +99,7 @@
     "xlsx": "0.17.0"
   },
   "optionalDependencies": {
-    "odbc": "2.4.0"
+    "odbc": "2.4.1"
   },
   "scripts": {
     "build": "run-s clean compile",
