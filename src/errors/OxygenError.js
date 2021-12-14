@@ -63,20 +63,25 @@ export default class OxygenError extends Error {
 
         if (this.orgErr && this.orgErr.stack) {
             const anotherStack = stackTraceParser.parse(this.orgErr.stack);
-            // 0 element don't have correct information about lineNumber and column
+
             if (
                 anotherStack &&
-                anotherStack.length &&
-                anotherStack.length > 1 &&
-                anotherStack[1]['file'] &&
-                anotherStack[0]['file'] &&
-                anotherStack[1]['file'] === anotherStack[0]['file'] &&
-                anotherStack[1]['lineNumber'] &&
-                anotherStack[1]['column']
+                Array.isArray(anotherStack) &&
+                anotherStack.length > 0
             ) {
-                anotherFile = anotherStack[1]['file'];
-                anotherLineNumber = anotherStack[1]['lineNumber'];
-                anotherColumn = anotherStack[1]['column'];
+                for (let i = 0; i < anotherStack.length; i++) {
+
+                    if (
+                        fs.existsSync(anotherStack[i]['file']) &&
+                        anotherStack[i]['lineNumber'] &&
+                        !anotherFile &&
+                        !anotherLineNumber
+                    ) {
+                        anotherFile = anotherStack[i]['file'];
+                        anotherLineNumber = anotherStack[i]['lineNumber'];
+                        anotherColumn = anotherStack[i]['column'] || 1;
+                    }
+                }
             }
         }
 
