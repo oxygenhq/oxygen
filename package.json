@@ -96,7 +96,7 @@
     "twilio": "3.66.1",
     "webdriverio": "7.9.0",
     "when": "3.7.8",
-    "xlsx": "0.17.0"
+    "xlsx": "0.17.4"
   },
   "optionalDependencies": {
     "odbc": "2.4.1"
