@@ -407,30 +407,30 @@ export default class HttpModule extends OxygenModule {
         }*/
 
         if (result instanceof Error) {
-             result = {
-              errorMessage: result.message,
-              headers: result.response ? result.response.headers : null,
-              statusCode: result.response ? result.response.statusCode : null,
-              statusMessage: result.response ? result.response.statusMessage : null,
-              rawBody: result.response ? result.response.rawBody : null,
-              body: result.response ? result.response.body : null
+            result = {
+                errorMessage: result.message,
+                headers: result.response ? result.response.headers : null,
+                statusCode: result.response ? result.response.statusCode : null,
+                statusMessage: result.response ? result.response.statusMessage : null,
+                rawBody: result.response ? result.response.rawBody : null,
+                body: result.response ? result.response.body : null
             };
         } else {
             result = {
-              httpVersion: result.httpVersion,
-              headers: result.headers,
-              upgrade: result.upgrade,
-              url: result.url,
-              method: result.method,
-              statusCode: result.statusCode,
-              statusMessage: result.statusMessage,
-              timings: result.timings,
-              requestUrl: result.requestUrl,
-              redirectUrls: result.redirectUrls,
-              isFromCache: result.isFromCache,
-              ip: result.ip,
-              retryCount: result.retryCount,
-              body: result.body
+                httpVersion: result.httpVersion,
+                headers: result.headers,
+                upgrade: result.upgrade,
+                url: result.url,
+                method: result.method,
+                statusCode: result.statusCode,
+                statusMessage: result.statusMessage,
+                timings: result.timings,
+                requestUrl: result.requestUrl,
+                redirectUrls: result.redirectUrls,
+                isFromCache: result.isFromCache,
+                ip: result.ip,
+                retryCount: result.retryCount,
+                body: result.body
             };
         }
 
