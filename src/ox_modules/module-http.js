@@ -126,12 +126,21 @@ export default class HttpModule extends OxygenModule {
      * log.info(response.body);
      */
     async get(url, headers) {
+
+        var hd={ Connection: 'keep-alive'};
+        if (headers) {
+            hd = headers;
+            if (!headers.connection && !headers.Connection) {
+                hd.Connection = 'keep-alive';
+            }
+        }
+
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
             url: url,
             method: 'GET',
-            headers: headers || {}
+            headers: hd
         };
         return await this._httpRequestSync(httpOpts);
     }
