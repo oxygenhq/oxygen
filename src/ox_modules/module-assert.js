@@ -70,10 +70,10 @@ module.exports = function() {
     };
 
     /**
-     * @summary Asserts that two values are equal.
+     * @summary Asserts that two values are equal (non-strict equality).
      * @function equal
-     * @param {String} actual - Actual value.
-     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with `regex:`.
+     * @param {Object} actual - Actual value.
+     * @param {Object} expected - Expected value. Either an object or a string prefixed with `regex:`.
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.equal = function(actual, expected, message) {
@@ -82,14 +82,6 @@ module.exports = function() {
                 var regex = new RegExp(expected.substring('regex:'.length));
                 chai.assert.match(actual, regex, message);
             } else {
-                // check if both values are string that can be converted to number
-                // if yes, convert them to number first and then compare
-                if (typeof actual === 'string' && !isNaN(actual)) {
-                    actual = parseInt(actual);
-                }
-                if (typeof expected === 'string' && !isNaN(expected)) {
-                    expected = parseInt(expected);
-                }
                 chai.assert.equal(actual, expected, message);
             }
         }
@@ -98,10 +90,10 @@ module.exports = function() {
         }
     };
     /**
-     * @summary Asserts that two values are not equal.
+     * @summary Asserts that two values are not equal (non-strict inequality).
      * @function notEqual
-     * @param {String} actual - Actual value.
-     * @param {String} expected - Expected value. Either a verbatim string or a regex string prefixed with `regex:`.
+     * @param {Object} actual - Actual value.
+     * @param {Object} expected - Expected value. Either an object or a string prefixed with `regex:`.
      * @param {String=} message - Message to throw if assertion fails.
      */
     module.notEqual = function(actual, expected, message) {
