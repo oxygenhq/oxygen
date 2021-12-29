@@ -54,11 +54,11 @@ export default class DevToolsService extends OxygenService {
                 console.log('UNSUPPORTED_ERROR_MESSAGE', UNSUPPORTED_ERROR_MESSAGE);
             }
 
-            if (devToolsSvc.isSupported) {
+            if (devToolsSvc._isSupported) {
                 // change global.browser to the current module's webdriver instance
                 // const orgGlobalBrowser = global.browser;
                 global.browser = module.getDriver();
-                await devToolsSvc.before();
+                await devToolsSvc.before(null, null, this._driver);
                 submodule.init(devToolsSvc);
                 // global.browser = orgGlobalBrowser;
             }
