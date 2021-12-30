@@ -32,6 +32,8 @@ export default class NetworkSubModule extends OxygenSubModule {
         this._driver = this._parent.getDriver();
         this._driver.on('Network.responseReceived', this._onNetworkResponseReceived.bind(this));
         this._driver.on('Network.requestWillBeSent', this._onNetworkRequestWillBeSent.bind(this));
+        this._driver.on('Network.loadingFinished', this._onNetworkLoadingFinished.bind(this));
+        this._driver.on('Network.loadingFailed', this._onNetworkLoadingFailed.bind(this));
         super.init();
         return true;
     }
@@ -42,6 +44,8 @@ export default class NetworkSubModule extends OxygenSubModule {
             if (this._driver) {
                 await this._driver.removeListener('Network.responseReceived', () => {});
                 await this._driver.removeListener('Network.requestWillBeSent', () => {});
+                await this._driver.removeListener('Network.loadingFinished', () => {});
+                await this._driver.removeListener('Network.loadingFailed', () => {});
                 await this._driver.emit('Network.disable');
                 await this._driver.emit('Network.close');
             }
@@ -312,7 +316,7 @@ export default class NetworkSubModule extends OxygenSubModule {
                 });
             } catch (e) {
                 // ignore getResponseBody errors
-                console.log('onNetworkResponseReceived Network.getResponseBody e', e);
+                // console.log('onNetworkResponseReceived Network.getResponseBody e', e);
             }
 
             let requestPostData;
@@ -322,7 +326,7 @@ export default class NetworkSubModule extends OxygenSubModule {
                 });
             } catch (e) {
                 // ignore getRequestPostData errors
-                console.log('onNetworkResponseReceived Network.getRequestPostData e', e);
+                // console.log('onNetworkResponseReceived Network.getRequestPostData e', e);
             }
 
             if (
@@ -336,7 +340,7 @@ export default class NetworkSubModule extends OxygenSubModule {
                     }
                 } catch (e) {
                     // ignore json parse response Body errors
-                    console.log('onNetworkResponseReceived responseBody parse e', e);
+                    // console.log('onNetworkResponseReceived responseBody parse e', e);
                 }
                 try {
                     if (requestPostData && requestPostData.postData) {
@@ -344,7 +348,7 @@ export default class NetworkSubModule extends OxygenSubModule {
                     }
                 } catch (e) {
                     // ignore json parse request Post Data errors
-                    console.log('onNetworkResponseReceived requestPostData parse e', e);
+                    // console.log('onNetworkResponseReceived requestPostData parse e', e);
                 }
             }
 
@@ -362,7 +366,7 @@ export default class NetworkSubModule extends OxygenSubModule {
                 });
             } catch (e) {
                 // ignore getRequestPostData errors
-                console.log('onNetworkRequestWillBeSent Network.getRequestPostData e', e);
+                // console.log('onNetworkRequestWillBeSent Network.getRequestPostData e', e);
             }
 
             try {
@@ -371,10 +375,53 @@ export default class NetworkSubModule extends OxygenSubModule {
                 }
             } catch (e) {
                 // ignore json parse request Post Data errors
-                console.log('onNetworkRequestWillBeSent requestPostData parse e', e);
+                // console.log('onNetworkRequestWillBeSent requestPostData parse e', e);
             }
 
             this._networkRequests.push({ requestId: params.requestId, ...params.redirectResponse, requestPostData });
         }
+    }
+
+    async _onNetworkLoadingFinished(params) {
+        if (this._collectData) {
+            await this._catchResponseBody(params);
+        }
+    }
+
+    async _onNetworkLoadingFailed(params) {
+        if (this._collectData) {
+            await this._catchResponseBody(params);
+        }
+    }
+
+    async _catchResponseBody(params) {
+        let responseBody = {};
+        try {
+            responseBody = await this._driver.cdp('Network','getResponseBody', {
+                requestId: params.requestId
+            });
+
+        } catch (e) {
+            // ignore getResponseBody errors
+        }
+
+        if (responseBody && responseBody.body) {
+            try {
+                responseBody.body = JSON.parse(responseBody.body);
+            } catch (e) {
+                // ignore parse errors
+            }
+        }
+
+        let requestPostData = {};
+        try {
+            requestPostData = await this._driver.cdp('Network','getRequestPostData', {
+                requestId: params.requestId
+            });
+        } catch (e) {
+            // ignore getRequestPostData errors
+        }
+
+        this._networkRequests.push({ requestId: params.requestId, ...params.response, responseBody, requestPostData });
     }
 }
