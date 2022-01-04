@@ -11,16 +11,61 @@
  * Provides methods for monitoring and analyzing Chrome browser network activities.
 */
 import { OxygenSubModule } from '../../core/OxygenSubModule';
-
+import { harFromMessages } from 'chrome-har';
 import errHelper from '../../errors/helper';
 import OxError from '../../errors/OxygenError';
 
+const observe = [
+    'Page.domContentEventFired',
+    'Page.fileChooserOpened',
+    'Page.frameAttached',
+    'Page.frameDetached',
+    'Page.frameNavigated',
+    'Page.interstitialHidden',
+    'Page.interstitialShown',
+    'Page.javascriptDialogClosed',
+    'Page.javascriptDialogOpening',
+    'Page.lifecycleEvent',
+    'Page.loadEventFired',
+    'Page.windowOpen',
+    'Page.frameClearedScheduledNavigation',
+    'Page.frameScheduledNavigation',
+    'Page.compilationCacheProduced',
+    'Page.downloadProgress',
+    'Page.downloadWillBegin',
+    'Page.frameRequestedNavigation',
+    'Page.frameResized',
+    'Page.frameStartedLoading',
+    'Page.frameStoppedLoading',
+    'Page.navigatedWithinDocument',
+    'Page.screencastFrame',
+    'Page.screencastVisibilityChanged',
+    'Network.dataReceived',
+    'Network.eventSourceMessageReceived',
+    'Network.loadingFailed',
+    'Network.loadingFinished',
+    'Network.requestServedFromCache',
+    'Network.requestWillBeSent',
+    'Network.responseReceived',
+    'Network.webSocketClosed',
+    'Network.webSocketCreated',
+    'Network.webSocketFrameError',
+    'Network.webSocketFrameReceived',
+    'Network.webSocketFrameSent',
+    'Network.webSocketHandshakeResponseReceived',
+    'Network.webSocketWillSendHandshakeRequest',
+    'Network.requestWillBeSentExtraInfo',
+    'Network.resourceChangedPriority',
+    'Network.responseReceivedExtraInfo',
+    'Network.signedExchangeReceived',
+    'Network.requestIntercepted'
+];
 export default class NetworkSubModule extends OxygenSubModule {
     constructor(name, parent) {
         super(name, parent);
         this._devTools = null;
-        this._networkRequests = [];
         this._collectData = false;
+        this._events = [];
     }
 
     init(devTools) {
@@ -30,10 +75,15 @@ export default class NetworkSubModule extends OxygenSubModule {
         }
         this._devTools = devTools;
         this._driver = this._parent.getDriver();
-        this._driver.on('Network.responseReceived', this._onNetworkResponseReceived.bind(this));
-        this._driver.on('Network.requestWillBeSent', this._onNetworkRequestWillBeSent.bind(this));
-        this._driver.on('Network.loadingFinished', this._onNetworkLoadingFinished.bind(this));
-        this._driver.on('Network.loadingFailed', this._onNetworkLoadingFailed.bind(this));
+
+        observe.forEach(method => {
+            this._driver.on(method, params => {
+                if (this._collectData) {
+                    this._events.push({ method, params });
+                }
+            });
+        });
+
         super.init();
         return true;
     }
@@ -42,10 +92,11 @@ export default class NetworkSubModule extends OxygenSubModule {
 
         try {
             if (this._driver) {
-                await this._driver.removeListener('Network.responseReceived', () => {});
-                await this._driver.removeListener('Network.requestWillBeSent', () => {});
-                await this._driver.removeListener('Network.loadingFinished', () => {});
-                await this._driver.removeListener('Network.loadingFailed', () => {});
+
+                observe.forEach(async method => {
+                    await this._driver.removeListener(method, () => {});
+                });
+
                 await this._driver.emit('Network.disable');
                 await this._driver.emit('Network.close');
             }
@@ -55,9 +106,10 @@ export default class NetworkSubModule extends OxygenSubModule {
 
         this._devTools = null;
         this._driver = null;
-        this._networkRequests = [];
+        this._events = [];
         super.dispose();
     }
+
     /**
      * @summary Begin collecting network requests.
      * @description Any previously collected requests will be discarded. Network request collection is supported only on Chrome 63 and later.
@@ -82,8 +134,9 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     start() {
         this._collectData = true;
-        this._networkRequests = [];
+        this._events = [];
     }
+
     /**
      * @summary Stop collecting network requests.
      * @function stop
@@ -91,14 +144,67 @@ export default class NetworkSubModule extends OxygenSubModule {
     stop() {
         this._collectData = false;
     }
+
     /**
      * @summary Return all the collected network requests so far.
      * @function getRequests
      * @return {Object[]} Array containing network requests.
      */
-    getRequests() {
-        return this._networkRequests;
+    async getRequests() {
+        return await this._getEntries();
     }
+
+    async _getEntries() {
+        try {
+            const har = harFromMessages(this._events);
+
+            if (har && har.log && har.log.entries && har.log.entries.map) {
+                return await Promise.all(har.log.entries.map(async (item) => {
+                    // backward compatibility
+
+                    let responseBody = {};
+                    try {
+                        responseBody = await this._driver.cdp('Network','getResponseBody', {
+                            requestId: item._requestId
+                        });
+                    } catch (e) {
+                        // ignore getResponseBody errors
+                    }
+
+                    if (responseBody && responseBody.body) {
+                        try {
+                            responseBody.body = JSON.parse(responseBody.body);
+                        } catch (e) {
+                            // ignore parse errors
+                        }
+                    }
+
+                    let requestPostData = {};
+                    try {
+                        requestPostData = await this._driver.cdp('Network','getRequestPostData', {
+                            requestId: item._requestId
+                        });
+                    } catch (e) {
+                        // ignore getRequestPostData errors
+                    }
+
+                    return {
+                        ...item,
+                        url: item.request.url,
+                        requestId: item._requestId,
+                        ...item.response,
+                        responseBody,
+                        requestPostData
+                    };
+                }));
+            } else {
+                return [];
+            }
+        } catch (e) {
+            return [];
+        }
+    }
+
     /**
      * @summary Wait for a network request matching the specified URL.
      * @function waitForUrl
@@ -106,7 +212,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      * @return {Object} Network request details if the network request was found.
      */
-    waitForUrl(pattern, timeout = 60*1000) {
+    async waitForUrl(pattern, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
@@ -119,12 +225,13 @@ export default class NetworkSubModule extends OxygenSubModule {
         this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
         const start = Date.now();
         while (Date.now() - start < timeout) {
-            for (let req of this._networkRequests) {
+            const networkRequests = await this._getEntries();
+            for (let req of networkRequests) {
                 if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
                     return req;
                 }
             }
-            this._driver.pause(500);
+            await this._driver.pause(500);
         }
         throw new OxError(errHelper.errorCode.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
     }
@@ -135,7 +242,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      * @param {String|RegExp} pattern - An URL to match verbatim or a RegExp.
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      */
-    waitForNotUrl(pattern, timeout = 60*1000) {
+    async waitForNotUrl(pattern, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
@@ -148,12 +255,13 @@ export default class NetworkSubModule extends OxygenSubModule {
         this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
         const start = Date.now();
         while (Date.now() - start < timeout) {
-            for (let req of this._networkRequests) {
+            const networkRequests = await this._getEntries();
+            for (let req of networkRequests) {
                 if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
                     throw new OxError(errHelper.errorCode.TIMEOUT, `A request matching the URL "${pattern}" was found.`);
                 }
             }
-            this._driver.pause(500);
+            await this._driver.pause(500);
         }
     }
 
@@ -164,7 +272,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      * @return {Object} Network request details if the network request was found.
      */
-    waitFor(matcher, timeout = 60*1000) {
+    async waitFor(matcher, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` module is not initialized.');
         }
@@ -177,12 +285,13 @@ export default class NetworkSubModule extends OxygenSubModule {
         this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
         const start = Date.now();
         while (Date.now() - start < timeout) {
-            for (var req of this._networkRequests) {
+            const networkRequests = await this._getEntries();
+            for (var req of networkRequests) {
                 if (matcher(req)) {
                     return req;
                 }
             }
-            this._driver.pause(500);
+            await this._driver.pause(500);
         }
         throw new OxError(errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher.');
     }
@@ -194,7 +303,7 @@ export default class NetworkSubModule extends OxygenSubModule {
      * @param {Number=} timeout - Timeout. Default is 60 seconds.
      * @return {Object} Network request details if the network request was found.
      */
-    assertUrl(url, timeout = 60*1000) {
+    async assertUrl(url, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
             throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
@@ -207,12 +316,13 @@ export default class NetworkSubModule extends OxygenSubModule {
         this._parent.helpers.assertArgumentTimeout(timeout, 'timeout');
         const start = Date.now();
         while (Date.now() - start < timeout) {
-            for (let req of this._networkRequests) {
+            const networkRequests = await this._getEntries();
+            for (let req of networkRequests) {
                 if (url.constructor.name === 'RegExp' && url.test(req.url) || url === req.url) {
                     return req;
                 }
             }
-            this._driver.pause(500);
+            await this._driver.pause(500);
         }
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
     }
@@ -241,13 +351,14 @@ export default class NetworkSubModule extends OxygenSubModule {
         const start = Date.now();
         let matchedReq = null;
         while (Date.now() - start < timeout && !matchedReq) {
-            for (let req of this._networkRequests) {
+            const networkRequests = await this._getEntries();
+            for (let req of networkRequests) {
                 if (url.constructor.name === 'RegExp' && url.test(req.url) || url === req.url) {
                     matchedReq = req;
                     break;
                 }
             }
-            !matchedReq && this._driver.pause(500);
+            !matchedReq && await this._driver.pause(500);
         }
         if (!matchedReq) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
@@ -282,13 +393,14 @@ export default class NetworkSubModule extends OxygenSubModule {
         const start = Date.now();
         let matchedReq = null;
         while (Date.now() - start < timeout && !matchedReq) {
-            for (let req of this._networkRequests) {
+            const networkRequests = await this._getEntries();
+            for (let req of networkRequests) {
                 if (url.constructor.name === 'RegExp' && url.test(req.url) || url === req.url) {
                     matchedReq = req;
                     break;
                 }
             }
-            !matchedReq && this._driver.pause(500);
+            !matchedReq && await this._driver.pause(500);
         }
         if (!matchedReq) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
@@ -297,7 +409,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             requestId: matchedReq.requestId
         });
         if (resp && resp.body && !resp.base64Encoded) {
-            if (content.constructor.name === 'RegExp' && content.test(resp.body) || resp.body.indexOf(content) > -1) {
+            if (content.constructor.name === 'RegExp' && (content.test(resp.body) || resp.body.indexOf(content) > -1)) {
                 return true;
             }
             else {
@@ -307,121 +419,4 @@ export default class NetworkSubModule extends OxygenSubModule {
         }
     }
 
-    async _onNetworkResponseReceived(params) {
-        if (this._collectData) {
-            let responseBody;
-            try {
-                responseBody = await this._driver.cdp('Network','getResponseBody', {
-                    requestId: params.requestId
-                });
-            } catch (e) {
-                // ignore getResponseBody errors
-                // console.log('onNetworkResponseReceived Network.getResponseBody e', e);
-            }
-
-            let requestPostData;
-            try {
-                requestPostData = await this._driver.cdp('Network','getRequestPostData', {
-                    requestId: params.requestId
-                });
-            } catch (e) {
-                // ignore getRequestPostData errors
-                // console.log('onNetworkResponseReceived Network.getRequestPostData e', e);
-            }
-
-            if (
-                params &&
-                params.response &&
-                params.response.mimeType === 'application/json'
-            ) {
-                try {
-                    if (responseBody && responseBody.body) {
-                        responseBody.body = JSON.parse(responseBody.body);
-                    }
-                } catch (e) {
-                    // ignore json parse response Body errors
-                    // console.log('onNetworkResponseReceived responseBody parse e', e);
-                }
-                try {
-                    if (requestPostData && requestPostData.postData) {
-                        requestPostData.postData = JSON.parse(requestPostData.postData);
-                    }
-                } catch (e) {
-                    // ignore json parse request Post Data errors
-                    // console.log('onNetworkResponseReceived requestPostData parse e', e);
-                }
-            }
-
-            this._networkRequests.push({ requestId: params.requestId, ...params.response, responseBody, requestPostData });
-        }
-    }
-
-    async _onNetworkRequestWillBeSent(params) {
-        if (this._collectData && params.redirectResponse) {
-
-            let requestPostData;
-            try {
-                requestPostData = await this._driver.cdp('Network','getRequestPostData', {
-                    requestId: params.requestId
-                });
-            } catch (e) {
-                // ignore getRequestPostData errors
-                // console.log('onNetworkRequestWillBeSent Network.getRequestPostData e', e);
-            }
-
-            try {
-                if (requestPostData && requestPostData.postData) {
-                    requestPostData.postData = JSON.parse(requestPostData.postData);
-                }
-            } catch (e) {
-                // ignore json parse request Post Data errors
-                // console.log('onNetworkRequestWillBeSent requestPostData parse e', e);
-            }
-
-            this._networkRequests.push({ requestId: params.requestId, ...params.redirectResponse, requestPostData });
-        }
-    }
-
-    async _onNetworkLoadingFinished(params) {
-        if (this._collectData) {
-            await this._catchResponseBody(params);
-        }
-    }
-
-    async _onNetworkLoadingFailed(params) {
-        if (this._collectData) {
-            await this._catchResponseBody(params);
-        }
-    }
-
-    async _catchResponseBody(params) {
-        let responseBody = {};
-        try {
-            responseBody = await this._driver.cdp('Network','getResponseBody', {
-                requestId: params.requestId
-            });
-
-        } catch (e) {
-            // ignore getResponseBody errors
-        }
-
-        if (responseBody && responseBody.body) {
-            try {
-                responseBody.body = JSON.parse(responseBody.body);
-            } catch (e) {
-                // ignore parse errors
-            }
-        }
-
-        let requestPostData = {};
-        try {
-            requestPostData = await this._driver.cdp('Network','getRequestPostData', {
-                requestId: params.requestId
-            });
-        } catch (e) {
-            // ignore getRequestPostData errors
-        }
-
-        this._networkRequests.push({ requestId: params.requestId, ...params.response, responseBody, requestPostData });
-    }
 }
