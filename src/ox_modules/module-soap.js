@@ -135,7 +135,7 @@ module.exports = function() {
                     client[method](args, (err, res) => {
                         lastResponseHeaders = client.lastResponseHeaders;
                         if (err !== null && err.root && err.root.Envelope && err.root.Envelope.Body && err.root.Envelope.Body.Fault) {
-                            result = new OxError(errHelper.errorCode.SOAP_ERROR, err.root.Envelope.Body.Fault.faultstring);
+                            result = new OxError(errHelper.errorCode.SOAP_ERROR, JSON.stringify(err.root.Envelope.Body.Fault.faultstring));
                         } else if (err !== null) {
                             result = new OxError(errHelper.errorCode.SOAP_ERROR, require('util').inspect(err, { depth: 4 }));
                         } else {
