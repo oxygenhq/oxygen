@@ -159,6 +159,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             const har = harFromMessages(this._events);
 
             if (har && har.log && har.log.entries && har.log.entries.map) {
+                har.log.entries.reverse();
                 return await Promise.all(har.log.entries.map(async (item) => {
                     // backward compatibility
 
