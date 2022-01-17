@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.21.0 (2021-xx-xx)
+## v1.21.0 (2022-01-17)
 
 #### :boom: Breaking Change
 * Previously deprecated `web.selectWindow` with no arguments has been removed.
@@ -17,6 +17,8 @@
 * Fix `mob.sendKeys` argument validation.
 * `web.setTimeout` not having any effect on `web.open`.
 * `web.waitForNotExist` not working as expected.
+* Fix memory leak in `db` module.
+* `assert.equal` not working correctly when input strings consisted of digits.
 
 #### :nail_care: Polish
 * Documentation improvements.
@@ -24,6 +26,7 @@
 #### :house: Internal
 * Refactor everything for more asynchronicity.
 * Use `got` instead of the no longer supported `request` for `http` module.
+* Bump other dependencies.
 
 ## v1.20.2 (2021-09-05)
 
