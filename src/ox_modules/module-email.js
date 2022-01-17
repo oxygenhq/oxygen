@@ -68,7 +68,7 @@ module.exports = function() {
      * @param {Number} sinceMinutes - Search for emails received since the specified amount of minutes into past.
      * @param {String|Regex} subject - Return email matching the specified subject.
      * @param {Number} timeout - Timeout (in milliseconds) for waiting for the message to arrive.
-     * @return {Object} Email body, text, textAsHtml, attachments(every attachment have filename<String> and data<Buffer>) and TO, FROM, SUBJECT, DATE headers.
+     * @return {Object} Email body, text, textAsHtml, attachments if any, and TO, FROM, SUBJECT, DATE headers.
      * @example <caption>[javascript] Usage example</caption>
      * email.init('[YOUR_EMAIL]@gmail.com', 'password', 'imap.gmail.com', 993, true, 3000);
      * var mail = email.getLastEmail(60, 'email subject', 5000);
