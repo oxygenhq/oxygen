@@ -26,6 +26,7 @@ module.exports = async function(locator, xoffset, yoffset, timeout) {
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     await el.touchAction([
         'press',

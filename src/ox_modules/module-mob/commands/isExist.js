@@ -23,8 +23,8 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
-        await this.helpers.getElement(locator, false, timeout);
-        return true;
+        const el = await this.helpers.getElement(locator, false, timeout);
+        return !!el;
     } catch (e) {
         return false;
     }

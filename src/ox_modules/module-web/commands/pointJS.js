@@ -19,6 +19,9 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+
+    this.helpers.assertUnableToFindElement(el, locator);
+
     var isIE = await this.getCapabilities().browserName === 'internet explorer';
 
     /*global MouseEvent,document,window*/

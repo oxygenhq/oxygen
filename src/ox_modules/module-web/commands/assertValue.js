@@ -26,6 +26,8 @@ module.exports = async function(locator, pattern, timeout) {
 
     const el = await this.helpers.getElement(locator, false, timeout);
 
+    this.helpers.assertUnableToFindElement(el, locator);
+
     let text;
     try {
         await this.driver.waitUntil(async() => {

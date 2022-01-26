@@ -22,6 +22,9 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, true, timeout);
+
+    this.helpers.assertUnableToFindElement(el, locator);
+
     let val;
 
     try {

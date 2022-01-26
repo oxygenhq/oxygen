@@ -25,6 +25,8 @@ module.exports = async function(locator, attribute, timeout) {
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
+    this.helpers.assertUnableToFindElement(el, locator);
+
     var attrValue = await el.getAttribute(attribute);
     if (attrValue) {
         attrValue = attrValue.trim().replace(/\s+/g, ' ');

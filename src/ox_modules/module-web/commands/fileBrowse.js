@@ -27,6 +27,7 @@ module.exports = async function(locator, filepath, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     const el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
     try {
         // make an asynchronous call using archiver 3rd party library supporting promises
         const remoteFilePath = await this.driver.call(() => {

@@ -197,6 +197,17 @@ export default class WindowsModule extends WebDriverModule {
      * @summary Ends the current session.
      */
     async dispose(status) {
+        if (!status) {
+            status = 'passed';
+
+            if (this.rs.steps && Array.isArray(this.rs.steps) && this.rs.steps.length > 0) {
+                const failedFinded = this.rs.steps.find((item) => item.status === 'failed');
+                if (failedFinded) {
+                    status = 'failed';
+                }
+            }
+        }
+
         status = status.toUpperCase();
         if (this.driver && this.isInitialized) {
             try {
@@ -336,6 +347,7 @@ export default class WindowsModule extends WebDriverModule {
         this.helpers.assertArgumentBool = modUtils.assertArgumentBool;
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
+        this.helpers.assertUnableToFindElement = modUtils.assertUnableToFindElement;
     }
 }
 

@@ -720,6 +720,7 @@ export default class WebModule extends WebDriverModule {
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
         this.helpers.assertArgumentString = modUtils.assertArgumentString;
+        this.helpers.assertUnableToFindElement = modUtils.assertUnableToFindElement;
     }
 
     async _getHAR() {

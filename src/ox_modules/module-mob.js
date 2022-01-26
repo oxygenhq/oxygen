@@ -605,6 +605,7 @@ export default class MobileModule extends WebDriverModule {
         this.helpers.assertContext = modUtils.assertContext;
         this.helpers.contextList = modUtils.contextList;
         this.helpers.getLogTypes = modUtils.getLogTypes;
+        this.helpers.assertUnableToFindElement = modUtils.assertUnableToFindElement;
     }
 
     async deleteSession() {

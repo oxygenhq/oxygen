@@ -23,5 +23,6 @@ module.exports = async function(locator, timeout) {
     await this.helpers.assertContext(this.helpers.contextList.android);
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
     return await el.getAttribute('checked') == 'true';
 };

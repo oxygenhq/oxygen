@@ -36,6 +36,7 @@ module.exports = async function(frameLocator) {
         for (var i = 0; i < arguments.length; i++) {
             var locator = arguments[i];
             var el = await this.helpers.getElement(locator);
+            this.helpers.assertUnableToFindElement(el, locator);
             await this.driver.switchToFrame(el);
         }
     }

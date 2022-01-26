@@ -22,6 +22,9 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+
+    this.helpers.assertUnableToFindElement(el, locator);
+
     var text = await el.getText();
     if (text) {
         return text.trim().replace(/\s+/g, ' ');

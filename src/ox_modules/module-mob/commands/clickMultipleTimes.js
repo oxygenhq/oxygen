@@ -23,6 +23,7 @@ module.exports = async function(locator, taps, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     var actions = [];
     for (var i = 0; i < taps; i++) {

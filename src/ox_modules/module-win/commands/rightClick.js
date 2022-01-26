@@ -17,6 +17,7 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     const { width, height } = await this.driver.getElementSize(el.elementId);
     await this.driver.moveToElement(el.elementId, width / 2, height / 2);

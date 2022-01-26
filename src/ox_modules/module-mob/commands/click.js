@@ -21,6 +21,7 @@ module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     // if the element is outside the viewport - check interactability and try to scroll it into the view first
     if (await this.isWebViewContext() && !(await el.isClickable())) {

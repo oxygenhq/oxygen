@@ -33,6 +33,7 @@ module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, y
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     var scrollElm = await this.helpers.getElement(scrollElmLocator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, scrollElmLocator);
 
     var retry = 0;
 
@@ -42,6 +43,7 @@ module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, y
         var err = false;
         try {
             var el = await this.helpers.getElement(findElmLocator, true, 1000);
+            this.helpers.assertUnableToFindElement(el, findElmLocator);
         } catch (e) {
             err = true;
         }

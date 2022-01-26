@@ -31,6 +31,7 @@ module.exports = async function(locator, cols, rows, pattern, timeout) {
     await this.helpers.assertContext(this.helpers.contextList.android);
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     var loc = await el.getLocation();
     var locX = loc.x;

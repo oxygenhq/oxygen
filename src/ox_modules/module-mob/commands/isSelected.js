@@ -28,5 +28,6 @@ module.exports = async function(locator, timeout) {
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
     return await el.getAttribute('selected') == 'true';
 };

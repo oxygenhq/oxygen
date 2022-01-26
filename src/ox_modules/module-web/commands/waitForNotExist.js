@@ -28,6 +28,10 @@ module.exports = async function(locator, timeout) {
         el = await this.helpers.getElement(locator, false, timeout);
     }
 
+    if (!el) {
+        return;
+    }
+
     if (el.error && el.error.error === 'no such element') {
         await this.helpers.restoreTimeoutImplicit();
         return;

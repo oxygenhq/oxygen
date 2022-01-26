@@ -29,6 +29,7 @@ module.exports = async function(selectLocator, optionLocator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(selectLocator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, selectLocator);
 
     try {
         if (optionLocator.indexOf('value=') === 0) {

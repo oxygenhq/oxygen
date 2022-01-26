@@ -83,7 +83,7 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            return null;
         }
 
         if (waitForVisible) {
@@ -151,7 +151,7 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            return null;
         }
 
         if (waitForVisible) {
@@ -422,4 +422,10 @@ module.exports = {
             throw new OxError(errHelper.errorCode.CIRCULAR_ERROR, hasCircularDependency);
         }
     },
+
+    assertUnableToFindElement: function(element, locator) {
+        if (!element) {
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+        }
+    }
 };
