@@ -8,23 +8,17 @@
  */
 
 /**
- * @summary Waits for element to become interactable.
- * @function waitForInteractable
+ * @summary Waits for element to become visible.
+ * @function waitForNotVisible
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
- * web.init();//Opens browser session.
- * web.open("www.yourwebsite.com");// Opens a website.
- * web.waitForInteractable("id=UserName");//Waits for an element is clickable in DOM.
+ * mob.init();//Opens browser session.
+ * mob.open("www.yourwebsite.com");// Opens a website.
+ * mob.waitForNotVisible("id=Title", 45*1000);//Waits if an element is visible.
  */
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    const el = await this.helpers.getElement(locator, false, timeout);
-    this.helpers.assertUnableToFindElement(el, locator);
-    try {
-        await el.waitForClickable({ timeout: timeout ? timeout : this.waitForTimeout });
-    } catch (e) {
-        await this.helpers.restoreTimeoutImplicit();
-        this.helpers.throwNotInteractable(locator);
-    }
+    const el = await this.helpers.getElement(locator, true, timeout);
+    this.helpers.assertNotVisible(el, locator);
 };

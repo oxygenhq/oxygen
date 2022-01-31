@@ -348,6 +348,9 @@ export default class WindowsModule extends WebDriverModule {
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
         this.helpers.assertUnableToFindElement = modUtils.assertUnableToFindElement;
+        this.helpers.assertNotVisible = modUtils.assertNotVisible;
+        this.helpers.throwNotInteractable = modUtils.throwNotInteractable;
+        this.helpers.throwInteractable = modUtils.throwInteractable;
     }
 }
 

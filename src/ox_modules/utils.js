@@ -427,5 +427,43 @@ module.exports = {
         if (!element) {
             throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
+    },
+
+    assertNotVisible: function(element, locator) {
+        if (element) {
+            let errorText = '';
+
+            if (typeof locator === 'string') {
+                errorText = `Element with locator: "${locator}" still visible`;
+            } else {
+                errorText = 'Element still visible';
+            }
+
+            throw new OxError(errHelper.errorCode.TIMEOUT, errorText);
+        }
+    },
+
+    throwNotInteractable: function(locator) {
+        let errorText = '';
+
+        if (typeof locator === 'string') {
+            errorText = `Element with locator: "${locator}" is not interactable`;
+        } else {
+            errorText = 'Element not interactable';
+        }
+
+        throw new OxError(errHelper.errorCode.ELEMENT_NOT_INTERACTABLE, errorText);
+    },
+
+    throwInteractable: function(locator) {
+        let errorText = '';
+
+        if (typeof locator === 'string') {
+            errorText = `Element with locator: "${locator}" is interactable`;
+        } else {
+            errorText = 'Element is interactable';
+        }
+
+        throw new OxError(errHelper.errorCode.ELEMENT_INTERACTABLE, errorText);
     }
 };

@@ -9,30 +9,24 @@
 
 /**
  * @summary Waits for element to become interactable.
- * @function waitForInteractable
+ * @function waitForNotInteractable
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
- * mob.init();//Opens browser session.
- * mob.waitForInteractable("id=UserName");//Waits for an element is clickable in DOM.
+ * web.init();//Opens browser session.
+ * web.open("www.yourwebsite.com");// Opens a website.
+ * web.waitForNotInteractable("id=UserName");//Waits for an element isn't clickable in DOM.
  */
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     const el = await this.helpers.getElement(locator, false, timeout);
     this.helpers.assertUnableToFindElement(el, locator);
-
     try {
-        await this.driver.waitUntil(async() => {
-            const clickable = await el.getAttribute('clickable');
-            const checkable = await el.getAttribute('checkable');
-            const focusable = await el.getAttribute('focusable');
-            const longClickable = await el.getAttribute('long-clickable');
-            return (clickable || checkable || focusable || longClickable);
-        },
-        { timeout: (timeout ? timeout : this.waitForTimeout) });
+        await el.waitForClickable({ timeout: timeout ? timeout : this.waitForTimeout });
     } catch (e) {
         await this.helpers.restoreTimeoutImplicit();
-        this.helpers.throwNotInteractable(locator);
+        return;
     }
+
+    this.helpers.throwInteractable(locator);
 };

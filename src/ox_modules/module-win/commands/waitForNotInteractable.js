@@ -12,27 +12,29 @@
  * @function waitForInteractable
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
- * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
- * mob.init();//Opens browser session.
- * mob.waitForInteractable("id=UserName");//Waits for an element is clickable in DOM.
+ * win.init();//Opens browser session.
+ * win.waitForInteractable("id=UserName");//Waits for an element is not clickable.
  */
+const interactableClassNames = ['Edit', 'Button'];
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     const el = await this.helpers.getElement(locator, false, timeout);
     this.helpers.assertUnableToFindElement(el, locator);
-
     try {
         await this.driver.waitUntil(async() => {
-            const clickable = await el.getAttribute('clickable');
-            const checkable = await el.getAttribute('checkable');
-            const focusable = await el.getAttribute('focusable');
-            const longClickable = await el.getAttribute('long-clickable');
-            return (clickable || checkable || focusable || longClickable);
+            const isControlElement = await el.getAttribute('IsControlElement');
+            const isEnabled = await el.getAttribute('IsEnabled');
+            const isKeyboardFocusable = await el.getAttribute('IsKeyboardFocusable');
+            const className = await el.getAttribute('ClassName');
+
+            return (isControlElement || isEnabled || isKeyboardFocusable || interactableClassNames.includes(className));
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         await this.helpers.restoreTimeoutImplicit();
-        this.helpers.throwNotInteractable(locator);
+        return;
     }
+
+    this.helpers.throwInteractable(locator);
 };

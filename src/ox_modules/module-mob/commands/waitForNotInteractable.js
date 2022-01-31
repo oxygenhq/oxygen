@@ -9,13 +9,13 @@
 
 /**
  * @summary Waits for element to become interactable.
- * @function waitForInteractable
+ * @function waitForNotInteractable
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @for android, ios, hybrid, web
  * @example <caption>[javascript] Usage example</caption>
  * mob.init();//Opens browser session.
- * mob.waitForInteractable("id=UserName");//Waits for an element is clickable in DOM.
+ * mob.waitForNotInteractable("id=UserName");//Waits for an element is not clickable.
  */
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
@@ -33,6 +33,8 @@ module.exports = async function(locator, timeout) {
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         await this.helpers.restoreTimeoutImplicit();
-        this.helpers.throwNotInteractable(locator);
+        return;
     }
+
+    this.helpers.throwInteractable(locator);
 };
