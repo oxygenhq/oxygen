@@ -465,5 +465,15 @@ module.exports = {
         }
 
         throw new OxError(errHelper.errorCode.ELEMENT_INTERACTABLE, errorText);
+    },
+
+    verify: async function(method, self, ...args) {
+        try {
+            await method.apply(self, args);
+        } catch (e) {
+            // for warning status
+            e.isFatal = false;
+            throw e;
+        }
     }
 };

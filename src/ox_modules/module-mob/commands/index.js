@@ -73,3 +73,7 @@ export {default as waitForVisible} from './waitForVisible';
 export {default as waitForNotVisible} from './waitForNotVisible';
 export {default as waitForInteractable} from './waitForInteractable';
 export {default as waitForNotInteractable} from './waitForNotInteractable';
+export {default as verifyAlert} from './verifyAlert';
+export {default as verifyText} from './verifyText';
+export {default as verifyTitle} from './verifyTitle';
+export {default as verifyValue} from './verifyValue';

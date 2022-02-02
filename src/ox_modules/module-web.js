@@ -724,6 +724,7 @@ export default class WebModule extends WebDriverModule {
         this.helpers.assertNotVisible = modUtils.assertNotVisible;
         this.helpers.throwNotInteractable = modUtils.throwNotInteractable;
         this.helpers.throwInteractable = modUtils.throwInteractable;
+        this.helpers.verify = modUtils.verify;
     }
 
     async _getHAR() {
