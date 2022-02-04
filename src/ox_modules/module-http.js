@@ -420,13 +420,28 @@ export default class HttpModule extends OxygenModule {
         this._lastResponse = result;
 
         if (result instanceof Error) {
+            let body = null;
+            if (
+                result.response &&
+                result.response.body
+            ) {
+                body = result.response.body;
+                if (typeof body === 'string') {
+                    try {
+                        body = JSON.parse(body);
+                    } catch (e) {
+                        body = result.response.body;
+                    }
+                }
+            }
+
             result = {
                 errorMessage: result.message,
                 headers: result.response ? result.response.headers : null,
                 statusCode: result.response ? result.response.statusCode : null,
                 statusMessage: result.response ? result.response.statusMessage : null,
                 rawBody: result.response ? result.response.rawBody : null,
-                body: result.response ? result.response.body : null
+                body: body
             };
         } else {
             result = {
