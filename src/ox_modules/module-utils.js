@@ -13,6 +13,7 @@
  */
 
 const MODULE_NAME = 'utils';
+import fastXmlParser from 'fast-xml-parser';
 import OxygenModule from '../core/OxygenModule';
 import utils from './utils';
 import libUtils from '../lib/util';
@@ -186,6 +187,22 @@ export default class UtilsModule extends OxygenModule {
             return await dnsPromises.resolve(hostname, rrType);
         } catch (e) {
             throw new OxError(errorHelper.errorCode.DNS_ERROR, e.message);
+        }
+    }
+
+    /**
+     * @summary Parse XML data to JS object 
+     * @function xmlToJson
+     * @param {string|Buffer} xmlDataStr - Like <root a="nice" b="very nice" ><a>wow</a></root>
+     * @param {boolean|Object} options - Options (https://github.com/NaturalIntelligence/fast-xml-parser/blob/b0ea6358844ccca95cab02758e038c1c3321427e/docs/v4/2.XMLparseOptions.md) 
+     */
+    xmlToJson(xmlDataStr, options = {}) {
+        try {
+            const parser = new fastXmlParser.XMLParser(options);
+            const output = parser.parse(xmlDataStr);
+            return output;
+        } catch (e) {
+            throw new OxError(errorHelper.errorCode.XML_ERROR, e.message);
         }
     }
 }
