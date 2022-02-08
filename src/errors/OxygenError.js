@@ -77,9 +77,37 @@ export default class OxygenError extends Error {
                         !anotherFile &&
                         !anotherLineNumber
                     ) {
-                        anotherFile = anotherStack[i]['file'];
-                        anotherLineNumber = anotherStack[i]['lineNumber'];
-                        anotherColumn = anotherStack[i]['column'] || 1;
+
+                        let file = anotherStack[i];
+
+                        /*
+                            Case: 
+                            {
+                                file: '*.js',
+                                methodName: '<unknown>',
+                                arguments: [],
+                                lineNumber: 1,
+                                column: null
+                            },
+                            {
+                                file: '*.js',
+                                methodName: 'Object.<anonymous>',
+                                arguments: [],
+                                lineNumber: 11,
+                                column: 10
+                            }
+                        */
+                        if (
+                            anotherStack[i] &&
+                            anotherStack[1+i] &&
+                            anotherStack[i]['file'] === anotherStack[1+i]['file']
+                        ) {
+                            file = anotherStack[1+i];
+                        }
+
+                        anotherFile = file['file'];
+                        anotherLineNumber = file['lineNumber'];
+                        anotherColumn = file['column'] || 1;
                     }
                 }
             }
