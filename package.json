@@ -48,6 +48,7 @@
   },
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.31.9",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
     "@lambdatest/node-rest-client": "1.0.0",
     "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",

@@ -205,6 +205,7 @@ export function getCommandLineOptions(argv) {
         iterations : argv.i ? parseInt(argv.i) : (argv.iter ? parseInt(argv.iter) : null),
         debugPort: argv.dbgport || null,
         delay: argv.d || argv.delay || null,
+        video: argv.video ? argv.video === 'true' : false
     };
     // switch: --rf flag
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {

@@ -130,6 +130,7 @@ Web test options:
   -b, --browser={chrome|ie|safari|firefox}  Browser name. Default is chrome.
   -s, --server=SERVER_URL    Selenium hub URL. Default is http://localhost:4444/wd/hub.
       --reopen={true|false}  Reopen browser on each iteration. Default is false.
+      --video={true|false}   Enable/Disable video recording
       
 Mobile test options:
     -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723/wd/hub.`);

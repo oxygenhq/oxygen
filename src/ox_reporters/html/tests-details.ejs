@@ -52,6 +52,9 @@
                                             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>">
                                                 <%= caseResult.name %> (Iteration #<%= caseResult.iterationNum %>)</a>
                                                 <%- caseResult.status === 'passed' ? PASSED_LABEL : FAILED_LABEL %>
+                                                <% if (caseResult.video) { %>
+                                                    <a target="_blank" href="<%= caseResult.video %>">🎥 Video</a>
+                                                <% } %>
                                             </h3>
                                         </div>
                                         <div id="collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>" class="panel-collapse collapse in">

@@ -22,6 +22,7 @@ module.exports = function () {
         steps: [],    // array of step-result.js
         logs: [],
         har: null,
+        video: null,
         failure: null,
         context: null
     };

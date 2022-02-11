@@ -10,6 +10,7 @@ import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
 import * as coreUtils from './utils';
+import { commandsWhichShouldBeExcludedTakeScreenshot } from './constants';
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
@@ -64,7 +65,8 @@ const DEFAULT_CTX = {
 const DEFAULT_RESULT_STORE = {
     steps: [],
     logs: [],
-    har: null
+    har: null,
+    video: null
 };
 
 export default class Oxygen extends OxygenEvents {
@@ -205,6 +207,7 @@ export default class Oxygen extends OxygenEvents {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
         this.har = null;
+        this.video = null;
     }
 
     async onBeforeCase(context) {
@@ -216,6 +219,7 @@ export default class Oxygen extends OxygenEvents {
             try {
                 module.onBeforeCase && await module.onBeforeCase(context);
                 module._iterationStart && await module._iterationStart();
+                await this._callServicesonBeforeCase(context, module);
             }
             catch (e) {
                 this.logger.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
@@ -233,6 +237,7 @@ export default class Oxygen extends OxygenEvents {
                 // await for avoid stuck on *.dispose call
                 module.onAfterCase && await module.onAfterCase(error);
                 module._iterationEnd && await module._iterationEnd(error);
+                await this._callServicesonAfterCase(module);
             }
             catch (e) {
                 this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
@@ -782,6 +787,7 @@ export default class Oxygen extends OxygenEvents {
             step.stats = {};
         }
 
+        let doNotTryTakeScreenshot = false;
         if (err) {
             if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
                 //ignore
@@ -805,11 +811,27 @@ export default class Oxygen extends OxygenEvents {
                         }
                         catch (e) {
                             // FIXME: indicate to user that an attempt to take a screenshot has failed
+                            doNotTryTakeScreenshot = true;
                         }
                     }
                 }
             }
         }
+
+        if (this.opts.video) {
+            if (
+                !doNotTryTakeScreenshot &&
+                ['web'].includes(moduleName) &&
+                commandsWhichShouldBeExcludedTakeScreenshot.includes(methodName)
+            ) {
+                try {
+                    module._saveScreenshot();
+                } catch (e) {
+                    this.logger.error('takeScreenshotSilent failed:', e);
+                }
+            }
+        }
+
         return step;
     }
 
@@ -902,6 +924,44 @@ export default class Oxygen extends OxygenEvents {
             }
             catch (e) {
                 this.logger.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
+            }
+        }
+    }
+    async _callServicesonBeforeCase(context, module) {
+        if (!this || !this.services) {
+            return;
+        }
+        for (let serviceName in this.services) {
+            const service = this.services[serviceName];
+            if (!service) {
+                continue;
+            }
+            try {
+                if (service.onBeforeCase) {
+                    service.onBeforeCase(context, module);
+                }
+            }
+            catch (e) {
+                this.logger.error(`Failed to call "_callServicesonBeforeCase" method of ${serviceName} service.`, e);
+            }
+        }
+    }
+    async _callServicesonAfterCase(module) {
+        if (!this || !this.services) {
+            return;
+        }
+        for (let serviceName in this.services) {
+            const service = this.services[serviceName];
+            if (!service) {
+                continue;
+            }
+            try {
+                if (service.onAfterCase) {
+                    await service.onAfterCase(module);
+                }
+            }
+            catch (e) {
+                this.logger.error(`Failed to call "_callServicesonAfterCase" method of ${serviceName} service.`, e);
             }
         }
     }
