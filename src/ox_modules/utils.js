@@ -392,7 +392,7 @@ module.exports = {
 
         if (wdioOpts.capabilities['perfectoMobile:options'] || (wdioOpts.hostname && wdioOpts.hostname.includes('perfectomobile.com'))) {
             return providers.PERFECTO;
-        } else if (wdioOpts.capabilities['browserstack:options']) {
+        } else if (wdioOpts.capabilities['bstack:options']) {
             return providers.BROWSERSTACK;
         } else if (wdioOpts.capabilities['sauce:options']) {
             return providers.SAUCELABS;
