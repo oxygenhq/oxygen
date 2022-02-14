@@ -228,9 +228,9 @@ export default class WebModule extends WebDriverModule {
             name = wdioOpts.capabilities['testingBot:options']['name'];
             delete wdioOpts.capabilities['testingBot:options'];
         }
-        if (wdioOpts.capabilities['browserstack:options'] && wdioOpts.capabilities['browserstack:options']['name']) {
-            name = wdioOpts.capabilities['browserstack:options']['name'];
-            delete wdioOpts.capabilities['browserstack:options'];
+        if (wdioOpts.capabilities['bstack:options'] && wdioOpts.capabilities['bstack:options']['name']) {
+            name = wdioOpts.capabilities['bstack:options']['name'];
+            delete wdioOpts.capabilities['bstack:options'];
         }
         this.wdioOpts = wdioOpts;
 
