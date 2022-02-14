@@ -231,9 +231,9 @@ export default class MobileModule extends WebDriverModule {
             delete wdioOpts.capabilities['perfectoMobile:options'];
         }
 
-        if (wdioOpts.capabilities['browserstack:options'] && wdioOpts.capabilities['browserstack:options']['name']) {
-            name = wdioOpts.capabilities['browserstack:options']['name'];
-            delete wdioOpts.capabilities['browserstack:options'];
+        if (wdioOpts.capabilities['bstack:options'] && wdioOpts.capabilities['bstack:options']['name']) {
+            name = wdioOpts.capabilities['bstack:options']['name'];
+            delete wdioOpts.capabilities['bstack:options'];
         }
 
         this.wdioOpts = wdioOpts;
