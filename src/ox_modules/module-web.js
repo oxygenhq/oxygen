@@ -62,6 +62,7 @@ import errorHelper from '../errors/helper';
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
 const DEFAULT_BROWSER_NAME = 'chrome';
+const DEFAULT_MOBILE_BROWSER = 'default';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
@@ -115,7 +116,7 @@ export default class WebModule extends WebDriverModule {
 
         if (!seleniumUrl) {
             seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
-        }
+        }        
 
         // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
@@ -128,8 +129,10 @@ export default class WebModule extends WebDriverModule {
         }
 
         // populate browserName caps from options. FIXME: why is this even needed?
+        let defaultBrowser = false;
         if (!this.caps.browserName) {
             this.caps.browserName = this.options.browserName || DEFAULT_BROWSER_NAME;
+            defaultBrowser = true;
         }
         // FIXME: shall we throw an exception if browserName is not specified, neither in caps nor in options?!
         if (!this.caps.browserName) {
@@ -204,9 +207,8 @@ export default class WebModule extends WebDriverModule {
         };
 
         let initError = null;
-        const _this = this;
-
-        let provider = modUtils.determineProvider(wdioOpts);
+        const _this = this;  
+        const provider = modUtils.determineProvider(wdioOpts);      
 
         if (provider === modUtils.provider.PERFECTO) {
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
@@ -232,8 +234,11 @@ export default class WebModule extends WebDriverModule {
             name = wdioOpts.capabilities['bstack:options']['name'];
             delete wdioOpts.capabilities['bstack:options'];
         }
+        // set default browser for mobile web tests, if executed against remote devices of a cloud provider
+        if (defaultBrowser && provider) {
+            this.caps.browserName = wdioOpts.capabilities.browserName = DEFAULT_MOBILE_BROWSER;
+        }
         this.wdioOpts = wdioOpts;
-
         try {
             this.driver = await wdio.remote(wdioOpts);
             this.driver.provider = provider;
@@ -274,10 +279,11 @@ export default class WebModule extends WebDriverModule {
 
         try {
             if (
-                [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) &&
-                ['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
+                [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) 
+                //['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
             ) {
-                // ignore
+                // do not maximize window if the test is executed against external cloud provider infrastructure
+                // as most of cloud providers do not support this functionality
             } else {
                 // maximize browser window
                 await this.driver.maximizeWindow();
