@@ -116,7 +116,7 @@ export default class WebModule extends WebDriverModule {
 
         if (!seleniumUrl) {
             seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
-        }        
+        }
 
         // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
@@ -207,8 +207,8 @@ export default class WebModule extends WebDriverModule {
         };
 
         let initError = null;
-        const _this = this;  
-        const provider = modUtils.determineProvider(wdioOpts);      
+        const _this = this;
+        const provider = modUtils.determineProvider(wdioOpts);
 
         if (provider === modUtils.provider.PERFECTO) {
             wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
@@ -279,7 +279,7 @@ export default class WebModule extends WebDriverModule {
 
         try {
             if (
-                [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider) 
+                [modUtils.provider.LAMBDATEST, modUtils.provider.BROWSERSTACK, modUtils.provider.PERFECTO].includes(this.driver.provider)
                 //['MicrosoftEdge', 'msedge', 'Edge', 'Internet Explorer'].includes(this.driver.capabilities.browserName)
             ) {
                 // do not maximize window if the test is executed against external cloud provider infrastructure
