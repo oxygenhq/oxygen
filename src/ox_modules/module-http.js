@@ -18,7 +18,7 @@ import errHelper from '../errors/helper';
 import modUtils from './utils';
 
 const MODULE_NAME = 'http';
-const RESPONSE_TIMEOUT = 1000 * 30;   // in ms
+const RESPONSE_TIMEOUT = 1000 * 60;   // in ms
 const DAFAULT_HTTP2 = false;
 const DEFAULT_HTTP_OPTIONS = {
     decompress: true,
