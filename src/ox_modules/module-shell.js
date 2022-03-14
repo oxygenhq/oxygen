@@ -50,7 +50,7 @@ export default class ShellModule extends OxygenModule {
         options = { cwd: this.options.cwd, shell: true, env: process.env, ...options };
         const result = spawn.sync(command, options);
         if (result.error) {
-            throw new OxError(errHelper.errorCode.SHELL_ERROR, result.error.message, null, trye, result.error);
+            throw new OxError(errHelper.errorCode.SHELL_ERROR, result.error.message, null, true, result.error);
         }
         this._lastStdout = result.stdout ? result.stdout.toString() : null;
         if (result.stdout) {
@@ -64,7 +64,7 @@ export default class ShellModule extends OxygenModule {
      * @function assertOutput
      * @param {String} pattern - Pattern to assert.
      */
-     assertOutput(pattern) {
+    assertOutput(pattern) {
         if (!this._lastStdout) {
             return false;
         }
