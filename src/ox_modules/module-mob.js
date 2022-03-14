@@ -160,7 +160,7 @@ export default class MobileModule extends WebDriverModule {
 
         // make sure to clear the existing device logs, if collectDeviceLogs option is true (we want to include logs only relevant for this session)
         if (this.options.collectDeviceLogs) {
-            this.caps.clearDeviceLogsOnStart = true;
+            this.caps["appium:clearDeviceLogsOnStart"] = true;
         }
 
         // if both browserName and appPackage were specified - remove browserName

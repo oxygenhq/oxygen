@@ -33,11 +33,16 @@ module.exports = async function () {
                 }
                 const types = this.helpers.getLogTypes(context);
                 if (types && Array.isArray(types) && types.length > 0 && types.some(t => t === 'logcat')) {
-                    const logs = await this.driver.getLogs('logcat');
-                    allLogs = [
-                        ...allLogs,
-                        ...logs
-                    ];
+                    try {
+                        const logs = await this.driver.getLogs('logcat');
+                        allLogs = [
+                            ...allLogs,
+                            ...logs
+                        ];
+                    }
+                    catch (e) {
+                        console.error('Unable to retrieve device logs:', e);
+                    }
                 }
             }
             await this.driver.switchContext(this.appContext);
