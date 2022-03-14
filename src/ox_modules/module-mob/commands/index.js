@@ -31,6 +31,7 @@ export {default as getTitle} from './getTitle';
 export {default as getUrl} from './getUrl';
 export {default as getWindowHandles} from './getWindowHandles';
 export {default as getValue} from './getValue';
+export {default as getWindowSize} from './getWindowSize';
 export {default as hideKeyboard} from './hideKeyboard';
 export {default as index} from './index';
 export {default as installApp} from './installApp';
