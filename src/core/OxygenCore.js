@@ -64,7 +64,8 @@ const DEFAULT_CTX = {
 const DEFAULT_RESULT_STORE = {
     steps: [],
     logs: [],
-    har: null
+    har: null,
+    video: null
 };
 
 export default class Oxygen extends OxygenEvents {
@@ -205,6 +206,7 @@ export default class Oxygen extends OxygenEvents {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
         this.har = null;
+        this.video = null;
     }
 
     async onBeforeCase(context) {
@@ -216,6 +218,7 @@ export default class Oxygen extends OxygenEvents {
             try {
                 module.onBeforeCase && await module.onBeforeCase(context);
                 module._iterationStart && await module._iterationStart();
+                await this._callServicesonBeforeCase(context, module);
             }
             catch (e) {
                 this.logger.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
@@ -233,6 +236,7 @@ export default class Oxygen extends OxygenEvents {
                 // await for avoid stuck on *.dispose call
                 module.onAfterCase && await module.onAfterCase(error);
                 module._iterationEnd && await module._iterationEnd(error);
+                await this._callServicesonAfterCase(module);
             }
             catch (e) {
                 this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
@@ -902,6 +906,44 @@ export default class Oxygen extends OxygenEvents {
             }
             catch (e) {
                 this.logger.error(`Failed to call "onModuleWillDispose" method of ${serviceName} service.`, e);
+            }
+        }
+    }
+    async _callServicesonBeforeCase(context, module) {
+        if (!this || !this.services) {
+            return;
+        }
+        for (let serviceName in this.services) {
+            const service = this.services[serviceName];
+            if (!service) {
+                continue;
+            }
+            try {
+                if (service.onBeforeCase) {
+                    service.onBeforeCase(context, module);
+                }
+            }
+            catch (e) {
+                this.logger.error(`Failed to call "_callServicesonBeforeCase" method of ${serviceName} service.`, e);
+            }
+        }
+    }
+    async _callServicesonAfterCase(module) {
+        if (!this || !this.services) {
+            return;
+        }
+        for (let serviceName in this.services) {
+            const service = this.services[serviceName];
+            if (!service) {
+                continue;
+            }
+            try {
+                if (service.onAfterCase) {
+                    service.onAfterCase(module);
+                }
+            }
+            catch (e) {
+                this.logger.error(`Failed to call "_callServicesonAfterCase" method of ${serviceName} service.`, e);
             }
         }
     }
