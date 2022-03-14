@@ -1,5 +1,22 @@
 # CHANGELOG
 
+## v1.22.0 (2022-01-14)
+
+#### :tada: New Feature
+* Add `utils.xmlToJson`.
+
+#### :beetle: Bug Fix
+* Invalid line number printed for certain errors.
+* Number of issues with BrowserStack integration.
+* Number of issues with `shell` module.
+
+#### :nail_care: Polish
+* Documentation improvements.
+* Increase `http` module's default response timeout from 30 to 60 seconds.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.21.0 (2022-01-17)
 
 #### :boom: Breaking Change
