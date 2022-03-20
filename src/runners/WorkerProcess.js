@@ -7,7 +7,7 @@ const { Worker } = require('worker_threads');
 import logger from '../lib/logger';
 const log = logger('WorkerProcess');
 
-import Debugger from '../lib/debugger';
+//import Debugger from '../lib/debugger';
 import oxutil from '../lib/util';
 
 // snooze function - async wrapper around setTimeout function
@@ -358,7 +358,7 @@ export default class WorkerProcess extends EventEmitter {
     }
 
     async _initializeDebugger() {
-        this._debugger = new Debugger(this._pid);
+        /*this._debugger = new Debugger(this._pid);
         let whenDebuggerReady = defer();
         const _this = this;
         // handle debugger events
@@ -403,6 +403,6 @@ export default class WorkerProcess extends EventEmitter {
             whenDebuggerReady.reject(message);
         }
 
-        return whenDebuggerReady.promise;
+        return whenDebuggerReady.promise;*/
     }
 }
