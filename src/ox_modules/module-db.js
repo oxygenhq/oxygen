@@ -88,7 +88,7 @@ export default class DBModule extends OxygenModule {
      * @return {Object} The first column of the first row in the result set, or null if the result
      *                  set is empty.
      */
-     async getScalar(query) {
+    async getScalar(query) {
         await module._openDbConn();
         try {
             var resultSet = await this.connection.query(query);
@@ -111,7 +111,7 @@ export default class DBModule extends OxygenModule {
      * @param {String} query - The query to execute.
      * @return {Object} The result set.
      */
-     async executeQuery(query) {
+    async executeQuery(query) {
         await this._openDbConn();
         try {
             const querySyncRetval = await this.connection.query(query);

@@ -35,9 +35,9 @@ async function selectToFrameWithElement(wdLocator, driver, helpers) {
     if (!el.error && await el.isExisting(el)) {
         return true;
     }
-    
-    const FRAME_SELECTOR = "//frame";
-    const IFRAME_SELECTOR = "//iframe";
+
+    const FRAME_SELECTOR = '//frame';
+    const IFRAME_SELECTOR = '//iframe';
     // list all FRAME elements
     const frames = await driver.$$(helpers.getWdioLocator(FRAME_SELECTOR));
     for (var frame of frames) {

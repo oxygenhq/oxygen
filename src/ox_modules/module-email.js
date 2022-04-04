@@ -37,7 +37,7 @@ export default class EmailModule extends OxygenModule {
     get name() {
         return MODULE_NAME;
     }
-    
+
     /**
      * @summary Set email connection details.
      * @function init
@@ -107,7 +107,7 @@ export default class EmailModule extends OxygenModule {
      * 	});
      * }
      */
-     async getLastEmail(sinceMinutes, subject, timeout) {
+    async getLastEmail(sinceMinutes, subject, timeout) {
         utils.assertArgumentNumberNonNegative(sinceMinutes, 'sinceMinutes');
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
@@ -117,7 +117,7 @@ export default class EmailModule extends OxygenModule {
 
         while (!err && !mail && ((new Date()).getTime() - now) < timeout) {
             try {
-                const connection = await imaps.connect(_config);
+                const connection = await imaps.connect(this._config);
                 await connection.openBox('INBOX');
 
                 // fetch unseen emails from the last sinceMinutes

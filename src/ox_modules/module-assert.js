@@ -14,7 +14,7 @@
 
 const chai = require('chai');
 import OxygenModule from '../core/OxygenModule';
-//import * as errHelper from '../errors/helper';
+import * as errHelper from '../errors/helper';
 //const errHelper = require('../errors/helper');
 import OxError from '../errors/OxygenError';
 const MODULE_NAME = 'assert';

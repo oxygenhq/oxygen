@@ -253,7 +253,7 @@ export default class PdfModule extends OxygenModule {
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
 
-        pdfFilePath = resolvePath(pdfFilePath, options);
+        pdfFilePath = resolvePath(pdfFilePath, this.options);
 
         let error;
         try {
@@ -287,14 +287,14 @@ export default class PdfModule extends OxygenModule {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-     async assertNot(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+    async assertNot(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateMessage(message, 'message');
         validateReverse(reverse, 'reverse');
 
-        pdfFilePath = resolvePath(pdfFilePath, options);
+        pdfFilePath = resolvePath(pdfFilePath, this.options);
 
         let error;
         try {
@@ -327,13 +327,13 @@ export default class PdfModule extends OxygenModule {
      * @param {Boolean=} reverse - Check also reverse variant of string.
      * @return {Number} Number of times the specified text was found.
      */
-     async count(pdfFilePath, text, pageNum = null, reverse = false) {
+    async count(pdfFilePath, text, pageNum = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
         validateReverse(reverse, 'reverse');
 
-        pdfFilePath = resolvePath(pdfFilePath, options);
+        pdfFilePath = resolvePath(pdfFilePath, this.options);
 
         try {
             return await count(pdfFilePath, text, pageNum, reverse);

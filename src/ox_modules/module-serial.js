@@ -20,7 +20,7 @@ const utils = require('./utils');
 
 const MODULE_NAME = 'serial';
 
-export default class SerialModule extends OxygenModule {    
+export default class SerialModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
         this._alwaysInitialized = true;
@@ -30,7 +30,7 @@ export default class SerialModule extends OxygenModule {
         this.serialPort = null;
         this.stringBuffer = null;
     }
-    
+
     /*
      * @summary Gets module name
      * @function name
@@ -49,7 +49,7 @@ export default class SerialModule extends OxygenModule {
      */
     async list() {
         return await SerialPort.list();
-    };
+    }
 
     /**
      * @summary Opens a serial port.
@@ -97,7 +97,7 @@ export default class SerialModule extends OxygenModule {
                 });
             });
         }
-    };
+    }
 
     /**
      * @summary Waits for text to appear in the input data buffer.
@@ -130,7 +130,7 @@ export default class SerialModule extends OxygenModule {
                 throw new OxError(errHelper.ERROR_CODES.TIMEOUT);
             }
         }
-    };
+    }
 
     /**
      * @summary Write data to the port.
@@ -171,6 +171,7 @@ export default class SerialModule extends OxygenModule {
 
 class CircularStringBuffer extends Array {
     constructor(maxSize) {
+        super();
         this.maxSize = maxSize;
         this.size = 0;
     }
