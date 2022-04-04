@@ -83,7 +83,7 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            throw new OxError(errHelper.ERROR_CODES.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (waitForVisible) {
@@ -94,7 +94,7 @@ module.exports = {
                     await module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
-                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
+                    throw new OxError(errHelper.ERROR_CODES.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
                 }
                 throw e;
             }
@@ -141,7 +141,7 @@ module.exports = {
         locator = this.helpers.getWdioLocator(locator);
 
         if (!(parentElement && parentElement.$)) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
         }
 
         var el = await parentElement.$(locator);
@@ -151,7 +151,7 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            throw new OxError(errHelper.ERROR_CODES.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
         }
 
         if (waitForVisible) {
@@ -162,7 +162,7 @@ module.exports = {
                     await module.exports.restoreTimeoutImplicit.call(this);
                 }
                 if (e.message && e.message.includes('still not displayed')) {
-                    throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
+                    throw new OxError(errHelper.ERROR_CODES.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
                 }
                 throw e;
             }
@@ -183,7 +183,7 @@ module.exports = {
         locator = this.helpers.getWdioLocator(locator);
 
         if (!(parentElement && parentElement.$$)) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid argument - parentElement, must be a valid element');
         }
 
         let els = [];
@@ -211,10 +211,10 @@ module.exports = {
         }
 
         if (this.driver.seleniumTimeout && timeout > this.driver.seleniumTimeout * 1000) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `timeout must be less than ${this.driver.seleniumTimeout * 1000}`);
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, `timeout must be less than ${this.driver.seleniumTimeout * 1000}`);
         }
         if (this.driver.seleniumBrowserTimeout && timeout > this.driver.seleniumBrowserTimeout * 1000) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `timeout must be less than ${this.driver.seleniumBrowserTimeout * 1000}`);
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, `timeout must be less than ${this.driver.seleniumBrowserTimeout * 1000}`);
         }
 
         let timeouts;
@@ -278,49 +278,49 @@ module.exports = {
 
     assertArgument: function(arg, name) {
         if (arg === undefined || arg === null) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' is required.");
         }
     },
 
     assertArgumentString: function(arg, name) {
         if (typeof arg !== 'string') {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a string.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a string.");
         }
     },
 
     assertArgumentNonEmptyString: function(arg, name) {
         if (!arg || typeof arg !== 'string') {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
         }
     },
 
     assertArgumentNumber: function(arg, name) {
         if (typeof(arg) !== 'number') {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a number.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a number.");
         }
     },
 
     assertArgumentNumberNonNegative: function(arg, name) {
         if (typeof(arg) !== 'number' || arg < 0) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
         }
     },
 
     assertArgumentBool: function(arg, name) {
         if (typeof(arg) != typeof(true)) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
         }
     },
 
     assertArgumentBoolOptional: function(arg, name) {
         if (typeof(arg) !== 'undefined' && typeof(arg) != typeof(true)) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be true or false.");
         }
     },
 
     assertArgumentTimeout: function(arg, name) {
         if (arg && (typeof(arg) !== 'number' || arg < 0)) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non negative number.");
         }
     },
 
@@ -334,20 +334,20 @@ module.exports = {
             if (alowedContexts.includes(contextList.web) || alowedContexts.includes(contextList.hybrid)) {
                 // ignore, all is ok
             } else {
-                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid context');
+                throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid context');
             }
         } else {
             if (alowedContexts.includes(contextList.android) || alowedContexts.includes(contextList.ios)) {
                 // ignore, all is ok
             } else {
-                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid context');
+                throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid context');
             }
         }
     },
 
     getWdioLocator: function(locator) {
         if (!locator)
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         else if (typeof locator === 'object')
             return locator;
         else if (locator.indexOf('/') === 0)
@@ -419,7 +419,7 @@ module.exports = {
     assertCircular: function(obj) {
         const hasCircularDependency = this.hasCircularDependency(obj);
         if (hasCircularDependency) {
-            throw new OxError(errHelper.errorCode.CIRCULAR_ERROR, hasCircularDependency);
+            throw new OxError(errHelper.ERROR_CODES.CIRCULAR_ERROR, hasCircularDependency);
         }
     },
 };

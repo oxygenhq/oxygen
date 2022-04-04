@@ -367,7 +367,7 @@ var self = module.exports = {
             const retVal = decrypted.toString();
             return new DecryptResult(retVal);
         } catch (e) {
-            throw new OxygenError(errorHelper.errorCode.CRYPTO_ERROR, "The provided argument doesn't seem to be a valid cipher produced by 'utils.encrypt'");
+            throw new OxygenError(errorHelper.ERROR_CODES.CRYPTO_ERROR, "The provided argument doesn't seem to be a valid cipher produced by 'utils.encrypt'");
         }
     },
 

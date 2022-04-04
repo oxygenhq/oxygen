@@ -15,7 +15,7 @@
 import OxygenModule from '../core/OxygenModule';
 import ModuleError from '../errors/ModuleError';
 import OxError from '../errors/OxygenError';
-import errHelper from '../errors/helper';
+import * as errHelper from '../errors/helper';
 
 const DEFAULT_VIEWPORT = {
     width: 1440,
@@ -124,7 +124,7 @@ export default class ApplitoolsModule extends OxygenModule {
         if (result._asExpected) {
             return true;
         }
-        throw new OxError(errHelper.errorCode.ASSERT_ERROR, null);
+        throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, null);
     }
 
     /**
@@ -147,6 +147,6 @@ export default class ApplitoolsModule extends OxygenModule {
         if (result._asExpected) {
             return true;
         }
-        throw new OxError(errHelper.errorCode.ASSERT_ERROR, null);
+        throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, null);
     }
 }

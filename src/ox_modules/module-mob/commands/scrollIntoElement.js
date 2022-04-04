@@ -85,5 +85,5 @@ module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, y
         }
     }
 
-    throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND, `Element ${findElmLocator} not found.`);
+    throw new this.OxError(this.errHelper.ERROR_CODES.ELEMENT_NOT_FOUND, `Element ${findElmLocator} not found.`);
 };

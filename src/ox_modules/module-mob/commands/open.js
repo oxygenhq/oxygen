@@ -29,7 +29,7 @@ module.exports = async function(url) {
             await this.driver.url(url);
         } else {
             if (e && e.message.startsWith('Specified URL')) {
-                throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
+                throw new this.OxError(this.errHelper.ERROR_CODES.SCRIPT_ERROR, e.message);
             } else {
                 throw e;
             }

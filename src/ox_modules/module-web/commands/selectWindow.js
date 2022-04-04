@@ -80,9 +80,9 @@ module.exports = async function(windowLocator, timeout) {
                 swithToCurrentHandleErrorMsg += `: ${currentHandleTitle}`;
             }
 
-            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+            throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
         }
-        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else if (windowLocator.indexOf('url=') === 0) {
         let pattern = windowLocator.substring('url='.length);
         let start = (new Date()).getTime();
@@ -111,14 +111,14 @@ module.exports = async function(windowLocator, timeout) {
             if (currentHandleUrl) {
                 swithToCurrentHandleErrorMsg += `: ${currentHandleUrl}`;
             }
-            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+            throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
         }
-        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else {
         try {
             await this.driver.switchToWindow(windowLocator);
         } catch (err) {
-            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+            throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
         }
     }
 

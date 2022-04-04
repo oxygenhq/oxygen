@@ -11,20 +11,34 @@
  * @name serial
  * @description Provides methods for working with serial ports.
  */
+import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
-var errHelper = require('../errors/helper');
-import libUtils from '../lib/util';
+import * as errHelper from '../errors/helper';
+const libUtils = require('../lib/util');
+const SerialPort = require('serialport');
+const utils = require('./utils');
 
-module.exports = function() {
-    var SerialPort = require('serialport');
-    var utils = require('./utils');
+const MODULE_NAME = 'serial';
 
-    var serialPort;
-    var stringBuffer;
-
-    module.isInitialized = function() {
-        return serialPort !== undefined;
-    };
+export default class SerialModule extends OxygenModule {    
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this._alwaysInitialized = true;
+        // pre-initialize the module
+        this._isInitialized = false;
+        // class variables 
+        this.serialPort = null;
+        this.stringBuffer = null;
+    }
+    
+    /*
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "serial".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
 
     /**
      * @summary Returns list of available ports.
@@ -33,7 +47,7 @@ module.exports = function() {
      * @function list
      * @return {Object[]} Array of port descriptions.
      */
-    module.list = async function() {
+    async list() {
         return await SerialPort.list();
     };
 
@@ -59,30 +73,30 @@ module.exports = function() {
      *   xany: false
      * }
      */
-    module.open = function(port, opts, bufferSize = 65536) {
+    async open(port, opts, bufferSize = 65536) {
         utils.assertArgumentNonEmptyString(port, 'port');
         utils.assertArgumentNumberNonNegative(bufferSize, 'bufferSize');
 
         if (port) {
             return new Promise((resolve, reject) => {
-                serialPort = new SerialPort(port, opts);
+                this.serialPort = new SerialPort(port, opts);
 
-                serialPort.on('open', () => {
-                    resolve(serialPort);
+                this.serialPort.on('open', () => {
+                    this._isInitialized = true;
+                    resolve(this.serialPort);
                 });
 
-                serialPort.on('error', (err) => {
-                    reject(new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, err.message));
+                this.serialPort.on('error', (err) => {
+                    reject(new OxError(errHelper.ERROR_CODES.SERIAL_PORT_ERROR, err.message));
                 });
 
-                var parser = serialPort.pipe(new SerialPort.parsers.Readline());
-                stringBuffer = new CircularStringBuffer(bufferSize);
+                const parser = this.serialPort.pipe(new SerialPort.parsers.Readline());
+                this.stringBuffer = new CircularStringBuffer(bufferSize);
                 parser.on('data', (data) => {
-                    stringBuffer.push(data.toString());
+                    this.stringBuffer.push(data.toString());
                 });
             });
         }
-
     };
 
     /**
@@ -93,17 +107,17 @@ module.exports = function() {
      * @param {String} pattern - Text pattern.
      * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
      */
-    module.waitForText = async function(pattern, timeout = 60000) {
+    async waitForText(pattern, timeout = 60000) {
         utils.assertArgumentNonEmptyString(pattern, 'pattern');
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
-        if (stringBuffer) {
+        if (this.stringBuffer) {
             var now = (new Date).getTime();
             let done = false;
             while (!done && (Date.now() - now) < timeout) {
                 var i;
-                for (i = stringBuffer.length; i >= 0; i--) {
-                    if (utils.matchPattern(stringBuffer[i], pattern)) {
+                for (i = this.stringBuffer.length; i >= 0; i--) {
+                    if (utils.matchPattern(this.stringBuffer[i], pattern)) {
                         done = true;
                         break;
                     }
@@ -113,7 +127,7 @@ module.exports = function() {
             }
 
             if ((new Date).getTime() - now >= timeout) {
-                throw new OxError(errHelper.errorCode.TIMEOUT);
+                throw new OxError(errHelper.ERROR_CODES.TIMEOUT);
             }
         }
     };
@@ -125,49 +139,48 @@ module.exports = function() {
      * @example <caption>[javascript] Usage example</caption>
      * serial.write('Hello\r\n');
      */
-    module.write = function(data) {
+    async write(data) {
         utils.assertArgument(data, 'data');
 
-        if (serialPort) {
+        if (this.serialPort) {
             return new Promise((resolve, reject) => {
-                serialPort.write(data);
-                serialPort.drain(() => {
+                this.serialPort.write(data);
+                this.serialPort.drain(() => {
                     resolve();
                 });
             });
         }
-    };
+    }
 
     /**
      * @summary Return data buffer.
      * @function getBuffer
      * @return {CircularStringBuffer} Data buffer.
      */
-    module.getBuffer = function() {
-        return stringBuffer;
-    };
+    getBuffer() {
+        return this.stringBuffer;
+    }
 
-    module.dispose = function() {
-        if (serialPort) {
-            serialPort.close();
+    dispose() {
+        if (this.serialPort) {
+            this.serialPort.close();
+            this._isInitialized = false;
         }
-    };
+    }
+}
 
-    function CircularStringBuffer(maxSize) {
+class CircularStringBuffer extends Array {
+    constructor(maxSize) {
         this.maxSize = maxSize;
         this.size = 0;
     }
 
-    CircularStringBuffer.prototype = Object.create(Array.prototype);
-
-    CircularStringBuffer.prototype.push = function(string) {
+    push(string) {
         while (this.size + string.length > this.maxSize) {
             this.size -= string.length;
             this.shift();
         }
         Array.prototype.push.call(this, string);
         this.size += string.length;
-    };
-
-    return module;
-};
+    }
+}

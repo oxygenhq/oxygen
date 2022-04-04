@@ -13,11 +13,11 @@
  * @description Provides methods for intercepting network traffic via mitmproxy.
  */
 
-import libUtils from '../lib/util';
+const libUtils = require('../lib/util');
 import OxygenModule from '../core/OxygenModule';
-import errHelper from '../errors/helper';
+import * as errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
-import helpers from './utils';
+const helpers = require('./utils');
 import MITMProxy from '@oxygenhq/mitmproxy-node';
 
 const MODULE_NAME = 'proxy';
@@ -128,11 +128,11 @@ export default class ProxyModule extends OxygenModule {
      */
     async waitForUrl(pattern, timeout = 60*1000) {
         if (!this._isInitialized) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
         }
 
         helpers.assertArgument(pattern, 'pattern');
@@ -146,7 +146,7 @@ export default class ProxyModule extends OxygenModule {
             }
             await libUtils.sleep(500);
         }
-        throw new OxError(errHelper.errorCode.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
+        throw new OxError(errHelper.ERROR_CODES.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
     }
 
     /**
@@ -158,11 +158,11 @@ export default class ProxyModule extends OxygenModule {
      */
     async waitFor(matcher, timeout = 60*1000) {
         if (!this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
         }
 
         this._parent.helpers.assertArgument(matcher, 'matcher');
@@ -176,7 +176,7 @@ export default class ProxyModule extends OxygenModule {
             }
             await libUtils.sleep(500);
         }
-        throw new OxError(errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher.');
+        throw new OxError(errHelper.ERROR_CODES.TIMEOUT, 'No request found using the provided matcher.');
     }
 
     /**
@@ -188,11 +188,11 @@ export default class ProxyModule extends OxygenModule {
      */
     async assertUrl(url, timeout = 60*1000) {
         if (!this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
         }
 
         this._parent.helpers.assertArgument(url, 'url');
@@ -206,7 +206,7 @@ export default class ProxyModule extends OxygenModule {
             }
             await libUtils.sleep(500);
         }
-        throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+        throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
     }
 
     /**
@@ -220,11 +220,11 @@ export default class ProxyModule extends OxygenModule {
      */
     async assertStatusCode(url, statusCode, failureMessage = null, timeout = 60*1000) {
         if (!this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`proxy.start()` must be executed prior to using `proxy` commands.');
         }
 
         this._parent.helpers.assertArgument(url, 'url');
@@ -242,11 +242,11 @@ export default class ProxyModule extends OxygenModule {
             !matchedReq && await libUtils.sleep(500);
         }
         if (!matchedReq) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
         }
         if (statusCode !== matchedReq.status) {
             const message = failureMessage || `The expected status code "${statusCode}" does not match "${matchedReq.status}".`;
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, message);
         }
     }
 

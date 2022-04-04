@@ -54,7 +54,7 @@ module.exports = async function(locator, timeout) {
         await el.click({ button: 'right' });
     } else {
         // not visibile, center is overlapped with another element, or disabled
-        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
+        throw new this.OxError(this.errHelper.ERROR_CODES.ELEMENT_NOT_VISIBLE);
     }
     await this.checkWaitForAngular();
 };

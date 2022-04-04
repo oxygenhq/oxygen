@@ -43,6 +43,6 @@ module.exports = async function(pattern, timeout) {
         if (alertText && typeof alertText === 'string') {
             throw this.errHelper.getAssertError(pattern, alertText);
         }
-        throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
+        throw new this.OxError(this.errHelper.ERROR_CODES.NO_ALERT_OPEN_ERROR, 'No alert present');
     }
 };

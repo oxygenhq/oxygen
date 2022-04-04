@@ -41,6 +41,6 @@ module.exports = async function(locator, clickParent) {
     }, el, clickParent);
 
     if (!ret) {
-        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, 'clickHidden() is not supported on the current page');
+        throw new this.OxError(this.errHelper.ERROR_CODES.NOT_SUPPORTED, 'clickHidden() is not supported on the current page');
     }
 };

@@ -18,15 +18,16 @@
  */
 module.exports = async function(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
+    console.log('this.errHelper', this.errHelper)
     try {
         await this.driver.url(url);
     } catch (e) {
         if (e && e.message.startsWith('Specified URL')) {
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, e.message);
+            throw new this.OxError(this.errHelper.ERROR_CODES.SCRIPT_ERROR, e.message);
         } else if (e && e.message.startsWith('Reached error page:')) {  // geckodriver - site cannot be reached
-            throw new this.OxError(this.errHelper.errorCode.URL_OPEN_ERROR, e.message);
+            throw new this.OxError(this.errHelper.ERROR_CODES.URL_OPEN_ERROR, e.message);
         } else if (e && e.message.startsWith('unknown error: net::')) { // chromedriver 85
-            throw new this.OxError(this.errHelper.errorCode.URL_OPEN_ERROR, e.message);
+            throw new this.OxError(this.errHelper.ERROR_CODES.URL_OPEN_ERROR, e.message);
         }
         throw e;
     }

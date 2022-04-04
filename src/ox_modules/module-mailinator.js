@@ -13,10 +13,10 @@
  */
 
 import OxError from '../errors/OxygenError';
-var errHelper = require('../errors/helper');
-import libUtils from '../lib/util';
+const errHelper = require('../errors/helper');
+const libUtils = require('../lib/util');
 
-module.exports = function() {
+module.exports.default = function() {
     var request = require('request');
 
     const apiBase = 'https://api.mailinator.com/api';
@@ -66,7 +66,7 @@ module.exports = function() {
 
         if (result.statusCode !== 200) {
             var msg = result.statusCode ? 'Status Code - ' + result.statusCode : 'Error - ' + JSON.stringify(result);
-            throw new OxError(errHelper.errorCode.MAILINATOR_ERROR, msg);
+            throw new OxError(errHelper.ERROR_CODES.MAILINATOR_ERROR, msg);
         }
 
         return result.body;

@@ -40,7 +40,7 @@ module.exports = async function(locator, timeout) {
     }, el, isIE);
 
     if (ret) {
-        throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, ret);
+        throw new this.OxError(this.errHelper.ERROR_CODES.NOT_SUPPORTED, ret);
     }
     await this.checkWaitForAngular();
 };

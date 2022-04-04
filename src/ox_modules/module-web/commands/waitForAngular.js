@@ -74,6 +74,6 @@ module.exports = async function(rootSelector, timeout = 60*1000) {
             timeoutMsg: 'Angular not found'
         });
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
+        throw new this.OxError(this.errHelper.ERROR_CODES.TIMEOUT, e.message);
     }
 };

@@ -76,3 +76,4 @@ export {default as waitForWindow} from './waitForWindow';
 export {default as waitForInteractable} from './waitForInteractable';
 export {default as getHTML} from './getHTML';
 export {default as isChecked} from './isChecked';
+export {default as selectFrameByElement} from './selectFrameByElement';

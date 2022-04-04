@@ -36,7 +36,7 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
             reader = new JsonReader();
         }
         else {
-            _whenInitialized.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Unsupported parameters file type: ' + ext));
+            _whenInitialized.reject(new OxError(errHelper.ERROR_CODES.PARAMETERS_ERROR, 'Unsupported parameters file type: ' + ext));
             return _whenInitialized.promise;
         }
 
@@ -52,8 +52,8 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
             .catch(function(err) {
                 _whenInitialized.reject(
                     new OxError(
-                        errHelper.errorCode.PARAMETERS_ERROR,
-                        `${errHelper.errorCode.PARAMETERS_ERROR}: Unable to load parameters file. 
+                        errHelper.ERROR_CODES.PARAMETERS_ERROR,
+                        `${errHelper.ERROR_CODES.PARAMETERS_ERROR}: Unable to load parameters file. 
 ${err.message}`
                     )
                 );
@@ -87,7 +87,7 @@ ${err.message}`
 
     module.getValues = function() {
         if (!this.table || this.table.length === 0) {
-            throw new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Parameters table is empty');
+            throw new OxError(errHelper.ERROR_CODES.PARAMETERS_ERROR, 'Parameters table is empty');
         }
         return this.table[this.currentRow];
     };

@@ -59,9 +59,9 @@ module.exports = async function (windowHandle, timeout) {
                 if (currentHandleTitle) {
                     swithToCurrentHandleErrorMsg += `: ${currentHandleTitle}`;
                 }
-                throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
+                throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
             }
-            e = new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle}`);
+            e = new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle}`);
             throw e;
         } else {
             await this.driver.switchToWindow(windowHandle);
@@ -73,7 +73,7 @@ module.exports = async function (windowHandle, timeout) {
         if (e) {
             throw e;
         } else {
-            throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle} - ${err.message}`);
+            throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle} - ${err.message}`);
         }
     }
 };

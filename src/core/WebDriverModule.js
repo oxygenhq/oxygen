@@ -46,7 +46,7 @@ export default class WebDriverModule extends OxygenModule {
     }
     async replStart(commandTimeout = 5000) {
         if (this.replExecuted) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'debug command can be used only once');
+            throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, 'debug command can be used only once');
         }
         const wdioRepl = require('@wdio/repl');
         this.repl = new wdioRepl.default();

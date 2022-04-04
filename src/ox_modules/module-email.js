@@ -12,20 +12,32 @@
  * @description Provides methods for working with email via IMAP.
  */
 
+import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
-import utils from './utils';
+const utils = require('./utils');
+//import utils from './utils';
 import _ from 'lodash';
-var errHelper = require('../errors/helper');
+const errHelper = require('../errors/helper');
+const imaps = require('imap-simple');
+const simpleParser = require('mailparser').simpleParser;
+const MODULE_NAME = 'email';
 
-module.exports = function() {
-    var imaps = require('imap-simple');
-    const simpleParser = require('mailparser').simpleParser;
-    var _config;
+export default class EmailModule extends OxygenModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this._isInitialized = false;
+        this._config = null;
+    }
 
-    module.isInitialized = function() {
-        return _config !== undefined;
-    };
-
+    /*
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "http".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
+    
     /**
      * @summary Set email connection details.
      * @function init
@@ -37,7 +49,7 @@ module.exports = function() {
      * @param {Number} authTimeout - Authentication timeout in milliseconds.
      * @param {Boolean=} enableSNI - Enable sending SNI when establishing the connection. This is required for some mail servers. Default is false. 
      */
-    module.init = function(user, password, host, port, tls, authTimeout, enableSNI) {
+    init(user, password, host, port, tls, authTimeout, enableSNI) {
         utils.assertArgumentNonEmptyString(user, 'user');
         utils.assertArgumentNonEmptyString(password, 'password');
         utils.assertArgumentNonEmptyString(host, 'host');
@@ -45,7 +57,7 @@ module.exports = function() {
         utils.assertArgumentBool(tls, 'tls');
         utils.assertArgumentNumberNonNegative(authTimeout, 'authTimeout');
 
-        _config = {
+        this._config = {
             imap: {
                 user: user,
                 password: password,
@@ -55,12 +67,13 @@ module.exports = function() {
                 authTimeout: authTimeout
             }
         };
+        this._isInitialized = true;
 
         // set servername if SNI is enabled or we are using Gmail
         if (enableSNI || host === 'imap.gmail.com') {
-            _config.imap.tlsOptions = { servername: host };
+            this._config.imap.tlsOptions = { servername: host };
         }
-    };
+    }
 
     /**
      * @summary Retrieves last unseen email.
@@ -94,7 +107,7 @@ module.exports = function() {
      * 	});
      * }
      */
-    module.getLastEmail = async function(sinceMinutes, subject, timeout) {
+     async getLastEmail(sinceMinutes, subject, timeout) {
         utils.assertArgumentNumberNonNegative(sinceMinutes, 'sinceMinutes');
         utils.assertArgumentNumberNonNegative(timeout, 'timeout');
 
@@ -183,13 +196,11 @@ module.exports = function() {
         }
 
         if (err) {
-            throw new OxError(errHelper.errorCode.EMAIL_ERROR, err.toString());
+            throw new OxError(errHelper.ERROR_CODES.EMAIL_ERROR, err.toString());
         } else if (!mail) {
-            throw new OxError(errHelper.errorCode.TIMEOUT, "Couldn't get an email within " + timeout + ' ms.');
+            throw new OxError(errHelper.ERROR_CODES.TIMEOUT, "Couldn't get an email within " + timeout + ' ms.');
         }
 
         return mail;
-    };
-
-    return module;
-};
+    }
+}

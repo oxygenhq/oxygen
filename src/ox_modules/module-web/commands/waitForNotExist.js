@@ -38,7 +38,7 @@ module.exports = async function(locator, timeout) {
     } catch (e) {
         await this.helpers.restoreTimeoutImplicit();
         if (e.message && e.message.includes('still existing')) {
-            throw new this.OxError(this.errHelper.errorCode.ELEMENT_STILL_EXISTS);
+            throw new this.OxError(this.errHelper.ERROR_CODES.ELEMENT_STILL_EXISTS);
         }
         throw e;
     }

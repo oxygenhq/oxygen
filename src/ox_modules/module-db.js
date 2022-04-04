@@ -16,20 +16,36 @@
  *   * Linux - `sudo apt-get install unixodbc unixodbc-dev` or `sudo dnf install unixODBC unixODBC-devel`
  */
 
-var connection;
-
+import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
-var errHelper = require('../errors/helper');
+import * as errHelper from '../errors/helper';
+const MODULE_NAME = 'db';
 
-module.exports = function() {
+export default class DBModule extends OxygenModule {
     // FIXME: change setConnectionString to init and add hadnling in here
-    module.isInitialized = function() {
-        return true;
-    };
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this._alwaysInitialized = true;
+        // pre-initialize the module
+        this._isInitialized = true;
+        // connection string 
+        this.connString = null;
+        // connection object
+        this.connection = null;
+    }
 
-    module._openDbConn = async function() {
+    /*
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "http".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
+
+    async _openDbConn() {
         if (!this.connString) {
-            throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, 'No connection string specified. Use db.setConnectionString().');
+            throw new OxError(errHelper.ERROR_CODES.DB_CONNECTION_ERROR, 'No connection string specified. Use db.setConnectionString().');
         }
 
         try {
@@ -43,11 +59,11 @@ module.exports = function() {
                 throw new ModuleUnavailableError('Unable to load DB module. '+e.message);
             }
 
-            connection = await db.connect(this.connString);
+            this.connection = await db.connect(this.connString);
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_CONNECTION_ERROR, errHelper.getDbErrorMessage(e));
+            throw new OxError(errHelper.ERROR_CODES.DB_CONNECTION_ERROR, errHelper.getDbErrorMessage(e));
         }
-    };
+    }
 
     /**
     * @summary Sets DB connection string to be used by other methods.
@@ -61,9 +77,9 @@ module.exports = function() {
     * @function setConnectionString
     * @param {String} connString - ODBC connection string.
     */
-    module.setConnectionString = function(connString) {
-        module.connString = connString;
-    };
+    setConnectionString(connString) {
+        this.connString = connString;
+    }
 
     /**
      * @summary Executes SQL query and returns the first column of the first row in the result set.
@@ -72,10 +88,10 @@ module.exports = function() {
      * @return {Object} The first column of the first row in the result set, or null if the result
      *                  set is empty.
      */
-    module.getScalar = async function(query) {
+     async getScalar(query) {
         await module._openDbConn();
         try {
-            var resultSet = await connection.query(query);
+            var resultSet = await this.connection.query(query);
             if (resultSet.length === 0) {
                 return null;
             }
@@ -83,11 +99,11 @@ module.exports = function() {
             var firstCol = firstRow[Object.keys(firstRow)[0]];
             return firstCol;
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
+            throw new OxError(errHelper.ERROR_CODES.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
         } finally {
-            await connection.close();
+            await this.connection.close();
         }
-    };
+    }
 
     /**
      * @summary Executes SQL query and returns the result set.
@@ -95,17 +111,17 @@ module.exports = function() {
      * @param {String} query - The query to execute.
      * @return {Object} The result set.
      */
-    module.executeQuery = async function(query) {
-        await module._openDbConn();
+     async executeQuery(query) {
+        await this._openDbConn();
         try {
-            const querySyncRetval = await connection.query(query);
+            const querySyncRetval = await this.connection.query(query);
             return querySyncRetval;
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
+            throw new OxError(errHelper.ERROR_CODES.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
         } finally {
-            await connection.close();
+            await this.connection.close();
         }
-    };
+    }
 
     /**
      * @summary Executes SQL statement.
@@ -113,16 +129,14 @@ module.exports = function() {
      * @function executeNonQuery
      * @param {String} query - The query to execute.
      */
-    module.executeNonQuery = async function(query) {
-        await module._openDbConn();
+    async executeNonQuery(query) {
+        await this._openDbConn();
         try {
-            await connection.query(query);
+            await this.connection.query(query);
         } catch (e) {
-            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
+            throw new OxError(errHelper.ERROR_CODES.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
         } finally {
-            await connection.close();
+            await this.connection.close();
         }
-    };
-
-    return module;
-};
+    }
+}

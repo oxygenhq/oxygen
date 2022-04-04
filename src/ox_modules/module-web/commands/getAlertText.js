@@ -20,6 +20,6 @@ module.exports = async function() {
     try {
         return await this.driver.getAlertText();
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
+        throw new this.OxError(this.errHelper.ERROR_CODES.NO_ALERT_OPEN_ERROR, 'No alert present');
     }
 };

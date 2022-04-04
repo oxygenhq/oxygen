@@ -46,8 +46,8 @@ import URL from 'url';
 import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
 import { defer } from 'when';
-import modUtils from './utils';
-import errHelper from '../errors/helper';
+const modUtils = require('./utils');
+import * as errorHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import util from 'util';
 import SauceLabs from 'saucelabs';
@@ -56,8 +56,7 @@ import TestingBot from 'testingbot-api';
 import { execSync } from 'child_process';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
-import mergeImages from '../lib/img-merge';
-import errorHelper from '../errors/helper';
+const mergeImages = require('../lib/img-merge');
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -74,9 +73,9 @@ export default class WebModule extends WebDriverModule {
         this.lastNavigationStartTime = null;
         this.helpers = {};
         this._loadHelperFunctions();
-        // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
+        // support backward compatibility (some module commands might refer to this.OxError and this.errorHelper)
         this.OxError = OxError;
-        this.errHelper = errHelper;
+        this.errHelper = errorHelper;
         // holds element operation timeout value
         this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
     }
@@ -136,7 +135,7 @@ export default class WebModule extends WebDriverModule {
         }
         // FIXME: shall we throw an exception if browserName is not specified, neither in caps nor in options?!
         if (!this.caps.browserName) {
-            throw new OxError(errHelper.errorCode.INVALID_CAPABILITIES,
+            throw new OxError(errorHelper.ERROR_CODES.INVALID_CAPABILITIES,
                 'Failed to initialize `web` module - browserName must be specified.');
         }
 
@@ -264,7 +263,7 @@ export default class WebModule extends WebDriverModule {
             }
         }
         catch (e) {
-            throw errHelper.getSeleniumInitError(e);
+            throw errorHelper.getSeleniumInitError(e);
         }
 
         // reset browser logs if auto collect logs option is enabled
@@ -295,7 +294,7 @@ export default class WebModule extends WebDriverModule {
             }
 
         } catch (err) {
-            throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
+            throw new OxError(errorHelper.ERROR_CODES.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
         super.init(this.driver);
     }
@@ -447,7 +446,7 @@ export default class WebModule extends WebDriverModule {
     }
 
     async _iterationEnd(error) {
-        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+        if (error && error.type === errorHelper.ERROR_CODES.SELENIUM_SESSION_TIMEOUT) {
             this.seleniumSessionTimeout = true;
             return;
         } else {

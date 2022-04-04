@@ -22,7 +22,7 @@ module.exports = async function() {
         await this.driver.dismissAlert();
     } catch (e) {
         if (e.name === 'no such alert') {
-            throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR);
+            throw new this.OxError(this.errHelper.ERROR_CODES.NO_ALERT_OPEN_ERROR);
         } else {
             throw e;
         }

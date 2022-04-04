@@ -35,6 +35,6 @@ module.exports = async function(locator, pattern, timeout) {
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         text = text.replace(/\n/g, '\\n');
-        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `Expected not: "${pattern}". Got: "${text}"`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.TIMEOUT, `Expected not: "${pattern}". Got: "${text}"`);
     }
 };

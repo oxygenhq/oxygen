@@ -12,7 +12,7 @@
  * @description Provides methods for working with Twilio service.
  */
 import OxErrorContsructor from '../errors/OxygenError';
-import libUtils from '../lib/util';
+const libUtils = require('../lib/util');
 
 module.exports = function() {
     const utils = require('./utils');
@@ -88,7 +88,7 @@ module.exports = function() {
         }
 
         if (!msg) {
-            throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't get the SMS within " + timeout + 'ms.');
+            throw new OxError(errHelper.ERROR_CODES.TWILIO_ERROR, "Couldn't get the SMS within " + timeout + 'ms.');
         }
 
         if (removeOnRead) {
@@ -143,7 +143,7 @@ module.exports = function() {
             } else if (response.code) {
                 msg = 'Unable to connect to Twilio: ' + msg;
             }
-            throw new OxError(errHelper.errorCode.TWILIO_ERROR, msg);
+            throw new OxError(errHelper.ERROR_CODES.TWILIO_ERROR, msg);
         }
 
         return response;

@@ -8,8 +8,8 @@
  */
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
-import errHelper from '../errors/helper';
-import modUtils from './utils';
+import * as errHelper from '../errors/helper';
+const modUtils = require('./utils');
 
 const MODULE_NAME = 'shell';
 
@@ -50,7 +50,7 @@ export default class ShellModule extends OxygenModule {
         options = { cwd: this.options.cwd, shell: true, env: process.env, ...options };
         const result = spawn.sync(command, options);
         if (result.error) {
-            throw new OxError(errHelper.errorCode.SHELL_ERROR, result.error.message, null, true, result.error);
+            throw new OxError(errHelper.ERROR_CODES.SHELL_ERROR, result.error.message, null, true, result.error);
         }
         this._lastStdout = result.stdout ? result.stdout.toString() : null;
         if (result.stdout) {
@@ -69,7 +69,7 @@ export default class ShellModule extends OxygenModule {
             return false;
         }
         if (!modUtils.matchPattern(this._lastStdout, pattern)) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected shell command output to match: "${pattern}" but got: "${this._lastStdout}"`);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `Expected shell command output to match: "${pattern}" but got: "${this._lastStdout}"`);
         }
         return true;
     }

@@ -59,11 +59,11 @@ module.exports = async function(locator, filepath, timeout) {
             await el.setValue(remoteFilePath);
         } catch (e) {
             if (e.name === 'invalid element state') {
-                throw new this.OxError(this.errHelper.errorCode.ELEMENT_STATE_ERROR, e.message);
+                throw new this.OxError(this.errHelper.ERROR_CODES.ELEMENT_STATE_ERROR, e.message);
             }
             throw e;
         }
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.FILE_BROWSE_ERROR, e.message);
+        throw new this.OxError(this.errHelper.ERROR_CODES.FILE_BROWSE_ERROR, e.message);
     }
 };

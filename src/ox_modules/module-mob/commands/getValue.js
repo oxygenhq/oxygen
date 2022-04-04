@@ -28,14 +28,14 @@ module.exports = async function(locator, timeout) {
         // uiautomator1 simply returns an error if element not found
         if (text && text.error) {
             if (text.error === 'no such element') {
-                throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
+                throw new this.OxError(this.errHelper.ERROR_CODES.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
             }
             throw text;
         }
         return text;
     } catch (e) {   // uiautomator2 will throw instead
         if (e.name === 'unknown command') {
-            throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
+            throw new this.OxError(this.errHelper.ERROR_CODES.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
         }
         throw e;
         // TODO: add support for XCUITest

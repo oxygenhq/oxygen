@@ -14,8 +14,8 @@
 import got from 'got';
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
-import errHelper from '../errors/helper';
-import modUtils from './utils';
+import * as errHelper from '../errors/helper';
+const modUtils = require('./utils');
 
 const MODULE_NAME = 'http';
 const RESPONSE_TIMEOUT = 1000 * 60;   // in ms
@@ -86,13 +86,13 @@ export default class HttpModule extends OxygenModule {
             const parsedUrl = parse(url);
 
             if (!parsedUrl.hostname) {
-                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Hostname in undefined');
+                throw new OxError(errHelper.ERROR_CODES.HTTP_ERROR, 'Hostname in undefined');
             }
             if (!parsedUrl.port) {
-                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Port in undefined');
+                throw new OxError(errHelper.ERROR_CODES.HTTP_ERROR, 'Port in undefined');
             }
             if (!parsedUrl.protocol) {
-                throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Protocol in undefined');
+                throw new OxError(errHelper.ERROR_CODES.HTTP_ERROR, 'Protocol in undefined');
             }
 
             bootstrap();
@@ -275,11 +275,11 @@ export default class HttpModule extends OxygenModule {
             return false;
         }
         if (!this._lastResponse.body) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Response body is empty');
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, 'Response body is empty');
         }
         const respContent = typeof this._lastResponse.body === 'string' ? this._lastResponse.body : JSON.stringify(this._lastResponse.body);
         if (!modUtils.matchPattern(respContent, pattern)) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP response content to match: "${pattern}" but got: "${respContent}"`);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `Expected HTTP response content to match: "${pattern}" but got: "${respContent}"`);
         }
         return true;
     }
@@ -306,12 +306,12 @@ export default class HttpModule extends OxygenModule {
         headerName = headerName.toLowerCase();
         const headers = this._lastResponse.headers;
         if (!headers[headerName]) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, 'Expected HTTP header "${headerName}" to be present');
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, 'Expected HTTP header "${headerName}" to be present');
         }
         else if (headerValuePattern && typeof headerValuePattern === 'string') {
             const actualHeaderValue = headers[headerName];
             if (!modUtils.matchPattern(actualHeaderValue, headerValuePattern)) {
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP header "${headerName}" value to match: "${headerValuePattern}" but got: "${actualHeaderValue}"`);
+                throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `Expected HTTP header "${headerName}" value to match: "${headerValuePattern}" but got: "${actualHeaderValue}"`);
             }
         }
     }
@@ -341,7 +341,7 @@ export default class HttpModule extends OxygenModule {
         }
         const statusCode = this._lastResponse.statusCode;
         if (!codeList.includes(statusCode)) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected HTTP status to be: "${codeList}" but got: "${statusCode}"`);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `Expected HTTP status to be: "${codeList}" but got: "${statusCode}"`);
         }
         return true;
     }

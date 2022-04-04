@@ -41,7 +41,7 @@ module.exports = async function(selectLocator, optionLocator, timeout) {
         }
     } catch (e) {
         if (e.message && e.message.startsWith('Option with ')) {
-            throw new this.OxError(this.errHelper.errorCode.OPTION_NOT_FOUND, e.message);
+            throw new this.OxError(this.errHelper.ERROR_CODES.OPTION_NOT_FOUND, e.message);
         }
         throw e;
     }

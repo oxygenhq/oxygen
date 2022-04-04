@@ -45,7 +45,7 @@ module.exports = async function(locator, pattern, timeout) {
         if (actualError) {
             if (actualError.error === 'no such element' /*uiautomator1*/ ||
                 actualError.name === 'unknown command' /*uiautomator2*/) {
-                throw new this.OxError(this.errHelper.errorCode.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
+                throw new this.OxError(this.errHelper.ERROR_CODES.ATTRIBUTE_NOT_FOUND, "This element does not have the 'value' attribute");
             }
         }
 

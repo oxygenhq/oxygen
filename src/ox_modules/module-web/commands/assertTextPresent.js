@@ -36,7 +36,7 @@ module.exports = async function(text, timeout) {
         if (timeout) {
             this.helpers.restoreTimeoutImplicit();
         }
-        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, `Text: "${text}" not found on the page`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.ASSERT_ERROR, `Text: "${text}" not found on the page`);
     }
 
     if (timeout) {

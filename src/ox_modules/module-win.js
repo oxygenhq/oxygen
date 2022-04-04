@@ -29,10 +29,9 @@
 import URL from 'url';
 import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
-import modUtils from './utils';
-import errHelper from '../errors/helper';
+const modUtils = require('./utils');
+import * as errorHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
-import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'win';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
@@ -57,9 +56,9 @@ export default class WindowsModule extends WebDriverModule {
         this.networkRequests = null;
         this.helpers = {};
         this._loadHelperFunctions();
-        // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
+        // support backward compatibility (some module commands might refer to this.OxError and this.errorHelper)
         this.OxError = OxError;
-        this.errHelper = errHelper;
+        this.errHelper = errorHelper;
         // holds element operation timeout value
         this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
     }
@@ -184,7 +183,7 @@ export default class WindowsModule extends WebDriverModule {
             }
         }
         catch (e) {
-            throw errHelper.getAppiumInitError(e);
+            throw errorHelper.getAppiumInitError(e);
         }
 
         await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
@@ -277,7 +276,7 @@ export default class WindowsModule extends WebDriverModule {
     }
 
     _iterationEnd(error) {
-        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+        if (error && error.type === errorHelper.ERROR_CODES.SELENIUM_SESSION_TIMEOUT) {
             this.seleniumSessionTimeout = true;
             return;
         } else {
@@ -307,7 +306,7 @@ export default class WindowsModule extends WebDriverModule {
 
     _getWdioLocator(locator) {
         if (!locator)
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+            throw new OxError(errorHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         else if (typeof locator === 'object')
             return locator;
         else if (locator.indexOf('/') === 0)

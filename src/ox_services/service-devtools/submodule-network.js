@@ -215,11 +215,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async waitForUrl(pattern, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(pattern, 'pattern');
@@ -234,7 +234,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             }
             await this._driver.pause(500);
         }
-        throw new OxError(errHelper.errorCode.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
+        throw new OxError(errHelper.ERROR_CODES.TIMEOUT, `No request matching the URL "${pattern}" was found.`);
     }
 
     /**
@@ -245,11 +245,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async waitForNotUrl(pattern, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(pattern, 'pattern');
@@ -259,7 +259,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             const networkRequests = await this._getEntries();
             for (let req of networkRequests) {
                 if (pattern.constructor.name === 'RegExp' && pattern.test(req.url) || pattern === req.url) {
-                    throw new OxError(errHelper.errorCode.TIMEOUT, `A request matching the URL "${pattern}" was found.`);
+                    throw new OxError(errHelper.ERROR_CODES.TIMEOUT, `A request matching the URL "${pattern}" was found.`);
                 }
             }
             await this._driver.pause(500);
@@ -275,11 +275,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async waitFor(matcher, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(matcher, 'matcher');
@@ -294,7 +294,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             }
             await this._driver.pause(500);
         }
-        throw new OxError(errHelper.errorCode.TIMEOUT, 'No request found using the provided matcher.');
+        throw new OxError(errHelper.ERROR_CODES.TIMEOUT, 'No request found using the provided matcher.');
     }
 
     /**
@@ -306,11 +306,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async assertUrl(url, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(url, 'url');
@@ -325,7 +325,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             }
             await this._driver.pause(500);
         }
-        throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+        throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
     }
 
     /**
@@ -339,11 +339,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async assertStatusCode(url, statusCode, failureMessage = null, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(url, 'url');
@@ -362,11 +362,11 @@ export default class NetworkSubModule extends OxygenSubModule {
             !matchedReq && await this._driver.pause(500);
         }
         if (!matchedReq) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
         }
         if (statusCode !== matchedReq.status) {
             const message = failureMessage || `The expected status code "${statusCode}" does not match "${matchedReq.status}".`;
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, message);
         }
     }
 
@@ -381,11 +381,11 @@ export default class NetworkSubModule extends OxygenSubModule {
      */
     async assertResponseContent(url, content, failureMessage = null, timeout = 60*1000) {
         if (!this._driver || !this._isInitialized || !this._parent) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`network` or `web` module is not initialized.');
         }
 
         if (!this._collectData) {
-            throw new OxError(errHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
+            throw new OxError(errHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, '`web.network.start()` must be executed prior to using `network` commands.');
         }
 
         this._parent.helpers.assertArgument(url, 'url');
@@ -404,7 +404,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             !matchedReq && await this._driver.pause(500);
         }
         if (!matchedReq) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, `No request matching the URL "${url}" was found.`);
         }
         const resp = await this._driver.cdp('Network','getResponseBody', {
             requestId: matchedReq.requestId
@@ -415,7 +415,7 @@ export default class NetworkSubModule extends OxygenSubModule {
             }
             else {
                 const message = failureMessage || `Response "${url}" body content does not match "${content}.`;
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+                throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, message);
             }
         }
     }

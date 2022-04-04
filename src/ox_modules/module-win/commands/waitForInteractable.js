@@ -31,6 +31,6 @@ module.exports = async function(locator, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_INTERACTABLE, `Element ${locator} is not interactable`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.ELEMENT_NOT_INTERACTABLE, `Element ${locator} is not interactable`);
     }
 };

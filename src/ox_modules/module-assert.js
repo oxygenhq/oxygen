@@ -13,17 +13,30 @@
  */
 
 const chai = require('chai');
+import OxygenModule from '../core/OxygenModule';
+//import * as errHelper from '../errors/helper';
+//const errHelper = require('../errors/helper');
 import OxError from '../errors/OxygenError';
-const errHelper = require('../errors/helper');
+const MODULE_NAME = 'assert';
 
-/*global ox*/
+export default class AssertModule extends OxygenModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this._alwaysInitialized = true;
+        // pre-initialize the module
+        this._isInitialized = true;
+    }
 
-module.exports = function() {
-    module.isInitialized = function() {
-        return true;
-    };
+    /*
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "http".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
 
-    module._takeScreenshotSilent = function(name) {
+    _takeScreenshotSilent(name) {
         var mod;
         if (ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
             mod = ox.modules.mob;
@@ -38,10 +51,10 @@ module.exports = function() {
         } else {
             return null;
         }
-    };
+    }
 
     // take screenshot on error if either web, mob, or win module is initialized
-    module._takeScreenshot = function(name) {
+    _takeScreenshot(name) {
         var mod;
         if (ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
             mod = ox.modules.mob;
@@ -51,7 +64,7 @@ module.exports = function() {
             mod = ox.modules.win;
         }
         return mod ? mod.takeScreenshot() : null;
-    };
+    }
 
     /**
      * @summary Asserts that the string value contains a substring.
@@ -60,14 +73,14 @@ module.exports = function() {
      * @param {String} contains - Verbatim string to be contained. 
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.contain = function(actual, contains, message) {
+    contain(actual, contains, message) {
         try {
             chai.expect(actual).to.contain(contains, message);
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, e.message);
         }
-    };
+    }
 
     /**
      * @summary Asserts that two values are equal (non-strict equality).
@@ -76,7 +89,7 @@ module.exports = function() {
      * @param {Object} expected - Expected value. Either an object or a string prefixed with `regex:`.
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.equal = function(actual, expected, message) {
+    equal(actual, expected, message) {
         try {
             if (expected && typeof expected === 'string' && expected.indexOf('regex:') === 0) {
                 var regex = new RegExp(expected.substring('regex:'.length));
@@ -86,9 +99,9 @@ module.exports = function() {
             }
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, e.message);
         }
-    };
+    }
     /**
      * @summary Asserts that two values are not equal (non-strict inequality).
      * @function notEqual
@@ -96,7 +109,7 @@ module.exports = function() {
      * @param {Object} expected - Expected value. Either an object or a string prefixed with `regex:`.
      * @param {String=} message - Message to throw if assertion fails.
      */
-    module.notEqual = function(actual, expected, message) {
+    notEqual(actual, expected, message) {
         try {
             if (expected && typeof expected === 'string' && expected.indexOf('regex:') === 0) {
                 var regex = new RegExp(expected.substring('regex:'.length));
@@ -106,26 +119,43 @@ module.exports = function() {
             }
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, e.message);
         }
-    };
+    }
     /**
      * @summary Fails test with the given message.
      * @function fail
      * @param {String=} message - Error message to return.
      */
-    module.fail = function(message) {
-        throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
-    };
+    fail(message) {
+        throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, message);
+    }
 
     /**
      * @summary Passes the test with the given message.
      * @function pass
      * @param {String=} message - Message to return.
      */
-    module.pass = function(message) {
-        throw new OxError(errHelper.errorCode.ASSERT_PASSED, message);
-    };
+    pass(message) {
+        throw new OxError(errHelper.ERROR_CODES.ASSERT_PASSED, message);
+    }
 
-    return module;
-};
+    /**
+     * @summary Asserts if condition is true.
+     * @description Value pattern can be any of the supported 
+     *  string matching patterns(on the top of page).
+     * @function isTrue
+     * @param {Boolean} condition - True/false condition.
+     * @param {String} message - Option error message.
+     */
+    isTrue(condition, message) {
+        this.helpers.assertArgument(condition, 'condition');
+
+        try {
+            chai.assert.isTrue(condition, message);
+        }
+        catch (e) {
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, e.message);
+        }
+    }
+}

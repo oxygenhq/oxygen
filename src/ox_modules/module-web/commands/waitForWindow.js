@@ -62,7 +62,7 @@ module.exports = async function(windowLocator, timeout) {
             }
             this.pause(1000);
         }
-        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else if (windowLocator.indexOf('url=') === 0) {
         let pattern = windowLocator.substring('url='.length);
         timeout = !timeout ? this.waitForTimeout : timeout;
@@ -89,8 +89,8 @@ module.exports = async function(windowLocator, timeout) {
             }
             await this.pause(1000);
         }
-        throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
+        throw new this.OxError(this.errHelper.ERROR_CODES.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else {
-        throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - windowLocator.');
+        throw new this.OxError(this.errHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid argument - windowLocator.');
     }
 };

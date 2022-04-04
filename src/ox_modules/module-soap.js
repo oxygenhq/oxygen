@@ -109,7 +109,7 @@ module.exports = function() {
                         } else if (err && (typeof err === 'string' || err instanceof String)) {
                             msg += ': ' + err;
                         }
-                        resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
+                        resultClient = new OxError(errHelper.ERROR_CODES.SOAP_ERROR, msg);
                         resolve();
                         return;
                     }
@@ -117,7 +117,7 @@ module.exports = function() {
                     resultClient = client;
 
                     if (typeof client[method] !== 'function') {
-                        resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, 'No method named ' + method + ' was found.');
+                        resultClient = new OxError(errHelper.ERROR_CODES.SOAP_ERROR, 'No method named ' + method + ' was found.');
                         resolve();
                         return;
                     }
@@ -135,9 +135,9 @@ module.exports = function() {
                     client[method](args, (err, res) => {
                         lastResponseHeaders = client.lastResponseHeaders;
                         if (err !== null && err.root && err.root.Envelope && err.root.Envelope.Body && err.root.Envelope.Body.Fault) {
-                            result = new OxError(errHelper.errorCode.SOAP_ERROR, JSON.stringify(err.root.Envelope.Body.Fault.faultstring));
+                            result = new OxError(errHelper.ERROR_CODES.SOAP_ERROR, JSON.stringify(err.root.Envelope.Body.Fault.faultstring));
                         } else if (err !== null) {
-                            result = new OxError(errHelper.errorCode.SOAP_ERROR, require('util').inspect(err, { depth: 4 }));
+                            result = new OxError(errHelper.ERROR_CODES.SOAP_ERROR, require('util').inspect(err, { depth: 4 }));
                         } else {
                             result = res;
                         }
@@ -149,11 +149,11 @@ module.exports = function() {
             });
         })();
 
-        if (resultClient.type === errHelper.errorCode.SOAP_ERROR) {
+        if (resultClient.type === errHelper.ERROR_CODES.SOAP_ERROR) {
             throw resultClient;
         }
 
-        if (result.type === errHelper.errorCode.SOAP_ERROR) {
+        if (result.type === errHelper.ERROR_CODES.SOAP_ERROR) {
             throw result;
         }
 
@@ -194,7 +194,7 @@ module.exports = function() {
                         } else if (err && (typeof err === 'string' || err instanceof String)) {
                             msg += ': ' + err;
                         }
-                        resultClient = new OxError(errHelper.errorCode.SOAP_ERROR, msg);
+                        resultClient = new OxError(errHelper.ERROR_CODES.SOAP_ERROR, msg);
                         resolve();
                         return;
                     }
@@ -210,7 +210,7 @@ module.exports = function() {
             });
         })();
 
-        if (resultClient.type === errHelper.errorCode.SOAP_ERROR) {
+        if (resultClient.type === errHelper.ERROR_CODES.SOAP_ERROR) {
             throw resultClient;
         }
 

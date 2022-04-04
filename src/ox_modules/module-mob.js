@@ -51,13 +51,12 @@
 import URL from 'url';
 import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
-import modUtils from './utils';
-import errHelper from '../errors/helper';
+const modUtils = require('./utils');
+import * as errorHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
-import mergeImages from '../lib/img-merge';
-import errorHelper from '../errors/helper';
+const mergeImages = require('../lib/img-merge');
 
 const MODULE_NAME = 'mob';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
@@ -75,9 +74,9 @@ export default class MobileModule extends WebDriverModule {
         this.helpers = {};
         this.appContext = 'NATIVE_APP';
         this._loadHelperFunctions();
-        // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
+        // support backward compatibility (some module commands might refer to this.OxError and this.errorHelper)
         this.OxError = OxError;
-        this.errHelper = errHelper;
+        this.errHelper = errorHelper;
         // holds element operation timeout value
         this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
     }
@@ -263,7 +262,7 @@ export default class MobileModule extends WebDriverModule {
                 await this.reportingClient.testStart(name);
             }
         } catch (e) {
-            throw errHelper.getAppiumInitError(e);
+            throw errorHelper.getAppiumInitError(e);
         }
 
         this.appContext = await this.driver.getContext();
@@ -472,7 +471,7 @@ export default class MobileModule extends WebDriverModule {
     }
 
     async _iterationEnd(error) {
-        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+        if (error && error.type === errorHelper.ERROR_CODES.SELENIUM_SESSION_TIMEOUT) {
             this.seleniumSessionTimeout = true;
             return;
         } else {
@@ -533,7 +532,7 @@ export default class MobileModule extends WebDriverModule {
 
     _getWdioLocator(locator) {
         if (!locator) {
-            throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
+            throw new OxError(errorHelper.ERROR_CODES.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         }
         if (typeof locator !== 'string') {
             return locator;

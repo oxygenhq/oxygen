@@ -11,7 +11,7 @@ import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
 import * as coreUtils from './utils';
 import OxError from '../errors/OxygenError';
-import errorHelper from '../errors/helper';
+import * as errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
 import * as Modules from '../ox_modules/index';
 
@@ -544,7 +544,7 @@ export default class Oxygen extends OxygenEvents {
 
         // throw if a command executed on unitialized module (except internal methods and a few other)
         if (!module.isInitialized && publicMethod && cmdName !== 'init' && cmdName !== 'transaction') {
-            throw new OxError(errorHelper.errorCode.MODULE_NOT_INITIALIZED_ERROR, 'Missing ' + moduleName + '.init()');
+            throw new OxError(errorHelper.ERROR_CODES.MODULE_NOT_INITIALIZED_ERROR, 'Missing ' + moduleName + '.init()');
         }
 
         // dectypt arguments
@@ -754,7 +754,7 @@ export default class Oxygen extends OxygenEvents {
         step.transaction = global._lastTransactionName || null;                   // FIXME: why is this here if it's already populated in rs?
         step.location = location;
 
-        if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
+        if (err && err.type && err.type === errorHelper.ERROR_CODES.ASSERT_PASSED) {
             step.status = STATUS.PASSED;
         } else {
             // determine step status
@@ -783,9 +783,9 @@ export default class Oxygen extends OxygenEvents {
         }
 
         if (err) {
-            if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
+            if (err && err.type && err.type === errorHelper.ERROR_CODES.ASSERT_PASSED) {
                 //ignore
-            } else if (err && err.type && err.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+            } else if (err && err.type && err.type === errorHelper.ERROR_CODES.SELENIUM_SESSION_TIMEOUT) {
                 //ignore
             } else {
                 step.failure = errorHelper.getFailureFromError(err);

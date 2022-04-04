@@ -12,10 +12,11 @@
  * @description Provides generic methods for working with PDF files.
  */
 
+import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
-const errHelper = require('../errors/helper');
+import * as errHelper from '../errors/helper';
 const path = require('path');
-var PDFParser = require('pdf2json/pdfparser');
+const PDFParser = require('pdf2json/pdfparser');
 
 function countRows(searchStr, rows, reverse) {
     let result = 0;
@@ -73,13 +74,13 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
         let pdfParser = new PDFParser();
         pdfParser.on('pdfParser_dataError', function(err) {
             let errorMessage = err.parserError ? err.parserError : 'Error parsing the PDF.';
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, errorMessage);
         });
 
         pdfParser.on('pdfParser_dataReady', function (pdfData) {
             var totalPages = pdfData.formImage.Pages.length;
             if (pageNum && totalPages < pageNum - 1) {
-                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
+                throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
             }
 
             // locate on a specific page
@@ -126,13 +127,13 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false) {
         let pdfParser = new PDFParser();
         pdfParser.on('pdfParser_dataError', function(err) {
             let errorMessage = err.parserError ? err.parserError : 'Error parsing the PDF.';
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, errorMessage);
         });
 
         pdfParser.on('pdfParser_dataReady', function (pdfData) {
             let totalPages = pdfData.formImage.Pages.length;
             if (pageNum && totalPages < pageNum - 1) {
-                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
+                throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
             }
 
             // count on a specific page
@@ -163,7 +164,7 @@ function validateString(arg, name) {
     if (arg && typeof arg === 'string' && arg.trim().length > 0) {
         // text is correct
     } else {
-        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
+        throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
     }
 }
 
@@ -171,7 +172,7 @@ function validatePageNum(arg, name) {
     if (arg === null || (arg && typeof arg === 'number' && arg > 0)) {
         // pageNum is correct
     } else {
-        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
+        throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-negative number.");
     }
 }
 
@@ -179,7 +180,7 @@ function validateMessage(arg, name) {
     if (arg === null || (arg && typeof arg === 'string' && arg.trim().length > 0)) {
         // pageNum is correct
     } else {
-        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
+        throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a non-empty string.");
     }
 }
 
@@ -187,7 +188,7 @@ function validateReverse(arg, name) {
     if (arg === null || (typeof arg !== 'undefined' && typeof arg === 'boolean')) {
         // pageNum is correct
     } else {
-        throw new OxError(errHelper.errorCode.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a boolean");
+        throw new OxError(errHelper.ERROR_CODES.SCRIPT_ERROR, "Invalid argument - '" + name + "' should be a boolean");
     }
 }
 
@@ -217,11 +218,24 @@ function resolvePath(pdfFilePath, options) {
     }
 }
 
-module.exports = function(options, context, rs, logger, modules, services) {
+const MODULE_NAME = 'pdf';
 
-    module.isInitialized = function() {
-        return true;
-    };
+export default class PdfModule extends OxygenModule {
+    constructor(options, context, rs, logger, modules, services) {
+        super(options, context, rs, logger, modules, services);
+        this._alwaysInitialized = true;
+        // pre-initialize the module
+        this._isInitialized = true;
+    }
+
+    /*
+     * @summary Gets module name
+     * @function name
+     * @return {String} Constant value "http".
+     */
+    get name() {
+        return MODULE_NAME;
+    }
 
     /**
      * @summary Asserts that text is present in a PDF file
@@ -232,7 +246,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assert = async function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+    async assert(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -247,22 +261,22 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
             if (!ret) {
                 if (message) {
-                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+                    throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, message);
                 }
 
                 let msg = `"${text}" is not found in the PDF ${pageNum ? 'on page ' + pageNum : ''}`;
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, msg);
+                throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, msg);
             }
 
         } catch (e) {
-            error = new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            error = new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, e.message);
         }
 
         if (error) {
             throw error;
         }
 
-    };
+    }
 
     /**
      * @summary Asserts that text is not present in a PDF file
@@ -273,7 +287,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {String=} message - Message to throw if assertion fails.
      * @param {Boolean=} reverse - Check also reverse variant of string.
      */
-    module.assertNot = async function(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
+     async assertNot(pdfFilePath, text, pageNum = null, message = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -288,21 +302,21 @@ module.exports = function(options, context, rs, logger, modules, services) {
 
             if (ret) {
                 if (message) {
-                    throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
+                    throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, message);
                 }
 
                 let msg = `"${text}" is found in the PDF ${pageNum ? 'on page ' + pageNum : ''}`;
-                throw new OxError(errHelper.errorCode.ASSERT_ERROR, msg);
+                throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, msg);
             }
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, e.message);
+            throw new OxError(errHelper.ERROR_CODES.ASSERT_ERROR, e.message);
         }
 
         if (error) {
             throw error;
         }
-    };
+    }
 
     /**
      * @summary Count the number of times specified text is present in a PDF file.
@@ -313,7 +327,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
      * @param {Boolean=} reverse - Check also reverse variant of string.
      * @return {Number} Number of times the specified text was found.
      */
-    module.count = async function(pdfFilePath, text, pageNum = null, reverse = false) {
+     async count(pdfFilePath, text, pageNum = null, reverse = false) {
         validateString(pdfFilePath, 'pdfFilePath');
         validateString(text, 'text');
         validatePageNum(pageNum, 'pageNum');
@@ -325,9 +339,7 @@ module.exports = function(options, context, rs, logger, modules, services) {
             return await count(pdfFilePath, text, pageNum, reverse);
         }
         catch (e) {
-            throw new OxError(errHelper.errorCode.PDF_ERROR, e.message || e);
+            throw new OxError(errHelper.ERROR_CODES.PDF_ERROR, e.message || e);
         }
-    };
-
-    return module;
-};
+    }
+}

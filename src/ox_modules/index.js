@@ -1,3 +1,6 @@
+const soap = require('./module-soap');
+const twilio = require('./module-twilio');
+
 export {default as assert} from './module-assert';
 export {default as date} from './module-date';
 export {default as db} from './module-db';
@@ -10,8 +13,8 @@ export {default as mob} from './module-mob';
 export {default as pdf} from './module-pdf';
 export {default as serial} from './module-serial';
 export {default as shell} from './module-shell';
-export {default as soap} from './module-soap';
-export {default as twilio} from './module-twilio';
+export { soap };
+export { twilio };
 export {default as web} from './module-web';
 export {default as win} from './module-win';
 export {default as proxy} from './module-proxy';

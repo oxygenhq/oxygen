@@ -15,10 +15,10 @@
 const MODULE_NAME = 'utils';
 import fastXmlParser from 'fast-xml-parser';
 import OxygenModule from '../core/OxygenModule';
-import utils from './utils';
-import libUtils from '../lib/util';
+const utils = require('./utils');
+const libUtils = require('../lib/util');
 import OxError from '../errors/OxygenError';
-import errorHelper from '../errors/helper';
+import * as errorHelper from '../errors/helper';
 import ExcelReader from '../lib/param-reader-excel';
 
 export default class UtilsModule extends OxygenModule {
@@ -109,14 +109,14 @@ export default class UtilsModule extends OxygenModule {
 
         var ext = path.extname(filePath);
         if (ext !== '.csv' && ext !== '.txt') {
-            throw new OxError(errorHelper.errorCode.CSV_ERROR, 'Unsupported file extension: ' + ext);
+            throw new OxError(errorHelper.ERROR_CODES.CSV_ERROR, 'Unsupported file extension: ' + ext);
         }
 
         var data;
         try {
             data = fs.readFileSync(filePath, 'utf8');
         } catch (e) {
-            throw new OxError(errorHelper.errorCode.CSV_ERROR, 'Unable to read parameters file: ' + e);
+            throw new OxError(errorHelper.ERROR_CODES.CSV_ERROR, 'Unable to read parameters file: ' + e);
         }
 
         // CSVs produced by OS X Excel have header terminated with 0d0d0a
@@ -133,7 +133,7 @@ export default class UtilsModule extends OxygenModule {
         try {
             var table = parse(data, { bom: bom, columns: true, trim: true, ...options });
         } catch (e) {
-            throw new OxError(errorHelper.errorCode.CSV_ERROR, e.message);
+            throw new OxError(errorHelper.ERROR_CODES.CSV_ERROR, e.message);
         }
 
         return table;
@@ -152,7 +152,7 @@ export default class UtilsModule extends OxygenModule {
             const csv = new ObjectsToCsv(data);
             await csv.toDisk(filePath, { allColumns: true, ...options });
         } catch (e) {
-            throw new OxError(errorHelper.errorCode.CSV_ERROR, e.message);
+            throw new OxError(errorHelper.ERROR_CODES.CSV_ERROR, e.message);
         }
     }
 
@@ -179,14 +179,14 @@ export default class UtilsModule extends OxygenModule {
         const rrTypes = ['A', 'AAAA', 'ANY', 'CNAME', 'MX', 'NAPTR', 'NS', 'PTR', 'SOA', 'SRV', 'TXT'];
 
         if (!rrTypes.includes(rrType)) {
-            throw new OxError(errorHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'rrType'. Available rrType values: ${rrTypes.join(', ')}`);
+            throw new OxError(errorHelper.ERROR_CODES.SCRIPT_ERROR, `Invalid argument - 'rrType'. Available rrType values: ${rrTypes.join(', ')}`);
         }
 
         const dnsPromises = require('dns').promises;
         try {
             return await dnsPromises.resolve(hostname, rrType);
         } catch (e) {
-            throw new OxError(errorHelper.errorCode.DNS_ERROR, e.message);
+            throw new OxError(errorHelper.ERROR_CODES.DNS_ERROR, e.message);
         }
     }
 
@@ -202,7 +202,7 @@ export default class UtilsModule extends OxygenModule {
             const output = parser.parse(xmlDataStr);
             return output;
         } catch (e) {
-            throw new OxError(errorHelper.errorCode.XML_ERROR, e.message);
+            throw new OxError(errorHelper.ERROR_CODES.XML_ERROR, e.message);
         }
     }
 }

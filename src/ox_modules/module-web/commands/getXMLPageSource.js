@@ -37,6 +37,6 @@ module.exports = async function() {
             src = src.replace(/>\n/g, '>');
             return src.replace(/<span\s*.*?>.*?<span\s*.*?>.*?<\/span>.*?<\/span>/g, '');
         default:
-            throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'This command is not supported on ' + browser + ' yet.');
+            throw new this.OxError(this.errHelper.ERROR_CODES.SCRIPT_ERROR, 'This command is not supported on ' + browser + ' yet.');
     }
 };
