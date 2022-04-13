@@ -4,6 +4,8 @@ import WDIODevToolsService from '@wdio/devtools-service';
 import OxygenService from '../core/OxygenService';
 import NetworkSubModule from './service-devtools/submodule-network';
 
+const CHROME_BROWSER = 'chrome';
+
 export default class DevToolsService extends OxygenService {
     constructor(options, ctx, results, logger) {
         super(options, ctx, results, logger);
@@ -32,7 +34,8 @@ export default class DevToolsService extends OxygenService {
         }
 
         let options = {};
-        const capabilities = module.getCapabilities();
+        const capabilities = module.getCapabilities() || {};
+        const { browserName } = capabilities;
         this._driver = module.getDriver();
 
         if (
@@ -45,7 +48,7 @@ export default class DevToolsService extends OxygenService {
         }
 
         // if we are not using any 3rd party provider
-        if (this._driver.provider === null) {
+        if (this._driver.provider === null && browserName && browserName.toLowerCase() === CHROME_BROWSER) {
             // initialize DevToolsService and hook it to the current webdriver object
             const devToolsSvc = new WDIODevToolsService(options);
             const UNSUPPORTED_ERROR_MESSAGE = devToolsSvc.beforeSession(null, capabilities);
