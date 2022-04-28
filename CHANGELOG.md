@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.22.1 (2022-04-28)
+
+#### :beetle: Bug Fix
+* Fix test execution on Firefox.
+* Convert body to object in http.get when nessasry. 
+* Catch and ignore device logs retrieval issue, if cloud provider doesn't support this operation.
+
 ## v1.22.0 (2022-01-14)
 
 #### :tada: New Feature
