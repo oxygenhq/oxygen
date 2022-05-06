@@ -204,7 +204,7 @@ export default class Oxygen extends OxygenEvents {
     }
 
     async onBeforeCase(context) {
-        for (let moduleName in this.modules) {
+       /* for (let moduleName in this.modules) {
             const module = this.modules[moduleName];
             if (!module) {
                 continue;
@@ -216,11 +216,11 @@ export default class Oxygen extends OxygenEvents {
             catch (e) {
                 this.logger.error(`Failed to call "onBeforeCase" method of ${moduleName} module.`, e);
             }
-        }
+        }*/
     }
 
     async onAfterCase(error = null) {
-        for (let moduleName in this.modules) {
+      /*  for (let moduleName in this.modules) {
             const module = this.modules[moduleName];
             if (!module) {
                 continue;
@@ -233,7 +233,7 @@ export default class Oxygen extends OxygenEvents {
             catch (e) {
                 this.logger.error(`Failed to call "onAfterCase" method of ${moduleName} module.`, e);
             }
-        }
+        }*/
     }
 
     makeOxGlobal() {
@@ -363,10 +363,10 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadModules() {
-        this.logger.debug('Loading internal modules...');
+        //this.logger.debug('Loading internal modules...');
         this._loadInternalModules();
-        this.logger.debug('Loading external modules...');
-        this._loadExternalModules();
+       // this.logger.debug('Loading external modules...');
+        //this._loadExternalModules();
     }
 
     _loadExternalModules() {
@@ -436,7 +436,7 @@ export default class Oxygen extends OxygenEvents {
             const modulePath = path.join(oxModulesDirPath, moduleFileName);
             const ModuleClass = require(modulePath);
             try {
-                const startTime = new Date();
+                //const startTime = new Date();
                 // initialize new logger for the module
                 const moduleLogger = this._wrapLogger(logger(`Module:${moduleName}`));
                 // initialize new module instance
@@ -446,9 +446,9 @@ export default class Oxygen extends OxygenEvents {
                 // add the module to the module list
                 this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
                 // wrap up
-                const endTime = new Date();
-                const duration = (endTime - startTime) / 1000;
-                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
+                //const endTime = new Date();
+                //const duration = (endTime - startTime) / 1000;
+                //this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
