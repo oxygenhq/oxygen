@@ -557,9 +557,9 @@ export default class OxygenRunner extends EventEmitter {
                 // determine test case iteration status - mark it as failed if any step has failed
                 var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
                 caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
-                if (error) {
+                if (caseResult.status === Status.FAILED) {
                     caseResult.failure = error;
-                    caseResult.status = Status.FAILED;
+                    //caseResult.status = Status.FAILED;
                     caseResult.steps = oxutil.makeTransactionFailedIfStepFailed(caseResult.steps);
                 }
             } else {
