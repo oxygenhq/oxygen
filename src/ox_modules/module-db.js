@@ -124,5 +124,29 @@ module.exports = function() {
         }
     };
 
+    /**
+     * @summary Calls a stored procedure.
+     * @function callProcedure
+     * @param {String} name - Name of the procedure to call.
+     * @param {...Object} args - Procedure arguments. If procedure produces output parameters then these need to be specified using `undefined`.
+     * @return {Object} Procedure output if any.
+     * @example <caption>[javascript] Usage example</caption>
+     * // calls a procedure which expects two input parameters and one output parameter.
+     * var result = db.callProcedure('test', 3, 4, undefined);
+     * log.info(result);
+     */
+    module.callProcedure = async function(name, ...args) {
+        await module._openDbConn();
+
+        try {
+            const querySyncRetval = await connection.callProcedure(null, null, name, [...args]);
+            return querySyncRetval;
+        } catch (e) {
+            throw new OxError(errHelper.errorCode.DB_QUERY_ERROR, errHelper.getDbErrorMessage(e));
+        } finally {
+            await connection.close();
+        }
+    };
+
     return module;
 };
