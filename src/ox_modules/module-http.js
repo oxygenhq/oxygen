@@ -37,6 +37,7 @@ const DEFAULT_HTTP_OPTIONS = {
     },
     dnsLookupIpVersion: 'ipv4'
 };
+const CONTENT_TYPE_HEADER = 'content-type';
 
 export default class HttpModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -391,7 +392,7 @@ export default class HttpModule extends OxygenModule {
                     return new Promise((resolve, reject) => {
                         decomp.on('data', (data) => {
                             result.body = data.toString();
-                            if (result.headers['content-type'].includes('application/json')) {
+                            if (result.headers[CONTENT_TYPE_HEADER] && result.headers[CONTENT_TYPE_HEADER].includes('application/json')) {
                                 try {
                                     result.body = JSON.parse(result.body);
                                 } catch (e) {
@@ -403,7 +404,7 @@ export default class HttpModule extends OxygenModule {
                     });
                 })();
             } else {
-                if (result.headers['content-type'].includes('application/json')) {
+                if (result.headers[CONTENT_TYPE_HEADER] && result.headers[CONTENT_TYPE_HEADER].includes('application/json')) {
                     try {
                         result.body = JSON.parse(result.body);
                     } catch (e) {
