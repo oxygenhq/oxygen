@@ -67,7 +67,7 @@
     "easyxml": "2.0.1",
     "ejs": "3.0.2",
     "esm": "3.2.25",
-    "fast-xml-parser": "^4.0.1",
+    "fast-xml-parser": "4.0.8",
     "fibers": "5.0.0",
     "glob": "7.1.7",
     "glob-to-regexp": "0.4.1",
@@ -98,7 +98,7 @@
     "twilio": "3.77.2",
     "webdriverio": "7.20.2",
     "when": "3.7.8",
-    "xlsx": "0.17.4"
+    "xlsx": "0.18.5"
   },
   "optionalDependencies": {
     "odbc": "2.4.4"
