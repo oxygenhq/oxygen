@@ -53,6 +53,8 @@ module.exports = async function(locator, timeout) {
             }
 
         } catch (e) {
+            console.log('clickJS failure');
+            console.log(e);
             if (this.retryCount) {
                 --this.retryCount;
                 await this.clickJS(el);
@@ -66,6 +68,7 @@ module.exports = async function(locator, timeout) {
 
     try {
         var clickable = await el.isClickable();
+        console.log('Element clickable: ' + clickable);
     } catch (e) {
         let documentMode;
         if (
@@ -73,6 +76,7 @@ module.exports = async function(locator, timeout) {
             this.driver.capabilities &&
             this.driver.capabilities.browserName === 'internet explorer'
         ) {
+            console.log('Falling back to IE workaround');
             try {
                 documentMode = await this.driver.execute(function() {
                     // eslint-disable-next-line no-undef
@@ -95,10 +99,13 @@ module.exports = async function(locator, timeout) {
 
     if (clickable) {
         try {
+            console.log('Performing el.click');
             await el.click();
+            console.log('el.click done');
         } catch (e) {
             // chromedriver doesn't seem to support clicking on elements in Shadow DOM
             if (e.message.startsWith("javascript error: Cannot read property 'defaultView' of undefined")) {
+                console.log('el.click failed due to missing defaultView. Falling back to clickJS');
                 await this.clickJS(el);
             } else {
                 throw e;
@@ -106,6 +113,7 @@ module.exports = async function(locator, timeout) {
         }
     } else {
         // if element is not clickable, try clicking it using JS injection
+        console.log('Element not clickable. Invoking clikcJS');
         await this.clickJS(el);
     }
 
