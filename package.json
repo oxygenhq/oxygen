@@ -47,7 +47,7 @@
     "npm-run-all": "4.1.5"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.35.2",
+    "@applitools/eyes-webdriverio": "5.35.3",
     "@lambdatest/node-rest-client": "1.0.2",
     "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",
@@ -74,7 +74,7 @@
     "global-agent": "3.0.0",
     "got": "11.8.2",
     "imap-simple": "5.1.0",
-    "is-glob": "4.0.1",
+    "is-glob": "4.0.3",
     "jimp": "0.16.1",
     "junit-report-builder": "3.0.0",
     "lodash": "4.17.21",
@@ -92,7 +92,7 @@
     "soap": "0.44.0",
     "source-map-support": "0.5.21",
     "stacktrace-parser": "0.1.10",
-    "testdouble": "3.16.5",
+    "testdouble": "3.16.6",
     "testingbot-api": "1.0.7",
     "text-to-image": "2.4.4",
     "twilio": "3.77.2",
