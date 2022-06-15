@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.23.0 (2022-06-15)
+
+#### :tada: New Feature
+* Add `db.callProcedure`.
+
+#### :beetle: Bug Fix
+* Fix test execution on Firefox.
+* `http`: fix issue with "Cannot read property 'includes' of undefined" error when content-type header is missing in the response.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.22.1 (2022-04-28)
 
 #### :beetle: Bug Fix
