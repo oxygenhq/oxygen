@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.23.2 (2022-06-17)
+
+#### :beetle: Bug Fix
+* Fix test execution on Perfecto Mobile.
+
 ## v1.23.0 (2022-06-15)
 
 #### :tada: New Feature
