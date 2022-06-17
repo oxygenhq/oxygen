@@ -226,6 +226,7 @@ export default class MobileModule extends WebDriverModule {
             delete wdioOpts.capabilities.manufacturer;
             delete wdioOpts.capabilities.model;
             delete wdioOpts.capabilities.browserName;
+            delete wdioOpts.capabilities.host;
 
             name = wdioOpts.capabilities['perfectoMobile:options']['name'];
             delete wdioOpts.capabilities['perfectoMobile:options'];
