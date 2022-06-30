@@ -24,7 +24,6 @@ export default class ParallelLauncher {
         this._config = config;
         this.reporter = reporter;
         this._queue = null;
-        this._activeThreads = 0;
         this.runners = [];
         this.createdRunnersStat = [];
     }
@@ -227,28 +226,9 @@ export default class ParallelLauncher {
             return;
         }
         await this._sleep(startupDelay);
-        this._activeThreads++;
 
-        let runner;
-
-        if (PARALLEL_COUNT <= this.runners.length) {
-            runner = this.runners.shift();
-
-            let arr = this.createdRunnersStat[runner._id];
-            let newArray;
-
-            if (Array.isArray(arr)) {
-                newArray = [...arr, workerId];
-            } else {
-                newArray = [workerId];
-            }
-
-            this.createdRunnersStat[runner._id] = newArray;
-
-        } else {
-            runner = this._instantiateRunner();
-            this.createdRunnersStat[runner._id] = [workerId];
-        }
+        let runner = this._instantiateRunner();
+        this.createdRunnersStat[runner._id] = [workerId];
 
         if (!runner) {
             const framework = this._config.framework;
