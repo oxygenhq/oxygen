@@ -103,6 +103,72 @@ module.exports = function() {
     };
 
     /**
+     * @summary Retrieves last SMS message sent from API.
+     * @function getLastSentApiSms
+     * @param {Boolean} removeOnRead - Specifies whether to delete the message after reading it.
+     * @param {Number} timeout - Timeout in milliseconds for waiting for the message to arrive.
+     * @param {Number=} notOlderThan - Retrieve message only if it arrived not before the given time (in ms). Default is 4 minutes.
+     * @return {String} SMS text.
+     */
+    module.getLastSentApiSms = async function (removeOnRead, timeout, notOlderThan) {
+        helpers.assertArgumentBool(removeOnRead, 'removeOnRead');
+        helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
+
+        if (!notOlderThan) {
+            notOlderThan = 4 * 60 * 1000;
+        }
+
+        var msg;
+        var now = Date.now();
+        var earliestMessageDate = new Date(now - notOlderThan);
+
+        while (!msg && Date.now() - now < timeout) {
+            await (() => {
+                return new Promise((resolve, reject) => {
+                    _client.messages.list({
+                        dateSentAfter: earliestMessageDate
+                    }, function (err, messages) {
+                        var _msg;
+
+                        if (messages && typeof messages[Symbol.iterator] === 'function') {
+                            for (_msg of messages) {
+                                if (_msg.direction == 'outbound-api') {
+                                    var _msgDate = Date.parse(_msg.dateCreated); // if message is newer than the previous one - save it
+
+                                    if (msg && Date.parse(msg.dateCreated) < _msgDate) {
+                                        msg = _msg;
+                                    } else if (!msg) {
+                                        msg = _msg;
+                                    }
+                                }
+                            }
+                        }
+
+                        resolve();
+                    });
+                });
+            })();
+            await libUtils.sleep(800);
+        }
+
+        if (!msg) {
+            throw new OxError(errHelper.errorCode.TWILIO_ERROR, "Couldn't get the SMS within " + timeout + 'ms.');
+        }
+
+        if (removeOnRead) {
+            await (() => {
+                return new Promise((resolve, reject) => {
+                    _client.messages(msg.sid).remove().then(() => {
+                        resolve();
+                    });
+                });
+            })();
+        }
+
+        return msg.body;
+    };
+
+    /**
      * @summary Send an SMS.
      * @function sendSms
      * @param {String} from - Phone number to send from.
