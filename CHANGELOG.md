@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.24.0 (2022-07-19)
+
+#### :tada: New Feature
+* Add `twilio.getLastSentApiSms` (by Akiva Brookler).
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.23.2 (2022-06-17)
 
 #### :beetle: Bug Fix
