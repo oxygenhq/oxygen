@@ -72,7 +72,7 @@
     "glob": "7.1.7",
     "glob-to-regexp": "0.4.1",
     "global-agent": "3.0.0",
-    "got": "11.8.2",
+    "got": "11.8.5",
     "imap-simple": "5.1.0",
     "is-glob": "4.0.3",
     "jimp": "0.16.1",
