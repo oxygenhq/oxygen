@@ -236,7 +236,9 @@ var self = module.exports = {
             str = str.replace(/"__UNDEFINED"/g, 'undefined');
         } catch (e) {
             console.warn('Failed to serialize command arguments: ', e);
-            str = e.toString();
+            // if JSON.stringify fails, then fallback to util.inspect.
+            // (we don't use util.inspect initialy because it doesn't support output indentation)
+            return util.inspect(args[0], { depth: 3 });
         }
         return str;
     },
