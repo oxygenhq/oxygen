@@ -225,6 +225,13 @@ var self = module.exports = {
             }, indentation);
             // trim the enclosing array and any whitespace
             str = str.replace(/^\[{1}\s*|\s*\]{1}$/g, '');
+            // remove space before last } and ], to make indentation mtch the opening bracket
+            if (str.endsWith('  }')) {
+                str = str.substring(0, str.length - 3) + '}';
+            }
+            if (str.endsWith('  ]')) {
+                str = str.substring(0, str.length - 3) + ']';
+            }
             // convert magic 'undefined' string to proper representation
             str = str.replace(/"__UNDEFINED"/g, 'undefined');
         } catch (e) {
