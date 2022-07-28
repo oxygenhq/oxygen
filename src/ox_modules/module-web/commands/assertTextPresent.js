@@ -34,12 +34,12 @@ module.exports = async function(text, timeout) {
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         if (timeout) {
-            this.helpers.restoreTimeoutImplicit();
+            await this.helpers.restoreTimeoutImplicit();
         }
         throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, `Text: "${text}" not found on the page`);
     }
 
     if (timeout) {
-        this.helpers.restoreTimeoutImplicit();
+        await this.helpers.restoreTimeoutImplicit();
     }
 };

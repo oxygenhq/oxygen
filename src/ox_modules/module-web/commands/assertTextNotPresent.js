@@ -23,7 +23,7 @@ module.exports = async function(text, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     if (timeout) {
-        this.helpers.setTimeoutImplicit(timeout);
+        await this.helpers.setTimeoutImplicit(timeout);
     }
 
     try {
@@ -38,12 +38,12 @@ module.exports = async function(text, timeout) {
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
         if (timeout) {
-            this.helpers.restoreTimeoutImplicit();
+            await this.helpers.restoreTimeoutImplicit();
         }
         throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, `Text: "${text}" found on the page`);
     }
 
     if (timeout) {
-        this.helpers.restoreTimeoutImplicit();
+        await this.helpers.restoreTimeoutImplicit();
     }
 };
