@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.24.1 (2022-07-29)
+
+#### :beetle: Bug Fix
+* Closing bracket indentation in `log.*` output.
+* Handing of objects with circular references in `log.*` commands.
+* `web.assertTextPresent` and  `web.assertTextNotPresent` not properly restoring timeouts on exit.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.24.0 (2022-07-19)
 
 #### :tada: New Feature
