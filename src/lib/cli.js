@@ -40,7 +40,7 @@ if (argv.d || argv.delay) {
     }
 }
 
-const targetFile = cliutil.processTargetPath(argv._[0]);
+const targetFile = cliutil.processTargetPath(argv._[0], argv.cwd);
 if (targetFile == null) {
     printUsage();
     process.exit(1);

@@ -254,14 +254,14 @@ function deleteNullProperties(obj) {
     return clone;
 }
 
-export function processTargetPath(targetPath) {
+export function processTargetPath(targetPath, cwd) {
     // get current working directory if user has not provided path
     if (typeof(targetPath) === 'undefined') {
-        targetPath = process.cwd();
+        targetPath = cwd || process.cwd();
     }
     // user's path might be relative to the current working directory - make sure the relative path will work
     else {
-        targetPath = oxutil.resolvePath(targetPath, process.cwd());
+        targetPath = oxutil.resolvePath(targetPath, cwd || process.cwd());
     }
 
     if (!fs.existsSync(targetPath)) {
@@ -288,7 +288,7 @@ export function processTargetPath(targetPath) {
         // path to the config or .js file
         path: targetPath,
         // working directory
-        cwd: path.dirname(targetPath),
+        cwd: cwd || path.dirname(targetPath),
         // name of the target file without extension
         name: oxutil.getFileNameWithoutExt(targetPath),
         // name including extension
