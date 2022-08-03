@@ -41,6 +41,7 @@ export {default as getXMLPageSource} from './getXMLPageSource';
 export {default as index} from './index';
 export {default as isAlertPresent} from './isAlertPresent';
 export {default as isExist} from './isExist';
+export {default as isInteractable} from './isInteractable';
 export {default as isSelected} from './isSelected';
 export {default as isVisible} from './isVisible';
 export {default as makeVisible} from './makeVisible';
