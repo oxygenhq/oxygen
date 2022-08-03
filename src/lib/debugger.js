@@ -519,10 +519,10 @@ export default class Debugger extends EventEmitter {
                         return null;
                     }
                 });
-                
+
                 breakpointsMapResult = breakpointsMapResult.filter((el) => !!el);
 
-                Promise.all(breakpointsMapResult).then(async (scopeChainTree) => {                    
+                Promise.all(breakpointsMapResult).then(async (scopeChainTree) => {
                     if (scopeChainTree && Array.isArray(scopeChainTree) && scopeChainTree.length > 0) {
                         scopeChainTree = scopeChainTree.filter((el) => !!el);
                         let breakpointData = null;
@@ -535,7 +535,7 @@ export default class Debugger extends EventEmitter {
                                 fileName: transformToIDEStyle(eCallFrames[0].url),
                                 variables: [],
                             };
-                            
+
                             await this.addVariablesFromScopeChainTree(breakpointData.variables, scopeChainTree);
                             await this.addOxygenVariablesFromGlobalScope(breakpointData.variables);
                         }
@@ -767,7 +767,7 @@ export default class Debugger extends EventEmitter {
 
         for (let retries = 0; retries < CONNECT_RETRIES; retries++) {
             try {
-                this._client = await CDP({ port: this._port, host: this._host });                
+                this._client = await CDP({ port: this._port, host: this._host });
                 lastError = null;
                 break;
             } catch (e) {
@@ -978,7 +978,7 @@ export default class Debugger extends EventEmitter {
 
     async addVariablesFromScopeChainTree(variables, scopeChainTree) {
         if (
-            !Array.isArray(scopeChainTree) 
+            !Array.isArray(scopeChainTree)
             || scopeChainTree.length == 0
             || !Array.isArray(scopeChainTree[0])
             || scopeChainTree[0].length == 0
@@ -991,10 +991,19 @@ export default class Debugger extends EventEmitter {
         const { result } = objectIdResponse;
         for (const scopeVar of result) {
             if (!IGNORE_SCOPE_CHAIN_VARIABLES.includes(scopeVar.name)) {
-                const value = scopeVar?.value?.value || await this.tryToRetrieveObjectValue(scopeVar?.value?.objectId);
+                var value;
+                var type;
+                if (scopeVar && scopeVar.value) {
+                    type = scopeVar.value.type;
+                    if (scopeVar.value.value) {
+                        value = scopeVar.value.value;
+                    } else {
+                        value = await this.tryToRetrieveObjectValue(scopeVar.value.objectId);
+                    }
+                }
                 variables.push({
                     name: scopeVar.name,
-                    type: scopeVar?.value?.type || 'undefined',
+                    type: type || 'undefined',
                     value,
                 });
             }
@@ -1023,7 +1032,7 @@ export default class Debugger extends EventEmitter {
         return undefined;
     }
 
-    async addOxygenVariablesFromGlobalScope(variables) {        
+    async addOxygenVariablesFromGlobalScope(variables) {
         const { result: poEvalResult } = await this._Runtime.evaluate({ expression: 'po', returnByValue: true });
         const { result: envEvalResult } = await this._Runtime.evaluate({ expression: 'env', returnByValue: true });
         const { result: varsEvalResult } = await this._Runtime.evaluate({ expression: 'vars', returnByValue: true });
@@ -1043,7 +1052,7 @@ export default class Debugger extends EventEmitter {
                     value: result.value,
                 });
             }
-        });        
+        });
     }
 
     getBreakpoints(filePath) {
