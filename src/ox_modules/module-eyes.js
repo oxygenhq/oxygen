@@ -40,8 +40,8 @@ export default class ApplitoolsModule extends OxygenModule {
      * If this parameter is not provided, API Key must be specified in the test configuration file.
      */
     async init(module, apiKey = null) {
-        this._eyesConfig = this.options.applitoolsOpts;
-        if (!this.options.applitoolsOpts) {
+        this._eyesConfig = this.options.applitoolsOpts || {};
+        if (!this.options.applitoolsOpts && !apiKey) {
             throw new ModuleError('Applitools settings are missing.');
         }
         this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {});
