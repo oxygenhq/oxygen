@@ -143,8 +143,7 @@ export default class ApplitoolsModule extends OxygenModule {
         const result = await this._driver.call(async() => {
             return await this._eyes.checkWindow(name, matchTimeout);
         });
-
-        if (result._asExpected) {
+        if (result && result.asExpected) {
             return true;
         }
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, null);

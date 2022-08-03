@@ -68,7 +68,6 @@ module.exports = async function(locator, timeout) {
 
     try {
         var clickable = await el.isClickable();
-        console.log('Element clickable: ' + clickable);
     } catch (e) {
         let documentMode;
         if (
@@ -99,9 +98,7 @@ module.exports = async function(locator, timeout) {
 
     if (clickable) {
         try {
-            console.log('Performing el.click');
             await el.click();
-            console.log('el.click done');
         } catch (e) {
             // chromedriver doesn't seem to support clicking on elements in Shadow DOM
             if (e.message.startsWith("javascript error: Cannot read property 'defaultView' of undefined")) {
