@@ -70,6 +70,7 @@ export default class OxygenWorker extends EventEmitter {
             scriptPath = path.resolve(this._cwd, scriptPath);
         }
         let error = null;
+        const cwd = this._cwd;
         // load and run the test script
         try {
             this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
@@ -77,6 +78,31 @@ export default class OxygenWorker extends EventEmitter {
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
                     require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
+
+                    // if user uses require('./somescript.js') in multiple test scripts (cases), and somescript.js contains web/mob.init
+                    // then, when those scripts are executed in a suite, only first case will pass, the rest will fail with MODULE_NOT_INITIALIZED error.
+                    // this is because 'require' is cached, and when the first case is finished, the module is marked as isInitialized = false
+                    // and not re-initialized back on next case.
+                    // thus we clean user level scripts from 'require' cache.
+                    // FIXME: this should be probably fixed in a different way.
+                    const Module = require('module');
+                    const originalRequire = Module.prototype.require;
+
+                    Module.prototype.require = function() {
+                        const script = arguments['0'];
+                        try {
+                            // invalidate cache only for user level scripts (those starting with './')
+                            if (script && script.startsWith('.')) {
+                                var resolvedPath = require.resolve(path.resolve(cwd, script));
+                                if (require.cache[resolvedPath]) {
+                                    delete require.cache[resolvedPath];
+                                }
+                            }
+                        } catch (ex) {
+                            // ignored
+                        }
+                        return originalRequire.apply(this, arguments);
+                    };
                     require(scriptPath);
                 }
                 catch (e) {
