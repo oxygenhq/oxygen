@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v1.24.2 (2022-08-05)
+
+#### :tada: New Feature
+* Add `web.isInteractable`.
+
+#### :beetle: Bug Fix
+* Fixed MODULE_NOT_INITIALIZED error when running multiple tests which reference an external script containing `*.init` commands.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.24.1 (2022-07-29)
 
 #### :beetle: Bug Fix
