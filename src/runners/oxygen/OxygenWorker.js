@@ -70,7 +70,6 @@ export default class OxygenWorker extends EventEmitter {
             scriptPath = path.resolve(this._cwd, scriptPath);
         }
         let error = null;
-        const cwd = this._cwd;
         // load and run the test script
         try {
             this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
@@ -93,7 +92,7 @@ export default class OxygenWorker extends EventEmitter {
                         try {
                             // invalidate cache only for user level scripts (those starting with './')
                             if (script && script.startsWith('.')) {
-                                var resolvedPath = require.resolve(path.resolve(cwd, script));
+                                var resolvedPath = require.resolve(path.resolve(path.dirname(scriptPath), script));
                                 if (require.cache[resolvedPath]) {
                                     delete require.cache[resolvedPath];
                                 }
