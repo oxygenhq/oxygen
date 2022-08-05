@@ -46,7 +46,7 @@
     "md-reverse": "1.0.0"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.35.7",
+    "@applitools/eyes-webdriverio": "5.35.8",
     "@lambdatest/node-rest-client": "1.0.3",
     "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",
@@ -68,7 +68,7 @@
     "esm": "3.2.25",
     "fast-xml-parser": "4.0.9",
     "fibers": "5.0.0",
-    "glob": "7.1.7",
+    "glob": "7.2.3",
     "glob-to-regexp": "0.4.1",
     "global-agent": "3.0.0",
     "got": "11.8.5",
