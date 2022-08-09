@@ -163,12 +163,12 @@ export default class MobileModule extends WebDriverModule {
             this.caps['appium:clearDeviceLogsOnStart'] = true;
         }
 
-        // if both browserName and appPackage were specified - remove browserName
-        if (this.caps.browserName && (this.caps.appPackage || this.caps.app)) {
+        // if both browserName and appPackage/app/bundleId were specified - assume we want to run the application and remove browserName
+        if (this.caps.browserName && (this.caps.appPackage || this.caps.app || this.caps.bundleId)) {
             delete this.caps.browserName;
         }
-        // if no appPackage nor app capability, not browserName are defined, assume we want to run the test against default browser
-        else if (!this.caps.browserName && !this.caps.appPackage && !this.caps.app) {
+        // if no appPackage/app/bundleId capability nor browserName are defined, assume we want to run the test against default browser
+        else if (!this.caps.browserName && !this.caps.appPackage && !this.caps.app && !this.caps.bundleId) {
             this.caps.browserName = DEFAULT_BROWSER_NAME;
         }
         // webdriver expects lower case names
