@@ -4,3 +4,4 @@ bin/*
 build/*
 npm-debug.log
 .vscode
+/.idea/
