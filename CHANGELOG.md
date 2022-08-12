@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.24.3 (2022-08-12)
+
+#### :beetle: Bug Fix
+* Additional fixes for MODULE_NOT_INITIALIZED error when running multiple tests which reference an external script containing `*.init` commands.
+* Do not include browserName when bundleId is specified in mobile capabilities.
+
 ## v1.24.2 (2022-08-05)
 
 #### :tada: New Feature
