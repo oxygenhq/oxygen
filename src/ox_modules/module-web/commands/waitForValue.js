@@ -9,7 +9,7 @@
 
 /**
  * @summary Waits for input element's value to match the specified pattern.
- * @description Value pattern can be any of the supported 
+ * @description Value pattern can be any of the supported
  *  string matching patterns(on the top of page).
  * @function waitForValue
  * @param {String|Element} locator - An element locator.
@@ -34,7 +34,8 @@ module.exports = async function(locator, pattern, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        text = text.replace(/\n/g, '\\n');
+        if (text)
+            text = text.replace(/\n/g, '\\n');
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `Expected: "${pattern}". Got: "${text}"`);
     }
 };
