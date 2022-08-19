@@ -40,8 +40,8 @@ export default class ApplitoolsModule extends OxygenModule {
      * If this parameter is not provided, API Key must be specified in the test configuration file.
      */
     async init(module, apiKey = null) {
-        this._eyesConfig = this.options.applitoolsOpts;
-        if (!this.options.applitoolsOpts) {
+        this._eyesConfig = this.options.applitoolsOpts || {};
+        if (!this.options.applitoolsOpts && !apiKey) {
             throw new ModuleError('Applitools settings are missing.');
         }
         this._viewport = Object.assign(DEFAULT_VIEWPORT, this._eyesConfig.viewport || {});
@@ -143,8 +143,7 @@ export default class ApplitoolsModule extends OxygenModule {
         const result = await this._driver.call(async() => {
             return await this._eyes.checkWindow(name, matchTimeout);
         });
-
-        if (result._asExpected) {
+        if (result && result.asExpected) {
             return true;
         }
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, null);

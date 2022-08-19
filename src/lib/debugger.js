@@ -22,6 +22,13 @@ import url from 'url';
 const CONNECT_RETRIES = 4;
 const CONNECT_SNOOZE_INTERVAL_MULT = 2;
 const MAX_DEPTH = 5;
+const IGNORE_SCOPE_CHAIN_VARIABLES = [
+    'exports',
+    'require',
+    'module',
+    '__filename',
+    '__dirname'
+];
 let maxFindedDepth = 0;
 
 const transformToIDEStyle = (fileName) => {
@@ -36,7 +43,7 @@ const transformToIDEStyle = (fileName) => {
         return bpData + url.fileURLToPath(uri);
     } catch (e) {
         console.log('transformToIDEStyle fileName', fileName);
-        console.log('transformToIDEStyle error', e);
+        console.error('transformToIDEStyle error', e);
         throw e;
     }
 };
@@ -515,14 +522,9 @@ export default class Debugger extends EventEmitter {
 
                 breakpointsMapResult = breakpointsMapResult.filter((el) => !!el);
 
-                Promise.all(breakpointsMapResult).then(value => {
-                    let saveValue = value;
-
-                    if (saveValue && Array.isArray(saveValue)) {
-                        saveValue = saveValue.filter((el) => !!el);
-                    }
-
-                    if (saveValue && Array.isArray(saveValue) && saveValue.length > 0) {
+                Promise.all(breakpointsMapResult).then(async (scopeChainTree) => {
+                    if (scopeChainTree && Array.isArray(scopeChainTree) && scopeChainTree.length > 0) {
+                        scopeChainTree = scopeChainTree.filter((el) => !!el);
                         let breakpointData = null;
 
                         // assume we always send breakpoint of the top call frame
@@ -530,12 +532,12 @@ export default class Debugger extends EventEmitter {
 
                             breakpointData = {
                                 lineNumber: eCallFrames[0].location.lineNumber,
-                                fileName: transformToIDEStyle(eCallFrames[0].url)
+                                fileName: transformToIDEStyle(eCallFrames[0].url),
+                                variables: [],
                             };
 
-                            if (saveValue) {
-                                breakpointData.variables = saveValue;
-                            }
+                            await this.addVariablesFromScopeChainTree(breakpointData.variables, scopeChainTree);
+                            await this.addOxygenVariablesFromGlobalScope(breakpointData.variables);
                         }
 
                         if (
@@ -694,7 +696,6 @@ export default class Debugger extends EventEmitter {
                             });
                         }
                     } else {
-                        console.log('should continue');
                         if (e.reason === 'OOM') {
                             // Out of memory leak
                             this.continue();
@@ -973,6 +974,85 @@ export default class Debugger extends EventEmitter {
 
     async close() {
         await this.reset();
+    }
+
+    async addVariablesFromScopeChainTree(variables, scopeChainTree) {
+        if (
+            !Array.isArray(scopeChainTree)
+            || scopeChainTree.length == 0
+            || !Array.isArray(scopeChainTree[0])
+            || scopeChainTree[0].length == 0
+            || !Array.isArray(scopeChainTree[0][0])
+            || scopeChainTree[0][0].length == 0
+        ) {
+            return;
+        }
+        const { objectIdResponse } = scopeChainTree[0][0][0];
+        const { result } = objectIdResponse;
+        for (const scopeVar of result) {
+            if (!IGNORE_SCOPE_CHAIN_VARIABLES.includes(scopeVar.name)) {
+                var value;
+                var type;
+                if (scopeVar && scopeVar.value) {
+                    type = scopeVar.value.type;
+                    if (scopeVar.value.value) {
+                        value = scopeVar.value.value;
+                    } else {
+                        value = await this.tryToRetrieveObjectValue(scopeVar.value.objectId);
+                    }
+                }
+                variables.push({
+                    name: scopeVar.name,
+                    type: type || 'undefined',
+                    value,
+                });
+            }
+        }
+    }
+
+    async tryToRetrieveObjectValue(objectId) {
+        if (!objectId) {
+            return undefined;
+        }
+        try {
+            const { result } = await this._Runtime.getProperties({ objectId });
+            if (Array.isArray(result) && result.length > 0) {
+                const objValue = {};
+                result.forEach(propDesc => {
+                    if (propDesc.value && propDesc.value.value) {
+                        objValue[propDesc.name] = propDesc.value.value;
+                    }
+                });
+                return objValue;
+            }
+        }
+        catch (e) {
+            console.error('Runtime.getProperties call failed', e);
+        }
+        return undefined;
+    }
+
+    async addOxygenVariablesFromGlobalScope(variables) {
+        const { result: poEvalResult } = await this._Runtime.evaluate({ expression: 'po', returnByValue: true });
+        const { result: envEvalResult } = await this._Runtime.evaluate({ expression: 'env', returnByValue: true });
+        const { result: varsEvalResult } = await this._Runtime.evaluate({ expression: 'vars', returnByValue: true });
+        const { result: paramsEvalResult } = await this._Runtime.evaluate({ expression: 'params', returnByValue: true });
+        const results = {
+            po: poEvalResult,
+            env: envEvalResult,
+            vars: varsEvalResult,
+            params: paramsEvalResult,
+        };
+        Object.keys(results).forEach(key => {
+            const result = results[key];
+            if (result.value) {
+                variables.push({
+                    name: key,
+                    type: 'object',
+                    value: result.value,
+                });
+            }
+        });
     }
 
     getBreakpoints(filePath) {

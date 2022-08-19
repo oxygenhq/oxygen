@@ -175,7 +175,7 @@ export default class OxygenRunner extends EventEmitter {
         // set up debugging options
         // TODO: this needs to be reimplemented. Everything related to debugging (initializeDebugger) should be removed from Oxygen
         // and added to IDE instead. I.e. the only thing oxygen should do is to launch the child process with the debugging switch.
-        this._debugMode =  options.debugPortIde ? true : false;
+        this._debugMode =  options.debugPortIde || options.debugPort ? true : false;
         this._debugPort = options.debugPort || options.debugPortIde || null;
         options.scriptContentLineOffset = this._scriptContentLineOffset;
         this._localTime = (this._options && this._options.localTime) || this._localTime;
