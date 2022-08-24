@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.24.4 (2022-08-24)
+
+#### :beetle: Bug Fix
+* Fix value parsing in `web.waitFor*` commands (by Francois Wauquier).
+* Fix issue with Applitools when API key is passed via "init" method.
+
+#### :house: Internal
+* Expose oxygen internal variables to debugger.
+* Bump dependencies.
+
 ## v1.24.3 (2022-08-12)
 
 #### :beetle: Bug Fix
