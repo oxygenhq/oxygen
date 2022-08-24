@@ -29,6 +29,8 @@
  * * `/XPATH` - Locates element using an XPath 1.0 expression.
  * * `id=ID` - Locates element by its ID.
  * * `~ACCESSIBILITY_ID` - Locates element by its Accessibility Id.  
+ * * `-ios predicate string:PREDICATE_STRING` - Locates element using a [predicate query](https://github.com/facebookarchive/WebDriverAgent/wiki/Predicate-Queries-Construction-Rules).  
+ * * `-ios class chain:CLASS_CHAIN` - Locates element using a [class chain expression](https://github.com/facebookarchive/WebDriverAgent/wiki/Class-Chain-Queries-Construction-Rules).  
  *  
  * Hybrid![](../../.gitbook/assets/hybrid.png)  and Web![](../../.gitbook/assets/web.png)  application locators for![](../../.gitbook/assets/android.png)  ![](../../.gitbook/assets/apple.png)  
  *  
