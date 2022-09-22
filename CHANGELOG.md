@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.24.5 (2022-09-22)
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.24.4 (2022-08-24)
 
 #### :beetle: Bug Fix
