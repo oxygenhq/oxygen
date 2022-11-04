@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "1.24.5",
+  "version": "1.24.6",
   "description": "Automation framework for testing modern applications",
   "main": "./build/index.js",
   "bin": {
@@ -41,18 +41,18 @@
     "md-reverse": "1.0.0"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.35.8",
+    "@applitools/eyes-webdriverio": "5.37.0",
     "@lambdatest/node-rest-client": "1.0.4",
     "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",
     "@oxygenhq/mitmproxy-node": "1.0.1",
-    "@wdio/cli": "7.24.1",
-    "@wdio/devtools-service": "7.24.1",
-    "@wdio/sync": "7.24.1",
+    "@wdio/cli": "7.25.4",
+    "@wdio/devtools-service": "7.25.4",
+    "@wdio/sync": "7.25.4",
     "async": "3.2.4",
     "chai": "4.3.6",
     "chrome-har": "0.11.12",
-    "config": "3.3.7",
+    "config": "3.3.8",
     "cross-spawn": "7.0.3",
     "csv-parse": "4.16.0",
     "cucumber": "6.0.5",
@@ -61,7 +61,7 @@
     "easyxml": "2.0.1",
     "ejs": "3.1.8",
     "esm": "3.2.25",
-    "fast-xml-parser": "4.0.10",
+    "fast-xml-parser": "4.0.11",
     "fibers": "5.0.3",
     "glob": "7.2.3",
     "glob-to-regexp": "0.4.1",
@@ -73,7 +73,7 @@
     "junit-report-builder": "3.0.1",
     "lodash": "4.17.21",
     "mailparser": "3.5.0",
-    "minimist": "1.2.6",
+    "minimist": "1.2.7",
     "mockery": "2.1.0",
     "moment": "2.29.4",
     "node-addon-api": "3.0.2",
@@ -90,12 +90,12 @@
     "testingbot-api": "1.0.7",
     "text-to-image": "5.2.0",
     "twilio": "3.77.2",
-    "webdriverio": "7.24.1",
+    "webdriverio": "7.25.4",
     "when": "3.7.8",
     "xlsx": "0.18.5"
   },
   "optionalDependencies": {
-    "odbc": "2.4.5"
+    "odbc": "2.4.6"
   },
   "scripts": {
     "build": "npm run clean && npm run compile",

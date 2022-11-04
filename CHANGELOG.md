@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.24.6 (2022-11-04)
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.24.5 (2022-09-22)
 
 #### :house: Internal
