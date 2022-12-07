@@ -53,6 +53,7 @@ const ERROR_CODES = {
     BROWSER_CONFIGURATION_ERROR: 'BROWSER_CONFIGURATION_ERROR',
     APPIUM_CONNECTION_ERROR: 'APPIUM_CONNECTION_ERROR',
     APPIUM_SESSION_ERROR: 'APPIUM_SESSION_ERROR',
+    APPIUM_SESSION_TIMEOUT: 'APPIUM_SESSION_TIMEOUT',
     SELENIUM_SESSION_ERROR: 'SELENIUM_SESSION_ERROR',
     SELENIUM_SESSION_TIMEOUT: 'SELENIUM_SESSION_TIMEOUT',
     SELENIUM_CONNECTION_ERROR: 'SELENIUM_CONNECTION_ERROR',
@@ -220,12 +221,12 @@ module.exports = {
                 'Timeout awaiting \'request\' for',
                 'Couldn\'t get a response from Selenium/WebDriver within'
             );
-            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, errMessage);
+            return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, errMessage);
         }
         else if (err && err.message && err.message.includes('socket hang up')) {
-            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
+            return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, err.message);
         } else if (err && err.message && err.message.includes('Timed out receiving message from rendere')) {
-            return new OxError(ERROR_CODES.SELENIUM_SESSION_TIMEOUT, err.message);
+            return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, err.message);
         }
 
         // try to resolve Chai error code
