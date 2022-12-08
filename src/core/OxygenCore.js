@@ -785,7 +785,7 @@ export default class Oxygen extends OxygenEvents {
         if (err) {
             if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
                 //ignore
-            } else if (err && err.type && err.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+            } else if (err && err.type && (err.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT || err.type === errorHelper.errorCode.APPIUM_SESSION_TIMEOUT)) {
                 //ignore
             } else {
                 step.failure = errorHelper.getFailureFromError(err);

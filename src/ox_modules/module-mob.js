@@ -475,7 +475,7 @@ export default class MobileModule extends WebDriverModule {
     }
 
     async _iterationEnd(error) {
-        if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
+        if (error && error.type === errorHelper.errorCode.APPIUM_SESSION_TIMEOUT) {
             this.seleniumSessionTimeout = true;
             return;
         } else {
