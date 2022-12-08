@@ -40,6 +40,9 @@
     "husky": "7.0.4",
     "md-reverse": "1.0.0"
   },
+  "@comment dependencies": [
+    "axios is a peer dependency of soap. when using npm 6 (node 12-14) it needs to be explicitly included. when we migrate to npm 7 (node 16+) it can be removed."
+  ],
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.38.2",
     "@lambdatest/node-rest-client": "1.0.4",
@@ -50,6 +53,7 @@
     "@wdio/devtools-service": "7.27.0",
     "@wdio/sync": "7.27.0",
     "async": "3.2.4",
+    "axios": "0.27.2",
     "chai": "4.3.7",
     "chrome-har": "0.11.12",
     "config": "3.3.8",
