@@ -412,13 +412,9 @@ export default class HttpModule extends OxygenModule {
                     }
                 }
             }
-
         } catch (e) {
             result = e;
         }
-
-        // store last response to allow further assertions and validations
-        this._lastResponse = result;
 
         if (result instanceof Error) {
             let body = null;
@@ -462,6 +458,9 @@ export default class HttpModule extends OxygenModule {
                 body: result.body
             };
         }
+
+        // store last response to allow further assertions and validations
+        this._lastResponse = result;
 
         return result;
     }
