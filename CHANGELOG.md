@@ -1,5 +1,15 @@
 # CHANGELOG
 
+## v1.24.7 (2022-12-08)
+
+#### :beetle: Bug Fix
+* Fix assertions not working in `http` module for non 2xx/3xx return codes.
+* Fix `soap` module not working.
+* Throw `APPIUM_SESSION_TIMEOUT` instead of `SELENIUM_SESSION_TIMEOUT` for mobile tests.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.24.6 (2022-11-04)
 
 #### :house: Internal
