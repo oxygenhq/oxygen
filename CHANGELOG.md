@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.24.9 (2022-12-09)
+
+#### :house: Internal
+* Downgrade mailparser to support node 12.
+
 ## v1.24.8 (2022-12-09)
 
 #### :beetle: Bug Fix
