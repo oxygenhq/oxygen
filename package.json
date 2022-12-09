@@ -76,7 +76,7 @@
     "jimp": "0.16.2",
     "junit-report-builder": "3.0.1",
     "lodash": "4.17.21",
-    "mailparser": "3.5.0",
+    "mailparser": "3.6.0",
     "minimist": "1.2.7",
     "mockery": "2.1.0",
     "moment": "2.29.4",
