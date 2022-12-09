@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.24.8 (2022-12-09)
+
+#### :beetle: Bug Fix
+* Session not being dispossed for web tests.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.24.7 (2022-12-08)
 
 #### :beetle: Bug Fix
