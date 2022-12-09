@@ -383,16 +383,12 @@ export default class WebModule extends WebDriverModule {
     }
 
     async closeBrowserWindows(status) {
-        if (status && 'FAILED' === status.toUpperCase() && this.options && this.options.seleniumPid) {
-            this.disposeContinue(status);
-        } else {
-            try {
-                await this.deleteSession();
-            } catch (e) {
-                this.logger.warn('Failed to close browser windows:', e);
-            }
-            this.disposeContinue();
+        try {
+            await this.deleteSession();
+        } catch (e) {
+            this.logger.warn('Failed to close browser windows:', e);
         }
+        this.disposeContinue();
     }
 
     disposeContinue(status) {
@@ -400,7 +396,7 @@ export default class WebModule extends WebDriverModule {
         this.lastNavigationStartTime = null;
         super.dispose();
 
-        // cleanup chromedriver's only when running from within the IDE and test did not fail
+        // cleanup chromedriver and edgedriver only when running from within the IDE and test did not fail
         if (this.options && this.options.seleniumPid && (!status || 'FAILED' !== status.toUpperCase())) {
             try {
                 if (process.platform === 'win32') {
@@ -417,13 +413,10 @@ export default class WebModule extends WebDriverModule {
             } catch (e) {
                 // ignore errors
             }
-        }
 
-        // cleanup edgedriver's only when running from within the IDE and test did not fail
-        if (this.options && this.options.seleniumPid && (!status || 'FAILED' !== status.toUpperCase())) {
             try {
                 if (process.platform === 'win32') {
-                    // ignore for now
+                    execSync('taskkill /IM msedgedriver.exe /F', { stdio: ['ignore', 'ignore', 'ignore'] });
                 } else {
                     let pgrepResult = execSync("pgrep -d' ' msedgedriver");
                     if (pgrepResult && pgrepResult.toString) {
