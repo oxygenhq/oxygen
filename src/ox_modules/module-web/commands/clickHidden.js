@@ -68,6 +68,7 @@ module.exports = async function(locator, clickParent = false) {
     };
 
     var el = await this.helpers.getElement(locator);
+    this.helpers.assertUnableToFindElement(el, locator);
     await this.clickJS(el, clickParent);
     await this.checkWaitForAngular();
 };

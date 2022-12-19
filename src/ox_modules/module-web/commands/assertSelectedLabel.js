@@ -25,9 +25,11 @@ module.exports = async function(locator, pattern, timeout, waitForVisible = true
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    const el = await this.helpers.getElement(locator, waitForVisible, timeout);
+    console.log('~~this.helpers', this.helpers);
 
-    let text;
+    const el = await this.helpers.getElement(locator, waitForVisible, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
+    let text = '';
     try {
         await this.driver.waitUntil(async() => {
             var opts = el.$$('//option');

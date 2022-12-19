@@ -2,6 +2,7 @@
     const PASSED_LABEL = `<span class="label label-success label-sm">PASSED</span>`;
     const FAILED_LABEL = `<span class="label label-danger label-sm">FAILED</span>`;
     const SKIPPED_LABEL = `<span class="label label-warning label-sm">SKIPPED</span>`;
+    const WARNING_LABEL = `<span class="label label-warning label-sm">WARNING</span>`;
 %>
 <div class="row">
     <div class="col-md-12 summary">
@@ -82,7 +83,10 @@
                                                                 <td style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" title="<%= stepResult.name %>"><%= stepResult.name %></td>
                                                                 <td><%= stepResult.duration %></td>
                                                                 <td>
-                                                                    <%- stepResult.status === 'passed' ? PASSED_LABEL : (stepResult.status === 'skipped' ? SKIPPED_LABEL : FAILED_LABEL) %>
+                                                                    <%- stepResult.status === 'passed' ? PASSED_LABEL : '' %>
+                                                                    <%- stepResult.status === 'warning' ? WARNING_LABEL :  '' %>
+                                                                    <%- stepResult.status === 'skipped' ? SKIPPED_LABEL  :  '' %>
+                                                                    <%- stepResult.status === 'failed' ? FAILED_LABEL :  '' %>
                                                                 </td>
                                                                 <td
                                                                     style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"

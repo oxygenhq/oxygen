@@ -25,6 +25,9 @@ module.exports = async function(locator, xOffset = 0, yOffset = 0, timeout) {
     this.helpers.assertArgumentNumber(yOffset, 'yOffset');
 
     const el = await this.helpers.getElement(locator, false, timeout);
+
+    this.helpers.assertUnableToFindElement(el, locator);
+
     const loc = await el.getLocation();
 
     const x = parseInt(loc.x) + xOffset;

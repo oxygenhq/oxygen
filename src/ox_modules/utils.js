@@ -83,7 +83,7 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            return null;
         }
 
         if (waitForVisible) {
@@ -151,7 +151,7 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            return null;
         }
 
         if (waitForVisible) {
@@ -422,4 +422,58 @@ module.exports = {
             throw new OxError(errHelper.errorCode.CIRCULAR_ERROR, hasCircularDependency);
         }
     },
+
+    assertUnableToFindElement: function(element, locator) {
+        if (!element) {
+            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+        }
+    },
+
+    assertNotVisible: function(element, locator) {
+        if (element) {
+            let errorText = '';
+
+            if (typeof locator === 'string') {
+                errorText = `Element with locator: "${locator}" still visible`;
+            } else {
+                errorText = 'Element still visible';
+            }
+
+            throw new OxError(errHelper.errorCode.TIMEOUT, errorText);
+        }
+    },
+
+    throwNotInteractable: function(locator) {
+        let errorText = '';
+
+        if (typeof locator === 'string') {
+            errorText = `Element with locator: "${locator}" is not interactable`;
+        } else {
+            errorText = 'Element not interactable';
+        }
+
+        throw new OxError(errHelper.errorCode.ELEMENT_NOT_INTERACTABLE, errorText);
+    },
+
+    throwInteractable: function(locator) {
+        let errorText = '';
+
+        if (typeof locator === 'string') {
+            errorText = `Element with locator: "${locator}" is interactable`;
+        } else {
+            errorText = 'Element is interactable';
+        }
+
+        throw new OxError(errHelper.errorCode.ELEMENT_INTERACTABLE, errorText);
+    },
+
+    verify: async function(method, self, ...args) {
+        try {
+            await method.apply(self, args);
+        } catch (e) {
+            // for warning status
+            e.isFatal = false;
+            throw e;
+        }
+    }
 };

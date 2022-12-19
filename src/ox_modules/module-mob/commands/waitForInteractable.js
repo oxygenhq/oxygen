@@ -20,6 +20,7 @@
 module.exports = async function(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     const el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     try {
         await this.driver.waitUntil(async() => {
@@ -31,6 +32,7 @@ module.exports = async function(locator, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_INTERACTABLE, `Element ${locator} is not interactable`);
+        await this.helpers.restoreTimeoutImplicit();
+        this.helpers.throwNotInteractable(locator);
     }
 };

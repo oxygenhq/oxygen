@@ -26,7 +26,9 @@ module.exports = async function(srcElement, dstElement, duration, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var srcEl = await this.helpers.getElement(srcElement, false, timeout);
+    this.helpers.assertUnableToFindElement(srcEl, srcElement);
     var dstEl = await this.helpers.getElement(dstElement, false, timeout);
+    this.helpers.assertUnableToFindElement(dstEl, dstElement);
 
     await srcEl.dragAndDrop(dstEl, duration);
     await this.checkWaitForAngular();

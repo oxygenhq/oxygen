@@ -19,6 +19,7 @@ module.exports = async function(locator, duration, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+    this.helpers.assertUnableToFindElement(el, locator);
 
     await el.touchAction([
         'press',

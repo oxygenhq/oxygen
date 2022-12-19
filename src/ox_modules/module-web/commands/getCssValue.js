@@ -25,6 +25,8 @@ module.exports = async function(locator, propertyName, timeout) {
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
+    this.helpers.assertUnableToFindElement(el, locator);
+
     var css = await el.getCSSProperty(propertyName);
     if (css) {
         return css.value.trim().replace(/\s+/g, ' ');

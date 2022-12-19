@@ -25,6 +25,9 @@ module.exports = async function(locator, xOffset, yOffset, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
+
+    this.helpers.assertUnableToFindElement(el, locator);
+
     await el.moveTo({xOffset: xOffset, yOffset: yOffset });
     await this.checkWaitForAngular();
 };

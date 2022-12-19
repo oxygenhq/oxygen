@@ -22,6 +22,8 @@ module.exports = async function(locator, clickParent) {
     await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
     var el = await this.helpers.getElement(locator);
+    this.helpers.assertUnableToFindElement(el, locator);
+
     // NOTE: adding comments inside the passed function is not allowed!
     /*global document*/
     var ret = await this.driver.execute(function (domEl, clickParent) {

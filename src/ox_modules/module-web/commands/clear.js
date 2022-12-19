@@ -23,6 +23,8 @@ module.exports = async function(locator, timeout) {
 
     const el = await this.helpers.getElement(locator, true, timeout);
 
+    this.helpers.assertUnableToFindElement(el, locator);
+
     try {
         await el.clearValue();
     } catch (e) {

@@ -719,6 +719,11 @@ export default class WebModule extends WebDriverModule {
         this.helpers.assertArgumentBoolOptional = modUtils.assertArgumentBoolOptional;
         this.helpers.assertArgumentTimeout = modUtils.assertArgumentTimeout;
         this.helpers.assertArgumentString = modUtils.assertArgumentString;
+        this.helpers.assertUnableToFindElement = modUtils.assertUnableToFindElement;
+        this.helpers.assertNotVisible = modUtils.assertNotVisible;
+        this.helpers.throwNotInteractable = modUtils.throwNotInteractable;
+        this.helpers.throwInteractable = modUtils.throwInteractable;
+        this.helpers.verify = modUtils.verify;
     }
 
     async _getHAR() {

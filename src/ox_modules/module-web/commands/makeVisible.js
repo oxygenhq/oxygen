@@ -28,6 +28,8 @@
 module.exports = async function (locator) {
     var el = await this.helpers.getElement(locator);
 
+    this.helpers.assertUnableToFindElement(el, locator);
+
     /*global window*/
     await this.driver.execute(function (domEl) {
         // make sure current element and all its ancestors have "display" style value different from "none"
