@@ -12,6 +12,7 @@
 
 const Fiber = require('fibers');
 const path = require('path');
+const fs = require('fs');
 const { EventEmitter } = require('events');
 
 const Oxygen = require('../../core/OxygenCore').default;
@@ -70,6 +71,11 @@ export default class OxygenWorker extends EventEmitter {
             scriptPath = path.resolve(this._cwd, scriptPath);
         }
         let error = null;
+
+        // on OSX cwd will be a symlink: "/var/folders/.." instead of "/private/var/folders/.." (this could also happen on other platforms too)
+        // so we need to resolve it to real path
+        let cwd = fs.realpathSync(this._cwd);
+
         // load and run the test script
         try {
             this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
@@ -83,28 +89,32 @@ export default class OxygenWorker extends EventEmitter {
                     // this is because 'require' is cached, and when the first case is finished, the module is marked as isInitialized = false
                     // and not re-initialized back on next case.
                     // thus we clean user level scripts from 'require' cache.
-                    // FIXME: this should be probably fixed in a different way.
+                    // FIXME: web.init and other modules should be probably fixed (properly disposed)
+                    // NOTE: this obviously relates not only to web, etc module. this is a general issue.
                     const Module = require('module');
                     const originalRequire = Module.prototype.require;
 
                     Module.prototype.require = function() {
                         const script = arguments['0'];
-                        try {
-                            // invalidate cache only for user level scripts (those starting with './')
-                            if (script && script.startsWith('.')) {
-                                var resolvedPath = require.resolve(path.resolve(path.dirname(scriptPath), script));
-                                if (require.cache[resolvedPath]) {
-                                    delete require.cache[resolvedPath];
+
+                        // invalidate cache only when we try to load user-level scripts (those starting with './' or '../')
+                        if (script && script.startsWith('.')) {
+                            // remove everything user related from the cache
+                            for (const key in require.cache) {
+                                if (key.startsWith && key.startsWith(cwd)) {
+                                    try {
+                                        delete require.cache[key];
+                                    } catch (exi) {
+                                        // ignored
+                                    }
                                 }
                             }
-                        } catch (ex) {
-                            // ignored
                         }
+
                         return originalRequire.apply(this, arguments);
                     };
                     require(scriptPath);
-                }
-                catch (e) {
+                } catch (e) {
                     // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
 
                     if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
