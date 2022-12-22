@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.25.0 (2022-12-22)
+
+#### :beetle: Bug Fix
+* Scripts with deeply nested `init` methods failed to execute in some situations when part of a Suite.
+
 ## v1.24.9 (2022-12-09)
 
 #### :house: Internal
