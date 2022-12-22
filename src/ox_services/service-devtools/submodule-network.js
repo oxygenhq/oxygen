@@ -15,50 +15,51 @@ import { harFromMessages } from 'chrome-har';
 import errHelper from '../../errors/helper';
 import OxError from '../../errors/OxygenError';
 
+// below are the events that need to be observed for "chrome-har" module to generate a proper HAR file
 const observe = [
     'Page.domContentEventFired',
-    'Page.fileChooserOpened',
+    //'Page.fileChooserOpened',
     'Page.frameAttached',
-    'Page.frameDetached',
-    'Page.frameNavigated',
-    'Page.interstitialHidden',
-    'Page.interstitialShown',
-    'Page.javascriptDialogClosed',
-    'Page.javascriptDialogOpening',
-    'Page.lifecycleEvent',
+    //'Page.frameDetached',
+    //'Page.frameNavigated',
+    //'Page.interstitialHidden',
+    //'Page.interstitialShown',
+    //'Page.javascriptDialogClosed',
+    //'Page.javascriptDialogOpening',
+    //'Page.lifecycleEvent',
     'Page.loadEventFired',
-    'Page.windowOpen',
-    'Page.frameClearedScheduledNavigation',
-    'Page.frameScheduledNavigation',
-    'Page.compilationCacheProduced',
-    'Page.downloadProgress',
-    'Page.downloadWillBegin',
+    //'Page.windowOpen',
+    //'Page.frameClearedScheduledNavigation',
+    //'Page.frameScheduledNavigation',
+    //'Page.compilationCacheProduced',
+    //'Page.downloadProgress',
+    //'Page.downloadWillBegin',
     'Page.frameRequestedNavigation',
-    'Page.frameResized',
+    //'Page.frameResized',
     'Page.frameStartedLoading',
-    'Page.frameStoppedLoading',
+    //'Page.frameStoppedLoading',
     'Page.navigatedWithinDocument',
-    'Page.screencastFrame',
-    'Page.screencastVisibilityChanged',
+    //'Page.screencastFrame',
+    //'Page.screencastVisibilityChanged',
     'Network.dataReceived',
-    'Network.eventSourceMessageReceived',
+    //'Network.eventSourceMessageReceived',
     'Network.loadingFailed',
     'Network.loadingFinished',
     'Network.requestServedFromCache',
     'Network.requestWillBeSent',
     'Network.responseReceived',
-    'Network.webSocketClosed',
-    'Network.webSocketCreated',
-    'Network.webSocketFrameError',
-    'Network.webSocketFrameReceived',
-    'Network.webSocketFrameSent',
-    'Network.webSocketHandshakeResponseReceived',
-    'Network.webSocketWillSendHandshakeRequest',
+    //'Network.webSocketClosed',
+    //'Network.webSocketCreated',
+    //'Network.webSocketFrameError',
+    //'Network.webSocketFrameReceived',
+    //'Network.webSocketFrameSent',
+    //'Network.webSocketHandshakeResponseReceived',
+    //'Network.webSocketWillSendHandshakeRequest',
     'Network.requestWillBeSentExtraInfo',
     'Network.resourceChangedPriority',
     'Network.responseReceivedExtraInfo',
-    'Network.signedExchangeReceived',
-    'Network.requestIntercepted'
+    //'Network.signedExchangeReceived',
+    //'Network.requestIntercepted'
 ];
 export default class NetworkSubModule extends OxygenSubModule {
     constructor(name, parent) {
@@ -420,4 +421,14 @@ export default class NetworkSubModule extends OxygenSubModule {
         }
     }
 
+    /**
+     * @summary Sets a list of request URLs to be blocked from loading.
+     * @function blockUrls
+     * @param {Array<String>} urls - A list of URLs that match the requests to be blocked.
+     */
+    async blockUrls(urls) {
+        await this._driver.cdp('Network','setBlockedURLs', {
+            urls
+        });
+    }
 }
