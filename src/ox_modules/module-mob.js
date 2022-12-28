@@ -378,8 +378,8 @@ export default class MobileModule extends WebDriverModule {
                                         if (fetchTitle) {
                                             const title = await this.driver.getTitle();
                                             if (title) {
-                                                const textToImage = require('text-to-image');
-                                                let titleImage = await textToImage.generate(title, { debug: false, fontFamily: 'Arial' });
+                                                const textToImage = require('../lib/text-to-image');
+                                                let titleImage = await textToImage.generate(title);
                                                 if (titleImage && typeof titleImage === 'string') {
                                                     titleImage = titleImage.replace('data:image/png;base64,', '');
                                                     images.push(titleImage);
