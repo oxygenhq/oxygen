@@ -64,7 +64,8 @@ const DEFAULT_CTX = {
 const DEFAULT_RESULT_STORE = {
     steps: [],
     logs: [],
-    har: null
+    har: null,
+    attributes: {}
 };
 
 export default class Oxygen extends OxygenEvents {
@@ -247,7 +248,8 @@ export default class Oxygen extends OxygenEvents {
                 ctx: this.ctx,
                 options: this.opts,
                 caps: this.capabilities,
-                resultStore: this.resultStore
+                resultStore: this.resultStore,
+                addAttribute: this.addAttribute.bind(this)
             };
 
             global.vars = this.ctx.vars;
@@ -267,6 +269,12 @@ export default class Oxygen extends OxygenEvents {
             global.params = global.ox.ctx.params;
             global.env = global.ox.ctx.env;
             global.ctx = global.ox.ctx;
+        }
+    }
+
+    addAttribute(name, value) {
+        if (this.resultStore && this.resultStore.attributes) {
+            this.resultStore.attributes[name] = value;
         }
     }
 
@@ -396,7 +404,6 @@ export default class Oxygen extends OxygenEvents {
         for (let moduleFileName of moduleFiles) {
             // extract name from the module file name based on module name pattern
             const moduleName = moduleFileName.match(MODULE_NAME_MATCH_REGEX)[1];
-
             try {
                 const startTime = new Date();
                 // initialize new logger for the module

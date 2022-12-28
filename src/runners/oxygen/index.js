@@ -548,6 +548,7 @@ export default class OxygenRunner extends EventEmitter {
                 caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
                 caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
                 caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
+                caseResult.testAttributes = resultStore && resultStore.attributes ? resultStore.attributes : null;
 
                 // determine test case iteration status - mark it as failed if any step has failed
                 var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});

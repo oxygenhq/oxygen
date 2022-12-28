@@ -23,6 +23,7 @@ module.exports = function () {
         logs: [],
         har: null,
         failure: null,
-        context: null
+        context: null,
+        testAttributes: {}
     };
 };
