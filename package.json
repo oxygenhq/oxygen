@@ -61,7 +61,7 @@
     "cross-spawn": "7.0.3",
     "csv-parse": "4.16.3",
     "cucumber": "6.0.5",
-    "deasync": "0.1.26",
+    "deasync": "0.1.28",
     "decache": "4.6.1",
     "easyxml": "2.0.1",
     "ejs": "3.1.8",
