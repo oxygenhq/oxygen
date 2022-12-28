@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.26.0 (2022-12-28)
+
+#### :tada: New Feature
+* Add `Add web.network.blockUrls`.
+* Add `ox.addAttribute` function for adding custom test attributes to the test result.
+
 ## v1.25.0 (2022-12-22)
 
 #### :beetle: Bug Fix
