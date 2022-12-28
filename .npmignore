@@ -5,3 +5,6 @@ npm-debug.log
 .gitattributes
 src/*
 tools/*
+.husky/*
+.babelrc
+.eslintrc.json
