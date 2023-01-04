@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "1.26.0",
+  "version": "1.27.0",
   "description": "Automation framework for testing modern applications",
   "main": "./build/index.js",
   "bin": {

@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.27.0 (2023-01-04)
+
+#### :beetle: Bug Fix
+* Restore node 12 compatibility.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.26.0 (2022-12-28)
 
 #### :tada: New Feature
