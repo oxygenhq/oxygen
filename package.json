@@ -44,7 +44,7 @@
     "axios is a peer dependency of soap. when using npm 6 (node 12-14) it needs to be explicitly included. when we migrate to npm 7 (node 16+) it can be removed."
   ],
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.39.0",
+    "@applitools/eyes-webdriverio": "5.39.1",
     "@lambdatest/node-rest-client": "1.0.5",
     "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",
@@ -66,7 +66,7 @@
     "easyxml": "2.0.1",
     "ejs": "3.1.8",
     "esm": "3.2.25",
-    "fast-xml-parser": "4.0.12",
+    "fast-xml-parser": "4.0.13",
     "fibers": "5.0.3",
     "glob": "7.2.3",
     "glob-to-regexp": "0.4.1",
@@ -93,7 +93,7 @@
     "stacktrace-parser": "0.1.10",
     "testdouble": "3.16.8",
     "testingbot-api": "1.0.8",
-    "twilio": "3.84.0",
+    "twilio": "3.84.1",
     "webdriverio": "7.29.1",
     "when": "3.7.8",
     "xlsx": "0.18.5"
