@@ -99,7 +99,7 @@
     "xlsx": "0.18.5"
   },
   "optionalDependencies": {
-    "odbc": "2.4.6"
+    "odbc": "2.4.7"
   },
   "scripts": {
     "build": "npm run clean && npm run compile",
