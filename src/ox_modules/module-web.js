@@ -383,12 +383,16 @@ export default class WebModule extends WebDriverModule {
     }
 
     async closeBrowserWindows(status) {
-        try {
-            await this.deleteSession();
-        } catch (e) {
-            this.logger.warn('Failed to close browser windows:', e);
+        if (status && 'FAILED' === status.toUpperCase() && this.options && this.options.seleniumPid) {
+            this.disposeContinue(status);
+        } else {
+            try {
+                await this.deleteSession();
+            } catch (e) {
+                this.logger.warn('Failed to close browser windows:', e);
+            }
+            this.disposeContinue();
         }
-        this.disposeContinue();
     }
 
     disposeContinue(status) {
