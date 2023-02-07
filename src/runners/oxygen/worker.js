@@ -11,6 +11,11 @@
  * Boilerplate code for user scripts.
  * Provides everything necessary for executing JS test scripts.
  */
+
+// increase max listeners limit on process emitter
+process.setMaxListeners(100);
+require('events').defaultMaxListeners = 100;
+
 import { LEVELS, DEFAULT_LOGGER_ISSUER, ISSUERS } from '../../lib/logger';
 import OxygenWorker from './OxygenWorker';
 const oxutil = require('../../lib/util');

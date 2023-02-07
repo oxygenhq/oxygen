@@ -115,6 +115,14 @@ export default class WorkerProcess extends EventEmitter {
         }
     }
 
+    async stopDebugger() {
+        if (this._debugger) {
+            await this._debugger.close();
+            this._debugger.removeAllListeners();
+            this._debugger = null;
+        }
+    }
+
     async stop(status = null) {
         if (this._isInitialized && this._childProc) {
             if (this._debugger && this._debugger._paused) {
@@ -147,7 +155,7 @@ export default class WorkerProcess extends EventEmitter {
         }
     }
 
-    async init(rid, options, caps) {
+    async initOxygen(rid, options, caps) {
         if (!this._isInitialized) {
             const beforeTime = new Date().getTime();
             await this.invoke('init', rid, options, caps);
@@ -157,9 +165,31 @@ export default class WorkerProcess extends EventEmitter {
             this._isInitialized = true;
             let start = '';
             if (this._name) {
-                start = this._name+' ';
+                start = this._name + ' ';
             }
-            log.info(start+'Worker initialized in ' + duration + ' ms');
+            log.info(start + 'Worker initialized in ' + duration + ' ms');
+        }
+    }
+
+    async startSession() {
+        let start = '';
+        if (this._name) {
+            start = this._name + ' ';
+        }
+        log.info(start + 'Session started');
+    }
+
+    async endSession(status = null, disposeModules = true) {
+        if (this._childProc) {
+            const beforeTime = new Date().getTime();
+            await this.invoke('endSession', status, disposeModules);
+            const afterTime = new Date().getTime();
+            const duration = afterTime - beforeTime;
+            let start = '';
+            if (this._name) {
+                start = this._name + ' ';
+            }
+            log.info(start + 'Session ended in ' + duration + ' ms');
         }
     }
 
@@ -184,15 +214,6 @@ export default class WorkerProcess extends EventEmitter {
                 status: status,
             });
             this.kill();
-        }
-    }
-
-    async disposeModules(status = null) {
-        if (this._debugger) {
-            await this._debugger.close();
-        }
-        if (this._childProc) {
-            await this.invoke('disposeModules', status);
         }
     }
 

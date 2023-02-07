@@ -11,6 +11,7 @@
 import logger from '../../lib/logger';
 const log = logger('OxygenRunner');
 const DEFAULT_ISSUER = 'user';
+const MAX_RERUNS = 2;
 
 import { EventEmitter } from 'events';
 import _  from 'lodash';
@@ -404,6 +405,8 @@ export default class OxygenRunner extends EventEmitter {
             showSuiteIterationsMessages = true;
         }
 
+        const reRunOnFailure = this._options.reRunOnFailed || false;
+
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
@@ -438,32 +441,26 @@ export default class OxygenRunner extends EventEmitter {
                     if (showCaseIterationsMessages) {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
-                    let reRunCount = 0;
-                    let caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, false);
-                    if (!caseResult) {
-                        continue;
-                    }
-
-                    if (caseResult.status === Status.FAILED && this._options.reRunOnFailed && reRunCount === 0) {
-                        reRunCount = 1;
-                        // failed on canceled status not close browser window
-                        await (this._worker && this._worker_DisposeModules('passed'));
-                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, true);
-
-                        if (!caseResult) {
-                            continue;
+                    // report case start event
+                    this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
+                    //let reRunCount = 0;
+                    let caseResult;
+                    // run or re-run the current test case
+                    for (let reRunCount = 0; reRunCount < MAX_RERUNS; reRunCount++) {                    
+                        caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, reRunCount);
+                        if ((!caseResult || caseResult.status === Status.FAILED) && !reRunOnFailure) {
+                            break;
+                        }
+                        else if (caseResult && caseResult.status !== Status.FAILED) {
+                            break;
                         }
                     }
-                    caseResult.reRunCount = reRunCount;
+                    // report case end event
+                    this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
                     if (showCaseIterationsMessages) {
                         this._reporter.onIterationEnd(this._id, caseResult, 'Case');
                     }
-                    await this._worker_callAfterCaseHook(caze, caseResult);
-                    this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
-                    if (typeof this._options.autoDispose !== 'boolean' || this._options.autoDispose === true) {
-                        await (this._worker && this._worker_DisposeModules(caseResult.status));
-                    }
-
+                    // add case result to the suite result
                     suiteResult.cases.push(caseResult);
                     // if test case iteration has failed, then mark the entire test case as failed, 
                     // stop iterating over it and move to the next test case
@@ -485,24 +482,29 @@ export default class OxygenRunner extends EventEmitter {
         return suiteIterations;
     }
 
-    async _runCase(suite, caze, suiteIteration, caseIteration, reRun = false) {
+    async _runCase(suite, caze, suiteIteration, caseIteration, reRunCount = 0) {
         const params = {};
+        const reRun = reRunCount > 0;
         // get test suite's parameters if defined
         // get them first and then override with test case level parameters if defined
         if (suite.paramManager) {
-            if (reRun) {
+            /*if (reRun) {
                 suite.paramManager.readPrev();
-            }
+            }*/
             _.extend(params, suite.paramManager.getValues());
-            suite.paramManager.readNext();
+            if (!reRun) {
+                suite.paramManager.readNext();
+            }
         }
         // read test case's next lines of parameters if parameter manager is defined
         if (caze.paramManager) {
-            if (reRun) {
+            /*if (reRun) {
                 caze.paramManager.readPrev();
-            }
+            }*/
             _.extend(params, caze.paramManager.getValues());
-            caze.paramManager.readNext();
+            if (!reRun) {
+                caze.paramManager.readNext();
+            }
         }
 
         // add breakpoints before running the script if in debug mode
@@ -515,17 +517,19 @@ export default class OxygenRunner extends EventEmitter {
                 await this._worker.debugger.setBreakpoint(file, line);
             }
         }
-        //this.emit('iteration:start', caseIteration);
         await this._worker_callBeforeCaseHook(caze);
-        this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
         const caseResult = new TestCaseResult();
         caseResult.name = caze.name;
         caseResult.location = caze.path;
         caseResult.iterationNum = caseIteration;
+        caseResult.reRunCount = reRunCount;
 
         // try to initialize Oxygen and handle any possible error
         try {
             await (!(this._worker) && this._worker_InitOxygen());
+            if (!this._worker) {
+                return;
+            }
         }
         catch (e) {
             log.error('_worker_InitOxygen() thrown an error:', e);
@@ -533,40 +537,41 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.duration = 0;
             caseResult.failure = errorHelper.getFailureFromError(e);
             caseResult.status = Status.FAILED;
-            this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
             return caseResult;
         }
+        // start new test session
+        await this._worker_startSession();
         // run the test in the worker process and handle any possible error
         try {
             caseResult.startTime = oxutil.getTimeStamp();
-            if (this._worker) {
-                const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
-                this._processTestResults({ resultStore, context, error, moduleCaps });
-                caseResult.endTime = oxutil.getTimeStamp();
-                caseResult.duration = caseResult.endTime - caseResult.startTime;
-                caseResult.context = context;
-                caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
-                caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
-                caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
-                caseResult.testAttributes = resultStore && resultStore.attributes ? resultStore.attributes : null;
+            const { resultStore, context, moduleCaps, error } = await this._worker_Run(suite, caze, suiteIteration, caseIteration, params);
+            this._processTestResults({ resultStore, context, error, moduleCaps });
+            caseResult.endTime = oxutil.getTimeStamp();
+            caseResult.duration = caseResult.endTime - caseResult.startTime;
+            caseResult.context = context;
+            caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
+            caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
+            caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
+            caseResult.testAttributes = resultStore && resultStore.attributes ? resultStore.attributes : null;
 
-                // determine test case iteration status - mark it as failed if any step has failed
-                var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
-                caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
-                if (error) {
-                    caseResult.failure = error;
-                    caseResult.status = Status.FAILED;
-                    caseResult.steps = oxutil.makeTransactionFailedIfStepFailed(caseResult.steps);
-                }
-            } else {
-                return;
+            // determine test case iteration status - mark it as failed if any step has failed
+            var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
+            caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
+            if (error) {
+                caseResult.failure = error;
+                caseResult.status = Status.FAILED;
+                caseResult.steps = oxutil.makeTransactionFailedIfStepFailed(caseResult.steps);
             }
+            await this._worker_callAfterCaseHook(caze, caseResult);
         } catch (e) {
             log.error('_worker_Run() thrown an error:', e);
             caseResult.failure = errorHelper.getFailureFromError(e);
             caseResult.status = Status.FAILED;
 
         }
+        const disposeOxygenModules = typeof this._options.autoDispose !== 'boolean' || this._options.autoDispose === true;
+        // end session and dispose Oxygen modules if required
+        await this._worker_endSession(caseResult.status, disposeOxygenModules);
 
         return caseResult;
     }
@@ -605,12 +610,23 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_InitOxygen() {
-        await (this._worker && this._worker.init(this._id, this._options, this._caps));
+        await (this._worker && this._worker.initOxygen(this._id, this._options, this._caps));
     }
 
-    async _worker_DisposeModules(status = null) {
-        if (this._worker && this._worker.disposeModules) {
-            await this._worker.disposeModules(status);
+    async _worker_startSession() {
+        // start debugger (only if we are in "debug" mode)
+        this._worker && await this._worker.startDebugger();
+        this._hookWorkerDebuggerEvents();
+        // start session
+        if (this._worker && this._worker.startSession) {
+            await this._worker.startSession();
+        }
+    }
+
+    async _worker_endSession(status = null, disposeModules = true) {
+        this._worker && await this._worker.stopDebugger();
+        if (this._worker && this._worker.endSession) {
+            await this._worker.endSession(status, disposeModules);
         }
     }
 
@@ -683,8 +699,6 @@ export default class OxygenRunner extends EventEmitter {
         this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen', this._npmGRootExecution);
         await this._worker.start();
         this._hookWorkerEvents();
-        await this._worker.startDebugger();
-        this._hookWorkerDebuggerEvents();
     }
 
     _hookWorkerEvents() {
@@ -764,6 +778,9 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     _hookWorkerDebuggerEvents() {
+        if (!this._worker) {
+            return;
+        }
         this._worker.debugger && this._worker.debugger.on('debugger:break', (breakpointData) => {
             this.emit('breakpoint', breakpointData);
         });
