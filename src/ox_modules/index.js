@@ -4,6 +4,7 @@ export {default as db} from './module-db';
 export {default as email} from './module-email';
 export {default as eyes} from './module-eyes';
 export {default as http} from './module-http';
+export {default as httpa} from './module-httpa';
 export {default as log} from './module-log';
 export {default as mailinator} from './module-mailinator';
 export {default as mob} from './module-mob';
