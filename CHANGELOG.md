@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.27.2 (2023-02-09)
+
+#### :beetle: Bug Fix
+* Browser windows were terminated instead of remaining open on failed tests in Oxygen IDE.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.27.0 (2023-01-04)
 
 #### :beetle: Bug Fix
