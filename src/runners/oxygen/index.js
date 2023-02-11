@@ -187,11 +187,12 @@ export default class OxygenRunner extends EventEmitter {
     async dispose(status = null) {
         this._isDisposing = true;
         try {
+            this._worker && await this._worker.stopDebugger();
             if (this._worker && this._worker.isRunning) {
                 await this._worker.stop(status);
             }
         } catch (e) {
-            console.log('runner dispose e', e);
+            console.log('Error when disposing Runner', e);
             // ignore errors during the dispose
             log.warn('Error when disposing Runner:', e);
         }
@@ -614,17 +615,12 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _worker_startSession() {
-        // start debugger (only if we are in "debug" mode)
-        this._worker && await this._worker.startDebugger();
-        this._hookWorkerDebuggerEvents();
-        // start session
         if (this._worker && this._worker.startSession) {
             await this._worker.startSession();
         }
     }
 
     async _worker_endSession(status = null, disposeModules = true) {
-        this._worker && await this._worker.stopDebugger();
         if (this._worker && this._worker.endSession) {
             await this._worker.endSession(status, disposeModules);
         }
@@ -699,6 +695,8 @@ export default class OxygenRunner extends EventEmitter {
         this._worker = new WorkerProcess(this._id, workerPath, this._debugMode, this._debugPort, 'Oxygen', this._npmGRootExecution);
         await this._worker.start();
         this._hookWorkerEvents();
+        await this._worker.startDebugger();
+        this._hookWorkerDebuggerEvents();
     }
 
     _hookWorkerEvents() {

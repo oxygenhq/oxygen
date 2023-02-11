@@ -26,6 +26,7 @@ export default class WorkerProcess extends EventEmitter {
         this._childProc = null;
         this._debugMode = debugMode;
         this._debugPort = debugPort;
+        this._debugger = null;
         this._workerPath = workerPath;
         this._npmGRootExecution = npmGRootExecution;
         this._breakpointErrors = [];
@@ -385,7 +386,7 @@ export default class WorkerProcess extends EventEmitter {
         });
         this._debugger.on('error', function(err) {
 
-            log.error('debugger on error :', err);
+            log.error('Debugger error :', err);
 
             this.emit('debugger:error', Object.assign(err, { pid: this._pid }));
             // reject the promise only if we got an error right after _debugger.connect() call below - we need this to indicate debugger initialization error
