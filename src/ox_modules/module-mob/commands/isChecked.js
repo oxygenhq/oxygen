@@ -18,10 +18,10 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isChecked("id=checkBox");//Determines if checkbox or radio element is checked.
  */
-module.exports = async function(locator, timeout) {
+export async function isChecked(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     await this.helpers.assertContext(this.helpers.contextList.android);
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.getAttribute('checked') == 'true';
-};
+}

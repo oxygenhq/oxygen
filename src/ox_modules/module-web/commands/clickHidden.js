@@ -17,7 +17,7 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.clickHidden("id=HiddenLink");
  */
-module.exports = async function(locator, clickParent = false) {
+export async function clickHidden(locator, clickParent = false) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
     this.retryCount = 3;
     this.clickJS = async (domEl, clickParent = false) =>  {
@@ -70,4 +70,4 @@ module.exports = async function(locator, clickParent = false) {
     var el = await this.helpers.getElement(locator);
     await this.clickJS(el, clickParent);
     await this.checkWaitForAngular();
-};
+}

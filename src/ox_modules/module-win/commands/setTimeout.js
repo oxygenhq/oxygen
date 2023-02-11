@@ -17,8 +17,8 @@
  * @function setTimeout
  * @param {Number} timeout - A time-out in milliseconds.
  */
-module.exports = async function(timeout) {
+export async function setTimeout(timeout) {
     this.helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
     this.waitForTimeout = timeout;
     await this.helpers.setTimeoutImplicit(timeout);
-};
+}

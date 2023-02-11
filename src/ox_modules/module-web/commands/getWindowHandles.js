@@ -16,6 +16,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getWindowHandles();//Gets the window handles of currently open windows.
  */
-module.exports = async function() {
+export async function getWindowHandles() {
     return await this.driver.getWindowHandles();
-};
+}

@@ -28,7 +28,7 @@
  * mob.open("www.yourwebsite.com");// Opens a website.
  * mob.selectWindow("title=Website");// Selects and focus a window. 
  */
-module.exports = async function(windowLocator, timeout) {
+export async function selectWindow(windowLocator, timeout) {
     this.helpers.assertArgument(windowLocator, 'windowLocator');
     var currentHandle;
     var currentHandleTitle;
@@ -124,4 +124,4 @@ module.exports = async function(windowLocator, timeout) {
     }
 
     return currentHandle;
-};
+}

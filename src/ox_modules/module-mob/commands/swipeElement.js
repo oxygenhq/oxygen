@@ -20,7 +20,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.swipeElement("id=Element",-60,0,150);//Perform a swipe on the screen or an element.
 */
-module.exports = async function(locator, xoffset = 0, yoffset = 30, timeout, duration = 3000) {
+export async function swipeElement(locator, xoffset = 0, yoffset = 30, timeout, duration = 3000) {
     this.helpers.assertArgument(locator, 'locator');
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
@@ -58,4 +58,4 @@ module.exports = async function(locator, xoffset = 0, yoffset = 30, timeout, dur
             options: {},
         },
     ]);
-};
+}

@@ -20,7 +20,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForNotText("id=Title","Website");//Waits for an element’s text to not match to expected string.
  */
-module.exports = async function(locator, pattern, timeout) {
+export async function waitForNotText(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -38,4 +38,4 @@ module.exports = async function(locator, pattern, timeout) {
             text = text.replace(/\n/g, '\\n');
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `Expected not: "${pattern}". Got: "${text}"`);
     }
-};
+}

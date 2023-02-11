@@ -20,7 +20,7 @@
  * web.click("id=SaveButton");//Clicks on save – an alert would pop up
  * web.assertAlert("Your Alert's text");//Asserts the alert's text.
  */
-module.exports = async function(pattern, timeout) {
+export async function assertAlert(pattern, timeout) {
     let alertText = null;
     try {
         await this.driver.waitUntil(async() => {
@@ -44,4 +44,4 @@ module.exports = async function(pattern, timeout) {
         }
         throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
     }
-};
+}

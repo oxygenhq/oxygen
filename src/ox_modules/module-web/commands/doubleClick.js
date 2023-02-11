@@ -17,7 +17,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.doubleClick("id=Mark");//Double clicks on a element.
  */
-module.exports = async function(locator, timeout) {
+export async function doubleClick(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -62,4 +62,4 @@ module.exports = async function(locator, timeout) {
         }, el);
     }
     await this.checkWaitForAngular();
-};
+}

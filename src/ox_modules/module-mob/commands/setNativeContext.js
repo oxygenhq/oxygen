@@ -15,7 +15,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.setNativeContext();//Sets context to NATIVE_APP.
 */
-module.exports = async function() {
+export async function setNativeContext() {
     await this.driver.switchContext('NATIVE_APP');
     this.appContext = 'NATIVE_APP';
-};
+}

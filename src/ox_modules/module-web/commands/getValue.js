@@ -18,7 +18,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getValue("id=UserName");//Gets the value from an element.
  */
-module.exports = async function(locator, timeout) {
+export async function getValue(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, true, timeout);
@@ -35,4 +35,4 @@ module.exports = async function(locator, timeout) {
         return val.trim().replace(/\s+/g, ' ');
     }
     return val;
-};
+}

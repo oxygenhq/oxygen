@@ -21,10 +21,10 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.point("id=Selection");//Hovers a mouse over an element.
  */
-module.exports = async function(locator, xOffset, yOffset, timeout) {
+export async function point(locator, xOffset, yOffset, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
     await el.moveTo({xOffset: xOffset, yOffset: yOffset });
     await this.checkWaitForAngular();
-};
+}

@@ -22,7 +22,7 @@
  *   log.info(text);
  * }
 */
-module.exports = async function(locator, parent, timeout) {
+export async function findElements(locator, parent, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     if (parent) {
@@ -30,4 +30,4 @@ module.exports = async function(locator, parent, timeout) {
     } else {
         return await this.helpers.getElements(locator, timeout);
     }
-};
+}

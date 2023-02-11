@@ -14,6 +14,6 @@
  * web.init();//Opens browser session.
  * web.minimizeWindow();
  */
-module.exports = async function() {
+export async function minimizeWindow() {
     await this.driver.minimizeWindow();
-};
+}

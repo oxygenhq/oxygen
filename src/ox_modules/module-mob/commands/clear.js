@@ -19,7 +19,7 @@
  * mob.clear("id=Password");//Clears the characters from the field of an element.
  
  */
-module.exports = async function(locator, timeout) {
+export async function clear(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -32,4 +32,4 @@ module.exports = async function(locator, timeout) {
         }
         throw e;
     }
-};
+}

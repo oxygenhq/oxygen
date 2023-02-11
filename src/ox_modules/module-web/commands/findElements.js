@@ -21,7 +21,7 @@
  *   log.info(text);
  * }
 */
-module.exports = async function(locator, parent, timeout = 60 * 1000) {
+export async function findElements(locator, parent, timeout = 60 * 1000) {
 
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -30,4 +30,4 @@ module.exports = async function(locator, parent, timeout = 60 * 1000) {
     } else {
         return await this.helpers.getElements(locator, timeout);
     }
-};
+}

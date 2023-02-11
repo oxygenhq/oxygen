@@ -20,7 +20,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.type("id=UserName","User1");//Types a string to field.
  */
-module.exports = async function(locator, value, timeout) {
+export async function type(locator, value, timeout) {
     this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -47,4 +47,4 @@ module.exports = async function(locator, value, timeout) {
         throw e;
     }
     await this.checkWaitForAngular();
-};
+}

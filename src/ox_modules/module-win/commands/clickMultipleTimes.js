@@ -14,7 +14,7 @@
  * @param {Number} taps - Number of taps.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = async function(locator, taps, timeout) {
+export async function clickMultipleTimes(locator, taps, timeout) {
     this.helpers.assertArgumentNumberNonNegative(taps, 'taps');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -26,4 +26,4 @@ module.exports = async function(locator, taps, timeout) {
     }
 
     await el.touchAction(actions);
-};
+}

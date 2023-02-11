@@ -24,8 +24,8 @@
  * );//Executes/injects JavaScript code.
  
  */
-module.exports = async function(...args) {
+export async function execute(...args) {
     const executeRetVal = await this.driver.execute(...args);
     await this.checkWaitForAngular();
     return executeRetVal;
-};
+}

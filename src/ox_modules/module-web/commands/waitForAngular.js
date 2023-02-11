@@ -18,7 +18,7 @@
  * web.waitForAngular();
  */
 
-module.exports = async function(rootSelector, timeout = 60*1000) {
+export async function waitForAngular(rootSelector, timeout = 60*1000) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
@@ -76,4 +76,4 @@ module.exports = async function(rootSelector, timeout = 60*1000) {
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
     }
-};
+}

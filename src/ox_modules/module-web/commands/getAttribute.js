@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getAttribute("id=UserName","value");//Gets an attribute from an element.
  */
-module.exports = async function(locator, attribute, timeout) {
+export async function getAttribute(locator, attribute, timeout) {
     this.helpers.assertArgumentNonEmptyString(attribute, 'attribute');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -31,4 +31,4 @@ module.exports = async function(locator, attribute, timeout) {
     }
 
     return attrValue;
-};
+}

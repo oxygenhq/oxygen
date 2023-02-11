@@ -16,6 +16,6 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getAppiumLogs(); //Collects logs from the Appium server
  */
-module.exports = async function() {
+export async function getAppiumLogs() {
     return await this.driver.getLogs('server');
-};
+}

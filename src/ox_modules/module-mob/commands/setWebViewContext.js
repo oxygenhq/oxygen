@@ -16,7 +16,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.setWebViewContext();//Sets context to the first available WEBVIEW or CHROMIUM (Crosswalk WebView) view.
  */
-module.exports = async function() {
+export async function setWebViewContext() {
     var contexts = await this.driver.getContexts();
     // select first available WEBVIEW context
     for (var i=0; i < contexts.length; i++) {
@@ -29,4 +29,4 @@ module.exports = async function() {
         }
     }
     return null;
-};
+}

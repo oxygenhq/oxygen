@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.isExist("id=SaveButton");// Returns true if  the element exists in page. 
  */
-module.exports = async function(locator, timeout) {
+export async function isExist(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
@@ -28,4 +28,4 @@ module.exports = async function(locator, timeout) {
     } catch (e) {
         return false;
     }
-};
+}

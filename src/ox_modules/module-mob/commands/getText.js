@@ -18,7 +18,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * var a = mob.getText("id=TextArea");//Gets the text from an element.
  */
-module.exports = async function(locator, timeout) {
+export async function getText(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, true, timeout);
@@ -27,4 +27,4 @@ module.exports = async function(locator, timeout) {
         return text.trim().replace(/\s+/g, ' ');
     }
     return text;
-};
+}

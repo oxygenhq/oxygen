@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.open('www.yourwebsite.com');//Opens an URL.
  */
-module.exports = async function(url) {
+export async function open(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
     await this.helpers.assertContext(this.helpers.contextList.web);
     try {
@@ -35,4 +35,4 @@ module.exports = async function(url) {
             }
         }
     }
-};
+}

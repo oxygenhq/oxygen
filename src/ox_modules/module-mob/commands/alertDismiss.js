@@ -17,7 +17,7 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * mob.alertDismiss();//Automatically press on 'Cancel' button in the alert pop-up. 
 */
-module.exports = async function() {
+export async function alertDismiss() {
     try {
         await this.driver.dismissAlert();
     } catch (e) {
@@ -27,4 +27,4 @@ module.exports = async function() {
             throw e;
         }
     }
-};
+}

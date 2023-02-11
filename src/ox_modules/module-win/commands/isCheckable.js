@@ -14,9 +14,9 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Boolean} - true if element is checkable. false otherwise.
  */
-module.exports = async function(locator, timeout) {
+export async function isCheckable(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.getAttribute('checkable') == 'true';
-};
+}

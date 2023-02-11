@@ -16,7 +16,7 @@
  * web.init();//Opens browser session.
  * web.newWindow("www.yourwebsite.com");// Opens a website on new window.
  */
-module.exports = async function(url) {
+export async function newWindow(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
     await this.driver.newWindow(url);
-};
+}

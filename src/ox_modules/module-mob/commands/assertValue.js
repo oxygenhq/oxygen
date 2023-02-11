@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.assertValue("id=UserName", "John Doe");// Asserts if the value of an element.
  */
-module.exports = async function(locator, pattern, timeout) {
+export async function assertValue(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -55,4 +55,4 @@ module.exports = async function(locator, pattern, timeout) {
 
         throw this.errHelper.getAssertError(pattern, text);
     }
-};
+}

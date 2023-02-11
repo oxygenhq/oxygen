@@ -17,10 +17,10 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * var a = mob.getAlertText();//Gets alert text.
  */
-module.exports = async function() {
+export async function getAlertText() {
     try {
         return await this.driver.getAlertText();
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
     }
-};
+}

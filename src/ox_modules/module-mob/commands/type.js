@@ -20,7 +20,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.type('id=TextArea', 'hello world\uE007');
  */
-module.exports = async function(locator, value, timeout) {
+export async function type(locator, value, timeout) {
     this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -71,4 +71,4 @@ module.exports = async function(locator, value, timeout) {
             throw e;
         }
     }
-};
+}

@@ -14,6 +14,6 @@
  * web.init();//Opens browser session.
  * web.maximizeWindow();
  */
-module.exports = async function() {
+export async function maximizeWindow() {
     await this.driver.maximizeWindow();
-};
+}

@@ -12,7 +12,7 @@
  * @function pause
  * @param {Number} ms - Milliseconds to pause the execution for.
  */
-module.exports = async function(ms) {
+export async function pause(ms) {
     this.helpers.assertArgumentNumberNonNegative(ms, 'ms');
     await this.driver.pause(ms);
-};
+}

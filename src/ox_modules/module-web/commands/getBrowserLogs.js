@@ -17,7 +17,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var logs = web.getBrowserLogs(); //Collects logs from the browser console 
  */
-module.exports = async function() {
+export async function getBrowserLogs() {
     var browser = this.caps.browserName;
     if (browser === 'chrome') {
         return await this.driver.getLogs('browser');
@@ -25,4 +25,4 @@ module.exports = async function() {
         console.warn(`getBrowserLogs is not supported on "${browser}"`);
         return null;
     }
-};
+}

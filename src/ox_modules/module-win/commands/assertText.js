@@ -17,7 +17,7 @@
  * @param {String} pattern - Assertion text or pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = async function(locator, pattern, timeout) {
+export async function assertText(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -33,4 +33,4 @@ module.exports = async function(locator, pattern, timeout) {
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, text);
     }
-};
+}

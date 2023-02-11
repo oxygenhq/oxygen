@@ -23,7 +23,7 @@
  * win.init();
  * win.selectWindow("title=FolderName");// Selects and focus a window. 
  */
-module.exports = async function (windowHandle, timeout) {
+export async function selectWindow(windowHandle, timeout) {
     var currentHandleTitle;
     var swithToCurrentHandleErrorMsg = 'Unable to switch to previous selected window';
     let e;
@@ -76,4 +76,4 @@ module.exports = async function (windowHandle, timeout) {
             throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowHandle} - ${err.message}`);
         }
     }
-};
+}

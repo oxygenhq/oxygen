@@ -17,7 +17,7 @@
  * web.open("www.yourwebsite.com");
  * web.rightClick("id=someElement");
  */
-module.exports = async function(locator, timeout) {
+export async function rightClick(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -57,4 +57,4 @@ module.exports = async function(locator, timeout) {
         throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_VISIBLE);
     }
     await this.checkWaitForAngular();
-};
+}

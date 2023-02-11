@@ -16,6 +16,6 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * var a = mob.getSource();//Gets the source code of the page.
  */
-module.exports = async function() {
+export async function getSource() {
     return await this.driver.getPageSource();
-};
+}

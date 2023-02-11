@@ -15,7 +15,7 @@
  * @param {Number=} timeout - Timeout in milliseconds to wait for element to appear. Default is 60 seconds.
  * @return {Boolean} True if element was found and it was visible. False otherwise.
  */
-module.exports = async function(locator, timeout) {
+export async function isVisible(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
@@ -24,4 +24,4 @@ module.exports = async function(locator, timeout) {
     } catch (e) {
         return false;
     }
-};
+}

@@ -20,7 +20,7 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * mob.assertAlert("Your Alert's text");//Asserts the alert's text.
  */
-module.exports = async function(pattern, timeout) {
+export async function assertAlert(pattern, timeout) {
     await this.helpers.assertContext(this.helpers.contextList.web);
     let alertText = null;
     try {
@@ -45,4 +45,4 @@ module.exports = async function(pattern, timeout) {
         }
         throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present');
     }
-};
+}

@@ -15,7 +15,7 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * let activity = mob.getCurrentActivity(); // Gets current Android activity.
 */
-module.exports = async function() {
+export async function getCurrentActivity() {
     await this.helpers.assertContext(this.helpers.contextList.android);
     return await this.driver.getCurrentActivity();
-};
+}

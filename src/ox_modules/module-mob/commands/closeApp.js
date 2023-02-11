@@ -16,7 +16,7 @@
  * mob.launchApp(); // Launch the app.
  * mob.closeApp(); // Close the app.
 */
-module.exports = async function() {
+export async function closeApp() {
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
     await this.driver.closeApp();
-};
+}

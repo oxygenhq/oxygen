@@ -14,6 +14,6 @@
  * web.init();//Opens browser session.
  * web.fullscreenWindow();
  */
-module.exports = async function() {
+export async function fullscreenWindow() {
     await this.driver.fullscreenWindow();
-};
+}

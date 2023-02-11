@@ -17,7 +17,7 @@
  * mob.click("id=Submit");// Clicks an element and opens an alert.
  * mob.alertAccept();//Automatically press on 'OK' button in the alert pop-up.
 */
-module.exports = async function() {
+export async function alertAccept() {
     try {
         await this.driver.acceptAlert();
     } catch (e) {
@@ -27,4 +27,4 @@ module.exports = async function() {
             throw e;
         }
     }
-};
+}

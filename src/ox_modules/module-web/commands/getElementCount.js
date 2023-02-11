@@ -17,8 +17,8 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var count = web.getElementCount("//*[@class=Title]");//Gets the element count.
  */
-module.exports = async function(locator) {
+export async function getElementCount(locator) {
     var wdloc = this.helpers.getWdioLocator(locator);
     const result = await this.driver.$$(wdloc);
     return result.length;
-};
+}

@@ -21,7 +21,7 @@
  *    angular.element("#closeBtn").trigger('ng-click').click()
  * });//Executes / injects a javascript functions.
  */
-module.exports = async function(...args) {
+export async function execute(...args) {
     await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
     return await this.driver.execute(...args);
-};
+}

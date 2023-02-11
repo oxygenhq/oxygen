@@ -12,6 +12,6 @@
  * @summary Gets the source code of the page.
  * @return {String} - HTML in case of web or hybrid application or XML in case of native.
  */
-module.exports = async function() {
+export async function getSource() {
     return await this.driver.getPageSource();
-};
+}

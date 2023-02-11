@@ -19,7 +19,7 @@
  * var el = web.findElement("id=js-link-box-en");
  * web.click(el);
 */
-module.exports = async function(locator, parent, timeout) {
+export async function findElement(locator, parent, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     if (parent) {
@@ -27,4 +27,4 @@ module.exports = async function(locator, parent, timeout) {
     } else {
         return await this.helpers.getElement(locator, false, timeout);
     }
-};
+}

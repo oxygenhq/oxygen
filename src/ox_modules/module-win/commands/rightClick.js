@@ -13,7 +13,7 @@
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = async function(locator, timeout) {
+export async function rightClick(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -21,4 +21,4 @@ module.exports = async function(locator, timeout) {
     const { width, height } = await this.driver.getElementSize(el.elementId);
     await this.driver.moveToElement(el.elementId, width / 2, height / 2);
     await this.driver.positionClick(2);
-};
+}

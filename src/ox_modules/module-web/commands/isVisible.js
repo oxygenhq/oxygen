@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.isVisible("id=SaveButton");// Returns true if  the element is displayed in page. 
  */
-module.exports = async function(locator, timeout) {
+export async function isVisible(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
@@ -28,4 +28,4 @@ module.exports = async function(locator, timeout) {
     } catch (e) {
         return false;
     }
-};
+}

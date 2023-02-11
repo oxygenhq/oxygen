@@ -20,7 +20,7 @@
  * mob.click("id=sendSmS");// Clicks an element.
  * var a = mob.smsGetText(60000);//Gets SMS text on Android phone.
 */
-module.exports = async function(timeout) {
+export async function smsGetText(timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     await this.helpers.assertContext(this.helpers.contextList.android);
 
@@ -39,4 +39,4 @@ module.exports = async function(timeout) {
     await this.waitForExist(locSmsClose);
     await this.click(locSmsClose);
     return text;
-};
+}

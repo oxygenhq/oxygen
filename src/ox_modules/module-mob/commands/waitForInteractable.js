@@ -17,7 +17,7 @@
  * mob.init();//Opens browser session.
  * mob.waitForInteractable("id=UserName");//Waits for an element is clickable in DOM.
  */
-module.exports = async function(locator, timeout) {
+export async function waitForInteractable(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     const el = await this.helpers.getElement(locator, false, timeout);
 
@@ -33,4 +33,4 @@ module.exports = async function(locator, timeout) {
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_INTERACTABLE, `Element ${locator} is not interactable`);
     }
-};
+}

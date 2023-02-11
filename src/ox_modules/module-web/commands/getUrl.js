@@ -16,6 +16,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getUrl();//Gets the url from the current page.
  */
-module.exports = async function() {
+export async function getUrl() {
     return await this.driver.getUrl();
-};
+}

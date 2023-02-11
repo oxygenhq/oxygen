@@ -18,7 +18,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.clickLong("id=Mark",6000);// Clicks an element for a certain duration.
  */
-module.exports = async function(locator, duration, timeout) {
+export async function clickLong(locator, duration, timeout) {
     this.helpers.assertArgumentNumberNonNegative(duration, 'duration');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -29,4 +29,4 @@ module.exports = async function(locator, duration, timeout) {
         { action: 'wait', ms: duration },
         'release'
     ]);
-};
+}

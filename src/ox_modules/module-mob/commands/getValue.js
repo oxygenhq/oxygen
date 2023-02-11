@@ -18,7 +18,7 @@
  * mob.init(caps);
  * var a = mob.getValue("id=ValueArea");//Gets the value from an element.
  */
-module.exports = async function(locator, timeout) {
+export async function getValue(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -40,4 +40,4 @@ module.exports = async function(locator, timeout) {
         throw e;
         // TODO: add support for XCUITest
     }
-};
+}

@@ -17,7 +17,7 @@
  * mob.open("www.yourwebsite.com");// Opens a website.
  * mob.getUrl();//Gets the url from the current page.
  */
-module.exports = async function() {
+export async function getUrl() {
     await this.helpers.assertContext(this.helpers.contextList.web);
     return await this.driver.getUrl();
-};
+}

@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getCssValue("id=UserName","color");//Gets a CSS value from an element.
  */
-module.exports = async function(locator, propertyName, timeout) {
+export async function getCssValue(locator, propertyName, timeout) {
     this.helpers.assertArgumentNonEmptyString(propertyName, 'propertyName');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -31,4 +31,4 @@ module.exports = async function(locator, propertyName, timeout) {
     }
 
     return css;
-};
+}

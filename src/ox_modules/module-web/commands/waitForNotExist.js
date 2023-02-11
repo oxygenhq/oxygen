@@ -17,7 +17,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForNotExist("id=UserName");//Waits for an element to not exist in DOM.
  */
-module.exports = async function(locator, timeout) {
+export async function waitForNotExist(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el;
@@ -44,4 +44,4 @@ module.exports = async function(locator, timeout) {
     }
 
     await this.helpers.restoreTimeoutImplicit();
-};
+}

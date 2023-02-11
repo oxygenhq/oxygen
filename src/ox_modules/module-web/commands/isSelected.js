@@ -23,9 +23,9 @@
  *   ...
  * }
  */
-module.exports = async function(locator, timeout) {
+export async function isSelected(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.isSelected();
-};
+}

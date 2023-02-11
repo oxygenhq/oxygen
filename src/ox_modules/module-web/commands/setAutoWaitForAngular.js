@@ -19,7 +19,7 @@
  * web.setAutoWaitForAngular(true);
  */
 
-module.exports = function(autoWaitForAngular = false, rootSelector = '', timeout = 60*1000) {
+export function setAutoWaitForAngular(autoWaitForAngular = false, rootSelector = '', timeout = 60*1000) {
     this.helpers.assertArgumentBool(autoWaitForAngular, 'autoWaitForAngular');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.helpers.assertArgumentString(rootSelector, 'rootSelector');
@@ -27,4 +27,4 @@ module.exports = function(autoWaitForAngular = false, rootSelector = '', timeout
     this.autoWaitForAngular = autoWaitForAngular;
     this.autoWaitForAngularRootSelector = rootSelector;
     this.autoWaitForAngularTimeout = timeout;
-};
+}

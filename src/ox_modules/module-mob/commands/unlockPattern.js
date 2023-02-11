@@ -22,7 +22,7 @@
  * a b c
  * @for android
  */
-module.exports = async function(locator, cols, rows, pattern, timeout) {
+export async function unlockPattern(locator, cols, rows, pattern, timeout) {
     this.helpers.assertArgument(locator, 'locator');
     this.helpers.assertArgumentNumberNonNegative(cols, 'cols');
     this.helpers.assertArgumentNumberNonNegative(rows, 'rows');
@@ -82,4 +82,4 @@ module.exports = async function(locator, cols, rows, pattern, timeout) {
     actions.push('release');
 
     await this.driver.touchAction(actions);
-};
+}

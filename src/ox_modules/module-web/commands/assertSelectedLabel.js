@@ -21,7 +21,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertSelectedLabel("id=Selection", "United States");// Asserts if an element's label is selected in the drop down list.
  */
-module.exports = async function(locator, pattern, timeout, waitForVisible = true) {
+export async function assertSelectedLabel(locator, pattern, timeout, waitForVisible = true) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -42,4 +42,4 @@ module.exports = async function(locator, pattern, timeout, waitForVisible = true
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, text);
     }
-};
+}

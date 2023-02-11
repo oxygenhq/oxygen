@@ -19,7 +19,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.dragAndDrop("id=Mark",-80,100);// Tap on an element, drag by the specified offset, and release.
  */
-module.exports = async function(locator, xoffset, yoffset, timeout) {
+export async function dragAndDrop(locator, xoffset, yoffset, timeout) {
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
     this.helpers.assertArgumentNumber(yoffset, 'yoffset');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
@@ -32,4 +32,4 @@ module.exports = async function(locator, xoffset, yoffset, timeout) {
         { action: 'moveTo', x: xoffset, y: yoffset },
         'release'
     ]);
-};
+}
