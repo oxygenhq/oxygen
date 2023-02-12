@@ -56,4 +56,16 @@ declare global {
      * Oxygen execution context global object.
      */
     var ox: Oxygen.OxGlobal;
+    /**
+     * Gets test parameters.
+     */
+    var params: { [key: string]: string };
+    /**
+     * Gets test environment variables.
+     */
+    var env: { [key: string]: string };
+    /**
+     * Runtime variables that can be added and shared between different iterations and cases execution.
+     */
+    var vars: { [key: string]: string };
 }
