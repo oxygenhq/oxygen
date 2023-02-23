@@ -16,8 +16,8 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.setContext('NATIVE_APP');//Sets a specific context (NATIVE_APP, WEBVIEW, etc.).
  */
-module.exports = async function(context) {
+export async function setContext(context) {
     this.helpers.assertArgumentNonEmptyString(context, 'context');
     await this.driver.switchContext(context);
     this.appContext = context;
-};
+}

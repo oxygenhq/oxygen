@@ -16,7 +16,7 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getBrowserLogs(); //Collects logs from the browser console
  */
-module.exports = async function () {
+export async function getBrowserLogs() {
 	// currently supports only Android logs
     if (this.caps && this.caps.platformName && this.caps.platformName === 'Android') {
         let allLogs = [];
@@ -53,4 +53,4 @@ module.exports = async function () {
         return allLogs;
     }
     return null;
-};
+}

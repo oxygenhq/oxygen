@@ -21,9 +21,9 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.scrollToElement("id=Button", true);// Scrolls to an element. 
  */
-module.exports = async function(locator, alignToTop = true, timeout) {
+export async function scrollToElement(locator, alignToTop = true, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
     await el.scrollIntoView(alignToTop);
-};
+}

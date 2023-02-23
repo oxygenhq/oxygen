@@ -16,7 +16,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.shake();//Perform shake action on the device.
  */
-module.exports = async function() {
+export async function shake() {
     await this.helpers.assertContext(this.helpers.contextList.ios);
     await this.driver.shake();
-};
+}

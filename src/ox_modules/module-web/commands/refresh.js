@@ -15,7 +15,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.refresh();//Reloads the page
  */
-module.exports = async function() {
+export async function refresh() {
     await this.driver.refresh();
     await this.checkWaitForAngular();
-};
+}

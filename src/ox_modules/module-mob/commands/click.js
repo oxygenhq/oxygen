@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.click("id=Submit");// Clicks an element.
  */
-module.exports = async function(locator, timeout) {
+export async function click(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -29,4 +29,4 @@ module.exports = async function(locator, timeout) {
     }
 
     await el.click();
-};
+}

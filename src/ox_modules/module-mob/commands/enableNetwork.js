@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.enableNetwork(true,false);//Enable wifi and disable data.
  */
-module.exports = async function(wifi, data) {
+export async function enableNetwork(wifi, data) {
     this.helpers.assertArgumentBool(wifi, 'wifi');
     this.helpers.assertArgumentBool(data, 'data');
     await this.helpers.assertContext(this.helpers.contextList.android);
@@ -81,4 +81,4 @@ module.exports = async function(wifi, data) {
         wifi ? 'enable' : 'disable'
     ],
     {stdio: 'inherit'});
-};
+}

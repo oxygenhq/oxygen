@@ -16,7 +16,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var src = web.getXMLPageSource();//Gets the source of currently active window which displays `text/xml` page.
  */
-module.exports = async function() {
+export async function getXMLPageSource() {
     var browser = this.caps.browserName;
     switch (browser) {
         case 'chrome':
@@ -39,4 +39,4 @@ module.exports = async function() {
         default:
             throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'This command is not supported on ' + browser + ' yet.');
     }
-};
+}

@@ -17,10 +17,10 @@
  * @example <caption>[javascript] Usage example</caption>
  * web.getHTML("id=Username", false);
  */
-module.exports = async function(locator, includeElementTag, timeout) {
+export async function getHTML(locator, includeElementTag, timeout) {
     this.helpers.assertArgumentBool(includeElementTag, 'includeElementTag');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.getHTML(includeElementTag);
-};
+}

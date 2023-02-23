@@ -22,8 +22,8 @@
  *  // the element is interactable
  * }
  */
-module.exports = async function(locator, timeout) {
+export async function isInteractable(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     const el = await this.helpers.getElement(locator, false, timeout);
     return await el.isClickable();
-};
+}

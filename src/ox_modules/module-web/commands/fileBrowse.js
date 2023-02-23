@@ -22,7 +22,7 @@
 const fs = require('fs');
 const path = require('path');
 
-module.exports = async function(locator, filepath, timeout) {
+export async function fileBrowse(locator, filepath, timeout) {
     this.helpers.assertArgumentNonEmptyString(filepath, 'filepath');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -66,4 +66,4 @@ module.exports = async function(locator, filepath, timeout) {
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.FILE_BROWSE_ERROR, e.message);
     }
-};
+}

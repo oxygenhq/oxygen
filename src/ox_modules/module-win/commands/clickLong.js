@@ -14,7 +14,7 @@
  * @param {Number} duration - Touch duration in milliseconds.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = async function(locator, duration, timeout) {
+export async function clickLong(locator, duration, timeout) {
     this.helpers.assertArgumentNumberNonNegative(duration, 'duration');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -25,4 +25,4 @@ module.exports = async function(locator, duration, timeout) {
         { action: 'wait', ms: duration },
         'release'
     ]);
-};
+}

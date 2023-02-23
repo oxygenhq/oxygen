@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.waitForVisible("id=Title", 45*1000);//Waits for an element to  be visible.
  */
-module.exports = async function(locator, timeout) {
+export async function waitForVisible(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     await this.helpers.getElement(locator, true, timeout);
-};
+}

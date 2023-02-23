@@ -14,7 +14,7 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {String} - Element's text.
  */
-module.exports = async function(locator, timeout) {
+export async function getText(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, true, timeout);
@@ -23,4 +23,4 @@ module.exports = async function(locator, timeout) {
         return text.trim().replace(/\s+/g, ' ');
     }
     return text;
-};
+}

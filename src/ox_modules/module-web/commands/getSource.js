@@ -16,6 +16,6 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.getSource();//Gets the source of the page.
  */
-module.exports = async function() {
+export async function getSource() {
     return await this.driver.getPageSource();
-};
+}

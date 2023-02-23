@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertTitle("Your websites title!");// Asserts the title of the page.
  */
-module.exports = async function(pattern, timeout) {
+export async function assertTitle(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -33,4 +33,4 @@ module.exports = async function(pattern, timeout) {
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, title);
     }
-};
+}

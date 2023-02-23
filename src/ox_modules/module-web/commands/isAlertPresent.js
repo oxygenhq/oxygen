@@ -16,11 +16,11 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * var alertPresent = web.isAlertPresent();//Returns true if  the alert dialog is displayed.
  */
-module.exports = async function() {
+export async function isAlertPresent() {
     try {
         await this.driver.getAlertText();
         return true;
     } catch (err) {
         return false;
     }
-};
+}

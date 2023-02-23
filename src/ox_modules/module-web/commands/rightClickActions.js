@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");
  * web.rightClickActions("id=someElement", 10, -5);
  */
-module.exports = async function(locator, xOffset = 0, yOffset = 0, timeout) {
+export async function rightClickActions(locator, xOffset = 0, yOffset = 0, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.helpers.assertArgumentNumber(xOffset, 'xOffset');
     this.helpers.assertArgumentNumber(yOffset, 'yOffset');
@@ -55,4 +55,4 @@ module.exports = async function(locator, xOffset = 0, yOffset = 0, timeout) {
     const releaseActionsRetVal = await this.driver.releaseActions();
     await this.checkWaitForAngular();
     return releaseActionsRetVal;
-};
+}

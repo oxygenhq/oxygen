@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.clickHidden("id=hiddenContent);// Clicks an hidden element.
 */
-module.exports = async function(locator, clickParent) {
+export async function clickHidden(locator, clickParent) {
     this.helpers.assertArgumentBoolOptional(clickParent, 'clickParent');
     await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
 
@@ -43,4 +43,4 @@ module.exports = async function(locator, clickParent) {
     if (!ret) {
         throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, 'clickHidden() is not supported on the current page');
     }
-};
+}

@@ -13,7 +13,7 @@
  * @param {Number} x - x offset.
  * @param {Number} y - y offset.
  */
-module.exports = async function(x, y) {
+export async function tap(x, y) {
     this.helpers.assertArgumentNumberNonNegative(x, 'x');
     this.helpers.assertArgumentNumberNonNegative(y, 'y');
 
@@ -22,4 +22,4 @@ module.exports = async function(x, y) {
         x: x,
         y: y
     });
-};
+}

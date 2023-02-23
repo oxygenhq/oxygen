@@ -15,7 +15,7 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * mob.resetApp(); // Reset curently running app
  */
-module.exports = async function() {
+export async function resetApp() {
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
     await this.driver.reset();
-};
+}

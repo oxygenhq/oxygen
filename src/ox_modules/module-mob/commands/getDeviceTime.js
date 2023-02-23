@@ -16,7 +16,7 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * mob.getDeviceTime(); //Gets the device time
  */
-module.exports = async function() {
+export async function getDeviceTime() {
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
     return await this.driver.getDeviceTime();
-};
+}

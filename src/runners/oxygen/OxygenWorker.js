@@ -35,7 +35,9 @@ export default class OxygenWorker extends EventEmitter {
         this._reporter = reporter;
         this._runId = null;
     }
-
+    /*
+     * Initialize Oxygen engine
+     */
     async init(runId, options, caps) {
         this._runId = runId;
         this._opts = options;
@@ -58,7 +60,9 @@ export default class OxygenWorker extends EventEmitter {
             }
         }
     }
-
+    /*
+     * Run individual test case
+     */
     async run({ scriptPath, context, poFile = null }) {
         // assign up to date context to Oxygen Core to reflect new parameters and other context data
         if (!this._oxygen) {
@@ -165,7 +169,9 @@ export default class OxygenWorker extends EventEmitter {
 
         return { error, moduleCaps, resultStore, context: oxContext };
     }
-
+    /*
+     * Dispose Oxygen engine
+     */
     async dispose(status = null) {
         if (this._oxygen) {
             try {
@@ -179,11 +185,16 @@ export default class OxygenWorker extends EventEmitter {
             }
         }
     }
+    async startSession() {
 
-    async disposeModules(status = null) {
+    }
+
+    async endSession(status = null, disposeModules = true) {
         if (this._oxygen) {
             try {
-                await this._oxygen.disposeModules(status);
+                if (disposeModules) {
+                    await this._oxygen.disposeModules(status);
+                }
             }
             catch (e) {
                 this._logger.error('Failed to dispose Oxygen modules', null, e);

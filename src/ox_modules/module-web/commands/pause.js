@@ -15,7 +15,7 @@
  * web.init();//Opens browser session.
  * web.pause(10*1000);//Pauses the execution for 10 seconds (10000ms)
  */
-module.exports = async function(ms) {
+export async function pause(ms) {
     this.helpers.assertArgumentNumberNonNegative(ms, 'ms');
     await this.driver.pause(ms);
-};
+}

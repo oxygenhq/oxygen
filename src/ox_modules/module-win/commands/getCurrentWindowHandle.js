@@ -15,6 +15,6 @@
  * win.init();
  * win.getCurrentWindowHandle();
  */
-module.exports = async function() {
+export async function getCurrentWindowHandle() {
     return await this.driver.getWindowHandle();
-};
+}

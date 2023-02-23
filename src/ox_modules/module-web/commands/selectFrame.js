@@ -24,7 +24,7 @@
  * web.selectFrame("//iframe[@id='frame1']", "//iframe[@id='nested_frame']");
  * web.click("id=SaveButton");//Clicks on element that exists in the second iframe
  */
-module.exports = async function(frameLocator) {
+export async function selectFrame(frameLocator) {
     if (frameLocator === 'parent') {                // parent
         await this.driver.switchToParentFrame();
     } else if (frameLocator === 'top') {            // top
@@ -39,4 +39,4 @@ module.exports = async function(frameLocator) {
             await this.driver.switchToFrame(el);
         }
     }
-};
+}

@@ -22,8 +22,8 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.deselect("id=Selection","label=United States");//Deselect option from multiple choice drop down list.
  */
-module.exports = async function(selectLocator, optionLocator, timeout) {
+export async function deselect(selectLocator, optionLocator, timeout) {
     // select acts as deselect if option is already selected
     await this.select(selectLocator, optionLocator, timeout);
     await this.checkWaitForAngular();
-};
+}

@@ -16,9 +16,9 @@
  * mob.init(caps); //Starts a mobile session and opens app from desired capabilities
  * let installed = mob.isAppInstalled('com.android.calculator2'); // Determines if calculator app is installed.
  */
-module.exports = async function(app) {
+export async function isAppInstalled(app) {
     this.helpers.assertArgument(app, 'app');
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     return await this.driver.isAppInstalled(app);
-};
+}

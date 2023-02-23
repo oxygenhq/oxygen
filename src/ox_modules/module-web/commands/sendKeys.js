@@ -22,7 +22,7 @@
  * // Unicode representation can be used directly as well:
  * web.sendKeys("Hello World\uE003\uE003\uE007");
 */
-module.exports = async function(value) {
+export async function sendKeys(value) {
     this.helpers.assertArgument(value);
 
     var valArray = [];
@@ -45,4 +45,4 @@ module.exports = async function(value) {
         this.logger.warn('web.sendKeys error', e);
     }
     await this.checkWaitForAngular();
-};
+}

@@ -18,7 +18,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.assertTitle("Your websites title!");// Asserts if the title of the page.
  */
-module.exports = async function(pattern, timeout) {
+export async function assertTitle(pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     await this.helpers.assertContext(this.helpers.contextList.hybrid, this.helpers.contextList.web);
@@ -33,4 +33,4 @@ module.exports = async function(pattern, timeout) {
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, title);
     }
-};
+}

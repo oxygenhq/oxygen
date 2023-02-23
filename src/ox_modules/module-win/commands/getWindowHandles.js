@@ -15,6 +15,6 @@
  * win.init();//Opens WinAppDriver session.
  * win.getWindowHandles();//Gets the window handles of currently open application.
  */
-module.exports = async function() {
+export async function getWindowHandles() {
     return await this.driver.getWindowHandles();
-};
+}

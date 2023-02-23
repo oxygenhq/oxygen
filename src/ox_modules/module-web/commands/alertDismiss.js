@@ -17,7 +17,7 @@
  * web.click("id=SaveButton");//Clicks on save – an alert would pop up
  * web.alertDismiss();//Clicks on Cancel in the alert dialog.
  */
-module.exports = async function() {
+export async function alertDismiss() {
     try {
         await this.driver.dismissAlert();
     } catch (e) {
@@ -27,4 +27,4 @@ module.exports = async function() {
             throw e;
         }
     }
-};
+}

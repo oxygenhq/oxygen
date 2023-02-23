@@ -25,7 +25,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.makeVisible("id=SaveButton");// Makes an invisible/hidden element to become visible.
  */
-module.exports = async function (locator) {
+export async function makeVisible(locator) {
     var el = await this.helpers.getElement(locator);
 
     /*global window*/
@@ -59,4 +59,4 @@ module.exports = async function (locator) {
             curElm = curElm.parentElement;
         }
     }, el);
-};
+}

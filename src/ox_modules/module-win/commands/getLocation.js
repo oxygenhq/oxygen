@@ -14,9 +14,9 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {Object} - X and Y location of the element relative to top-left page corner.
  */
-module.exports = async function(locator, timeout) {
+export async function getLocation(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
     return await el.getLocation();
-};
+}

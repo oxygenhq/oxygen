@@ -16,7 +16,7 @@
  * web.click("id=NextPage");//Clicks on next page link.
  * web.back();//Navigate back to previous page.
  */
-module.exports = async function() {
+export async function back() {
     await this.driver.back();
     await this.checkWaitForAngular();
-};
+}

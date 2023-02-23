@@ -16,6 +16,6 @@
  * var ss = win.takeScreenshot();//Take a screenshot and return it as base64 encoded string.
  * require("fs").writeFileSync("c:\\screenshot.png", ss, 'base64');
  */
-module.exports = async function() {
+export async function takeScreenshot() {
     return await this.driver.takeScreenshot();
-};
+}

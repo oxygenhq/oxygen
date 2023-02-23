@@ -19,7 +19,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.click("id=NextPage");//Clicks on next page link.
  */
-module.exports = async function(locator, timeout) {
+async function click(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     this.retryCount = 3;
     this.clickJS = async (el) =>  {
@@ -115,4 +115,6 @@ module.exports = async function(locator, timeout) {
     }
 
     await this.checkWaitForAngular();
-};
+}
+
+export { click };

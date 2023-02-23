@@ -16,7 +16,7 @@
  * web.init();//Opens browser session.
  * web.open("www.yourwebsite.com");// Opens a website.
  */
-module.exports = async function(url) {
+export async function open(url) {
     this.helpers.assertArgumentNonEmptyString(url, 'url');
     try {
         await this.driver.url(url);
@@ -30,4 +30,4 @@ module.exports = async function(url) {
         }
         throw e;
     }
-};
+}

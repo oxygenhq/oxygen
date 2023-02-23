@@ -18,7 +18,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.clickMultipleTimes("id=Mark",4);// Clicks an element certain amount of times.
  */
-module.exports = async function(locator, taps, timeout) {
+export async function clickMultipleTimes(locator, taps, timeout) {
     this.helpers.assertArgumentNumberNonNegative(taps, 'taps');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -30,4 +30,4 @@ module.exports = async function(locator, taps, timeout) {
     }
 
     await el.touchAction(actions);
-};
+}

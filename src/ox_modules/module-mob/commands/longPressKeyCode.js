@@ -18,8 +18,8 @@
  * mob.open('https://keycode.info/');
  * mob.longPressKeyCode(32);// 32 - d key
  */
-module.exports = async function(keycode) {
+export async function longPressKeyCode(keycode) {
     this.helpers.assertArgumentNumberNonNegative(keycode, 'keycode');
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.web);
     await this.driver.longPressKeyCode(keycode);
-};
+}

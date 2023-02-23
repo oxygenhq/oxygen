@@ -21,8 +21,8 @@
  * mob.init();//Opens browser session.
  * mob.setTimeout(60000);//Sets the time out to amount of milliseconds .
  */
-module.exports = async function(timeout) {
+export async function setTimeout(timeout) {
     this.helpers.assertArgumentNumberNonNegative(timeout, 'timeout');
     this.waitForTimeout = timeout;
     await this.helpers.setTimeoutImplicit(timeout);
-};
+}

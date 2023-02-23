@@ -18,7 +18,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertTextPresent("John Doe");// Asserts if a text is presented somewhere on the page.
  */
-module.exports = async function(text, timeout) {
+export async function assertTextPresent(text, timeout) {
     this.helpers.assertArgumentNonEmptyString(text, 'text');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -42,4 +42,4 @@ module.exports = async function(text, timeout) {
     if (timeout) {
         await this.helpers.restoreTimeoutImplicit();
     }
-};
+}

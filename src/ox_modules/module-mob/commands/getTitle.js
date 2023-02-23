@@ -13,7 +13,7 @@
  * @for web
  * @return {String} The page title.
  */
-module.exports = async function(locator) {
+export async function getTitle(locator) {
     await this.helpers.assertContext(this.helpers.contextList.web);
     return await this.driver.getTitle();
-};
+}

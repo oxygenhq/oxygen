@@ -20,7 +20,7 @@
  * web.dragAndDrop('id=overlay', '/html/body/section/div[1]');
  * web.pause(10*1000);
  */
-module.exports = async function(srcElement, dstElement, duration, timeout) {
+export async function dragAndDrop(srcElement, dstElement, duration, timeout) {
     this.helpers.assertArgument(srcElement, 'srcElement');
     this.helpers.assertArgument(dstElement, 'dstElement');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
@@ -30,4 +30,4 @@ module.exports = async function(srcElement, dstElement, duration, timeout) {
 
     await srcEl.dragAndDrop(dstEl, duration);
     await this.checkWaitForAngular();
-};
+}

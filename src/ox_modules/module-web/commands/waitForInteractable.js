@@ -17,8 +17,8 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForInteractable("id=UserName");//Waits for an element is clickable in DOM.
  */
-module.exports = async function(locator, timeout) {
+export async function waitForInteractable(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     const el = await this.helpers.getElement(locator, false, timeout);
     await el.waitForClickable({ timeout: timeout ? timeout : this.waitForTimeout });
-};
+}

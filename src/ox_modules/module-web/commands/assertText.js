@@ -21,7 +21,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertText ("id=UserName","John Doe");// Asserts if an element's text is as expected.
  */
-module.exports = async function(locator, pattern, timeout) {
+export async function assertText(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -37,4 +37,4 @@ module.exports = async function(locator, pattern, timeout) {
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, text);
     }
-};
+}

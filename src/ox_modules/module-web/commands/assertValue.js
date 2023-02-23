@@ -20,7 +20,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.assertValue("id=UserName", "John Doe");// Asserts the value of an element.
  */
-module.exports = async function(locator, pattern, timeout) {
+export async function assertValue(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -36,4 +36,4 @@ module.exports = async function(locator, pattern, timeout) {
     } catch (e) {
         throw this.errHelper.getAssertError(pattern, text);
     }
-};
+}

@@ -12,6 +12,6 @@
  * @function getTitle
  * @return {String} The page title.
  */
-module.exports = async function(locator) {
+export async function getTitle(locator) {
     return await this.driver.getTitle();
-};
+}

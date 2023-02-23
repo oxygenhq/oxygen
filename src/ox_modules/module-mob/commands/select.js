@@ -24,7 +24,7 @@
  * mob.open("www.yourwebsite.com");// Opens a website.
  * mob.select("id=Selection","label=United States");// Selects an option from a list. 
  */
-module.exports = async function(selectLocator, optionLocator, timeout) {
+export async function select(selectLocator, optionLocator, timeout) {
     this.helpers.assertArgumentNonEmptyString(optionLocator, 'optionLocator');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -46,4 +46,4 @@ module.exports = async function(selectLocator, optionLocator, timeout) {
         }
         throw e;
     }
-};
+}

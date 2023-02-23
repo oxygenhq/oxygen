@@ -25,7 +25,7 @@
 */
 var checkUnicode = require('webdriverio/build/utils').checkUnicode;
 
-module.exports = async function(value) {
+export async function sendKeys(value) {
     this.helpers.assertArgument(value, 'value');
 
     let keySequence = [];
@@ -71,4 +71,4 @@ module.exports = async function(value) {
         id: 'keyboard',
         actions: [...keyDownActions, ...keyUpActions]
     }]);
-};
+}

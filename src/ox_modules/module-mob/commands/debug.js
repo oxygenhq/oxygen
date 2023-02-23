@@ -17,6 +17,6 @@
  * mob.debug();
  */
 
-module.exports = async function() {
+export async function debug() {
     await this.replStart();
-};
+}

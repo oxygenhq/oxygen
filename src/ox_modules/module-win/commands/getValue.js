@@ -14,7 +14,7 @@
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @return {String} - Element's value.
  */
-module.exports = async function(locator, timeout) {
+export async function getValue(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -36,4 +36,4 @@ module.exports = async function(locator, timeout) {
         throw e;
         // TODO: add support for XCUITest
     }
-};
+}

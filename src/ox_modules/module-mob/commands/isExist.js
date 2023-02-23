@@ -19,7 +19,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.isExist("id=Element");//Determines if element exists.
  */
-module.exports = async function(locator, timeout) {
+export async function isExist(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
@@ -28,4 +28,4 @@ module.exports = async function(locator, timeout) {
     } catch (e) {
         return false;
     }
-};
+}

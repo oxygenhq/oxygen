@@ -20,7 +20,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForValue("id=Title","Website");//Waits for an element’s value to  match to expected string.
  */
-module.exports = async function(locator, pattern, timeout) {
+export async function waitForValue(locator, pattern, timeout) {
     this.helpers.assertArgument(pattern, 'pattern');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -38,4 +38,4 @@ module.exports = async function(locator, pattern, timeout) {
             text = text.replace(/\n/g, '\\n');
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, `Expected: "${pattern}". Got: "${text}"`);
     }
-};
+}

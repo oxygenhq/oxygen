@@ -16,9 +16,9 @@
  * mob.init(caps); // Starts a mobile session and opens app from desired capabilities
  * mob.installApp('/mylocalappfile.apk'); // Install the app.
 */
-module.exports = async function(appLocalPath) {
+export async function installApp(appLocalPath) {
     this.helpers.assertArgumentNonEmptyString(appLocalPath, 'appLocalPath');
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
 
     await this.driver.installApp(appLocalPath);
-};
+}

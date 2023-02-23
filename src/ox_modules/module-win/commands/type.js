@@ -16,7 +16,7 @@
  * @param {String} value - The value to type.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = async function(locator, value, timeout) {
+export async function type(locator, value, timeout) {
     this.helpers.assertArgument(value, 'value');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
@@ -30,4 +30,4 @@ module.exports = async function(locator, value, timeout) {
         }
         throw e;
     }
-};
+}

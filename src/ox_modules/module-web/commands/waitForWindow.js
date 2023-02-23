@@ -22,7 +22,7 @@
  * web.open("www.yourwebsite.com");// Opens a website.
  * web.waitForWindow("title=Website");//Waits for a window to appear.
   */
-module.exports = async function(windowLocator, timeout) {
+export async function waitForWindow(windowLocator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
     var currentHandle;
 
@@ -93,4 +93,4 @@ module.exports = async function(windowLocator, timeout) {
     } else {
         throw new this.OxError(this.errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - windowLocator.');
     }
-};
+}

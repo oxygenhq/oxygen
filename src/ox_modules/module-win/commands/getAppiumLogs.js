@@ -12,6 +12,6 @@
  * @summary Collects logs from the Appium server.
  * @return {Object[]} A list of logs.
  */
-module.exports = async  function() {
+export async function getAppiumLogs() {
     return await this.driver.getLogs('server');
-};
+}

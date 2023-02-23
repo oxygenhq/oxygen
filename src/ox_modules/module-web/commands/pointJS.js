@@ -15,7 +15,7 @@
  * @param {String|Element} locator - An element locator.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  */
-module.exports = async function(locator, timeout) {
+export async function pointJS(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     var el = await this.helpers.getElement(locator, false, timeout);
@@ -43,4 +43,4 @@ module.exports = async function(locator, timeout) {
         throw new this.OxError(this.errHelper.errorCode.NOT_SUPPORTED, ret);
     }
     await this.checkWaitForAngular();
-};
+}

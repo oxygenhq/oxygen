@@ -17,7 +17,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.tap(60,300);//Perform tap at the specified coordinate.
  */
-module.exports = async function(x, y) {
+export async function tap(x, y) {
     this.helpers.assertArgumentNumberNonNegative(x, 'x');
     this.helpers.assertArgumentNumberNonNegative(y, 'y');
     await this.helpers.assertContext(this.helpers.contextList.android, this.helpers.contextList.ios);
@@ -27,4 +27,4 @@ module.exports = async function(x, y) {
         x: x,
         y: y
     });
-};
+}

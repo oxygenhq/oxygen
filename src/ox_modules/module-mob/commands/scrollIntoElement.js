@@ -22,7 +22,7 @@
  * mob.init(caps);//Starts a mobile session and opens app from desired capabilities
  * mob.scrollIntoElement('id=bottomPanel','id=Button',0,30,50);//Scrolls the view element until a specified target element inside the view is found.
 */
-module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, yoffset = 30, retries = 50, timeout, duration = 3000) {
+export async function scrollIntoElement(scrollElmLocator, findElmLocator, xoffset = 0, yoffset = 30, retries = 50, timeout, duration = 3000) {
     this.helpers.assertArgument(scrollElmLocator, 'scrollElmLocator');
     this.helpers.assertArgument(findElmLocator, 'findElmLocator');
     this.helpers.assertArgumentNumber(xoffset, 'xoffset');
@@ -86,4 +86,4 @@ module.exports = async function(scrollElmLocator, findElmLocator, xoffset = 0, y
     }
 
     throw new this.OxError(this.errHelper.errorCode.ELEMENT_NOT_FOUND, `Element ${findElmLocator} not found.`);
-};
+}
