@@ -29,7 +29,7 @@ const TYPES = [
     },
 ];
 const DTS_TEMP_DIR_NAME = 'types_tmp';
-const TSC_PATH = '../node_modules/.bin/tsc'
+const TSC_PATH = '../node_modules/.bin/tsc';
 
 for (let typeDef of TYPES) {
     const srcPath = path.resolve(path.join(__dirname, '..', 'src', typeDef.src));
@@ -40,7 +40,7 @@ for (let typeDef of TYPES) {
         '--declaration',
         '--emitDeclarationOnly',
         '--skipLibCheck',
-        '--outDir', 
+        '--outDir',
         typesOutDir,
     ], { cwd: path.resolve(path.join(__dirname, '..')) });
     if (result.status !== 0) {
@@ -52,7 +52,6 @@ for (let typeDef of TYPES) {
         continue;
     }
     // generate type definition file, combining all functions under a single generated interface
-    const interfaceName = typeDef.name;
     const allFuncDefs = [];
     for (let dtsFile of dtsFiles) {
         const fullPath = path.join(typesOutDir, dtsFile);
@@ -65,7 +64,7 @@ for (let typeDef of TYPES) {
         // remove 'export ' from function definition line
         let functionDef = matches[0].replace(/(^\s*export\s*function\s*)/gm, '');
         // replace Promise<void> to void (Oxygen takes care of async functions via Fibers)
-        functionDef = functionDef.replace(/(Promise\<void\>)/gm, 'void');
+        functionDef = functionDef.replace(/(Promise<void>)/gm, 'void');
         // add tab character before each line
         functionDef = functionDef.replace(/(^)/gm, '\t');
         allFuncDefs.push(functionDef);

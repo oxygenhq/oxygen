@@ -447,7 +447,7 @@ export default class OxygenRunner extends EventEmitter {
                     //let reRunCount = 0;
                     let caseResult;
                     // run or re-run the current test case
-                    for (let reRunCount = 0; reRunCount < MAX_RERUNS; reRunCount++) {                    
+                    for (let reRunCount = 0; reRunCount < MAX_RERUNS; reRunCount++) {
                         caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, reRunCount);
                         if ((!caseResult || caseResult.status === Status.FAILED) && !reRunOnFailure) {
                             break;
