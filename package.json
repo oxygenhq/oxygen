@@ -42,13 +42,12 @@
     "@babel/preset-env": "7.14.7",
     "babel-plugin-source-map-support": "2.2.0",
     "cross-env": "7.0.3",
-    "cross-spawn": "^7.0.3",
     "doctrine": "3.0.0",
     "eslint": "7.32.0",
     "husky": "7.0.4",
     "md-reverse": "1.0.0",
-    "tsc": "^2.0.4",
-    "typescript": "^4.9.5"
+    "tsc": "2.0.4",
+    "typescript": "4.9.5"
   },
   "@comment dependencies": [
     "axios is a peer dependency of soap. when using npm 6 (node 12-14) it needs to be explicitly included. when we migrate to npm 7 (node 16+) it can be removed."
@@ -68,6 +67,7 @@
     "chai": "4.3.7",
     "chrome-har": "0.13.0",
     "config": "3.3.9",
+    "cross-spawn": "7.0.3",
     "csv-parse": "4.16.3",
     "cucumber": "6.0.5",
     "deasync": "0.1.28",
