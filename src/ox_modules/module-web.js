@@ -115,7 +115,13 @@ export default class WebModule extends WebDriverModule {
         }
 
         if (!seleniumUrl) {
-            seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
+            // if appiumUrl points to an external execution grid (such as BS)
+            if (this.options.appiumUrl && !this.options.appiumUrl.startsWith('http://localhost')) {
+                seleniumUrl = this.options.appiumUrl;
+            }
+            else {
+                seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
+            }
         }
 
         // take capabilities either from init method argument or from context parameters passed in the constructor
