@@ -61,10 +61,10 @@ export default class HtmlReporter extends FileReporterBase {
                     continue;
                 }
                 summary.totalCases += suiteResult.cases.length;
-                summary.passedSuites += suiteResult.status === 'passed' ? 1 : 0;
+                summary.passedSuites += suiteResult.status === 'passed' || suiteResult.status === 'warning' ? 1 : 0;
                 summary.failedSuites += suiteResult.status === 'failed' ? 1 : 0;
                 for (let caseResult of suiteResult.cases) {
-                    summary.passedCases += caseResult.status === 'passed' ? 1 : 0;
+                    summary.passedCases += caseResult.status === 'passed' || caseResult.status === 'warning' ? 1 : 0;
                     summary.failedCases += caseResult.status === 'failed' ? 1 : 0;
                     summary.skippedCases += caseResult.status === 'skipped' ? 1 : 0;
                     if (!Array.isArray(caseResult.steps)) {
@@ -72,7 +72,7 @@ export default class HtmlReporter extends FileReporterBase {
                     }
                     summary.totalSteps += caseResult.steps.length;
                     for (let stepResult of caseResult.steps) {
-                        summary.passedSteps += stepResult.status === 'passed' ? 1 : 0;
+                        summary.passedSteps += stepResult.status === 'passed' || stepResult.status === 'warning' ? 1 : 0;
                         summary.failedSteps += stepResult.status === 'failed' ? 1 : 0;
                         summary.skippedSteps += stepResult.status === 'skipped' ? 1 : 0;
                     }
