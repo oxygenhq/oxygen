@@ -762,7 +762,8 @@ export default class Oxygen extends OxygenEvents {
         step.location = location;
         if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
             step.status = STATUS.PASSED;
-        } else {
+        } 
+        else {
             // determine step status
             if (err) {
                 if (err.isFatal) {
@@ -771,6 +772,9 @@ export default class Oxygen extends OxygenEvents {
                 else {
                     step.status = STATUS.WARNING;
                 }
+            }
+            else if (moduleName === 'log' && methodName === 'warn') {
+                step.status = STATUS.WARNING;
             }
             else {
                 step.status = STATUS.PASSED;
