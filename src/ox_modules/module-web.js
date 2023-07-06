@@ -693,12 +693,17 @@ export default class WebModule extends WebDriverModule {
 
     /**
      * @summary Opens new transaction.
-     * @description The transaction will persist till a new one is opened. Transaction names must be
-     *              unique.
+     * @description The transaction will persist till a new one is opened. Transaction names must be unique.
      * @function transaction
      * @param {String} name - The transaction name.
      */
     async transaction(name) {
+        if (!name) {
+            return;
+        }
+        // just in case user passed a complex object by mistake
+        name = name.toString();
+
         if (global._lastTransactionName) {
             this.transactions[global._lastTransactionName] = null;
 

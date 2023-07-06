@@ -340,13 +340,17 @@ export default class MobileModule extends WebDriverModule {
 
     /**
      * @summary Opens new transaction.
-     * @description The transaction will persist till a new one is opened. Transaction names must be
-     *              unique.
+     * @description The transaction will persist till a new one is opened. Transaction names must be unique.
      * @function transaction
      * @param {String} name - The transaction name.
      * @for android, ios, hybrid, web
      */
     transaction(name) {
+        if (!name) {
+            return;
+        }
+        // just in case user passed a complex object by mistake
+        name = name.toString();
         global._lastTransactionName = name;
     }
 
