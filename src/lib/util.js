@@ -57,7 +57,7 @@ var self = module.exports = {
         suite.id = null;
         suite.name = suiteDef.name;
         suite.id = suiteDef.id;
-        suite.iterationCount = suiteDef.iterations || testConfig.iterations || iterationCount;
+        suite.iterationCount = suiteDef.iterations || suiteDef.iterationCount || testConfig.iterations || iterationCount;
         const suiteFilePath = suiteDef.path || path.join(testConfig.target.cwd, 'suites', `${suiteDef.name}.json`);
         suite.paramManager = await self.getParameterManager(suiteFilePath, testConfig.parameters, testConfig.target.cwd);
         if (suite.paramManager && suite.paramManager.getMode() == 'all') {
@@ -77,7 +77,7 @@ var self = module.exports = {
                 tc.name = self.getFileNameWithoutExt(caseDef.path);
             tc.path = self.resolvePath(caseDef.path, testConfig.target.cwd);
             tc.format = 'js';
-            tc.iterationCount = caseDef.iterations || 1;
+            tc.iterationCount = caseDef.iterations || caseDef.iterationCount || 1;
             suite.cases.push(tc);
         });
         return suite;

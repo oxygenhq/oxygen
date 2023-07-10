@@ -66,7 +66,7 @@ export default class XmlReporter extends FileReporterBase {
                         reporting: result.options.reporting,
                         parameters: result.options.parameters,
                         // suites: result.options.suites, // ignore, function inside
-                        concurrency: result.options.concurrency,
+                        parallel: result.options.parallel,
                         capabilities: result.options.capabilities,
                         services: result.options.services,
                         modules: result.options.modules,

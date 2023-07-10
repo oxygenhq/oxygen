@@ -9,6 +9,7 @@
  */
 import * as cliutil from './cli-util';
 import Launcher from './launcher';
+import ParallelLauncher from './parallel-launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
 
 process.on('SIGINT', handleSigInt);
@@ -46,6 +47,8 @@ if (targetFile == null) {
     process.exit(1);
 }
 
+argv.rf = 'json';
+
 const config = cliutil.getConfigurations(targetFile, argv);
 
 cliutil.generateTestOptions(config, argv).then(
@@ -79,8 +82,10 @@ async function prepareAndStartTheTest(options) {
     let exitCode = 0;
     // start launcher
     try {
+        options.parallel = { workers: 3, mode: 'case' };
         const reporter = new ReportAggregator(options);
-        const launcher = new Launcher(options, reporter);
+        const launcher = options.parallel && options.parallel.workers && !isNaN(options.parallel.workers) && options.parallel.workers > 1
+            ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();

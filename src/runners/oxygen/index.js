@@ -407,7 +407,6 @@ export default class OxygenRunner extends EventEmitter {
         }
 
         const reRunOnFailure = this._options.reRunOnFailed || false;
-
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
