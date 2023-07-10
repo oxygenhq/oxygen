@@ -9,6 +9,7 @@
 
 // import _ from 'lodash';
 import * as Runners from '../runners';
+<<<<<<< HEAD
 // import queue from 'async/queue';
 import parallelLimit from 'async/parallelLimit';
 // import { parseUrlEncoded } from 'chrome-har/lib/util';
@@ -20,11 +21,21 @@ const hash = require('object-hash');
 
 const PARALLEL_COUNT = 50;
 
+=======
+import queue from 'async/queue';
+// import { parseUrlEncoded } from 'chrome-har/lib/util';
+// import oxutil from './util';
+
+// const SCOPE_SUITE = 'suite';
+// const SCOPE_CASE = 'case';
+
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
 export default class ParallelLauncher {
     constructor(config, reporter) {
         this._config = config;
         this.reporter = reporter;
         this._queue = null;
+<<<<<<< HEAD
         this.runners = [];
         this.createdRunnersStat = [];
     }
@@ -105,10 +116,90 @@ export default class ParallelLauncher {
                     collection.push((callback) => this._launchWorkerFunc(workerConfig, callback));
                     caseIndex++;
                 });
+=======
+        this._activeThreads = 0;
+    }
+
+    async run(capsSet) {
+        if (!this._config.parallel) {
+            throw new Error('Cannot start the parallel testing - "parallel" settings are missing.');
+        }
+        const concurrency = !isNaN(this._config.parallel.concurrency) ? this._config.parallel.concurrency : 1;
+        // const scope = this._config.parallel.scope;
+        // flatten all suites and create one unified array of all the test cases
+        const suites = this._config.suites;
+        if (!suites || !Array.isArray(suites)) {
+            throw new Error('Cannot start the parallel testing - no suites are defined.');
+        }
+        let workersConfig = [];
+        let workersCount = concurrency;
+        // if no capabilities are specified, run single instance with default arguments
+        // alternatively, pick the first capabilities set (load test is limited to a single browser type)
+        const testCaps = capsSet ? (Array.isArray(capsSet) ? capsSet[0] : capsSet) : null;
+        // if concurrency set to max and parameter file is defined, 
+        // then run as many parallel tests as rows in the file
+        let suiteIndex = 0;
+
+        suites.forEach(suiteDef => {
+            const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
+            if (concurrency == 0 && suiteDef.paramManager) {
+                for (let i = 0; i < suiteDef.paramManager.rows; i++) {
+                    const mockParamManager = new ParamManagerMock(suiteDef.paramManager.getValues());
+                    suiteDef.paramManager.readNext();
+                    const workerId = `${suiteKey}-${suiteIndex}/${i}`;
+                    const suiteCopy = { ...suiteDef, iterationCount: 1, paramManager: mockParamManager };
+                    const testConfig = {
+                        ...this._config, suites: [ suiteCopy ],
+                        _groupResult: {
+                            suiteKey: suiteKey,
+                            _meta: { suiteIterationNum: i + 1 }
+                        }
+                    };
+                    workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
+                    workersCount++;
+                }
+            }
+            // check if any of cases have param file attached
+            else if (concurrency == 0 && Array.isArray(suiteDef.cases)) {
+                let caseIndex = 0;
+                suiteDef.cases.forEach(caseDef => {
+                    const caseKey = caseDef.key || caseDef.id || caseDef.name;
+                    if (caseDef.paramManager) {
+                        //workersCount += caseDef.paramManager.rows;
+                        for (let i = 0; i < caseDef.paramManager.rows; i++) {
+                            const mockParamManager = new ParamManagerMock(caseDef.paramManager.getValues());
+                            caseDef.paramManager.readNext();
+                            const workerId = `${caseKey}-${suiteIndex}/${caseIndex}/${i}`;
+                            const caseCopy = { ...caseDef, iterationCount: 1, paramManager: mockParamManager };
+                            const suiteCopy = { ...suiteDef, cases: [ caseCopy ]};
+                            const testConfig = {
+                                ...this._config, suites: [ suiteCopy ],
+                                _groupResult: {
+                                    suiteKey: suiteKey,
+                                    caseKey: caseKey,
+                                    _meta: { caseIterationNum: i + 1 }
+                                }
+                            };
+                            workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
+                            workersCount++;
+                        }
+                    }
+                    else {
+                        const workerId = `${caseKey}-${suiteIndex}/${caseIndex}`;
+                        const suiteCopy = { ...suiteDef, cases: [ caseDef ]};
+                        const testConfig = { ...this._config, suites: [ suiteCopy ] };
+                        workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
+                        workersCount++;
+                    }
+                    caseIndex++;
+                });
+                workersCount++;
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
             }
             else {
                 const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
                 const workerId = `${suiteKey}-${suiteIndex}`;
+<<<<<<< HEAD
                 const testConfig = { 
                     ...this._config, 
                     suites: [ suiteDef ],
@@ -151,11 +242,35 @@ export default class ParallelLauncher {
         // await this._queue.drain();
 
         //this.reporter.onAfterEnd();
+=======
+                const testConfig = { ...this._config, suites: [ suiteDef ] };
+                workersConfig.push({ workerId, testConfig, testCaps, startupDelay: 0 });
+            }
+            suiteIndex++;
+        });
+
+        //console.log('workersConfig', JSON.stringify(workersConfig, null, 4))
+
+        this._queue = queue((task, cb) => this._launchTest(task, cb), workersCount);
+        this._queue.error((err, task) => {
+            console.log('Error in queue:', err);
+        });
+
+        this.reporter.onBeforeStart();
+
+        // push all workers to the queue
+        workersConfig.forEach(workerConfig => this._queue.push(workerConfig));
+
+        await this._queue.drain();
+
+        this.reporter.onAfterEnd();
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
     }
 
     /*********************************
      * Private methods
      *********************************/
+<<<<<<< HEAD
 
     _launchWorkerFunc(workerConfig, callback) {
         const cb = (error) => {
@@ -171,6 +286,8 @@ export default class ParallelLauncher {
         });
     }
 
+=======
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
     _instantiateRunner() {
         if (this._config.framework && typeof this._config.framework === 'string') {
             if (Object.prototype.hasOwnProperty.call(Runners, this._config.framework)) {
@@ -181,16 +298,25 @@ export default class ParallelLauncher {
         return new Runners.oxygen();
     }
 
+<<<<<<< HEAD
     async _launchTest({ workerId, testConfig, testCaps, startupDelay }, callback) {
         // console.log('~~_launchTest', arguments);
+=======
+    async _launchTest({ threadKey, testConfig, testCaps, startupDelay }, callback) {
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
         if (!callback) {
             return;
         }
         await this._sleep(startupDelay);
+<<<<<<< HEAD
 
         let runner = this._instantiateRunner();
         this.createdRunnersStat[runner._id] = [workerId];
 
+=======
+        this._activeThreads++;
+        const runner = this._instantiateRunner();
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
         if (!runner) {
             const framework = this._config.framework;
             callback(new Error(`Cannot find runner for the specified framework: ${framework}.`));
@@ -200,6 +326,7 @@ export default class ParallelLauncher {
             // generate firefox "profile" value if profile options are specified
             //await oxutil.generateFirefoxOptionsProfile(testCaps);
             // initialize oxygen
+<<<<<<< HEAD
 
             await runner.init(testConfig, testCaps, this.reporter);
             // console.log('~~initRv', initRv);
@@ -208,15 +335,24 @@ export default class ParallelLauncher {
             const result = await runner.run();
             // console.log('~~result', result);
 
+=======
+            await runner.init(testConfig, testCaps, this.reporter);
+            // run Oxygen test 
+            const result = await runner.run();
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
             await runner.dispose(result.status || null);
             callback();
         }
         catch (e) {
             console.error('Failed to launch the test:', e);
             // stop processing the queue
+<<<<<<< HEAD
             if (this._queue) {
                 this._queue.kill();
             }
+=======
+            this._queue.kill();
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
             // if this is custom error message
             if (e.error) {
                 var errMsg = '';
@@ -233,8 +369,11 @@ export default class ParallelLauncher {
                 callback(e);    // call back with the original exception
             }
         }
+<<<<<<< HEAD
 
         this.runners.push(runner);
+=======
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
     }
 
     _sleep(duration) {

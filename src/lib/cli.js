@@ -84,8 +84,12 @@ async function prepareAndStartTheTest(options) {
     try {
         options.parallel = { workers: 3, mode: 'case' };
         const reporter = new ReportAggregator(options);
+<<<<<<< HEAD
         const launcher = options.parallel && options.parallel.workers && !isNaN(options.parallel.workers) && options.parallel.workers > 1
             ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
+=======
+        const launcher = options.parallel ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
+>>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
         console.log('Test started...');
         await launcher.run(capsArr);
         reporter.generateReports();
