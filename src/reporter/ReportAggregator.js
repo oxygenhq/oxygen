@@ -362,8 +362,6 @@ export default class ReportAggregator extends EventEmitter {
     groupResults() {
         const groupedResults = {};
         const ungroupedResults = [];
-        const fs = require('fs');
-        fs.writeFileSync('/tmp/result.json', JSON.stringify(this.results, null, 4));
         if (!Array.isArray(this.results) || this.results.length == 0) {
             return false;
         }
