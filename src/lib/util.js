@@ -57,13 +57,8 @@ var self = module.exports = {
         var suite = new require('../model/testsuite.js')();
         suite.id = null;
         suite.name = suiteDef.name;
-<<<<<<< HEAD
         suite.id = suiteDef.id;
         suite.iterationCount = suiteDef.iterations || suiteDef.iterationCount || testConfig.iterations || iterationCount;
-=======
-        suite.id = suiteDef.id || null;
-        suite.iterationCount = suiteDef.iterations || testConfig.iterations || iterationCount;
->>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
         const suiteFilePath = suiteDef.path || path.join(testConfig.target.cwd, 'suites', `${suiteDef.name}.json`);
         suite.paramManager = await self.getParameterManager(suiteFilePath, suiteDef.parameters || testConfig.parameters, testConfig.target.cwd);
         if (suite.paramManager && suite.paramManager.getMode() == 'all') {
@@ -84,18 +79,7 @@ var self = module.exports = {
                 tc.name = self.getFileNameWithoutExt(caseDef.path);
             tc.path = self.resolvePath(caseDef.path, testConfig.target.cwd);
             tc.format = 'js';
-<<<<<<< HEAD
             tc.iterationCount = caseDef.iterations || caseDef.iterationCount || 1;
-=======
-            tc.iterationCount = caseDef.iterations || 1;
-            // allow to have an individual parameter file per each test case
-            if (caseDef.parameters) {
-                tc.paramManager = await self.getParameterManager(tc.path, caseDef.parameters, testConfig.target.cwd);
-                if (tc.paramManager && tc.paramManager.getMode() == 'all') {
-                    tc.iterationCount = tc.paramManager.rows;
-                }
-            }
->>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
             suite.cases.push(tc);
         }
         return suite;

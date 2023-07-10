@@ -96,15 +96,9 @@ export default class ReportAggregator extends EventEmitter {
         if (!Array.isArray(this.reporters) || this.reporters.length == 0) {
             return false;
         }
-<<<<<<< HEAD
         const groupedResults = this.groupResults();
         for (let reporter of this.reporters) {
             const reportPath = reporter.generate(groupedResults);
-=======
-        const results = this.groupResults();
-        for (let reporter of this.reporters) {
-            const reportPath = reporter.generate(results);
->>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
             console.log(`Your report is ready: ${reportPath}`);
         }
         return true;
@@ -172,19 +166,10 @@ export default class ReportAggregator extends EventEmitter {
         return this.runnerEndPromises[rid];
     }
 
-<<<<<<< HEAD
     async waitForResults() {
         if (this.runnerEndPromises && this.runnerEndPromises.length) {
             return Promise.all(this.runnerEndPromises);
         }
-=======
-    onBeforeStart() {
-
-    }
-
-    onAfterEnd() {
-
->>>>>>> d0a3d8048180f46a2983cf72ca871f46141813e1
     }
 
     onRunnerStart(rid, opts, caps) {
