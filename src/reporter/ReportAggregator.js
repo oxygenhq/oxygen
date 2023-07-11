@@ -88,12 +88,17 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
+    getResults() {
+        return this.results;
+    }
+
     generateReports() {
         if (!Array.isArray(this.reporters) || this.reporters.length == 0) {
             return false;
         }
+        const groupedResults = this.groupResults();
         for (let reporter of this.reporters) {
-            const reportPath = reporter.generate(this.results);
+            const reportPath = reporter.generate(groupedResults);
             console.log(`Your report is ready: ${reportPath}`);
         }
         return true;
@@ -104,6 +109,12 @@ export default class ReportAggregator extends EventEmitter {
             return null;
         }
         return this.runnerEndPromises[rid];
+    }
+
+    async waitForResults() {
+        if (this.runnerEndPromises && this.runnerEndPromises.length) {
+            return Promise.all(this.runnerEndPromises);
+        }
     }
 
     onRunnerStart(rid, opts, caps) {
@@ -291,5 +302,127 @@ export default class ReportAggregator extends EventEmitter {
             }
         }
         return null;
+    }
+
+    groupResults() {
+        const groupedResults = {};
+        const ungroupedResults = [];
+        if (!Array.isArray(this.results) || this.results.length == 0) {
+            return false;
+        }
+        for (let result of this.results) {
+            if (!result.options._groupResult || !result.options._groupResult.resultKey) {
+                ungroupedResults.push(result);
+                continue;
+            }
+            const resultKey = result.options._groupResult.resultKey;
+            const suiteKey = result.options._groupResult.suiteKey;
+            console.log('resultKey', resultKey);
+            console.log('suiteKey', suiteKey);
+            console.log('startTime', result.startTime);
+            console.log('endTime', result.endTime);
+            let groupedResult = groupedResults[resultKey];
+            if (!groupedResult) {
+                groupedResult = groupedResults[resultKey] = {
+                    ...result,
+                    suites: [],
+                };
+                if (suiteKey) {
+                    groupedResult['_suitesHash'] = {};
+                }
+            }
+            else {
+                groupedResult.startTime = Math.min(groupedResult.startTime, result.startTime);
+                groupedResult.endTime = Math.max(groupedResult.endTime, result.endTime);
+                groupedResult.duration = groupedResult.endTime - groupedResult.startTime;
+            }
+            // if grouping is by result only, then just append current result's suites to the group's suites
+            if (!suiteKey) {
+                groupedResult.suites = [
+                    ...groupedResult.suites,
+                    ...result.suites
+                ];
+            }
+            else {
+                for (const currentSuiteResult of result.suites) {
+                    const groupKey = `${suiteKey}-${currentSuiteResult.iterationNum}`;
+                    console.log('groupKey', groupKey);
+                    const groupedSuiteResult = groupedResult._suitesHash[groupKey];
+                    if (!groupedSuiteResult) {
+                        groupedResult._suitesHash[groupKey] = { ...currentSuiteResult };
+                    }
+                    else {
+                        groupedSuiteResult.startTime = Math.min(groupedSuiteResult.startTime, currentSuiteResult.startTime);
+                        groupedSuiteResult.endTime = Math.max(groupedSuiteResult.endTime, currentSuiteResult.endTime);
+                        groupedSuiteResult.duration = groupedSuiteResult.endTime - groupedSuiteResult.startTime;
+                        groupedSuiteResult.cases = [
+                            ...groupedSuiteResult.cases,
+                            ...currentSuiteResult.cases
+                        ];
+                        if (currentSuiteResult.cases.some(c => c.status === 'failed')) {
+                            groupedSuiteResult.status = 'failed';
+                        }
+                    }
+                }
+            }
+        }
+        // convert grouped results hash to an array
+        const groupedResultsList = Object.keys(groupedResults).map(
+            groupKey => {
+                const groupedResult = groupedResults[groupKey];
+                if (!groupedResult._suitesHash) {
+                    return groupedResult;
+                }
+                groupedResult.suites = [
+                    ...groupedResult.suites,
+                    ...Object.keys(groupedResult._suitesHash).map(suiteGroupKey => groupedResult._suitesHash[suiteGroupKey])
+                ];
+                const firstFailedSuite = groupedResult.suites.find(s => s.status === 'failed');
+                if (firstFailedSuite) {
+                    groupedResult.status = 'failed';
+                    groupedResult.failure = firstFailedSuite.failure || groupedResult.failure;
+                }
+                delete groupedResult['_suitesHash'];
+                return groupedResult;
+            }
+        );
+        let results = [...groupedResultsList, ...ungroupedResults];
+        // change results status to faided if failed suites are finded
+        results = this.recalculateResultForStatus(results);
+
+        this.validateResult(results);
+        return results;
+    }
+
+    recalculateResultForStatus(results) {
+        return results.map((result) => {
+            if (
+                result &&
+                result.suites &&
+                Array.isArray(result.suites) &&
+                result.suites.length > 0
+            ) {
+                const failed = result.suites.find((suite) => suite.status === 'failed');
+                if (failed) {
+                    result.status = 'failed';
+                }
+            }
+
+            return result;
+        });
+    }
+
+    validateResult(results) {
+        const uniqueSuitesIterationIds = [];
+
+        results.map((result) => {
+            result.suites.map((suite) => {
+                if (uniqueSuitesIterationIds.includes(suite.iterationNum)) {
+                    console.warn('suite.iterationNum', suite.iterationNum, ' not unique');
+                } else {
+                    uniqueSuitesIterationIds.push(suite.iterationNum);
+                }
+            });
+        });
     }
 }

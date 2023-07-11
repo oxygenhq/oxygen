@@ -133,6 +133,10 @@ export default class OxygenRunner extends EventEmitter {
     /*********************************
      * Public methods
      *********************************/
+    getId() {
+        return this._id;
+    }
+
     async init(options, caps = {}, reporter) {
         // make sure at least one test suite is defined
         if (!options.suites) {
@@ -407,7 +411,6 @@ export default class OxygenRunner extends EventEmitter {
         }
 
         const reRunOnFailure = this._options.reRunOnFailed || false;
-
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
@@ -467,6 +470,9 @@ export default class OxygenRunner extends EventEmitter {
                     // stop iterating over it and move to the next test case
                     if (caseResult.status === Status.FAILED) {
                         suiteResult.status = Status.FAILED;
+                    }
+                    else if (caseResult.status === Status.WARNING) {
+                        suiteResult.status = Status.WARNING;
                     }
                 }
             }
@@ -557,11 +563,16 @@ export default class OxygenRunner extends EventEmitter {
 
             // determine test case iteration status - mark it as failed if any step has failed
             var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});
+            // check if there are any steps with Warning status
+            var warningSteps = _.find(caseResult.steps, {status: Status.WARNING});
             caseResult.status = _.isEmpty(failedSteps) && !error ? Status.PASSED : Status.FAILED;
             if (error) {
                 caseResult.failure = error;
                 caseResult.status = Status.FAILED;
                 caseResult.steps = oxutil.makeTransactionFailedIfStepFailed(caseResult.steps);
+            }
+            else if (!_.isEmpty(warningSteps)) {
+                caseResult.status = Status.WARNING;
             }
             await this._worker_callAfterCaseHook(caze, caseResult);
         } catch (e) {

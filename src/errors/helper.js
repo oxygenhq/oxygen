@@ -327,9 +327,9 @@ module.exports = {
 
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, extractOriginalError(err.message), util.inspect(err));
     },
-    getAssertError: function(expected, actual) {
+    getAssertError: function(expected, actual, isFatal = true) {
         actual = actual.toString().replace(/\n/g, '\\n');
-        return new OxError(ERROR_CODES.ASSERT_ERROR, `Expected: "${expected}". Got: "${actual}"`);
+        return new OxError(ERROR_CODES.ASSERT_ERROR, `Expected: "${expected}". Got: "${actual}"`, undefined, isFatal);
     },
     errorCode: ERROR_CODES
 };
