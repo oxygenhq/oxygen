@@ -183,6 +183,13 @@ export function getConfigurations(target, argv) {
     else {
         projConfigOpts = { ...projConfigOpts, envs: envs };
     }
+    // make sure to set default HTML reporter if reporting options are not provided in oxygen.conf file and via command line
+    if ((!projConfigOpts.reporting && !cmdOpts.reporting) || (!projConfigOpts.reporting.reporters && !cmdOpts.reporting)) {
+        if (!projConfigOpts.reporting) {
+            projConfigOpts.reporting = {};
+        }
+        projConfigOpts.reporting.reporters = ['html'];
+    }
     // determine test name
     let name = cmdOpts.name || projConfigOpts.name || null;
     if (!name && target) {

@@ -52,7 +52,7 @@
                         }
                     }
                     result.suites.forEach(function(suiteResult){ 
-                        const passedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'passed' ? 1:0), 0);
+                        const passedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'passed' || caze.status === 'warning' ? 1:0), 0);
                         const failedCases = suiteResult.cases.reduce((acc, caze) => acc + (caze.status === 'failed' ? 1:0), 0);
                         const totalCases = suiteResult.cases.length;
                         const passedCasesRatio = ((passedCases / totalCases) * 100).toFixed(0) + '%';

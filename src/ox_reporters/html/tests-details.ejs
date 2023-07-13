@@ -1,6 +1,7 @@
 <%
     const PASSED_LABEL = `<span class="label label-success label-sm">PASSED</span>`;
     const FAILED_LABEL = `<span class="label label-danger label-sm">FAILED</span>`;
+    const WARNING_LABEL = `<span class="label label-warning label-sm">WARNING</span>`;
     const SKIPPED_LABEL = `<span class="label label-warning label-sm">SKIPPED</span>`;
 %>
 <div class="row">
@@ -51,7 +52,15 @@
                                             <h3 class="panel-title">
                                             <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion" href="#collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>">
                                                 <%= caseResult.name %> (Iteration #<%= caseResult.iterationNum %>)</a>
-                                                <%- caseResult.status === 'passed' ? PASSED_LABEL : FAILED_LABEL %>
+                                                <% if (caseResult.status === 'passed') { %>
+                                                    <%- PASSED_LABEL %>
+                                                <% } else if (caseResult.status === 'warning') { %>
+                                                    <%- WARNING_LABEL %>
+                                                <% } else if (caseResult.status === 'skipped') { %>
+                                                    <%- SKIPPED_LABEL %>
+                                                <% } else { %>
+                                                    <%- FAILED_LABEL %>
+                                                <% } %>
                                             </h3>
                                         </div>
                                         <div id="collapse-<%=resultIndex%>-<%=suiteIndex%>-<%=caseIndex%>" class="panel-collapse collapse in">
@@ -82,7 +91,15 @@
                                                                 <td style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;" title="<%= stepResult.name %>"><%= stepResult.name %></td>
                                                                 <td><%= stepResult.duration %></td>
                                                                 <td>
-                                                                    <%- stepResult.status === 'passed' ? PASSED_LABEL : (stepResult.status === 'skipped' ? SKIPPED_LABEL : FAILED_LABEL) %>
+                                                                    <% if (stepResult.status === 'passed') { %>
+                                                                        <%- PASSED_LABEL %>
+                                                                    <% } else if (stepResult.status === 'warning') { %>
+                                                                        <%- WARNING_LABEL %>
+                                                                    <% } else if (stepResult.status === 'skipped') { %>
+                                                                        <%- SKIPPED_LABEL %>
+                                                                    <% } else { %>
+                                                                        <%- FAILED_LABEL %>
+                                                                    <% } %>
                                                                 </td>
                                                                 <td
                                                                     style="overflow: hidden;text-overflow: ellipsis;white-space: nowrap;"
