@@ -59,7 +59,8 @@ const DEFAULT_CTX = {
     params: {},
     vars: {},
     env: {},
-    caps: {}
+    caps: {},
+    attributes: {},
 };
 const DEFAULT_RESULT_STORE = {
     steps: [],
@@ -91,6 +92,10 @@ export default class Oxygen extends OxygenEvents {
         this.ctx.caps = { ...ctx.caps || {}, ...caps, };
         this.resultStore = Object.assign(DEFAULT_RESULT_STORE, results || {});
         this.capabilities = this.ctx.caps = caps;
+
+        if (ctx.attributes && (!results.attributes || !Object.keys(results.attributes).length)) {
+            this.resultStore.attributes = { ...ctx.attributes };
+        }
 
         // define 'ox' object in global JS scope
         // we will use this object to access Oxygen modules and test context from modules used in the test (if any)        
@@ -148,6 +153,7 @@ export default class Oxygen extends OxygenEvents {
                 // update "params" and "env" in "ox" global variable
                 global.params = ctx.params || {};
                 global.env = ctx.env || {};
+                global.attributes = ctx.attributes || {};
             }
         }
     }
@@ -269,6 +275,7 @@ export default class Oxygen extends OxygenEvents {
             global.params = global.ox.ctx.params;
             global.env = global.ox.ctx.env;
             global.ctx = global.ox.ctx;
+            global.attributes = global.ox.ctx.attributes || {};
         }
     }
 

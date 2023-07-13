@@ -123,6 +123,7 @@ export default class OxygenRunner extends EventEmitter {
         this._vars = {};     // user-defined variables that are shared between different scripts
         this._caps = {}; // desired capabilities that are passed to each module
         this._modCaps = {};
+        this._attributes = {};
         this._options = null;
         this._localTime = false;
         this._testKilled = false;
@@ -147,7 +148,6 @@ export default class OxygenRunner extends EventEmitter {
         this._cwd = this._options.cwd || process.cwd();
         this._reporter = reporter;
         this._isInitialized = true;
-
         if (options) {
             // merge current and test configuration based environment variables
             let optEnv = {};
@@ -173,6 +173,7 @@ export default class OxygenRunner extends EventEmitter {
                 ...this._env,
                 ...optEnv
             };
+            this._attributes = options.testAttributes || {};
         }
 
         this._caps = { ...caps }; // assign caps for later use
@@ -606,6 +607,7 @@ export default class OxygenRunner extends EventEmitter {
                 env: this._env,
                 caps: this._caps,
                 vars: this._vars,
+                attributes: this._attributes,
                 test: {
                     case: {
                         name: caze.name,
