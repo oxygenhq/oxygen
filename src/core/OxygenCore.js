@@ -93,7 +93,7 @@ export default class Oxygen extends OxygenEvents {
         this.resultStore = Object.assign(DEFAULT_RESULT_STORE, results || {});
         this.capabilities = this.ctx.caps = caps;
 
-        if (ctx.attributes && !results.attributes) {
+        if (ctx.attributes && (!results.attributes || !Object.keys(results.attributes).length)) {
             this.resultStore.attributes = { ...ctx.attributes };
         }
 
@@ -275,6 +275,7 @@ export default class Oxygen extends OxygenEvents {
             global.params = global.ox.ctx.params;
             global.env = global.ox.ctx.env;
             global.ctx = global.ox.ctx;
+            global.attributes = global.ox.ctx.attributes || {};
         }
     }
 
