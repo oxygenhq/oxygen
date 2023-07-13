@@ -173,6 +173,7 @@ export default class OxygenRunner extends EventEmitter {
                 ...this._env,
                 ...optEnv
             };
+            this._attributes = options.attributes || {};
         }
 
         this._caps = { ...caps }; // assign caps for later use
@@ -606,6 +607,7 @@ export default class OxygenRunner extends EventEmitter {
                 env: this._env,
                 caps: this._caps,
                 vars: this._vars,
+                attributes: this._attributes,
                 test: {
                     case: {
                         name: caze.name,
