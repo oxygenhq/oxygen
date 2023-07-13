@@ -9,6 +9,7 @@ export default class WebDriverModule extends OxygenModule {
         this.caps = null;
         this.replExecuted = false;
     }
+
     init(driver) {
         this.driver = driver;
 
@@ -18,18 +19,15 @@ export default class WebDriverModule extends OxygenModule {
             value: true
         });
 
-        process.on('message', async(m) => {
-            if (m.event !== 'repl') {
-                return;
-            }
+        // remove any previously assigned handlers to prevent potential EventEmitter memory leak
+        // (since 'message` handled will be assigned for each case in a suite ?) 
+        process.removeListener('message', this.replLauncher);
 
-            if (m.name === 'repl_start' && this.driver) {
-                await this.replStart();
-            }
-        });
+        process.on('message', this.replLauncher);
 
         super.init();
     }
+
     dispose() {
         process.send({
             event: 'repl',
@@ -38,12 +36,25 @@ export default class WebDriverModule extends OxygenModule {
         });
         super.dispose();
     }
+
     getDriver() {
         return this.driver;
     }
+
     getCapabilities() {
         return this.caps;
     }
+
+    async replLauncher(m) {
+        if (m.event !== 'repl') {
+            return;
+        }
+
+        if (m.name === 'repl_start' && this.driver) {
+            await this.replStart();
+        }
+    }
+
     async replStart(commandTimeout = 5000) {
         if (this.replExecuted) {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'debug command can be used only once');
@@ -84,6 +95,7 @@ export default class WebDriverModule extends OxygenModule {
         this.replExecuted = true;
         return new Promise((resolve) => (commandResolve = resolve));
     }
+
     async replEval (cmd) {
         const serialize_error = require('serialize-error');
         await this.repl.eval(cmd, global, null, (e, result) => {
