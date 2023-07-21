@@ -331,6 +331,10 @@ module.exports = {
         actual = actual.toString().replace(/\n/g, '\\n');
         return new OxError(ERROR_CODES.ASSERT_ERROR, `Expected: "${expected}". Got: "${actual}"`, undefined, isFatal);
     },
+    getVerifyError: function(expected, actual) {
+        actual = actual.toString().replace(/\n/g, '\\n');
+        return new OxError(ERROR_CODES.VERIFY_ERROR, `Expected: "${expected}". Got: "${actual}"`, undefined, false /* not fatal */);
+    },
     errorCode: ERROR_CODES
 };
 

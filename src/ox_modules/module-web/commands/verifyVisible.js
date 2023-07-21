@@ -20,8 +20,8 @@
 export async function verifyExist(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    const el = await this.helpers.getElement(locator, false, timeout, false /* do not throw exception */);
+    const el = await this.helpers.getElement(locator, true, timeout, false /* do not throw exception */);
     if (!el) {
-        throw new this.OxError(this.errHelper.errorCode.VERIFY_ERROR, `The element with the following locator should exist: "${locator}"`, undefined, false);
+        throw new this.OxError(this.errHelper.errorCode.VERIFY_ERROR, `The element with the following locator should be visible: "${locator}"`, undefined, false);
     }
 }

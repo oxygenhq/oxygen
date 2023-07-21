@@ -34,6 +34,6 @@ export async function verifyValue(locator, pattern, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw this.errHelper.getAssertError(pattern, text, false);
+        throw this.errHelper.getVerifyError(pattern, text);
     }
 }

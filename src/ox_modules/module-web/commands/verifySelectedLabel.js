@@ -40,6 +40,6 @@ export async function verifySelectedLabel(locator, pattern, timeout, waitForVisi
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw this.errHelper.getAssertError(pattern, text, false);
+        throw this.errHelper.getVerifyError(pattern, text);
     }
 }

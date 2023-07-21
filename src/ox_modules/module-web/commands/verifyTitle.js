@@ -31,6 +31,6 @@ export async function verifyTitle(pattern, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw this.errHelper.getAssertError(pattern, title, false);
+        throw this.errHelper.getVerifyError(pattern, title);
     }
 }

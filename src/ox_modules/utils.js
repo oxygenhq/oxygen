@@ -65,7 +65,7 @@ module.exports = {
         }
     },
 
-    getElement: async function(locator, waitForVisible, timeout) {
+    getElement: async function(locator, waitForVisible, timeout, throwException = true) {
         if (timeout) {
             await module.exports.setTimeoutImplicit.call(this, timeout);
         }
@@ -83,7 +83,10 @@ module.exports = {
             if (timeout) {
                 await module.exports.restoreTimeoutImplicit.call(this);
             }
-            throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            if (throwException) {
+                throw new OxError(errHelper.errorCode.ELEMENT_NOT_FOUND, `Unable to find element: ${locator}`);
+            }
+            return null;
         }
 
         if (waitForVisible) {
@@ -93,10 +96,13 @@ module.exports = {
                 if (timeout) {
                     await module.exports.restoreTimeoutImplicit.call(this);
                 }
-                if (e.message && e.message.includes('still not displayed')) {
+                if (throwException && e.message && e.message.includes('still not displayed')) {
                     throw new OxError(errHelper.errorCode.ELEMENT_NOT_VISIBLE, `Element not visible: ${locator}`);
                 }
-                throw e;
+                else if (throwException) {
+                    throw e;
+                }
+                return null;
             }
         }
 

@@ -40,7 +40,7 @@ export async function verifyAlert(pattern, timeout) {
     } catch (e) {
         await this.alertDismiss();
         if (alertText && typeof alertText === 'string') {
-            throw this.errHelper.getAssertError(pattern, alertText, false);
+            throw this.errHelper.getVerifyError(pattern, alertText);
         }
         throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present', undefined, false);
     }
