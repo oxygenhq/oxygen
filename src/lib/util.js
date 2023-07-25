@@ -162,7 +162,7 @@ var self = module.exports = {
             }
         }
         if (paramFile) {
-            paramManager = new require('./param-manager')(paramFile, paramMode || 'sequential');
+            paramManager = new require('./param-manager')(paramFile, paramMode || 'seq');
             await paramManager.init();
             return paramManager;
         }
