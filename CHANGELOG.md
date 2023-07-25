@@ -1,5 +1,41 @@
 # CHANGELOG
 
+## v1.28.0 (2023-07-14)
+
+#### :tada: New Feature
+* Add support for parallel execution of cases inside a suite. 
+* Expose `attributes` object to Oxygen scripts.
+
+#### :beetle: Bug Fix
+* `clearDeviceLogsOnStart` capability not working properly.
+* Make sure to set test status to warning if one of the step's status is warning.
+* Generate HTML report by default when running tests from Oxygen CLI.
+* EventEmitter memory leak.
+* Do not crash on invalid arguments to `transaction` commands.
+
+#### :house: Internal
+* Bump dependencies.
+
+## v1.27.5 (2023-04-14)
+
+#### :tada: New Feature
+* Allow "web" module to run Appium-based tests. 
+
+#### :house: Internal
+* Bump dependencies.
+
+## v1.27.4 (2023-02-23)
+
+#### :tada: New Feature
+* Add types to Oxygen module to allow auto completion in popular IDEs.
+
+#### :beetle: Bug Fix
+* Issue with multi iterations debugging.
+* Fix issue with re-run failed tests mechanism.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.27.2 (2023-02-09)
 
 #### :beetle: Bug Fix
