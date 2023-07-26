@@ -9,8 +9,8 @@
 
 /**
  * @summary Verifies value of the currently selected option in a drop-down list.
- * @description Assertion pattern can be any of the supported 
- *  string matching patterns(on the top of page).
+ * @description Assertion pattern can be any of the supported string matching patterns (on the top of page).
+ * If element is not present then ELEMENT_NOT_FOUND error will be thrown and the test terminated.
  * @function verifySelectedValue
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - The assertion pattern.
