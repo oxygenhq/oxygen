@@ -240,14 +240,14 @@ export default class WindowsModule extends WebDriverModule {
         return ACTION_COMMANDS.includes(name);
     }
 
-    _takeScreenshotSilent(name) {
+    async _takeScreenshotSilent(name) {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             try {
                 if (
                     this.driver &&
                     this.driver.takeScreenshot
                 ) {
-                    return this.driver.takeScreenshot();
+                    return await this.driver.takeScreenshot();
                 }
             } catch (e) {
                 this.logger.error('Cannot get screenshot', e);

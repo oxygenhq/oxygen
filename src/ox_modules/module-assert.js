@@ -23,7 +23,7 @@ module.exports = function() {
         return true;
     };
 
-    module._takeScreenshotSilent = function(name) {
+    module._takeScreenshotSilent = async function(name) {
         var mod;
         if (ox && ox.modules && ox.modules.mob && ox.modules.mob.getDriver && ox.modules.mob.getDriver()) {
             mod = ox.modules.mob;
@@ -34,7 +34,7 @@ module.exports = function() {
         }
 
         if (mod && mod._takeScreenshotSilent) {
-            return mod._takeScreenshotSilent();
+            return await mod._takeScreenshotSilent();
         } else {
             return null;
         }

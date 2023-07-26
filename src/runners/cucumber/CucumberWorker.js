@@ -14,12 +14,9 @@
 require = require('esm')(module);
 var td = require('testdouble');
 
-import Fiber from 'fibers';
 import * as Cucumber from 'cucumber';
 import isGlob from 'is-glob';
 import glob from 'glob';
-import { executeSync, executeAsync } from '@wdio/sync';
-import { isFunctionAsync, hasWdioSyncSupport, runFnInFiberContext } from '@wdio/utils';
 import { EventEmitter } from 'events';
 import CucumberEventListener from './CucumberEventListener';
 import CucumberReporter from './CucumberReporter';
@@ -93,14 +90,14 @@ export default class CucumberWorker {
     }
 
     async _runFnInFiberContext (fn, args) {
-        return new Promise((resolve, reject) => Fiber(() => {
+        return new Promise((resolve, reject) => (async () => {
             try {
-                const result = fn.apply(this, args || []);
+                const result = await fn.apply(this, args || []);
                 return resolve(result);
             } catch (err) {
                 return reject(err);
             }
-        }).run());
+        })());
     }
 
     async run ({ scriptPath, context, poFile = null }) {
@@ -302,10 +299,9 @@ export default class CucumberWorker {
      * @return  {Function}              wrapped step definiton for sync WebdriverIO code
      */
     wrapStep (code, retryTest = 0, isStep, config, id) {
-        const executeFn = isFunctionAsync(code) || !hasWdioSyncSupport ? executeAsync : executeSync;
         const wrapWithHooks = this.wrapWithHooks.bind(this);
         return function (...args) {
-            return executeFn.call(this, wrapWithHooks(code), retryTest, args);
+            return executeSync.call(this, wrapWithHooks(code), retryTest, args);
         };
     }
 
@@ -315,7 +311,7 @@ export default class CucumberWorker {
             let result;
             let error;
             try {
-                result = await runFnInFiberContext(code.bind(this, ...args))();
+                result = await runFnInFiberContext(code.bind(this, ...args));
             } catch (err) {
                 error = err;
             }
@@ -353,3 +349,80 @@ export default class CucumberWorker {
         //console.log('onTestEnd', arguments)
     }
 }
+
+const STACK_START = /^\s+at /;
+const STACKTRACE_FILTER = [
+    // exclude webdriverio and webdriver stack traces
+    'node_modules/webdriverio/build/',
+    'node_modules/webdriver/build/',
+    // exclude request
+    'node_modules/request/request',
+    // exclude EventEmitter
+    ' (events.js:',
+    ' (domain.js:',
+    // other excludes
+    '(internal/process/next_tick.js',
+    'new Promise (<anonymous>)',
+    'Generator.next (<anonymous>)',
+    '__awaiter ('
+];
+
+/**
+ * filter stack array
+ * @param {string} stackRow
+ * @returns {boolean}
+ */
+const stackTraceFilter = (stackRow) => {
+    if (stackRow.match(STACK_START)) {
+        return !STACKTRACE_FILTER.some(r => stackRow.includes(r));
+    }
+    return true;
+};
+
+/**
+ * execute test or hook synchronously
+ *
+ * @param  {Function} fn         spec or hook method
+ * @param  {Number}   retries    { limit: number, attempts: number }
+ * @param  {Array}    args       arguments passed to hook
+ * @return {Promise}             that gets resolved once test/hook is done or was retried enough
+ */
+const defaultRetries = { attempts: 0, limit: 0 };
+async function executeSync(fn, retries = defaultRetries, args = []) {
+    /**
+     * synchronously in standalone mode. In this case we neither have
+     * `global.browser` nor `this`
+     */
+    if (global.browser) {
+        delete global.browser._NOT_FIBER;
+    }
+    if (this) {
+        this.wdioRetries = retries.attempts;
+    }
+    try {
+        let res = await fn.apply(this, args);
+        /**
+         * sometimes function result is Promise,
+         * we need to await result before proceeding
+         */
+        return res;
+    }
+    catch (e) {
+        if (retries.limit > retries.attempts) {
+            retries.attempts++;
+            return await executeSync.call(this, fn, retries, args);
+        }
+        /**
+         * no need to modify stack if no stack available
+         */
+        if (!e.stack) {
+            return Promise.reject(e);
+        }
+        e.stack = e.stack.split('\n').filter(stackTraceFilter).join('\n');
+        return Promise.reject(e);
+    }
+}
+
+const runFnInFiberContext = (fn) => {
+    return fn.apply(this);
+};

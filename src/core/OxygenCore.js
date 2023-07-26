@@ -2,9 +2,6 @@
 import glob from 'glob';
 import path from 'path';
 import fs from 'fs';
-import deasync from 'deasync';
-import Future from 'fibers/future';
-import Fiber from 'fibers';
 import { EOL } from 'os';
 import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
@@ -102,8 +99,10 @@ export default class Oxygen extends OxygenEvents {
         this.makeOxGlobal();
         // load services
         this._loadServices();
-        // load modules
-        this._loadModules();
+        this.logger.debug('Loading internal modules...');
+        await this._loadInternalModules();
+        this.logger.debug('Loading external modules...');
+        await this._loadExternalModules();
         // if options.makeModulesGlobal is true or undefined than define 'ctx' content and each module in global scope
         if (typeof options.globalScope === 'undefined' || options.globalScope === true) {
             this.makeContextAndModulesGlobal();
@@ -381,14 +380,7 @@ export default class Oxygen extends OxygenEvents {
         return new ServiceClass(this.opts, this.ctx, this.resultStore, serviceLogger);
     }
 
-    _loadModules() {
-        this.logger.debug('Loading internal modules...');
-        this._loadInternalModules();
-        this.logger.debug('Loading external modules...');
-        this._loadExternalModules();
-    }
-
-    _loadExternalModules() {
+    async _loadExternalModules() {
         let modulesFolderPath = './modules';
         if (this.opts.modules_ext && typeof this.opts.modules_ext === 'string') {
             modulesFolderPath = this.opts.modules_ext;
@@ -420,7 +412,7 @@ export default class Oxygen extends OxygenEvents {
                 // call onModuleLoaded hook
                 this._callServicesOnModuleLoaded(mod);
                 // add the module to the module list
-                this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
+                this.modules[moduleName] = global.ox.modules[moduleName] = await this._wrapModule(moduleName, mod);
                 // wrap up
                 const endTime = new Date();
                 const duration = (endTime - startTime) / 1000;
@@ -436,7 +428,7 @@ export default class Oxygen extends OxygenEvents {
         }
     }
 
-    _loadInternalModules() {
+    async _loadInternalModules() {
         // if `modules` is empty or undefined in oxygen.conf then load all modules
         // otherwise, load only those implicitly defined
         const excludeUndefinedMods = this.opts.modules && this.opts.modules.length > 0;
@@ -456,7 +448,7 @@ export default class Oxygen extends OxygenEvents {
                 // call onModuleLoaded hook
                 this._callServicesOnModuleLoaded(mod);
                 // add the module to the module list
-                this.modules[moduleName] = global.ox.modules[moduleName] = this._wrapModule(moduleName, mod);
+                this.modules[moduleName] = global.ox.modules[moduleName] = await this._wrapModule(moduleName, mod);
                 // wrap up
                 const endTime = new Date();
                 const duration = (endTime - startTime) / 1000;
@@ -519,9 +511,9 @@ export default class Oxygen extends OxygenEvents {
                 if (methodName === 'getCapabilities') {
                     wrapper['_getCapabilities'] = method.bind(module);
                 }
-                wrapper[methodName] = (...args) => {
+                wrapper[methodName] = async (...args) => {
                     try {
-                        return _this._commandWrapper(methodName, args, module, name);
+                        return await _this._commandWrapper(methodName, args, module, name);
                     }
                     catch (e) {
                         if (e instanceof OxError) {
@@ -536,7 +528,7 @@ export default class Oxygen extends OxygenEvents {
         return wrapper;
     }
 
-    _commandWrapper(cmdName, cmdArgs, module, moduleName) {
+    async _commandWrapper(cmdName, cmdArgs, module, moduleName) {
         if (!module || !module[cmdName]) {
             return undefined;
         }
@@ -553,7 +545,7 @@ export default class Oxygen extends OxygenEvents {
             cmdName !== 'init' &&
             cmdName !== 'transaction'
         ) {
-            deasync.sleep(this.opts.delay * 1000);
+            await oxutil.sleep(this.opts.delay * 1000);
         }
 
         // throw if a command executed on unitialized module (except internal methods and a few other)
@@ -583,30 +575,13 @@ export default class Oxygen extends OxygenEvents {
         try {
             // emit before events
             if (cmdName === 'dispose') {
-                this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
+                await this._wrapAsync(this._callServicesOnModuleWillDispose).apply(this, [module]);
             }
 
-            const retvalPromise = this._wrapAsync(module[cmdName]).apply(module, decryptedArgs);
-
-            if (retvalPromise && retvalPromise.then) {
-                let promiseDone = false;
-
-                retvalPromise.then((value) => {
-
-                    retval = value;
-                    promiseDone = true;
-                }, (e) => {
-                    error = e;
-                    promiseDone = true;
-                });
-
-                deasync.loopWhile(() => !promiseDone);
-            } else {
-                retval = retvalPromise;
-            }
+            retval = await this._wrapAsync(module[cmdName]).apply(module, decryptedArgs);
 
             if (cmdName === 'init') {
-                this._wrapAsync(this._callServicesOnModuleInitialized).apply(this, [module]);
+                await this._wrapAsync(this._callServicesOnModuleInitialized).apply(this, [module]);
             }
 
         } catch (e) {
@@ -629,13 +604,12 @@ export default class Oxygen extends OxygenEvents {
         const endTime = oxutil.getTimeStamp();
 
         let stepResult;
-        let done = false;
 
         if (publicMethod) {
             const waitId = +new Date();
             this._waitStepResultList.push(waitId);
 
-            stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
+            stepResult = await this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
 
             const index = this._waitStepResultList.indexOf(waitId);
             this._waitStepResultList.splice(index, 1);
@@ -644,7 +618,6 @@ export default class Oxygen extends OxygenEvents {
 
             this.resultStore.steps.push(stepResult);
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
-            done = true;
         }
 
         if (error && error.isFatal && !this.opts.continueOnError) {
@@ -659,87 +632,13 @@ export default class Oxygen extends OxygenEvents {
             throw error;
         }
 
-        if (!publicMethod) {
-            done = true;
-        }
-
-        deasync.loopWhile(() => !done && !error);
-
         return retval;
     }
 
     _wrapAsync (fn, context) {
-        return function (...args) {
+        return async function (...args) {
             var self = context || this;
-            // if the current code is not running inside the Fiber context, then run async code as sync using deasync module
-            if (!Fiber.current) {
-                const retval = fn.apply(self, args);
-
-                let done = false;
-                let error = null;
-                let finalVal = null;
-
-                if (retval && retval.then) {
-                    Promise.resolve(retval)
-                    .then((val) => {
-                        finalVal = val;
-                        done = true;
-                    })
-                    .catch((e) => {
-                        error = e;
-                        done = true;
-                    });
-                } else {
-                    finalVal = retval;
-                    done = true;
-                }
-
-                try {
-                    deasync.loopWhile(() => !done && !error);
-                }
-                catch (e) {
-
-                    if (e && e.message && typeof e.message === 'string' && e.message.includes('readyState')) {
-                        return undefined;
-                    }
-
-                    // ignore this error as it usually happens 
-                    // when Oxygen is disposed and process is being killed
-                    this.logger.error('deasync.loopWhile() failed:', e);
-                    return undefined;
-                }
-
-                if (!error) {
-                    return finalVal;
-                }
-                throw error;
-            }
-
-            let error = null;
-            let done = false;
-            let retval = null;
-
-            try {
-
-                // otherwise, if we are inside the Fiber context, then use Fiber's Future
-                const future = new Future();
-                var result = fn.apply(self, args);
-                if (result && typeof result.then === 'function') {
-                    result.then((val) => future.return(val), (err) => future.throw(err));
-                    return future.wait();
-                }
-                return result;
-
-            } catch (e) {
-                error = e;
-            }
-
-            deasync.loopWhile(() => !done && !error);
-
-            if (!error) {
-                return retval;
-            }
-            throw error;
+            return await fn.apply(self, args);
         };
     }
 
@@ -761,7 +660,7 @@ export default class Oxygen extends OxygenEvents {
         return null;
     }
 
-    _getStepResult(module, moduleName, methodName, args, location, startTime, endTime, retval, err) {
+    async _getStepResult(module, moduleName, methodName, args, location, startTime, endTime, retval, err) {
         var step = new StepResult();
 
         step.name = oxutil.getMethodSignature(moduleName, methodName, args);
@@ -812,14 +711,14 @@ export default class Oxygen extends OxygenEvents {
 
                 if (typeof module._takeScreenshotSilent === 'function' && !this.opts.disableScreenshot) {
                     try {
-                        step.screenshot = module._takeScreenshotSilent(methodName);
+                        step.screenshot = await module._takeScreenshotSilent(methodName);
                     }
                     catch (e) {
                         // If we are here, we were unable to get a screenshot
                         // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
-                        deasync.sleep(1000);
+                        await oxutil.sleep(1000);
                         try {
-                            step.screenshot = module._takeScreenshotSilent(methodName);
+                            step.screenshot = await module._takeScreenshotSilent(methodName);
                         }
                         catch (e) {
                             // FIXME: indicate to user that an attempt to take a screenshot has failed
@@ -859,11 +758,7 @@ export default class Oxygen extends OxygenEvents {
 
             if (mod.dispose) {
                 try {
-                    const disposeResult = mod.dispose(status);
-                    if (disposeResult && typeof disposeResult.then === 'function') {
-                        // probably a promise
-                        await disposeResult();
-                    }
+                    await mod.dispose(status);
                 }
                 catch (e) {
                     // ignore module disposal error 
