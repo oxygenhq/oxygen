@@ -16,7 +16,7 @@
 import logger from '../lib/logger';
 const log = logger('Debugger');
 const { EventEmitter } = require('events');
-const CDP = require('@oxygenhq/chrome-remote-interface');
+const CDP = require('chrome-remote-interface');
 import url from 'url';
 
 const CONNECT_RETRIES = 4;
