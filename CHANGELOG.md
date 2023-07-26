@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.29.0 (2023-07-26)
+
+#### :tada: New Feature
+* Add `web.verify*` commands.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.28.0 (2023-07-14)
 
 #### :tada: New Feature
