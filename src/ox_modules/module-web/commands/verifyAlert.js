@@ -9,8 +9,8 @@
 
 /**
  * @summary Verifies whether alert matches the specified pattern and dismisses it.
- * @description Text pattern can be any of the supported
- *  string matching patterns(on the top of page).
+ * @description Text pattern can be any of the supported string matching patterns (on the top of page). 
+ * If alert is not present then NO_ALERT_OPEN_ERROR error will be thrown and the test terminated.
  * @function verifyAlert
  * @param {String} pattern - Text pattern.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
@@ -40,7 +40,7 @@ export async function verifyAlert(pattern, timeout) {
     } catch (e) {
         await this.alertDismiss();
         if (alertText && typeof alertText === 'string') {
-            throw this.errHelper.getAssertError(pattern, alertText, false);
+            throw this.errHelper.getVerifyError(pattern, alertText);
         }
         throw new this.OxError(this.errHelper.errorCode.NO_ALERT_OPEN_ERROR, 'No alert present', undefined, false);
     }

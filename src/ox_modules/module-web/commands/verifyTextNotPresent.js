@@ -40,7 +40,7 @@ export async function verifyTextNotPresent(text, timeout) {
         if (timeout) {
             await this.helpers.restoreTimeoutImplicit();
         }
-        throw new this.OxError(this.errHelper.errorCode.ASSERT_ERROR, `Text: "${text}" found on the page`, undefined, false);
+        throw new this.OxError(this.errHelper.errorCode.VERIFY_ERROR, `Text: "${text}" found on the page`, undefined, false);
     }
 
     if (timeout) {

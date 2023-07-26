@@ -9,8 +9,8 @@
 
 /**
  * @summary Verifies element's value.
- * @description Value pattern can be any of the supported 
- *  string matching patterns(on the top of page).
+ * @description Value pattern can be any of the supported string matching patterns (on the top of page).
+ * If element is not present then ELEMENT_NOT_FOUND error will be thrown and the test terminated.
  * @function verifyValue
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - Value pattern.
@@ -34,6 +34,6 @@ export async function verifyValue(locator, pattern, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw this.errHelper.getAssertError(pattern, text, false);
+        throw this.errHelper.getVerifyError(pattern, text);
     }
 }

@@ -9,9 +9,9 @@
 
 /**
  * @summary Verifies element's inner text.
- * @description Text pattern can be any of the supported
- *  string matching patterns(on the top of page).
+ * @description Text pattern can be any of the supported string matching patterns (on the top of page).
  *  If the element is not interactable, then it will allways return empty string as its text.
+ *  If element is not present then ELEMENT_NOT_FOUND error will be thrown and the test terminated.
  * @function verifyText
  * @param {String|Element} locator - An element locator.
  * @param {String} pattern - Text pattern.
@@ -35,6 +35,6 @@ export async function verifyText(locator, pattern, timeout) {
         },
         { timeout: (timeout ? timeout : this.waitForTimeout) });
     } catch (e) {
-        throw this.errHelper.getAssertError(pattern, text, false);
+        throw this.errHelper.getVerifyError(pattern, text);
     }
 }
