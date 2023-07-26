@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.29.1 (2023-07-26)
+
+#### :beetle: Bug Fix
+* Invalid chrome-remote-interface require.
+
 ## v1.29.0 (2023-07-26)
 
 #### :tada: New Feature
