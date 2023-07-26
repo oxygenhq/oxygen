@@ -55,7 +55,6 @@
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.39.1",
     "@lambdatest/node-rest-client": "1.0.5",
-    "@oxygenhq/chrome-remote-interface": "0.30.0",
     "@oxygenhq/logger": "0.5.1",
     "@oxygenhq/mitmproxy-node": "1.0.1",
     "@wdio/cli": "7.30.0",
@@ -66,6 +65,7 @@
     "canvas": "2.11.2",
     "chai": "4.3.7",
     "chrome-har": "0.13.1",
+    "chrome-remote-interface": "0.32.2",
     "config": "3.3.9",
     "cross-spawn": "7.0.3",
     "csv-parse": "4.16.3",
