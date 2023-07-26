@@ -1,6 +1,18 @@
-// https://github.com/ragrag/merge-base64
+// partially based pn https://github.com/ragrag/merge-base64
 
+import sharp from 'sharp';
 import Jimp from 'jimp';
+
+const txt2png = async (content) => {
+    const img = await sharp({
+        text: {
+            text: content,
+            width: 600,
+            height: 100
+        }
+    }).png().toBuffer();
+    return img;
+};
 
 function alignImage(total, size, align) {
     if (align === 'center') {
@@ -45,16 +57,14 @@ function calcMargin(obj = {}) {
     };
 }
 
-module.exports = function mergeImages(
-  images,
+const mergeImages = async (images,
   {
     direction = false,
     color = 0x00000000,
     align = 'start',
     offset = 0,
     margin
-  } = {}
-) {
+  } = {}) => {
     if (!Array.isArray(images)) {
         throw new TypeError('`images` must be an array that contains images');
     }
@@ -172,3 +182,6 @@ module.exports = function mergeImages(
     // return baseImage;
     });
 };
+
+exports.mergeImages = mergeImages;
+exports.txt2png = txt2png;

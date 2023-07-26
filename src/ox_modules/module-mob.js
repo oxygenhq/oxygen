@@ -58,7 +58,7 @@ import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
-import mergeImages from '../lib/img-merge';
+import { txt2png, mergeImages } from '../lib/img-utils';
 import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'mob';
@@ -382,11 +382,9 @@ export default class MobileModule extends WebDriverModule {
                                         if (fetchTitle) {
                                             const title = await this.driver.getTitle();
                                             if (title) {
-                                                const textToImage = require('../lib/text-to-image');
-                                                let titleImage = await textToImage.generate(title);
-                                                if (titleImage && typeof titleImage === 'string') {
-                                                    titleImage = titleImage.replace('data:image/png;base64,', '');
-                                                    images.push(titleImage);
+                                                let titleImage = await txt2png(title);
+                                                if (titleImage) {
+                                                    images.push(titleImage.toString('base64'));
                                                 }
                                             }
                                         }
