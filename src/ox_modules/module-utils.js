@@ -205,4 +205,19 @@ export default class UtilsModule extends OxygenModule {
             throw new OxError(errorHelper.errorCode.XML_ERROR, e.message);
         }
     }
+
+    /**
+     * @summary Opens new transaction.
+     * @description The transaction will persist untill a new one is opened. Transaction names must be unique.
+     * @function transaction
+     * @param {String} name - The transaction name.
+     */
+    async transaction(name) {
+        if (!name) {
+            return;
+        }
+        // just in case user passed a complex object by mistake
+        name = name.toString();
+        global._lastTransactionName = name;
+    }
 }
