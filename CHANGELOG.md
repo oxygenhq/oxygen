@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.30.0 (2023-08-15)
+
+#### :tada: New Feature
+* Add `utils.transaction` command.
+
 ## v1.29.1 (2023-07-26)
 
 #### :beetle: Bug Fix
