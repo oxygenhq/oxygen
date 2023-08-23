@@ -317,10 +317,6 @@ export default class ReportAggregator extends EventEmitter {
             }
             const resultKey = result.options._groupResult.resultKey;
             const suiteKey = result.options._groupResult.suiteKey;
-            console.log('resultKey', resultKey);
-            console.log('suiteKey', suiteKey);
-            console.log('startTime', result.startTime);
-            console.log('endTime', result.endTime);
             let groupedResult = groupedResults[resultKey];
             if (!groupedResult) {
                 groupedResult = groupedResults[resultKey] = {
@@ -346,7 +342,6 @@ export default class ReportAggregator extends EventEmitter {
             else {
                 for (const currentSuiteResult of result.suites) {
                     const groupKey = `${suiteKey}-${currentSuiteResult.iterationNum}`;
-                    console.log('groupKey', groupKey);
                     const groupedSuiteResult = groupedResult._suitesHash[groupKey];
                     if (!groupedSuiteResult) {
                         groupedResult._suitesHash[groupKey] = { ...currentSuiteResult };
@@ -359,8 +354,11 @@ export default class ReportAggregator extends EventEmitter {
                             ...groupedSuiteResult.cases,
                             ...currentSuiteResult.cases
                         ];
-                        if (currentSuiteResult.cases.some(c => c.status === 'failed')) {
-                            groupedSuiteResult.status = 'failed';
+                        if (currentSuiteResult.cases.some(c => c.status === Status.FAILED)) {
+                            groupedSuiteResult.status = Status.FAILED;
+                        }
+                        else if (currentSuiteResult.cases.some(c => c.status === Status.WARNING)) {
+                            groupedSuiteResult.status = Status.WARNING;
                         }
                     }
                 }
@@ -377,10 +375,17 @@ export default class ReportAggregator extends EventEmitter {
                     ...groupedResult.suites,
                     ...Object.keys(groupedResult._suitesHash).map(suiteGroupKey => groupedResult._suitesHash[suiteGroupKey])
                 ];
-                const firstFailedSuite = groupedResult.suites.find(s => s.status === 'failed');
+                const firstFailedSuite = groupedResult.suites.find(s => s.status === Status.FAILED);
                 if (firstFailedSuite) {
-                    groupedResult.status = 'failed';
+                    groupedResult.status = Status.FAILED;
                     groupedResult.failure = firstFailedSuite.failure || groupedResult.failure;
+                }
+                else {
+                    const firstSuiteWithWarning = groupedResult.suites.find(s => s.status === Status.WARNING);
+                    if (firstSuiteWithWarning) {
+                        groupedResult.status = Status.WARNING;
+                        groupedResult.failure = firstSuiteWithWarning.failure || groupedResult.failure;
+                    }
                 }
                 delete groupedResult['_suitesHash'];
                 return groupedResult;
@@ -402,9 +407,12 @@ export default class ReportAggregator extends EventEmitter {
                 Array.isArray(result.suites) &&
                 result.suites.length > 0
             ) {
-                const failed = result.suites.find((suite) => suite.status === 'failed');
+                const failed = result.suites.find((suite) => suite.status === Status.FAILED);
                 if (failed) {
-                    result.status = 'failed';
+                    result.status = Status.FAILED;
+                }
+                else if (result.suites.find((suite) => suite.status === Status.WARNING)) {
+                    result.status = Status.WARNING;
                 }
             }
 
