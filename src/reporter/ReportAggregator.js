@@ -144,7 +144,9 @@ export default class ReportAggregator extends EventEmitter {
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
             testResult.duration = testResult.endTime - testResult.startTime;
-            testResult.status = fatalError ? Status.FAILED : (testResult.suites.some(x => x.status === Status.FAILED)) ? Status.FAILED : Status.PASSED;
+            // determine test status based on suites statuses
+            testResult.status = this._determineTestStatusBySuites(testResult, fatalError);
+            // testResult.status = fatalError ? Status.FAILED : (testResult.suites.some(x => x.status === Status.FAILED)) ? Status.FAILED : Status.PASSED;
             if (testResult.status === Status.FAILED) {
                 if (fatalError) {
                     // assume that if fatalError is not inherited from Error class then we already got Oxygen Failure object
@@ -178,6 +180,25 @@ export default class ReportAggregator extends EventEmitter {
                 this.runnerEndPromises[rid].resolve(testResult);
             });
         }
+    }
+
+    _determineTestStatusBySuites(testResult, fatalError) {
+        if (fatalError) {
+            return Status.FAILED;
+        }
+        const hasFailedSuites = testResult.suites.some(x => x.status === Status.FAILED);
+        if (hasFailedSuites) {
+            return Status.FAILED;
+        }
+        const hasWarningSuites = testResult.suites.some(x => x.status === Status.WARNING);
+        if (hasWarningSuites) {
+            return Status.WARNING;
+        }
+        const allSuitesSkipped = testResult.suites.every(x => x.status === Status.SKIPPED);
+        if (allSuitesSkipped) {
+            return Status.SKIPPED;
+        }
+        return Status.PASSED;
     }
 
     onIterationStart(rid, iteration, start) {
