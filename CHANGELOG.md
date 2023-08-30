@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.30.1 (2023-08-29)
+
+#### :beetle: Bug Fix
+* Fix step's Warning status not being properly processed.
+* Improve the way test result status for suites with Skipped and Warning statuses is determined.
+
 ## v1.30.0 (2023-08-15)
 
 #### :tada: New Feature
