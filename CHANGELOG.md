@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.30.2 (2023-08-31)
+
+#### :beetle: Bug Fix
+* Fix parallel case execution inside suites.
+
 ## v1.30.1 (2023-08-29)
 
 #### :beetle: Bug Fix
