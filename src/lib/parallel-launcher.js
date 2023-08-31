@@ -30,13 +30,13 @@ export default class ParallelLauncher {
         }
 
         if (!this._config.parallel.mode) {
-            this._config.parallel.mode = 'suite';
+            this._config.parallel.mode = 'case';
         }
 
         const workersCount = !isNaN(this._config.parallel.workers) ? this._config.parallel.workers : 1;
         const mode = this._config.parallel.mode === 'iteration'
-            ? 'iteration' : this._config.parallel.mode === 'case'
-                ? 'case' : 'suite';
+            ? 'iteration' : this._config.parallel.mode === 'suite'
+                ? 'suite' : 'case';
         // flatten all suites and create one unified array of all the test cases
         const suites = this._config.suites;
         const resultName = this._config.name || '';
@@ -51,6 +51,7 @@ export default class ParallelLauncher {
         // if 'workers' set to max and parameter file is defined, 
         // then run as many parallel tests as rows in the file
         let suiteIndex = 0;
+
         suites.forEach(suiteDef => {
             const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
             if (mode === 'iteration') {
@@ -107,10 +108,6 @@ export default class ParallelLauncher {
             }
             suiteIndex++;
         });
-        //this.reporter.onBeforeStart(collection.length);
-
-        console.log('Collections length', collection.length);
-
         const start = new Date();
         await parallelLimit(collection, workersCount);
 
