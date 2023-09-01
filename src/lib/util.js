@@ -204,6 +204,13 @@ var self = module.exports = {
      * Used to serialize oxygen command parameters. Produces a non-compliant JSON serialization.
      */
     stringify: function (args, indentation = 0) {
+        // return strings as is (otherwise if we serialize string it will get wrapped in double quotes)
+        if (typeof args === 'string' || args instanceof String) {
+            return args;
+        } else if (args.length === 1 && (typeof args[0] === 'string' || args[0] instanceof String)) {
+            return args[0];
+        }
+
         let str;
         try {
             str = JSON.stringify(args, (key, value) => {
