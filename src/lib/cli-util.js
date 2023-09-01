@@ -184,7 +184,9 @@ export function getConfigurations(target, argv) {
         projConfigOpts = { ...projConfigOpts, envs: envs };
     }
     // make sure to set default HTML reporter if reporting options are not provided in oxygen.conf file and via command line
-    if ((!projConfigOpts.reporting && !cmdOpts.reporting) || (!projConfigOpts.reporting.reporters && !cmdOpts.reporting)) {
+    const isCmdOptsReportFormat = cmdOpts.reporting && cmdOpts.reporting.reporters;
+    const isConfigReportFormat = projConfigOpts.reporting && projConfigOpts.reporting.reporters;
+    if (!isCmdOptsReportFormat && !isConfigReportFormat) {
         if (!projConfigOpts.reporting) {
             projConfigOpts.reporting = {};
         }
