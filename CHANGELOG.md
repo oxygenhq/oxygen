@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.30.3 (2023-09-01)
+
+#### :beetle: Bug Fix
+* Fix broken `--rf` switch.
+
+#### :nail_care: Polish
+* Do not wrap strings logged with `log.*` commands in double quotes.
+
 ## v1.30.2 (2023-08-31)
 
 #### :beetle: Bug Fix
