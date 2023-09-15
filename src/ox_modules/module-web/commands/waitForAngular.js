@@ -10,7 +10,8 @@
 /**
  * @summary Wait for Angular based app will be loaded
  * @function waitForAngular
- * @param {String=} rootSelector - Selector for root element, need only for Angular 1
+ * @param {String=} rootSelector - Selector for root element, needed only for AngularJS (v1). 
+ *                                 In Angular (v2) first available root node will be selected automatically.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();
@@ -23,6 +24,9 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
 
     try {
         await this.driver.waitUntil(async () => {
+
+            // in AngularJS (v1) window.angular will be defined 
+            // in Angular (v2) window.angular will be undefined
             const angular1 = await this.driver.execute(() => {
                 // eslint-disable-next-line no-undef
                 return !!window.angular;
@@ -44,6 +48,7 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
             } else {
                 const stable = await this.driver.executeAsync((done) => {
                     try {
+                        // following way of obtaining testability is the same as using: var testability = window.getAllAngularTestabilities()[0];
                         // eslint-disable-next-line no-undef
                         const rootElement = window.getAllAngularRootElements()[0];
                         // eslint-disable-next-line no-undef
