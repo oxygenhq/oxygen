@@ -76,7 +76,7 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
             }
         },{
             timeout: timeout,
-            timeoutMsg: 'Angular not found'
+            timeoutMsg: `Unable to attain stability within ${timeout}ms (or this is not an Angular application)`
         });
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
