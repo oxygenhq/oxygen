@@ -183,6 +183,11 @@ export default class Oxygen extends OxygenEvents {
                         if (step.endTime > transStep.endTime) {
                             transStep.endTime = step.endTime;
                         }
+
+                        // update transaction status to warning if at least one of steps has warning status
+                        if (step.status === STATUS.WARNING) {
+                            transStep.status = STATUS.WARNING;
+                        }
                     }
                 }
             }
