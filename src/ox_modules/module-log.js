@@ -18,13 +18,14 @@ const MODULE_NAME = 'log';
 export default class LogModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
-        // this module doesn't need to be expicitly initialized, so we will just call super.init() to set the right state
+        // this module doesn't need to be explicitly initialized, so we will just call super.init() to set the right state
         super.init();
         this._alwaysInitialized = true;
     }
     get name() {
         return MODULE_NAME;
     }
+
     /**
      * @summary Print an INFO message.
      * @function info
@@ -33,6 +34,7 @@ export default class LogModule extends OxygenModule {
     info(msg) {
         this.logger.userInfo(msg);
     }
+
     /**
      * @summary Print an ERROR message.
      * @function error
@@ -54,6 +56,7 @@ export default class LogModule extends OxygenModule {
 
         this.logger.userError(message);
     }
+
     /**
      * @summary Print a DEBUG message.
      * @function debug
@@ -62,8 +65,9 @@ export default class LogModule extends OxygenModule {
     debug(msg) {
         this.logger.userDebug(msg);
     }
+
     /**
-     * @summary Print a WARN message.
+     * @summary Print a WARN message. This will mark the test with Warning status (unless the test fails later on, then it will be marked as Failed.).
      * @function warn
      * @param {String} msg - Message to print.
      */
