@@ -45,8 +45,8 @@ const DUMMY_HOOKS = {
 };
 
 const CB_ATTACHMENTS_DIR_NAME = '.cb-attachments';
-const DOWNLOAD_RETRIES = 10;
-const DOWNLOAD_RETRY_WAIT_TIME = 1000;
+const DOWNLOAD_RETRIES = 20;
+const DOWNLOAD_RETRY_WAIT_TIME = 5000;
 
 function getVideoAttachmentPath(fileName, options) {
     const cwd = getCwd(options);
