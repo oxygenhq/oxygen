@@ -24,6 +24,7 @@ module.exports = function () {
         har: null,
         failure: null,
         context: null,
-        testAttributes: {}
+        testAttributes: {},
+        attachments: []
     };
 };

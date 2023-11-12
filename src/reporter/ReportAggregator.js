@@ -250,8 +250,9 @@ export default class ReportAggregator extends EventEmitter {
         });
     }
 
-    onCaseEnd(rid, suiteId, caseId, caseResult) {
+    async onCaseEnd(rid, suiteId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
+        await this._saveTestCaseVideoAttachment(caseResult);
         this.emit('case:end', {
             rid,
             suiteId,
@@ -453,5 +454,37 @@ export default class ReportAggregator extends EventEmitter {
                 }
             });
         });
+    }
+
+    async _saveTestCaseVideoAttachment(caseResult) {
+        if (!caseResult || !caseResult.attachments || !caseResult.attachments.length) {
+            return;
+        }
+        const attachmentsToRemove = [];
+        for (let i=0; i< caseResult.attachments.length; i++) {
+            const attachment = caseResult.attachments[i];
+            if (!attachment._url) {
+                continue;
+            }
+            try {
+                const videoFilePath = 
+                    await oxutil.downloadVideo(attachment.fileName, attachment._url, this.options);
+                if (!videoFilePath) {
+                    attachmentsToRemove.push(i);
+                }
+                else {
+                    attachment.filePath = videoFilePath;
+                    delete attachment['_url'];
+                }
+            }
+            catch (e) {
+                console.warn('Failed to download video file: ', e.message);
+                attachmentsToRemove.push(i);
+            }
+        }
+        // remove video attachments that couldn't be downloaded
+        for (let i=0; i< attachmentsToRemove.length; i++) {
+            caseResult.attachments.splice(attachmentsToRemove[i], 1);
+        }
     }
 }

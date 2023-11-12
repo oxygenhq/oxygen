@@ -9,6 +9,7 @@
 
 const errHelper = require('../errors/helper');
 import OxError from '../errors/OxygenError';
+const { v1 } = require('uuid');
 
 const providers = {
     PERFECTO: 'perfecto',
@@ -428,4 +429,12 @@ module.exports = {
             throw new OxError(errHelper.errorCode.CIRCULAR_ERROR, hasCircularDependency);
         }
     },
+
+    newVideoAttachment: (fileName, videoUrl) => ({
+        id: v1(),
+        fileName,
+        type: 'video',
+        subtype: 'screencast',
+        _url: videoUrl,
+    }),
 };

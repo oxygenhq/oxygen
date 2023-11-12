@@ -216,7 +216,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         this._isRunning = true;
 
-        this._reporter.onRunnerStart(this._id, this._options, this._caps);
+        await this._reporter.onRunnerStart(this._id, this._options, this._caps);
 
         let error = null;
         let result = null;
@@ -231,7 +231,7 @@ export default class OxygenRunner extends EventEmitter {
             error = result.failure;
         }
 
-        this._reporter.onRunnerEnd(this._id, result, error);
+        await this._reporter.onRunnerEnd(this._id, result, error);
         this._isRunning = false;
         if (error) {
             throw error;
@@ -447,7 +447,7 @@ export default class OxygenRunner extends EventEmitter {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
                     // report case start event
-                    this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
+                    await this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
                     //let reRunCount = 0;
                     let caseResult;
                     // run or re-run the current test case
@@ -461,7 +461,7 @@ export default class OxygenRunner extends EventEmitter {
                         }
                     }
                     // report case end event
-                    this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+                    await this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
                     if (showCaseIterationsMessages) {
                         this._reporter.onIterationEnd(this._id, caseResult, 'Case');
                     }
@@ -561,6 +561,7 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
             caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
             caseResult.testAttributes = resultStore && resultStore.attributes ? resultStore.attributes : null;
+            caseResult.attachments = resultStore && resultStore.attachments ? resultStore.attachments : null;
 
             // determine test case iteration status - mark it as failed if any step has failed
             var failedSteps = _.find(caseResult.steps, {status: Status.FAILED});

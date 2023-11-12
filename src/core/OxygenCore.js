@@ -65,6 +65,7 @@ const DEFAULT_CTX = {
 const DEFAULT_RESULT_STORE = {
     steps: [],
     logs: [],
+    attachments: [],
     har: null,
     attributes: {}
 };

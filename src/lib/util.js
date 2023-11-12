@@ -19,6 +19,8 @@ const password = require('../../package.json').encryptionKey;
 const key = crypto.scryptSync(password, 'GfG', 24);
 const iv = Buffer.alloc(16, 0);
 const algorithm = 'aes-192-cbc';
+const download = require('download');
+const request = require('request');
 
 import OxygenError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
@@ -40,6 +42,32 @@ const DUMMY_HOOKS = {
     afterTest: () => {},
     afterSuite: () => {},
     afterCase: () => {},
+};
+
+const CB_ATTACHMENTS_DIR_NAME = '.cb-attachments';
+const DOWNLOAD_RETRIES = 10;
+const DOWNLOAD_RETRY_WAIT_TIME = 1000;
+
+function getVideoAttachmentPath(fileName, options) {
+    const cwd = getCwd(options);
+    const attachmentsDirPath = path.join(cwd, CB_ATTACHMENTS_DIR_NAME);
+    if (!fs.existsSync(attachmentsDirPath)) {
+        fs.mkdirSync(attachmentsDirPath);
+    }
+    return path.join(attachmentsDirPath, fileName);
+}
+
+const getCwd = (options) => {
+    let cwd = process.cwd();
+
+    if (options && options.cwd) {
+        cwd = options.cwd;
+    }
+    else if (options && options.rootPath) {
+        cwd = options.rootPath;
+    }
+
+    return cwd.trim();
 };
 
 var self = module.exports = {
@@ -396,5 +424,42 @@ var self = module.exports = {
 
     sleep: function(timeout) {
         return new Promise((resolve) => setTimeout(resolve, timeout));
-    }
+    },
+
+    downloadVideo: async function(fileName, videoUrl, options) {
+        const localVideoFilePath = getVideoAttachmentPath(fileName, options);
+        let error;
+        for (let i=0; i<DOWNLOAD_RETRIES; i++) {
+            error = undefined;
+            try {
+                fs.writeFileSync(localVideoFilePath, await download(videoUrl));
+                break;
+            }
+            catch (e) {
+                error = e;
+            }
+            await self.sleep(DOWNLOAD_RETRY_WAIT_TIME);
+        }
+        if (!error) {
+            // delete the video file from the server
+            const options = {
+                url: videoUrl,
+                method: 'DELETE',
+                json: false,
+                rejectUnauthorized: false,
+            };
+
+            try {
+                return new Promise((resolve, reject) => {
+                    request(options, (err, res, body) => { resolve(err ? null : localVideoFilePath); });    
+                });
+            }
+            catch (e) {
+                console.warn('Unable to delete video file from the remote server: ', e.message);
+            }
+        }
+        else {
+            console.warn('Unable to download and save video attachment: ', error.message);
+        }
+    },
 };

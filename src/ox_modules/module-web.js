@@ -197,7 +197,18 @@ export default class WebModule extends WebDriverModule {
                 key: auth[1]
             };
         }
-
+        this.seleniumUrlBase = `${protocol}://${host}:${port}`;
+        // check if selenium hub is based on Selenoid, then enable video recording
+        this.isRunningOnSelenoid = await this._isSelenoidHub(this.seleniumUrlBase);
+        if (this.isRunningOnSelenoid) {
+            if (!this.caps['selenoid:options']) {
+                this.caps['selenoid:options'] = {};
+            }
+            if (this.caps['selenoid:options'].enableVideo === undefined) {
+                this.caps['selenoid:options'].enableVideo = true;
+            }
+        }
+        // generate Webdriver.io options
         const wdioOpts = {
             ...this.options.wdioOpts || {},
             protocol: protocol,
@@ -247,6 +258,7 @@ export default class WebModule extends WebDriverModule {
         this.wdioOpts = wdioOpts;
         try {
             this.driver = await wdio.remote(wdioOpts);
+            this.sessionId = this.driver.sessionId;
             this.driver.provider = provider;
 
             if (this.options.seleniumBrowserTimeout) {
@@ -368,7 +380,7 @@ export default class WebModule extends WebDriverModule {
             }
         } else {
             this.disposeContinue();
-        }
+        }           
 
         return this._whenWebModuleDispose.promise;
     }
@@ -483,6 +495,8 @@ export default class WebModule extends WebDriverModule {
         }
 
         this.rs.har = this.transactions;
+        const hasFailed = error !== undefined;
+        this._addSelenoidVideoAsTestAttachment(hasFailed);
     }
 
     _isAction(name) {
@@ -842,6 +856,46 @@ export default class WebModule extends WebDriverModule {
                 resolve();
             }
         });
+    }
+
+    async _isSelenoidHub(seleniumUrl) {
+        return new Promise((resolve, reject) => {
+            const options = {
+                url: `${seleniumUrl}`,
+                method: 'GET',
+                json: false,
+                rejectUnauthorized: false,
+            };
+
+            try {
+                request(options, (err, res, body) => {
+                    if (err) {
+                        reject(err);
+                    }
+                    else {
+                        if (body && body.length && body.indexOf('You are using Selenoid') > -1) {
+                            resolve(true);
+                        }
+                        else {
+                            resolve(false);
+                        }
+                    }
+                });
+            } catch (e) {
+                this.logger.error('Unable to send result status to Browserstack: ' + e.toString());
+                resolve();
+            }
+        });
+    }
+
+    // if the test is running inside Selenoid, then download the video if test has failed
+    async _addSelenoidVideoAsTestAttachment(hasFailed = false) {
+        if (!this.isRunningOnSelenoid) {
+            return;
+        }
+        const videoFileUrl = `${this.seleniumUrlBase}/video/${this.sessionId}.mp4`;
+        const fileName = `${this.sessionId}.mp4`;
+        this.rs.attachments.push(modUtils.newVideoAttachment(fileName, videoFileUrl));
     }
 }
 
