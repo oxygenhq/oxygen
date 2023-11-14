@@ -217,6 +217,7 @@ export default class Oxygen extends OxygenEvents {
     resetResults() {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
+        this.resultStore.attachments = []
         this.har = null;
     }
 

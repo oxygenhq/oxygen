@@ -206,6 +206,7 @@ export default class WebModule extends WebDriverModule {
             }
             if (this.caps['selenoid:options'].enableVideo === undefined) {
                 this.caps['selenoid:options'].enableVideo = true;
+                this.caps['selenoid:options'].videoFrameRate = 4;
             }
         }
         // generate Webdriver.io options

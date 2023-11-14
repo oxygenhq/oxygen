@@ -470,7 +470,7 @@ export default class ReportAggregator extends EventEmitter {
                 const videoFilePath = 
                     await oxutil.downloadVideo(attachment.fileName, attachment._url, this.options);
                 if (!videoFilePath) {
-                    attachmentsToRemove.push(i);
+                    attachmentsToRemove.push(attachment);
                 }
                 else {
                     attachment.filePath = videoFilePath;
@@ -479,12 +479,15 @@ export default class ReportAggregator extends EventEmitter {
             }
             catch (e) {
                 console.warn('Failed to download video file: ', e.message);
-                attachmentsToRemove.push(i);
+                attachmentsToRemove.push(attachment);
             }
         }
         // remove video attachments that couldn't be downloaded
         for (let i=0; i< attachmentsToRemove.length; i++) {
-            caseResult.attachments.splice(attachmentsToRemove[i], 1);
+            const elmIndexToRemove = caseResult.attachments.indexOf(attachmentsToRemove[i]);
+            if (!elmIndexToRemove > -1) {
+                caseResult.attachments.splice(elmIndexToRemove, 1);
+            }
         }
     }
 }
