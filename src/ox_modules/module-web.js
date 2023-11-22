@@ -496,7 +496,7 @@ export default class WebModule extends WebDriverModule {
         }
 
         this.rs.har = this.transactions;
-        const hasFailed = error !== undefined;
+        const hasFailed = error !== undefined && error !== null;
         this._addSelenoidVideoAsTestAttachment(hasFailed);
     }
 
