@@ -381,7 +381,7 @@ export default class WebModule extends WebDriverModule {
             }
         } else {
             this.disposeContinue();
-        }           
+        }
 
         return this._whenWebModuleDispose.promise;
     }

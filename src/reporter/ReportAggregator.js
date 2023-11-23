@@ -467,7 +467,7 @@ export default class ReportAggregator extends EventEmitter {
                 continue;
             }
             try {
-                const videoFilePath = 
+                const videoFilePath =
                     await oxutil.downloadVideo(attachment.fileName, attachment._url, this.options);
                 if (!videoFilePath) {
                     attachmentsToRemove.push(attachment);

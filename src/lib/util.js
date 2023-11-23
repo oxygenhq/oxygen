@@ -451,7 +451,7 @@ var self = module.exports = {
 
             try {
                 return new Promise((resolve, reject) => {
-                    request(options, (err, res, body) => { resolve(err ? null : localVideoFilePath); });    
+                    request(options, (err, res, body) => { resolve(err ? null : localVideoFilePath); });
                 });
             }
             catch (e) {
