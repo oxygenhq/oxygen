@@ -86,3 +86,4 @@ export * from './waitForWindow';
 export * from './waitForInteractable';
 export * from './getHTML';
 export * from './isChecked';
+export * from './mock';
