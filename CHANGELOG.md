@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v1.31.0 (2023-12-08)
+
+#### :tada: New Feature
+* Allow to capture and attach test video to test results if running against a Selenoid hub.
+* Add `web.mock` method allowing to mock network responses.
+
+#### :nail_care: Polish
+* Minor improvements to API documentation.
+
+#### :beetle: Bug Fix
+* Mark transaction as warning if one of steps has warning status.
+
 ## v1.30.3 (2023-09-01)
 
 #### :beetle: Bug Fix
