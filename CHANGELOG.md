@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.32.0 (2023-12-15)
+
+#### :tada: New Feature
+* Add `web.mockClearAll` and `web.mockRestoreAll`.
+
 ## v1.31.0 (2023-12-08)
 
 #### :tada: New Feature
