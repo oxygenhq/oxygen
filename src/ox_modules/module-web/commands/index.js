@@ -87,3 +87,5 @@ export * from './waitForInteractable';
 export * from './getHTML';
 export * from './isChecked';
 export * from './mock';
+export * from './mockClearAll';
+export * from './mockRestoreAll';
