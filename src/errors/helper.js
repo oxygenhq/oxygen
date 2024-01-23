@@ -208,6 +208,9 @@ module.exports = {
         else if (err.message && err.message.includes('element not interactable')) {
             return new OxError(ERROR_CODES.ELEMENT_NOT_INTERACTABLE, err.message);
         }
+        else if (err.message && err.message.includes('still not clickable after')) {
+            return new OxError(ERROR_CODES.ELEMENT_NOT_INTERACTABLE, err.message);
+        }
         // invalid selector: java.lang.IllegalArgumentException: Unable to compile selector ...
         else if (
             err.name &&
