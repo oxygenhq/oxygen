@@ -73,7 +73,8 @@ const ERROR_CODES = {
     CRYPTO_ERROR: 'CRYPTO_ERROR',
     DNS_ERROR: 'DNS_ERROR',
     CIRCULAR_ERROR: 'CIRCULAR_ERROR',
-    XML_ERROR: 'XML_ERROR'
+    XML_ERROR: 'XML_ERROR',
+    JAVASCRIPT_ERROR: 'JAVASCRIPT_ERROR'
 };
 
 // Chai to Oxygen error codes mapping
@@ -230,6 +231,9 @@ module.exports = {
             return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, err.message);
         } else if (err && err.message && err.message.includes('Timed out receiving message from rendere')) {
             return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, err.message);
+        }
+        else if (err.message && err.message.includes('javascript error')) {
+            return new OxError(ERROR_CODES.JAVASCRIPT_ERROR, err.message);
         }
 
         // try to resolve Chai error code
