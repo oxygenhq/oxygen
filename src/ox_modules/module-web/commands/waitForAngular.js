@@ -53,7 +53,7 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
                         const rootElement = window.getAllAngularRootElements()[0];
                         // eslint-disable-next-line no-undef
                         const testability = window.getAngularTestability(rootElement);
-                        testability.onStable(() => {
+                        testability.whenStable(() => {
                             done(true);
                         });
                     } catch (e) {
