@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.32.1 (2024-03-01)
+
+#### :nail_care: Polish
+* Process "javascript error" errors.
+* Process "still not clickable after" errors.
+
+#### :house: Internal
+* Bump dependencies.
+
 ## v1.32.0 (2023-12-15)
 
 #### :tada: New Feature
