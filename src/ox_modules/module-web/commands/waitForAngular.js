@@ -25,7 +25,7 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
     const originalTimeouts = await this.driver.getTimeouts();
 
     try {
-        await  this.driver.setTimeout({ script: timeout });
+        await this.driver.setTimeout({ script: timeout });
 
         await this.driver.waitUntil(async () => {
             try {
@@ -91,6 +91,6 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
     } finally {
-        await  this.driver.setTimeout({ script: originalTimeouts.script });
+        await this.driver.setTimeout({ script: originalTimeouts.script });
     }
 }

@@ -10,8 +10,9 @@
 /**
  * @summary Wait for Angular based app will be loaded
  * @function setAutoWaitForAngular
- * @param {Boolean} autoWaitForAngular - new autoWait value. Dafault is false;
- * @param {String=} rootSelector - Selector for root element, need only for Angular 1
+ * @param {Boolean} autoWaitForAngular - true to enable auto-wait. false to disable.
+ * @param {String=} rootSelector - Selector for root element, needed only for AngularJS (v1). 
+ *                                 In Angular (v2) first available root node will be selected automatically.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();
@@ -19,10 +20,9 @@
  * web.setAutoWaitForAngular(true);
  */
 
-export function setAutoWaitForAngular(autoWaitForAngular = false, rootSelector = '', timeout = 60*1000) {
+export function setAutoWaitForAngular(autoWaitForAngular, rootSelector = null, timeout = 60*1000) {
     this.helpers.assertArgumentBool(autoWaitForAngular, 'autoWaitForAngular');
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
-    this.helpers.assertArgumentString(rootSelector, 'rootSelector');
 
     this.autoWaitForAngular = autoWaitForAngular;
     this.autoWaitForAngularRootSelector = rootSelector;
