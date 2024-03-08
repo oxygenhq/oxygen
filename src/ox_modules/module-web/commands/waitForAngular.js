@@ -22,11 +22,7 @@
 export async function waitForAngular(rootSelector, timeout = 60*1000) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    const originalTimeouts = await this.driver.getTimeouts();
-
     try {
-        await this.driver.setTimeout({ script: timeout });
-
         await this.driver.waitUntil(async () => {
             try {
 
@@ -39,31 +35,25 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
 
                 if (angular1) {
                     this.helpers.assertArgumentString(rootSelector, 'rootSelector');
-                    const testable = await this.driver.executeAsync((rootSelector, done) => {
+                    const testable = await this.driver.execute((rootSelector) => {
                         // eslint-disable-next-line no-undef
                         const rootElement = window.angular.element(rootSelector);
                         // eslint-disable-next-line no-undef
                         const testability = window.angular.getTestability(rootElement);
-                        testability.whenStable(() => {
-                            done(true);
-                        });
+                        return testability.isStable();
                     }, rootSelector);
 
                     return testable;
                 } else {
-                    const stable = await this.driver.executeAsync((done) => {
-                        try {
-                            // following way of obtaining testability is the same as using: var testability = window.getAllAngularTestabilities()[0];
-                            // eslint-disable-next-line no-undef
-                            const rootElement = window.getAllAngularRootElements()[0];
-                            // eslint-disable-next-line no-undef
-                            const testability = window.getAngularTestability(rootElement);
-                            testability.whenStable(() => {
-                                done(true);
-                            });
-                        } catch (e) {
-                            done(false);
-                        }
+                    const stable = await this.driver.execute(() => {
+                        // following way of obtaining testability is the same as using: var testability = window.getAllAngularTestabilities()[0];
+                        // eslint-disable-next-line no-undef
+                        const rootElement = window.getAllAngularRootElements()[0];
+                         // eslint-disable-next-line no-undef
+                        const testability = window.getAngularTestability(rootElement);
+                        // use isStable instead of whenStable due to this issue:
+                        // https://stackoverflow.com/questions/54509647/testability-whenstable-returns-testability-isstable-returns-false
+                        return testability.isStable();
                     });
 
                     const version = await this.driver.execute(() => {
@@ -75,11 +65,7 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
                         return el.getAttribute('ng-version');
                     });
 
-                    if (version && stable) {
-                        return true;
-                    }
-
-                    return false;
+                    return (version && stable);
                 }
             } catch (err) {
                 // if we got here then it's executeAsync timeout.
@@ -90,7 +76,5 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
         });
     } catch (e) {
         throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
-    } finally {
-        await this.driver.setTimeout({ script: originalTimeouts.script });
     }
 }
