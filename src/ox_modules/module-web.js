@@ -891,7 +891,10 @@ export default class WebModule extends WebDriverModule {
 
     // if the test is running inside Selenoid, then download the video if test has failed
     async _addSelenoidVideoAsTestAttachment(hasFailed = false) {
-        if (!this.isRunningOnSelenoid || !hasFailed) {
+        if (!this.isRunningOnSelenoid) {
+            return;
+        }
+        if (!this.options.recordVideo && !hasFailed) {
             return;
         }
         const videoFileUrl = `${this.seleniumUrlBase}/video/${this.sessionId}.mp4`;

@@ -7,6 +7,7 @@ import moduleRequire from './moduleRequire';
 export const OXYGEN_CONFIG_FILE_NAME = 'oxygen.conf';
 export const OXYGEN_ENV_FILE_NAME = 'oxygen.env';
 export const OXYGEN_PAGE_OBJECT_FILE_NAME = 'oxygen.po';
+export const DEFAULT_REPORTER = 'html';
 
 export async function generateTestOptions(config, argv) {
     const options = { ...config };
@@ -155,7 +156,7 @@ export function getConfigurations(target, argv) {
         collectAppiumLogs: false,
         collectBrowserLogs: false,
         reporting: {
-            reporters: ['html']
+            reporters: [DEFAULT_REPORTER]
         },
         parameters : {
             file: null,
@@ -190,7 +191,7 @@ export function getConfigurations(target, argv) {
         if (!projConfigOpts.reporting) {
             projConfigOpts.reporting = {};
         }
-        projConfigOpts.reporting.reporters = ['html'];
+        projConfigOpts.reporting.reporters = [DEFAULT_REPORTER];
     }
     // determine test name
     let name = cmdOpts.name || projConfigOpts.name || null;

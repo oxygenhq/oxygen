@@ -78,6 +78,7 @@
     "esm": "3.2.25",
     "fast-xml-parser": "4.2.5",
     "fibers": "5.0.3",
+    "form-data": "^4.0.0",
     "glob": "7.2.3",
     "glob-to-regexp": "0.4.1",
     "global-agent": "3.0.0",

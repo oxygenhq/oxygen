@@ -262,7 +262,8 @@ export default class Oxygen extends OxygenEvents {
                 options: this.opts,
                 caps: this.capabilities,
                 resultStore: this.resultStore,
-                addAttribute: this.addAttribute.bind(this)
+                addAttribute: this.addAttribute.bind(this),
+                addAttachment: this.addAttachment.bind(this),
             };
 
             global.vars = this.ctx.vars;
@@ -290,6 +291,18 @@ export default class Oxygen extends OxygenEvents {
         if (this.resultStore && this.resultStore.attributes) {
             this.resultStore.attributes[name] = value;
         }
+    }
+
+    addAttachment(filePath) {
+        if (!this.resultStore) {
+            return;
+        }
+        if (!this.resultStore.attachments) {
+            this.resultStore.attachments = [];
+        }
+        this.resultStore.attachments.push(
+            coreUtils.newFileAttachment(filePath)
+        );
     }
 
     loadPageObjectFile(poPath) {
@@ -771,9 +784,18 @@ export default class Oxygen extends OxygenEvents {
     _getStepResult(module, moduleName, methodName, args, location, startTime, endTime, retval, err) {
         var step = new StepResult();
 
-        step.name = oxutil.getMethodSignature(moduleName, methodName, args);
+        const displayName =
+            (module.getStepDisplayName && module.getStepDisplayName(methodName, args, retval, err)) ||
+            oxutil.getMethodSignature(moduleName, methodName, args);
+
+        step.name = displayName;
         step.transaction = global._lastTransactionName || null;                   // FIXME: why is this here if it's already populated in rs?
         step.location = location;
+        // module.extra is reseted for each step, so we must clone it
+        step.extra = { ...module.extra };
+        if (module.extra && module.extra.http) {
+            step.type = 'http';
+        }
 
         if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
             step.status = STATUS.PASSED;
