@@ -9,12 +9,16 @@ export default class OxygenModule {
         this.services = services;
         this._isInitialized = false;
         this._alwaysInitialized = false;
+        this._extra = {};
     }
     get name() {
         throw Error('"name" property must be implemented by the deriving class');
     }
     get isInitialized() {
         return this._isInitialized;
+    }
+    get extra() {
+        return this._extra;
     }
     init() {
         this._isInitialized = true;
@@ -23,6 +27,9 @@ export default class OxygenModule {
         if (this._alwaysInitialized == false) {
             this._isInitialized = false;
         }
+    }
+    getStepDisplayName(method, retval, error, extra) {
+        return undefined;
     }
     onBeforeCase(context) {
 

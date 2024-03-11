@@ -12,6 +12,7 @@
  * @description Provides methods for working with HTTP(S)
  */
 import got from 'got';
+import FormData from 'form-data';
 import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
@@ -38,6 +39,11 @@ const DEFAULT_HTTP_OPTIONS = {
     dnsLookupIpVersion: 'ipv4'
 };
 const CONTENT_TYPE_HEADER = 'content-type';
+const HTTP_METHODS = [
+    'get',
+    'post',
+    'patch'
+];
 
 export default class HttpModule extends OxygenModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -57,6 +63,15 @@ export default class HttpModule extends OxygenModule {
      */
     get name() {
         return MODULE_NAME;
+    }
+
+    /*
+     * @summary Returns a new FormData object
+     * @function newFormData
+     * @return {FormData} new FormData object.
+     */
+    newFormData() {
+        return new FormData();
     }
 
     /**
@@ -143,11 +158,11 @@ export default class HttpModule extends OxygenModule {
      * @param {String} url - URL.
      * @param {Object} data - Data.
      * @param {Object=} headers - HTTP headers.
+     * @param {Boolean=} isFormData - Indicates if "data" parameter is of URL-encoded form type.
      * @return {Object} Response object.
      */
-    async post(url, data, headers) {
-        const resolvedData = this._resolveData(data);
-
+    async post(url, data, headers, isFormData = false) {
+        const resolvedData = this._resolveData(data, headers, isFormData);
         const httpOpts = {
             ...DEFAULT_HTTP_OPTIONS,
             ...this._userHttpOptions || {},
@@ -370,10 +385,107 @@ export default class HttpModule extends OxygenModule {
         global._lastTransactionName = name;
     }
 
-    _resolveData(data) {
+    getStepDisplayName(methodName, methodArgs, retval, error) {
+        if (!HTTP_METHODS.includes(methodName)) {
+            return undefined;
+        }
+        if (!this._extra || !this._extra.http || !this._extra.http.request) {
+            return undefined;
+        }
+        return `${methodName.toUpperCase()} ${this._extra.http.request.path}`;
+    }
+
+    _addRequestExtra(request, updatedOptions) {
+        const url = new URL(request.url);
+        const reqExtra = {
+            url: request.url,
+            path: `${url.pathname}${url.search}${url.hash}`,
+            queryParams: this._getQueryParams(url.searchParams),
+            method: request.method,
+            headers: updatedOptions.headers,
+            contentType: this._getContentType(updatedOptions.headers),
+            contentLength: this._getContentLength(updatedOptions.headers),
+        };
+        if (request.form) {
+            reqExtra.formData = request.form;
+        }
+        else if (request.json) {
+            reqExtra.contentType = 'application/json';
+            if (request.json instanceof Object) {
+                reqExtra.content = JSON.stringify(request.json);
+            }
+            else {
+                reqExtra.content = request.json;
+            }
+        }
+        else if (request.body) {
+            reqExtra.content = request.body;
+        }
+
+        if (!this._extra.http) {
+            this._extra.http = {};
+        }
+        this._extra.http.request = reqExtra;
+    }
+
+    _getContentType(headers = {}) {
+        const contentType = headers['content-type'];
+        if (!contentType) {
+            return undefined;
+        }
+        const match = contentType.match(/^(.+?)(;|$)/);
+        if (!match || match.length < 2) {
+            return undefined;
+        }
+        return match[1];
+    }
+
+    _getContentLength(headers = {}) {
+        if (!headers['content-length']) {
+            return undefined;
+        }
+        const lengthAsStr = headers['content-length'];
+        return parseInt(lengthAsStr);
+    }
+
+    _getQueryParams(searchParams) {
+        return Array.from( searchParams.keys() ).reduce( ( record, key ) => {
+            const values = searchParams.getAll(key);
+            return { ...record, [ key ]: values.length > 1 ? values.join(',') : values[0] };
+        }, {});
+    }
+
+    _addResponseExtra(response) {
+        const resExtra = {
+            url: response.redirectUrls && response.redirectUrls.length && response.redirectUrls[0],
+            statusText: response.statusMessage,
+            statusCode: response.statusCode,
+            contentType: this._getContentType(response.headers),
+            contentLength: this._getContentLength(response.headers),
+            headers: response.headers,
+            version: response.httpVersion,
+            content: response.body,
+        };
+        if (!this._extra.http) {
+            this._extra.http = {};
+        }
+        this._extra.http.response = resExtra;
+        if (response.timings && response.timings.phases) {
+            this._extra.http.timings = { ...response.timings.phases };
+        }
+
+    }
+
+    _resolveData(data, headers, isFormData = false) {
         const dataResolver = {};
 
-        if (data instanceof Object) {
+        if (isFormData) {
+            dataResolver.form = data;
+        }
+        else if (data instanceof FormData) {
+            dataResolver.body = data;
+        }
+        else if (data instanceof Object) {
             modUtils.assertCircular(data);
             dataResolver.json = data;
         } else {
@@ -384,10 +496,18 @@ export default class HttpModule extends OxygenModule {
     }
 
     async _httpRequestSync(httpOpts) {
+        if (this._extra.http) {
+            delete this._extra.http;
+        }
+        //this._addRequestExtra(httpOpts);
         let result;
 
         try {
-            result = await got(httpOpts);
+            result = await got({ ...httpOpts, hooks: {
+                beforeRequest: [
+                    options => { this._addRequestExtra(httpOpts, options); }
+                ],
+            }});
             if (httpOpts.deflateRaw && result.headers['content-encoding'] === 'deflate') {
                 const zlib = require('zlib');
                 const decomp = zlib.createInflateRaw();
@@ -462,7 +582,7 @@ export default class HttpModule extends OxygenModule {
                 body: result.body
             };
         }
-
+        this._addResponseExtra(result);
         // store last response to allow further assertions and validations
         this._lastResponse = result;
 

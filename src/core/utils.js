@@ -1,5 +1,6 @@
 import fs from 'fs';
 import path from 'path';
+const { v1 } = require('uuid');
 
 export function loadModuleFromClass(moduleName, moduleClass, moduleLogger, oxModulesDirPath, args) {
     if (moduleClass.default) {
@@ -31,6 +32,16 @@ export function loadModulesFromFile(moduleName, moduleFileName, moduleLogger, ox
     // apply this for functions inside 'helpers' methods collection if found
     applyThisInHelpers(module);
     return module;
+}
+
+export function newFileAttachment(filePath) {
+    const fileName = path.basename(filePath);
+    return {
+        id: v1(),
+        fileName,
+        filePath,
+        type: 'other',
+    };
 }
 
 function applyThisInHelpers(module) {
