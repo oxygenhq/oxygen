@@ -1,5 +1,18 @@
 # CHANGELOG
 
+## v1.33.0 (2024-03-xx)
+
+#### :tada: New Feature
+* Add soft-wait mode for `web.waitForAngular`.
+* Add support for reporting request/response related information in HTTP module.
+
+#### :beetle: Bug Fix
+* Fix timeout processing in `web.waitForAngular`.
+
+#### :beetle: Bug Fix
+* Handle internal `recordVideo` flag in web module.
+* Bump dependencies.
+
 ## v1.32.1 (2024-03-01)
 
 #### :nail_care: Polish
