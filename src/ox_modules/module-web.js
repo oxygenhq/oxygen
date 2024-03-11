@@ -782,7 +782,7 @@ export default class WebModule extends WebDriverModule {
 
     async checkWaitForAngular() {
         if (this.autoWaitForAngular) {
-            await this.waitForAngular(this.autoWaitForAngularRootSelector, this.autoWaitForAngularTimeout);
+            await this.waitForAngular(this.autoWaitForAngularRootSelector, this.autoWaitForAngularSoftWait, this.autoWaitForAngularTimeout);
         }
     }
 

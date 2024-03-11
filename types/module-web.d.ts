@@ -848,13 +848,14 @@ declare namespace Oxygen {
 		 * @param {Boolean} autoWaitForAngular - true to enable auto-wait. false to disable.
 		 * @param {String=} rootSelector - Selector for root element, needed only for AngularJS (v1). 
  		 *                                 In Angular (v2) first available root node will be selected automatically.
+ 		 * @param {Boolean=} softWait - If true then do not produce error if stability cannot be attained. Default is false.
 		 * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
 		 * @example <caption>[javascript] Usage example</caption>
 		 * web.init();
 		 * web.open("www.yourwebsite.com");
 		 * web.setAutoWaitForAngular(true);
 		 */
-		setAutoWaitForAngular(autoWaitForAngular?: boolean, rootSelector?: string | undefined, timeout?: number | undefined): void;
+		setAutoWaitForAngular(autoWaitForAngular?: boolean, rootSelector?: string | undefined, softWait?: boolean | undefined, timeout?: number | undefined): void;
 
 		/**
 		 * @summary Specifies the amount of time that Oxygen will wait for actions to complete.
@@ -914,14 +915,16 @@ declare namespace Oxygen {
 		/**
 		 * @summary Wait for Angular based app will be loaded
 		 * @function waitForAngular
-		 * @param {String=} rootSelector - Selector for root element, need only for Angular 1
+		 * @param {String=} rootSelector - Selector for root element, needed only for AngularJS (v1). 
+		 *                                 In Angular (v2) first available root node will be selected automatically.
+		 * @param {Boolean=} softWait - If true then do not produce error if stability cannot be attained. Default is false.
 		 * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
 		 * @example <caption>[javascript] Usage example</caption>
 		 * web.init();
 		 * web.open("www.yourwebsite.com");
 		 * web.waitForAngular();
 		 */
-		waitForAngular(rootSelector?: string | undefined, timeout?: number | undefined): void;
+		waitForAngular(rootSelector?: string | undefined, softWait?: boolean | undefined, timeout?: number | undefined): void;
 
 		/**
 		 * @summary Waits for element to become available in the DOM.

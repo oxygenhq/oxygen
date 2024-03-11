@@ -12,6 +12,7 @@
  * @function waitForAngular
  * @param {String=} rootSelector - Selector for root element, needed only for AngularJS (v1). 
  *                                 In Angular (v2) first available root node will be selected automatically.
+ * @param {Boolean=} softWait - If true then do not produce error if stability cannot be attained. Default is false.
  * @param {Number=} timeout - Timeout in milliseconds. Default is 60 seconds.
  * @example <caption>[javascript] Usage example</caption>
  * web.init();
@@ -19,7 +20,7 @@
  * web.waitForAngular();
  */
 
-export async function waitForAngular(rootSelector, timeout = 60*1000) {
+export async function waitForAngular(rootSelector, softWait = false, timeout = 60*1000) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
     try {
@@ -75,6 +76,8 @@ export async function waitForAngular(rootSelector, timeout = 60*1000) {
             timeoutMsg: `Unable to attain stability within ${timeout}ms (or this is not an Angular application)`
         });
     } catch (e) {
-        throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
+        if (!softWait) {
+            throw new this.OxError(this.errHelper.errorCode.TIMEOUT, e.message);
+        }
     }
 }
