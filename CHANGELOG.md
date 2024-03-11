@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## v1.33.0 (2024-03-xx)
+## v1.33.0 (2024-03-11)
 
 #### :tada: New Feature
 * Add soft-wait mode for `web.waitForAngular`.
