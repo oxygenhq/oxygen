@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.33.1 (2024-03-20)
+
+#### :beetle: Bug Fix
+* Properly handle non-string message argument in `assert.fail` and `assert.pass`. 
+
 ## v1.33.0 (2024-03-11)
 
 #### :tada: New Feature
