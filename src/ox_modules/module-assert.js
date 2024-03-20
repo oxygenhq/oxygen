@@ -13,6 +13,7 @@
  */
 
 const chai = require('chai');
+const util = require('util');
 import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 
@@ -115,6 +116,9 @@ module.exports = function() {
      * @param {String=} message - Error message to return.
      */
     module.fail = function(message) {
+        if (typeof message === 'object' && !(message instanceof String) && message !== null) {
+            message = util.inspect(message, { depth: 3 });
+        }
         throw new OxError(errHelper.errorCode.ASSERT_ERROR, message);
     };
 
@@ -124,6 +128,10 @@ module.exports = function() {
      * @param {String=} message - Message to return.
      */
     module.pass = function(message) {
+        if (typeof message === 'object' && !(message instanceof String) && message !== null) {
+            message = util.inspect(message, { depth: 3 });
+        }
+
         throw new OxError(errHelper.errorCode.ASSERT_PASSED, message);
     };
 
