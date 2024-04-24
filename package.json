@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "1.33.2",
+  "version": "1.33.3",
   "description": "Automation framework for testing modern applications",
   "main": "./build/index.js",
   "bin": {
@@ -53,7 +53,7 @@
     "axios is a peer dependency of soap. when using npm 6 (node 12-14) it needs to be explicitly included. when we migrate to npm 7 (node 16+) it can be removed."
   ],
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.50.11",
+    "@applitools/eyes-webdriverio": "5.39.1",
     "@lambdatest/node-rest-client": "1.0.5",
     "@oxygenhq/logger": "0.5.1",
     "@oxygenhq/mitmproxy-node": "1.0.1",
