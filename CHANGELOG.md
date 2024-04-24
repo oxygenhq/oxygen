@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.33.2 (2024-05-24)
+
+#### :house: Internal
+* Downgrade chrome-har version for node 12 compatibility.
+
 ## v1.33.1 (2024-03-20)
 
 #### :beetle: Bug Fix
