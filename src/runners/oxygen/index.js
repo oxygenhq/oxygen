@@ -496,23 +496,17 @@ export default class OxygenRunner extends EventEmitter {
         // get test suite's parameters if defined
         // get them first and then override with test case level parameters if defined
         if (suite.paramManager) {
-            /*if (reRun) {
+            if (reRun) {
                 suite.paramManager.readPrev();
-            }*/
-            _.extend(params, suite.paramManager.getValues());
-            if (!reRun) {
-                suite.paramManager.readNext();
             }
+            _.extend(params, suite.paramManager.getValues());
         }
         // read test case's next lines of parameters if parameter manager is defined
         if (caze.paramManager) {
-            /*if (reRun) {
+            if (reRun) {
                 caze.paramManager.readPrev();
-            }*/
-            _.extend(params, caze.paramManager.getValues());
-            if (!reRun) {
-                caze.paramManager.readNext();
             }
+            _.extend(params, caze.paramManager.getValues());
         }
 
         // add breakpoints before running the script if in debug mode
@@ -538,13 +532,21 @@ export default class OxygenRunner extends EventEmitter {
             if (!this._worker) {
                 return;
             }
-        }
-        catch (e) {
+        } catch (e) {
             log.error('_worker_InitOxygen() thrown an error:', e);
             caseResult.startTime = caseResult.endTime = oxutil.getTimeStamp();
             caseResult.duration = 0;
             caseResult.failure = errorHelper.getFailureFromError(e);
             caseResult.status = Status.FAILED;
+
+            if (suite.paramManager) {
+                suite.paramManager.readNext();
+            }
+
+            if (caze.paramManager) {
+                caze.paramManager.readNext();
+            }
+
             return caseResult;
         }
         // start new test session
@@ -586,6 +588,14 @@ export default class OxygenRunner extends EventEmitter {
         const disposeOxygenModules = typeof this._options.autoDispose !== 'boolean' || this._options.autoDispose === true;
         // end session and dispose Oxygen modules if required
         await this._worker_endSession(caseResult.status, disposeOxygenModules);
+
+        if (suite.paramManager) {
+            suite.paramManager.readNext();
+        }
+
+        if (caze.paramManager) {
+            caze.paramManager.readNext();
+        }
 
         return caseResult;
     }
