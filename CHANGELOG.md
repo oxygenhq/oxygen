@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.33.4 (2024-05-10)
+
+#### :beetle: Bug Fix
+* Fix incorrect processing of parameters.
+* Better handle situations when taking screenshots fails.
+
+#### :house: Internal
+* Bump webdriverio dependencies.
+
 ## v1.33.2 (2024-05-24)
 
 #### :house: Internal
