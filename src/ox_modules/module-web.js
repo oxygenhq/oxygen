@@ -515,69 +515,69 @@ export default class WebModule extends WebDriverModule {
                     let retval;
                     this.driver.call(() => {
                         return new Promise((resolve, reject) => {
-                            const waitUntilRetVal = this.driver.waitUntil(async() => {
-                                try {
-                                    let images = [];
+                            try {
+                                const waitUntilRetVal = this.driver.waitUntil(async() => {
+                                    try {
+                                        let images = [];
 
-                                    // collect all (screenshot and title) images
-                                    const handles = await this.driver.getWindowHandles();
-                                    if (
-                                        handles &&
-                                        Array.isArray(handles) &&
-                                        handles.length > 0
-                                    ) {
-                                        for (const handle of handles) {
-                                            await this.driver.switchToWindow(handle);
-                                            const image = await this.driver.takeScreenshot();
-                                            const title = await this.driver.getTitle();
+                                        // collect all (screenshot and title) images
+                                        const handles = await this.driver.getWindowHandles();
+                                        if (Array.isArray(handles) && handles.length > 0) {
+                                            for (const handle of handles) {
+                                                await this.driver.switchToWindow(handle);
+                                                const image = await this.driver.takeScreenshot();
+                                                const title = await this.driver.getTitle();
 
-                                            if (title) {
-                                                const textToImage = require('../lib/text-to-image');
-                                                let titleImage = await textToImage.generate(title);
-                                                if (titleImage && typeof titleImage === 'string') {
-                                                    titleImage = titleImage.replace('data:image/png;base64,', '');
-                                                    images.push(titleImage);
+                                                if (title) {
+                                                    const textToImage = require('../lib/text-to-image');
+                                                    let titleImage = await textToImage.generate(title);
+                                                    if (titleImage && typeof titleImage === 'string') {
+                                                        titleImage = titleImage.replace('data:image/png;base64,', '');
+                                                        images.push(titleImage);
+                                                    }
                                                 }
+
+                                                images.push(image);
                                             }
-
-                                            images.push(image);
                                         }
+
+                                        // merge all images into one
+                                        const mergedImage = await mergeImages(images, { direction: true });
+                                        if (mergedImage && typeof mergedImage === 'string') {
+                                            retval = mergedImage.replace('data:image/jpeg;base64,', '');
+                                        }
+
+                                        return true;
+                                    } catch (e) {
+                                        error = e;
+                                        return false;
                                     }
+                                },
+                                { timeout: 30*1000 });
 
-                                    // merge all images into one
-                                    const mergedImage = await mergeImages(images, { direction: true });
-                                    if (mergedImage && typeof mergedImage === 'string') {
-                                        retval = mergedImage.replace('data:image/jpeg;base64,', '');
-                                    }
-
-                                    return true;
-                                } catch (e) {
-                                    error = e;
-                                    return false;
-                                }
-                            },
-                            { timeout: 30*1000 });
-
-                            if (waitUntilRetVal && waitUntilRetVal.then) {
-                                waitUntilRetVal.then(() => {
+                                if (waitUntilRetVal && waitUntilRetVal.then) {
+                                    waitUntilRetVal.then(() => {
+                                        resolve();
+                                    }).catch((err) => {
+                                        reject(err);
+                                    });
+                                } else {
                                     resolve();
-                                }).catch((err) => {
-                                    reject(err);
-                                });
-                            } else {
-                                resolve();
+                                }
+                            } catch (ew) {
+                                this.logger.error('Cannot get screenshot (1)', error);
                             }
                         });
                     });
 
                     if (error) {
-                        this.logger.error('Cannot get screenshot', error);
+                        this.logger.error('Cannot get screenshot (2)', error);
                     }
 
                     return retval;
                 }
             } catch (e) {
-                this.logger.error('Cannot get screenshot', e);
+                this.logger.error('Cannot get screenshot (3)', e);
                 if (error) {
                     this.logger.error('Cannot get screenshot inner error', error);
                 }
