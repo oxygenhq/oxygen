@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.33.5 (2024-05-29)
+
+#### :beetle: Bug Fix
+* Fix `web.waitForAngular` when running inside an iframe.
+
 ## v1.33.4 (2024-05-10)
 
 #### :beetle: Bug Fix
