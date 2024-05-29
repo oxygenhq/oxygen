@@ -47,6 +47,13 @@ export async function waitForAngular(rootSelector, softWait = false, timeout = 6
                     return testable;
                 } else {
                     const stable = await this.driver.execute(() => {
+                        // eslint-disable-next-line no-undef
+                        if (!window.getAllAngularRootElements && window !== window.parent) {
+                          // if we are running inside iframe where getAllAngularRootElements is not unavailable
+                          // we return true
+                            return true;
+                        }
+
                         // following way of obtaining testability is the same as using: var testability = window.getAllAngularTestabilities()[0];
                         // eslint-disable-next-line no-undef
                         const rootElement = window.getAllAngularRootElements()[0];
@@ -57,19 +64,11 @@ export async function waitForAngular(rootSelector, softWait = false, timeout = 6
                         return testability.isStable();
                     });
 
-                    const version = await this.driver.execute(() => {
-                        // eslint-disable-next-line no-undef
-                        const el = document.querySelector('[ng-version]');
-                        if (!el) {
-                            return null;
-                        }
-                        return el.getAttribute('ng-version');
-                    });
-
-                    return (version && stable);
+                    return stable;
                 }
             } catch (err) {
-                // if we got here then it's executeAsync timeout.
+                // if we got here then it's executeAsync timeout
+                console.log('executeAsync err', err);
             }
         },{
             timeout: timeout,
