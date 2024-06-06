@@ -218,6 +218,10 @@ export default class UtilsModule extends OxygenModule {
         }
         // just in case user passed a complex object by mistake
         name = name.toString();
+
+        // limit the name length (since we can't store values larger than 512B in the database)
+        name = name.slice(0, 512);
+
         global._lastTransactionName = name;
     }
 }
