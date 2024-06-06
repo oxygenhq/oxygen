@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.33.6 (2024-06-06)
+
+#### :house: Internal
+* Limit transaction name to 512 characters.
+
 ## v1.33.5 (2024-05-29)
 
 #### :beetle: Bug Fix
