@@ -19,6 +19,7 @@ import errHelper from '../errors/helper';
 import modUtils from './utils';
 import {
     getAuthenticateMethods,
+    createBasicMessage,
 } from './module-http/ntlm-util';
 import * as ntlm from './module-http/ntlm';
 const http = require('http');
