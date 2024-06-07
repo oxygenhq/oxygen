@@ -17,6 +17,12 @@ import OxygenModule from '../core/OxygenModule';
 import OxError from '../errors/OxygenError';
 import errHelper from '../errors/helper';
 import modUtils from './utils';
+import {
+    getAuthenticateMethods,
+} from './module-http/ntlm-util';
+import * as ntlm from './module-http/ntlm';
+const http = require('http');
+const https = require('https');
 
 const MODULE_NAME = 'http';
 const RESPONSE_TIMEOUT = 1000 * 60;   // in ms
@@ -52,6 +58,9 @@ export default class HttpModule extends OxygenModule {
         this._lastResponse = null;
         this._baseUrl = null;
         this._userHttpOptions = {};
+        this._username = undefined;
+        this._password = undefined;
+        this._domain = undefined;
         // pre-initialize the module
         this._isInitialized = true;
     }
@@ -85,6 +94,25 @@ export default class HttpModule extends OxygenModule {
         if (opts.deflateRaw) {
             this._userHttpOptions.decompress = false;     // decompress=true in default options so we override it
         }
+    }
+
+    /**
+     * @summary Sets user credentials for NTLM authentication process
+     * @function setNtlmUser
+     * @param {String} username - NTLM username.
+     * @param {String} password - NTLM password.
+     * @param {String=} domain - NTLM domain name, if applicable.
+     * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
+     */
+    setNtlmUser(username, password, domain = undefined) {
+        // If username was passed as undefined, then remove previously defined NTLM credentials
+        if (username == undefined) {
+            this._username = this._password = this._domain = undefined;
+            return;
+        }
+        this._username = username;
+        this._password = password;
+        this._domain = domain;
     }
 
     /**
@@ -433,6 +461,9 @@ export default class HttpModule extends OxygenModule {
     }
 
     _getContentType(headers = {}) {
+        if (!headers) {
+            return undefined;
+        }
         const contentType = headers['content-type'];
         if (!contentType) {
             return undefined;
@@ -445,7 +476,7 @@ export default class HttpModule extends OxygenModule {
     }
 
     _getContentLength(headers = {}) {
-        if (!headers['content-length']) {
+        if (!headers || !headers['content-length']) {
             return undefined;
         }
         const lengthAsStr = headers['content-length'];
@@ -499,7 +530,7 @@ export default class HttpModule extends OxygenModule {
         return dataResolver;
     }
 
-    async _httpRequestSync(httpOpts) {
+    async _httpRequestSync(httpOpts, withAuth = false) {
         if (this._extra.http) {
             delete this._extra.http;
         }
@@ -512,6 +543,8 @@ export default class HttpModule extends OxygenModule {
                     options => { this._addRequestExtra(httpOpts, options); }
                 ],
             }});
+            
+
             if (httpOpts.deflateRaw && result.headers['content-encoding'] === 'deflate') {
                 const zlib = require('zlib');
                 const decomp = zlib.createInflateRaw();
@@ -542,6 +575,12 @@ export default class HttpModule extends OxygenModule {
             }
         } catch (e) {
             result = e;
+            if (e.response && e.response.statusCode && e.response.statusCode === 401 && !withAuth) {
+                const authReqResult = await this._handleNtlmAuthorization(httpOpts, e.response);
+                if (authReqResult) {
+                    result = authReqResult;
+                }
+            }
         }
 
         if (result instanceof Error) {
@@ -591,5 +630,57 @@ export default class HttpModule extends OxygenModule {
         this._lastResponse = result;
 
         return result;
+    }
+
+    async _handleNtlmAuthorization(httpOpts, response) {
+        if (!this._username) {
+            return undefined;
+        }
+        let authMethods = getAuthenticateMethods(response);
+        const optsWithAuth = { ...httpOpts };
+        if (response.statusCode === 401 && authMethods?.some(m => m.startsWith('basic'))) {
+            optsWithAuth.headers['Authorization'] = createBasicMessage(this._username || '', this._password || '');
+            return await this._httpRequestSync(optsWithAuth, true);
+        }
+        // Is https?
+        const reqUrl = require('url').parse(optsWithAuth.url);
+        const isHttps = reqUrl.protocol === 'https:';
+        // Setup keep-alive agent (otherwise we will get HTTP 401 for message type 3)
+		const keepaliveAgent = isHttps ? new https.Agent({keepAlive: true})
+            : new http.Agent({keepAlive: true});
+        if (isHttps) {
+            optsWithAuth.agent = { https: keepaliveAgent };
+        }
+        else {
+            optsWithAuth.agent = { http: keepaliveAgent };
+        }
+        // Send Type 1 message
+        const ntlmOpts = {
+            username: this._username,
+            password: this._password,
+            domain: '',
+            workstation: '',
+            url: optsWithAuth.url
+        };
+        optsWithAuth.headers['Authorization'] = ntlm.createType1Message(ntlmOpts);
+        optsWithAuth.headers['Connection'] = 'keep-alive';
+        optsWithAuth.throwHttpErrors = false;
+        let type1MsgResponse = await got(optsWithAuth);
+        authMethods = getAuthenticateMethods(type1MsgResponse);
+        // Parse Type 2 response
+        if (type1MsgResponse.statusCode === 401 && authMethods.length > 0 
+            && authMethods[0].startsWith('ntlm')) {
+            const type2Msg = ntlm.parseType2Message(type1MsgResponse.headers['www-authenticate']);
+            optsWithAuth.followRedirect = false;
+            optsWithAuth.headers['Connection'] = 'close';
+            optsWithAuth.headers['Authorization'] =
+                ntlm.createType3Message(type2Msg, ntlmOpts);
+        }
+        else {
+            return response;
+        }
+        optsWithAuth.throwHttpErrors = true;
+        // Send Type 3 message
+        return await this._httpRequestSync(optsWithAuth, true);
     }
 }
