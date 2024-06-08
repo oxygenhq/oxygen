@@ -19,7 +19,7 @@
         "no-multiple-empty-lines": [2, {"max": 1, "maxEOF": 1}]
     },
     "parserOptions": {
-        "ecmaVersion": 2018,
+        "ecmaVersion": 2020,
         "sourceType": "module"
     }
 }
