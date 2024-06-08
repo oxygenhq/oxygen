@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.34.0 (2024-06-07)
+
+#### :house: Internal
+* Add NTLM authentication support to `http` module.
+
 ## v1.33.6 (2024-06-06)
 
 #### :house: Internal
