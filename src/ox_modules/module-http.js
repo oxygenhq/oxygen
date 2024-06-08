@@ -544,7 +544,6 @@ export default class HttpModule extends OxygenModule {
                     options => { this._addRequestExtra(httpOpts, options); }
                 ],
             }});
-            
 
             if (httpOpts.deflateRaw && result.headers['content-encoding'] === 'deflate') {
                 const zlib = require('zlib');
@@ -647,7 +646,7 @@ export default class HttpModule extends OxygenModule {
         const reqUrl = require('url').parse(optsWithAuth.url);
         const isHttps = reqUrl.protocol === 'https:';
         // Setup keep-alive agent (otherwise we will get HTTP 401 for message type 3)
-		const keepaliveAgent = isHttps ? new https.Agent({keepAlive: true})
+        const keepaliveAgent = isHttps ? new https.Agent({keepAlive: true})
             : new http.Agent({keepAlive: true});
         if (isHttps) {
             optsWithAuth.agent = { https: keepaliveAgent };
@@ -669,7 +668,7 @@ export default class HttpModule extends OxygenModule {
         let type1MsgResponse = await got(optsWithAuth);
         authMethods = getAuthenticateMethods(type1MsgResponse);
         // Parse Type 2 response
-        if (type1MsgResponse.statusCode === 401 && authMethods.length > 0 
+        if (type1MsgResponse.statusCode === 401 && authMethods.length > 0
             && authMethods[0].startsWith('ntlm')) {
             const type2Msg = ntlm.parseType2Message(type1MsgResponse.headers['www-authenticate']);
             optsWithAuth.followRedirect = false;

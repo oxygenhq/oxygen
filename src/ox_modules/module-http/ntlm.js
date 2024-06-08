@@ -5,7 +5,7 @@
  * This source code is licensed under the MIT license found in the
  * LICENSE file in the root directory of this source tree.
  */
-
+/* eslint-disable */
 var crypto = require('crypto');
 var jsmd4 = require("js-md4");
 var desjs = require("des.js");
@@ -471,3 +471,4 @@ exports.parseType2Message = parseType2Message;
 exports.createType3Message = createType3Message;
 exports.create_NT_hashed_password = create_NT_hashed_password_v1;
 exports.create_LM_hashed_password = create_LM_hashed_password_v1;
+/* eslint-enable */
