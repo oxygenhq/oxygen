@@ -1,0 +1,7 @@
+# this file is jsut so we can commit empty directory.
+# commands directory is needed by IDE.
+
+# Ignore everything in this directory
+*
+# Except this file
+!.gitignore
