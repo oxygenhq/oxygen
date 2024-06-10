@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.34.1 (2024-06-10)
+
+#### :house: Internal
+* Downgrade wdio for node 12 compatibility in IDE.
+
 ## v1.34.0 (2024-06-07)
 
 #### :house: Internal
