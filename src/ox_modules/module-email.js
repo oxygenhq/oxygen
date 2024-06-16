@@ -15,12 +15,16 @@
 import OxError from '../errors/OxygenError';
 import utils from './utils';
 import _ from 'lodash';
-var errHelper = require('../errors/helper');
+const nodemailer = require('nodemailer');
+const imaps = require('imap-simple');
+const simpleParser = require('mailparser').simpleParser;
+
+const errHelper = require('../errors/helper');
+const AUTH_TIMEOUT = 30000;
 
 module.exports = function() {
-    var imaps = require('imap-simple');
-    const simpleParser = require('mailparser').simpleParser;
     var _config;
+    var _smtpConfig;
 
     module.isInitialized = function() {
         return _config !== undefined;
@@ -34,10 +38,10 @@ module.exports = function() {
      * @param {String} host - Host name (e.g. 'imap.gmail.com').
      * @param {Number} port - Port number (e.g. 993).
      * @param {Boolean} tls - true to use TLS, false otherwise.
-     * @param {Number} authTimeout - Authentication timeout in milliseconds.
+     * @param {Number=} authTimeout - Authentication timeout in milliseconds.
      * @param {Boolean=} enableSNI - Enable sending SNI when establishing the connection. This is required for some mail servers. Default is false. 
      */
-    module.init = function(user, password, host, port, tls, authTimeout, enableSNI) {
+    module.init = function(user, password, host, port, tls, authTimeout = AUTH_TIMEOUT, enableSNI = undefined) {
         utils.assertArgumentNonEmptyString(user, 'user');
         utils.assertArgumentNonEmptyString(password, 'password');
         utils.assertArgumentNonEmptyString(host, 'host');
@@ -54,6 +58,13 @@ module.exports = function() {
                 tls: tls,
                 authTimeout: authTimeout
             }
+        };
+        _smtpConfig = {
+            username: user,
+            password,
+            host: host,
+            port,
+            tls,
         };
 
         // set servername if SNI is enabled or we are using Gmail
@@ -189,6 +200,53 @@ module.exports = function() {
         }
 
         return mail;
+    };
+
+    /**
+     * @summary Send email using SMTP.
+     * @function send
+     * @param {String|Array} to - Reciever's email address.
+     * @param {String} subject - Email subject.
+     * @param {String} content - Email body as a plain text.
+     * @param {String=} html - Optional, Email body as HTML.
+     */
+    module.send = async function(to, subject, content, html = undefined) {
+        let err = undefined;
+        try {
+            // Create a SMTP transporter object
+            const transporter = nodemailer.createTransport({
+                host: _smtpConfig.host,
+                port: _smtpConfig.port,
+                secure: _smtpConfig.tls,
+                auth: {
+                    user: _smtpConfig.username,
+                    pass: _smtpConfig.password,
+                },
+                sendmail: false,
+                logger: false,
+                transactionLog: false,
+                debug: false,
+            });
+
+            // Message object
+            const message = {
+                to: to,
+                // Subject of the message
+                subject: subject || '',
+                // plaintext body
+                text: content,
+                // HTML body
+                html: html,
+            };
+
+            await transporter.sendMail(message);
+        }
+        catch (e) {
+            err = e;
+        }
+        if (err) {
+            throw new OxError(errHelper.errorCode.EMAIL_ERROR, err.toString());
+        }
     };
 
     return module;
