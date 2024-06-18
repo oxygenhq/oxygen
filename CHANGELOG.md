@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.35.0 (2024-06-18)
+
+#### :tada: New Feature
+* Add support for sending emails with `email` module.
+
 ## v1.34.1 (2024-06-10)
 
 #### :house: Internal
@@ -7,7 +12,7 @@
 
 ## v1.34.0 (2024-06-07)
 
-#### :house: Internal
+#### :tada: New Feature
 * Add NTLM authentication support to `http` module.
 
 ## v1.33.6 (2024-06-06)
