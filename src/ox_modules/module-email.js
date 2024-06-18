@@ -205,7 +205,7 @@ module.exports = function() {
     /**
      * @summary Send email using SMTP.
      * @function send
-     * @param {String|Array} to - Reciever's email address.
+     * @param {String|Array} to - Receiver's email address.
      * @param {String} subject - Email subject.
      * @param {String} content - Email body as a plain text.
      * @param {String=} html - Optional, Email body as HTML.
