@@ -1,0 +1,14 @@
+name: Auto reviews release
+on: pull_request
+jobs:
+  reviews:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto reviews branches
+        uses: golfzaptw/action-auto-reviews-from-branches@2.0.0
+        with:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN}}
+          EVENT_TYPE: APPROVE
+          BRANCHES: master
+          AUTHOR: romovs
+          MESSAGE: Approved
