@@ -310,6 +310,13 @@ var self = module.exports = {
         if (!hooks || !method || !hooks[method] || typeof hooks[method] !== 'function') {
             return null;
         }
+
+        // clear transaction name when executing hooks (except command start/end hooks)
+        // otherwise test steps will be messed up. e.g. transaction from case 1 will be shown in case 2, etc.
+        if (['beforeTest', 'beforeSuite', 'beforeCase', 'afterCase', 'afterSuite', 'afterTest'].includes(method)) {
+            global._lastTransactionName = null;
+        }
+
         try {
             if (global.chaiAndMockeryLoaded) {
                 // ignore
