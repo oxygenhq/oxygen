@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.35.2 (2024-07-30)
+
+#### :beetle: Bug Fix
+* Fix invalid transaction hierarchy in results when using hooks.
+
 ## v1.35.0 (2024-06-18)
 
 #### :tada: New Feature
