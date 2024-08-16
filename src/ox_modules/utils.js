@@ -26,6 +26,12 @@ const contextList = {
     web: 'web'
 };
 
+const cmdsToOverwrite = ['$$', '$','addValue','clearValue','click','doubleClick','dragAndDrop','getAttribute','getCSSProperty','getComputedLabel','getComputedRole',
+                         'getHTML','getLocation','getProperty','getSize','getTagName','getText','getValue','isClickable','isDisplayed','isDisplayedInViewport',
+                         'isEnabled','isEqual','isExisting','isFocused','isSelected','moveTo','nextElement','parentElement','previousElement',
+                         'react$$','react$','saveScreenshot','scrollIntoView','selectByAttribute','selectByIndex','selectByVisibleText','setValue',
+                         'shadow$$','shadow$','touchAction','waitForClickable','waitForDisplayed','waitForEnabled','waitForExist','waitUntil'];
+
 const isElementNotFound = (el) => {
     let result = false;
     if (
@@ -437,4 +443,23 @@ module.exports = {
         subtype: 'screencast',
         _url: videoUrl,
     }),
+
+    overwriteWdioCommands: async function(driver) {
+        // if element command is invoked directly from user script and error happens,
+        // it won't be caught and will lead to unhandledRejection (since it's executed in async manner without awaiting) and test results will be lost.
+
+        // e.g.
+        // var el = web.findElement('id=foo');
+        // el.click(); // if element is not visible then click will throw eventually
+
+        // therefore we wrap all wdio commands to make them execute synchronously.
+        // P.S. it would be better to disallow users from using wdio element commands directly since they are not displayed in logs or results.
+        // but we have no way determining whether command was executed from user script or from oxygen internals...
+
+        for (let cmd of cmdsToOverwrite) {
+            await driver.overwriteCommand(cmd, function (origFunc) {
+                return origFunc.apply(undefined, [].slice.call(arguments, 1));
+            }, true);
+        }
+    }
 };

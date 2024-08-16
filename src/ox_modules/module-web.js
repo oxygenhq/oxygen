@@ -312,10 +312,12 @@ export default class WebModule extends WebDriverModule {
                     'pageLoad': this.waitForTimeout
                 });
             }
-
         } catch (err) {
             throw new OxError(errHelper.errorCode.UNKNOWN_ERROR, err.message, util.inspect(err));
         }
+
+        await modUtils.overwriteWdioCommands(this.driver);
+
         super.init(this.driver);
     }
 

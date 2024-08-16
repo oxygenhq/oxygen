@@ -284,6 +284,9 @@ export default class MobileModule extends WebDriverModule {
         } else {
             await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
         }
+
+        await modUtils.overwriteWdioCommands(this.driver);
+
         super.init(this.driver);
     }
 

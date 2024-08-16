@@ -189,6 +189,8 @@ export default class WindowsModule extends WebDriverModule {
 
         await this.driver.setTimeout({ 'implicit': this.waitForTimeout });
 
+        await modUtils.overwriteWdioCommands(this.driver);
+
         super.init(this.driver);
     }
 
