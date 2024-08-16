@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.36.0 (2024-08-xx)
+
+#### :beetle: Bug Fix
+* Fix crash when wdio element command fails from within a user script.
+
 ## v1.35.2 (2024-07-30)
 
 #### :beetle: Bug Fix
