@@ -86,7 +86,11 @@ export default class OxygenWorker extends EventEmitter {
             await this._runFnInFiberContext(() => {
                 try {
                     // make sure to clear require cache so the script will be executed on each iteration
-                    require.cache[require.resolve(scriptPath)] && delete require.cache[require.resolve(scriptPath)];
+                    try {
+                        delete require.cache[require.resolve(scriptPath)];
+                    } catch (ce) {
+                        // ignored. could happen if module hasn't been cached yet.
+                    }
 
                     // if user uses require('./somescript.js') in multiple test scripts (cases), and somescript.js contains web/mob.init
                     // then, when those scripts are executed in a suite, only first case will pass, the rest will fail with MODULE_NOT_INITIALIZED error.
