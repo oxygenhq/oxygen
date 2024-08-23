@@ -411,7 +411,7 @@ description: ${module.description}
         startCntent += `
 {% hint style="warning" %}
 ${module.note}
-{% endhint %}  `;
+{% endhint %}\n`;
     }
     if (module.sample) {
         startCntent += `
