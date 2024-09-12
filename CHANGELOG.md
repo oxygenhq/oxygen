@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.37.0 (2024-09-12)
+
+#### :tada: New Feature
+* Add `soap.authClientSSL` and `soap.authClientSSLPFX`.
+
+#### :house: Internal
+* Bump odbc.
+
 ## v1.36.0 (2024-08-19)
 
 #### :beetle: Bug Fix
