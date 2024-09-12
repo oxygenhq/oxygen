@@ -72,6 +72,29 @@ module.exports = function() {
     };
 
     /**
+     * @summary Sets Client SSL Authentication details to be used for connections with the service.
+     * @function authClientSSL
+     * @param {Buffer|String} key - Private key path or a Buffer containing the key.
+     * @param {Buffer|String} cert - Certificate path or a Buffer containing the certificate.
+     * @param {Buffer|String|Array} ca - CA path or a Buffer.
+     * @param {Object=} options - Options.
+     */
+    module.authClientSSL = function(key, cert, ca, options) {
+        auth = new soap.ClientSSLSecurity(key, cert, ca, options);
+    };
+
+    /**
+     * @summary Sets Client SSL (PFX) Authentication details to be used for connections with the service.
+     * @function authClientSSLPFX
+     * @param {Buffer|String} pfx - PFX path or a Buffer containing the PFX bundle.
+     * @param {Buffer|String=} passphrase - Passphrase for the PFX.
+     * @param {Object=} options - Options.
+     */
+    module.authClientSSLPFX = function(pfx, passphrase, options) {
+        auth = new soap.ClientSSLSecurityPFX(pfx, passphrase, options);
+    };
+
+    /**
      * @summary Initiates a SOAP request and returns the response.
      * @function get
      * @param {String} wsdlUrl - URL pointing to the WSDL XML.
