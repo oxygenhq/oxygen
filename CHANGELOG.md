@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.37.1 (2024-09-12)
+
+#### :house: Internal
+* Revert odbc.
+
 ## v1.37.0 (2024-09-12)
 
 #### :tada: New Feature

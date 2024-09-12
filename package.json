@@ -1,6 +1,6 @@
 {
   "name": "oxygen-cli",
-  "version": "1.37.0",
+  "version": "1.37.1",
   "description": "Automation framework for testing modern applications",
   "main": "./build/index.js",
   "bin": {
@@ -114,7 +114,7 @@
     "xlsx": "0.18.5"
   },
   "optionalDependencies": {
-    "odbc": "2.4.9"
+    "odbc": "2.4.8"
   },
   "scripts": {
     "build": "npm run clean && npm run compile",
