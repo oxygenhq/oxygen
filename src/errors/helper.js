@@ -13,6 +13,7 @@
 
 import OxError from './OxygenError';
 const util = require('util');
+const path = require('path');
 
 const ERROR_CODES = {
     SCRIPT_ERROR: 'SCRIPT_ERROR',
@@ -341,6 +342,33 @@ module.exports = {
     getVerifyError: function(expected, actual) {
         actual = actual.toString().replace(/\n/g, '\\n');
         return new OxError(ERROR_CODES.VERIFY_ERROR, `Expected: "${expected}". Got: "${actual}"`, undefined, false /* not fatal */);
+    },
+    clearRequireStack: function(e) {
+        let requireStack = [];
+
+        if (e && e.requireStack) {
+            e.requireStack.map((item) => {
+                if (item) {
+                    if (item.startsWith(this._cwd)) {
+                        // path include absolute path to file
+                        requireStack.push(item.replace(this._cwd, ''));
+                    } else {
+                        if (item.includes('build'+path.sep+'runners')) {
+                            // ignore
+                        } else if (item.includes('OxygenWorker.js') || item.includes('worker.js')) {
+                            // ignore
+                        } else {
+                            // other variants 
+                            requireStack.push(item.replace);
+                        }
+                    }
+                }
+            });
+        }
+        e.requireStack = requireStack;
+        e.message = e.message.replace(/\nRequire stack(.*)/gs, '');
+
+        return e;
     },
     errorCode: ERROR_CODES
 };
