@@ -412,6 +412,8 @@ export default class OxygenRunner extends EventEmitter {
         }
 
         const reRunOnFailure = this._options.reRunOnFailed || false;
+        const maxReruns = this._options.reRunCount || MAX_RERUNS;
+        const reRunDelay = this._options.reRunDelay;
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
@@ -451,13 +453,16 @@ export default class OxygenRunner extends EventEmitter {
                     //let reRunCount = 0;
                     let caseResult;
                     // run or re-run the current test case
-                    for (let reRunCount = 0; reRunCount < MAX_RERUNS; reRunCount++) {
+                    for (let reRunCount = 0; reRunCount < maxReruns; reRunCount++) {
                         caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, reRunCount);
                         if ((!caseResult || caseResult.status === Status.FAILED) && !reRunOnFailure) {
                             break;
                         }
                         else if (caseResult && caseResult.status !== Status.FAILED) {
                             break;
+                        }
+                        if (reRunDelay && reRunCount < maxReruns - 1) {
+                            await oxutil.sleep(reRunDelay);
                         }
                     }
                     // report case end event
