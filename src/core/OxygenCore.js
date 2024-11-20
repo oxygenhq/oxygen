@@ -297,6 +297,12 @@ export default class Oxygen extends OxygenEvents {
         if (!this.resultStore) {
             return;
         }
+
+        if (!fs.existsSync(filePath)) {
+            console.err(`File ${filePath} doesn't exist`);
+            return;
+        }
+
         if (!this.resultStore.attachments) {
             this.resultStore.attachments = [];
         }
