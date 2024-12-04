@@ -1,9 +1,12 @@
 # CHANGELOG
 
-## v1.37.2 (2024-xx-xx)
+## v1.37.2 (2024-12-04)
 
 #### :beetle: Bug Fix
 * Produce proper error when trying to add non existent file with `ox.addAttachment`.
+
+#### :house: Internal
+* Handle re-run delay and re-run count.
 
 ## v1.37.1 (2024-09-12)
 
