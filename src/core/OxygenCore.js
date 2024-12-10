@@ -288,6 +288,10 @@ export default class Oxygen extends OxygenEvents {
     }
 
     addAttribute(name, value) {
+        if (!name || !value) {
+            throw new OxError(errorHelper.errorCode.SCRIPT_ERROR, "'name' and 'value' arguments are required for ox.addAttribute");
+        }
+
         if (this.resultStore && this.resultStore.attributes) {
             this.resultStore.attributes[name] = value;
         }
