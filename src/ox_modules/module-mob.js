@@ -234,6 +234,29 @@ export default class MobileModule extends WebDriverModule {
             delete wdioOpts.capabilities['perfectoMobile:options'];
         }
 
+        else if (provider === modUtils.provider.BROWSERSTACK) {
+            const bsOptions = wdioOpts.capabilities['bstack:options'];
+            if (bsOptions) {
+                const deviceName = bsOptions.deviceName;
+                const osName = bsOptions.os;
+                if (deviceName) {
+                    bsOptions.local = true;
+                    bsOptions.realMobile = true;
+                    wdioOpts.capabilities['appium:deviceName'] = deviceName;
+                    delete bsOptions['deviceName'];
+                }
+                // set automationName Appium capability
+                if (osName && osName.toLowerCase() === 'android') {
+                    wdioOpts.capabilities.platformName = 'Android';
+                    wdioOpts.capabilities['appium:automationName'] = 'UIAutomator2';
+                }
+                else if (osName && osName.toLowerCase() === 'ios') {
+                    wdioOpts.capabilities.platformName = 'iOS';
+                    wdioOpts.capabilities['appium:automationName'] = 'XCUITest';
+                }
+            }
+        }
+
         if (wdioOpts.capabilities['bstack:options'] && wdioOpts.capabilities['bstack:options']['name']) {
             name = wdioOpts.capabilities['bstack:options']['name'];
             delete wdioOpts.capabilities['bstack:options'];
