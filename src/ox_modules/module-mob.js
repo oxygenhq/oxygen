@@ -239,6 +239,10 @@ export default class MobileModule extends WebDriverModule {
             if (bsOptions) {
                 const deviceName = bsOptions.deviceName;
                 const osName = bsOptions.os;
+                // set default build name
+                bsOptions.buildName = 'default';
+                // set default idle timeout
+                bsOptions.idleTimeout = 300;
                 if (deviceName) {
                     // bsOptions.local = true;
                     bsOptions.realMobile = true;
@@ -256,7 +260,7 @@ export default class MobileModule extends WebDriverModule {
                 }
                 // merge user-provided BS options into the final options object
                 if (wdioOpts.capabilities['bstack:recordVideo']) {
-                    bsOptions.recordVideo = wdioOpts.capabilities['bstack:recordVideo'];
+                    bsOptions.video = wdioOpts.capabilities['bstack:recordVideo'];
                     delete wdioOpts.capabilities['bstack:recordVideo'];
                 }
                 if (wdioOpts.capabilities['bstack:local']) {
