@@ -240,7 +240,7 @@ export default class MobileModule extends WebDriverModule {
                 const deviceName = bsOptions.deviceName;
                 const osName = bsOptions.os;
                 if (deviceName) {
-                    bsOptions.local = true;
+                    // bsOptions.local = true;
                     bsOptions.realMobile = true;
                     wdioOpts.capabilities['appium:deviceName'] = deviceName;
                     delete bsOptions['deviceName'];
@@ -253,6 +253,23 @@ export default class MobileModule extends WebDriverModule {
                 else if (osName && osName.toLowerCase() === 'ios') {
                     wdioOpts.capabilities.platformName = 'iOS';
                     wdioOpts.capabilities['appium:automationName'] = 'XCUITest';
+                }
+                // merge user-provided BS options into the final options object
+                if (wdioOpts.capabilities['bstack:recordVideo']) {
+                    bsOptions.recordVideo = wdioOpts.capabilities['bstack:recordVideo'];
+                    delete wdioOpts.capabilities['bstack:recordVideo'];
+                }
+                if (wdioOpts.capabilities['bstack:local']) {
+                    bsOptions.local = wdioOpts.capabilities['bstack:local'];
+                    delete wdioOpts.capabilities['bstack:local'];
+                }
+                if (wdioOpts.capabilities['bstack:networkLogs']) {
+                    bsOptions.networkLogs = wdioOpts.capabilities['bstack:networkLogs'];
+                    delete wdioOpts.capabilities['bstack:networkLogs'];
+                }
+                if (wdioOpts.capabilities['bstack:debug']) {
+                    bsOptions.debug = wdioOpts.capabilities['bstack:debug'];
+                    delete wdioOpts.capabilities['bstack:debug'];
                 }
             }
         }
