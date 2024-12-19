@@ -249,6 +249,7 @@ export default class MobileModule extends WebDriverModule {
                     wdioOpts.capabilities['appium:deviceName'] = deviceName;
                     delete bsOptions['deviceName'];
                 }
+
                 // set automationName Appium capability
                 if (osName && osName.toLowerCase() === 'android') {
                     wdioOpts.capabilities.platformName = 'Android';
@@ -258,6 +259,7 @@ export default class MobileModule extends WebDriverModule {
                     wdioOpts.capabilities.platformName = 'iOS';
                     wdioOpts.capabilities['appium:automationName'] = 'XCUITest';
                 }
+
                 // merge user-provided BS options into the final options object
                 if (wdioOpts.capabilities['bstack:recordVideo']) {
                     bsOptions.video = wdioOpts.capabilities['bstack:recordVideo'];
@@ -275,6 +277,10 @@ export default class MobileModule extends WebDriverModule {
                     bsOptions.debug = wdioOpts.capabilities['bstack:debug'];
                     delete wdioOpts.capabilities['bstack:debug'];
                 }
+                if (wdioOpts.capabilities['bstack:gpsLocation']) {
+                    bsOptions.gpsLocation = wdioOpts.capabilities['bstack:gpsLocation'];
+                    delete wdioOpts.capabilities['bstack:gpsLocation'];
+                }
             }
         }
 
@@ -288,6 +294,7 @@ export default class MobileModule extends WebDriverModule {
         // init webdriver
         try {
             this.driver = await wdio.remote(wdioOpts);
+
             this.driver.provider = provider;
 
             if (this.options.seleniumBrowserTimeout) {
