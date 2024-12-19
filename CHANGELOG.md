@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.37.3 (2024-12-19)
+
+#### :beetle: Bug Fix
+* Properly pass BrowserStack capabilities.
+
 ## v1.37.2 (2024-12-04)
 
 #### :beetle: Bug Fix
