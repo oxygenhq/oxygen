@@ -239,12 +239,8 @@ export default class MobileModule extends WebDriverModule {
             if (bsOptions) {
                 const deviceName = bsOptions.deviceName;
                 const osName = bsOptions.os;
-                // set default build name
-                bsOptions.buildName = 'default';
-                // set default idle timeout
-                bsOptions.idleTimeout = 300;
+
                 if (deviceName) {
-                    // bsOptions.local = true;
                     bsOptions.realMobile = true;
                     wdioOpts.capabilities['appium:deviceName'] = deviceName;
                     delete bsOptions['deviceName'];
@@ -280,6 +276,14 @@ export default class MobileModule extends WebDriverModule {
                 if (wdioOpts.capabilities['bstack:gpsLocation']) {
                     bsOptions.gpsLocation = wdioOpts.capabilities['bstack:gpsLocation'];
                     delete wdioOpts.capabilities['bstack:gpsLocation'];
+                }
+                if (wdioOpts.capabilities['bstack:buildName']) {
+                    bsOptions.buildName = wdioOpts.capabilities['bstack:buildName'];
+                    delete wdioOpts.capabilities['bstack:buildName'];
+                }
+                if (wdioOpts.capabilities['bstack:idleTimeout']) {
+                    bsOptions.idleTimeout = wdioOpts.capabilities['bstack:idleTimeout'];
+                    delete wdioOpts.capabilities['bstack:idleTimeout'];
                 }
             }
         }
