@@ -243,7 +243,6 @@ export default class MobileModule extends WebDriverModule {
                 if (deviceName) {
                     bsOptions.realMobile = true;
                     wdioOpts.capabilities['appium:deviceName'] = deviceName;
-                    delete bsOptions['deviceName'];
                 }
 
                 // set automationName Appium capability
