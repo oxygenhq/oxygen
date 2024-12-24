@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.37.4 (2024-12-24)
+
+#### :beetle: Bug Fix
+* Fix suite execution not working properly on BrowserStack.
+
 ## v1.37.3 (2024-12-19)
 
 #### :beetle: Bug Fix
