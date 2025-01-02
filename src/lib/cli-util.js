@@ -214,6 +214,7 @@ export function getCommandLineOptions(argv) {
         reopenSession: argv.reopen ? argv.reopen === 'true' : null,
         iterations : argv.i ? parseInt(argv.i) : (argv.iter ? parseInt(argv.iter) : null),
         debugPort: argv.dbgport || null,
+        wsPort: argv.wsport || null,
         delay: argv.d || argv.delay || null,
     };
     // switch: --rf flag
