@@ -11,6 +11,7 @@ import * as cliutil from './cli-util';
 import Launcher from './launcher';
 import ParallelLauncher from './parallel-launcher';
 import ReportAggregator from '../reporter/ReportAggregator';
+import WebSocketReporter from '../reporter/WebSocketReporter';
 
 process.on('SIGINT', handleSigInt);
 process.on('uncaughtException', error => {
@@ -81,11 +82,18 @@ async function prepareAndStartTheTest(options) {
     // start launcher
     try {
         const reporter = new ReportAggregator(options);
+        const wsReporter = options.wsPort !== undefined ?
+            new WebSocketReporter(reporter) : undefined;
         const launcher = options.parallel && options.parallel.workers && !isNaN(options.parallel.workers) && options.parallel.workers > 1
             ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
+        await wsReporter?.startAndWaitForClient(options.wsPort);
         console.log('Test started...');
         await launcher.run(capsArr);
-        await reporter.generateReports();
+        // Generate file report only when no wsport argument is provided
+        if (!wsReporter) {
+            reporter.generateReports();
+        }
+        wsReporter?.stop();
         exitCode = reporter.getExitCode();
     }
     catch (e) {
@@ -124,6 +132,7 @@ General options:
                              sequentially. This option is mutually exclusive with
                              -i option.
       --dbgport=PORT         Debugger port.
+      --wsport=PORT          WebSocket events reporter port.
       --suites               Filter out suites by name
   -h, --help                 Display this information and exit.
   -v, --version              Display version information and exit.
