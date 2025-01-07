@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.37.5 (2025-01-07)
+
+#### :beetle: Bug Fix
+* Fix test status not being set for BrowserStack tests.
+
+#### :house: Internal
+* Store BrowserStack result url in test result.
+
 ## v1.37.4 (2024-12-24)
 
 #### :beetle: Bug Fix
