@@ -687,39 +687,27 @@ export default class MobileModule extends WebDriverModule {
 
     async _sendResultStatusToBrowserstack(status) {
         return new Promise((resolve, reject) => {
-            const requestBody = {
-                status: status === 'PASSED' ? 'passed' : 'failed'
+            // different APIs are used depending on test type.
+            // https://www.browserstack.com/docs/automate/api-reference/selenium/session#set-test-status
+            // https://www.browserstack.com/docs/app-automate/api-reference/appium/sessions#update-session-status
+            const bsApiUrl = this.wdioOpts.capabilities['appium:app'] ?
+              `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
+              `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
+
+            let options = {
+                url: bsApiUrl,
+                method: 'PUT',
+                json: true,
+                rejectUnauthorized: false,
+                body: {
+                    status: status === 'PASSED' ? 'passed' : 'failed'
+                },
+                'auth': {
+                    'user': this.wdioOpts.capabilities['bstack:options'].userName,
+                    'pass': this.wdioOpts.capabilities['bstack:options'].accessKey,
+                    'sendImmediately': false
+                }
             };
-
-            let options;
-
-            if (this.wdioOpts.capabilities.browserName) {
-                options = {
-                    url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
-                    method: 'PUT',
-                    json: true,
-                    rejectUnauthorized: false,
-                    body: requestBody,
-                    'auth': {
-                        'user': this.wdioOpts.user,
-                        'pass': this.wdioOpts.key,
-                        'sendImmediately': false
-                    },
-                };
-            } else {
-                options = {
-                    url: `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json`,
-                    method: 'PUT',
-                    json: true,
-                    rejectUnauthorized: false,
-                    body: requestBody,
-                    'auth': {
-                        'user': this.wdioOpts.capabilities['browserstack.user'],
-                        'pass': this.wdioOpts.capabilities['browserstack.key'],
-                        'sendImmediately': false
-                    },
-                };
-            }
 
             try {
                 request(options, (err, res, body) => {
