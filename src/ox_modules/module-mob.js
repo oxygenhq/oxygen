@@ -249,44 +249,30 @@ export default class MobileModule extends WebDriverModule {
                 if (osName && osName.toLowerCase() === 'android') {
                     wdioOpts.capabilities.platformName = 'Android';
                     wdioOpts.capabilities['appium:automationName'] = 'UIAutomator2';
-                }
-                else if (osName && osName.toLowerCase() === 'ios') {
+                } else if (osName && osName.toLowerCase() === 'ios') {
                     wdioOpts.capabilities.platformName = 'iOS';
                     wdioOpts.capabilities['appium:automationName'] = 'XCUITest';
                 }
 
                 // merge user-provided BS options into the final options object
-                if (wdioOpts.capabilities['bstack:recordVideo']) {
-                    bsOptions.video = wdioOpts.capabilities['bstack:recordVideo'];
-                    delete wdioOpts.capabilities['bstack:recordVideo'];
-                }
-                if (wdioOpts.capabilities['bstack:local']) {
-                    bsOptions.local = wdioOpts.capabilities['bstack:local'];
-                    delete wdioOpts.capabilities['bstack:local'];
-                }
-                if (wdioOpts.capabilities['bstack:localIdentifier']) {
-                    bsOptions.localIdentifier = wdioOpts.capabilities['bstack:localIdentifier'];
-                    delete wdioOpts.capabilities['bstack:localIdentifier'];
-                }
-                if (wdioOpts.capabilities['bstack:networkLogs']) {
-                    bsOptions.networkLogs = wdioOpts.capabilities['bstack:networkLogs'];
-                    delete wdioOpts.capabilities['bstack:networkLogs'];
-                }
-                if (wdioOpts.capabilities['bstack:debug']) {
-                    bsOptions.debug = wdioOpts.capabilities['bstack:debug'];
-                    delete wdioOpts.capabilities['bstack:debug'];
-                }
-                if (wdioOpts.capabilities['bstack:gpsLocation']) {
-                    bsOptions.gpsLocation = wdioOpts.capabilities['bstack:gpsLocation'];
-                    delete wdioOpts.capabilities['bstack:gpsLocation'];
-                }
-                if (wdioOpts.capabilities['bstack:buildName']) {
-                    bsOptions.buildName = wdioOpts.capabilities['bstack:buildName'];
-                    delete wdioOpts.capabilities['bstack:buildName'];
-                }
-                if (wdioOpts.capabilities['bstack:idleTimeout']) {
-                    bsOptions.idleTimeout = wdioOpts.capabilities['bstack:idleTimeout'];
-                    delete wdioOpts.capabilities['bstack:idleTimeout'];
+                for (const capName in wdioOpts.capabilities) {
+                    if (capName.startsWith('bstack:')) {
+                        const bsCapName = capName.substring('bstack:'.length);
+
+                        if (bsCapName === 'options') {
+                            continue;
+                        }
+
+                        // for backward compatibility... needs to be removed eventually
+                        if (bsCapName === 'recordVideo') {
+                            bsOptions.video = wdioOpts.capabilities[capName];
+                            delete wdioOpts.capabilities[capName];
+                            continue;
+                        }
+
+                        bsOptions[bsCapName] = wdioOpts.capabilities[capName];
+                        delete wdioOpts.capabilities[capName];
+                    }
                 }
             }
         }
