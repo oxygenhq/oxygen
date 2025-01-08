@@ -264,6 +264,10 @@ export default class MobileModule extends WebDriverModule {
                     bsOptions.local = wdioOpts.capabilities['bstack:local'];
                     delete wdioOpts.capabilities['bstack:local'];
                 }
+                if (wdioOpts.capabilities['bstack:localIdentifier']) {
+                    bsOptions.localIdentifier = wdioOpts.capabilities['bstack:localIdentifier'];
+                    delete wdioOpts.capabilities['bstack:localIdentifier'];
+                }
                 if (wdioOpts.capabilities['bstack:networkLogs']) {
                     bsOptions.networkLogs = wdioOpts.capabilities['bstack:networkLogs'];
                     delete wdioOpts.capabilities['bstack:networkLogs'];

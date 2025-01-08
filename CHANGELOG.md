@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.37.6 (2025-01-08)
+
+#### :beetle: Bug Fix
+* Fix pass through of the `bstack:localIdentifier` capability.
+
 ## v1.37.5 (2025-01-07)
 
 #### :beetle: Bug Fix
