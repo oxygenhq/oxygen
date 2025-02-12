@@ -6,6 +6,7 @@ import deasync from 'deasync';
 import Future from 'fibers/future';
 import Fiber from 'fibers';
 import { EOL } from 'os';
+const { v1 } = require('uuid');
 import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
@@ -602,10 +603,12 @@ export default class Oxygen extends OxygenEvents {
 
         // add command location information (e.g. file name and command line)
         let cmdLocation = null;
+        // generate step result id
+        const stepResultId = v1();
         // do not report results or line updates on internal methods (started with '_')
         if (publicMethod) {
             cmdLocation = this._getCommandLocation();
-            this.emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
+            this.emitBeforeCommand(stepResultId, cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
         }
 
         this.logger.debug('Executing: ' + oxutil.getMethodSignature(moduleName, cmdName, cmdArgs));
@@ -666,6 +669,7 @@ export default class Oxygen extends OxygenEvents {
             this._waitStepResultList.push(waitId);
 
             stepResult = this._getStepResult(module, moduleName, cmdName, cmdArgs, cmdLocation, startTime, endTime, retval, error);
+            stepResult.id = stepResultId;
 
             const index = this._waitStepResultList.indexOf(waitId);
             this._waitStepResultList.splice(index, 1);

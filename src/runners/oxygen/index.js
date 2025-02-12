@@ -130,6 +130,8 @@ export default class OxygenRunner extends EventEmitter {
         this._localTime = false;
         this._testKilled = false;
         this._scriptContentLineOffset = 3;
+        this._currentCaseResultId = undefined;
+        this._currentSuiteResultId = undefined;
         // promises
         this._whenDisposed = defer();
     }
@@ -424,7 +426,7 @@ export default class OxygenRunner extends EventEmitter {
             }
             const suiteResult = new TestSuiteResult();
             suiteIterations.push(suiteResult);
-            suiteResult.id = v1();
+            suiteResult.id = this._currentSuiteResultId = v1();
             suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
             suiteResult.startTime = oxutil.getTimeStamp();
             suiteResult.iterationNum = suiteIteration;
@@ -452,7 +454,7 @@ export default class OxygenRunner extends EventEmitter {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
                     // generate case result id
-                    const caseResultId = v1();
+                    const caseResultId = this._currentCaseResultId = v1();
                     // report case start event
                     await this._reporter.onCaseStart(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id || caze.path*/, caze);
                     //let reRunCount = 0;
@@ -460,7 +462,6 @@ export default class OxygenRunner extends EventEmitter {
                     // run or re-run the current test case
                     for (let reRunCount = 0; reRunCount < maxReruns; reRunCount++) {
                         caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, reRunCount);
-                        caseResult.id = caseResultId;
                         if ((!caseResult || caseResult.status === Status.FAILED) && !reRunOnFailure) {
                             break;
                         }
@@ -471,6 +472,7 @@ export default class OxygenRunner extends EventEmitter {
                             await oxutil.sleep(reRunDelay);
                         }
                     }
+                    caseResult.id = caseResultId;
                     // report case end event
                     await this._reporter.onCaseEnd(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id*/, caseResult);
                     if (showCaseIterationsMessages) {
@@ -824,7 +826,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _handleBeforeCommand(e) {
-        this._reporter && await this._reporter.onStepStart(this._id, e);
+        this._reporter && await this._reporter.onStepStart(this._id, this._currentSuiteResultId, this._currentCaseResultId, e);
 
         try {
             if (e && e.module && e.module === 'log') {
@@ -840,7 +842,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _handleAfterCommand(e) {
-        this._reporter && await this._reporter.onStepEnd(this._id, e.result);
+        this._reporter && await this._reporter.onStepEnd(this._id, this._currentSuiteResultId, this._currentCaseResultId, e.result);
         try {
             if (e && e.module && e.module === 'log') {
                 // ignore

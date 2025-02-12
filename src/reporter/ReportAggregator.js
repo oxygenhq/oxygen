@@ -291,28 +291,34 @@ export default class ReportAggregator extends EventEmitter {
         await this._invokeReportersHook('onCaseEnd', eventArgs);
     }
 
-    onStepStart(rid, step) {
+    async onStepStart(rid, suiteId, caseId, step) {
         console.log(`  - Step "${step.name}" has started...`);
-
         if (this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber') {
             const fullPath = path.resolve(this.options.rootPath, step.location);
             step.location = fullPath+':1';
         }
-
-        this.emit('step:start', {
+        const eventArgs = {
             rid,
+            suiteId,
+            caseId,
             step: step,
-        });
+        };
+        this.emit('step:start', eventArgs);
+        await this._invokeReportersHook('onStepStart', eventArgs);
     }
 
-    onStepEnd(rid, stepResult) {
+    async onStepEnd(rid, suiteId, caseId, stepResult) {
         const status = stepResult.status.toUpperCase();
         const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
         console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
-        this.emit('step:end', {
+        const eventArgs = {
             rid,
+            suiteId,
+            caseId,
             step: stepResult,
-        });
+        };
+        this.emit('step:end', eventArgs);
+        await this._invokeReportersHook('onStepEnd', eventArgs);
     }
 
     onLogEntry(time, level, msg, src = null) {

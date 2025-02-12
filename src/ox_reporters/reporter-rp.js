@@ -19,7 +19,7 @@ const LAUNCH_MODES = {
 const TEST_ITEM_TYPES = {
     SUITE: 'SUITE',
     TEST: 'TEST',
-    STEP: 'STEP'
+    STEP: 'STEP',
 };
 
 export default class ReportPortalReporter extends ReporterBase {
@@ -28,6 +28,7 @@ export default class ReportPortalReporter extends ReporterBase {
         this.reporterOpts = reporterOpts || options.rp;
         this.cbSuiteToRpIdHash = {};
         this.cbCaseToRpIdHash = {};
+        this.cbStepToRpIdHash = {};
         if (
             !this.reporterOpts
             || !this.reporterOpts.apiKey
@@ -141,11 +142,49 @@ export default class ReportPortalReporter extends ReporterBase {
             console.dir(`RP - Failed to finish test item: ${e}`);
         }
     }
-    async onStepStart({ rid, step }) {
-        // TODO: implement this method
+    async onStepStart({ rid, caseId, step }) {
+        const stepName = this._getStepName(step);
+        const startTestItemReq = {
+            name: stepName,
+            type: TEST_ITEM_TYPES.STEP,
+        };
+        const rpCaseId = this.cbCaseToRpIdHash[caseId];
+        if (!rpCaseId) {
+            return;
+        }
+        const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpCaseId);
+        this.cbStepToRpIdHash[step.id] = tempId;
+        try {
+            await promise;
+        }
+        catch (e) {
+            console.dir(`RP - Failed to start step item: ${e}`);
+        }
     }
-    async onStepEnd({ rid, result }) {
-        // TODO: implement this method
+    async onStepEnd({ rid, step: result }) {
+        const rpStepId = this.cbStepToRpIdHash[result.id];
+        if (!rpStepId) {
+            return;
+        }
+        const finishTestItemReq = {
+            status: result.status.toLowerCase(),
+        };
+        const { promise } = this.rpClient.finishTestItem(rpStepId, finishTestItemReq);
+        try {
+            await promise;
+        }
+        catch (e) {
+            console.dir(`RP - Failed to finish step item: ${e}`);
+        }
+    }
+    _getStepName(step) {
+        if (step.name === 'transaction' && step.args.length > 0) {
+            return step.args[0];
+        }
+        else if (step.module) {
+            return `${step.module}.${step.name}`;
+        }
+        return step.name;
     }
 }
 
