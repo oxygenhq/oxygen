@@ -57,6 +57,7 @@
     "@lambdatest/node-rest-client": "1.0.5",
     "@oxygenhq/logger": "0.5.1",
     "@oxygenhq/mitmproxy-node": "1.0.1",
+    "@oxygenhq/rp-client-javascript": "5.3.1",
     "@wdio/cli": "7.30.0",
     "@wdio/devtools-service": "7.30.0",
     "@wdio/sync": "7.30.0",

@@ -13,6 +13,8 @@ const log = logger('OxygenRunner');
 const DEFAULT_ISSUER = 'user';
 const MAX_RERUNS = 2;
 
+const { v1 } = require('uuid');
+
 import { EventEmitter } from 'events';
 import _  from 'lodash';
 import { defer } from 'when';
@@ -422,12 +424,13 @@ export default class OxygenRunner extends EventEmitter {
             }
             const suiteResult = new TestSuiteResult();
             suiteIterations.push(suiteResult);
+            suiteResult.id = v1();
             suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
             suiteResult.startTime = oxutil.getTimeStamp();
             suiteResult.iterationNum = suiteIteration;
             suiteResult.status = Status.PASSED;
             await this._worker_callBeforeSuiteHook(suite);
-            this._reporter.onSuiteStart(this._id, suite.uri, suiteResult);
+            await this._reporter.onSuiteStart(this._id, suiteResult.id, suiteResult);
             for (let caze of suite.cases) {
                 // ignore cases with missing mandatory 'path' property 
                 if (!caze.path) {
@@ -448,13 +451,16 @@ export default class OxygenRunner extends EventEmitter {
                     if (showCaseIterationsMessages) {
                         this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
+                    // generate case result id
+                    const caseResultId = v1();
                     // report case start event
-                    await this._reporter.onCaseStart(this._id, suite.uri || suite.id, caze.uri || caze.id || caze.path, caze);
+                    await this._reporter.onCaseStart(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id || caze.path*/, caze);
                     //let reRunCount = 0;
                     let caseResult;
                     // run or re-run the current test case
                     for (let reRunCount = 0; reRunCount < maxReruns; reRunCount++) {
                         caseResult = await this._runCase(suite, caze, suiteIteration, caseIteration, reRunCount);
+                        caseResult.id = caseResultId;
                         if ((!caseResult || caseResult.status === Status.FAILED) && !reRunOnFailure) {
                             break;
                         }
@@ -466,7 +472,7 @@ export default class OxygenRunner extends EventEmitter {
                         }
                     }
                     // report case end event
-                    await this._reporter.onCaseEnd(this._id, suite.uri || suite.id, caze.uri || caze.id, caseResult);
+                    await this._reporter.onCaseEnd(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id*/, caseResult);
                     if (showCaseIterationsMessages) {
                         this._reporter.onIterationEnd(this._id, caseResult, 'Case');
                     }
@@ -490,7 +496,7 @@ export default class OxygenRunner extends EventEmitter {
             }
 
             await this._worker_callAfterSuiteHook(suite, suiteResult);
-            this._reporter.onSuiteEnd(this._id, suite.uri, suiteResult);
+            await this._reporter.onSuiteEnd(this._id, suiteResult.id, suiteResult);
         }
         return suiteIterations;
     }
@@ -663,7 +669,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeTest" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeTest" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"beforeTest" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -675,7 +681,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeSuite" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeSuite" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"beforeSuite" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -685,7 +691,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeCase" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeCase" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"beforeCase" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -695,7 +701,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterTest" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterTest" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"afterTest" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -705,7 +711,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterSuite" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterSuite" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"afterSuite" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -715,7 +721,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterCase" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterCase" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"afterCase" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
@@ -818,7 +824,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _handleBeforeCommand(e) {
-        this._reporter && this._reporter.onStepStart(this._id, e);
+        this._reporter && await this._reporter.onStepStart(this._id, e);
 
         try {
             if (e && e.module && e.module === 'log') {
@@ -829,12 +835,12 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"beforeCommand" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"beforeCommand" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"beforeCommand" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 
     async _handleAfterCommand(e) {
-        this._reporter && this._reporter.onStepEnd(this._id, e.result);
+        this._reporter && await this._reporter.onStepEnd(this._id, e.result);
         try {
             if (e && e.module && e.module === 'log') {
                 // ignore
@@ -844,7 +850,7 @@ export default class OxygenRunner extends EventEmitter {
         }
         catch (e) {
             log.error('"afterCommand" hook failed:', e);
-            this._reporter && this._reporter.onLogEntry(null, 'WARN', '"afterCommand" hook failed:'+e, DEFAULT_ISSUER);
+            this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"afterCommand" hook failed:'+e, DEFAULT_ISSUER);
         }
     }
 

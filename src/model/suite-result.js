@@ -12,6 +12,7 @@
  */
 module.exports = function () {
     return {
+        id: null,
         name: null,
         iterationNum: 1,
         startTime: null,

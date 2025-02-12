@@ -11,7 +11,7 @@
  * Oxygen Reporter abstract class
  */
 export default class ReporterBase {
-    constructor(options) {
+    constructor(options, aggregator) {
         this.options = options;
     }
     generate(results) {
