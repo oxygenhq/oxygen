@@ -132,6 +132,7 @@ export default class OxygenRunner extends EventEmitter {
         this._scriptContentLineOffset = 3;
         this._currentCaseResultId = undefined;
         this._currentSuiteResultId = undefined;
+        this._currentStepResultId = undefined;
         // promises
         this._whenDisposed = defer();
     }
@@ -791,7 +792,12 @@ export default class OxygenRunner extends EventEmitter {
                 }
 
                 _this.emit('log', msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
-                _this._reporter && _this._reporter.onLogEntry(msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER);
+                _this._reporter && await _this._reporter.onLogEntry(
+                    msg.time, msg.level, msg.msg, msg.src || DEFAULT_ISSUER, {
+                        suiteId: this._currentSuiteResultId,
+                        caseId: this._currentCaseResultId,
+                        stepId: this._currentStepResultId,
+                    });
             }
             else if (msg.event && msg.event === 'line-update') {
                 _this.emit('line-update', msg.line, msg.stack, msg.time);
@@ -826,6 +832,7 @@ export default class OxygenRunner extends EventEmitter {
     }
 
     async _handleBeforeCommand(e) {
+        this._currentStepResultId = e.id;
         this._reporter && await this._reporter.onStepStart(this._id, this._currentSuiteResultId, this._currentCaseResultId, e);
 
         try {
@@ -854,6 +861,7 @@ export default class OxygenRunner extends EventEmitter {
             log.error('"afterCommand" hook failed:', e);
             this._reporter && await this._reporter.onLogEntry(null, 'WARN', '"afterCommand" hook failed:'+e, DEFAULT_ISSUER);
         }
+        this._currentStepResultId = undefined;
     }
 
     _resetGlobalVariables() {

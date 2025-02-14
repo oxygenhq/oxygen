@@ -131,6 +131,23 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!rpTestId) {
             return;
         }
+        const status = result.status.toLowerCase();
+        if (status === 'failed' && result.failure) {
+            const rpFile = result.screenshot ?
+            {
+                name: 'screenshot',
+                type: 'image/png',
+                content: result.screenshot,
+            } : undefined;
+            const logReq = {
+                message: result.failure.message,
+                level: 'error'
+            };
+            const { promise: sendLogPromise } = rpFile ?
+                this.rpClient.sendLogWithFile(rpTestId, logReq, rpFile)
+                : this.rpClient.sendLog(rpTestId, logReq);
+            await sendLogPromise;
+        }
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
@@ -143,15 +160,18 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
     async onStepStart({ rid, caseId, step }) {
-        const stepName = this._getStepName(step);
-        const startTestItemReq = {
-            name: stepName,
-            type: TEST_ITEM_TYPES.STEP,
-        };
         const rpCaseId = this.cbCaseToRpIdHash[caseId];
         if (!rpCaseId) {
             return;
         }
+        const stepName = this._getStepName(step);
+        const startTestItemReq = {
+            name: stepName,
+            type: TEST_ITEM_TYPES.STEP,
+            parameters: this._getRpArgs(step.args),
+            codeRef: step.location,
+            testCaseId: rpCaseId,
+        };
         const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpCaseId);
         this.cbStepToRpIdHash[step.id] = tempId;
         try {
@@ -166,6 +186,22 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!rpStepId) {
             return;
         }
+        const status = result.status.toLowerCase();
+        if (status === 'failed' && result.failure) {
+            const rpFile = result.screenshot ?
+            {
+                name: 'screenshot',
+                type: 'image/png',
+                content: result.screenshot,
+            } : undefined;
+            const logReq = {
+                message: result.failure.message,
+                level: 'error',
+                file: rpFile,
+            };
+            const { promise: sendLogPromise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
+            await sendLogPromise;
+        }
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
@@ -177,9 +213,51 @@ export default class ReportPortalReporter extends ReporterBase {
             console.dir(`RP - Failed to finish step item: ${e}`);
         }
     }
+    async onLog({ suiteId, caseId, stepId, level, msg, time, src }) {
+        const rpParentId = stepId ?
+            this.cbStepToRpIdHash[stepId]
+            : caseId ? this.cbCaseToRpIdHash[caseId]
+            : suiteId ? this.cbSuiteToRpIdHash[suiteId]
+            : undefined;
+        const rpLevel = this._getRpLevel(level);
+        const logReq = {
+            message: msg,
+            level: rpLevel,
+            time: time,
+        };
+        const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
+        try {
+            await promise;
+        }
+        catch (e) {
+            console.dir(`RP - Failed to create log item: ${e}`);
+        }
+    }
+    _getRpLevel(oxLevel) {
+        if (oxLevel) {
+            return oxLevel.toLowerCase();
+        }
+        return 'info';
+    }
+    _getRpArgs(cbArgs) {
+        if (!cbArgs || !cbArgs.length) {
+            return undefined;
+        }
+        const rpArgs = [];
+        for (let i=0; i<cbArgs.length; i++) {
+            rpArgs.push({
+                key: `arg${i}`,
+                value: cbArgs[i]
+            });
+        }
+        return rpArgs;
+    }
     _getStepName(step) {
         if (step.name === 'transaction' && step.args.length > 0) {
             return step.args[0];
+        }
+        else if (step.signature) {
+            return step.signature;
         }
         else if (step.module) {
             return `${step.module}.${step.name}`;

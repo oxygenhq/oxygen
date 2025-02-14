@@ -321,10 +321,18 @@ export default class ReportAggregator extends EventEmitter {
         await this._invokeReportersHook('onStepEnd', eventArgs);
     }
 
-    onLogEntry(time, level, msg, src = null) {
-        this.emit('log', {
-            level, msg, time, src
-        });
+    async onLogEntry(time, level, msg, src = null, { suiteId, caseId, stepId } = {}) {
+        const eventArgs = {
+            suiteId,
+            caseId,
+            stepId,
+            level,
+            msg,
+            time,
+            src
+        };
+        this.emit('log', eventArgs);
+        await this._invokeReportersHook('onLog', eventArgs);
     }
 
     /**
