@@ -112,6 +112,7 @@ export default class ReportPortalReporter extends ReporterBase {
         const startTestItemReq = {
             name: caseDef.name,
             type: TEST_ITEM_TYPES.TEST,
+            codeRef: caseDef.path,
         };
         const rpSuiteId = this.cbSuiteToRpIdHash[suiteId];
         if (!rpSuiteId) {
@@ -214,6 +215,10 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
     async onLog({ suiteId, caseId, stepId, level, msg, time, src }) {
+        // Oxygen might start generating logs before onRunnerStart event, ignore them
+        if (!this.tempLaunchId) {
+            return;
+        }
         const rpParentId = stepId ?
             this.cbStepToRpIdHash[stepId]
             : caseId ? this.cbCaseToRpIdHash[caseId]
