@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.37.7 (2025-02-18)
+
+#### :nail_care: Polish
+* Make bstack options copying more generic.
+
 ## v1.37.6 (2025-01-08)
 
 #### :beetle: Bug Fix
