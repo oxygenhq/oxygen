@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.37.8 (2025-03-03)
+
+#### :beetle: Bug Fix
+* Do not try to fetch BrowserStack URL for non BrowserStack tests.
+
 ## v1.37.7 (2025-02-18)
 
 #### :nail_care: Polish
