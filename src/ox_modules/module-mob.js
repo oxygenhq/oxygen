@@ -417,10 +417,7 @@ export default class MobileModule extends WebDriverModule {
         if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
             let error;
             try {
-                if (
-                    this.driver &&
-                    this.driver.takeScreenshot
-                ) {
+                if (this.driver?.takeScreenshot) {
                     let retval;
                     this.driver.call(() => {
                         return new Promise((resolve, reject) => {
@@ -588,10 +585,12 @@ export default class MobileModule extends WebDriverModule {
             }
         }
 
-        var resultUrl = await this._getBrowserStackResultUrl();
-        if (resultUrl) {
-            // FIXME: this should be written to context.resultData instead
-            this.rs.attributes['BrowserStackUrl'] = resultUrl;
+        if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
+            var resultUrl = await this._getBrowserStackResultUrl();
+            if (resultUrl) {
+                // FIXME: this should be written to context.resultData instead
+                this.rs.attributes['BrowserStackUrl'] = resultUrl;
+            }
         }
     }
 
