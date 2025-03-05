@@ -26,6 +26,8 @@ export default class ReportPortalReporter extends ReporterBase {
     constructor(options, reporterOpts, aggregator) {
         super(options);
         this.reporterOpts = reporterOpts || options.rp;
+        this.reportSteps = reporterOpts.reportSteps || false;
+        this.reportLogs = reporterOpts.reportLogs || false;
         this.cbSuiteToRpIdHash = {};
         this.cbCaseToRpIdHash = {};
         this.cbStepToRpIdHash = {};
@@ -161,6 +163,9 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
     async onStepStart({ rid, caseId, step }) {
+        if (!this.reportSteps) {
+            return;
+        }
         const rpCaseId = this.cbCaseToRpIdHash[caseId];
         if (!rpCaseId) {
             return;
@@ -184,6 +189,9 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
     async onStepEnd({ rid, step: result }) {
+        if (!this.reportSteps) {
+            return;
+        }
         const rpStepId = this.cbStepToRpIdHash[result.id];
         if (!rpStepId) {
             return;
@@ -216,6 +224,9 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
     async onLog({ suiteId, caseId, stepId, level, msg, time, src }) {
+        if (!this.reportLogs) {
+            return;
+        }
         // Oxygen might start generating logs before onRunnerStart event, ignore them
         if (!this.tempLaunchId) {
             return;
