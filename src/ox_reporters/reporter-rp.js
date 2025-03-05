@@ -172,6 +172,7 @@ export default class ReportPortalReporter extends ReporterBase {
             parameters: this._getRpArgs(step.args),
             codeRef: step.location,
             testCaseId: rpCaseId,
+            hasStats: false,
         };
         const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpCaseId);
         this.cbStepToRpIdHash[step.id] = tempId;

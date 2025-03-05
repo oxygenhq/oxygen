@@ -85,6 +85,10 @@ export default class ReportAggregator extends EventEmitter {
             const reporterOpts = typeof reporter === 'object' ? reporter : undefined;
 
             if (Object.prototype.hasOwnProperty.call(Reporters, reporterName)) {
+                // If reporter "enabled" property is "false" then skip the reporter
+                if (reporterOpts && typeof reporterOpts.enabled === 'boolean' && !reporterOpts.enabled) {
+                    continue;
+                }
                 const reporter = new Reporters[reporterName](this.options, reporterOpts, this);
                 // If the reporter has "init" function, use it to initialize the reporter
                 if (reporter.init) {
