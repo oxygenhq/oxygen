@@ -423,7 +423,7 @@ export default class OxygenRunner extends EventEmitter {
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
             if (showSuiteIterationsMessages) {
-                this._reporter.onIterationStart(this._id, suiteIteration, 'Suite');
+                await this._reporter.onIterationStart(this._id, suiteIteration, 'Suite');
             }
             const suiteResult = new TestSuiteResult();
             suiteIterations.push(suiteResult);
@@ -452,7 +452,7 @@ export default class OxygenRunner extends EventEmitter {
                         showCaseIterationsMessages = true;
                     }
                     if (showCaseIterationsMessages) {
-                        this._reporter.onIterationStart(this._id, caseIteration, 'Case');
+                        await this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
                     // generate case result id
                     const caseResultId = this._currentCaseResultId = v1();
@@ -477,7 +477,7 @@ export default class OxygenRunner extends EventEmitter {
                     // report case end event
                     await this._reporter.onCaseEnd(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id*/, caseResult);
                     if (showCaseIterationsMessages) {
-                        this._reporter.onIterationEnd(this._id, caseResult, 'Case');
+                        await this._reporter.onIterationEnd(this._id, caseResult, 'Case');
                     }
                     // add case result to the suite result
                     suiteResult.cases.push(caseResult);
@@ -495,7 +495,7 @@ export default class OxygenRunner extends EventEmitter {
             suiteResult.duration = suiteResult.endTime - suiteResult.startTime;
 
             if (showSuiteIterationsMessages) {
-                this._reporter.onIterationEnd(this._id, suiteResult, 'Suite');
+                await this._reporter.onIterationEnd(this._id, suiteResult, 'Suite');
             }
 
             await this._worker_callAfterSuiteHook(suite, suiteResult);
