@@ -336,6 +336,11 @@ export default class ReportAggregator extends EventEmitter {
             src
         };
         this.emit('log', eventArgs);
+
+        if (!time) {
+            eventArgs.time = Date.now();
+        }
+
         await this._invokeReportersHook('onLog', eventArgs);
     }
 
