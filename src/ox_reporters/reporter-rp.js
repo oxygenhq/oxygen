@@ -74,7 +74,7 @@ export default class ReportPortalReporter extends ReporterBase {
             status: result.status.toLowerCase(),
         });
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to end launch: ${e}`);
@@ -88,7 +88,7 @@ export default class ReportPortalReporter extends ReporterBase {
         const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId);
         this.cbSuiteToRpIdHash[suiteId] = tempId;
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to start suite item: ${e}`);
@@ -104,7 +104,7 @@ export default class ReportPortalReporter extends ReporterBase {
         };
         const { promise } = this.rpClient.finishTestItem(rpSuiteId, finishTestItemReq);
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to finish suite item: ${e}`);
@@ -123,7 +123,7 @@ export default class ReportPortalReporter extends ReporterBase {
         const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpSuiteId);
         this.cbCaseToRpIdHash[caseId] = tempId;
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to start test item: ${e}`);
@@ -149,14 +149,15 @@ export default class ReportPortalReporter extends ReporterBase {
             const { promise: sendLogPromise } = rpFile ?
                 this.rpClient.sendLogWithFile(rpTestId, logReq, rpFile)
                 : this.rpClient.sendLog(rpTestId, logReq);
-            await sendLogPromise;
+
+            await this.promiseWithTimeout(sendLogPromise);
         }
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
         const { promise } = this.rpClient.finishTestItem(rpTestId, finishTestItemReq);
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to finish test item: ${e}`);
@@ -182,7 +183,7 @@ export default class ReportPortalReporter extends ReporterBase {
         const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpCaseId);
         this.cbStepToRpIdHash[step.id] = tempId;
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to start step item: ${e}`);
@@ -210,14 +211,14 @@ export default class ReportPortalReporter extends ReporterBase {
                 file: rpFile,
             };
             const { promise: sendLogPromise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
-            await sendLogPromise;
+            await this.promiseWithTimeout(sendLogPromise);
         }
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
         const { promise } = this.rpClient.finishTestItem(rpStepId, finishTestItemReq);
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to finish step item: ${e}`);
@@ -244,7 +245,7 @@ export default class ReportPortalReporter extends ReporterBase {
         };
         const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
         try {
-            await promise;
+            await this.promiseWithTimeout(promise);
         }
         catch (e) {
             console.dir(`RP - Failed to create log item: ${e}`);
@@ -280,6 +281,15 @@ export default class ReportPortalReporter extends ReporterBase {
             return `${step.module}.${step.name}`;
         }
         return step.name;
+    }
+    promiseWithTimeout(promise, timeout = 10 * 1000) {
+        return new Promise((resolve, reject) => {
+            if (!promise || !promise.then) {
+                reject();
+            }
+            promise.then(resolve, reject);
+            setTimeout(reject, timeout);
+        });
     }
 }
 
