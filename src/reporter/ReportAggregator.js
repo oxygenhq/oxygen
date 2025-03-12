@@ -296,7 +296,7 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     async onStepStart(rid, suiteId, caseId, step) {
-        console.log(`  - Step "${step.name}" has started...`);
+        //console.log(`  - Step "${step.name}" has started...`);
         if (this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber') {
             const fullPath = path.resolve(this.options.rootPath, step.location);
             step.location = fullPath+':1';
@@ -312,9 +312,9 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     async onStepEnd(rid, suiteId, caseId, stepResult) {
-        const status = stepResult.status.toUpperCase();
-        const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
-        console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
+        //const status = stepResult.status.toUpperCase();
+        //const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
+        //console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
         const eventArgs = {
             rid,
             suiteId,
