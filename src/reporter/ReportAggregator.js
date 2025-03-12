@@ -23,6 +23,7 @@ import HtmlReporter from '../ox_reporters/reporter-html';
 import ExcelReporter from '../ox_reporters/reporter-excel';
 import PdfReporter from '../ox_reporters/reporter-pdf';
 import XmlReporter from '../ox_reporters/reporter-xml';
+import ReportPortalReporter from '../ox_reporters/reporter-rp';
 import errorHelper from '../errors/helper';
 import Status from '../model/status';
 
@@ -32,7 +33,8 @@ const Reporters = {
     html: HtmlReporter,
     excel: ExcelReporter,
     pdf: PdfReporter,
-    xml: XmlReporter
+    xml: XmlReporter,
+    rp: ReportPortalReporter,
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
@@ -80,10 +82,23 @@ export default class ReportAggregator extends EventEmitter {
             }
 
             const reporterName = typeof reporter === 'string' ? reporter : reporter.name;
-            const reporterOpts = typeof reporter === 'object' ? reporter : generalReportingOpts;
+            const reporterOpts = typeof reporter === 'object' ? reporter : undefined;
 
             if (Object.prototype.hasOwnProperty.call(Reporters, reporterName)) {
-                this.reporters.push(new Reporters[reporterName](this.options, reporterOpts));
+                // If reporter "enabled" property is "false" then skip the reporter
+                if (reporterOpts && typeof reporterOpts.enabled === 'boolean' && !reporterOpts.enabled) {
+                    continue;
+                }
+                const reporter = new Reporters[reporterName](this.options, reporterOpts, this);
+                // If the reporter has "init" function, use it to initialize the reporter
+                if (reporter.init) {
+                    reporter.init()
+                        .then(()=> this.reporters.push(reporter))
+                        .catch((err)=> console.log(`Failed to initialize "${reporterName}" reporter: ${err.message}`));
+                }
+                else {
+                    this.reporters.push(reporter);
+                }
             }
         }
     }
@@ -92,14 +107,21 @@ export default class ReportAggregator extends EventEmitter {
         return this.results;
     }
 
-    generateReports() {
+    async generateReports() {
         if (!Array.isArray(this.reporters) || this.reporters.length == 0) {
             return false;
         }
         const groupedResults = this.groupResults();
         for (let reporter of this.reporters) {
-            const reportPath = reporter.generate(groupedResults);
-            console.log(`Your report is ready: ${reportPath}`);
+            try {
+                const reportPath = await reporter.generate(groupedResults);
+                if (reportPath) {
+                    console.log(`Your report is ready: ${reportPath}`);
+                }
+            }
+            catch (e) {
+                console.error(`Report generation failed: ${e.message}`);
+            }
         }
         return true;
     }
@@ -117,7 +139,7 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
-    onRunnerStart(rid, opts, caps) {
+    async onRunnerStart(rid, opts, caps) {
         if (!rid) {
             throw new Error('"rid" cannot be empty.');
         }
@@ -132,14 +154,16 @@ export default class ReportAggregator extends EventEmitter {
         // create a new promise for later to be resolved on runner:end event
         this.runnerEndPromises[rid] = defer();
         console.log(`Test ${rid} has started...`);
-        this.emit('runner:start', {
+        const eventArgs = {
             rid,
             opts,
             caps
-        });
+        };
+        this.emit('runner:start', eventArgs);
+        await this._invokeReportersHook('onRunnerStart', eventArgs);
     }
 
-    onRunnerEnd(rid, finalResult, fatalError) {
+    async onRunnerEnd(rid, finalResult, fatalError) {
         const testResult = this.results.find(x => x.rid === rid);
         if (testResult) {
             testResult.endTime = oxutil.getTimeStamp();
@@ -170,10 +194,12 @@ export default class ReportAggregator extends EventEmitter {
             }
             console.log(`Test ${rid} has finished with status: ${testResult.status.toUpperCase()}.`);
         }
-        this.emit('runner:end', {
+        const eventArgs = {
             rid,
             result: testResult,
-        });
+        };
+        this.emit('runner:end', eventArgs);
+        await this._invokeReportersHook('onRunnerEnd', eventArgs);
         if (this.runnerEndPromises[rid]) {
             // calling nextTick() will help us to insure that we resolve the promise after emit('runner:end') has completed
             process.nextTick(() => {
@@ -201,94 +227,121 @@ export default class ReportAggregator extends EventEmitter {
         return Status.PASSED;
     }
 
-    onIterationStart(rid, iteration, start) {
+    async onIterationStart(rid, iteration, start) {
         if (iteration) {
             const msg = `${start} Iteration #${iteration} started...`;
             console.log(msg);
-            this.onLogEntry(null, 'INFO', msg, 'user');
+            await this.onLogEntry(null, 'INFO', msg, 'user');
         }
     }
 
-    onIterationEnd(rid, result, start) {
-        if (result && result.iterationNum && result.status && result.status.toUpperCase) {
+    async onIterationEnd(rid, result, start) {
+        if (result?.iterationNum && result.status?.toUpperCase) {
             const msg = `${start} Iteration #${result.iterationNum} ended with status: ${result.status.toUpperCase()}.`;
             console.log(msg);
-            this.onLogEntry(null, 'INFO', msg, 'user');
+            await this.onLogEntry(null, 'INFO', msg, 'user');
         }
     }
 
-    onSuiteStart(rid, suiteId, suite) {
+    async onSuiteStart(rid, suiteId, suite) {
         console.log(`Suite "${suite.name}" has started...`);
-        this.emit('suite:start', {
+        let eventArgs = {
             rid,
             suiteId: suiteId,
             suite: suite,
-        });
+        };
+        this.emit('suite:start', eventArgs);
+        await this._invokeReportersHook('onSuiteStart', eventArgs);
     }
 
-    onSuiteEnd(rid, suiteId, suiteResult) {
+    async onSuiteEnd(rid, suiteId, suiteResult) {
         const testResult = this.results.find(x => x.rid === rid);
         if (!testResult) {
             return;
         }
         testResult.suites.push(suiteResult);
         console.log(`Suite "${suiteResult.name}" has ended with status: ${suiteResult.status.toUpperCase()}.`);
-        this.emit('suite:end', {
+        const eventArgs = {
             rid,
             suiteId,
             result: suiteResult,
-        });
+        };
+        this.emit('suite:end', eventArgs);
+        await this._invokeReportersHook('onSuiteEnd', eventArgs);
     }
 
-    onCaseStart(rid, suiteId, caseId, caseDef) {
+    async onCaseStart(rid, suiteId, caseId, caseDef) {
         console.log(`- Case "${caseDef.name}" has started...`);
-        this.emit('case:start', {
+        const eventArgs = {
             rid,
             suiteId,
             caseId,
             case: caseDef,
-        });
+        };
+        this.emit('case:start', eventArgs);
+        await this._invokeReportersHook('onCaseStart', eventArgs);
     }
 
     async onCaseEnd(rid, suiteId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
         await this._saveTestCaseVideoAttachment(caseResult);
-        this.emit('case:end', {
+        const eventArgs = {
             rid,
             suiteId,
             caseId,
             result: caseResult,
-        });
+        };
+        this.emit('case:end', eventArgs);
+        await this._invokeReportersHook('onCaseEnd', eventArgs);
     }
 
-    onStepStart(rid, step) {
+    async onStepStart(rid, suiteId, caseId, step) {
         console.log(`  - Step "${step.name}" has started...`);
-
         if (this.options && this.options.rootPath && this.options.framework && this.options.framework === 'cucumber') {
             const fullPath = path.resolve(this.options.rootPath, step.location);
             step.location = fullPath+':1';
         }
-
-        this.emit('step:start', {
+        const eventArgs = {
             rid,
+            suiteId,
+            caseId,
             step: step,
-        });
+        };
+        this.emit('step:start', eventArgs);
+        await this._invokeReportersHook('onStepStart', eventArgs);
     }
 
-    onStepEnd(rid, stepResult) {
+    async onStepEnd(rid, suiteId, caseId, stepResult) {
         const status = stepResult.status.toUpperCase();
         const duration = stepResult.duration ? (stepResult.duration / 1000).toFixed(2) : 0;
         console.log(`  - Step "${stepResult.name}" has ended in ${duration}s with status: ${status}.`);
-        this.emit('step:end', {
+        const eventArgs = {
             rid,
+            suiteId,
+            caseId,
             step: stepResult,
-        });
+        };
+        this.emit('step:end', eventArgs);
+        await this._invokeReportersHook('onStepEnd', eventArgs);
     }
 
-    onLogEntry(time, level, msg, src = null) {
-        this.emit('log', {
-            level, msg, time, src
-        });
+    async onLogEntry(time, level, msg, src = null, { suiteId, caseId, stepId } = {}) {
+        const eventArgs = {
+            suiteId,
+            caseId,
+            stepId,
+            level,
+            msg,
+            time,
+            src
+        };
+        this.emit('log', eventArgs);
+
+        if (!time) {
+            eventArgs.time = Date.now();
+        }
+
+        await this._invokeReportersHook('onLog', eventArgs);
     }
 
     /**
@@ -454,6 +507,22 @@ export default class ReportAggregator extends EventEmitter {
                 }
             });
         });
+    }
+
+    async _invokeReportersHook(hookName, eventArgs) {
+        if (!Array.isArray(this.reporters) || this.reporters.length == 0) {
+            return false;
+        }
+        for (let reporter of this.reporters) {
+            if (reporter[hookName]) {
+                try {
+                    await reporter[hookName](eventArgs);
+                }
+                catch (e) {
+                    console.warn(`Failed to invoke reporter hook "${hookName}": ${e.message}`);
+                }
+            }
+        }
     }
 
     async _saveTestCaseVideoAttachment(caseResult) {

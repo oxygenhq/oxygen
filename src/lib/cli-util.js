@@ -140,7 +140,6 @@ export function getConfigurations(target, argv) {
     if (target && target.cwd) {
         targetCwd = target.cwd;
     }
-
     const DEFAULT_OPTS = {
         cwd: target ? (targetCwd || process.cwd()) : process.cwd(),
         target: target,
@@ -172,6 +171,14 @@ export function getConfigurations(target, argv) {
             projConfigOpts = moduleRequire(target.path);
         } catch (e) {
             const err = new Error(`Unable to load file: ${target.path}. Reason: ${e.message} ${e.stack}`);
+            throw err;
+        }
+    }
+    else if (target && target.configPath) {
+        try {
+            projConfigOpts = moduleRequire(target.configPath);
+        } catch (e) {
+            const err = new Error(`Unable to load file: ${target.configPath}. Reason: ${e.message} ${e.stack}`);
             throw err;
         }
     }
@@ -265,13 +272,14 @@ function deleteNullProperties(obj) {
 }
 
 export function processTargetPath(targetPath, cwd) {
+    cwd = cwd || process.cwd();
     // get current working directory if user has not provided path
     if (typeof(targetPath) === 'undefined') {
-        targetPath = cwd || process.cwd();
+        targetPath = cwd;
     }
     // user's path might be relative to the current working directory - make sure the relative path will work
     else {
-        targetPath = oxutil.resolvePath(targetPath, cwd || process.cwd());
+        targetPath = oxutil.resolvePath(targetPath, cwd);
     }
 
     if (!fs.existsSync(targetPath)) {
@@ -280,23 +288,33 @@ export function processTargetPath(targetPath, cwd) {
 
     const stats = fs.lstatSync(targetPath);
     const isDirector = stats.isDirectory();
+    let configFilePath;
     if (isDirector) {
         // append oxygen config file name to the directory, if no test case file was provided
-        let configFilePath = path.join(targetPath, OXYGEN_CONFIG_FILE_NAME + '.js');
+        configFilePath = path.join(targetPath, OXYGEN_CONFIG_FILE_NAME + '.js');
         if (!fs.existsSync(configFilePath)) {
             configFilePath = path.join(targetPath, OXYGEN_CONFIG_FILE_NAME + '.json');
             if (!fs.existsSync(configFilePath)) {
                 return null;
             }
         }
-        targetPath = configFilePath;
     }
-    if (!fs.existsSync(targetPath)) {
+    else {
+        configFilePath = path.join(cwd, OXYGEN_CONFIG_FILE_NAME + '.js');
+        if (!fs.existsSync(configFilePath)) {
+            configFilePath = path.join(cwd, OXYGEN_CONFIG_FILE_NAME + '.json');
+            if (!fs.existsSync(configFilePath)) {
+                configFilePath = undefined;
+            }
+        }
+    }
+    if (!targetPath) {
         return null;
     }
     return {
         // path to the config or .js file
         path: targetPath,
+        configPath: configFilePath,
         // working directory
         cwd: cwd || path.dirname(targetPath),
         // name of the target file without extension

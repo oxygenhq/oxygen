@@ -6,8 +6,9 @@ export default class OxygenEvents extends EventEmitter {
         super();
     }
 
-    emitBeforeCommand(cmdName, moduleName, cmdFn, cmdArgs, ctx, location, startTime) {
+    emitBeforeCommand(stepResultId, cmdName, moduleName, cmdFn, cmdArgs, ctx, location, startTime) {
         this.emit('command:before', {
+            id: stepResultId,
             name: cmdName,
             module: moduleName,
             args: cmdArgs,
@@ -20,6 +21,7 @@ export default class OxygenEvents extends EventEmitter {
 
     emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, ctx, location, endTime, result) {
         this.emit('command:after', {
+            id: result.id,
             name: cmdName,
             module: moduleName,
             args: cmdArgs,

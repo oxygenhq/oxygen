@@ -531,12 +531,17 @@ export default class WebModule extends WebDriverModule {
                                                 const title = await this.driver.getTitle();
 
                                                 if (title) {
-                                                    const textToImage = require('../lib/text-to-image');
-                                                    let titleImage = await textToImage.generate(title);
-                                                    if (titleImage && typeof titleImage === 'string') {
-                                                        titleImage = titleImage.replace('data:image/png;base64,', '');
-                                                        images.push(titleImage);
+                                                    try {
+                                                        const textToImage = require('../lib/text-to-image');
+                                                        let titleImage = await textToImage.generate(title);
+                                                        if (titleImage && typeof titleImage === 'string') {
+                                                            titleImage = titleImage.replace('data:image/png;base64,', '');
+                                                            images.push(titleImage);
+                                                        }
                                                     }
+                                                    catch (e) {
+                                                        console.warn('Canvas operation failed.');
+                                                    } // Ignore canvas-related error
                                                 }
 
                                                 images.push(image);

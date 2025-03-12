@@ -85,7 +85,7 @@ async function prepareAndStartTheTest(options) {
             ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
         console.log('Test started...');
         await launcher.run(capsArr);
-        reporter.generateReports();
+        await reporter.generateReports();
         exitCode = reporter.getExitCode();
     }
     catch (e) {
