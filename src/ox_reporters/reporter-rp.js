@@ -21,6 +21,7 @@ const TEST_ITEM_TYPES = {
     TEST: 'TEST',
     STEP: 'STEP',
 };
+const MAX_NAME_LENGTH = 128;
 
 export default class ReportPortalReporter extends ReporterBase {
     constructor(options, reporterOpts, aggregator) {
@@ -276,16 +277,27 @@ export default class ReportPortalReporter extends ReporterBase {
         return rpArgs;
     }*/
     _getStepName(step) {
-        if (step.name === 'transaction' && step.args.length > 0) {
-            return step.args[0];
+        let name;
+
+        if (step.name === 'transaction' && step.args.length > 0) {  // FIXME: steps need to be nested under transactions
+            name = step.args[0];
         }
         else if (step.signature) {
-            return step.signature;
+            name = step.signature;
         }
-        else if (step.module) {
-            return `${step.module}.${step.name}`;
+        else if (step.module) {                         // FIXME: is this ever reached? "step.signature" seems to always exist
+            name = `${step.module}.${step.name}`;
         }
-        return step.name;
+        else {
+            name = step.name;
+        }
+
+        // maximum allowed name length in RP is 1024 bytes
+        // we truncate it even lower so it will display nicely
+        if (name.length > MAX_NAME_LENGTH) {
+            name = name.substring(0, MAX_NAME_LENGTH-3) + '...';
+        }
+        return name;
     }
     promiseWithTimeout(promise, timeout = 10 * 1000) {
         return new Promise((resolve, reject) => {
