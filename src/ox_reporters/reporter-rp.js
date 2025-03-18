@@ -262,10 +262,12 @@ export default class ReportPortalReporter extends ReporterBase {
             return undefined;
         }
         const rpArgs = [];
-        for (let i=0; i<cbArgs.length; i++) {
+        for (let i=0; i < cbArgs.length; i++) {
+            const arg = cbArgs[i];
+            let argStr = typeof arg === 'string' || arg instanceof String ? arg : JSON.stringify(arg);
             rpArgs.push({
                 key: `arg${i}`,
-                value: cbArgs[i]
+                value: argStr
             });
         }
         return rpArgs;
