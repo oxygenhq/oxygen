@@ -175,7 +175,10 @@ export default class ReportPortalReporter extends ReporterBase {
         const startTestItemReq = {
             name: stepName,
             type: TEST_ITEM_TYPES.STEP,
-            parameters: this._getRpArgs(step.args),
+            // "codeRef" + "parameters" used by RP lib to generate testCaseId if testCaseId is not defined
+            // see https://github.com/reportportal/client-javascript/blob/486ef70c638a9a23267290c62df1faf900f7df6a/lib/report-portal-client.js#L497
+            // this is disabled for now. not sure if actually needed...
+            //parameters: this._getRpArgs(step.args),
             codeRef: step.location,
             testCaseId: rpCaseId,
             hasStats: false,
@@ -257,7 +260,7 @@ export default class ReportPortalReporter extends ReporterBase {
         }
         return 'info';
     }
-    _getRpArgs(cbArgs) {
+    /*_getRpArgs(cbArgs) {
         if (!cbArgs || !cbArgs.length) {
             return undefined;
         }
@@ -271,7 +274,7 @@ export default class ReportPortalReporter extends ReporterBase {
             });
         }
         return rpArgs;
-    }
+    }*/
     _getStepName(step) {
         if (step.name === 'transaction' && step.args.length > 0) {
             return step.args[0];
