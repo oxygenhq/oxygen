@@ -137,7 +137,7 @@ var self = module.exports = {
         return suite;
     },
 
-    getParameterManager: async function(mainFilePath, paramOpts = null, cwd = null, autoSearch = false) {
+    getParameterManager: async function(mainFilePath, paramOpts = null, cwd = null, autoSearch = true) {
         let paramFilePath = paramOpts && paramOpts.file ? paramOpts.file : null;
         let paramMode = paramOpts && paramOpts.mode ? paramOpts.mode : 'seq';
 
