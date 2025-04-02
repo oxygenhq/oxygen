@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.38.0 (2025-02-04)
+
+#### :tada: New Feature
+* Add support for reporting to ReportPortal.
+
+#### :house: Internal
+* Make autoSearch true to test case related CSV file will be automatically discovered.
+* Add support for Visual Studio Code Oxygen extension.
+
 ## v1.37.8 (2025-03-03)
 
 #### :beetle: Bug Fix
