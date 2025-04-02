@@ -91,7 +91,7 @@ async function prepareAndStartTheTest(options) {
         await launcher.run(capsArr);
         // Generate file report only when no wsport argument is provided
         if (!wsReporter) {
-            reporter.generateReports();
+            await reporter.generateReports();
         }
         wsReporter?.stop();
         exitCode = reporter.getExitCode();
