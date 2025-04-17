@@ -32,6 +32,8 @@ export default class ReportPortalReporter extends ReporterBase {
         this.cbSuiteToRpIdHash = {};
         this.cbCaseToRpIdHash = {};
         this.cbStepToRpIdHash = {};
+        this.currentTransactionStepId = undefined;
+        this.currentSubStepId = undefined;
         if (
             !this.reporterOpts
             || !this.reporterOpts.apiKey
@@ -168,8 +170,25 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!this.reportSteps) {
             return;
         }
+        if (step.module && step.module === 'log') {
+            await this.reportLogStep(caseId, step);
+            return;
+        }
         const rpCaseId = this.cbCaseToRpIdHash[caseId];
-        if (!rpCaseId) {
+        let rpParentId; /* = this.currentTransactionStepId ?
+            this.cbStepToRpIdHash[this.currentTransactionStepId]
+            : this.cbStepToRpIdHash[caseId];*/
+        // const rpCaseId = this.cbCaseToRpIdHash[caseId];
+        if (step.name === 'transaction') {
+            this.currentTransactionStepId = step.id;
+            rpParentId = this.cbCaseToRpIdHash[caseId];
+        }
+        else {
+            this.currentSubStepId = step.id;
+            rpParentId = this.currentTransactionStepId ?
+                this.cbStepToRpIdHash[this.currentTransactionStepId]: this.cbStepToRpIdHash[caseId];
+        }
+        if (!rpParentId || !rpCaseId) {
             return;
         }
         const stepName = this._getStepName(step);
@@ -184,7 +203,7 @@ export default class ReportPortalReporter extends ReporterBase {
             testCaseId: rpCaseId,
             hasStats: false,
         };
-        const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpCaseId);
+        const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpParentId);
         this.cbStepToRpIdHash[step.id] = tempId;
         try {
             await this.promiseWithTimeout(promise);
@@ -197,9 +216,15 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!this.reportSteps) {
             return;
         }
+        if (result.module && result.module === 'log') {
+            return;
+        }
         const rpStepId = this.cbStepToRpIdHash[result.id];
         if (!rpStepId) {
             return;
+        }
+        if (result.name !== 'transaction') {
+            this.currentSubStepId = undefined;
         }
         const status = result.status.toLowerCase();
         if (status === 'failed' && result.failure) {
@@ -232,6 +257,46 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!this.reportLogs) {
             return;
         }
+        // Oxygen might start generating logs before onRunnerStart event, ignore them
+        if (!this.tempLaunchId) {
+            return;
+        }
+        const rpParentId = stepId ?
+            this.cbStepToRpIdHash[stepId]
+            : caseId ? this.cbCaseToRpIdHash[caseId]
+            : suiteId ? this.cbSuiteToRpIdHash[suiteId]
+            : undefined;
+        const rpLevel = this._getRpLevel(level);
+        const logReq = {
+            message: msg,
+            level: rpLevel,
+            time: time,
+        };
+        const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
+        try {
+            await this.promiseWithTimeout(promise);
+        }
+        catch (e) {
+            console.dir(`RP - Failed to create log item: ${e}`);
+        }
+    }
+    async reportLogStep(caseId, step) {
+        if (!step.args || !step.args.length) {
+            return;
+        }
+        const level = step.name;
+        const msg = step.args[0];
+        const time = step.time;
+        let stepId = undefined;
+        if (this.currentSubStepId) {
+            stepId = this.currentSubStepId;
+        }
+        else if (this.currentTransactionStepId) {
+            stepId = this.currentTransactionStepId;
+        }
+        await this.sendRpLog({ suiteId: undefined, caseId, stepId, level, msg, time });
+    }
+    async sendRpLog({ suiteId, caseId, stepId, level, msg, time }) {
         // Oxygen might start generating logs before onRunnerStart event, ignore them
         if (!this.tempLaunchId) {
             return;
@@ -299,10 +364,10 @@ export default class ReportPortalReporter extends ReporterBase {
         }
         return name;
     }
-    promiseWithTimeout(promise, timeout = 10 * 1000) {
+    promiseWithTimeout(promise, timeout = 10 * 10000) {
         return new Promise((resolve, reject) => {
             if (!promise || !promise.then) {
-                reject();
+                reject(new Error(`Promise await timeout of ${timeout} ms`));
             }
             promise.then(resolve, reject);
             setTimeout(reject, timeout);
