@@ -419,7 +419,6 @@ export default class OxygenRunner extends EventEmitter {
         const reRunOnFailure = this._options.reRunOnFailed || false;
         const maxReruns = !reRunOnFailure ? 0 : this._options.reRunCount || MAX_RERUNS;
         const reRunDelay = this._options.reRunDelay;
-        console.log('=== maxReruns', maxReruns);
         // single suite might produce multiple results, based on amount of defined iterations
         const suiteIterations = [];
         for (let suiteIteration=1; suiteIteration <= suite.iterationCount; suiteIteration++) {
