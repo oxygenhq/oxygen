@@ -27,7 +27,7 @@ export default class ReportPortalReporter extends ReporterBase {
     constructor(options, reporterOpts, aggregator) {
         super(options);
         this.reporterOpts = reporterOpts || options.rp;
-        this.reportSteps = reporterOpts.reportSteps || false;
+        this.reportSteps = reporterOpts.reportSteps || true;
         this.reportLogs = reporterOpts.reportLogs || false;
         this.cbSuiteToRpIdHash = {};
         this.cbCaseToRpIdHash = {};
