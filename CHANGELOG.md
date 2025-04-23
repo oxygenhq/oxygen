@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v1.39.0 (2025-04-23)
+
+#### :beetle: Bug Fix
+* Report proper step hierarchy to RP.
+* Do not report unnecessary logs to RP.
+* Fix test re-run executing incorrect number of times.
+
 ## v1.38.0 (2025-02-04)
 
 #### :tada: New Feature
