@@ -32,7 +32,7 @@ export default class OxygenModule {
         return undefined;
     }
     onBeforeCase(context) {
-
+        this._extra = {};
     }
     onAfterCase(error) {
 
