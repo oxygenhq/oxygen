@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.39.1 (2025-04-30)
+
+#### :beetle: Bug Fix
+* Fix HTTP request information being recorded under wrong step sometimes.
+
 ## v1.39.0 (2025-04-23)
 
 #### :beetle: Bug Fix
