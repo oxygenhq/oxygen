@@ -11,6 +11,7 @@ import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
 import * as coreUtils from './utils';
+import { commandsWhichShouldBeExcludedTakeScreenshot } from './constants';
 import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 import STATUS from '../model/status.js';
@@ -843,6 +844,7 @@ export default class Oxygen extends OxygenEvents {
             step.stats = {};
         }
 
+        let doNotTryTakeScreenshot = false;
         if (err) {
             if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
                 //ignore
@@ -866,11 +868,30 @@ export default class Oxygen extends OxygenEvents {
                         }
                         catch (e) {
                             // FIXME: indicate to user that an attempt to take a screenshot has failed
+                            doNotTryTakeScreenshot = true;
                         }
                     }
                 }
             }
         }
+
+        if (
+            this.opts.takeScreenshotAfterSteps &&
+            !step.screenshot &&
+            !doNotTryTakeScreenshot &&
+            ['web', 'mob'].includes(moduleName) &&
+            commandsWhichShouldBeExcludedTakeScreenshot.includes(methodName)
+        ) {
+            try {
+                if (this.opts.takeScreenshotAfterStepsDelay) {
+                    deasync.sleep(this.opts.takeScreenshotAfterStepsDelay);
+                }
+                step.screenshot = module._takeScreenshotSilent(methodName);
+            } catch (e) {
+                this.logger.error('takeScreenshotSilent failed:', e);
+            }
+        }
+
         return step;
     }
 
