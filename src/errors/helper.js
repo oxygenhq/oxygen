@@ -203,7 +203,7 @@ module.exports = {
         // example: The element with selector *** you trying to pass into the execute method wasn't found
         // when element was deleted from DOM
         else if (err.message && err.message.includes('you trying to pass into the execute method wasn\'t found')) {
-            return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND,  err.message);
+            return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, err.message);
         }
         // when doing an operation on an element reference (e.g. click) but the page was already changed
         else if (err.message && err.message.includes('element not interactable')) {
@@ -234,6 +234,10 @@ module.exports = {
         }
         else if (err.message && err.message.includes('javascript error')) {
             return new OxError(ERROR_CODES.JAVASCRIPT_ERROR, err.message);
+        }
+        // appium
+        else if (err.message && err.message.includes('An element could not be located on the page using the given search parameters')) {
+            return new OxError(ERROR_CODES.ELEMENT_NOT_FOUND, err.message);
         }
 
         // try to resolve Chai error code
