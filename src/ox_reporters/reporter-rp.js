@@ -149,12 +149,10 @@ export default class ReportPortalReporter extends ReporterBase {
                 message: result.failure.message,
                 level: 'error'
             };
-            const { promise: sendLogPromise } = rpFile ?
-                this.rpClient.sendLogWithFile(rpTestId, logReq, rpFile)
-                : this.rpClient.sendLog(rpTestId, logReq);
+            const { promise } = this.rpClient.sendLog(rpTestId, logReq, rpFile);
 
             try {
-                await this.promiseWithTimeout(sendLogPromise);
+                await this.promiseWithTimeout(promise);
             } catch (e) {
                 console.dir(`RP - Failed to send log for finished test item: ${e}`);
             }
@@ -243,10 +241,10 @@ export default class ReportPortalReporter extends ReporterBase {
                 level: 'error',
                 file: rpFile,
             };
-            const { promise: sendLogPromise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
+            const { promise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
 
             try {
-                await this.promiseWithTimeout(sendLogPromise);
+                await this.promiseWithTimeout(promise);
             } catch (e) {
                 console.dir(`RP - Failed to send log for finished test item: ${e}`);
             }
