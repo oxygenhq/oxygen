@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.39.2 (2025-05-05)
+
+#### :house: Internal
+* Update RP dependency.
+* Add missing error handlers.
+
 ## v1.39.1 (2025-04-30)
 
 #### :beetle: Bug Fix
