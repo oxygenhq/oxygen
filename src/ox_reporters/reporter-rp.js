@@ -171,6 +171,8 @@ export default class ReportPortalReporter extends ReporterBase {
         catch (e) {
             console.dir(`RP - Failed to finish test item: ${e}`);
         }
+
+        this.currentTransactionStepId = undefined;
     }
     async onStepStart({ rid, caseId, step }) {
         if (!this.reportSteps) {
@@ -181,19 +183,18 @@ export default class ReportPortalReporter extends ReporterBase {
             return;
         }
         const rpCaseId = this.cbCaseToRpIdHash[caseId];
-        let rpParentId; /* = this.currentTransactionStepId ?
-            this.cbStepToRpIdHash[this.currentTransactionStepId]
-            : this.cbStepToRpIdHash[caseId];*/
-        // const rpCaseId = this.cbCaseToRpIdHash[caseId];
+        let rpParentId;
+
         if (step.name === 'transaction') {
             this.currentTransactionStepId = step.id;
-            rpParentId = this.cbCaseToRpIdHash[caseId];
+            this.currentSubStepId = undefined;
+            rpParentId = rpCaseId;
         }
         else {
             this.currentSubStepId = step.id;
-            rpParentId = this.currentTransactionStepId ?
-                this.cbStepToRpIdHash[this.currentTransactionStepId]: this.cbStepToRpIdHash[caseId];
+            rpParentId = this.currentTransactionStepId ? this.cbStepToRpIdHash[this.currentTransactionStepId] : rpCaseId;
         }
+
         if (!rpParentId || !rpCaseId) {
             return;
         }
@@ -222,7 +223,7 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!this.reportSteps) {
             return;
         }
-        if (result.module && result.module === 'log') {
+        if (result.name && result.name.startsWith('log.')) {
             return;
         }
         const rpStepId = this.cbStepToRpIdHash[result.id];
