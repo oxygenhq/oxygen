@@ -145,16 +145,20 @@ export default class ReportPortalReporter extends ReporterBase {
                 type: 'image/png',
                 content: result.screenshot,
             } : undefined;
-            const logReq = {
-                message: result.failure.message,
-                level: 'error'
-            };
-            const { promise } = this.rpClient.sendLog(rpTestId, logReq, rpFile);
 
-            try {
-                await this.promiseWithTimeout(promise);
-            } catch (e) {
-                console.dir(`RP - Failed to send log for finished test item: ${e}`);
+            const logMsg = this._stringify(result.failure.message);
+            if (logMsg) {
+                const logReq = {
+                    message: logMsg,
+                    level: 'error'
+                };
+                const { promise } = this.rpClient.sendLog(rpTestId, logReq, rpFile);
+
+                try {
+                    await this.promiseWithTimeout(promise);
+                } catch (e) {
+                    console.dir(`RP - Failed to send log for finished test item: ${e}`);
+                }
             }
         }
         const finishTestItemReq = {
@@ -236,17 +240,21 @@ export default class ReportPortalReporter extends ReporterBase {
                 type: 'image/png',
                 content: result.screenshot,
             } : undefined;
-            const logReq = {
-                message: result.failure.message,
-                level: 'error',
-                file: rpFile,
-            };
-            const { promise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
 
-            try {
-                await this.promiseWithTimeout(promise);
-            } catch (e) {
-                console.dir(`RP - Failed to send log for finished test item: ${e}`);
+            const logMsg = this._stringify(result.failure.message);
+            if (logMsg) {
+                const logReq = {
+                    message: logMsg,
+                    level: 'error',
+                    file: rpFile,
+                };
+                const { promise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
+
+                try {
+                    await this.promiseWithTimeout(promise);
+                } catch (e) {
+                    console.dir(`RP - Failed to send log for finished test item: ${e}`);
+                }
             }
         }
         const finishTestItemReq = {
@@ -274,17 +282,21 @@ export default class ReportPortalReporter extends ReporterBase {
             : suiteId ? this.cbSuiteToRpIdHash[suiteId]
             : undefined;
         const rpLevel = this._getRpLevel(level);
-        const logReq = {
-            message: msg,
-            level: rpLevel,
-            time: time,
-        };
-        const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
-        try {
-            await this.promiseWithTimeout(promise);
-        }
-        catch (e) {
-            console.dir(`RP - Failed to create log item: ${e}`);
+
+        const logMsg = this._stringify(msg);
+        if (logMsg) {
+            const logReq = {
+                message: logMsg,
+                level: rpLevel,
+                time: time,
+            };
+            const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
+            try {
+                await this.promiseWithTimeout(promise);
+            }
+            catch (e) {
+                console.dir(`RP - Failed to create log item: ${e}`);
+            }
         }
     }
     async reportLogStep(caseId, step) {
@@ -314,17 +326,21 @@ export default class ReportPortalReporter extends ReporterBase {
             : suiteId ? this.cbSuiteToRpIdHash[suiteId]
             : undefined;
         const rpLevel = this._getRpLevel(level);
-        const logReq = {
-            message: msg,
-            level: rpLevel,
-            time: time,
-        };
-        const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
-        try {
-            await this.promiseWithTimeout(promise);
-        }
-        catch (e) {
-            console.dir(`RP - Failed to create log item: ${e}`);
+
+        const logMsg = this._stringify(msg);
+        if (logMsg) {
+            const logReq = {
+                message: logMsg,
+                level: rpLevel,
+                time: time,
+            };
+            const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
+            try {
+                await this.promiseWithTimeout(promise);
+            }
+            catch (e) {
+                console.dir(`RP - Failed to create log item: ${e}`);
+            }
         }
     }
     _getRpLevel(oxLevel) {
@@ -371,6 +387,25 @@ export default class ReportPortalReporter extends ReporterBase {
         }
         return name;
     }
+
+    // returns null if msg cannot be stringified, or strigifies it if it's not a string already
+    _stringify(msg) {
+        // we test for undefined and null explicitly on purpose because other falsy values (e.g. 0) are ok
+        if (typeof msg === 'undefined' || msg === null) {
+            return null;
+        }
+
+        if (typeof msg === 'string' || msg instanceof String) {
+            return msg;
+        }
+
+        try {
+            return JSON.stringify(msg);
+        } catch (e) {
+            console.error('RP - error sending log: msg object cannot be serialized');
+        }
+    }
+
     promiseWithTimeout(promise, timeout = 10 * 1000) {
         return new Promise((resolve, reject) => {
             if (!promise || !promise.then) {
