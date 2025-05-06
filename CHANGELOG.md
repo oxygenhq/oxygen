@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.39.3 (2025-05-06)
+
+#### :nail_care: Polish
+* Handle mobile element not found errors.
+
+#### :house: Internal
+* Various RP reporting fixes.
+
 ## v1.39.2 (2025-05-05)
 
 #### :house: Internal
