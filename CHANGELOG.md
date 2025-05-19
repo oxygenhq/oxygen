@@ -1,5 +1,14 @@
 # CHANGELOG
 
+## v1.39.4 (2025-05-19)
+
+#### :beetle: Bug Fix
+* Record failure details for all errors.
+* Do not categorize 'Timed out receiving message from renderer' as a session timeout error.
+
+#### :house: Internal
+* Various RP reporting fixes.
+
 ## v1.39.3 (2025-05-06)
 
 #### :nail_care: Polish
