@@ -390,13 +390,9 @@ export default class WebModule extends WebDriverModule {
 
     async deleteSession() {
         try {
-            if (this.driver && this.driver.deleteSession) {
-                if (this.seleniumSessionTimeout) {
-                    // ignore
-                    // deleteSession will take 5 min to call
-                } else {
-                    await this.driver.deleteSession();
-                }
+            // deleteSession only if no session timeout because it will take 5 min to execute otherwise
+            if (this.driver && this.driver.deleteSession && !this.seleniumSessionTimeout) {
+                await this.driver.deleteSession();
             }
         } catch (e) {
             this.logger.error('deleteSession error', e);
@@ -467,9 +463,9 @@ export default class WebModule extends WebDriverModule {
         if (error && error.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT) {
             this.seleniumSessionTimeout = true;
             return;
-        } else {
-            this.seleniumSessionTimeout = false;
         }
+
+        this.seleniumSessionTimeout = false;
 
         if (!this.isInitialized) {
             return;

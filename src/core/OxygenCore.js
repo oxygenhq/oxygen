@@ -844,15 +844,12 @@ export default class Oxygen extends OxygenEvents {
         }
 
         if (err) {
-            if (err && err.type && err.type === errorHelper.errorCode.ASSERT_PASSED) {
-                //ignore
-            } else if (err && err.type && (err.type === errorHelper.errorCode.SELENIUM_SESSION_TIMEOUT || err.type === errorHelper.errorCode.APPIUM_SESSION_TIMEOUT)) {
-                //ignore
+            if (err.type === errorHelper.errorCode.ASSERT_PASSED) {
+                //ignored
             } else {
                 step.failure = errorHelper.getFailureFromError(err);
                 step.failure.location = location;
                 // let the module decide whether a screenshot should be taken on error or not
-
                 if (typeof module._takeScreenshotSilent === 'function' && !this.opts.disableScreenshot) {
                     try {
                         step.screenshot = module._takeScreenshotSilent(methodName);

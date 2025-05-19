@@ -213,10 +213,7 @@ module.exports = {
             return new OxError(ERROR_CODES.ELEMENT_NOT_INTERACTABLE, err.message);
         }
         // invalid selector: java.lang.IllegalArgumentException: Unable to compile selector ...
-        else if (
-            err.name &&
-            err.name === 'invalid selector'
-        ) {
+        else if (err.name === 'invalid selector') {
             return new OxError(ERROR_CODES.SCRIPT_ERROR, err.message);
         }
         // RequestError: Timeout awaiting 'request' for 310000ms, name: 'TimeoutError'
@@ -228,8 +225,6 @@ module.exports = {
             return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, errMessage);
         }
         else if (err && err.message && err.message.includes('socket hang up')) {
-            return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, err.message);
-        } else if (err && err.message && err.message.includes('Timed out receiving message from rendere')) {
             return new OxError(module === 'web' ? ERROR_CODES.SELENIUM_SESSION_TIMEOUT : ERROR_CODES.APPIUM_SESSION_TIMEOUT, err.message);
         }
         else if (err.message && err.message.includes('javascript error')) {
