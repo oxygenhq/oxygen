@@ -139,6 +139,22 @@ export default class ReportAggregator extends EventEmitter {
         }
     }
 
+    async onLaunchStart(options) {
+        const eventArgs = {
+            options
+        };
+        await this._invokeReportersHook('onLaunchStart', eventArgs);
+    }
+
+    async onLaunchEnd() {
+        const results = this.groupResults();
+        const eventArgs = {
+            results
+        };
+        this.emit('launch:end', results);
+        await this._invokeReportersHook('onLaunchEnd', eventArgs);
+    }
+
     async onRunnerStart(rid, opts, caps) {
         if (!rid) {
             throw new Error('"rid" cannot be empty.');

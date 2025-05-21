@@ -32,7 +32,6 @@ if (argv.v || argv.version) {
     printUsage();
     process.exit(1);
 }
-
 if (argv.d || argv.delay) {
     const delay = argv.d || argv.delay;
     if (!(parseInt(delay) > 0)) {
@@ -88,7 +87,9 @@ async function prepareAndStartTheTest(options) {
             ? new ParallelLauncher(options, reporter) : new Launcher(options, reporter);
         await wsReporter?.startAndWaitForClient(options.wsPort);
         console.log('Test started...');
+        await reporter.onLaunchStart(options);
         await launcher.run(capsArr);
+        await reporter.onLaunchEnd();
         // Generate file report only when no wsport argument is provided
         if (!wsReporter) {
             await reporter.generateReports();

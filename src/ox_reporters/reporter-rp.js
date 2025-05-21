@@ -11,6 +11,7 @@
  * Oxygen Reporter for ReportPortal
  */
 import ReporterBase from '../reporter/ReporterBase';
+import Status from '../model/status';
 const RPClient = require('@oxygenhq/rp-client-javascript');
 const LAUNCH_MODES = {
     DEFAULT: 'DEFAULT',
@@ -60,7 +61,7 @@ export default class ReportPortalReporter extends ReporterBase {
     async generate(results) {
     }
     // Events
-    async onRunnerStart({ rid, opts, caps }) {
+    async onLaunchStart({ options }) {
         const { tempId, promise } = this.rpClient.startLaunch({
             mode: this.reporterOpts.mode || LAUNCH_MODES.DEFAULT,
             debug: false,
@@ -71,10 +72,11 @@ export default class ReportPortalReporter extends ReporterBase {
             console.dir(`RP - Error at the start of launch: ${error}`);
         });
     }
-    async onRunnerEnd({ rid, result }) {
-        // await this.rpClient.getPromiseFinishAllItems(this.tempLaunchId);
+    async onLaunchEnd({ results }) {
+        // Calculate launch status
+        const hasFailed = results.any(x => x.status === Status.FAILED);
         const { promise } = await this.rpClient.finishLaunch(this.tempLaunchId, {
-            status: result.status.toLowerCase(),
+            status: hasFailed ? 'FAILED' : 'PASSED'
         });
         try {
             await this.promiseWithTimeout(promise);
@@ -82,6 +84,10 @@ export default class ReportPortalReporter extends ReporterBase {
         catch (e) {
             console.dir(`RP - Failed to end launch: ${e}`);
         }
+    }
+    async onRunnerStart({ rid, opts, caps }) {
+    }
+    async onRunnerEnd({ rid, result }) {
     }
     async onSuiteStart({ rid, suiteId, suite: suiteDef }) {
         const startTestItemReq = {
