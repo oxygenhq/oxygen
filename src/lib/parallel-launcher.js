@@ -12,6 +12,7 @@ import * as Runners from '../runners';
 import parallelLimit from 'async/parallelLimit';
 const Duration = require('duration');
 const hash = require('object-hash');
+const { v1 } = require('uuid');
 
 export default class ParallelLauncher {
     constructor(config, reporter) {
@@ -54,6 +55,7 @@ export default class ParallelLauncher {
 
         suites.forEach(suiteDef => {
             const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
+            const suiteRefId = suiteDef.key || suiteDef.id || v1();
             if (mode === 'iteration') {
                 for (let i = 1; i<= suiteDef.iterationCount; i++) {
                     let mockedParamManager = undefined;
@@ -62,7 +64,7 @@ export default class ParallelLauncher {
                         suiteDef.paramManager.readNext();
                     }
                     const workerId = `${suiteKey}-${suiteIndex}/${i}`;
-                    const suiteCopy = { ...suiteDef, iterationCount: 1, paramManager: mockedParamManager };
+                    const suiteCopy = { ...suiteDef, refId: suiteRefId, iterationCount: 1, paramManager: mockedParamManager };
                     const testConfig = {
                         ...this._config, suites: [ suiteCopy ],
                         _groupResult: {
@@ -79,7 +81,7 @@ export default class ParallelLauncher {
                 suiteDef.cases.forEach(caseDef => {
                     const caseKey = caseDef.key || caseDef.id || caseDef.name;
                     const workerId = `${caseKey}-${suiteIndex}/${caseIndex}`;
-                    const suiteCopy = { ...suiteDef, cases: [ caseDef ]};
+                    const suiteCopy = { ...suiteDef, refId: suiteRefId, cases: [ caseDef ]};
                     const testConfig = {
                         ...this._config,
                         suites: [ suiteCopy ],
@@ -98,7 +100,7 @@ export default class ParallelLauncher {
                 const workerId = `${suiteKey}-${suiteIndex}`;
                 const testConfig = {
                     ...this._config,
-                    suites: [ suiteDef ],
+                    suites: [ { ...suiteDef, refId: suiteRefId } ],
                     _groupResult: {
                         resultKey,
                     }

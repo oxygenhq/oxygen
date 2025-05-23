@@ -48,7 +48,7 @@ export default class ReportAggregator extends EventEmitter {
         // a hash list of runnerEnd event promises, keyed by runner id
         this.runnerEndPromises = {};
         this.options = options;
-        this.instantiateReporters();
+        // this.instantiateReporters();
     }
 
     getExitCode() {
@@ -72,7 +72,7 @@ export default class ReportAggregator extends EventEmitter {
         return exitCode;
     }
 
-    instantiateReporters() {
+    async init() {
         this.reporters = [];
         const generalReportingOpts = this.options.reporting || {};
         for (let reporter of generalReportingOpts.reporters || DEFAULT_REPORTERS) {
@@ -92,13 +92,14 @@ export default class ReportAggregator extends EventEmitter {
                 const reporter = new Reporters[reporterName](this.options, reporterOpts, this);
                 // If the reporter has "init" function, use it to initialize the reporter
                 if (reporter.init) {
-                    reporter.init()
-                        .then(()=> this.reporters.push(reporter))
-                        .catch((err)=> console.log(`Failed to initialize "${reporterName}" reporter: ${err.message}`));
+                    try {
+                        await reporter.init();
+                    }
+                    catch (err) {
+                        console.log(`Failed to initialize "${reporterName}" reporter: ${err.message}`);
+                    }
                 }
-                else {
-                    this.reporters.push(reporter);
-                }
+                this.reporters.push(reporter);
             }
         }
     }
@@ -286,11 +287,12 @@ export default class ReportAggregator extends EventEmitter {
         await this._invokeReportersHook('onSuiteEnd', eventArgs);
     }
 
-    async onCaseStart(rid, suiteId, caseId, caseDef) {
+    async onCaseStart(rid, suiteId, suiteRefId, caseId, caseDef) {
         console.log(`- Case "${caseDef.name}" has started...`);
         const eventArgs = {
             rid,
             suiteId,
+            suiteRefId,
             caseId,
             case: caseDef,
         };
@@ -298,12 +300,13 @@ export default class ReportAggregator extends EventEmitter {
         await this._invokeReportersHook('onCaseStart', eventArgs);
     }
 
-    async onCaseEnd(rid, suiteId, caseId, caseResult) {
+    async onCaseEnd(rid, suiteId, suiteRefId, caseId, caseResult) {
         console.log(`- Case "${caseResult.name}" has ended with status: ${caseResult.status.toUpperCase()}.`);
         await this._saveTestCaseVideoAttachment(caseResult);
         const eventArgs = {
             rid,
             suiteId,
+            suiteRefId,
             caseId,
             result: caseResult,
         };
@@ -513,7 +516,6 @@ export default class ReportAggregator extends EventEmitter {
 
     validateResult(results) {
         const uniqueSuitesIterationIds = [];
-
         results.map((result) => {
             result.suites.map((suite) => {
                 if (uniqueSuitesIterationIds.includes(suite.iterationNum)) {

@@ -33,6 +33,7 @@ export default class ReportPortalReporter extends ReporterBase {
         this.cbSuiteToRpIdHash = {};
         this.cbCaseToRpIdHash = {};
         this.cbStepToRpIdHash = {};
+        this.cbSuiteResultListByRefId = {};
         this.currentTransactionStepId = undefined;
         this.currentSubStepId = undefined;
         if (
@@ -73,8 +74,10 @@ export default class ReportPortalReporter extends ReporterBase {
         });
     }
     async onLaunchEnd({ results }) {
+        // report the end of all started suites
+        await this._reportEndOfStartedSuites();
         // Calculate launch status
-        const hasFailed = results.any(x => x.status === Status.FAILED);
+        const hasFailed = results.some(x => x.status === Status.FAILED);
         const { promise } = await this.rpClient.finishLaunch(this.tempLaunchId, {
             status: hasFailed ? 'FAILED' : 'PASSED'
         });
@@ -90,12 +93,23 @@ export default class ReportPortalReporter extends ReporterBase {
     async onRunnerEnd({ rid, result }) {
     }
     async onSuiteStart({ rid, suiteId, suite: suiteDef }) {
+        // in parallel test execution, onSuiteStart will be called multiple times for the same suite 
+        // make sure we call "startTestItem" the same suite only once
+        const suiteRefId = suiteDef.refId;
+        if (this.cbSuiteToRpIdHash[suiteRefId]) {
+            return;
+        }
+        // assign empty object as a form of multi-thread lock,
+        // so the parallel call to onSuiteStart from the next thread
+        // will not try to proceed with the code below
+        this.cbSuiteToRpIdHash[suiteRefId] = {};
+        this.cbSuiteResultListByRefId[suiteRefId] = [];
         const startTestItemReq = {
             name: suiteDef.name || this.options.name,
             type: TEST_ITEM_TYPES.SUITE,
         };
         const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId);
-        this.cbSuiteToRpIdHash[suiteId] = tempId;
+        this.cbSuiteToRpIdHash[suiteRefId] = tempId;
         try {
             await this.promiseWithTimeout(promise);
         }
@@ -104,28 +118,16 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
     async onSuiteEnd({ rid, suiteId, result }) {
-        if (!this.cbSuiteToRpIdHash[suiteId]) {
-            return;
-        }
-        const rpSuiteId = this.cbSuiteToRpIdHash[suiteId];
-        const finishTestItemReq = {
-            status: result.status.toLowerCase(),
-        };
-        const { promise } = this.rpClient.finishTestItem(rpSuiteId, finishTestItemReq);
-        try {
-            await this.promiseWithTimeout(promise);
-        }
-        catch (e) {
-            console.dir(`RP - Failed to finish suite item: ${e}`);
-        }
+        const suiteRefId = result.refId;
+        this.cbSuiteResultListByRefId[suiteRefId] && this.cbSuiteResultListByRefId[suiteRefId].push(result);
     }
-    async onCaseStart({ rid, suiteId, caseId, 'case': caseDef }) {
+    async onCaseStart({ rid, suiteId, suiteRefId, caseId, 'case': caseDef }) {
         const startTestItemReq = {
             name: caseDef.name,
             type: TEST_ITEM_TYPES.TEST,
             codeRef: caseDef.path,
         };
-        const rpSuiteId = this.cbSuiteToRpIdHash[suiteId];
+        const rpSuiteId = this.cbSuiteToRpIdHash[suiteRefId];
         if (!rpSuiteId) {
             return;
         }
@@ -138,7 +140,7 @@ export default class ReportPortalReporter extends ReporterBase {
             console.dir(`RP - Failed to start test item: ${e}`);
         }
     }
-    async onCaseEnd({ rid, suiteId, caseId, result }) {
+    async onCaseEnd({ rid, suiteId, suiteRefId, caseId, result }) {
         const rpTestId = this.cbCaseToRpIdHash[caseId];
         if (!rpTestId) {
             return;
@@ -347,6 +349,24 @@ export default class ReportPortalReporter extends ReporterBase {
             }
             catch (e) {
                 console.dir(`RP - Failed to create log item: ${e}`);
+            }
+        }
+    }
+    async _reportEndOfStartedSuites() {
+        for (const suiteRefId of Object.keys(this.cbSuiteToRpIdHash)) {
+            const rpSuiteId = this.cbSuiteToRpIdHash[suiteRefId];
+            const results = this.cbSuiteResultListByRefId[suiteRefId];
+            delete this.cbSuiteToRpIdHash[suiteRefId];
+            const hasFailedSuite = results.some(x => x.status === Status.FAILED);
+            const finishTestItemReq = {
+                status: hasFailedSuite ? 'failed' : 'passed',
+            };
+            const { promise } = this.rpClient.finishTestItem(rpSuiteId, finishTestItemReq);
+            try {
+                await this.promiseWithTimeout(promise);
+            }
+            catch (e) {
+                console.dir(`RP - Failed to finish suite item: ${e}`);
             }
         }
     }

@@ -429,6 +429,10 @@ export default class OxygenRunner extends EventEmitter {
             suiteIterations.push(suiteResult);
             suiteResult.id = this._currentSuiteResultId = v1();
             suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
+            // a unique reference if of suite definition
+            // suites with the same name and definition should have the same refId
+            // refId might also be a DB id of the suite in the CB platform
+            suiteResult.refId = suite.refId || suite.id || suite.name;
             suiteResult.startTime = oxutil.getTimeStamp();
             suiteResult.iterationNum = suiteIteration;
             suiteResult.status = Status.PASSED;
@@ -457,7 +461,7 @@ export default class OxygenRunner extends EventEmitter {
                     // generate case result id
                     const caseResultId = this._currentCaseResultId = v1();
                     // report case start event
-                    await this._reporter.onCaseStart(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id || caze.path*/, caze);
+                    await this._reporter.onCaseStart(this._id, suiteResult.id, suiteResult.refId, caseResultId /*caze.uri || caze.id || caze.path*/, caze);
                     //let reRunCount = 0;
                     let caseResult;
                     // run or re-run the current test case
@@ -475,7 +479,7 @@ export default class OxygenRunner extends EventEmitter {
                     }
                     caseResult.id = caseResultId;
                     // report case end event
-                    await this._reporter.onCaseEnd(this._id, suiteResult.id /*suite.uri || suite.id*/, caseResultId /*caze.uri || caze.id*/, caseResult);
+                    await this._reporter.onCaseEnd(this._id, suiteResult.id, suiteResult.refId, caseResultId, caseResult);
                     if (showCaseIterationsMessages) {
                         await this._reporter.onIterationEnd(this._id, caseResult, 'Case');
                     }

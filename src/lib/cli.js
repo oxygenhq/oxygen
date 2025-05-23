@@ -81,6 +81,7 @@ async function prepareAndStartTheTest(options) {
     // start launcher
     try {
         const reporter = new ReportAggregator(options);
+        await reporter.init();
         const wsReporter = options.wsPort !== undefined ?
             new WebSocketReporter(reporter) : undefined;
         const launcher = options.parallel && options.parallel.workers && !isNaN(options.parallel.workers) && options.parallel.workers > 1

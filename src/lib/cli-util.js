@@ -22,7 +22,10 @@ export async function loadSuites(config, argv) {
         return;
     }
     const { target } = config;
-    const isConfigFile = target && target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0;
+    const isConfigFile = target && (
+        (target.name && target.name.indexOf(OXYGEN_CONFIG_FILE_NAME) === 0)
+        || (target.extension === '' && target.configPath && target.configPath.indexOf(OXYGEN_CONFIG_FILE_NAME) > -1)
+    );
     let suites = [];
     // if an individual script or suite file was passed
     if (!isConfigFile) {
@@ -272,8 +275,8 @@ function deleteNullProperties(obj) {
     return clone;
 }
 
-export function processTargetPath(targetPath, cwd) {
-    cwd = cwd || process.cwd();
+export function processTargetPath(targetPath, userCwd) {
+    let cwd = userCwd || process.cwd();
     // get current working directory if user has not provided path
     if (typeof(targetPath) === 'undefined') {
         targetPath = cwd;
@@ -291,6 +294,10 @@ export function processTargetPath(targetPath, cwd) {
     const isDirector = stats.isDirectory();
     let configFilePath;
     if (isDirector) {
+        // if "target" provided by the user is a directory,
+        // then unless "cwd" is provided explicitly by the user
+        // use target directory as cwd
+        cwd = userCwd || targetPath;
         // append oxygen config file name to the directory, if no test case file was provided
         configFilePath = path.join(targetPath, OXYGEN_CONFIG_FILE_NAME + '.js');
         if (!fs.existsSync(configFilePath)) {
