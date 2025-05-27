@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.40.0 (2025-05-27)
+
+#### :beetle: Bug Fix
+* Fix RP reporting for parallel tests.
+
 ## v1.39.4 (2025-05-19)
 
 #### :beetle: Bug Fix
