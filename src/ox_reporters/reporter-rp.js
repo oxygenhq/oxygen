@@ -444,7 +444,7 @@ export default class ReportPortalReporter extends ReporterBase {
         }
     }
 
-    promiseWithTimeout(promise, timeout = 10 * 1000) {
+    promiseWithTimeout(promise, timeout = 30 * 1000) {
         return new Promise((resolve, reject) => {
             if (!promise || !promise.then) {
                 reject(new Error(`Promise await timeout of ${timeout} ms`));
