@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v1.40.1 (2025-06-06)
+
+#### :beetle: Bug Fix
+* Increase RP request timeout.
+* Handle RP exceptions.
+
 ## v1.40.0 (2025-05-27)
 
 #### :beetle: Bug Fix
