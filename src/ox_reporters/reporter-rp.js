@@ -63,25 +63,28 @@ export default class ReportPortalReporter extends ReporterBase {
     }
     // Events
     async onLaunchStart({ options }) {
-        const { tempId, promise } = this.rpClient.startLaunch({
-            mode: this.reporterOpts.mode || LAUNCH_MODES.DEFAULT,
-            debug: false,
-        });
-        this.tempLaunchId = tempId;
-        promise.then((response) => {
-        }, (error) => {
-            console.dir(`RP - Error at the start of launch: ${error}`);
-        });
+        try {
+            const { tempId, promise } = this.rpClient.startLaunch({
+                mode: this.reporterOpts.mode || LAUNCH_MODES.DEFAULT,
+                debug: false,
+            });
+            this.tempLaunchId = tempId;
+            await this.promiseWithTimeout(promise);
+        }
+        catch (e) {
+            console.dir(`RP - Failed to start launch: ${e}`);
+        }
     }
     async onLaunchEnd({ results }) {
         // report the end of all started suites
         await this._reportEndOfStartedSuites();
         // Calculate launch status
         const hasFailed = results.some(x => x.status === Status.FAILED);
-        const { promise } = await this.rpClient.finishLaunch(this.tempLaunchId, {
-            status: hasFailed ? 'FAILED' : 'PASSED'
-        });
+
         try {
+            const { promise } = await this.rpClient.finishLaunch(this.tempLaunchId, {
+                status: hasFailed ? 'FAILED' : 'PASSED'
+            });
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -108,9 +111,10 @@ export default class ReportPortalReporter extends ReporterBase {
             name: suiteDef.name || this.options.name,
             type: TEST_ITEM_TYPES.SUITE,
         };
-        const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId);
-        this.cbSuiteToRpIdHash[suiteRefId] = tempId;
+
         try {
+            const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId);
+            this.cbSuiteToRpIdHash[suiteRefId] = tempId;
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -131,9 +135,10 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!rpSuiteId) {
             return;
         }
-        const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpSuiteId);
-        this.cbCaseToRpIdHash[caseId] = tempId;
+
         try {
+            const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpSuiteId);
+            this.cbCaseToRpIdHash[caseId] = tempId;
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -160,9 +165,9 @@ export default class ReportPortalReporter extends ReporterBase {
                     message: logMsg,
                     level: 'error'
                 };
-                const { promise } = this.rpClient.sendLog(rpTestId, logReq, rpFile);
 
                 try {
+                    const { promise } = this.rpClient.sendLog(rpTestId, logReq, rpFile);
                     await this.promiseWithTimeout(promise);
                 } catch (e) {
                     console.dir(`RP - Failed to send log for finished test item: ${e}`);
@@ -172,8 +177,9 @@ export default class ReportPortalReporter extends ReporterBase {
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
-        const { promise } = this.rpClient.finishTestItem(rpTestId, finishTestItemReq);
+
         try {
+            const { promise } = this.rpClient.finishTestItem(rpTestId, finishTestItemReq);
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -218,9 +224,10 @@ export default class ReportPortalReporter extends ReporterBase {
             testCaseId: rpCaseId,
             hasStats: false,
         };
-        const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpParentId);
-        this.cbStepToRpIdHash[step.id] = tempId;
+
         try {
+            const { tempId, promise } = this.rpClient.startTestItem(startTestItemReq, this.tempLaunchId, rpParentId);
+            this.cbStepToRpIdHash[step.id] = tempId;
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -257,9 +264,9 @@ export default class ReportPortalReporter extends ReporterBase {
                     level: 'error',
                     file: rpFile,
                 };
-                const { promise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
 
                 try {
+                    const { promise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
                     await this.promiseWithTimeout(promise);
                 } catch (e) {
                     console.dir(`RP - Failed to send log for finished test item: ${e}`);
@@ -269,8 +276,9 @@ export default class ReportPortalReporter extends ReporterBase {
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
-        const { promise } = this.rpClient.finishTestItem(rpStepId, finishTestItemReq);
+
         try {
+            const { promise } = this.rpClient.finishTestItem(rpStepId, finishTestItemReq);
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -299,8 +307,9 @@ export default class ReportPortalReporter extends ReporterBase {
                 level: rpLevel,
                 time: time,
             };
-            const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
+
             try {
+                const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
                 await this.promiseWithTimeout(promise);
             }
             catch (e) {
@@ -343,8 +352,9 @@ export default class ReportPortalReporter extends ReporterBase {
                 level: rpLevel,
                 time: time,
             };
-            const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
+
             try {
+                const { promise } = this.rpClient.sendLog(rpParentId || this.tempLaunchId, logReq);
                 await this.promiseWithTimeout(promise);
             }
             catch (e) {
@@ -361,8 +371,9 @@ export default class ReportPortalReporter extends ReporterBase {
             const finishTestItemReq = {
                 status: hasFailedSuite ? 'failed' : 'passed',
             };
-            const { promise } = this.rpClient.finishTestItem(rpSuiteId, finishTestItemReq);
+
             try {
+                const { promise } = this.rpClient.finishTestItem(rpSuiteId, finishTestItemReq);
                 await this.promiseWithTimeout(promise);
             }
             catch (e) {
