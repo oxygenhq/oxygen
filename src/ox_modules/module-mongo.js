@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015-2018 CloudBeat Limited
+ * Copyright (C) 2015-current CloudBeat Limited
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,10 +53,20 @@ export default class MongoDbModule extends OxygenModule {
         }
     }
 
+    /**
+     * @summary Sets the current database to perform further actions.
+     * @function setDatabase 
+     * @param {string} dbName - Database name.
+     */
     setDatabase(dbName) {
         this.db = this.client.db(dbName);
     }
 
+    /**
+     * @summary Sets the current collection to perform further actions.
+     * @function setCollection 
+     * @param {string} collectionName - Collection name.
+     */
     setCollection(collectionName) {
         if (!this.db) {
             return false;
@@ -65,7 +75,7 @@ export default class MongoDbModule extends OxygenModule {
         return true;
     }
 
-    /*
+    /**
      * @summary Finds documents in the current collection.
      * @function find 
      * @param {object} filter - The filter predicate.
@@ -84,7 +94,7 @@ export default class MongoDbModule extends OxygenModule {
         }
     }
 
-    /*
+    /**
      * @summary Gets the number of documents matching the filter.
      * @function countDocuments 
      * @param {object} filter - The filter for the count.
@@ -103,7 +113,135 @@ export default class MongoDbModule extends OxygenModule {
         }
     }
 
-    /*
+    /**
+     * @summary Inserts a single document into a collection.
+     * @function insertOne 
+     * @param {object} doc - The document to insert.
+     * @param {object} options - Optional settings for the command.
+     */
+    async insertOne(doc, options) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.insertOne(doc, options);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+
+    /**
+     * @summary Inserts an array of documents into a collection.
+     * @function insertMany 
+     * @param {object} docs - The documents to insert.
+     * @param {object} options - Optional settings for the command.
+     */
+    async insertMany(docs, options) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.insertMany(docs, options);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+
+    /**
+     * @summary Update a single document in a collection.
+     * @function updateOne 
+     * @param {object} filter - The filter used to select the document to replace.
+     * @param {UpdateFilter<TSchema>|Document[]} update - The modifications to apply.
+     * @param {object} options - Optional settings for the command.
+     */
+    async updateOne(filter, update) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.updateOne(filter, update);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+
+    /**
+     * @summary Update multiple documents in a collection.
+     * @function updateMany 
+     * @param {object} filter - The filter used to select the document to update.
+     * @param {UpdateFilter<TSchema>|Document[]} update - The modifications to apply.
+     * @param {object} options - Optional settings for the command.
+     */
+    async updateMany(filter, update, options) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.updateMany(filter, update, options);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+
+    /**
+     * @summary Replace a document in a collection with another document.
+     * @function replaceOne 
+     * @param {object} filter - The filter used to select the document to replace.
+     * @param {object} doc - The Document that replaces the matching document.
+     * @param {object} options - Optional settings for the command.
+     */
+    async replaceOne(filter, doc) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.replaceOne(filter, doc);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+
+    /**
+     * @summary Delete a document from a collection.
+     * @function deleteOne 
+     * @param {object} filter - The filter used to select the document to remove.
+     * @param {object} options - Optional settings for the command.
+     */
+    async deleteOne(filter) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.deleteOne(filter);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+    /**
+     * @summary Delete multiple documents from a collection.
+     * @function deleteMany 
+     * @param {object} filter - The filter used to select the documents to remove.
+     * @param {object} options - Optional settings for the command.
+     */
+    async deleteMany(filter) {
+        if (!this.collection) {
+            return undefined;
+        }
+        try {
+            return await this.collection.deleteMany(filter);
+        }
+        catch (e) {
+            throw new OxError(errHelper.errorCode.MONGODB_ERROR, e.message, null, true, e);
+        }
+    }
+
+    /**
      * @summary Gets module name
      * @function name
      * @return {String} Constant value "shell".
