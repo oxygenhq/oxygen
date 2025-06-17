@@ -23,8 +23,8 @@ export default class ShellModule extends OxygenModule {
         this._alwaysInitialized = true;
         // pre-initialize the module
         this._isInitialized = true;
-        this._lastCmd;
         this._lastStdout;
+        this._lastStderr;
     }
 
     /*
@@ -40,27 +40,34 @@ export default class ShellModule extends OxygenModule {
      * @summary Execute command
      * @description Spawn child process
      * @function exec
-     * @param {String} command - Shell command to be executed, including arguments, if applicable. 
-     * @return {String} null | Error | stdout result
+     * @param {String} command - Shell command to be executed, including arguments, if applicable.
+     * @return {Object} Response object containing stdout, stderr, exit code, and signal (if process was terminated by a signal).
      */
     exec(command, options = {}) {
-        this._lastCmd = command;
         this._lastStdout = null;
+        this._lastStderr = null;
+
         const spawn = require('cross-spawn');
         options = { cwd: this.options.cwd, shell: true, env: process.env, ...options };
         const result = spawn.sync(command, options);
+
         if (result.error) {
             throw new OxError(errHelper.errorCode.SHELL_ERROR, result.error.message, null, true, result.error);
         }
+
         this._lastStdout = result.stdout ? result.stdout.toString() : null;
-        if (result.stdout) {
-            return result.stdout.toString();
-        }
-        return null;
+        this._lastStderr = result.stderr ? result.stderr.toString() : null;
+
+        return {
+            stdout: this._lastStdout,
+            stderr: this._lastStderr,
+            exitCode: result.status,
+            signal: result.signal
+        };
     }
 
     /**
-     * @summary Assert whether the shell command output (stdout) is matching the specified pattern.
+     * @summary Assert that the shell command's output (stdout) matches the specified pattern.
      * @function assertOutput
      * @param {String} pattern - Pattern to assert.
      */
@@ -70,6 +77,21 @@ export default class ShellModule extends OxygenModule {
         }
         if (!modUtils.matchPattern(this._lastStdout, pattern)) {
             throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected shell command output to match: "${pattern}" but got: "${this._lastStdout}"`);
+        }
+        return true;
+    }
+
+    /**
+     * @summary Assert that the shell command's error output (stderr) matches the specified pattern.
+     * @function assertErrorOutput
+     * @param {String} pattern - Pattern to assert.
+     */
+    assertErrorOutput(pattern) {
+        if (!this._lastStderr) {
+            return false;
+        }
+        if (!modUtils.matchPattern(this._lastStderr, pattern)) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR, `Expected shell command error output to match: "${pattern}" but got: "${this._lastStderr}"`);
         }
         return true;
     }
