@@ -29,23 +29,42 @@ export default class MongoDbModule extends OxygenModule {
     /**
      * @summary Initializes MongoDB session.
      * @function init
-     * @param {string} host - Host name of the target MongoDB server.
-     * @param {string} dbName - Database name.
+     * @param {string} hostOrUrl - Host name or full URL of the target MongoDB server.
+     * @param {string} dbName - Database name. You can change it later using "setDatabase" method.
+     * @param {string} [username] - Optional username for authentication.
+     * @param {string} [password] - Optional password for authentication.
+     * @param {string} [authSource=admin] - Optional authentication source. Default value is "admin".
+     * @param {number} [port=27017] - Optional MongoDB server port. Default value is 27017.
      */
     async init(
-        host,
+        hostOrUrl,
         dbName,
         username,
         password,
         authSource = 'admin',
         port = 27017,
     ) {
-        const encUsername = encodeURIComponent(username);
-        const encPassword = encodeURIComponent(password);
-        const uri = `mongodb://${encUsername}:${encPassword}@${host}:${port}/${dbName}?authSource=${authSource}`;
+        if (!hostOrUrl || typeof hostOrUrl !== 'string') {
+            throw new Error('MongoDB host name or full URL is not specified!');
+        }
+        else if (!dbName) {
+            throw new Error('MongoDB database name is not specified!');
+        }
+        const isFullUrl = /^mongodb(\+srv)?:\/\//i.test(hostOrUrl);
+        const uri = isFullUrl
+            ? hostOrUrl
+            : (() => {
+                if (username) {
+                    const encUsername = encodeURIComponent(username);
+                    const encPassword = password ? encodeURIComponent(password) : undefined;
+                    return `mongodb://${encUsername}:${encPassword || ''}@${hostOrUrl}:${port}/${dbName}?authSource=${authSource}`;
+                }
+                return `mongodb://${hostOrUrl}:${port}/${dbName}?authSource=${authSource}`;
+            })();
         this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
         try {
             await this.client.connect();
+            this.db = this.client.db(dbName);
             this._isInitialized = true;
         }
         catch (e) {
