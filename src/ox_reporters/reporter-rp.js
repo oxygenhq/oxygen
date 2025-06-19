@@ -34,8 +34,8 @@ export default class ReportPortalReporter extends ReporterBase {
         this.cbCaseToRpIdHash = {};
         this.cbStepToRpIdHash = {};
         this.cbSuiteResultListByRefId = {};
-        this.currentTransactionStepId = undefined;
-        this.currentSubStepId = undefined;
+        this.cbCaseToCurrentTransactionId = {};
+        this.cbCaseToCurrentSubStepId = {};
         if (
             !this.reporterOpts
             || !this.reporterOpts.apiKey
@@ -69,6 +69,7 @@ export default class ReportPortalReporter extends ReporterBase {
                 debug: false,
             });
             this.tempLaunchId = tempId;
+
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
@@ -142,7 +143,7 @@ export default class ReportPortalReporter extends ReporterBase {
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
-            console.dir(`RP - Failed to start test item: ${e}`);
+            console.dir(`RP - Failed to start case item: ${e}`);
         }
     }
     async onCaseEnd({ rid, suiteId, suiteRefId, caseId, result }) {
@@ -170,10 +171,32 @@ export default class ReportPortalReporter extends ReporterBase {
                     const { promise } = this.rpClient.sendLog(rpTestId, logReq, rpFile);
                     await this.promiseWithTimeout(promise);
                 } catch (e) {
-                    console.dir(`RP - Failed to send log for finished test item: ${e}`);
+                    console.dir(`RP - Failed to send log for finished case item: ${e}`);
                 }
             }
         }
+
+        const transId = this.cbCaseToCurrentTransactionId[caseId];
+
+        if (transId) {
+            // FIXME: should calculate proper status
+            const finishTransactionReq = {
+                status: 'passed' //result.status.toLowerCase(),
+            };
+
+            try {
+                const transRpId = this.cbStepToRpIdHash[transId];
+
+                const { promise } = this.rpClient.finishTestItem(transRpId, finishTransactionReq);
+                await this.promiseWithTimeout(promise);
+            }
+            catch (e) {
+                console.dir(`RP - Failed to finish transaction item on case end: ${e}`);
+            }
+
+            delete this.cbCaseToCurrentTransactionId[caseId];
+        }
+
         const finishTestItemReq = {
             status: result.status.toLowerCase(),
         };
@@ -183,11 +206,10 @@ export default class ReportPortalReporter extends ReporterBase {
             await this.promiseWithTimeout(promise);
         }
         catch (e) {
-            console.dir(`RP - Failed to finish test item: ${e}`);
+            console.dir(`RP - Failed to finish case item: ${e}`);
         }
-
-        this.currentTransactionStepId = undefined;
     }
+
     async onStepStart({ rid, caseId, step }) {
         if (!this.reportSteps) {
             return;
@@ -199,14 +221,32 @@ export default class ReportPortalReporter extends ReporterBase {
         const rpCaseId = this.cbCaseToRpIdHash[caseId];
         let rpParentId;
 
+        const transId = this.cbCaseToCurrentTransactionId[caseId];
+
         if (step.name === 'transaction') {
-            this.currentTransactionStepId = step.id;
-            this.currentSubStepId = undefined;
+            if (transId) {
+                // FIXME: should calculate proper status
+                const finishTransactionReq = {
+                    status: 'passed' //result.status.toLowerCase(),
+                };
+
+                try {
+                    const transRpId = this.cbStepToRpIdHash[transId];
+                    const { promise } = this.rpClient.finishTestItem(transRpId, finishTransactionReq);
+                    await this.promiseWithTimeout(promise);
+                }
+                catch (e) {
+                    console.dir(`RP - Failed to finish transaction item on case end: ${e}`);
+                }
+            }
+
+            this.cbCaseToCurrentTransactionId[caseId] = step.id;
+            delete this.cbCaseToCurrentSubStepId[caseId];
             rpParentId = rpCaseId;
         }
         else {
-            this.currentSubStepId = step.id;
-            rpParentId = this.currentTransactionStepId ? this.cbStepToRpIdHash[this.currentTransactionStepId] : rpCaseId;
+            this.cbCaseToCurrentSubStepId[caseId] = step.id;
+            rpParentId = transId ? this.cbStepToRpIdHash[transId] : rpCaseId;
         }
 
         if (!rpParentId || !rpCaseId) {
@@ -234,20 +274,22 @@ export default class ReportPortalReporter extends ReporterBase {
             console.dir(`RP - Failed to start step item: ${e}`);
         }
     }
-    async onStepEnd({ rid, step: result }) {
+    async onStepEnd({ rid, caseId, step: result }) {
         if (!this.reportSteps) {
             return;
         }
-        if (result.name && result.name.startsWith('log.')) {
+        if (result.name && (result.name.startsWith('log.') ||
+                            result.name.startsWith('web.transaction') ||
+                            result.name.startsWith('mob.transaction'))) {
             return;
         }
         const rpStepId = this.cbStepToRpIdHash[result.id];
         if (!rpStepId) {
             return;
         }
-        if (result.name !== 'transaction') {
-            this.currentSubStepId = undefined;
-        }
+
+        delete this.cbCaseToCurrentSubStepId[caseId];
+
         const status = result.status.toLowerCase();
         if (status === 'failed' && result.failure) {
             const rpFile = result.screenshot ?
@@ -269,7 +311,7 @@ export default class ReportPortalReporter extends ReporterBase {
                     const { promise } = this.rpClient.sendLog(rpStepId, logReq, rpFile);
                     await this.promiseWithTimeout(promise);
                 } catch (e) {
-                    console.dir(`RP - Failed to send log for finished test item: ${e}`);
+                    console.dir(`RP - Failed to send log for finished step item: ${e}`);
                 }
             }
         }
@@ -325,11 +367,10 @@ export default class ReportPortalReporter extends ReporterBase {
         const msg = step.args[0];
         const time = step.time;
         let stepId = undefined;
-        if (this.currentSubStepId) {
-            stepId = this.currentSubStepId;
-        }
-        else if (this.currentTransactionStepId) {
-            stepId = this.currentTransactionStepId;
+        if (this.cbCaseToCurrentSubStepId[caseId]) {
+            stepId = this.cbCaseToCurrentSubStepId[caseId];
+        } else if (this.cbCaseToCurrentTransactionId[caseId]) {
+            stepId = this.cbCaseToCurrentTransactionId[caseId];
         }
         await this.sendRpLog({ suiteId: undefined, caseId, stepId, level, msg, time });
     }
