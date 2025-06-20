@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.40.2 (2025-06-20)
+
+#### :beetle: Bug Fix
+* Various RP reporter fixes.
+
+#### :nail_care: Polish
+* Return stderr and exit code from `shell.exec`.
+
 ## v1.40.1 (2025-06-06)
 
 #### :beetle: Bug Fix
