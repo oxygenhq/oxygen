@@ -23,7 +23,6 @@ import HtmlReporter from '../ox_reporters/reporter-html';
 import ExcelReporter from '../ox_reporters/reporter-excel';
 import PdfReporter from '../ox_reporters/reporter-pdf';
 import XmlReporter from '../ox_reporters/reporter-xml';
-import ReportPortalReporter from '../ox_reporters/reporter-rp';
 import errorHelper from '../errors/helper';
 import Status from '../model/status';
 
@@ -34,7 +33,6 @@ const Reporters = {
     excel: ExcelReporter,
     pdf: PdfReporter,
     xml: XmlReporter,
-    rp: ReportPortalReporter,
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';
@@ -48,7 +46,6 @@ export default class ReportAggregator extends EventEmitter {
         // a hash list of runnerEnd event promises, keyed by runner id
         this.runnerEndPromises = {};
         this.options = options;
-        // this.instantiateReporters();
     }
 
     getExitCode() {
@@ -73,6 +70,10 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     async init() {
+        if (!this.options._oxide) {
+            const { default: ReportPortalReporter } = await import('../ox_reporters/reporter-rp');
+            Reporters.rp = ReportPortalReporter;
+        }
         this.reporters = [];
         const generalReportingOpts = this.options.reporting || {};
         for (let reporter of generalReportingOpts.reporters || DEFAULT_REPORTERS) {

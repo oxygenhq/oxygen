@@ -307,7 +307,12 @@ export function processTargetPath(targetPath, userCwd) {
             }
         }
     }
+    else if (targetPath.endsWith(OXYGEN_CONFIG_FILE_NAME + '.js') || targetPath.endsWith(OXYGEN_CONFIG_FILE_NAME + '.json')) {
+        configFilePath = targetPath;
+        cwd = targetPath = path.dirname(targetPath);
+    }
     else {
+        cwd = userCwd || path.dirname(targetPath);
         configFilePath = path.join(cwd, OXYGEN_CONFIG_FILE_NAME + '.js');
         if (!fs.existsSync(configFilePath)) {
             configFilePath = path.join(cwd, OXYGEN_CONFIG_FILE_NAME + '.json');
