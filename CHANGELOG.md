@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.41.0 (2025-06-24)
+
+#### :tada: New Feature
+* Add `mongo` module.
+
 ## v1.40.2 (2025-06-20)
 
 #### :beetle: Bug Fix
