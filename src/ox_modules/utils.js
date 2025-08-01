@@ -461,5 +461,82 @@ module.exports = {
                 return origFunc.apply(undefined, [].slice.call(arguments, 1));
             }, true);
         }
+    },
+
+    enrichProviderWdioOptions: function(providerName, wdioOpts) {
+        let name = 'name';
+        if (providerName === providers.PERFECTO) {
+            wdioOpts.capabilities.maxInstances = 1;
+            wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
+            wdioOpts.port = 80;
+            wdioOpts.protocol = 'http';
+            wdioOpts.openDeviceTimeout = 15;
+
+            delete wdioOpts.capabilities.manufacturer;
+            delete wdioOpts.capabilities.model;
+            delete wdioOpts.capabilities.browserName;
+            delete wdioOpts.capabilities.host;
+
+            name = wdioOpts.capabilities['perfectoMobile:options']['name'];
+            delete wdioOpts.capabilities['perfectoMobile:options'];
+        }
+
+        else if (providerName === providers.BROWSERSTACK) {
+            const bsOptions = wdioOpts.capabilities['bstack:options'];
+            if (bsOptions) {
+                const deviceName = bsOptions.deviceName;
+                const osName = bsOptions.os;
+
+                if (deviceName) {
+                    bsOptions.realMobile = true;
+                    wdioOpts.capabilities['appium:deviceName'] = deviceName;
+                }
+
+                // set automationName Appium capability
+                if (osName && osName.toLowerCase() === 'android') {
+                    wdioOpts.capabilities.platformName = 'Android';
+                    wdioOpts.capabilities['appium:automationName'] = 'UIAutomator2';
+                } else if (osName && osName.toLowerCase() === 'ios') {
+                    wdioOpts.capabilities.platformName = 'iOS';
+                    wdioOpts.capabilities['appium:automationName'] = 'XCUITest';
+                }
+
+                // merge user-provided BS options into the final options object
+                for (const capName in wdioOpts.capabilities) {
+                    if (capName.startsWith('bstack:')) {
+                        const bsCapName = capName.substring('bstack:'.length);
+
+                        if (bsCapName === 'options') {
+                            continue;
+                        }
+
+                        // for backward compatibility... needs to be removed eventually
+                        if (bsCapName === 'recordVideo') {
+                            bsOptions.video = wdioOpts.capabilities[capName];
+                            delete wdioOpts.capabilities[capName];
+                            continue;
+                        }
+
+                        bsOptions[bsCapName] = wdioOpts.capabilities[capName];
+                        delete wdioOpts.capabilities[capName];
+                    }
+                }
+            }
+        }
+        else if (wdioOpts.capabilities['lambda:options'] && wdioOpts.capabilities['lambda:options']['name']) {
+            name = wdioOpts.capabilities['lambda:options']['name'];
+            delete wdioOpts.capabilities['lambda:options'];
+        }
+        else if (wdioOpts.capabilities['testingBot:options'] && wdioOpts.capabilities['testingBot:options']['name']) {
+            name = wdioOpts.capabilities['testingBot:options']['name'];
+            delete wdioOpts.capabilities['testingBot:options'];
+        }
+
+        if (wdioOpts.capabilities['bstack:options'] && wdioOpts.capabilities['bstack:options']['name']) {
+            name = wdioOpts.capabilities['bstack:options']['name'];
+            delete wdioOpts.capabilities['bstack:options'];
+        }
+
+        return name;
     }
 };

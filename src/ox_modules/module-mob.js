@@ -216,71 +216,7 @@ export default class MobileModule extends WebDriverModule {
         };
 
         let provider = modUtils.determineProvider(wdioOpts);
-        let name = 'name';
-
-        if (provider === modUtils.provider.PERFECTO) {
-            wdioOpts.capabilities.maxInstances = 1;
-            wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
-            wdioOpts.port = 80;
-            wdioOpts.protocol = 'http';
-            wdioOpts.openDeviceTimeout = 15;
-
-            delete wdioOpts.capabilities.manufacturer;
-            delete wdioOpts.capabilities.model;
-            delete wdioOpts.capabilities.browserName;
-            delete wdioOpts.capabilities.host;
-
-            name = wdioOpts.capabilities['perfectoMobile:options']['name'];
-            delete wdioOpts.capabilities['perfectoMobile:options'];
-        }
-
-        else if (provider === modUtils.provider.BROWSERSTACK) {
-            const bsOptions = wdioOpts.capabilities['bstack:options'];
-            if (bsOptions) {
-                const deviceName = bsOptions.deviceName;
-                const osName = bsOptions.os;
-
-                if (deviceName) {
-                    bsOptions.realMobile = true;
-                    wdioOpts.capabilities['appium:deviceName'] = deviceName;
-                }
-
-                // set automationName Appium capability
-                if (osName && osName.toLowerCase() === 'android') {
-                    wdioOpts.capabilities.platformName = 'Android';
-                    wdioOpts.capabilities['appium:automationName'] = 'UIAutomator2';
-                } else if (osName && osName.toLowerCase() === 'ios') {
-                    wdioOpts.capabilities.platformName = 'iOS';
-                    wdioOpts.capabilities['appium:automationName'] = 'XCUITest';
-                }
-
-                // merge user-provided BS options into the final options object
-                for (const capName in wdioOpts.capabilities) {
-                    if (capName.startsWith('bstack:')) {
-                        const bsCapName = capName.substring('bstack:'.length);
-
-                        if (bsCapName === 'options') {
-                            continue;
-                        }
-
-                        // for backward compatibility... needs to be removed eventually
-                        if (bsCapName === 'recordVideo') {
-                            bsOptions.video = wdioOpts.capabilities[capName];
-                            delete wdioOpts.capabilities[capName];
-                            continue;
-                        }
-
-                        bsOptions[bsCapName] = wdioOpts.capabilities[capName];
-                        delete wdioOpts.capabilities[capName];
-                    }
-                }
-            }
-        }
-
-        if (wdioOpts.capabilities['bstack:options'] && wdioOpts.capabilities['bstack:options']['name']) {
-            name = wdioOpts.capabilities['bstack:options']['name'];
-            delete wdioOpts.capabilities['bstack:options'];
-        }
+        const name = modUtils.enrichProviderWdioOptions(provider, wdioOpts);
 
         this.wdioOpts = wdioOpts;
 

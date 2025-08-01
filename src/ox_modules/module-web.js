@@ -227,31 +227,8 @@ export default class WebModule extends WebDriverModule {
         let initError = null;
         const _this = this;
         const provider = modUtils.determineProvider(wdioOpts);
+        const name = modUtils.enrichProviderWdioOptions(provider, wdioOpts);
 
-        if (provider === modUtils.provider.PERFECTO) {
-            wdioOpts.path = '/nexperience/perfectomobile/wd/hub';
-            wdioOpts.port = 80;
-            wdioOpts.protocol = 'http';
-            wdioOpts.openDeviceTimeout = 15;
-        }
-
-        let name = 'name';
-        if (wdioOpts.capabilities['perfectoMobile:options'] && wdioOpts.capabilities['perfectoMobile:options']['name']) {
-            name = wdioOpts.capabilities['perfectoMobile:options']['name'];
-            delete wdioOpts.capabilities['perfectoMobile:options'];
-        }
-        if (wdioOpts.capabilities['lambda:options'] && wdioOpts.capabilities['lambda:options']['name']) {
-            name = wdioOpts.capabilities['lambda:options']['name'];
-            delete wdioOpts.capabilities['lambda:options'];
-        }
-        if (wdioOpts.capabilities['testingBot:options'] && wdioOpts.capabilities['testingBot:options']['name']) {
-            name = wdioOpts.capabilities['testingBot:options']['name'];
-            delete wdioOpts.capabilities['testingBot:options'];
-        }
-        if (wdioOpts.capabilities['bstack:options'] && wdioOpts.capabilities['bstack:options']['name']) {
-            name = wdioOpts.capabilities['bstack:options']['name'];
-            delete wdioOpts.capabilities['bstack:options'];
-        }
         // set default browser for mobile web tests, if executed against remote devices of a cloud provider
         if (defaultBrowser && provider) {
             this.caps.browserName = wdioOpts.capabilities.browserName = DEFAULT_MOBILE_BROWSER;
