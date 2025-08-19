@@ -58,6 +58,7 @@ import perfectoReporting from 'perfecto-reporting';
 import request from 'request';
 import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
+import { autoStartWebDriver } from '../ox_modules/module-web/webdriver/auto-start';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -79,6 +80,7 @@ export default class WebModule extends WebDriverModule {
         this.errHelper = errHelper;
         // holds element operation timeout value
         this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
+        this.wdProc = null;
     }
 
     get name() {
@@ -114,16 +116,6 @@ export default class WebModule extends WebDriverModule {
             return;
         }
 
-        if (!seleniumUrl) {
-            // if appiumUrl points to an external execution grid (such as BS)
-            if (this.options.appiumUrl && !this.options.appiumUrl.startsWith('http://localhost')) {
-                seleniumUrl = this.options.appiumUrl;
-            }
-            else {
-                seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
-            }
-        }
-
         // take capabilities either from init method argument or from context parameters passed in the constructor
         // merge capabilities from context and from init function argument, give preference to context-passed capabilities
         this.caps = {};
@@ -132,6 +124,22 @@ export default class WebModule extends WebDriverModule {
         }
         if (caps) {
             this.caps = { ...this.caps, ...caps };
+        }
+
+        if (!seleniumUrl && !this.options.autoStartWebDriver) {
+            // if appiumUrl points to an external execution grid (such as BS)
+            if (this.options.appiumUrl && !this.options.appiumUrl.startsWith('http://localhost')) {
+                seleniumUrl = this.options.appiumUrl;
+            }
+            else {
+                seleniumUrl = this.options.seleniumUrl || DEFAULT_SELENIUM_URL;
+            }
+        }
+        // check if we should indetify and auto-start a relevant webdriver
+        else if (this.options.autoStartWebDriver) {
+            const { remoteUrl, proc } = await autoStartWebDriver(this.caps);
+            seleniumUrl = remoteUrl;
+            this.wdProc = proc;
         }
 
         // populate browserName caps from options. FIXME: why is this even needed?
@@ -360,6 +368,11 @@ export default class WebModule extends WebDriverModule {
             }
         } else {
             this.disposeContinue();
+        }
+
+        if (this.wdProc) {
+            this.wdProc.kill();
+            this.wdProc = null;
         }
 
         return this._whenWebModuleDispose.promise;
