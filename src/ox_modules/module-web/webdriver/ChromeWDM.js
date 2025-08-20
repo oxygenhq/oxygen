@@ -102,8 +102,7 @@ async function getCompatibleChromeDriverUrl(chromeVersion) {
         const jsonUrl = 'https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build-with-downloads.json';
         // ChromeDriver API endpoint for version mapping
         const response = await axios.get(jsonUrl);
-        const fs = require('fs');
-        fs.writeFileSync('/tmp/data.json', JSON.stringify(response.data));
+        //fs.writeFileSync('/tmp/data.json', JSON.stringify(response.data));
         const jsonData = response.data;
         // Extract major version for API lookup
         const versionParts = chromeVersion.split('.');
@@ -179,7 +178,7 @@ async function downloadChromeDriver(chromeVersion) {
         // with name of the downloaded ZIP file
         const unzippedFolderName = lastSegmentWithoutZip(url);
         const unzippedFolderPath = path.join(driversDir, unzippedFolderName);
-        const unzippedChromeDriverFilePath = path.join(unzippedFolderPath, 'chromedriver');
+        const unzippedChromeDriverFilePath = path.join(unzippedFolderPath, getChromeDriverName());
 
         // Copy unzipped chromedriver file to a destination location
         fs.copyFileSync(unzippedChromeDriverFilePath, chromeDriverPath);
