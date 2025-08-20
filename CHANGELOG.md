@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.42.0 (2025-08-20)
+
+#### :tada: New Feature
+* Add `--autowd=true` switch to enable automatic ChromeDriver download and launch. 
+
+#### :beetle: Bug Fix
+* Make the same behavior of handling different provider options for web and mob modules.
+
 ## v1.41.0 (2025-06-24)
 
 #### :tada: New Feature
