@@ -1,6 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 const { v1 } = require('uuid');
+const libUtil = require('../lib/util');
 
 export function loadModuleFromClass(moduleName, moduleClass, moduleLogger, oxModulesDirPath, args) {
     if (moduleClass.default) {
@@ -41,6 +42,24 @@ export function newFileAttachment(filePath) {
         fileName,
         filePath,
         type: 'other',
+    };
+}
+
+export function newSnapshotAttachment(options, snapshotData, snapshotType /* html, json, xml */) {
+    const attachmentId = v1();
+    const fileExtension = snapshotType || 'html';
+    const fileName = `${attachmentId}.${fileExtension}`;
+    const attachmentFilePath = libUtil.getAttachmentPath(fileName, options);
+    try {
+        fs.writeFileSync(attachmentFilePath, snapshotData);
+    }
+    catch (e) {
+        return undefined;
+    }
+    return {
+        id: v1(),
+        type: 'snapshot',
+        subtype: snapshotType || 'html',
     };
 }
 

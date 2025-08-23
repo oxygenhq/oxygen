@@ -851,22 +851,16 @@ export default class Oxygen extends OxygenEvents {
                 step.failure.location = location;
                 // let the module decide whether a screenshot should be taken on error or not
                 if (typeof module._takeScreenshotSilent === 'function' && !this.opts.disableScreenshot) {
-                    try {
-                        step.screenshot = module._takeScreenshotSilent(methodName);
-                    }
-                    catch (e) {
-                        // If we are here, we were unable to get a screenshot
-                        // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
-                        deasync.sleep(1000);
-                        try {
-                            step.screenshot = module._takeScreenshotSilent(methodName);
-                        }
-                        catch (e) {
-                            // FIXME: indicate to user that an attempt to take a screenshot has failed
-                        }
-                    }
+                    takeScreenshot(module, step, methodName);
                 }
             }
+        }
+        // if we are in "baseline" mode, take snapshot and screenshot for each "action" step
+        else if (this.opts.baseline && step.action) {
+            if (!step.screenshot && typeof module._takeScreenshotSilent === 'function') {
+                takeScreenshot(module, step, methodName);
+            }
+            takeSnapshot(this.opts, module, step, methodName);
         }
         return step;
     }
@@ -1051,4 +1045,58 @@ export default class Oxygen extends OxygenEvents {
 
         return arg;
     }
+}
+
+function takeScreenshot(module, step, methodName) {
+    if (typeof module._takeScreenshotSilent !== 'function') {
+        return false;
+    }
+    try {
+        step.screenshot = module._takeScreenshotSilent(methodName);
+    }
+    catch (e) {
+        // If we are here, we were unable to get a screenshot
+        // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
+        deasync.sleep(1000);
+        try {
+            step.screenshot = module._takeScreenshotSilent(methodName);
+        }
+        catch (e) {
+            // FIXME: indicate to user that an attempt to take a screenshot has failed
+            return false;
+        }
+    }
+    return true;
+}
+
+function takeSnapshot(options, module, step, methodName) {
+    if (typeof module._takeSnapshotSilent !== 'function') {
+        return false;
+    }
+    let snapshot;
+    try {
+        snapshot = module._takeSnapshotSilent(methodName);
+    }
+    catch (e) {
+        // If we are here, we were unable to get a snapshot, wait a bit and try again
+        deasync.sleep(1000);
+        try {
+            snapshot = module._takeSnapshotSilent(methodName);
+        }
+        catch (e) {
+            return false;
+        }
+    }
+
+    if (snapshot) {
+        if (!step.attachments) {
+            step.attachments = [];
+        }
+        const attachment = coreUtils.newSnapshotAttachment(options, snapshot);
+        if (attachment) {
+            step.attachments.push(attachment);
+            return true;
+        }
+    }
+    return false;
 }

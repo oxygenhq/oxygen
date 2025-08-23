@@ -48,15 +48,6 @@ const CB_ATTACHMENTS_DIR_NAME = '.cb-attachments';
 const DOWNLOAD_RETRIES = 40;
 const DOWNLOAD_RETRY_WAIT_TIME = 2500;
 
-function getVideoAttachmentPath(fileName, options) {
-    const cwd = getCwd(options);
-    const attachmentsDirPath = path.join(cwd, CB_ATTACHMENTS_DIR_NAME);
-    if (!fs.existsSync(attachmentsDirPath)) {
-        fs.mkdirSync(attachmentsDirPath);
-    }
-    return path.join(attachmentsDirPath, fileName);
-}
-
 const getCwd = (options) => {
     let cwd = process.cwd();
 
@@ -71,6 +62,15 @@ const getCwd = (options) => {
 };
 
 var self = module.exports = {
+
+    getAttachmentPath: function(fileName, options) {
+        const cwd = getCwd(options);
+        const attachmentsDirPath = path.join(cwd, CB_ATTACHMENTS_DIR_NAME);
+        if (!fs.existsSync(attachmentsDirPath)) {
+            fs.mkdirSync(attachmentsDirPath);
+        }
+        return path.join(attachmentsDirPath, fileName);
+    },
 
     generateUniqueId: function() {
         return crypto.randomBytes(4).toString('hex');
@@ -434,7 +434,7 @@ var self = module.exports = {
     },
 
     downloadVideo: async function(fileName, videoUrl, options) {
-        const localVideoFilePath = getVideoAttachmentPath(fileName, options);
+        const localVideoFilePath = self.getAttachmentPath(fileName, options);
         let error;
         for (let i=0; i<DOWNLOAD_RETRIES; i++) {
             error = undefined;

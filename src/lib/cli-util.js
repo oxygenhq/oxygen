@@ -227,6 +227,7 @@ export function getCommandLineOptions(argv) {
         wsPort: argv.wsport || null,
         delay: argv.d || argv.delay || null,
         autoStartWebDriver: argv.autowd && argv.autowd === 'true' || false,
+        baseline: argv.baseline && argv.baseline === 'true' || false,
     };
     // switch: --rf flag
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {

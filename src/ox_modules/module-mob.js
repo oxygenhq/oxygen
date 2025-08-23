@@ -64,7 +64,8 @@ import errorHelper from '../errors/helper';
 const MODULE_NAME = 'mob';
 const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
 const DEFAULT_BROWSER_NAME = 'default';
-const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
+const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
+const NO_SNAPSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
 const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 
@@ -432,6 +433,43 @@ export default class MobileModule extends WebDriverModule {
                 this.logger.error('Cannot get screenshot', e);
                 if (error) {
                     this.logger.error('Cannot get screenshot inner error', error);
+                }
+                // ignore
+            }
+        }
+    }
+
+    _takeSnapshotSilent(name) {
+        if (!NO_SNAPSHOT_COMMANDS.includes(name)) {
+            let error;
+            try {
+                if (
+                    this.driver &&
+                    this.driver.getPageSource
+                ) {
+                    let retval;
+                    this.driver.call(() => {
+                        return new Promise((resolve, reject) => {
+                            this.driver.getPageSource()
+                                .then(result => {
+                                    retval = result; resolve();
+                                })
+                                .catch(error => {
+                                    this.logger.error('Cannot get snapshot (1)', error); reject();
+                                });
+                        });
+                    });
+
+                    if (error) {
+                        this.logger.error('Cannot get snapshot (2)', error);
+                    }
+
+                    return retval;
+                }
+            } catch (e) {
+                this.logger.error('Cannot get snapshot (3)', e);
+                if (error) {
+                    this.logger.error('Cannot get snapshot inner error', error);
                 }
                 // ignore
             }
