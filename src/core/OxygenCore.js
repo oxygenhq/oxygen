@@ -1092,7 +1092,9 @@ function takeSnapshot(options, module, step, methodName) {
         if (!step.attachments) {
             step.attachments = [];
         }
-        const attachment = coreUtils.newSnapshotAttachment(options, snapshot);
+        // determine snapshot file extension based on the current module name
+        const snapshotType = module.name && module.name === 'mob' ? 'xml' : 'html';
+        const attachment = coreUtils.newSnapshotAttachment(options, snapshot, snapshotType);
         if (attachment) {
             step.attachments.push(attachment);
             return true;
