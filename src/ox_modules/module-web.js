@@ -148,7 +148,8 @@ const SANITIZE_HTML_OPTS = {
     'tfoot',
     'th',
     'thead',
-    'tr'
+    'tr',
+    'title'
     ],
     allowedAttributes: false,/*{
     '*': [
