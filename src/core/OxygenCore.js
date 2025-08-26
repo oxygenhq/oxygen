@@ -849,15 +849,19 @@ export default class Oxygen extends OxygenEvents {
             } else {
                 step.failure = errorHelper.getFailureFromError(err);
                 step.failure.location = location;
-                // let the module decide whether a screenshot should be taken on error or not
-                if (typeof module._takeScreenshotSilent === 'function' && !this.opts.disableScreenshot) {
+
+                if (!this.opts.disableScreenshot) {
                     takeScreenshot(module, step, methodName);
+                }
+
+                if (step.action) {
+                    takeSnapshot(this.opts, module, step, methodName);
                 }
             }
         }
         // if we are in "baseline" mode, take snapshot and screenshot for each "action" step
         else if (this.opts.baseline && step.action) {
-            if (!step.screenshot && typeof module._takeScreenshotSilent === 'function') {
+            if (!step.screenshot) {
                 takeScreenshot(module, step, methodName);
             }
             takeSnapshot(this.opts, module, step, methodName);
