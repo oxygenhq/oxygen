@@ -106,6 +106,7 @@
     "pdf2json": "1.2.5",
     "perfecto-reporting": "2.5.4",
     "request": "2.88.2",
+    "sanitize-html": "2.17.0",
     "saucelabs": "7.2.1",
     "serialport": "9.2.8",
     "soap": "0.45.0",

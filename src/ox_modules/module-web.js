@@ -59,6 +59,7 @@ import request from 'request';
 import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
 import { autoStartWebDriver } from '../ox_modules/module-web/webdriver/auto-start';
+import sanitizeHtml from 'sanitize-html';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -68,6 +69,104 @@ const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
 const NO_SNAPSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
+
+const SANITIZE_HTML_OPTS = {
+    allowedTags: [
+    'body',
+    'button',
+    'form',
+    'img',
+    'input',
+    'select',
+    'textarea',
+    'option',
+    'address',
+    'article',
+    'aside',
+    'footer',
+    'header',
+    'h1',
+    'h2',
+    'h3',
+    'h4',
+    'h5',
+    'h6',
+    'hgroup',
+    'main',
+    'nav',
+    'section',
+    'blockquote',
+    'dd',
+    'div',
+    'dl',
+    'dt',
+    'figcaption',
+    'figure',
+    'hr',
+    'li',
+    'main',
+    'ol',
+    'p',
+    'pre',
+    'ul',
+    'a',
+    'abbr',
+    'b',
+    'bdi',
+    'bdo',
+    'cite',
+    'code',
+    'data',
+    'dfn',
+    'em',
+    'i',
+    'kbd',
+    'mark',
+    'q',
+    'rb',
+    'rp',
+    'rt',
+    'rtc',
+    'ruby',
+    's',
+    'samp',
+    'small',
+    'span',
+    'strong',
+    'sub',
+    'sup',
+    'time',
+    'u',
+    'var',
+    'wbr',
+    'caption',
+    'col',
+    'colgroup',
+    'table',
+    'tbody',
+    'td',
+    'tfoot',
+    'th',
+    'thead',
+    'tr'
+    ],
+    allowedAttributes: false,/*{
+    '*': [
+      'id',
+      'class',
+      'name',
+      'data-*',
+      'role',
+      'type',
+      'aria-*',
+      'href',
+      'alt',
+      'src'
+    ]
+  },*/
+    allowedClasses: undefined,
+    allowedStyles: undefined
+};
 
 export default class WebModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
@@ -593,7 +692,12 @@ export default class WebModule extends WebDriverModule {
                         return new Promise((resolve, reject) => {
                             this.driver.getPageSource()
                                 .then(result => {
-                                    retval = result; resolve();
+                                    retval = result;
+                                    retval = sanitizeHtml(retval, SANITIZE_HTML_OPTS);
+                                    // remove empty lines
+                                    retval = retval.replace(/(^[ \t]*\n)/gm, "");
+
+                                    resolve();
                                 })
                                 .catch(error => {
                                     this.logger.error('Cannot get snapshot (1)', error); reject();
