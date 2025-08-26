@@ -59,6 +59,8 @@ export function newSnapshotAttachment(options, snapshotData, snapshotType /* htm
     return {
         id: v1(),
         type: 'snapshot',
+        fileName: fileName,
+        filePath: attachmentFilePath,
         subtype: snapshotType || 'html',
     };
 }
