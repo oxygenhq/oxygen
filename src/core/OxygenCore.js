@@ -854,14 +854,12 @@ export default class Oxygen extends OxygenEvents {
                     takeScreenshot(module, step, methodName);
                 }
 
-                if (step.action) {
-                    takeSnapshot(this.opts, module, step, methodName);
-                }
+                takeSnapshot(this.opts, module, step, methodName);
             }
         }
         // if we are in "baseline" mode, take snapshot and screenshot for each "action" step
-        else if (this.opts.baseline && step.action) {
-            if (!step.screenshot) {
+        else if (this.opts.baseline) {
+            if (!step.screenshot && step.action) {
                 takeScreenshot(module, step, methodName);
             }
             takeSnapshot(this.opts, module, step, methodName);

@@ -66,7 +66,36 @@ const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
 const DEFAULT_BROWSER_NAME = 'chrome';
 const DEFAULT_MOBILE_BROWSER = 'default';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
-const NO_SNAPSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
+const NO_SNAPSHOT_COMMANDS = [
+    'init',
+    'assertAlert',
+    'dispose',
+    'transaction',
+    'deleteCookies',
+    'getCookies',
+    'getCssValue',
+    'getHTML',
+    'getSource',
+    'getTitle'
+    'getWindowHandles',
+    'getWindowSize',
+    'getXMLPageSource',
+    'isAlertPresent',
+    'isChecked',
+    'isExist',
+    'isInteractable',
+    'isSelected',
+    'isVisible',
+    'mock',
+    'mockClearAll',
+    'mockRestoreAll',
+    'newWindow',
+    'setAutoWaitForAngular',
+    'setTimeout',
+    'takeScreenshot',
+    'waitForAngular',
+    'waitForWindow'
+    ];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 
