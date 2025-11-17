@@ -69,6 +69,7 @@ export default class ReportPortalReporter extends ReporterBase {
             const { tempId, promise } = this.rpClient.startLaunch({
                 mode: this.reporterOpts.mode || LAUNCH_MODES.DEFAULT,
                 debug: false,
+                attributes: this.reporterOpts.attributes
             });
             this.tempLaunchId = tempId;
 
