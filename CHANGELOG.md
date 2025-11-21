@@ -1,5 +1,13 @@
 # CHANGELOG
 
+## v1.43.0 (2025-11-21)
+
+#### :beetle: Bug Fix
+* Pass RP configuration attributes to RP test launch.
+
+#### :house: Internal
+* Internal fixes related to CB and Oxygen IDE.
+
 ## v1.42.0 (2025-08-20)
 
 #### :tada: New Feature
