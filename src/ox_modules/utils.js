@@ -492,6 +492,12 @@ module.exports = {
                     wdioOpts.capabilities['appium:deviceName'] = deviceName;
                 }
 
+                // for mobile browser test, both borwserName and appium:deviceName will be set
+                // however for BS to work it also expects bstack:options.deviceName
+                if (wdioOpts.capabilities.browserName && wdioOpts.capabilities['appium:deviceName']) {
+                    bsOptions.deviceName = wdioOpts.capabilities['appium:deviceName'];
+                }
+
                 // set automationName Appium capability
                 if (osName && osName.toLowerCase() === 'android') {
                     wdioOpts.capabilities.platformName = 'Android';
