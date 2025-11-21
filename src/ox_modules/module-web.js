@@ -76,7 +76,7 @@ const NO_SNAPSHOT_COMMANDS = [
     'getCssValue',
     'getHTML',
     'getSource',
-    'getTitle'
+    'getTitle',
     'getWindowHandles',
     'getWindowSize',
     'getXMLPageSource',
