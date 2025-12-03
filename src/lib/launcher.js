@@ -20,7 +20,16 @@ export default class Launcher {
     }
 
     async run(capsSet) {
-        this._queue = queue((task, cb) => this._launchTest(task, cb), this._config.parallel || this._config.concurrency || 1);
+        let concurrency = 1;
+
+        if (Number.isInteger(this._config.parallel)) {
+            concurrency = this._config.parallel;
+        }
+        else if (Number.isInteger(this._config.concurrency)) {
+            concurrency = this._config.concurrency;
+        }
+
+        this._queue = queue((task, cb) => this._launchTest(task, cb), concurrency);
         this._queue.error((err, task) => {
             console.log('Error in queue:', err);
         });
