@@ -95,7 +95,7 @@ const NO_SNAPSHOT_COMMANDS = [
     'takeScreenshot',
     'waitForAngular',
     'waitForWindow'
-    ];
+];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
 

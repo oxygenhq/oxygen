@@ -8,14 +8,12 @@
  */
 import OxError from '../errors/OxygenError';
 module.exports = function (filePath, mode, fileType /*optional*/) {
-    var defer = require('when').defer;
     var path = require('path');
     var ExcelReader = require('./param-reader-excel');
     var CsvReader = require('./param-reader-csv');
     var JsonReader = require('./param-reader-json');
     var errHelper = require('../errors/helper');
     var module = {};
-    var _whenInitialized = defer();
 
     module.init = function() {
         var ext = path.extname(filePath);
@@ -36,30 +34,21 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
             reader = new JsonReader();
         }
         else {
-            _whenInitialized.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Unsupported parameters file type: ' + ext));
-            return _whenInitialized.promise;
+            return Promise.reject(new OxError(errHelper.errorCode.PARAMETERS_ERROR, 'Unsupported parameters file type: ' + ext));
         }
 
         this.mode = mode;
 
-        reader.read(filePath, fileType || null)
+        return reader.read(filePath, fileType || null)
             .then(function(result) {
                 self.table = result;
                 // initialize currentRow according with parameter reading mode (random or sequential)
                 self.currentRow = self.mode === 'random' ? random(0, self.table.length) : 0;
-                _whenInitialized.resolve(null);
+                return null;
             })
             .catch(function(err) {
-                _whenInitialized.reject(
-                    new OxError(
-                        errHelper.errorCode.PARAMETERS_ERROR,
-                        `${errHelper.errorCode.PARAMETERS_ERROR}: Unable to load parameters file. 
-${err.message}`
-                    )
-                );
+                throw new OxError(errHelper.errorCode.PARAMETERS_ERROR, `Unable to load parameters file: ${err.message}`);
             });
-
-        return _whenInitialized.promise;
     };
 
     module.getMode = function() {
