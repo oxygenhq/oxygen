@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.43.1 (2025-12-04)
+
+#### :beetle: Bug Fix
+* Better handling of errors related to loading of param files.
+
 ## v1.43.0 (2025-11-21)
 
 #### :beetle: Bug Fix
