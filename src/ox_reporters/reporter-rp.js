@@ -28,7 +28,7 @@ export default class ReportPortalReporter extends ReporterBase {
     constructor(options, reporterOpts, aggregator) {
         super(options);
         this.reporterOpts = reporterOpts || options.rp;
-        this.reportSteps = reporterOpts.reportSteps || true;
+        this.reportSteps = !reporterOpts.reportSteps && reporterOpts.reportSteps !== false ? true : reporterOpts.reportSteps;
         this.reportLogs = reporterOpts.reportLogs || false;
         this.cbSuiteToRpIdHash = {};
         this.cbCaseToRpIdHash = {};
@@ -340,11 +340,21 @@ export default class ReportPortalReporter extends ReporterBase {
         if (!this.tempLaunchId) {
             return;
         }
-        const rpParentId = stepId ?
-            this.cbStepToRpIdHash[stepId]
-            : caseId ? this.cbCaseToRpIdHash[caseId]
-            : suiteId ? this.cbSuiteToRpIdHash[suiteId]
-            : undefined;
+
+        let rpParentId;
+
+        if (stepId) {
+            rpParentId = this.cbStepToRpIdHash[stepId];
+        }
+
+        if (!rpParentId && caseId) {
+            rpParentId = this.cbCaseToRpIdHash[caseId];
+        }
+
+        if (!rpParentId && suiteId) {
+            rpParentId = this.cbSuiteToRpIdHash[suiteId];
+        }
+
         const rpLevel = this._getRpLevel(level);
 
         const logMsg = this._stringify(msg);
