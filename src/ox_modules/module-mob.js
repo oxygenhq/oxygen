@@ -225,6 +225,8 @@ export default class MobileModule extends WebDriverModule {
         try {
             this.driver = await wdio.remote(wdioOpts);
 
+            this.logger.info(`Session ID ${this.driver.sessionId}`);
+
             this.driver.provider = provider;
 
             if (this.options.seleniumBrowserTimeout) {
@@ -474,12 +476,6 @@ export default class MobileModule extends WebDriverModule {
         }
     }
 
-    // _getLogs(name) {
-    //     if (!NO_LOGS_COMMANDS.includes(name)) {
-    //         return this.getLogs();
-    //     }
-    // }
-
     _adjustAppiumLog(log, src) {
         if (!log || typeof log !== 'object') {
             return null;
@@ -661,6 +657,8 @@ export default class MobileModule extends WebDriverModule {
               `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
               `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
 
+            this.logger.info(`Setting BS test result status to ${status}: ${bsApiUrl}`);
+
             try {
                 // set test status
                 request({
@@ -697,6 +695,8 @@ export default class MobileModule extends WebDriverModule {
             const bsApiUrl = this.wdioOpts.capabilities['appium:app'] ?
               `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
               `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
+
+            this.logger.info(`Getting BS test result details: ${bsApiUrl}`);
 
             try {
                 // retreive BS test result url
