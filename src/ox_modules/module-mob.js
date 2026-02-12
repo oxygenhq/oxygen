@@ -297,23 +297,21 @@ export default class MobileModule extends WebDriverModule {
                                 perfectoReporting.Constants.results.passed :
                                 perfectoReporting.Constants.results.failed
                 });
+                await this.deleteSession();
             } else if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
                 await this._setBrowserStackResultStatus(status);
                 await this.deleteSession();
-            }
-
-            try {
+            } else {
                 if (!['CANCELED', 'FAILED'].includes(status)) {
                     if (this.seleniumSessionTimeout) {
                         // ignore
                         // deleteSession will take 5 min to call
                     } else {
-                        await this.driver.deleteSession();
+                        await this.deleteSession();
                     }
                 }
-            } catch (e) {
-                this.logger.warn('Error disposing driver: ' + e);    // ignore any errors at disposal stage
             }
+
             this.driver = null;
             this.lastNavigationStartTime = null;
             super.dispose();
