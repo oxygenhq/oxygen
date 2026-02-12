@@ -88,7 +88,7 @@ export default class ReportPortalReporter extends ReporterBase {
         try {
             await Promise.all(this.promises);
 
-            const { promise } = await this.rpClient.finishLaunch(this.tempLaunchId, {
+            const { promise } = this.rpClient.finishLaunch(this.tempLaunchId, {
                 status: hasFailed ? 'FAILED' : 'PASSED'
             });
             await promise;
