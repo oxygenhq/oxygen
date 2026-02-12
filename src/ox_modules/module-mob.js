@@ -529,7 +529,7 @@ export default class MobileModule extends WebDriverModule {
         }
 
         // collect all the browser logs for this session
-        if (this.options.collectBrowserLogs) {
+        if (this.options.collectBrowserLogs && this.driver && this.driver.provider !== modUtils.provider.BROWSERSTACK) {
             try {
                 const logs = await this.getBrowserLogs();
                 if (logs && Array.isArray(logs)) {
