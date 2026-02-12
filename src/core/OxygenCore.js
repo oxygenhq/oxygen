@@ -531,11 +531,14 @@ export default class Oxygen extends OxygenEvents {
                 wrapper[methodName] = module[methodName].bind(module);
             }
             // private methods and event handlers
-            else if (methodName.indexOf('_') === 0 || methodName.indexOf('on') === 0) {
+            else if (methodName.startsWith('_') || methodName.startsWith('on')) {
                 wrapper[methodName] = function() {
                     var args = Array.prototype.slice.call(arguments);
 
-                    _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
+                    // print only about private methods & and only if module has been initialized to avoid logs clutter
+                    if (methodName.startsWith('_') && module.isInitialized) {
+                        _this.logger.debug('Executing: ' + oxutil.getMethodSignature(name, methodName, args));
+                    }
 
                     try {
                         return module[methodName].apply(module, args);

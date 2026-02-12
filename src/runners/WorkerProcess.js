@@ -164,20 +164,14 @@ export default class WorkerProcess extends EventEmitter {
             const afterTime = new Date().getTime();
             const duration = afterTime - beforeTime;
             this._isInitialized = true;
-            let start = '';
-            if (this._name) {
-                start = this._name + ' ';
-            }
-            log.info(start + 'Worker initialized in ' + duration + ' ms');
+            const engineName = this._name ? this._name + ' ' : '';
+            log.info(engineName + 'Worker initialized in ' + duration + ' ms');
         }
     }
 
     async startSession() {
-        let start = '';
-        if (this._name) {
-            start = this._name + ' ';
-        }
-        log.info(start + 'Session started');
+        const engineName = this._name ? this._name + ' ' : '';
+        log.info(engineName + 'Session started');
     }
 
     async endSession(status = null, disposeModules = true) {
