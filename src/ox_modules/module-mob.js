@@ -116,7 +116,7 @@ export default class MobileModule extends WebDriverModule {
     async init(caps, appiumUrl) {
         // if reopenSession is true - reinitilize the module
         if (this.isInitialized) {
-            if (this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
+            if (this.driver && this.options.reopenSession !== false) { // true or false if explisitly set. true on null or undefined.
                 this.logger.debug('reopenSession is true - reloading the session...');
                 this.driver.reloadSession();
                 this._isInitialized = true;
@@ -249,6 +249,7 @@ export default class MobileModule extends WebDriverModule {
                 await this.reportingClient.testStart(name);
             }
         } catch (e) {
+            this.driver = null;
             throw errHelper.getAppiumInitError(e);
         }
 
@@ -553,7 +554,7 @@ export default class MobileModule extends WebDriverModule {
             }
         }
 
-        if (this.driver.provider === modUtils.provider.BROWSERSTACK) {
+        if (this.driver && this.driver.provider === modUtils.provider.BROWSERSTACK) {
             var resultUrl = await this._getBrowserStackResultUrl();
             if (resultUrl) {
                 // FIXME: this should be written to context.resultData instead
