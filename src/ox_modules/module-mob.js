@@ -202,6 +202,8 @@ export default class MobileModule extends WebDriverModule {
             };
         }
 
+        let provider = modUtils.determineProvider(wdioOpts);
+
         var wdioOpts = {
             ...this.options.wdioOpts || {},
             protocol: protocol,
@@ -212,11 +214,11 @@ export default class MobileModule extends WebDriverModule {
             logLevel: 'silent',
             runner: 'repl',
             waitforTimeout: 5000, // increase the default 3000
-            connectionRetryTimeout: 310*1000,
+            connectionRetryTimeout: provider === modUtils.provider.BROWSERSTACK ? 10*60*1000 : 310*1000,
             connectionRetryCount: 1
         };
 
-        let provider = modUtils.determineProvider(wdioOpts);
+
         const name = modUtils.enrichProviderWdioOptions(provider, wdioOpts);
 
         this.wdioOpts = wdioOpts;
