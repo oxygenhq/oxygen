@@ -47,7 +47,7 @@ module.exports = function (filePath, mode, fileType /*optional*/) {
                 return null;
             })
             .catch(function(err) {
-                throw new OxError(errHelper.errorCode.PARAMETERS_ERROR, `Unable to load parameters file: ${err.message}`);
+                throw new OxError(errHelper.errorCode.PARAMETERS_ERROR, `Unable to load parameters file "${path.basename(filePath)}": ${err.message}`);
             });
     };
 
