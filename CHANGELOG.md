@@ -1,5 +1,16 @@
 # CHANGELOG
 
+## v1.44.0 (2026-03-02)
+
+#### :beetle: Bug Fix
+* Fix duplicate attempt to dispose mobile session.
+* Fix connectionRetryTimeout not being actually set for BS.
+* Don't try to collect browser logs when running on BS.
+* Miscellaneous RP related fixes.
+
+#### :house: Internal
+* Produce less unnecessary logs.
+
 ## v1.43.1 (2025-12-04)
 
 #### :beetle: Bug Fix
