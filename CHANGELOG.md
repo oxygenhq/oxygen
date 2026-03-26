@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## v1.44.1 (2026-03-26)
+
+#### :beetle: Bug Fix
+* Fix hooks defined in `oxygen.conf.js` not being executed.
+
 ## v1.44.0 (2026-03-02)
 
 #### :beetle: Bug Fix
