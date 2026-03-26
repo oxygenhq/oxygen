@@ -293,16 +293,16 @@ var self = module.exports = {
     },
 
     loadTestHooks: function(options) {
-        let hooks = DUMMY_HOOKS;
-        if (options && options.target && options.target.name === 'oxygen.conf') {
+        let hooks;
+        if (options && options.target && options.target.configPath.endsWith('oxygen.conf.js')) {
             try {
-                hooks = require(options.target.path).hooks || DUMMY_HOOKS;
+                hooks = require(options.target.configPath).hooks;
             }
             catch (e) {
                 console.warn('Error loading user hooks:', e);
             }
         }
-        return hooks;
+        return hooks || DUMMY_HOOKS;
     },
 
     executeTestHook: async function(hooks, method, args) {
