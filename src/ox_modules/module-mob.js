@@ -499,6 +499,10 @@ export default class MobileModule extends WebDriverModule {
     _iterationStart() {
         // clear transaction name saved in previous iteration if any
         global._lastTransactionName = null;
+        // clear BS URL from previous iteration
+        if (this.rs?.attributes) {
+            delete this.rs.attributes['BrowserStackUrl'];
+        }
     }
 
     async _iterationEnd(error) {
