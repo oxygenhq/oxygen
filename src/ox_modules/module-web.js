@@ -1000,7 +1000,8 @@ export default class WebModule extends WebDriverModule {
     async _sendResultStatusToBrowserstack(status) {
         return new Promise((resolve, reject) => {
             const requestBody = {
-                status: status === 'PASSED' ? 'passed' : 'failed'
+                status: status === 'PASSED' ? 'passed' : 'failed',
+                reason: status === 'WARNING' ? 'Test completed with warnings' : undefined
             };
 
             const options = {

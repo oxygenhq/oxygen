@@ -674,7 +674,8 @@ export default class MobileModule extends WebDriverModule {
                     json: true,
                     rejectUnauthorized: false,
                     body: {
-                        status: status === 'PASSED' ? 'passed' : 'failed'
+                        status: status === 'PASSED' ? 'passed' : 'failed',
+                        reason: status === 'WARNING' ? 'Test completed with warnings' : undefined
                     },
                     'auth': {
                         'user': this.wdioOpts.capabilities['bstack:options'].userName,
