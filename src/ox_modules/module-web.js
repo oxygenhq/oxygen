@@ -55,7 +55,7 @@ import lambdaRestClient from '@lambdatest/node-rest-client';
 import TestingBot from 'testingbot-api';
 import { execSync } from 'child_process';
 import perfectoReporting from 'perfecto-reporting';
-import request from 'request';
+import got from 'got';
 import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
 import { autoStartWebDriver } from '../ox_modules/module-web/webdriver/auto-start';
@@ -998,64 +998,32 @@ export default class WebModule extends WebDriverModule {
     }
 
     async _sendResultStatusToBrowserstack(status) {
-        return new Promise((resolve, reject) => {
-            const requestBody = {
-                status: status === 'PASSED' ? 'passed' : 'failed',
-                reason: status === 'WARNING' ? 'Test completed with warnings' : undefined
-            };
-
-            const options = {
-                url: `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`,
-                method: 'PUT',
-                json: true,
-                rejectUnauthorized: false,
-                body: requestBody,
-                'auth': {
-                    'user': this.wdioOpts.user,
-                    'pass': this.wdioOpts.key,
-                    'sendImmediately': false
+        try {
+            await got.put(`https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`, {
+                json: {
+                    status: status === 'PASSED' ? 'passed' : 'failed',
+                    reason: status === 'WARNING' ? 'Test completed with warnings' : undefined
                 },
-            };
-
-            try {
-                request(options, (err, res, body) => {
-                    resolve();
-                });
-            } catch (e) {
-                this.logger.error('Unable to send result status to Browserstack: ' + e.toString());
-                resolve();
-            }
-        });
+                username: this.wdioOpts.user,
+                password: this.wdioOpts.key,
+                https: { rejectUnauthorized: false },
+                throwHttpErrors: false,
+            });
+        } catch (e) {
+            this.logger.error('Unable to send result status to Browserstack: ' + e.toString());
+        }
     }
 
     async _isSelenoidHub(seleniumUrl) {
-        return new Promise((resolve, reject) => {
-            const options = {
-                url: `${seleniumUrl}`,
-                method: 'GET',
-                json: false,
-                rejectUnauthorized: false,
-            };
-
-            try {
-                request(options, (err, res, body) => {
-                    if (err) {
-                        reject(err);
-                    }
-                    else {
-                        if (body && body.length && body.indexOf('You are using Selenoid') > -1) {
-                            resolve(true);
-                        }
-                        else {
-                            resolve(false);
-                        }
-                    }
-                });
-            } catch (e) {
-                this.logger.error('Unable to send result status to Browserstack: ' + e.toString());
-                resolve();
-            }
-        });
+        try {
+            const response = await got(seleniumUrl, {
+                https: { rejectUnauthorized: false },
+                throwHttpErrors: false,
+            });
+            return response.body && response.body.indexOf('You are using Selenoid') > -1;
+        } catch (e) {
+            return false;
+        }
     }
 
     // if the test is running inside Selenoid, then download the video if test has failed

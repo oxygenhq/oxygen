@@ -2,7 +2,7 @@ const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
 const envPaths = require('env-paths');
-const axios = require('axios');
+const got = require('got');
 const extractZip = require('extract-zip');
 const os = require('os');
 
@@ -101,9 +101,7 @@ async function getCompatibleChromeDriverUrl(chromeVersion) {
         // Download JSON data with versions and downloads
         const jsonUrl = 'https://googlechromelabs.github.io/chrome-for-testing/latest-patch-versions-per-build-with-downloads.json';
         // ChromeDriver API endpoint for version mapping
-        const response = await axios.get(jsonUrl);
-        //fs.writeFileSync('/tmp/data.json', JSON.stringify(response.data));
-        const jsonData = response.data;
+        const jsonData = await got(jsonUrl).json();
         // Extract major version for API lookup
         const versionParts = chromeVersion.split('.');
         const majorVersion = versionParts[0];
@@ -160,12 +158,9 @@ async function downloadChromeDriver(chromeVersion) {
 
     try {
         // Download ChromeDriver
-        const response = await axios.get(url, { responseType: 'stream' });
         const zipPath = path.join(driversDir, 'chromedriver.zip');
-
         const writer = fs.createWriteStream(zipPath);
-        response.data.pipe(writer);
-
+        got.stream(url).pipe(writer);
         await new Promise((resolve, reject) => {
             writer.on('finish', resolve);
             writer.on('error', reject);
@@ -276,8 +271,8 @@ async function waitForChromeDriverReady(port, maxRetries = 30, interval = 1000) 
 
     for (let i = 0; i < maxRetries; i++) {
         try {
-            const response = await axios.get(checkUrl, { timeout: 2000 });
-            if (response.status === 200 && response.data.value && response.data.value.ready) {
+            const body = await got(checkUrl, { timeout: { request: 2000 } }).json();
+            if (body.value && body.value.ready) {
                 return true;
             }
         } catch (error) {

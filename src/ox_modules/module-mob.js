@@ -57,7 +57,7 @@ import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
 import perfectoReporting from 'perfecto-reporting';
-import request from 'request';
+import got from 'got';
 import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
 
@@ -660,80 +660,51 @@ export default class MobileModule extends WebDriverModule {
     }
 
     async _setBrowserStackResultStatus(status) {
-        return new Promise((resolve, reject) => {
-            // different APIs are used depending on test type.
-            // https://www.browserstack.com/docs/automate/api-reference/selenium/session#set-test-status
-            // https://www.browserstack.com/docs/app-automate/api-reference/appium/sessions#update-session-status
-            const bsApiUrl = this.wdioOpts.capabilities['appium:app'] ?
-              `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
-              `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
+        // different APIs are used depending on test type.
+        // https://www.browserstack.com/docs/automate/api-reference/selenium/session#set-test-status
+        // https://www.browserstack.com/docs/app-automate/api-reference/appium/sessions#update-session-status
+        const bsApiUrl = this.wdioOpts.capabilities['appium:app'] ?
+          `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
+          `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
 
-            this.logger.info(`Setting BS test result status to ${status}: ${bsApiUrl}`);
+        this.logger.info(`Setting BS test result status to ${status}: ${bsApiUrl}`);
 
-            try {
-                // set test status
-                request({
-                    url: bsApiUrl,
-                    method: 'PUT',
-                    json: true,
-                    rejectUnauthorized: false,
-                    body: {
-                        status: status === 'PASSED' ? 'passed' : 'failed',
-                        reason: status === 'WARNING' ? 'Test completed with warnings' : undefined
-                    },
-                    'auth': {
-                        'user': this.wdioOpts.capabilities['bstack:options'].userName,
-                        'pass': this.wdioOpts.capabilities['bstack:options'].accessKey,
-                        'sendImmediately': false
-                    }
-                }, (err, res, body) => {
-                    if (err) {
-                        this.logger.error('Error setting BrowserStack test result status: ' + err.toString());
-                    }
-                    resolve();
-                });
-            } catch (e) {
-                this.logger.error('Error setting BrowserStack test result status: ' + e.toString());
-                resolve();
-            }
-        });
+        try {
+            await got.put(bsApiUrl, {
+                json: {
+                    status: status === 'PASSED' ? 'passed' : 'failed',
+                    reason: status === 'WARNING' ? 'Test completed with warnings' : undefined
+                },
+                username: this.wdioOpts.capabilities['bstack:options'].userName,
+                password: this.wdioOpts.capabilities['bstack:options'].accessKey,
+                https: { rejectUnauthorized: false },
+                throwHttpErrors: false,
+            });
+        } catch (e) {
+            this.logger.error('Error setting BrowserStack test result status: ' + e.toString());
+        }
     }
 
     async _getBrowserStackResultUrl() {
-        return new Promise((resolve, reject) => {
-            // different APIs are used depending on test type.
-            // https://www.browserstack.com/docs/automate/api-reference/selenium/session#set-test-status
-            // https://www.browserstack.com/docs/app-automate/api-reference/appium/sessions#update-session-status
-            const bsApiUrl = this.wdioOpts.capabilities['appium:app'] ?
-              `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
-              `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
+        // different APIs are used depending on test type.
+        // https://www.browserstack.com/docs/automate/api-reference/selenium/session#set-test-status
+        // https://www.browserstack.com/docs/app-automate/api-reference/appium/sessions#update-session-status
+        const bsApiUrl = this.wdioOpts.capabilities['appium:app'] ?
+          `https://api-cloud.browserstack.com/app-automate/sessions/${this.driver.sessionId}.json` :
+          `https://api.browserstack.com/automate/sessions/${this.driver.sessionId}.json`;
 
-            this.logger.info(`Getting BS test result details: ${bsApiUrl}`);
+        this.logger.info(`Getting BS test result details: ${bsApiUrl}`);
 
-            try {
-                // retreive BS test result url
-                request({
-                    url: bsApiUrl,
-                    method: 'GET',
-                    json: true,
-                    rejectUnauthorized: false,
-                    'auth': {
-                        'user': this.wdioOpts.capabilities['bstack:options'].userName,
-                        'pass': this.wdioOpts.capabilities['bstack:options'].accessKey,
-                        'sendImmediately': false
-                    }
-                }, (err, res, body) => {
-                    if (err) {
-                        this.logger.error('Error getting BrowserStack test result url: ' + err.toString());
-                    }
-
-                    resolve(body?.automation_session?.browser_url);
-                });
-
-            } catch (e) {
-                this.logger.error('Error getting BrowserStack test result url: ' + e.toString());
-                resolve();
-            }
-        });
+        try {
+            const body = await got(bsApiUrl, {
+                username: this.wdioOpts.capabilities['bstack:options'].userName,
+                password: this.wdioOpts.capabilities['bstack:options'].accessKey,
+                https: { rejectUnauthorized: false },
+                throwHttpErrors: false,
+            }).json();
+            return body?.automation_session?.browser_url;
+        } catch (e) {
+            this.logger.error('Error getting BrowserStack test result url: ' + e.toString());
+        }
     }
 }

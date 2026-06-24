@@ -17,7 +17,7 @@ var errHelper = require('../errors/helper');
 import libUtils from '../lib/util';
 
 module.exports = function() {
-    var request = require('request');
+    var got = require('got');
 
     const apiBase = 'https://api.mailinator.com/api';
 
@@ -37,25 +37,15 @@ module.exports = function() {
     async function invoke(url) {
         var result = null;
 
-        var options = {
-            url: url,
-            method: 'GET',
-            json: true,
-            timeout: _responseTimeout
-        };
-
-        await (() => {
-            return new Promise((resolve, reject) => {
-                try {
-                    request(options, (err, res, body) => {
-                        result = err || res;
-                        resolve();
-                    });
-                } catch (e) {
-                    reject(e);
-                }
+        try {
+            result = await got(url, {
+                responseType: 'json',
+                timeout: { request: _responseTimeout },
+                throwHttpErrors: false,
             });
-        })();
+        } catch (e) {
+            result = { statusCode: 0 };
+        }
 
         // retry
         if (_currentTry < _retries && (!result.statusCode || result.statusCode >= 500)) {

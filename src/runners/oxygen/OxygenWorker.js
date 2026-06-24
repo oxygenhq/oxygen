@@ -10,10 +10,11 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
-const Fiber = require('fibers');
 const path = require('path');
 const fs = require('fs');
+const Module = require('module');
 const { EventEmitter } = require('events');
+const scriptTransformer = require('../../core/scriptTransformer');
 
 const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
@@ -83,57 +84,61 @@ export default class OxygenWorker extends EventEmitter {
         // load and run the test script
         try {
             this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
-            await this._runFnInFiberContext(() => {
-                try {
-                    // make sure to clear require cache so the script will be executed on each iteration
-                    try {
-                        delete require.cache[require.resolve(scriptPath)];
-                    } catch (ce) {
-                        // ignored. could happen if module hasn't been cached yet.
-                    }
 
-                    // if user uses require('./somescript.js') in multiple test scripts (cases), and somescript.js contains web/mob.init
-                    // then, when those scripts are executed in a suite, only first case will pass, the rest will fail with MODULE_NOT_INITIALIZED error.
-                    // this is because 'require' is cached, and when the first case is finished, the module is marked as isInitialized = false
-                    // and not re-initialized back on next case.
-                    // thus we clean user level scripts from 'require' cache.
-                    // FIXME: web.init and other modules should be probably fixed (properly disposed)
-                    // NOTE: this obviously relates not only to web, etc module. this is a general issue.
-                    const Module = require('module');
-                    const originalRequire = Module.prototype.require;
-
-                    Module.prototype.require = function() {
-                        const script = arguments['0'];
-
-                        // invalidate cache only when we try to load user-level scripts (those starting with './' or '../')
-                        if (script && script.startsWith('.')) {
-                            // remove everything user related from the cache
-                            for (const key in require.cache) {
-                                if (key.startsWith && key.startsWith(cwd)) {
-                                    try {
-                                        delete require.cache[key];
-                                    } catch (exi) {
-                                        // ignored
-                                    }
-                                }
+            // invalidate require cache for all user scripts so each iteration loads fresh copies
+            const originalRequire = Module.prototype.require;
+            Module.prototype.require = function() {
+                const script = arguments['0'];
+                // invalidate cache only when loading user-level scripts (relative paths)
+                if (script && script.startsWith('.')) {
+                    for (const key in require.cache) {
+                        if (key.startsWith && key.startsWith(cwd)) {
+                            try {
+                                delete require.cache[key];
+                            } catch (exi) {
+                                // ignored
                             }
                         }
-
-                        return originalRequire.apply(this, arguments);
-                    };
-                    require(scriptPath);
-                } catch (e) {
-                    // error = e.code && e.code === 'MODULE_NOT_FOUND' ? new ScriptNotFoundError(scriptPath) : e;
-
-                    if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
-                        //ignore
-                    } else {
-                        error = e;
                     }
                 }
-            });
+                return originalRequire.apply(this, arguments);
+            };
+
+            // install require hook so sub-scripts required from within the test are also transformed
+            scriptTransformer.installRequireHook(cwd);
+
+            try {
+                // read and transform the entry script - wraps it in an async IIFE exported as module.exports
+                const scriptCode = fs.readFileSync(scriptPath, 'utf8');
+                const transformed = scriptTransformer.transform(scriptCode, scriptPath, true);
+
+                // clear entry script from require cache so it's re-evaluated on each run
+                try {
+                    delete require.cache[scriptPath];
+                } catch (ce) {
+                    // ignored
+                }
+
+                // execute via Module._compile so the script has full Node module context (module, require, __dirname, etc.)
+                const m = new Module(scriptPath, module);
+                m.filename = scriptPath;
+                m.paths = Module._nodeModulePaths(path.dirname(scriptPath));
+                m._compile(transformed, scriptPath);
+
+                // m.exports is the Promise returned by the async IIFE - await it to run the test
+                if (m.exports && typeof m.exports.then === 'function') {
+                    await m.exports;
+                }
+            } finally {
+                scriptTransformer.uninstallRequireHook();
+                Module.prototype.require = originalRequire;
+            }
         } catch (e) {
-            error = e;
+            if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
+                // ignore
+            } else {
+                error = e;
+            }
         }
 
         // In some cases step result generation takes some time to make screenshot
@@ -214,17 +219,6 @@ export default class OxygenWorker extends EventEmitter {
             throw new Error(`Hook does not exist: ${hookName}`);
         }
         await oxutil.executeTestHook(this._testHooks, hookName, hookArgs);
-    }
-
-    async _runFnInFiberContext (fn) {
-        return new Promise((resolve, reject) => Fiber(() => {
-            try {
-                const result = fn.apply(this);
-                return resolve(result);
-            } catch (err) {
-                return reject(err);
-            }
-        }).run());
     }
 
     async replStart() {

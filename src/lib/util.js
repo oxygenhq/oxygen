@@ -20,7 +20,7 @@ const key = crypto.scryptSync(password, 'GfG', 24);
 const iv = Buffer.alloc(16, 0);
 const algorithm = 'aes-192-cbc';
 const download = require('download');
-const request = require('request');
+const got = require('got');
 
 import OxygenError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
@@ -294,7 +294,7 @@ var self = module.exports = {
 
     loadTestHooks: function(options) {
         let hooks;
-        if (options && options.target && options.target.configPath.endsWith('oxygen.conf.js')) {
+        if (options && options.target && options.target.configPath && options.target.configPath.endsWith('oxygen.conf.js')) {
             try {
                 hooks = require(options.target.configPath).hooks;
             }
@@ -457,9 +457,8 @@ var self = module.exports = {
             };
 
             try {
-                return new Promise((resolve, reject) => {
-                    request(options, (err, res, body) => { resolve(err ? null : localVideoFilePath); });
-                });
+                await got.delete(videoUrl, { https: { rejectUnauthorized: false } });
+                return localVideoFilePath;
             }
             catch (e) {
                 console.warn('Unable to delete video file from the remote server: ', e.message);

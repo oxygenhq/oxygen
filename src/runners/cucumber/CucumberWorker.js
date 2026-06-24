@@ -14,12 +14,9 @@
 require = require('esm')(module);
 var td = require('testdouble');
 
-import Fiber from 'fibers';
 import * as Cucumber from 'cucumber';
 import isGlob from 'is-glob';
 import glob from 'glob';
-import { executeSync, executeAsync } from '@wdio/sync';
-import { isFunctionAsync, hasWdioSyncSupport, runFnInFiberContext } from '@wdio/utils';
 import { EventEmitter } from 'events';
 import CucumberEventListener from './CucumberEventListener';
 import CucumberReporter from './CucumberReporter';
@@ -92,15 +89,14 @@ export default class CucumberWorker {
         }
     }
 
-    async _runFnInFiberContext (fn, args) {
-        return new Promise((resolve, reject) => Fiber(() => {
-            try {
-                const result = fn.apply(this, args || []);
-                return resolve(result);
-            } catch (err) {
-                return reject(err);
-            }
-        }).run());
+    async _runHookFn (fn, args) {
+        if (typeof fn !== 'function') return null;
+        try {
+            await Promise.resolve(fn.apply(this, args || []));
+            return null;
+        } catch (err) {
+            return err;
+        }
     }
 
     async run ({ scriptPath, context, poFile = null }) {
@@ -145,7 +141,7 @@ export default class CucumberWorker {
         });
 
         // call 'beforeTest' hook
-        let hookError = await this._runFnInFiberContext(this.testHooks['beforeTest'], [this.rid, this.config, this.capabilities]);
+        let hookError = await this._runHookFn(this.testHooks['beforeTest'], [this.rid, this.config, this.capabilities]);
 
         if (hookError) {
             throw hookError;
@@ -173,7 +169,7 @@ export default class CucumberWorker {
         }
 
         this.cucumberReporter.status = testResultStatus;
-        hookError = await this._runFnInFiberContext(this.testHooks['afterTest'], [this.rid, this.cucumberReporter, error]);
+        hookError = await this._runHookFn(this.testHooks['afterTest'], [this.rid, this.cucumberReporter, error]);
         if (hookError) {
             throw hookError;
         }
@@ -302,30 +298,26 @@ export default class CucumberWorker {
      * @return  {Function}              wrapped step definiton for sync WebdriverIO code
      */
     wrapStep (code, retryTest = 0, isStep, config, id) {
-        const executeFn = isFunctionAsync(code) || !hasWdioSyncSupport ? executeAsync : executeSync;
         const wrapWithHooks = this.wrapWithHooks.bind(this);
-        return function (...args) {
-            return executeFn.call(this, wrapWithHooks(code), retryTest, args);
+        return async function (...args) {
+            const wrappedFn = wrapWithHooks(code);
+            let lastError;
+            for (let attempt = 0; attempt <= retryTest; attempt++) {
+                try {
+                    return await wrappedFn.call(this, ...args);
+                } catch (err) {
+                    lastError = err;
+                    if (attempt >= retryTest) throw err;
+                }
+            }
+            throw lastError;
         };
     }
 
     wrapWithHooks (code) {
-        const userFn = async function (...args) {
-            // step
-            let result;
-            let error;
-            try {
-                result = await runFnInFiberContext(code.bind(this, ...args))();
-            } catch (err) {
-                error = err;
-            }
-
-            if (error) {
-                throw error;
-            }
-            return result;
+        return async function (...args) {
+            return await Promise.resolve(code.apply(this, args));
         };
-        return userFn;
     }
 
     hookInCucumberEvents(eventBroadcaster) {
