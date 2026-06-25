@@ -45,6 +45,10 @@ function transform(code, filename, wrapInIIFE = true) {
     const result = babel.transformSync(code, {
         filename,
         sourceType: 'script',
+        parserOpts: {
+            // top-level return is valid in CommonJS module context and inside our async IIFE wrapper
+            allowReturnOutsideFunction: true,
+        },
         plugins: [[createAsyncTransformPlugin(), { wrapInIIFE }]],
         sourceMaps: 'inline',
         configFile: false,
