@@ -731,7 +731,7 @@ export default class Oxygen extends OxygenEvents {
         step.duration = endTime - startTime;
 
         if (typeof module._getStats === 'function') {
-            step.stats = module._getStats(methodName);
+            step.stats = await module._getStats(methodName);
         } else {
             step.stats = {};
         }

@@ -357,130 +357,66 @@ export default class MobileModule extends WebDriverModule {
         return ACTION_COMMANDS.includes(name);
     }
 
-    _takeScreenshotSilent(name) {
-        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
-            let error;
-            try {
-                if (this.driver?.takeScreenshot) {
-                    let retval;
-                    this.driver.call(() => {
-                        return new Promise((resolve, reject) => {
-                            const waitUntilRetVal = this.driver.waitUntil(async() => {
-                                try {
-                                    let images = [];
-
-                                    const pushImageToImages = async(fetchTitle = true) => {
-                                        const image = await this.driver.takeScreenshot();
-                                        if (fetchTitle) {
-                                            const title = await this.driver.getTitle();
-                                            if (title) {
-                                                const textToImage = require('../lib/text-to-image');
-                                                let titleImage = await textToImage.generate(title);
-                                                if (titleImage && typeof titleImage === 'string') {
-                                                    titleImage = titleImage.replace('data:image/png;base64,', '');
-                                                    images.push(titleImage);
-                                                }
-                                            }
-                                        }
-
-                                        images.push(image);
-                                    };
-
-                                    const isWebViewContext = await this.isWebViewContext();
-                                    if (isWebViewContext) {
-                                        // collect all (screenshot and title) images
-                                        const handles = await this.driver.getWindowHandles();
-                                        if (
-                                            handles &&
-                                            Array.isArray(handles) &&
-                                            handles.length > 0
-                                        ) {
-                                            for (const handle of handles) {
-                                                await this.driver.switchToWindow(handle);
-                                                await pushImageToImages();
-                                            }
-                                        }
-                                    } else {
-                                        await pushImageToImages(false);
-                                    }
-
-                                    // merge all images into one
-                                    const mergedImage = await mergeImages(images, { direction: true });
-                                    if (mergedImage && typeof mergedImage === 'string') {
-                                        retval = mergedImage.replace('data:image/jpeg;base64,', '');
-                                    }
-
-                                    return true;
-                                } catch (e) {
-                                    error = e;
-                                    return false;
-                                }
-                            },
-                            { timeout: 30*1000 });
-
-                            if (waitUntilRetVal && waitUntilRetVal.then) {
-                                waitUntilRetVal.then(() => {
-                                    resolve();
-                                }).catch((err) => {
-                                    reject(err);
-                                });
-                            } else {
-                                resolve();
-                            }
-                        });
-                    });
-
-                    if (error) {
-                        this.logger.error('Cannot get screenshot', error);
-                    }
-
-                    return retval;
-                }
-            } catch (e) {
-                this.logger.error('Cannot get screenshot', e);
-                if (error) {
-                    this.logger.error('Cannot get screenshot inner error', error);
-                }
-                // ignore
-            }
+    async _takeScreenshotSilent(name) {
+        if (NO_SCREENSHOT_COMMANDS.includes(name) || !this.driver?.takeScreenshot) {
+            return undefined;
         }
+        try {
+            const images = [];
+            const pushImage = async (fetchTitle = true) => {
+                const image = await this.driver.takeScreenshot();
+                if (fetchTitle) {
+                    const title = await this.driver.getTitle();
+                    if (title) {
+                        try {
+                            const textToImage = require('../lib/text-to-image');
+                            let titleImage = await textToImage.generate(title);
+                            if (titleImage && typeof titleImage === 'string') {
+                                images.push(titleImage.replace('data:image/png;base64,', ''));
+                            }
+                        } catch (e) {
+                            // canvas not available — skip title overlay
+                        }
+                    }
+                }
+                images.push(image);
+            };
+
+            const isWebViewContext = await this.isWebViewContext();
+            if (isWebViewContext) {
+                const handles = await this.driver.getWindowHandles();
+                if (Array.isArray(handles) && handles.length > 0) {
+                    for (const handle of handles) {
+                        await this.driver.switchToWindow(handle);
+                        await pushImage();
+                    }
+                }
+            } else {
+                await pushImage(false);
+            }
+
+            const mergedImage = await mergeImages(images, { direction: true });
+            if (mergedImage && typeof mergedImage === 'string') {
+                return mergedImage.replace('data:image/jpeg;base64,', '');
+            }
+        } catch (e) {
+            this.logger.error('Cannot get screenshot', e);
+        }
+        return undefined;
     }
 
-    _takeSnapshotSilent(name) {
-        if (!NO_SNAPSHOT_COMMANDS.includes(name)) {
-            let error;
-            try {
-                if (
-                    this.driver &&
-                    this.driver.getPageSource
-                ) {
-                    let retval;
-                    this.driver.call(() => {
-                        return new Promise((resolve, reject) => {
-                            this.driver.getPageSource()
-                                .then(result => {
-                                    retval = result; resolve();
-                                })
-                                .catch(error => {
-                                    this.logger.error('Cannot get snapshot (1)', error); reject();
-                                });
-                        });
-                    });
-
-                    if (error) {
-                        this.logger.error('Cannot get snapshot (2)', error);
-                    }
-
-                    return retval;
-                }
-            } catch (e) {
-                this.logger.error('Cannot get snapshot (3)', e);
-                if (error) {
-                    this.logger.error('Cannot get snapshot inner error', error);
-                }
-                // ignore
-            }
+    async _takeSnapshotSilent(name) {
+        if (NO_SNAPSHOT_COMMANDS.includes(name) || !this.driver?.getPageSource) {
+            return undefined;
         }
+        try {
+            let result = await this.driver.getPageSource();
+            result = result.replace(/(^[ \t]*\n)/gm, '');
+            return result;
+        } catch (e) {
+            this.logger.error('Cannot get snapshot', e);
+        }
+        return undefined;
     }
 
     _adjustAppiumLog(log, src) {

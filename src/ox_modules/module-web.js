@@ -622,133 +622,55 @@ export default class WebModule extends WebDriverModule {
         return ACTION_COMMANDS.includes(name);
     }
 
-    _takeScreenshotSilent(name) {
-        if (!NO_SCREENSHOT_COMMANDS.includes(name)) {
-            let error;
-            try {
-                if (
-                    this.driver &&
-                    this.driver.takeScreenshot
-                ) {
-                    let retval;
-                    this.driver.call(() => {
-                        return new Promise((resolve, reject) => {
-                            try {
-                                const waitUntilRetVal = this.driver.waitUntil(async() => {
-                                    try {
-                                        let images = [];
-
-                                        // collect all (screenshot and title) images
-                                        const handles = await this.driver.getWindowHandles();
-                                        if (Array.isArray(handles) && handles.length > 0) {
-                                            for (const handle of handles) {
-                                                await this.driver.switchToWindow(handle);
-                                                const image = await this.driver.takeScreenshot();
-                                                const title = await this.driver.getTitle();
-
-                                                if (title) {
-                                                    try {
-                                                        const textToImage = require('../lib/text-to-image');
-                                                        let titleImage = await textToImage.generate(title);
-                                                        if (titleImage && typeof titleImage === 'string') {
-                                                            titleImage = titleImage.replace('data:image/png;base64,', '');
-                                                            images.push(titleImage);
-                                                        }
-                                                    }
-                                                    catch (e) {
-                                                        console.warn('Canvas operation failed.');
-                                                    } // Ignore canvas-related error
-                                                }
-
-                                                images.push(image);
-                                            }
-                                        }
-
-                                        // merge all images into one
-                                        const mergedImage = await mergeImages(images, { direction: true });
-                                        if (mergedImage && typeof mergedImage === 'string') {
-                                            retval = mergedImage.replace('data:image/jpeg;base64,', '');
-                                        }
-
-                                        return true;
-                                    } catch (e) {
-                                        error = e;
-                                        return false;
-                                    }
-                                },
-                                { timeout: 30*1000 });
-
-                                if (waitUntilRetVal && waitUntilRetVal.then) {
-                                    waitUntilRetVal.then(() => {
-                                        resolve();
-                                    }).catch((err) => {
-                                        reject(err);
-                                    });
-                                } else {
-                                    resolve();
-                                }
-                            } catch (ew) {
-                                this.logger.error('Cannot get screenshot (1)', error);
-                            }
-                        });
-                    });
-
-                    if (error) {
-                        this.logger.error('Cannot get screenshot (2)', error);
-                    }
-
-                    return retval;
-                }
-            } catch (e) {
-                this.logger.error('Cannot get screenshot (3)', e);
-                if (error) {
-                    this.logger.error('Cannot get screenshot inner error', error);
-                }
-                // ignore
-            }
+    async _takeScreenshotSilent(name) {
+        if (NO_SCREENSHOT_COMMANDS.includes(name) || !this.driver || !this.driver.takeScreenshot) {
+            return undefined;
         }
+        try {
+            const images = [];
+            const handles = await this.driver.getWindowHandles();
+            if (Array.isArray(handles) && handles.length > 0) {
+                for (const handle of handles) {
+                    await this.driver.switchToWindow(handle);
+                    const image = await this.driver.takeScreenshot();
+                    const title = await this.driver.getTitle();
+                    if (title) {
+                        try {
+                            const textToImage = require('../lib/text-to-image');
+                            let titleImage = await textToImage.generate(title);
+                            if (titleImage && typeof titleImage === 'string') {
+                                images.push(titleImage.replace('data:image/png;base64,', ''));
+                            }
+                        } catch (e) {
+                            // canvas not available or title image generation failed — skip title overlay
+                        }
+                    }
+                    images.push(image);
+                }
+            }
+            const mergedImage = await mergeImages(images, { direction: true });
+            if (mergedImage && typeof mergedImage === 'string') {
+                return mergedImage.replace('data:image/jpeg;base64,', '');
+            }
+        } catch (e) {
+            this.logger.error('Cannot get screenshot', e);
+        }
+        return undefined;
     }
 
-    _takeSnapshotSilent(name) {
-        if (!NO_SNAPSHOT_COMMANDS.includes(name)) {
-            let error;
-            try {
-                if (
-                    this.driver &&
-                    this.driver.getPageSource
-                ) {
-                    let retval;
-                    this.driver.call(() => {
-                        return new Promise((resolve, reject) => {
-                            this.driver.getPageSource()
-                                .then(result => {
-                                    retval = result;
-                                    retval = sanitizeHtml(retval, SANITIZE_HTML_OPTS);
-                                    // remove empty lines
-                                    retval = retval.replace(/(^[ \t]*\n)/gm, "");
-
-                                    resolve();
-                                })
-                                .catch(error => {
-                                    this.logger.error('Cannot get snapshot (1)', error); reject();
-                                });
-                        });
-                    });
-
-                    if (error) {
-                        this.logger.error('Cannot get snapshot (2)', error);
-                    }
-
-                    return retval;
-                }
-            } catch (e) {
-                this.logger.error('Cannot get snapshot (3)', e);
-                if (error) {
-                    this.logger.error('Cannot get snapshot inner error', error);
-                }
-                // ignore
-            }
+    async _takeSnapshotSilent(name) {
+        if (NO_SNAPSHOT_COMMANDS.includes(name) || !this.driver || !this.driver.getPageSource) {
+            return undefined;
         }
+        try {
+            let result = await this.driver.getPageSource();
+            result = sanitizeHtml(result, SANITIZE_HTML_OPTS);
+            result = result.replace(/(^[ \t]*\n)/gm, '');
+            return result;
+        } catch (e) {
+            this.logger.error('Cannot get snapshot', e);
+        }
+        return undefined;
     }
 
     _adjustBrowserLog(log) {
@@ -789,82 +711,44 @@ export default class WebModule extends WebDriverModule {
      *  8. loadEventStart               - The browser have finished loading all the resources like images, swf, etc.
      *  9. loadEventEnd                 - The load event callback, if any, finished executing.
      */
-    _getStats(commandName) {
-        if (this.options.fetchStats && this.isInitialized && this._isAction(commandName)) {
+    async _getStats(commandName) {
+        if (!this.options.fetchStats || !this.isInitialized || !this._isAction(commandName)) {
+            return {};
+        }
+        try {
             var navigationStart;
             var domContentLoaded = 0;
             var load = 0;
-            var samePage = false;
 
-            // TODO: handle following situation:
-            // if navigateStart equals to the one we got from previous attempt (we need to save it)
-            // it means we are still on the same page and don't need to record load/domContentLoaded times
-            try {
-                this.driver.call(() => {
-                    return new Promise((resolve, reject) => {
-                        let lastError = false;
-                        const waitUntilRetVal = this.driver.waitUntil(async() => {
-                            try {
-                                /*global window*/
-                                var timings = await this.driver.execute(function() {
-                                    return {
-                                        navigationStart: window.performance.timing.navigationStart,
-                                        domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
-                                        loadEventStart: window.performance.timing.loadEventStart
-                                    };
-                                });
-                                lastError = false;
-
-                                if (timings.domContentLoadedEventStart > 0 && timings.loadEventStart > 0) {
-                                    samePage = this.lastNavigationStartTime && this.lastNavigationStartTime == timings.navigationStart;
-                                    navigationStart = this.lastNavigationStartTime = timings.navigationStart;
-                                    var domContentLoadedEventStart = timings.domContentLoadedEventStart;
-                                    var loadEventStart = timings.loadEventStart;
-
-                                    domContentLoaded = domContentLoadedEventStart - navigationStart;
-                                    load = loadEventStart - navigationStart;
-
-                                    return domContentLoadedEventStart > 0 && loadEventStart > 0;
-                                } else {
-                                    return false;
-                                }
-                            } catch (executeError) {
-                                // collect error inside driver.execute or driver.waitUntil
-                                lastError = executeError;
-                            }
-                        },
-                        { timeout: 30*1000 });
-
-                        if (waitUntilRetVal && waitUntilRetVal.then) {
-                            waitUntilRetVal.then(() => {
-                                if (lastError) {
-                                    // print error from driver.execute or driver.waitUntil
-                                    console.log(lastError);
-                                }
-                                resolve();
-                            }).catch((err) => {
-                                if (lastError) {
-                                    // print error from driver.execute or driver.waitUntil
-                                    console.log(lastError);
-                                }
-                                reject(err);
-                            });
-                        } else {
-                            resolve();
-                        }
+            await this.driver.waitUntil(async () => {
+                try {
+                    /*global window*/
+                    const timings = await this.driver.execute(function() {
+                        return {
+                            navigationStart: window.performance.timing.navigationStart,
+                            domContentLoadedEventStart: window.performance.timing.domContentLoadedEventStart,
+                            loadEventStart: window.performance.timing.loadEventStart
+                        };
                     });
-                });
-            } catch (e) {
-                return {};
-                // couldn't get timings.
-            }
 
+                    if (timings.domContentLoadedEventStart > 0 && timings.loadEventStart > 0) {
+                        navigationStart = timings.navigationStart;
+                        domContentLoaded = timings.domContentLoadedEventStart - navigationStart;
+                        load = timings.loadEventStart - navigationStart;
+                        return true;
+                    }
+                    return false;
+                } catch (e) {
+                    return false;
+                }
+            }, { timeout: 30 * 1000 });
+
+            const samePage = this.lastNavigationStartTime && this.lastNavigationStartTime === navigationStart;
             this.lastNavigationStartTime = navigationStart;
-
             return samePage ? {} : { DomContentLoadedEvent: domContentLoaded, LoadEvent: load };
+        } catch (e) {
+            return {};
         }
-
-        return {};
     }
 
     /**
