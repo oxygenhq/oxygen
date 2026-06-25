@@ -16,9 +16,8 @@ export const DEFAULT_LOGGER_ISSUER = 'system';
 const timestampFormat = winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' });
 
 const consoleFormat = winston.format.combine(
-    timestampFormat,
     winston.format.colorize(),
-    winston.format.printf(({ timestamp, level, message }) => `${timestamp} ${level}: ${message}`)
+    winston.format.printf(({ level, message }) => `${level}: ${message}`)
 );
 
 const fileFormat = winston.format.combine(
