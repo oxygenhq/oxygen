@@ -56,7 +56,7 @@
     "@babel/core": "7.29.7",
     "@lambdatest/node-rest-client": "2.0.2",
     "@oxygenhq/mitmproxy-node": "1.0.1",
-    "@oxygenhq/rp-client-javascript": "5.5.8-beta.5",
+    "@reportportal/client-javascript": "5.5.11",
     "@wdio/cli": "7.40.0",
     "@wdio/devtools-service": "7.40.0",
     "async": "3.2.6",
