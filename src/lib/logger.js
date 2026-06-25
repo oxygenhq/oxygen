@@ -1,27 +1,17 @@
-const path = require('path');
-const fs = require('fs');
-const winston = require('winston');
+import path from 'path';
+import fs from 'fs';
+import winston from 'winston';
 
-// explicitly set the config dir, otherwise if oxygen is globally installed it will use cwd
-let originalNodeCfgDir = process.env.NODE_CONFIG_DIR;
+// Use require() for config — import would be hoisted before NODE_CONFIG_DIR is set
+const originalNodeCfgDir = process.env.NODE_CONFIG_DIR;
 process.env.NODE_CONFIG_DIR = path.resolve(__dirname, '../..', 'config');
-
 const config = require('config');
-
-// revert back NODE_CONFIG_DIR value
 process.env.NODE_CONFIG_DIR = originalNodeCfgDir;
 
-const LEVEL_INFO = 'info';
-const LEVEL_DEBUG = 'debug';
-const LEVEL_ERROR = 'error';
-const LEVEL_WARN = 'warn';
-const ISSUER_SYSTEM = 'system';
-const ISSUER_USER = 'user';
-
-exports.DEFAULT_ISSUER = ISSUER_USER;
-exports.ISSUERS = { SYSTEM: ISSUER_SYSTEM, USER: ISSUER_USER };
-exports.LEVELS = { INFO: LEVEL_INFO, DEBUG: LEVEL_DEBUG, ERROR: LEVEL_ERROR, WARN: LEVEL_WARN };
-exports.DEFAULT_LOGGER_ISSUER = ISSUER_SYSTEM;
+export const DEFAULT_ISSUER = 'user';
+export const ISSUERS = { SYSTEM: 'system', USER: 'user' };
+export const LEVELS = { INFO: 'info', DEBUG: 'debug', ERROR: 'error', WARN: 'warn' };
+export const DEFAULT_LOGGER_ISSUER = 'system';
 
 const timestampFormat = winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss.SSS' });
 
@@ -44,7 +34,6 @@ function buildTransports(args = {}) {
 
     if (args.file && args.file.path) {
         let filePath = args.file.path;
-        // resolve environment variables in path
         if (process.platform === 'win32') {
             filePath = filePath.replace(/%([^%]+)%/g, (_, k) => process.env[k] || '');
         } else {
@@ -80,7 +69,6 @@ function init(args = {}) {
 function get(prefix) {
     if (!_logger) init(config.has('logger') ? config.get('logger') : {});
     if (!prefix) return _logger;
-    // return a wrapper that prepends [prefix] to every message
     const wrap = {};
     for (const level of ['info', 'debug', 'warn', 'error']) {
         wrap[level] = (msg, ...rest) => {
@@ -91,7 +79,7 @@ function get(prefix) {
     return wrap;
 }
 
-// initialise immediately from config so behaviour matches the old library
+// initialise immediately from config
 init(config.has('logger') ? config.get('logger') : {});
 
-exports.default = get;
+export default get;

@@ -1,5 +1,5 @@
 /* eslint-disable no-prototype-builtins */
-import glob from 'glob';
+import * as glob from 'glob';
 import path from 'path';
 import fs from 'fs';
 import { EOL } from 'os';

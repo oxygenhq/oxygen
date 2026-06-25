@@ -16,7 +16,7 @@ var td = require('testdouble');
 
 import * as Cucumber from 'cucumber';
 import isGlob from 'is-glob';
-import glob from 'glob';
+import * as glob from 'glob';
 import { EventEmitter } from 'events';
 import CucumberEventListener from './CucumberEventListener';
 import CucumberReporter from './CucumberReporter';

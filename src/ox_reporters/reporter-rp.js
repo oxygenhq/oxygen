@@ -12,7 +12,7 @@
  */
 import ReporterBase from '../reporter/ReporterBase';
 import Status from '../model/status';
-const RPClient = require('@oxygenhq/rp-client-javascript');
+const RPClient = require('@reportportal/client-javascript');
 const LAUNCH_MODES = {
     DEFAULT: 'DEFAULT',
     DEBUG: 'DEBUG',

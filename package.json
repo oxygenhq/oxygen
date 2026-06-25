@@ -42,7 +42,7 @@
     "babel-plugin-source-map-support": "2.2.0",
     "cross-env": "10.1.0",
     "doctrine": "3.0.0",
-    "eslint": "7.32.0",
+    "eslint": "8.57.1",
     "husky": "7.0.4",
     "md-reverse": "1.0.0",
     "tsc": "2.0.4",
@@ -52,7 +52,7 @@
     "axios is a peer dependency of soap. when using npm 6 (node 12-14) it needs to be explicitly included. when we migrate to npm 7 (node 16+) it can be removed."
   ],
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.39.1",
+    "@applitools/eyes-webdriverio": "5.60.7",
     "@babel/core": "7.29.7",
     "@lambdatest/node-rest-client": "2.0.2",
     "@oxygenhq/mitmproxy-node": "1.0.1",
@@ -79,13 +79,13 @@
     "glob": "13.0.6",
     "glob-to-regexp": "0.4.1",
     "global-agent": "4.1.3",
-    "got": "11.8.6",
+    "got": "14.6.6",
     "imap-simple": "5.1.0",
     "install": "0.13.0",
     "is-glob": "4.0.3",
     "jimp": "1.6.1",
     "js-md4": "0.3.2",
-    "junit-report-builder": "3.0.1",
+    "junit-report-builder": "5.1.2",
     "lodash": "4.18.1",
     "mailparser": "3.9.11",
     "minimist": "1.2.8",
@@ -129,6 +129,6 @@
     "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod"
   },
   "engines": {
-    "node": ">=20.9"
+    "node": ">=20.19"
   }
 }

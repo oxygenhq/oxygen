@@ -10,7 +10,7 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
-import glob from 'glob';
+import * as glob from 'glob';
 import isGlob from 'is-glob';
 import path from 'path';
 import { EventEmitter } from 'events';
