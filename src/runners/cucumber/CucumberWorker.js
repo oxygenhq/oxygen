@@ -10,8 +10,6 @@
  * Copyright (c) OpenJS Foundation and other contributors. Licensed under MIT.
  */
 
-// eslint-disable-next-line no-global-assign
-require = require('esm')(module);
 var td = require('testdouble');
 
 import * as Cucumber from 'cucumber';

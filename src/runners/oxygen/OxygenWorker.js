@@ -20,9 +20,6 @@ const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
 
-// eslint-disable-next-line no-global-assign
-require = require('esm')(module);
-
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
 
