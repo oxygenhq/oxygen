@@ -1,13 +1,23 @@
 const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const envPaths = require('env-paths');
 const got = require('got');
 const extractZip = require('extract-zip');
 const os = require('os');
 
-const paths = envPaths('oxygen');
-const driversDir = path.join(paths.cache, 'drivers');
+function getOxygenCacheDir() {
+    const name = 'oxygen-nodejs';
+    if (process.platform === 'win32') {
+        const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
+        return path.join(localAppData, name, 'Cache');
+    }
+    if (process.platform === 'darwin') {
+        return path.join(os.homedir(), 'Library', 'Caches', name);
+    }
+    return path.join(process.env.XDG_CACHE_HOME || path.join(os.homedir(), '.cache'), name);
+}
+
+const driversDir = path.join(getOxygenCacheDir(), 'drivers');
 const chromeDriverPath = path.join(driversDir, getChromeDriverName());
 if (!fs.existsSync(driversDir)) {
     fs.mkdirSync(driversDir, { recursive: true });

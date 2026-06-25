@@ -15,7 +15,7 @@
 import OxError from '../errors/OxygenError';
 const errHelper = require('../errors/helper');
 const path = require('path');
-var PDFParser = require('pdf2json/pdfparser');
+var PDFParser = require('pdf2json');
 
 function countRows(searchStr, rows, reverse) {
     let result = 0;
@@ -77,22 +77,22 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
         });
 
         pdfParser.on('pdfParser_dataReady', function (pdfData) {
-            var totalPages = pdfData.formImage.Pages.length;
+            var totalPages = pdfData.Pages.length;
             if (pageNum && totalPages < pageNum - 1) {
                 throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
             }
 
             // locate on a specific page
             if (pageNum) {
-                processText(rows, pdfData.formImage.Pages[pageNum-1].Texts);
+                processText(rows, pdfData.Pages[pageNum-1].Texts);
                 let isFound = checkRows(searchStr, rows, reverse);
                 resolve(!!isFound);
                 return;
             }
 
             // locate on any page
-            for (let p in pdfData.formImage.Pages) {
-                processText(rows, pdfData.formImage.Pages[p].Texts);
+            for (let p in pdfData.Pages) {
+                processText(rows, pdfData.Pages[p].Texts);
                 let isFound = checkRows(searchStr, rows, reverse);
                 if (isFound) {
                     resolve(true);
@@ -130,22 +130,22 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false) {
         });
 
         pdfParser.on('pdfParser_dataReady', function (pdfData) {
-            let totalPages = pdfData.formImage.Pages.length;
+            let totalPages = pdfData.Pages.length;
             if (pageNum && totalPages < pageNum - 1) {
                 throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
             }
 
             // count on a specific page
             if (pageNum) {
-                processText(rows, pdfData.formImage.Pages[pageNum-1].Texts);
+                processText(rows, pdfData.Pages[pageNum-1].Texts);
                 let count = countRows(searchStr, rows, reverse);
                 resolve(count);
                 return;
             }
 
             // count on all pages
-            for (var p in pdfData.formImage.Pages) {
-                processText(rows, pdfData.formImage.Pages[p].Texts);
+            for (var p in pdfData.Pages) {
+                processText(rows, pdfData.Pages[p].Texts);
                 let count = countRows(searchStr, rows, reverse);
                 if (count > 0) {
                     totalCount += count;

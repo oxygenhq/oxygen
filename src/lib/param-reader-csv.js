@@ -9,7 +9,7 @@
 
 module.exports = function () {
     var module = {};
-    const parse = require('csv-parse/lib/sync');
+    const { parse } = require('csv-parse/sync');
     var fs = require('fs');
     var path = require('path');
 

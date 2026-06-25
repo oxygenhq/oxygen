@@ -16,7 +16,7 @@ var errHelper = require('../errors/helper');
 import libUtils from '../lib/util';
 
 module.exports = function() {
-    var SerialPort = require('serialport');
+    const { SerialPort, ReadlineParser } = require('serialport');
     var utils = require('./utils');
 
     var serialPort;
@@ -65,7 +65,7 @@ module.exports = function() {
 
         if (port) {
             return new Promise((resolve, reject) => {
-                serialPort = new SerialPort(port, opts);
+                serialPort = new SerialPort({ path: port, ...opts });
 
                 serialPort.on('open', () => {
                     resolve(serialPort);
@@ -75,7 +75,7 @@ module.exports = function() {
                     reject(new OxError(errHelper.errorCode.SERIAL_PORT_ERROR, err.message));
                 });
 
-                var parser = serialPort.pipe(new SerialPort.parsers.Readline());
+                var parser = serialPort.pipe(new ReadlineParser());
                 stringBuffer = new CircularStringBuffer(bufferSize);
                 parser.on('data', (data) => {
                     stringBuffer.push(data.toString());

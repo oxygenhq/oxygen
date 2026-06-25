@@ -103,7 +103,7 @@ export default class UtilsModule extends OxygenModule {
      * @param {Object=} options - [Options](https://csv.js.org/parse/options/)
      */
     readCsv(filePath, options = {}) {
-        const parse = require('csv-parse/lib/sync');
+        const { parse } = require('csv-parse/sync');
         var fs = require('fs');
         var path = require('path');
 

@@ -1,6 +1,6 @@
 // https://github.com/ragrag/merge-base64
 
-import Jimp from 'jimp';
+import { Jimp, JimpMime } from 'jimp';
 
 function alignImage(total, size, align) {
     if (align === 'center') {
@@ -145,11 +145,11 @@ module.exports = function mergeImages(
           )
         );
 
-        const baseImage = new Jimp(
-      totalWidth + marginRightLeft,
-      totalHeight + marginTopBottom,
-      color
-    );
+        const baseImage = new Jimp({
+            width: totalWidth + marginRightLeft,
+            height: totalHeight + marginTopBottom,
+            color,
+        });
 
     // Fallback for `Array#entries()`
         const imgDataEntries = imgData.map((data, index) => [index, data]);
@@ -168,7 +168,7 @@ module.exports = function mergeImages(
             baseImage.composite(img, px + left, py + top);
         }
 
-        return baseImage.getBase64Async(Jimp.MIME_JPEG);
+        return baseImage.getBase64(JimpMime.jpeg);
     // return baseImage;
     });
 };

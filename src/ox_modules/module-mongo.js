@@ -61,7 +61,7 @@ export default class MongoDbModule extends OxygenModule {
                 }
                 return `mongodb://${hostOrUrl}:${port}/${dbName}?authSource=${authSource}`;
             })();
-        this.client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true });
+        this.client = new MongoClient(uri);
         try {
             await this.client.connect();
             this.db = this.client.db(dbName);
