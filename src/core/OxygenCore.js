@@ -376,7 +376,7 @@ export default class Oxygen extends OxygenEvents {
         const oxServicesDirPath = path.resolve(this.oxBaseDir, './ox_services');
         const serviceFiles = glob.sync('service-*.js', { cwd: oxServicesDirPath });
         // initialize all services
-        this.logger.info('Loading services...');
+        this.logger.debug('Loading services...');
 
         for (var i = 0; i < serviceFiles.length; i++) {
             const serviceFileName = serviceFiles[i];
@@ -390,7 +390,7 @@ export default class Oxygen extends OxygenEvents {
             }
 
             try {
-                this.logger.info('Loading service: ' + serviceName);
+                this.logger.debug('Loading service: ' + serviceName);
                 const service = this._loadService(serviceName, serviceFilePath);
                 service.init();
                 this.services[serviceName] = service;
@@ -410,9 +410,9 @@ export default class Oxygen extends OxygenEvents {
     }
 
     _loadModules() {
-        this.logger.info('Loading internal modules...');
+        this.logger.debug('Loading internal modules...');
         this._loadInternalModules();
-        this.logger.info('Loading external modules...');
+        this.logger.debug('Loading external modules...');
         this._loadExternalModules();
     }
 
@@ -452,7 +452,7 @@ export default class Oxygen extends OxygenEvents {
                 // wrap up
                 const endTime = new Date();
                 const duration = (endTime - startTime) / 1000;
-                this.logger.info('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
+                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
@@ -488,7 +488,7 @@ export default class Oxygen extends OxygenEvents {
                 // wrap up
                 const endTime = new Date();
                 const duration = (endTime - startTime) / 1000;
-                this.logger.info('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
+                this.logger.debug('Loading module: ' + moduleName + ' [ ' + duration + ' sec ]');
             } catch (e) {
                 this.logger.error('Error initializing module "' + moduleName + '": ' + e.message + EOL + (e.stacktrace ? e.stacktrace : ''));
                 // ignore any module that failed to load, except Web and Mob modules
