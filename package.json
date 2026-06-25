@@ -53,13 +53,12 @@
   ],
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.39.1",
+    "@babel/core": "7.29.7",
     "@lambdatest/node-rest-client": "2.0.2",
-    "@oxygenhq/logger": "0.5.1",
     "@oxygenhq/mitmproxy-node": "1.0.1",
     "@oxygenhq/rp-client-javascript": "5.5.8-beta.5",
     "@wdio/cli": "7.40.0",
     "@wdio/devtools-service": "7.40.0",
-    "@babel/core": "7.29.7",
     "async": "3.2.6",
     "canvas": "3.2.3",
     "chai": "5.3.3",
@@ -110,6 +109,7 @@
     "twilio": "6.0.2",
     "webdriverio": "7.40.0",
     "when": "3.7.8",
+    "winston": "3.19.0",
     "xlsx": "0.18.5"
   },
   "optionalDependencies": {
