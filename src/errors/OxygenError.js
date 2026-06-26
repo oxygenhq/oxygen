@@ -13,6 +13,7 @@
 import StackTrace from 'stack-trace';
 import * as stackTraceParser from 'stacktrace-parser';
 import fs from 'fs';
+import path from 'path';
 
 const STACKTRACE_FILTERS = ['\\node_modules\\', '/node_modules/', '/oxygen-node/', '\\oxygen-node\\', '(module.js', '(internal/module.js', 'at <anonymous>', 'internal/', 'internal\\'];
 
@@ -118,8 +119,19 @@ export default class OxygenError extends Error {
             const exist = fs.existsSync(item.fileName);
             return exist;
         });
+        // Prefer the first frame from outside the oxygen installation (i.e. the user's test script)
+        // __dirname is build/errors → 3 levels up reaches the project root (covers both src/ and build/)
+        // Determine the oxygen root: __dirname is build/errors, so ../../ reaches the project root.
+        // Add path.sep to avoid false matches on directories with similar prefix names.
+        const oxRoot = path.normalize(path.join(__dirname, '../..')) + path.sep;
+        const userFrame = stackTrace.find(item => {
+            const fileName = item.getFileName();
+            if (!fileName) return false;
+            const normalized = path.normalize(fileName);
+            return !normalized.startsWith(oxRoot) && !normalized.includes('node_modules');
+        });
         if (stackTrace.length > 0) {
-            const call = stackTrace[0];
+            const call = userFrame || stackTrace[0];
             if (call && call.fileName === 'vm.js' && this.orgErr && this.orgErr.stack) {
                 let location = this.orgErr.stack.split('\n')[0];
 
