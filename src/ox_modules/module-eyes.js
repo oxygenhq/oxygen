@@ -78,7 +78,7 @@ export default class ApplitoolsModule extends OxygenModule {
             testName = this.options.name;
         }
         try {
-            await driver.call(() => this._eyes.open(driver, appName, testName, this._viewport));
+            await this._eyes.open(driver, appName, testName, this._viewport);
         }
         catch (e) {
             throw new ModuleError(`Failed to initialize "eyes" module: ${e.message}`);
@@ -140,9 +140,7 @@ export default class ApplitoolsModule extends OxygenModule {
             return false;
         }
 
-        const result = await this._driver.call(async() => {
-            return await this._eyes.checkWindow(name, matchTimeout);
-        });
+        const result = await this._eyes.checkWindow(name, matchTimeout);
         if (result && result.asExpected) {
             return true;
         }

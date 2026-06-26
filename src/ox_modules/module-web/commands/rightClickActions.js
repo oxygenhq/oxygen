@@ -30,29 +30,10 @@ export async function rightClickActions(locator, xOffset = 0, yOffset = 0, timeo
     const x = parseInt(loc.x) + xOffset;
     const y = parseInt(loc.y) + yOffset;
 
-    await this.driver.performActions([{
-        type: 'pointer',
-        id: 'pointer1',
-        parameters: {
-            pointerType: 'mouse'
-        },
-        actions: [
-            {
-                type: 'pointerMove',
-                duration: 100,
-                x: x,
-                y: y
-            },
-            {
-                type: 'pointerDown',
-                button: 2
-            }, {
-                type: 'pointerUp',
-                button: 2
-            }
-        ]
-    }]);
-    const releaseActionsRetVal = await this.driver.releaseActions();
+    await this.driver.action('pointer', { parameters: { pointerType: 'mouse' } })
+        .move({ x, y, origin: 'viewport', duration: 100 })
+        .down({ button: 2 })
+        .up({ button: 2 })
+        .perform();
     await this.checkWaitForAngular();
-    return releaseActionsRetVal;
 }

@@ -51,7 +51,6 @@
  * 
  */
 import URL from 'url';
-import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
@@ -229,7 +228,8 @@ export default class MobileModule extends WebDriverModule {
 
         // init webdriver
         try {
-            this.driver = await wdio.remote(wdioOpts);
+            const { remote } = await import('webdriverio');
+            this.driver = await remote(wdioOpts);
 
             this.logger.info(`Session ID ${this.driver.sessionId}`);
 

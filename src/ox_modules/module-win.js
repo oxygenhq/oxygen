@@ -27,7 +27,7 @@
  */
 
 import URL from 'url';
-import * as wdio from 'webdriverio';
+
 import WebDriverModule from '../core/WebDriverModule';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
@@ -173,7 +173,8 @@ export default class WindowsModule extends WebDriverModule {
         };
 
         try {
-            this.driver = await wdio.remote(wdioOpts);
+            const { remote } = await import('webdriverio');
+            this.driver = await remote(wdioOpts);
 
             if (this.options.seleniumBrowserTimeout) {
                 this.driver.seleniumBrowserTimeout = this.options.seleniumBrowserTimeout;

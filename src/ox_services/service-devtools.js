@@ -1,6 +1,4 @@
 /* eslint-disable no-unreachable */
-import WDIODevToolsService from '@wdio/devtools-service';
-
 import OxygenService from '../core/OxygenService';
 import NetworkSubModule from './service-devtools/submodule-network';
 
@@ -49,21 +47,17 @@ export default class DevToolsService extends OxygenService {
 
         // if we are not using any 3rd party provider
         if (this._driver.provider === null && browserName && browserName.toLowerCase() === CHROME_BROWSER) {
-            // initialize DevToolsService and hook it to the current webdriver object
-            const devToolsSvc = new WDIODevToolsService(options);
-            const UNSUPPORTED_ERROR_MESSAGE = devToolsSvc.beforeSession(null, capabilities);
-
-            if (UNSUPPORTED_ERROR_MESSAGE) {
-                console.log('UNSUPPORTED_ERROR_MESSAGE', UNSUPPORTED_ERROR_MESSAGE);
-            }
-
-            if (devToolsSvc._isSupported) {
-                // change global.browser to the current module's webdriver instance
-                // const orgGlobalBrowser = global.browser;
+            try {
+                // Use Function constructor to bypass Babel's dynamic import() → require() transform
+                const dynamicImport = new Function('pkg', 'return import(pkg)');
+                const { default: WDIODevToolsService } = await dynamicImport('@wdio/devtools-service');
+                const devToolsSvc = new WDIODevToolsService(options);
                 global.browser = module.getDriver();
                 await devToolsSvc.before(null, null, this._driver);
                 submodule.init(devToolsSvc);
-                // global.browser = orgGlobalBrowser;
+            } catch (e) {
+                // devtools service may not be supported in this browser/environment
+                this.logger && this.logger.debug && this.logger.debug('DevTools service not available: ' + e.message);
             }
         }
     }

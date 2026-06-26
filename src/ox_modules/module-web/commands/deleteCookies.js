@@ -13,5 +13,17 @@
  * @param {String|String[]=} names - Cookie name or a list of cookie names to delete.
  */
 export async function deleteCookies(names) {
-    await this.driver.deleteCookie(names);
+    if (names === undefined || names === null) {
+        // delete all cookies — wdio v8 requires a name for deleteCookie()
+        const cookies = await this.driver.getCookies();
+        for (const cookie of (cookies || [])) {
+            await this.driver.deleteCookie(cookie.name);
+        }
+    } else if (Array.isArray(names)) {
+        for (const name of names) {
+            await this.driver.deleteCookie(name);
+        }
+    } else {
+        await this.driver.deleteCookie(names);
+    }
 }

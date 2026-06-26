@@ -28,30 +28,26 @@ export async function fileBrowse(locator, filepath, timeout) {
 
     const el = await this.helpers.getElement(locator, false, timeout);
     try {
-        // make an asynchronous call using archiver 3rd party library supporting promises
-        const remoteFilePath = await this.driver.call(() => {
-            return new Promise( (resolve, reject) => {
-                let zipData = [];
-                // require in top level produce Error : Cannot read property 'objectMode' of undefined
-                const archiver = require('archiver');
-                const source = fs.createReadStream(filepath);
-                const name = path.basename(filepath);
+        const remoteFilePath = await new Promise((resolve, reject) => {
+            let zipData = [];
+            const archiver = require('archiver');
+            const source = fs.createReadStream(filepath);
+            const name = path.basename(filepath);
 
-                archiver('zip')
-                    .on('error', (err) => reject(err))
-                    .on('data', (data) => {
-                        zipData.push(data);
-                    })
-                    .on('end', () => {
-                        this.driver.file(Buffer.concat(zipData).toString('base64')).then(resolve, reject);
-                    })
-                    .append(source, { name: name })
-                    .finalize((err) => {
-                        if (err) {
-                            reject(err);
-                        }
-                    });
-            });
+            archiver('zip')
+                .on('error', (err) => reject(err))
+                .on('data', (data) => {
+                    zipData.push(data);
+                })
+                .on('end', () => {
+                    this.driver.file(Buffer.concat(zipData).toString('base64')).then(resolve, reject);
+                })
+                .append(source, { name: name })
+                .finalize((err) => {
+                    if (err) {
+                        reject(err);
+                    }
+                });
         });
 
         try {

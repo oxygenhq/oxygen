@@ -43,7 +43,6 @@
 /* eslint-disable quotes */
 import { harFromMessages } from 'chrome-har';
 import URL from 'url';
-import * as wdio from 'webdriverio';
 import WebDriverModule from '../core/WebDriverModule';
 import { defer } from 'when';
 import modUtils from './utils';
@@ -373,7 +372,8 @@ export default class WebModule extends WebDriverModule {
         }
         this.wdioOpts = wdioOpts;
         try {
-            this.driver = await wdio.remote(wdioOpts);
+            const { remote } = await import('webdriverio');
+            this.driver = await remote(wdioOpts);
             this.sessionId = this.driver.sessionId;
             this.driver.provider = provider;
 

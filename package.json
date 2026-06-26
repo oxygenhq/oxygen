@@ -57,8 +57,8 @@
     "@lambdatest/node-rest-client": "2.0.2",
     "@oxygenhq/mitmproxy-node": "1.0.1",
     "@reportportal/client-javascript": "5.5.11",
-    "@wdio/cli": "7.40.0",
-    "@wdio/devtools-service": "7.40.0",
+    "@wdio/cli": "8.46.0",
+    "@wdio/devtools-service": "8.46.0",
     "async": "3.2.6",
     "canvas": "3.2.3",
     "chai": "6.2.2",
@@ -106,7 +106,7 @@
     "testdouble": "3.20.2",
     "testingbot-api": "1.2.0",
     "twilio": "6.0.2",
-    "webdriverio": "7.40.0",
+    "webdriverio": "8.46.0",
     "when": "3.7.8",
     "winston": "3.19.0",
     "xlsx": "0.18.5"
@@ -128,6 +128,6 @@
     "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod"
   },
   "engines": {
-    "node": ">=20.19"
+    "node": ">=22.12.0"
   }
 }
