@@ -23,15 +23,6 @@
  * // Unicode representation can be used directly as well:
  * mob.sendKeys("Hello World\uE003\uE003\uE007");
 */
-import { Key } from 'webdriverio';
-
-// webdriverio/build/utils no longer exports checkUnicode in v8+; inline it using the Key map
-function checkUnicode(value) {
-    if (value === Key.Ctrl) return [value];
-    if (Object.prototype.hasOwnProperty.call(Key, value)) return [Key[value]];
-    return [...value];
-}
-
 export async function sendKeys(value) {
     this.helpers.assertArgument(value, 'value');
 

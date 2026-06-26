@@ -67,7 +67,6 @@ export default class OxygenWorker extends EventEmitter {
             throw Error ('Oxygen is not initialized');
         }
         this._oxygen.context = context;
-        this._oxygen.loadPageObjectFile(poFile);
         this._steps = [];
         if (this._cwd && !path.isAbsolute(scriptPath)) {
             scriptPath = path.resolve(this._cwd, scriptPath);
@@ -103,6 +102,12 @@ export default class OxygenWorker extends EventEmitter {
 
             // install require hook so sub-scripts required from within the test are also transformed
             scriptTransformer.installRequireHook(cwd);
+
+            // load po file AFTER hook is installed so its functions are async-transformed
+            if (poFile) {
+                try { delete require.cache[require.resolve(poFile)]; } catch (e) { /* not cached yet */ }
+            }
+            this._oxygen.loadPageObjectFile(poFile);
 
             try {
                 // read and transform the entry script - wraps it in an async IIFE exported as module.exports

@@ -18,7 +18,14 @@ function createAsyncTransformPlugin() {
                 if (path.parentPath.isAwaitExpression()) return;
                 // don't await constructor arguments
                 if (path.parentPath.isNewExpression()) return;
-                path.replaceWith(t.awaitExpression(t.cloneNode(path.node)));
+                const awaitExpr = t.awaitExpression(t.cloneNode(path.node));
+                // copy source location so retainLines: true keeps it on the original line
+                if (path.node.loc) {
+                    awaitExpr.loc = path.node.loc;
+                    awaitExpr.start = path.node.start;
+                    awaitExpr.end = path.node.end;
+                }
+                path.replaceWith(awaitExpr);
             },
             Program: {
                 exit(path, state) {
@@ -51,6 +58,7 @@ function transform(code, filename, wrapInIIFE = true) {
         },
         plugins: [[createAsyncTransformPlugin(), { wrapInIIFE }]],
         sourceMaps: 'inline',
+        retainLines: true,
         configFile: false,
         babelrc: false,
     });

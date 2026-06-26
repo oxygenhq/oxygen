@@ -449,13 +449,6 @@ var self = module.exports = {
         }
         if (!error) {
             // delete the video file from the server
-            const options = {
-                url: videoUrl,
-                method: 'DELETE',
-                json: false,
-                rejectUnauthorized: false,
-            };
-
             try {
                 await got.delete(videoUrl, { https: { rejectUnauthorized: false } });
                 return localVideoFilePath;

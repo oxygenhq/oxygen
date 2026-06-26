@@ -43,7 +43,7 @@ const DEFAULT_HTTP_OPTIONS = {
     https: {
         rejectUnauthorized: false
     },
-    dnsLookupIpVersion: 'ipv4'
+    dnsLookupIpVersion: 4
 };
 const CONTENT_TYPE_HEADER = 'content-type';
 const HTTP_METHODS = [

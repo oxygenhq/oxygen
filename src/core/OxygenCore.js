@@ -135,9 +135,9 @@ export default class Oxygen extends OxygenEvents {
 
     get adjustScriptLine() {
         const isInDebugMode = oxutil.isInDebugMode();
-        // -1 to compensate for the async IIFE wrapper line added by scriptTransformer
-        // additional -1 in debugger mode (V8 debugger adds an extra line at the beginning of the file)
-        return isInDebugMode ? -2 : -1;
+        // retainLines: true + loc-copying keeps original line numbers intact (IIFE header merges on line 1)
+        // only debugger mode needs -1 (V8 adds an extra line at the beginning of the file)
+        return isInDebugMode ? -1 : 0;
     }
 
     get context() {
