@@ -91,9 +91,13 @@ export default class HttpModule extends OxygenModule {
      * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
      */
     setOptions(opts) {
-        this._userHttpOptions = opts;
+        this._userHttpOptions = { ...opts };
+        // got v14 requires timeout as an object; convert plain number to { request: N }
+        if (typeof this._userHttpOptions.timeout === 'number') {
+            this._userHttpOptions.timeout = { request: this._userHttpOptions.timeout };
+        }
         if (opts.deflateRaw) {
-            this._userHttpOptions.decompress = false;     // decompress=true in default options so we override it
+            this._userHttpOptions.decompress = false;
         }
     }
 
@@ -280,7 +284,7 @@ export default class HttpModule extends OxygenModule {
     /**
      * @summary Returns last response body
      * @function getResponseBody
-     * @return {String} Response body.
+     * @return {Object} Response body.
      */
     getResponseBody() {
         return this._lastResponse && this._lastResponse.body ? this._lastResponse.body : null;
@@ -335,7 +339,19 @@ export default class HttpModule extends OxygenModule {
      * @param {Number} maxTime - Maximum response time in milliseconds.
      */
     assertResponseTime(maxTime) {
-        throw new Error('Not implemented');
+        if (!this._lastResponse) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, 'No response available. Make an HTTP request first.');
+        }
+        const totalMs = this._lastResponse.timings &&
+                        this._lastResponse.timings.phases &&
+                        this._lastResponse.timings.phases.total;
+        if (totalMs === undefined || totalMs === null) {
+            throw new OxError(errHelper.errorCode.HTTP_ERROR, 'Response timing data is not available.');
+        }
+        if (totalMs > maxTime) {
+            throw new OxError(errHelper.errorCode.ASSERT_ERROR,
+                `Response time ${totalMs}ms exceeded the limit of ${maxTime}ms.`);
+        }
     }
 
     /**
