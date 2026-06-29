@@ -61,7 +61,7 @@ import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'mob';
-const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
+const DEFAULT_APPIUM_URL = 'http://localhost:4723/';
 const DEFAULT_BROWSER_NAME = 'default';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
 const NO_SNAPSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
@@ -110,7 +110,7 @@ export default class MobileModule extends WebDriverModule {
      * @function init
      * @summary Initializes a new Appium session.
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
-     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
+     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/).
      */
     async init(caps, appiumUrl) {
         // if reopenSession is true - reinitilize the module
@@ -165,12 +165,17 @@ export default class MobileModule extends WebDriverModule {
             this.caps['clearDeviceLogsOnStart'] = true;
         }
 
+        // support both prefixed (appium:app) and legacy (app) capability names
+        const hasApp = this.caps.app || this.caps['appium:app'];
+        const hasAppPackage = this.caps.appPackage || this.caps['appium:appPackage'];
+        const hasBundleId = this.caps.bundleId || this.caps['appium:bundleId'];
+
         // if both browserName and appPackage/app/bundleId were specified - assume we want to run the application and remove browserName
-        if (this.caps.browserName && (this.caps.appPackage || this.caps.app || this.caps.bundleId)) {
+        if (this.caps.browserName && (hasAppPackage || hasApp || hasBundleId)) {
             delete this.caps.browserName;
         }
         // if no appPackage/app/bundleId capability nor browserName are defined, assume we want to run the test against default browser
-        else if (!this.caps.browserName && !this.caps.appPackage && !this.caps.app && !this.caps.bundleId) {
+        else if (!this.caps.browserName && !hasAppPackage && !hasApp && !hasBundleId) {
             this.caps.browserName = DEFAULT_BROWSER_NAME;
         }
         // webdriver expects lower case names

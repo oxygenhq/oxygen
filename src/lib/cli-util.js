@@ -148,7 +148,7 @@ export function getConfigurations(target, argv) {
         target: target,
         browserName: 'chrome',
         seleniumUrl : 'http://localhost:4444/wd/hub',
-        appiumUrl : 'http://localhost:4723/wd/hub',
+        appiumUrl : 'http://localhost:4723/',
         reopenSession: false,
         reRunOnFailed: false,
         iterations : 1,

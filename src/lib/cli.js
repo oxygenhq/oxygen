@@ -145,5 +145,5 @@ Web test options:
       --reopen={true|false}  Reopen browser on each iteration. Default is false.
       
 Mobile test options:
-    -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723/wd/hub.`);
+    -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723.`);
 }

@@ -35,7 +35,7 @@ import OxError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 
 const MODULE_NAME = 'win';
-const DEFAULT_APPIUM_URL = 'http://localhost:4723/wd/hub';
+const DEFAULT_APPIUM_URL = 'http://localhost:4723/';
 const DEFAULT_APP = 'Root';
 const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert'];
 const ACTION_COMMANDS = ['open','tap','click','swipe','submit','setValue'];
@@ -90,7 +90,7 @@ export default class WindowsModule extends WebDriverModule {
      * @function init
      * @summary Initializes a new Appium session.
      * @param {String=} caps - Desired capabilities. If not specified capabilities will be taken from suite definition.
-     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/wd/hub).
+     * @param {String=} appiumUrl - Remote Appium server URL (default: http://localhost:4723/).
      */
     async init(caps, appiumUrl) {
         // if reopenSession is true - reinitilize the module
@@ -118,29 +118,39 @@ export default class WindowsModule extends WebDriverModule {
             this.caps = { ...this.caps, ...caps };
         }
 
-        // make sure 'app' capability is provided (mandatory for WinAppDriver)
-        if (!this.caps.app) {
-            this.caps.app = DEFAULT_APP;
-        }
-        else {
-            const appCapVal = this.caps.app;
+        // Support both prefixed (appium:app) and legacy (app) capability names
+        const appCap = this.caps['appium:app'] || this.caps.app;
+        if (!appCap) {
+            this.caps['appium:app'] = DEFAULT_APP;
+        } else {
             // try to resolve 'app' value in the Windows standard app list
             const appNames = Object.keys(WINDOWS_STANDARD_APP_IDS);
-            if (appNames.includes(appCapVal)) {
-                this.caps.app = WINDOWS_STANDARD_APP_IDS[appCapVal];
+            if (appNames.includes(appCap)) {
+                this.caps['appium:app'] = WINDOWS_STANDARD_APP_IDS[appCap];
             }
+            // normalize legacy cap to prefixed form
+            if (this.caps.app && !this.caps['appium:app']) {
+                this.caps['appium:app'] = this.caps.app;
+            }
+            delete this.caps.app;
         }
-        // set default platformName for WinAppDriver
+        // set default platformName (standard W3C cap, no prefix)
         if (!this.caps.platformName) {
             this.caps.platformName = 'Windows';
         }
-        // set default deviceName for WinAppDriver
-        if (!this.caps.deviceName) {
-            this.caps.deviceName = 'WindowsPC';
+        // set default deviceName (appium: prefix required for W3C)
+        if (!this.caps['appium:deviceName'] && !this.caps.deviceName) {
+            this.caps['appium:deviceName'] = 'WindowsPC';
+        } else if (this.caps.deviceName && !this.caps['appium:deviceName']) {
+            this.caps['appium:deviceName'] = this.caps.deviceName;
+            delete this.caps.deviceName;
         }
-        // set default platformVersion for WinAppDriver
-        if (!this.caps.platformVersion) {
-            this.caps.platformVersion = '1.0';
+        // set default platformVersion (appium: prefix required for W3C)
+        if (!this.caps['appium:platformVersion'] && !this.caps.platformVersion) {
+            this.caps['appium:platformVersion'] = '1.0';
+        } else if (this.caps.platformVersion && !this.caps['appium:platformVersion']) {
+            this.caps['appium:platformVersion'] = this.caps.platformVersion;
+            delete this.caps.platformVersion;
         }
         // populate WDIO options
         const url = URL.parse(appiumUrl);
