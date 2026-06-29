@@ -1,7 +1,8 @@
 var fs = require('fs');
 var path = require('path');
 var doctrine = require('doctrine');
-import {MdReverse, TablePlugin, StrikethroughPlugin} from 'md-reverse/src/lib/mdReverse';
+var TurndownService = require('turndown');
+var { gfm } = require('turndown-plugin-gfm');
 var modPath = path.resolve(__dirname, '../src/ox_modules');
 
 if (!String.prototype.format) {
@@ -393,10 +394,9 @@ function generate(module, moduleName) {
         }
     }
 
-    var mdReserve = new MdReverse();
-    mdReserve.use(TablePlugin);
-    mdReserve.use(StrikethroughPlugin);
-    var content = mdReserve.toMarkdown(outContent);
+    var turndown = new TurndownService({ headingStyle: 'atx', codeBlockStyle: 'fenced' });
+    turndown.use(gfm);
+    var content = turndown.turndown(outContent);
     var startCntent = '';
     if (module.description) {
         startCntent += `---

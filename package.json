@@ -44,9 +44,10 @@
     "doctrine": "3.0.0",
     "eslint": "8.57.1",
     "husky": "7.0.4",
-    "md-reverse": "1.0.0",
     "tsc": "2.0.4",
-    "typescript": "5.9.3"
+    "typescript": "5.9.3",
+    "turndown": "7.2.4",
+    "turndown-plugin-gfm": "1.0.2"
   },
   "@comment dependencies": [
     "axios is a peer dependency of soap. when using npm 6 (node 12-14) it needs to be explicitly included. when we migrate to npm 7 (node 16+) it can be removed."
@@ -123,7 +124,7 @@
     "prepublishOnly": "npm run build && node tools/dos2unix src/lib/cli.js",
     "postpublish": "node tools/unix2dos src/lib/cli.js",
     "lint": "eslint \"src/**/*.js\" \"tools/**/*.js\"",
-    "apidoc": "node -r esm tools/apidoc",
+    "apidoc": "node tools/apidoc",
     "prod": "node ./build/lib/cli.js",
     "dev": "cross-env DEBUG=true NODE_ENV=development npm run compile && npm run prod"
   },
