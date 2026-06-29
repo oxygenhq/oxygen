@@ -118,11 +118,11 @@ module.exports = function() {
                 const connection = await imaps.connect(_config);
                 await connection.openBox('INBOX');
 
-                // fetch unseen emails from the last sinceMinutes
+                // fetch emails from the last sinceMinutes (both read and unread)
                 var startDate = new Date();
                 startDate.setTime(Date.now() - (sinceMinutes * 60 * 1000));
                 startDate = startDate.toISOString();
-                var searchCriteria = ['UNSEEN', ['SINCE', startDate]];
+                var searchCriteria = [['SINCE', startDate]];
 
                 // fetch certain headers and stripped down body
                 var fetchOptions = {
