@@ -67,8 +67,8 @@ module.exports = function() {
             tls,
         };
 
-        // set servername if SNI is enabled or we are using Gmail
-        if (enableSNI || host === 'imap.gmail.com') {
+        // always set servername for TLS connections (required by Gmail and most servers)
+        if (tls || enableSNI) {
             _config.imap.tlsOptions = { servername: host };
         }
     };
