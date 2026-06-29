@@ -13,7 +13,7 @@
  */
 
 const MODULE_NAME = 'utils';
-import fastXmlParser from 'fast-xml-parser';
+import { XMLParser as FastXMLParser } from 'fast-xml-parser';
 import OxygenModule from '../core/OxygenModule';
 import utils from './utils';
 import libUtils from '../lib/util';
@@ -198,7 +198,7 @@ export default class UtilsModule extends OxygenModule {
      */
     xmlToJson(xmlDataStr, options = {}) {
         try {
-            const parser = new fastXmlParser.XMLParser(options);
+            const parser = new FastXMLParser(options);
             const output = parser.parse(xmlDataStr);
             return output;
         } catch (e) {
