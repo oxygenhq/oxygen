@@ -320,6 +320,23 @@ export default class Debugger extends EventEmitter {
         return result;
     }
 
+    // Newer V8/Inspector protocol versions (Node 22+) don't populate
+    // Debugger.CallFrame.url (it was never part of the official CDP spec — only
+    // location.scriptId is guaranteed), so inBreakpoints(url) alone can no longer
+    // match a paused frame to a registered breakpoint. Fall back to comparing
+    // scriptId directly, which both sides already carry.
+    inBreakpointsByScriptId(scriptId) {
+        let result = false;
+        if (scriptId && this._breakpoints && Array.isArray(this._breakpoints) && this._breakpoints.length > 0) {
+            this._breakpoints.map((bp) => {
+                if (bp && bp.locations && Array.isArray(bp.locations) && bp.locations.some((loc) => loc && loc.scriptId === scriptId)) {
+                    result = true;
+                }
+            });
+        }
+        return result;
+    }
+
     inFileNameAliases(fileName) {
         let result = false;
         if (this._fileNameAliases && Array.isArray(this._fileNameAliases) && this._fileNameAliases.length > 0) {
@@ -428,7 +445,8 @@ export default class Debugger extends EventEmitter {
 
                 if (e && e.callFrames && Array.isArray(e.callFrames) && e.callFrames.length > 0) {
                     e.callFrames.map((item) => {
-                        if (item && item.url && this.inBreakpoints(item.url)) {
+                        const scriptId = item && item.location && item.location.scriptId;
+                        if (item && ((item.url && this.inBreakpoints(item.url)) || this.inBreakpointsByScriptId(scriptId))) {
                             eCallFrames.push(item);
                         }
                     });
@@ -530,9 +548,20 @@ export default class Debugger extends EventEmitter {
                         // assume we always send breakpoint of the top call frame
                         if (eCallFrames && eCallFrames.length > 0) {
 
+                            // eCallFrames[0].url is no longer populated by newer V8/Inspector
+                            // (Node 22+) — it was never part of the official CDP CallFrame spec.
+                            // Fall back to the scriptPath of whichever registered breakpoint
+                            // matched this frame's scriptId.
+                            let frameUrl = eCallFrames[0].url;
+                            if (!frameUrl) {
+                                const frameScriptId = eCallFrames[0].location && eCallFrames[0].location.scriptId;
+                                const matchedBp = this._breakpoints.find((bp) => bp && bp.locations && Array.isArray(bp.locations) && bp.locations.some((loc) => loc && loc.scriptId === frameScriptId));
+                                frameUrl = matchedBp && matchedBp.origin && matchedBp.origin.scriptPath;
+                            }
+
                             breakpointData = {
                                 lineNumber: eCallFrames[0].location.lineNumber,
-                                fileName: transformToIDEStyle(eCallFrames[0].url),
+                                fileName: transformToIDEStyle(frameUrl),
                                 variables: [],
                             };
 
@@ -707,7 +736,9 @@ export default class Debugger extends EventEmitter {
                     }
 
                 }, reason => {
-                    // console.log('breakpointsMapResult res reason' , reason);
+                    // an unhandled rejection anywhere in breakpointsMapResult previously left
+                    // this silently swallowed — the pause would just hang forever with no trace.
+                    log.error('breakpointsMapResult Promise.all rejected:', reason);
                 });
 
             }
@@ -888,29 +919,23 @@ export default class Debugger extends EventEmitter {
     async removeBreakpointByValue(filePath, inputLine) {
 
         const filePathAlias = this.inFileNameAliases(filePath);
-
-        const line = inputLine - 1; // from 1-base to 0-base
         const self = this;
 
+        // b.breakpointId's format is implementation-defined by V8/Inspector and is no
+        // longer ':'-delimited the way this used to assume (Node 22+ broke the parsing
+        // this replaced, which made this function silently match nothing). Every
+        // breakpoint already carries a reliable origin (scriptPath/lineNumber) set in
+        // setBreakpoint() — use that instead of parsing breakpointId.
         if (this._breakpoints) {
-            for (let b of this._breakpoints) {
+            for (let b of this._breakpoints.slice()) {
                 try {
-                    if (b && b.breakpointId) {
-                        const parts = b.breakpointId.split(':');
-                        let fileName;
-                        let lineNumber;
-
-                        if (process.platform === 'win32') { // path may contain a Drive letter on win32
-                            fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-                            lineNumber = parseInt(parts[1]);
-                        } else {
-                            fileName = parts[parts.length-1];
-                            lineNumber = parseInt(parts[1]);
-                        }
+                    if (b && b.origin && b.origin.scriptPath) {
+                        const fileName = transformToIDEStyle(b.origin.scriptPath);
+                        const lineNumber = b.origin.lineNumber;
 
                         if (
                             (fileName === filePath || fileName === filePathAlias)
-                            && lineNumber === line
+                            && lineNumber === inputLine
                         ) {
                             await self.removeBreakpoint(b.breakpointId);
                         }
@@ -1061,26 +1086,18 @@ export default class Debugger extends EventEmitter {
 
     getBreakpoints(filePath) {
         var bps = [];
+        // see removeBreakpointByValue for why breakpointId parsing is no longer reliable —
+        // use the breakpoint's own origin (set in setBreakpoint()) instead.
+        const filePathAlias = this.inFileNameAliases(filePath);
         for (let b of this._breakpoints) {
-            const parts = b.breakpointId.split(':');
-            let fileName;
-            let lineNumber;
-
-            if (process.platform === 'win32') { // path may contain a Drive letter on win32
-                fileName = parts[parts.length-2] + ':' + parts[parts.length-1];
-                lineNumber = parseInt(parts[1])+1; //from 0-base to 1-base
-            } else {
-                fileName = parts[parts.length-1];
-                lineNumber = parseInt(parts[1])+1; //from 0-base to 1-base
+            if (!b || !b.origin || !b.origin.scriptPath) {
+                continue;
             }
+            const fileName = transformToIDEStyle(b.origin.scriptPath);
+            const lineNumber = b.origin.lineNumber;
 
-            if (fileName === filePath) {
+            if (fileName === filePath || (filePathAlias && fileName === filePathAlias)) {
                 bps.push(lineNumber);
-            } else {
-                const filePathAlias = this.inFileNameAliases(filePath);
-                if (filePathAlias) {
-                    bps.push(lineNumber);
-                }
             }
         }
         return bps;
