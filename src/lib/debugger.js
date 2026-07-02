@@ -540,96 +540,100 @@ export default class Debugger extends EventEmitter {
                             await this.addOxygenVariablesFromGlobalScope(breakpointData.variables);
                         }
 
-                        if (
-                            this._breakpointErrors &&
-                            Array.isArray(this._breakpointErrors) &&
-                            this._breakpointErrors.length > 0
-                        ) {
-                            const isset = this._breakpoints.find((item) => {
-                                if (
-                                    item &&
-                                    item.origin &&
-                                    item.origin.lineNumber &&
-                                    parseInt(item.origin.lineNumber)+1 === parseInt(breakpointData.lineNumber)
-                                ) {
-                                    return item;
-                                } else if (
-                                    item &&
-                                    item.locations &&
-                                    Array.isArray(item.locations) &&
-                                    item.locations.length > 0 &&
-                                    item.locations.find(loc => {
-                                        return parseInt(loc.lineNumber) === parseInt(breakpointData.lineNumber);
-                                    }) &&
-                                    parseInt(item.origin.lineNumber) !== 1 &&
-                                    parseInt(breakpointData.lineNumber) !== 1
-                                ) {
-                                    return item;
-                                } else {
-                                    return false;
-                                }
-                            });
-
-                            if (isset) {
-                                let realBrfinded = false;
-                                this._breakpointErrors.map((breakpointError) => {
+                        // breakpointData stays null when eCallFrames was empty (no top call frame) -
+                        // nothing below is meaningful without it, and emitting null crashes downstream consumers
+                        if (breakpointData) {
+                            if (
+                                this._breakpointErrors &&
+                                Array.isArray(this._breakpointErrors) &&
+                                this._breakpointErrors.length > 0
+                            ) {
+                                const isset = this._breakpoints.find((item) => {
                                     if (
-                                        this._breakpoints &&
-                                        Array.isArray(this._breakpoints) &&
-                                        this._breakpoints.length > 0
+                                        item &&
+                                        item.origin &&
+                                        item.origin.lineNumber &&
+                                        parseInt(item.origin.lineNumber)+1 === parseInt(breakpointData.lineNumber)
                                     ) {
-                                        this._breakpoints.map((br) => {
-                                            const brFileName = transformToIDEStyle(br.origin.scriptPath);
-
-                                            let possibleBreakpointData;
-                                            if (
-                                                possibleBreakpointsData &&
-                                                Array.isArray(possibleBreakpointsData) &&
-                                                possibleBreakpointsData.length > 0
-                                            ) {
-                                                possibleBreakpointData = possibleBreakpointsData.find((item) => item.file === eCallFrames[0].url);
-                                            }
-
-                                            if (
-                                                brFileName === breakpointData.fileName &&
-                                                possibleBreakpointData &&
-                                                typeof possibleBreakpointData.fileLineNumbersLength !== 'undefined' &&
-                                                (
-                                                    breakpointData.lineNumber+1 === br.origin.lineNumber ||
-                                                    br.origin.lineNumber+1 === possibleBreakpointData.fileLineNumbersLength
-                                                )
-                                            ) {
-                                                realBrfinded = true;
-                                            }
-                                        });
+                                        return item;
+                                    } else if (
+                                        item &&
+                                        item.locations &&
+                                        Array.isArray(item.locations) &&
+                                        item.locations.length > 0 &&
+                                        item.locations.find(loc => {
+                                            return parseInt(loc.lineNumber) === parseInt(breakpointData.lineNumber);
+                                        }) &&
+                                        parseInt(item.origin.lineNumber) !== 1 &&
+                                        parseInt(breakpointData.lineNumber) !== 1
+                                    ) {
+                                        return item;
+                                    } else {
+                                        return false;
                                     }
                                 });
 
-                                if (!realBrfinded) {
-                                    breakpointData.resolved = true;
+                                if (isset) {
+                                    let realBrfinded = false;
+                                    this._breakpointErrors.map((breakpointError) => {
+                                        if (
+                                            this._breakpoints &&
+                                            Array.isArray(this._breakpoints) &&
+                                            this._breakpoints.length > 0
+                                        ) {
+                                            this._breakpoints.map((br) => {
+                                                const brFileName = transformToIDEStyle(br.origin.scriptPath);
+
+                                                let possibleBreakpointData;
+                                                if (
+                                                    possibleBreakpointsData &&
+                                                    Array.isArray(possibleBreakpointsData) &&
+                                                    possibleBreakpointsData.length > 0
+                                                ) {
+                                                    possibleBreakpointData = possibleBreakpointsData.find((item) => item.file === eCallFrames[0].url);
+                                                }
+
+                                                if (
+                                                    brFileName === breakpointData.fileName &&
+                                                    possibleBreakpointData &&
+                                                    typeof possibleBreakpointData.fileLineNumbersLength !== 'undefined' &&
+                                                    (
+                                                        breakpointData.lineNumber+1 === br.origin.lineNumber ||
+                                                        br.origin.lineNumber+1 === possibleBreakpointData.fileLineNumbersLength
+                                                    )
+                                                ) {
+                                                    realBrfinded = true;
+                                                }
+                                            });
+                                        }
+                                    });
+
+                                    if (!realBrfinded) {
+                                        breakpointData.resolved = true;
+                                    }
                                 }
                             }
+
+                            let possibleBreakpointData;
+
+                            if (
+                                possibleBreakpointsData &&
+                                Array.isArray(possibleBreakpointsData) &&
+                                possibleBreakpointsData.length > 0
+                            ) {
+                                possibleBreakpointData = possibleBreakpointsData.find((item) => item.file === eCallFrames[0].url);
+                            }
+
+                            if (
+                                possibleBreakpointData &&
+                                typeof possibleBreakpointData.fileLineNumbersLength !== 'undefined' &&
+                                breakpointData.lineNumber+1 >= possibleBreakpointData.fileLineNumbersLength
+                            ) {
+                                breakpointData.lineNumber = possibleBreakpointData.fileLineNumbersLength - 2;
+                            }
+
+                            this.emit('break', breakpointData);
                         }
-
-                        let possibleBreakpointData;
-
-                        if (
-                            possibleBreakpointsData &&
-                            Array.isArray(possibleBreakpointsData) &&
-                            possibleBreakpointsData.length > 0
-                        ) {
-                            possibleBreakpointData = possibleBreakpointsData.find((item) => item.file === eCallFrames[0].url);
-                        }
-
-                        if (
-                            possibleBreakpointData &&
-                            typeof possibleBreakpointData.fileLineNumbersLength !== 'undefined' &&
-                            breakpointData.lineNumber+1 >= possibleBreakpointData.fileLineNumbersLength
-                        ) {
-                            breakpointData.lineNumber = possibleBreakpointData.fileLineNumbersLength - 2;
-                        }
-
-                        this.emit('break', breakpointData);
 
                         if (
                             this._breakpointErrors &&
