@@ -49,20 +49,40 @@ function createAsyncTransformPlugin() {
 }
 
 function transform(code, filename, wrapInIIFE = true) {
-    const result = babel.transformSync(code, {
-        filename,
-        sourceType: 'script',
-        parserOpts: {
-            // top-level return is valid in CommonJS module context and inside our async IIFE wrapper
-            allowReturnOutsideFunction: true,
-        },
-        plugins: [[createAsyncTransformPlugin(), { wrapInIIFE }]],
-        sourceMaps: 'inline',
-        retainLines: true,
-        configFile: false,
-        babelrc: false,
-    });
-    return result.code;
+    try {
+        const result = babel.transformSync(code, {
+            filename,
+            sourceType: 'script',
+            parserOpts: {
+                // top-level return is valid in CommonJS module context and inside our async IIFE wrapper
+                allowReturnOutsideFunction: true,
+            },
+            plugins: [[createAsyncTransformPlugin(), { wrapInIIFE }]],
+            sourceMaps: 'inline',
+            retainLines: true,
+            configFile: false,
+            babelrc: false,
+            // the code-frame babel embeds in parse SyntaxError.message is
+            // colorized with ANSI escape codes by default (meant for a
+            // terminal) — those end up as raw control characters in any
+            // downstream consumer that isn't a terminal (e.g. a JSON
+            // payload sent to a backend), so disable colorization here and
+            // keep only the plain-text preview
+            highlightCode: false,
+        });
+        return result.code;
+    } catch (e) {
+        // babel doesn't reliably set .filename on its own parse SyntaxError
+        // across versions/configs — set it explicitly so error reporting
+        // (OxygenError.generateLocation) can point at the actual user script
+        // instead of falling back to a stack scan. That fallback can't find
+        // this file anyway, since it was parsed from a string, not require()'d
+        // as a module, so it never appears in any stack trace.
+        if (e && !e.filename) {
+            e.filename = filename;
+        }
+        throw e;
+    }
 }
 
 let _originalJsExtension = null;

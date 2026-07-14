@@ -62,6 +62,26 @@ export default class OxygenError extends Error {
         let anotherLineNumber;
         let anotherColumn;
 
+        // parse errors (e.g. a malformed user script caught by @babel/parser)
+        // carry an exact location (.loc) and the file that was parsed
+        // (.filename) directly on the error object — prefer this over
+        // scanning the stack trace below, since that error's stack starts
+        // inside @babel/parser's own internals (not the user's script),
+        // which the stack-scanning fallback can otherwise mistake for the
+        // error location.
+        if (
+            this.orgErr &&
+            this.orgErr.loc &&
+            typeof this.orgErr.loc.line === 'number' &&
+            this.orgErr.filename &&
+            fs.existsSync(this.orgErr.filename)
+        ) {
+            const column = typeof this.orgErr.loc.column === 'number' ? this.orgErr.loc.column : 0;
+            this.location = `${this.patchFilePathOnWindows(this.orgErr.filename)}:${this.orgErr.loc.line}:${column}`;
+            this.stacktrace = [this.location];
+            return;
+        }
+
         if (this.orgErr && this.orgErr.stack) {
             const anotherStack = stackTraceParser.parse(this.orgErr.stack);
 
@@ -72,7 +92,13 @@ export default class OxygenError extends Error {
             ) {
                 for (let i = 0; i < anotherStack.length; i++) {
 
+                    // skip frames inside node_modules (e.g. @babel/parser's own
+                    // internals) — they're never the user's script, and taking
+                    // the first "file exists on disk" frame without this check
+                    // means we'd report the parser's own source location instead
                     if (
+                        anotherStack[i]['file'] &&
+                        !anotherStack[i]['file'].includes('node_modules') &&
                         fs.existsSync(anotherStack[i]['file']) &&
                         anotherStack[i]['lineNumber'] &&
                         !anotherFile &&
