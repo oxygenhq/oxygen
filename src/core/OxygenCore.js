@@ -317,19 +317,11 @@ export default class Oxygen extends OxygenEvents {
         if (!poPath) {
             return;
         }
-        try {
-            const po = require(poPath);
-            // set page object repository as the main one
-            this.repository = po;
-            if (typeof this.opts.globalScope === 'undefined' || this.opts.globalScope === true) {
-                global.po = po;
-            }
-        }
-        catch (e) {
-            // ignore error
-            if (typeof this.opts.globalScope === 'undefined' || this.opts.globalScope === true) {
-                global.po = {};
-            }
+        const po = require(poPath);
+        // set page object repository as the main one
+        this.repository = po;
+        if (typeof this.opts.globalScope === 'undefined' || this.opts.globalScope === true) {
+            global.po = po;
         }
     }
 

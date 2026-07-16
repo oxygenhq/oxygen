@@ -682,7 +682,7 @@ export default class Debugger extends EventEmitter {
 
                                             if (
                                                 item &&
-                                                item.file === breakpointError.fileName &&                                                possibleBreakpointData &&
+                                                item.file === breakpointError.fileName &&
                                                 typeof item.fileLineNumbersLength !== 'undefined'
                                             ) {
                                                 let line;
