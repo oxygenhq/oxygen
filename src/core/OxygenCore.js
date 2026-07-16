@@ -3,7 +3,7 @@ import * as glob from 'glob';
 import path from 'path';
 import fs from 'fs';
 import { EOL } from 'os';
-const { v1 } = require('uuid');
+const { randomUUID } = require('crypto');
 import StepResult from '../model/step-result';
 import OxygenEvents from './OxygenEvents';
 import oxutil from '../lib/util';
@@ -603,7 +603,7 @@ export default class Oxygen extends OxygenEvents {
         // add command location information (e.g. file name and command line)
         let cmdLocation = null;
         // generate step result id
-        const stepResultId = v1();
+        const stepResultId = randomUUID();
         // do not report results or line updates on internal methods (started with '_')
         if (publicMethod) {
             cmdLocation = this._getCommandLocation();

@@ -13,7 +13,7 @@ const log = logger('OxygenRunner');
 const DEFAULT_ISSUER = 'user';
 const MAX_RERUNS = 2;
 
-const { v1 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 import { EventEmitter } from 'events';
 import _  from 'lodash';
@@ -427,7 +427,7 @@ export default class OxygenRunner extends EventEmitter {
             }
             const suiteResult = new TestSuiteResult();
             suiteIterations.push(suiteResult);
-            suiteResult.id = this._currentSuiteResultId = v1();
+            suiteResult.id = this._currentSuiteResultId = randomUUID();
             suiteResult.name = suite.name || oxutil.getFileNameWithoutExt(suite.path);
             // a unique reference if of suite definition
             // suites with the same name and definition should have the same refId
@@ -459,7 +459,7 @@ export default class OxygenRunner extends EventEmitter {
                         await this._reporter.onIterationStart(this._id, caseIteration, 'Case');
                     }
                     // generate case result id
-                    const caseResultId = this._currentCaseResultId = v1();
+                    const caseResultId = this._currentCaseResultId = randomUUID();
                     // report case start event
                     await this._reporter.onCaseStart(this._id, suiteResult.id, suiteResult.refId, caseResultId /*caze.uri || caze.id || caze.path*/, caze);
                     //let reRunCount = 0;

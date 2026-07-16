@@ -12,7 +12,7 @@ import * as Runners from '../runners';
 import parallelLimit from 'async/parallelLimit';
 const Duration = require('duration');
 const hash = require('object-hash');
-const { v1 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 export default class ParallelLauncher {
     constructor(config, reporter) {
@@ -55,7 +55,7 @@ export default class ParallelLauncher {
 
         suites.forEach(suiteDef => {
             const suiteKey = suiteDef.key || suiteDef.id || suiteDef.name;
-            const suiteRefId = suiteDef.key || suiteDef.id || v1();
+            const suiteRefId = suiteDef.key || suiteDef.id || randomUUID();
             if (mode === 'iteration') {
                 for (let i = 1; i<= suiteDef.iterationCount; i++) {
                     let mockedParamManager = undefined;

@@ -9,7 +9,7 @@
 
 const errHelper = require('../errors/helper');
 import OxError from '../errors/OxygenError';
-const { v1 } = require('uuid');
+const { randomUUID } = require('crypto');
 
 const providers = {
     PERFECTO: 'perfecto',
@@ -437,7 +437,7 @@ module.exports = {
     },
 
     newVideoAttachment: (fileName, videoUrl) => ({
-        id: v1(),
+        id: randomUUID(),
         fileName,
         type: 'video',
         subtype: 'screencast',

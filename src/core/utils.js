@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-const { v1 } = require('uuid');
+const { randomUUID } = require('crypto');
 const libUtil = require('../lib/util');
 
 export function loadModuleFromClass(moduleName, moduleClass, moduleLogger, oxModulesDirPath, args) {
@@ -38,7 +38,7 @@ export function loadModulesFromFile(moduleName, moduleFileName, moduleLogger, ox
 export function newFileAttachment(filePath) {
     const fileName = path.basename(filePath);
     return {
-        id: v1(),
+        id: randomUUID(),
         fileName,
         filePath,
         type: 'other',
@@ -46,7 +46,7 @@ export function newFileAttachment(filePath) {
 }
 
 export function newSnapshotAttachment(options, snapshotData, snapshotType /* html, json, xml */) {
-    const attachmentId = v1();
+    const attachmentId = randomUUID();
     const fileExtension = snapshotType || 'html';
     const fileName = `${attachmentId}.${fileExtension}`;
     const attachmentFilePath = libUtil.getAttachmentPath(fileName, options);
@@ -57,7 +57,7 @@ export function newSnapshotAttachment(options, snapshotData, snapshotType /* htm
         return undefined;
     }
     return {
-        id: v1(),
+        id: randomUUID(),
         type: 'snapshot',
         fileName: fileName,
         filePath: attachmentFilePath,
