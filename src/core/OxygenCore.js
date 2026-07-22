@@ -82,6 +82,8 @@ export default class Oxygen extends OxygenEvents {
         this.oxBaseDir = path.join(__dirname, '../');
         this.logger = this._wrapLogger(logger('Oxygen'));
         this._waitStepResultList = [];
+        // tail of the command-execution queue — see _commandWrapper()
+        this._commandQueue = null;
     }
 
     async init(options, caps, ctx = {}, results = {}) {
@@ -558,7 +560,30 @@ export default class Oxygen extends OxygenEvents {
         return wrapper;
     }
 
+    // Serializes every command execution on this Oxygen instance, even when a
+    // caller doesn't await a previous command's result — most notably, hooks
+    // defined in oxygen.conf.js (beforeTest, beforeCase, etc.) are plain
+    // synchronous functions by design; if one calls a module method like
+    // log.info() without awaiting it, oxutil.executeTestHook only awaits the
+    // (synchronous) hook function itself, leaving that command's async
+    // processing (step-result generation, screenshots, etc.) running in the
+    // background. Without this queue, that orphaned work can run concurrently
+    // with whatever command starts next, corrupting both commands' recorded
+    // step timing/status since _commandWrapper's start/end timestamps and
+    // step bookkeeping assume exclusive, non-overlapping execution.
     async _commandWrapper(cmdName, cmdArgs, module, moduleName) {
+        const prevCommand = this._commandQueue || Promise.resolve();
+        let releaseNext;
+        this._commandQueue = new Promise(resolve => { releaseNext = resolve; });
+        await prevCommand;
+        try {
+            return await this._commandWrapperImpl(cmdName, cmdArgs, module, moduleName);
+        } finally {
+            releaseNext();
+        }
+    }
+
+    async _commandWrapperImpl(cmdName, cmdArgs, module, moduleName) {
         if (!module || !module[cmdName]) {
             return undefined;
         }
