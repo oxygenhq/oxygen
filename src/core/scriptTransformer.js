@@ -98,10 +98,11 @@ function transform(code, filename, wrapInIIFE = true) {
 }
 
 let _originalJsExtension = null;
-let _hookCwd = null;
 
-function installRequireHook(cwd) {
-    _hookCwd = cwd;
+// cwd is unused for gating which files get transformed (see _hookHandler) but
+// kept in the signature since callers already pass it and a future use may
+// need it again.
+function installRequireHook(cwd) { // eslint-disable-line no-unused-vars
     _originalJsExtension = Module._extensions['.js'];
     Module._extensions['.js'] = _hookHandler;
 }
@@ -110,12 +111,21 @@ function uninstallRequireHook() {
     if (_originalJsExtension) {
         Module._extensions['.js'] = _originalJsExtension;
         _originalJsExtension = null;
-        _hookCwd = null;
     }
 }
 
 function _hookHandler(mod, filename) {
-    if (_hookCwd && filename.startsWith(_hookCwd) && !filename.includes('node_modules')) {
+    // transform any user-authored file, regardless of where it lives on disk
+    // (not just inside the test project's cwd) — page-object/support files
+    // are commonly kept in a shared location outside the project folder
+    // (e.g. a different drive or a company-wide base-functions repo), and
+    // previously such files silently loaded untransformed: every await this
+    // system relies on to keep command execution correctly sequenced was
+    // missing, causing MODULE_NOT_INITIALIZED_ERROR ("Missing web.init()"),
+    // stray Promise objects ending up in place of resolved values, etc.
+    // node_modules is still excluded — third-party package internals aren't
+    // meant to go through this transform.
+    if (!filename.includes('node_modules')) {
         const code = fs.readFileSync(filename, 'utf8');
         // scripts that export an object/function keep their module.exports — only transform their internals.
         // Matches both whole-object assignment (`module.exports = {...}`) and
