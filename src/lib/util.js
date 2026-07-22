@@ -245,7 +245,17 @@ var self = module.exports = {
                 if (typeof value === 'bigint') {    // https://github.com/GoogleChromeLabs/jsbi/issues/30
                     return value.toString();
                 } else if (typeof value === 'function') {
-                    return value.toString();
+                    // dumping the full function source (value.toString()) doesn't scale:
+                    // an object graph with many functions — e.g. a page object repository
+                    // passed to log.info() — can turn a single log call into a multi-megabyte
+                    // string and many seconds/minutes of blocking JSON.stringify work, since
+                    // JSON.stringify re-serializes a shared sub-object every time it's reachable
+                    // via a different property path. A short signature is enough for a log line.
+                    // prefer the property key (e.g. "openSystem" for `module.exports.openSystem =
+                    // (...) => {}`) over value.name, since that assignment style — common in page
+                    // object files — never gets a JS-inferred function name.
+                    const fnName = key || value.name;
+                    return fnName ? `[Function: ${fnName}]` : '[Function (anonymous)]';
                 } else if (typeof value === 'undefined') {
                     // if undefined is inside an array then it will be serialized as null.
                     // however if we just return 'undefined' here as string, it will be enclosed in quotes.
@@ -269,6 +279,12 @@ var self = module.exports = {
             }
             // convert magic 'undefined' string to proper representation
             str = str.replace(/"__UNDEFINED"/g, 'undefined');
+            // guard against pathologically large output (e.g. huge arrays/objects) still
+            // blocking the event loop or ballooning log storage even without function dumping
+            const MAX_LENGTH = 10000;
+            if (str.length > MAX_LENGTH) {
+                str = str.substring(0, MAX_LENGTH) + `... [truncated, ${str.length} chars total]`;
+            }
         } catch (e) {
             console.warn('Failed to serialize command arguments: ', e);
             // if JSON.stringify fails, then fallback to util.inspect.

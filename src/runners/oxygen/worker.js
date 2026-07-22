@@ -136,14 +136,14 @@ async function dispose(status= null) {
 }
 
 function processSend(msg) {
-    // wrap process.send with try/catch as sometimes we might call process.send 
+    // wrap process.send with try/catch as sometimes we might call process.send
     // when parent process is already disconnected (when use kills the main process)
     try {
         // add utc timestamp
         process.connected && process.send({ time: oxutil.getTimeStamp(), ...msg });
     }
     catch (e) {
-        // ignore
+        console.warn('processSend failed:', e && e.message);
     }
 }
 
