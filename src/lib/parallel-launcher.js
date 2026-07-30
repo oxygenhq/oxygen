@@ -7,7 +7,6 @@
  * (at your option) any later version.
  */
 
-// import _ from 'lodash';
 import * as Runners from '../runners';
 import parallelLimit from 'async/parallelLimit';
 const Duration = require('duration');
@@ -20,7 +19,7 @@ export default class ParallelLauncher {
         this.reporter = reporter;
         this._queue = null;
         this.runners = [];
-        this.createdRunnersStat = [];
+        this.createdRunnersStat = {};
     }
 
     async run(capsSet) {

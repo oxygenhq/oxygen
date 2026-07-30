@@ -44,13 +44,6 @@ export async function clickHidden(locator, clickParent = false) {
                 }
             }, el, clickParent);
 
-            /*
-                {
-                    error: 'no such element',
-                    message: 'Error executing JavaScript',
-                    stacktrace: ''
-                }
-            */
             if (retVal && retVal.error && retVal.message) {
                 throw new Error(retVal.error + ' ' + retVal.message);
             } else if (retVal && retVal.startsWith && retVal.startsWith('clickHidden is not supported on IE')) {

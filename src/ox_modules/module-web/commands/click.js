@@ -41,13 +41,6 @@ async function click(locator, timeout) {
                 domEl.dispatchEvent(clckEv);
             }, el);
 
-            /*
-                {
-                    error: 'no such element',
-                    message: 'Error executing JavaScript',
-                    stacktrace: ''
-                }
-            */
             if (retVal && retVal.error && retVal.message) {
                 throw new Error(retVal.error + ' ' + retVal.message);
             }
