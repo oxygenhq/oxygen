@@ -572,18 +572,26 @@ export default class Oxygen extends OxygenEvents {
     // step timing/status since _commandWrapper's start/end timestamps and
     // step bookkeeping assume exclusive, non-overlapping execution.
     async _commandWrapper(cmdName, cmdArgs, module, moduleName) {
+        // capture the command's call-site location synchronously, before any
+        // `await` below — _getCommandLocation() walks the *current* call stack,
+        // and once execution crosses an await boundary (e.g. the command-queue
+        // wait below) the synchronous stack collapses to just the microtask
+        // continuation frame (node:internal/process/task_queues), losing the
+        // real caller (the user's test script line) entirely.
+        const cmdLocation = this._getCommandLocation();
+
         const prevCommand = this._commandQueue || Promise.resolve();
         let releaseNext;
         this._commandQueue = new Promise(resolve => { releaseNext = resolve; });
         await prevCommand;
         try {
-            return await this._commandWrapperImpl(cmdName, cmdArgs, module, moduleName);
+            return await this._commandWrapperImpl(cmdName, cmdArgs, module, moduleName, cmdLocation);
         } finally {
             releaseNext();
         }
     }
 
-    async _commandWrapperImpl(cmdName, cmdArgs, module, moduleName) {
+    async _commandWrapperImpl(cmdName, cmdArgs, module, moduleName, cmdLocation) {
         if (!module || !module[cmdName]) {
             return undefined;
         }
@@ -617,13 +625,12 @@ export default class Oxygen extends OxygenEvents {
         // start measuring method execution time
         const startTime = oxutil.getTimeStamp();
 
-        // add command location information (e.g. file name and command line)
-        let cmdLocation = null;
+        // cmdLocation is captured by the caller (_commandWrapper), before the
+        // command-queue await — see the comment there for why.
         // generate step result id
         const stepResultId = randomUUID();
         // do not report results or line updates on internal methods (started with '_')
         if (publicMethod) {
-            cmdLocation = this._getCommandLocation();
             this.emitBeforeCommand(stepResultId, cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, startTime);
         }
 
