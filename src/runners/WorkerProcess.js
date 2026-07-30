@@ -56,6 +56,8 @@ export default class WorkerProcess extends EventEmitter {
 
         // print more information for nodejs errors
         forkOpts.execArgv.push('--trace-warnings');
+        // suppress Node's own DeprecationWarning noise — these come from third-party packages, not from the test itself
+        forkOpts.execArgv.push('--no-deprecation');
 
         if (this._npmGRootExecution) {
             try {
