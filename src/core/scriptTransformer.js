@@ -2,16 +2,43 @@ const babel = require('@babel/core');
 const fs = require('fs');
 const Module = require('module');
 
+// true if `path` is a function passed directly as an argument to a `.execute(...)`
+// call (e.g. `web.execute(function() { ... }, arg)`). Such functions are not run by
+// Oxygen's own Node process at all — webdriverio serializes them (via .toString())
+// and injects them into the browser page to run there, so they commonly reference
+// browser-only globals (document, window, XPathResult, etc.) and must stay exactly
+// as the user wrote them. Marking them async / wrapping their calls in await would
+// change what actually executes in the browser: an async function returns a Promise
+// immediately instead of the synchronous result WebDriver's execute-script expects.
+function isBrowserExecuteCallback(path) {
+    const parent = path.parent;
+    if (!parent || parent.type !== 'CallExpression') {
+        return false;
+    }
+    if (!parent.arguments.includes(path.node)) {
+        return false;
+    }
+    const callee = parent.callee;
+    if (!callee || callee.type !== 'MemberExpression') {
+        return false;
+    }
+    const propertyName = callee.property && (callee.property.name || callee.property.value);
+    return propertyName === 'execute';
+}
+
 function createAsyncTransformPlugin() {
     return ({ types: t }) => ({
         visitor: {
             FunctionDeclaration(path) {
+                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             FunctionExpression(path) {
+                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             ArrowFunctionExpression(path) {
+                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             CallExpression(path, state) {
