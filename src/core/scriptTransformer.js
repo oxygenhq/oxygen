@@ -26,6 +26,14 @@ function isBrowserExecuteCallback(path) {
     return propertyName === 'execute';
 }
 
+// object/class methods with these `kind`s can never be declared `async`
+// (constructors can't be async; getters/setters must return a value/accept a
+// setter argument synchronously per the language spec) — marking one async,
+// or awaiting a call inside one, is a syntax error.
+function isNonAsyncableMethod(node) {
+    return !!node && (node.kind === 'constructor' || node.kind === 'get' || node.kind === 'set');
+}
+
 function createAsyncTransformPlugin() {
     return ({ types: t }) => ({
         visitor: {
@@ -41,6 +49,28 @@ function createAsyncTransformPlugin() {
                 if (isBrowserExecuteCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
+            // ES2015 method-shorthand syntax (`{ foo() {...} }` in an object
+            // literal, or a method inside a `class`) is represented by Babel as
+            // ObjectMethod/ClassMethod/ClassPrivateMethod — a different node type
+            // than FunctionExpression/ArrowFunctionExpression above, so it needs
+            // its own visitor. Without this, such a method never gets marked
+            // async, yet calls inside it still get wrapped in `await` by the
+            // CallExpression visitor below (which only checks for *any* enclosing
+            // function, not specifically an async-eligible one) — producing
+            // "await is only valid in async functions" at runtime.
+            ObjectMethod(path) {
+                if (isNonAsyncableMethod(path.node)) return;
+                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
+                if (!path.node.async) path.node.async = true;
+            },
+            ClassMethod(path) {
+                if (isNonAsyncableMethod(path.node)) return;
+                if (!path.node.async) path.node.async = true;
+            },
+            ClassPrivateMethod(path) {
+                if (isNonAsyncableMethod(path.node)) return;
+                if (!path.node.async) path.node.async = true;
+            },
             CallExpression(path, state) {
                 if (path.parentPath.isAwaitExpression()) return;
                 // don't await constructor arguments
@@ -54,7 +84,14 @@ function createAsyncTransformPlugin() {
                 // (ERR_REQUIRE_ASYNC_MODULE). Calls inside nested functions are
                 // unaffected — those functions are themselves made async below, so
                 // awaiting calls inside them is safe.
-                if (!state.opts.wrapInIIFE && !path.getFunctionParent()) {
+                const functionParent = path.getFunctionParent();
+                if (!state.opts.wrapInIIFE && !functionParent) {
+                    return;
+                }
+                // constructors/getters/setters can never be async — a call inside
+                // one must stay un-awaited, since there's nowhere for the `await`
+                // to legally live (see isNonAsyncableMethod above)
+                if (functionParent && isNonAsyncableMethod(functionParent.node)) {
                     return;
                 }
                 const awaitExpr = t.awaitExpression(t.cloneNode(path.node));
