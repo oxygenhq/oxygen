@@ -50,7 +50,7 @@
     "turndown-plugin-gfm": "1.0.2"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.60.13",
+    "@applitools/eyes-webdriverio": "5.61.0",
     "@babel/core": "7.29.7",
     "@lambdatest/node-rest-client": "2.0.2",
     "@oxygenhq/mitmproxy-node": "1.0.1",
@@ -64,7 +64,7 @@
     "chrome-remote-interface": "0.34.0",
     "config": "4.4.2",
     "cross-spawn": "7.0.6",
-    "csv-parse": "7.0.1",
+    "csv-parse": "7.0.2",
     "cucumber": "6.0.7",
     "decache": "4.6.2",
     "des.js": "1.1.0",
@@ -89,7 +89,7 @@
     "mockery": "2.1.0",
     "moment": "2.30.1",
     "mongodb": "6.21.0",
-    "nodemailer": "9.0.3",
+    "nodemailer": "9.0.4",
     "object-hash": "3.0.0",
     "objects-to-csv": "1.3.6",
     "pdf2json": "4.0.3",
