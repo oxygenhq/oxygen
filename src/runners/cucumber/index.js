@@ -68,7 +68,7 @@ export default class CucumberRunner extends EventEmitter {
         this.isInitialized = true;
         this.cucumberOpts = Object.assign(DEFAULT_OPTS, config.cucumberOpts);
         this.worker.start();
-        await this.worker.init(this.id, config, caps);
+        await this.worker.initOxygen(this.id, config, caps);
     }
 
     async dispose(status = null) {
