@@ -50,7 +50,7 @@
     "turndown-plugin-gfm": "1.0.2"
   },
   "dependencies": {
-    "@applitools/eyes-webdriverio": "5.61.0",
+    "@applitools/eyes-webdriverio": "5.61.1",
     "@babel/core": "7.29.7",
     "@lambdatest/node-rest-client": "2.0.2",
     "@oxygenhq/mitmproxy-node": "1.0.1",
@@ -84,12 +84,12 @@
     "js-md4": "0.3.2",
     "junit-report-builder": "5.1.2",
     "lodash": "4.18.1",
-    "mailparser": "3.9.14",
+    "mailparser": "3.9.15",
     "minimist": "1.2.8",
     "mockery": "2.1.0",
     "moment": "2.30.1",
     "mongodb": "6.21.0",
-    "nodemailer": "9.0.4",
+    "nodemailer": "9.0.5",
     "object-hash": "3.0.0",
     "objects-to-csv": "1.3.6",
     "pdf2json": "4.0.3",
