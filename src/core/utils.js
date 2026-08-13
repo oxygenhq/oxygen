@@ -45,24 +45,36 @@ export function newFileAttachment(filePath) {
     };
 }
 
-export function newSnapshotAttachment(options, snapshotData, snapshotType /* html, json, xml */) {
+// writes arbitrary data straight to the .cb-attachments folder (see lib/util.js's
+// getAttachmentPath) and returns a small {id, type, fileName, filePath, subtype} reference
+// instead of holding the data itself in memory — this is the same "reference a local file,
+// let CloudBeat.Runner upload it generically" convention used for screenshots
+// (OxygenCore.js's takeScreenshot/saveScreenshotToTempFile) and HAR (module-web.js's
+// transaction HAR capture), so none of these potentially large payloads (page snapshots,
+// HAR network captures) stay resident in memory for the rest of a long suite run.
+// (Not to be confused with newFileAttachment() above, which references a file that already
+// exists on disk instead of writing new data to one.)
+export function newDataAttachment(options, data, fileExtension, type, subtype) {
     const attachmentId = randomUUID();
-    const fileExtension = snapshotType || 'html';
     const fileName = `${attachmentId}.${fileExtension}`;
     const attachmentFilePath = libUtil.getAttachmentPath(fileName, options);
     try {
-        fs.writeFileSync(attachmentFilePath, snapshotData);
+        fs.writeFileSync(attachmentFilePath, data);
     }
     catch (e) {
         return undefined;
     }
     return {
         id: randomUUID(),
-        type: 'snapshot',
+        type,
         fileName: fileName,
         filePath: attachmentFilePath,
-        subtype: snapshotType || 'html',
+        subtype,
     };
+}
+
+export function newSnapshotAttachment(options, snapshotData, snapshotType /* html, json, xml */) {
+    return newDataAttachment(options, snapshotData, snapshotType || 'html', 'snapshot', snapshotType || 'html');
 }
 
 function applyThisInHelpers(module) {

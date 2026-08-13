@@ -768,7 +768,7 @@ export default class Oxygen extends OxygenEvents {
                 step.failure.location = location;
 
                 if (!this.opts.disableScreenshot) {
-                    await takeScreenshot(module, step, methodName);
+                    await takeScreenshot(module, step, methodName, this.opts);
                 }
 
                 await takeSnapshot(this.opts, module, step, methodName);
@@ -776,8 +776,8 @@ export default class Oxygen extends OxygenEvents {
         }
         // if we are in "baseline" mode, take snapshot and screenshot for each "action" step
         else if (this.opts.baseline) {
-            if (!step.screenshot && step.action) {
-                await takeScreenshot(module, step, methodName);
+            if (!step.screenshotFile && step.action) {
+                await takeScreenshot(module, step, methodName, this.opts);
             }
             await takeSnapshot(this.opts, module, step, methodName);
         }
@@ -962,19 +962,29 @@ export default class Oxygen extends OxygenEvents {
     }
 }
 
-async function takeScreenshot(module, step, methodName) {
+function saveScreenshotToTempFile(base64Data, opts) {
+    if (!base64Data) {
+        return null;
+    }
+    const fileName = `screenshot-${oxutil.generateUniqueId()}.png`;
+    const filePath = oxutil.getAttachmentPath(fileName, opts);
+    fs.writeFileSync(filePath, base64Data, 'base64');
+    return filePath;
+}
+
+async function takeScreenshot(module, step, methodName, opts) {
     if (typeof module._takeScreenshotSilent !== 'function') {
         return false;
     }
     try {
-        step.screenshot = await Promise.resolve(module._takeScreenshotSilent(methodName));
+        step.screenshotFile = saveScreenshotToTempFile(await Promise.resolve(module._takeScreenshotSilent(methodName)), opts);
     }
     catch (e) {
         // If we are here, we were unable to get a screenshot
         // Try to wait for a moment (in Perfecto Cloud, the screenshot might not be immidiately available)
         await new Promise(r => setTimeout(r, 1000));
         try {
-            step.screenshot = await Promise.resolve(module._takeScreenshotSilent(methodName));
+            step.screenshotFile = saveScreenshotToTempFile(await Promise.resolve(module._takeScreenshotSilent(methodName)), opts);
         }
         catch (e) {
             // FIXME: indicate to user that an attempt to take a screenshot has failed

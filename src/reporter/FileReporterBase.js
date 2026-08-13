@@ -71,7 +71,10 @@ export default class FileReporterBase extends ReporterBase {
         return folderPath;
     }
 
-    // save all screenshots to files and replace screenshot content with file path in the result JSON before serialization
+    // move each step's already-captured screenshot (written to a temp file at capture time —
+    // see OxygenCore.js's takeScreenshot/saveScreenshotToTempFile — rather than held as a
+    // base64 string in memory for the whole run) into the report's folder, and point
+    // screenshotFile at its final (relative) filename for serialization.
     replaceScreenshotsWithFiles(results, folderPath) {
         if (!Array.isArray(results)) {
             throw new Error('Invalid argument "results" - must be an array.');
@@ -80,7 +83,7 @@ export default class FileReporterBase extends ReporterBase {
             throw new Error('"folderPath" argument cannot be null or empty.');
         }
         const stepsWithScreenshot = [];
-        // map steps with non empty screenshot attribute
+        // map steps with a captured screenshot (temp file) attribute
         for (let result of results) {
             for (let suite of result.suites) {
                 for (let caze of suite.cases) {
@@ -94,9 +97,23 @@ export default class FileReporterBase extends ReporterBase {
             let filename = screenshotFilePrefix + i + screenshotFileSuffix;
             let filepath = path.join(folderPath, filename);
             let step = stepsWithScreenshot[i];
-            fs.writeFileSync(filepath, step.screenshot, 'base64');
+            try {
+                fs.renameSync(step.screenshotFile, filepath);
+            }
+            catch (e) {
+                // fall back to copy+delete — rename fails across filesystems/drives (e.g. a
+                // system temp dir on a different volume than the reports output folder)
+                try {
+                    fs.copyFileSync(step.screenshotFile, filepath);
+                    fs.unlinkSync(step.screenshotFile);
+                }
+                catch (copyErr) {
+                    // screenshot temp file is gone or unreadable - nothing more we can do for this step
+                    step.screenshotFile = null;
+                    continue;
+                }
+            }
             step.screenshotFile = filename;
-            step.screenshot = null; // don't save base64 screenshot date to the file
         }
     }
     // format total duration like : 56.2 sec / 31 min 59 sec / 1 hr 31 min 59 sec
@@ -117,7 +134,7 @@ export default class FileReporterBase extends ReporterBase {
     }
     _populateStepsWithScreenshots(steps, stepsWithScreenshot) {
         for (let step of steps) {
-            if (step.screenshot) {
+            if (step.screenshotFile) {
                 stepsWithScreenshot.push(step);
             }
             // handle child steps too

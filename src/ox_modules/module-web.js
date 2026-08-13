@@ -59,6 +59,8 @@ import mergeImages from '../lib/img-merge';
 import errorHelper from '../errors/helper';
 import { autoStartWebDriver } from '../ox_modules/module-web/webdriver/auto-start';
 import sanitizeHtml from 'sanitize-html';
+import fs from 'fs';
+import oxutil from '../lib/util';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -201,6 +203,7 @@ export default class WebModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
         this.transactions = {};                      // transaction->har dictionary
+        this.harFiles = {};                           // transaction->har file path dictionary
         this.lastNavigationStartTime = null;
         this.helpers = {};
         this._loadHelperFunctions();
@@ -443,6 +446,7 @@ export default class WebModule extends WebDriverModule {
      */
     async dispose(status) {
         this.transactions = {};
+        this.harFiles = {};
         this._whenWebModuleDispose = defer();
 
         if (!status) {
@@ -609,11 +613,11 @@ export default class WebModule extends WebDriverModule {
         if (this.options.recordHAR && this.caps.browserName === 'chrome') {
             // there might be no transactions set if test fails before web.transaction command
             if (global._lastTransactionName) {
-                this.transactions[global._lastTransactionName] = await this._getHAR();
+                await this._saveHarToFile(global._lastTransactionName, await this._getHAR());
             }
         }
 
-        this.rs.har = this.transactions;
+        this.rs.har = this.harFiles;
         const hasFailed = error !== undefined && error !== null;
         this._addSelenoidVideoAsTestAttachment(hasFailed);
     }
@@ -771,7 +775,10 @@ export default class WebModule extends WebDriverModule {
             this.transactions[global._lastTransactionName] = null;
 
             if (this.options.recordHAR && this.isInitialized && this.caps.browserName === 'chrome') {
-                this.transactions[global._lastTransactionName] = await this._getHAR();
+                // this.transactions[name] stays a marker only (dedup/counter logic below just
+                // needs the key to exist) — the actual HAR data is written straight to disk
+                // and tracked separately in this.harFiles, see _saveHarToFile
+                await this._saveHarToFile(global._lastTransactionName, await this._getHAR());
             }
         }
 
@@ -830,6 +837,38 @@ export default class WebModule extends WebDriverModule {
             this.logger.error('Unable to fetch HAR: ' + e.toString());
             return null;
         }
+    }
+
+    // a HAR capture (full network log + response bodies) can be substantial, and with HAR
+    // recording enabled it's captured on every transaction — holding all of them in memory
+    // for the whole case (previously via this.rs.har = this.transactions, a name->HAR-object
+    // dictionary that only grew) is the same avoidable memory sink screenshots were.
+    //
+    // Unlike screenshots, HAR can't just be uploaded as a generic file-reference attachment:
+    // the server (CloudBeat.TestResults.Processor's HarFileService) needs the actual raw HAR
+    // JSON content in caseResult.har[transactionName] so it can parse it and compute per-step
+    // network timing stats (DNS/connect/SSL/etc, see step.PageDns and friends) before writing
+    // its own HarFilename and re-saving the file under its own storage scheme — a plain file
+    // path isn't enough for that. So we still write straight to disk here (avoiding holding it
+    // in memory for the rest of the case), but only track the file path in this.harFiles;
+    // whoever builds the final case result payload (e.g. cb-oxygen-runner-wrapper) is
+    // responsible for reading each file back into caseResult.har at the very end, right before
+    // sending — one HAR at a time, not all of them held in memory for the whole run.
+    async _saveHarToFile(transactionName, harJson) {
+        if (!harJson) {
+            return null;
+        }
+        const fileName = `har-${oxutil.generateUniqueId()}.json`;
+        const filePath = oxutil.getAttachmentPath(fileName, this.options);
+        try {
+            fs.writeFileSync(filePath, harJson);
+        }
+        catch (e) {
+            this.logger.error('Cannot save HAR file.', e);
+            return null;
+        }
+        this.harFiles[transactionName] = filePath;
+        return filePath;
     }
 
     async checkWaitForAngular() {
