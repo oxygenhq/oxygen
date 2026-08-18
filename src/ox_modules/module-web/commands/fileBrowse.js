@@ -34,7 +34,9 @@ export async function fileBrowse(locator, filepath, timeout) {
             const source = fs.createReadStream(filepath);
             const name = path.basename(filepath);
 
-            archiver('zip')
+            // archiver 8.0.0 dropped the old archiver(format, options) factory function — the
+            // format is now selected by instantiating the matching class directly.
+            new archiver.ZipArchive()
                 .on('error', (err) => reject(err))
                 .on('data', (data) => {
                     zipData.push(data);
@@ -43,11 +45,8 @@ export async function fileBrowse(locator, filepath, timeout) {
                     this.driver.file(Buffer.concat(zipData).toString('base64')).then(resolve, reject);
                 })
                 .append(source, { name: name })
-                .finalize((err) => {
-                    if (err) {
-                        reject(err);
-                    }
-                });
+                .finalize()
+                .catch(reject);
         });
 
         try {
