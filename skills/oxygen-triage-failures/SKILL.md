@@ -101,6 +101,17 @@ snapshot being the actual page HTML at the moment of failure.
 A failure with no `step` means the script threw before reaching a command;
 `location` still points at the line.
 
+Two more fields appear when they apply, and both exist to save you a run:
+
+- **`alsoAppearsIn`** — every other `file:line` in the project using the same
+  locator that just failed. A locator broken by an application change is
+  almost never broken in one file. Fix all of them in this pass; otherwise the
+  next run rediscovers the identical fault in the next file, one browser run
+  per occurrence.
+- **`hint`** — present when the script called a command that does not exist.
+  It names the closest real commands and the module to list. Trust it over
+  your memory of the API.
+
 ## Reading the run output
 
 Work from the step results, not just the final error:
@@ -116,6 +127,8 @@ Work from the step results, not just the final error:
    locator-versus-application questions immediately.
 5. **Earlier `VERIFY_ERROR` steps** — non-fatal, so an unrelated-looking later
    failure may be their consequence.
+6. **`alsoAppearsIn`** — before editing, decide the fix for the locator once,
+   then apply it to every line listed there.
 
 ## Repair loop
 
