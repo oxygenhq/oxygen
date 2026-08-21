@@ -36,8 +36,11 @@ export async function main(rawArgs) {
     }
 
     const { verb, isTarget } = resolveVerb(argv);
+    const isModuleVerb = !!verb && getModuleNames().includes(verb);
 
-    if (argv.help || argv.h || verb === 'help') {
+    // A module command documents itself from the catalogue, so `oxygen web click --help`
+    // must reach it rather than being answered with the global usage screen.
+    if ((argv.help || argv.h || verb === 'help') && !isModuleVerb) {
         printUsage();
         return verb === 'help' ? 0 : 1;
     }
@@ -59,7 +62,7 @@ export async function main(rawArgs) {
         console.error('The MCP server is not implemented yet.');
         return 1;
     }
-    if (verb && getModuleNames().includes(verb)) {
+    if (isModuleVerb) {
         const { default: moduleCommand } = await import('./commands/moduleCommand');
         return await moduleCommand(argv);
     }

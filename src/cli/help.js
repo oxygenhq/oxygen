@@ -8,6 +8,7 @@
  */
 
 import { getModuleNames } from './args';
+import { getModule, getCommand, formatSignature } from './catalog';
 
 export function printUsage() {
     console.log(`Usage: oxygen [OPTIONS]... FILE
@@ -36,7 +37,7 @@ Interactive session:
   oxygen web snapshot          List every actionable element on the page with its role,
                                name, a ref to act on now, and a durable locator to put
                                in a test. Narrow a large page with
-                               json:{"viewportOnly":true} or json:{"maxElements":500}.
+                               '{"viewportOnly":true}' or '{"maxElements":500}'.
                                Refs are valid until the next snapshot and must never be
                                written into a test file.
 
@@ -44,9 +45,16 @@ Project:
   oxygen init [DIR]            Scaffold a new Oxygen project.
   oxygen help                  Display this information.
 
-Arguments to module commands are passed as strings. To pass a number, boolean, array or
-object, prefix that argument with "json:" - for example:
-  oxygen web click "id=x" json:5000
+Arguments are typed from each command's documented signature, so numbers, booleans and
+objects can be written plainly - and a numeric-looking string stays a string:
+  oxygen web click "id=x" 5000
+  oxygen web snapshot '{"viewportOnly":true}'
+  oxygen web type "id=zip" "90210"        <- stays the string "90210"
+Prefix an argument with "json:" to force it to be read as a JSON literal.
+
+  oxygen <module>              List a module's commands.
+  oxygen <module> <command> --help
+                               Show a command's arguments and what it returns.
 
 General options:
   -d, --delay=SECONDS        Delay between each command in seconds.
@@ -90,4 +98,81 @@ Web test options:
 
 Mobile test options:
     -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723.`);
+}
+
+/*
+ * `oxygen web` with no command: what this module can do.
+ */
+export function printModuleHelp(moduleName) {
+    const mod = getModule(moduleName);
+    if (!mod) {
+        console.error(`No catalogue entry for module "${moduleName}". Run "npm run catalog" to generate it.`);
+        console.error(`Usage: oxygen ${moduleName} <command> [args...]`);
+        return 1;
+    }
+    if (mod.description) {
+        console.log(`${moduleName} - ${mod.description}`);
+        console.log('');
+    }
+    const names = Object.keys(mod.commands).sort();
+    const width = Math.max(...names.map((n) => n.length));
+    for (const name of names) {
+        const command = mod.commands[name];
+        const marker = command.agentVisible === false ? ' ' : ' ';
+        console.log(`  ${marker}${name.padEnd(width)}  ${command.summary || ''}`);
+    }
+    console.log(`\n${names.length} commands. For one command's arguments: oxygen ${moduleName} <command> --help`);
+    return 0;
+}
+
+/*
+ * `oxygen web click --help`: the signature, straight from the JSDoc the implementation
+ * carries, so it cannot describe a command the code no longer has.
+ */
+export function printCommandHelp(moduleName, commandName) {
+    const command = getCommand(moduleName, commandName);
+    if (!command) {
+        const mod = getModule(moduleName);
+        console.error(`Unknown command: "${moduleName}.${commandName}".`);
+        if (mod) {
+            console.error(`Run "oxygen ${moduleName}" to list the ${Object.keys(mod.commands).length} commands it has.`);
+        }
+        return 1;
+    }
+
+    console.log(formatSignature(moduleName, command));
+    if (command.summary) {
+        console.log(`\n  ${command.summary}`);
+    }
+    if (command.description) {
+        console.log(`  ${command.description}`);
+    }
+    if (command.deprecated) {
+        console.log(`\n  DEPRECATED: ${command.deprecated === true ? 'do not use in new tests' : command.deprecated}`);
+    }
+
+    if (command.params.length) {
+        console.log('\nArguments:');
+        for (const param of command.params) {
+            const type = (param.schema && param.schema.type) || 'any';
+            const required = param.required ? '' : ' (optional)';
+            console.log(`  ${param.name} <${type}>${required}`);
+            if (param.description) {
+                console.log(`      ${param.description}`);
+            }
+            const properties = param.schema && param.schema.properties;
+            if (properties) {
+                for (const key of Object.keys(properties)) {
+                    console.log(`      .${key} <${properties[key].type || 'any'}> ${properties[key].description || ''}`);
+                }
+            }
+        }
+    }
+
+    if (command.returns && command.returns.schema && command.returns.schema.type) {
+        console.log(`\nReturns: ${command.returns.schema.type}${command.returns.description ? ' - ' + command.returns.description : ''}`);
+    }
+
+    console.log(`\nRun it against the live session:\n  oxygen ${moduleName} ${commandName}${command.params.map((p) => ' <' + p.name + '>').join('')}`);
+    return 0;
 }

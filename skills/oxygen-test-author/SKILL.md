@@ -58,8 +58,13 @@ oxygen session close
 ```
 
 Act through `ref`, but record the `locator` column — that is what goes in the
-test. On a large page, `oxygen web snapshot 'json:{"viewportOnly":true}'`
-cuts it to what is on screen.
+test. On a large page, `oxygen web snapshot '{"viewportOnly":true}'` cuts it
+to what is on screen.
+
+`oxygen session save <file>` then writes the walkthrough out as a test, with
+refs resolved to durable locators and exploration-only commands dropped. It
+exits 2 when some element had no stable locator, and marks each such line with
+a TODO — treat that as a draft, not a finished test.
 
 **Without a live session** (today): inspect the application's DOM through
 whatever means are available — browser devtools, the page source, an existing

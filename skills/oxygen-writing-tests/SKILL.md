@@ -143,6 +143,17 @@ Options: `{ maxElements: 200, all: false, viewportOnly: false }`. `all` adds
 headings and labels; `viewportOnly` restricts to what is on screen, which is
 the fastest way to cut a large page down.
 
+**Never guess a command's arguments either.** Every command's real signature is
+available from the CLI, generated from the implementation so it cannot be out
+of date:
+
+```bash
+oxygen web                    # all 96 web commands with one-line summaries
+oxygen web click --help       # web.click(locator, timeout?) with argument types
+```
+
+Prefer that over recalling a signature.
+
 Each element carries two locators and they are not interchangeable:
 
 | Field | Use |

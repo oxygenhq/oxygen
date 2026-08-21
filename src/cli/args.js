@@ -79,35 +79,3 @@ export function resolveVerb(argv) {
     }
     return { verb: null, isTarget: true, unknown: first };
 }
-
-/*
- * Command arguments arrive from a shell as strings, and a shell cannot tell us that
- * `5000` was meant as a number while `90210` was meant as a postcode. Rather than guess,
- * every argument is a string unless explicitly marked: `json:5000` parses its remainder
- * as a JSON literal.
- *
- * This is deliberately independent of --json, which selects the *output* format. Tying
- * the two together would mean asking for machine-readable output silently changed how
- * arguments are read, and a plain string argument would start failing to parse.
- *
- * Once the generated command catalogue lands, declared parameter types will drive this
- * automatically and `json:` will remain only as an override.
- */
-export function parseCommandArgs(tokens) {
-    return tokens.map((token) => {
-        const raw = typeof token === 'string' ? token : String(token);
-        if (raw.startsWith('json:')) {
-            return parseJsonArg(raw.slice('json:'.length), raw);
-        }
-        return raw;
-    });
-}
-
-function parseJsonArg(value, original) {
-    try {
-        return JSON.parse(value);
-    }
-    catch (e) {
-        throw new Error(`Argument "${original}" is not valid JSON: ${e.message}`);
-    }
-}

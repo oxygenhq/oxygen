@@ -16,21 +16,22 @@
  */
 
 import SessionClient from '../../session/SessionClient';
-import { parseCommandArgs } from '../args';
+import { coerceArgs } from '../coerce';
 import { printSteps, printValue, printFailure } from '../output';
+import { printModuleHelp, printCommandHelp } from '../help';
 
 export default async function moduleCommand(argv) {
     const moduleName = argv._[0];
     const command = argv._[1];
 
     if (!command) {
-        throw new Error(
-            `Missing command. Usage: oxygen ${moduleName} <command> [args...]\n` +
-            `For example: oxygen ${moduleName} click "id=submit"`
-        );
+        return printModuleHelp(moduleName);
+    }
+    if (argv.help || argv.h) {
+        return printCommandHelp(moduleName, command);
     }
 
-    const args = parseCommandArgs(argv._.slice(2));
+    const args = coerceArgs(moduleName, command, argv._.slice(2));
     const client = await SessionClient.connect(argv.session || null);
 
     let result;
