@@ -128,6 +128,37 @@ Commands taking a text pattern accept `regex:`, `regexi:` (case-insensitive),
 `exact:`, and `glob:`. A bare string is glob-matched, so `*` and `?` are
 wildcards — use `exact:` when the text legitimately contains them.
 
+### Finding locators: web.snapshot()
+
+Do not guess a locator. `web.snapshot()` returns every actionable element on
+the current page with its role, accessible name, current state, and a
+**suggested durable locator** — the thing that belongs in the test.
+
+```js
+const page = web.snapshot();
+// page.elements: [{ ref: 'ref=e1', role: 'textbox', name: 'Username', locator: 'id=user-name' }, ...]
+```
+
+Options: `{ maxElements: 200, all: false, viewportOnly: false }`. `all` adds
+headings and labels; `viewportOnly` restricts to what is on screen, which is
+the fastest way to cut a large page down.
+
+Each element carries two locators and they are not interchangeable:
+
+| Field | Use |
+|---|---|
+| `locator` | Durable — `id=`, a test attribute, `name=`. **This is what goes in the test.** |
+| `ref` | A handle for the page as it is right now. For acting during exploration only. |
+
+**A `ref` must never appear in a saved test.** Refs are numbered per session
+and never reused, so one from an earlier snapshot resolves to nothing and
+fails with `ELEMENT_NOT_FOUND` rather than silently hitting the wrong element
+— but a ref committed to a file is a test that cannot pass.
+
+When `locator` is empty, the element has nothing stable to hang a locator on.
+Say so and recommend adding a `data-testid` to the application rather than
+falling back to an absolute XPath.
+
 ## 4. Page objects
 
 `oxygen.po.js` exports an object that becomes the global `po`. That is the whole

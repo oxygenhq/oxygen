@@ -9,10 +9,10 @@ This skill orchestrates the other three. Load `oxygen-writing-tests` before
 emitting any code, `oxygen-project-setup` when the project layout is unclear,
 and `oxygen-triage-failures` on every failed run.
 
-> **Status.** Steps 2 and 3 describe an interactive session (`oxygen open`,
-> `oxygen snapshot`, the Oxygen MCP server). Those are planned, not yet
-> shipped. Until they land, use the "without a live session" path in step 2 —
-> everything else in this skill works against today's CLI.
+> **Status.** The interactive session in step 2 is available:
+> `oxygen session start`, `oxygen web snapshot`, and `oxygen web <command>`.
+> The Oxygen MCP server is not built yet, so drive the session through the
+> CLI for now.
 
 ## The rule that matters most
 
@@ -36,18 +36,30 @@ now rather than guessing.
 
 ## 2. Explore the application
 
-**With a live session** (once shipped): open the app, snapshot, act, snapshot
-again, walking the manual steps by hand. Each snapshot gives roles, accessible
-names, and a suggested durable locator per element. Record what actually works
-— including waits that turn out to be necessary.
+**With a live session:** open the app, snapshot, act, snapshot again, walking
+the manual steps by hand. Each snapshot gives roles, accessible names, and a
+suggested durable locator per element. Record what actually works — including
+waits that turn out to be necessary.
 
 ```bash
-oxygen open ${baseUrl}/login
-oxygen snapshot
-oxygen web type "ref=e4" "tester"
-oxygen web click "ref=e7"
-oxygen snapshot
+oxygen session start https://www.example.com/login
+oxygen web snapshot
+#   textbox  "Username"  ref=e1  id=user-name
+#   textbox  "Password"  ref=e2  id=password
+#   button   "Login"     ref=e3  id=login-button
+
+oxygen web type "ref=e1" "tester"
+oxygen web type "ref=e2" "secret"
+oxygen web click "ref=e3"
+oxygen web snapshot          # confirm where the click landed
+
+oxygen session steps         # everything executed, in order
+oxygen session close
 ```
+
+Act through `ref`, but record the `locator` column — that is what goes in the
+test. On a large page, `oxygen web snapshot 'json:{"viewportOnly":true}'`
+cuts it to what is on screen.
 
 **Without a live session** (today): inspect the application's DOM through
 whatever means are available — browser devtools, the page source, an existing
