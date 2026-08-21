@@ -262,7 +262,13 @@ module.exports = {
         console.log('Type: ' + err.type + ' Name: ' + err.name + ' Code: ' + err.code + ' Msg: ' + err.message);
         console.log(util.inspect(err));
 
-        const errMessage = err.message ? `${errType}: ${err.message}` : `${errType}`;
+        // err.message can be empty for some errors (e.g. a bare "got" RequestError without its
+        // usual wrapped message), which previously produced a bare, undiagnosable "RequestError"
+        // string with no detail. Fall back to whatever detail IS available (err.code, e.g.
+        // ECONNRESET/ECONNREFUSED, or a wrapped err.cause's message) so the log always carries
+        // something actionable.
+        const detail = err.message || (err.cause && err.cause.message) || err.code || null;
+        const errMessage = detail ? `${errType}: ${detail}` : `${errType}`;
         return new OxError(ERROR_CODES.UNKNOWN_ERROR, errMessage, util.inspect(err), true, err);
     },
     getSeleniumInitError: function(err) {
