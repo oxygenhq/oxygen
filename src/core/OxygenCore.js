@@ -676,7 +676,7 @@ export default class Oxygen extends OxygenEvents {
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
         }
 
-        if (error && error.isFatal && !this.opts.continueOnError) {
+        if (error && error.isFatal) {
             if (!error.location && cmdLocation) {
                 error.location = cmdLocation;
             }

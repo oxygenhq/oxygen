@@ -438,6 +438,9 @@ export default class OxygenRunner extends EventEmitter {
             suiteResult.status = Status.PASSED;
             await this._worker_callBeforeSuiteHook(suite);
             await this._reporter.onSuiteStart(this._id, suiteResult.id, suiteResult);
+            // stopSuiteOnCaseFailure: false by default — suite keeps running its remaining cases
+            // after one fails, same as the long-standing behavior.
+            caseLoop:
             for (let caze of suite.cases) {
                 // ignore cases with missing mandatory 'path' property 
                 if (!caze.path) {
@@ -489,6 +492,9 @@ export default class OxygenRunner extends EventEmitter {
                     // stop iterating over it and move to the next test case
                     if (caseResult.status === Status.FAILED) {
                         suiteResult.status = Status.FAILED;
+                        if (this._options.stopSuiteOnCaseFailure) {
+                            break caseLoop;
+                        }
                     }
                     else if (caseResult.status === Status.WARNING) {
                         suiteResult.status = Status.WARNING;
