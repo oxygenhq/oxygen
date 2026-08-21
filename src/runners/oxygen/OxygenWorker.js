@@ -49,6 +49,8 @@ export default class OxygenWorker extends EventEmitter {
                 this._oxygen.on('log', this._handleLogEntry.bind(this));
                 await this._oxygen.init(options, caps);
                 this._testHooks = oxutil.loadTestHooks(options);
+                this._prepareSessionContext(options, caps);
+                this._loadSessionPageObjects(options);
                 //makeModulesGlobal(options);
                 this._logger.debug('Oxygen initialization completed');
             }
@@ -252,6 +254,114 @@ export default class OxygenWorker extends EventEmitter {
     }
 
     /*
+     * Give an interactive session the same context a test case gets.
+     *
+     * A run assigns this per case, in run(); a session never runs one, so `env` and
+     * `params` were simply absent - and a page object that opens env.url, which is how
+     * essentially every project starts, failed on an undefined URL. Setting it here is
+     * what makes `oxygen po Login ...` take the same path the test takes.
+     */
+    _prepareSessionContext(options, caps) {
+        this._oxygen.context = {
+            params: {},
+            env: (options && options.env) || {},
+            caps: caps || {},
+            vars: {},
+            attributes: {},
+            test: { case: { name: 'session', iteration: 1 }, suite: { name: 'session', iteration: 1 } },
+        };
+    }
+
+    /*
+     * Make the project's page objects available to an interactive session.
+     *
+     * A test run loads this file per case, inside run(); a session never runs a case, so
+     * without this `po` exists only in scripts and a walkthrough of a real project has to
+     * retype by hand what po.Login() already does. The require hook has to be installed
+     * around the load for the same reason it is in run(): the file's functions call web
+     * commands and must come out async-transformed, or every command inside them returns a
+     * pending Promise instead of a value.
+     */
+    _loadSessionPageObjects(options) {
+        if (!options || !options.po) {
+            return;
+        }
+        try {
+            scriptTransformer.installRequireHook(this._cwd);
+            try { delete require.cache[require.resolve(options.po)]; } catch (e) { /* not cached yet */ }
+            this._oxygen.loadPageObjectFile(options.po);
+        }
+        catch (e) {
+            // A page object file that will not load must not stop the session from
+            // starting - every web command still works, and the error is worth seeing
+            // when `po` is actually used rather than at startup.
+            this._poLoadError = e.message;
+        }
+        finally {
+            scriptTransformer.uninstallRequireHook();
+        }
+    }
+
+    /*
+     * Resolve the reference markers an interactive caller can pass instead of a literal.
+     *
+     * `secret:` is the reason this exists. utils.decrypt returns a DecryptResult rather
+     * than a string, and Oxygen Core knows to unwrap it for the call while printing
+     * ENCRYPTED in the step. Resolving here keeps that intact: the plaintext is created
+     * inside the worker, used, and never travels back over the socket or into a step name.
+     */
+    _resolveArguments(args) {
+        return args.map((arg) => {
+            if (!arg || typeof arg !== 'object' || typeof arg.$oxRef !== 'string') {
+                return arg;
+            }
+            switch (arg.$oxRef) {
+                case 'po':
+                    return this._readPath(this._repository(), arg.path, 'po');
+                case 'secret': {
+                    const value = this._readPath(this._repository(), arg.path, 'secret');
+                    return oxutil.decrypt(value);
+                }
+                case 'env': {
+                    const env = (this._opts && this._opts.env) || {};
+                    return this._readPath(env, arg.path, 'env');
+                }
+                default:
+                    throw new Error(`Unknown reference type: "${arg.$oxRef}"`);
+            }
+        });
+    }
+
+    _repository() {
+        const repository = this._oxygen && this._oxygen.repository;
+        if (!repository) {
+            throw new Error(this._poLoadError
+                ? `The page object file failed to load: ${this._poLoadError}`
+                : 'This project has no page object file (oxygen.po.js), so there is nothing for "po:" to read.');
+        }
+        return repository;
+    }
+
+    _readPath(root, dottedPath, kind) {
+        const parts = String(dottedPath).split('.');
+        let current = root;
+        for (let i = 0; i < parts.length; i++) {
+            if (current === null || current === undefined) {
+                const sofar = parts.slice(0, i).join('.');
+                throw new Error(`${kind}:${dottedPath} does not exist - "${sofar}" is not an object.`);
+            }
+            current = current[parts[i]];
+        }
+        if (current === undefined) {
+            const available = root && typeof root === 'object' ? Object.keys(root).sort().join(', ') : '';
+            throw new Error(
+                `${kind}:${dottedPath} does not exist.` + (available ? ` Available at the top level: ${available}` : '')
+            );
+        }
+        return current;
+    }
+
+    /*
      * Invoke a single module command against the live session and return its result.
      *
      * This is the entry point used by the interactive session host (the `oxygen web click ...`
@@ -267,6 +377,15 @@ export default class OxygenWorker extends EventEmitter {
         if (!this._oxygen) {
             throw new Error('Oxygen is not initialized');
         }
+        const resolvedArgs = this._resolveArguments(args);
+
+        // `po` is not one of Oxygen's modules - it is the project's own page object file -
+        // so it is dispatched separately. Its entries nest, hence a dotted command name:
+        // `oxygen po Checkout.addToCart` calls po.Checkout.addToCart().
+        if (moduleName === 'po') {
+            return await this._invokePageObject(command, resolvedArgs);
+        }
+
         const mod = this._oxygen.modules[moduleName];
         if (!mod) {
             const available = Object.keys(this._oxygen.modules).sort().join(', ');
@@ -282,7 +401,7 @@ export default class OxygenWorker extends EventEmitter {
         let retval = undefined;
         let error = null;
         try {
-            retval = await mod[command].apply(mod, args);
+            retval = await mod[command].apply(mod, resolvedArgs);
         }
         catch (e) {
             if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
@@ -298,6 +417,56 @@ export default class OxygenWorker extends EventEmitter {
         }
 
         // Oxygen Core pushes the step result before the command returns, so no wait is needed here.
+        const steps = this._oxygen.resultStore.steps
+            .slice(stepsBefore)
+            .map((step) => summarizeStep(step));
+
+        return { retval: serializableRetval(retval), error, steps };
+    }
+
+    /*
+     * Call a function on the project's page object repository, or read a value from it.
+     *
+     * The commands a page object function issues go through Oxygen Core exactly as they do
+     * in a test, so the steps it produces are collected the same way - which is what makes
+     * `oxygen po Login ...` a walkthrough of the same path the test takes rather than an
+     * approximation of it.
+     */
+    async _invokePageObject(commandPath, args) {
+        const repository = this._repository();
+        // no command names the repository itself - answer with what it holds, which is the
+        // only way to discover it: page objects are the project's, not Oxygen's, so the
+        // generated catalogue knows nothing about them
+        if (!commandPath) {
+            return { retval: describeRepository(repository), error: null, steps: [] };
+        }
+        const target = this._readPath(repository, commandPath, 'po');
+
+        if (typeof target !== 'function') {
+            // reading a value is legitimate - `oxygen po GeneralCust.custNo1` answers
+            // "what will the test actually type here?" without running anything
+            return { retval: serializableRetval(target), error: null, steps: [] };
+        }
+
+        const stepsBefore = this._oxygen.resultStore.steps.length;
+        let retval = undefined;
+        let error = null;
+        try {
+            retval = await target.apply(repository, args);
+        }
+        catch (e) {
+            if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
+                // not a failure - `assert.pass()` signals success by throwing
+            }
+            else {
+                error = errorHelper.getFailureFromError(e);
+                if (error) {
+                    error.location = userLocation(error.location);
+                    error.stacktrace = userStacktrace(error.stacktrace);
+                }
+            }
+        }
+
         const steps = this._oxygen.resultStore.steps
             .slice(stepsBefore)
             .map((step) => summarizeStep(step));
@@ -370,6 +539,28 @@ export default class OxygenWorker extends EventEmitter {
  * Screenshots and page snapshots are deliberately dropped - they are large enough to
  * dominate the payload, and an interactive caller asks for them explicitly instead.
  */
+/*
+ * A listing of what a project's page object file exposes: functions with the arguments
+ * they declare, and plain values with a short preview.
+ */
+function describeRepository(repository, prefix = '') {
+    const entries = [];
+    for (const key of Object.keys(repository).sort()) {
+        const value = repository[key];
+        const name = prefix ? `${prefix}.${key}` : key;
+        if (typeof value === 'function') {
+            entries.push({ name, kind: 'function', arity: value.length });
+        }
+        else if (value && typeof value === 'object' && !Array.isArray(value)) {
+            entries.push(...describeRepository(value, name));
+        }
+        else {
+            entries.push({ name, kind: 'value', type: typeof value });
+        }
+    }
+    return entries;
+}
+
 function summarizeStep(step) {
     if (!step) {
         return step;

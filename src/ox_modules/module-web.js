@@ -212,8 +212,11 @@ export default class WebModule extends WebDriverModule {
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
         this.OxError = OxError;
         this.errHelper = errHelper;
-        // holds element operation timeout value
-        this.waitForTimeout = DEFAULT_WAIT_TIMEOUT;
+        // Holds element operation timeout value. A run can lower it with --timeout, which
+        // matters most alongside --continueOnError: a case that keeps going past failures
+        // waits this long at every broken locator, so the default 60s turns a handful of
+        // stale locators into a run measured in minutes.
+        this.waitForTimeout = (options && options.timeout) || DEFAULT_WAIT_TIMEOUT;
         this.wdProc = null;
     }
 

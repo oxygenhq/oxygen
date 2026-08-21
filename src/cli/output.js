@@ -68,12 +68,22 @@ function printSnapshot(snapshot) {
     const nameWidth = Math.min(width((e) => e.name), 40);
     const refWidth = width((e) => e.ref);
 
+    // Elements arrive grouped by the region they sit in, and a popup directly after the
+    // control that opens it. Printing the region as a heading each time it changes is what
+    // turns the list back into the page's structure - without it a menu's items read as
+    // unrelated buttons that happen to follow one another.
+    let currentGroup;
     for (const element of snapshot.elements) {
+        const group = element.group || null;
+        if (group !== currentGroup) {
+            currentGroup = group;
+            console.log(group ? `  [${group}]` : '  [page]');
+        }
         const name = element.name ? `"${element.name}"` : '';
         const state = element.state ? ' ' + JSON.stringify(element.state) : '';
         const value = element.value ? ` = ${JSON.stringify(element.value)}` : '';
         console.log(
-            '  ' + String(element.role).padEnd(roleWidth) +
+            '    ' + String(element.role).padEnd(roleWidth) +
             '  ' + name.padEnd(nameWidth + 2) +
             '  ' + String(element.ref).padEnd(refWidth) +
             '  ' + (element.locator || '-') +

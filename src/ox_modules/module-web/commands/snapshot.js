@@ -72,6 +72,9 @@ export async function snapshot(options) {
         if (element.state) {
             entry.state = element.state;
         }
+        if (element.group) {
+            entry.group = element.group;
+        }
         elements.push(entry);
     }
 
@@ -328,8 +331,101 @@ function collectSnapshot(options) {
         return '/html/' + segments.join('/');
     }
 
+    /*
+     * The region of the page an element sits in - a dialog, a menu, the navigation, the
+     * main content. Reported so a flat list still says where each element lives.
+     */
+    var GROUP_SELECTORS = [
+        ['[role="dialog"],[role="alertdialog"],dialog', 'dialog'],
+        ['[role="menu"],[role="listbox"],[role="combobox"] + *', 'menu'],
+        ['[role="navigation"],nav', 'navigation'],
+        ['[role="banner"],header', 'header'],
+        ['[role="contentinfo"],footer', 'footer'],
+        ['form', 'form'],
+        ['[role="main"],main', 'main']
+    ];
+
+    function closestMatch(el, selector) {
+        try {
+            return el.closest(selector);
+        }
+        catch (e) {
+            return null;
+        }
+    }
+
+    function groupOf(el) {
+        for (var g = 0; g < GROUP_SELECTORS.length; g++) {
+            var container = closestMatch(el, GROUP_SELECTORS[g][0]);
+            if (container) {
+                var label = accessibleName(container, GROUP_SELECTORS[g][1]);
+                return label ? GROUP_SELECTORS[g][1] + ' "' + label + '"' : GROUP_SELECTORS[g][1];
+            }
+        }
+        return null;
+    }
+
+    /*
+     * The ids of the element's ancestors. A menu panel names itself through the trigger's
+     * aria-controls, so matching an element to the control that opened it means asking
+     * whether that panel id is anywhere above the element - not just on its closest
+     * ancestor, since the item and the panel usually have several wrappers between them,
+     * and the item itself may well carry an id of its own.
+     */
+    function containerIdsOf(el) {
+        var ids = [];
+        var node = el.parentElement;
+        while (node && node !== document.body && ids.length < 12) {
+            if (node.id) {
+                ids.push(node.id);
+            }
+            node = node.parentElement;
+        }
+        return ids;
+    }
+
+    /*
+     * Put every popup right after the element that opens it.
+     *
+     * Menus, dropdowns and dialogs are commonly rendered into a container appended at the
+     * end of <body> - an Angular Material or CDK overlay is the usual case - so in document
+     * order they land dozens of entries away from the button that opened them, with
+     * everything else on the page in between. Whoever reads this then has to guess which
+     * trigger the items at the bottom belong to. aria-controls/aria-owns already states the
+     * relationship, so use it.
+     */
+    function orderByOwnership(entries) {
+        var byContainer = {};
+        for (var i = 0; i < entries.length; i++) {
+            var ids = entries[i].containerIds || [];
+            for (var n = 0; n < ids.length; n++) {
+                (byContainer[ids[n]] = byContainer[ids[n]] || []).push(entries[i]);
+            }
+        }
+        var ordered = [];
+        var placed = [];
+        for (var j = 0; j < entries.length; j++) {
+            if (placed.indexOf(entries[j]) >= 0) {
+                continue;
+            }
+            ordered.push(entries[j]);
+            placed.push(entries[j]);
+            var owned = entries[j].controls ? byContainer[entries[j].controls] : null;
+            if (!owned) {
+                continue;
+            }
+            for (var k = 0; k < owned.length; k++) {
+                if (owned[k] !== entries[j] && placed.indexOf(owned[k]) < 0) {
+                    ordered.push(owned[k]);
+                    placed.push(owned[k]);
+                }
+            }
+        }
+        return ordered;
+    }
+
     var all = document.querySelectorAll('*');
-    var elements = [];
+    var collected = [];
     var truncated = false;
     var total = 0;
 
@@ -357,17 +453,20 @@ function collectSnapshot(options) {
             continue;
         }
         total++;
-        if (elements.length >= maxElements) {
+        if (collected.length >= maxElements) {
             truncated = true;
             continue;
         }
-        counter++;
         var entry = {
-            ref: 'e' + counter,
             role: role,
             name: name,
             locator: durableLocator(el, role, name),
-            xpath: xpathOf(el)
+            xpath: xpathOf(el),
+            group: groupOf(el),
+            // the id of the container this element lives in, so a popup can be matched
+            // to whatever element declares aria-controls/aria-owns for it
+            containerIds: containerIdsOf(el),
+            controls: el.getAttribute('aria-controls') || el.getAttribute('aria-owns') || null
         };
         var tag = el.tagName.toLowerCase();
         if (tag === 'input' || tag === 'textarea' || tag === 'select') {
@@ -377,7 +476,15 @@ function collectSnapshot(options) {
         if (state) {
             entry.state = state;
         }
-        elements.push(entry);
+        collected.push(entry);
+    }
+
+    var elements = orderByOwnership(collected);
+    for (var e = 0; e < elements.length; e++) {
+        counter++;
+        elements[e].ref = 'e' + counter;
+        delete elements[e].containerIds;
+        delete elements[e].controls;
     }
 
     return {

@@ -20,6 +20,8 @@ export const TOP_LEVEL_VERBS = ['session', 'init', 'mcp', 'help'];
  * requiring the index would load webdriverio, mongodb, twilio and the rest just to
  * decide how to route a command line.
  */
+export const PAGE_OBJECT_MODULE = 'po';
+
 let cachedModuleNames = null;
 export function getModuleNames() {
     if (cachedModuleNames) {
@@ -37,6 +39,12 @@ export function getModuleNames() {
     }
     catch (e) {
         cachedModuleNames = [];
+    }
+    // `po` has no file here - it is the project's own page object repository, loaded into
+    // the session from oxygen.po.js - but it is dispatched exactly like a module, so the
+    // command line has to route it like one.
+    if (!cachedModuleNames.includes(PAGE_OBJECT_MODULE)) {
+        cachedModuleNames = [...cachedModuleNames, PAGE_OBJECT_MODULE].sort();
     }
     return cachedModuleNames;
 }

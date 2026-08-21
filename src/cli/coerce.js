@@ -20,6 +20,24 @@ import { getCommand } from './catalog';
 
 const JSON_PREFIX = 'json:';
 
+/*
+ * References into the project, resolved inside the worker rather than here.
+ *
+ * A walkthrough of a real project needs the same values its tests use - a customer number
+ * from the page object file, an environment URL, and above all a password, which is stored
+ * encrypted and must never be turned into a plain string on the way through a shell. So
+ * these are passed along as markers: the worker holds the page object repository and the
+ * environment, and it is the only place the value exists.
+ *
+ * The prefixes cannot collide with a locator: none of Oxygen's locator forms (id=, css=,
+ * link=, name=, an xpath) begins this way, and `json:` already established the convention.
+ */
+const REFERENCE_PREFIXES = {
+    'po:': 'po',
+    'secret:': 'secret',
+    'env:': 'env',
+};
+
 export function coerceArgs(moduleName, commandName, tokens) {
     const command = getCommand(moduleName, commandName);
     const params = (command && command.params) || [];
@@ -29,6 +47,11 @@ export function coerceArgs(moduleName, commandName, tokens) {
         // an explicit json: prefix always wins, including over a declared type
         if (raw.startsWith(JSON_PREFIX)) {
             return parseJson(raw.slice(JSON_PREFIX.length), raw);
+        }
+        const reference = toReference(raw);
+        if (reference) {
+            // a declared type must not be applied - the value is not here yet
+            return reference;
         }
         const param = params[index];
         return param ? coerceOne(raw, param) : raw;
@@ -77,4 +100,24 @@ function parseJson(value, original) {
     catch (e) {
         throw new Error(`Argument "${original}" is not valid JSON: ${e.message}`);
     }
+}
+
+/*
+ * A reference marker, or null if the token is an ordinary value.
+ */
+export function toReference(raw) {
+    for (const prefix of Object.keys(REFERENCE_PREFIXES)) {
+        if (raw.startsWith(prefix)) {
+            const path = raw.slice(prefix.length).trim();
+            if (!path) {
+                throw new Error(`"${raw}" is missing a path. Write it as ${prefix}SomeObject.someField`);
+            }
+            return { $oxRef: REFERENCE_PREFIXES[prefix], path };
+        }
+    }
+    return null;
+}
+
+export function isReference(value) {
+    return !!value && typeof value === 'object' && typeof value.$oxRef === 'string';
 }

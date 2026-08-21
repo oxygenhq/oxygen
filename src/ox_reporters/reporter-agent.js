@@ -78,9 +78,16 @@ export default class AgentReporter extends FileReporterBase {
                     // opened first, it would be found before the command that actually
                     // failed. It also has no failure details, screenshot or snapshot of its
                     // own, which is exactly what a repair loop needs.
-                    const failedIndex = steps.findIndex(
-                        (step) => step.status === 'failed' && !isTransactionStep(step)
-                    );
+                    // With --continueOnError a case keeps going past a failure, so there
+                    // can be several - which is the whole point of that mode. Reporting
+                    // only the first would throw away everything the extra run time just
+                    // bought.
+                    const failedIndexes = [];
+                    steps.forEach((step, index) => {
+                        if (step.status === 'failed' && !isTransactionStep(step)) {
+                            failedIndexes.push(index);
+                        }
+                    });
 
                     const commandSteps = steps.filter((step) => !isTransactionStep(step));
                     cases.push({
@@ -88,16 +95,19 @@ export default class AgentReporter extends FileReporterBase {
                         name: caze.name,
                         status: caze.status,
                         steps: commandSteps.length,
-                        failedAtStep: failedIndex >= 0 ? commandSteps.indexOf(steps[failedIndex]) + 1 : undefined,
+                        failedAtStep: failedIndexes.length
+                            ? commandSteps.indexOf(steps[failedIndexes[0]]) + 1
+                            : undefined,
+                        failedSteps: failedIndexes.length > 1 ? failedIndexes.length : undefined,
                         duration: caze.duration,
                     });
 
-                    if (failedIndex >= 0) {
+                    for (const failedIndex of failedIndexes) {
                         failures.push(this.describeFailure(suite, caze, steps, failedIndex, resultFolderPath));
                     }
                     // a case can fail without any step failing - a script that threw before
                     // reaching a command, or a hook that blew up
-                    else if (caze.status === 'failed' && caze.failure) {
+                    if (failedIndexes.length === 0 && caze.status === 'failed' && caze.failure) {
                         const caseFailure = {
                             suite: suite.name,
                             case: caze.name,

@@ -61,6 +61,35 @@ Act through `ref`, but record the `locator` column — that is what goes in the
 test. On a large page, `oxygen web snapshot '{"viewportOnly":true}'` cuts it
 to what is on screen.
 
+Snapshot output is grouped by page region (`[navigation]`, `[dialog]`,
+`[menu]`), and a popup is listed directly under the control that opens it
+rather than wherever the framework rendered it in the DOM. So after clicking a
+menu button, its items are the next lines — not fifty lines further down.
+
+**In an existing project, reuse its page objects rather than retyping them.**
+The session loads `oxygen.po.js`, so whatever the tests already do is one
+command away:
+
+```bash
+oxygen po                                    # what the project exposes
+oxygen po Login po:GeneralCust.custNo1 po:GeneralCust.email1 secret:GeneralCust.pwd1
+```
+
+Three argument prefixes reference the project instead of carrying a literal,
+and are resolved inside the session:
+
+| Prefix | Resolves to |
+|---|---|
+| `po:PATH` | a value from the page object file |
+| `secret:PATH` | an encrypted page object value, decrypted in the session |
+| `env:NAME` | a value from the selected environment |
+
+Use `secret:` for every credential. `utils.decrypt` returns a `DecryptResult`
+object, not a string — passing one through a shell yields the literal text
+`DecryptResult { ... }`, which gets typed into the password field and the
+login silently fails. With `secret:` the plaintext is created inside the
+session, never crosses the socket, and steps show it as `ENCRYPTED`.
+
 `oxygen session save <file>` then writes the walkthrough out as a test, with
 refs resolved to durable locators and exploration-only commands dropped. It
 exits 2 when some element had no stable locator, and marks each such line with

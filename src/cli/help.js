@@ -28,6 +28,20 @@ Interactive session:
                                --includeFailed is passed.
   oxygen session close [ID]    Close a session (--all closes every one).
 
+  oxygen po                    List the project's page objects (oxygen.po.js).
+  oxygen po <name> [ARGS]...   Call one of them, or read a value from it. The session
+                               loads the project's page object file, so a walkthrough
+                               can take the same path a test takes:
+                                 oxygen po Login po:GeneralCust.custNo1 secret:GeneralCust.pwd1
+
+  Arguments may reference the project instead of carrying a literal. These are
+  resolved inside the session, not by the shell:
+      po:PATH                Value from the page object file, e.g. po:GeneralCust.email1
+      secret:PATH            Encrypted page object value, decrypted in the session and
+                             never printed - steps show it as ENCRYPTED, exactly as in
+                             a test run.
+      env:NAME               Value from the environment, e.g. env:url
+
   oxygen <module> <command> [ARGS]...
                                Run a single command against the live session. The form
                                mirrors the script API: web.click('id=x') is typed as
@@ -83,6 +97,17 @@ General options:
       --wsport=PORT          WebSocket events reporter port.
       --suites               Filter out suites by name
       --env=NAME             Environment to use. Default is 'default'.
+      --continueOnError={true|false}
+                             Keep running a case after a command fails, so one run
+                             reports every broken step instead of stopping at the
+                             first. Useful when an application change has broken a
+                             script in several places and each run would otherwise
+                             surface one of them. Later steps may fail as a
+                             consequence of an earlier one - read the failures in
+                             order. Default is false. Pair it with --timeout: every
+                             broken locator waits the full element timeout, so the
+                             60s default makes such a run very slow.
+      --timeout=SECONDS      How long commands wait for elements. Default is 60.
   -h, --help                 Display this information and exit.
   -v, --version              Display version information and exit.
 

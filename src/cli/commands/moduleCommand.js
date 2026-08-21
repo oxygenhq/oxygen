@@ -19,11 +19,17 @@ import SessionClient from '../../session/SessionClient';
 import { coerceArgs } from '../coerce';
 import { printSteps, printValue, printFailure } from '../output';
 import { printModuleHelp, printCommandHelp } from '../help';
+import { PAGE_OBJECT_MODULE } from '../args';
 
 export default async function moduleCommand(argv) {
     const moduleName = argv._[0];
     const command = argv._[1];
 
+    // `po` is the project's page object file, not one of Oxygen's modules, so the
+    // catalogue cannot describe it - the live session is the only thing that can
+    if (moduleName === PAGE_OBJECT_MODULE && !command) {
+        return await printPageObjectListing(argv);
+    }
     if (!command) {
         return printModuleHelp(moduleName);
     }
@@ -55,5 +61,41 @@ export default async function moduleCommand(argv) {
         return 1;
     }
     printValue(result.retval);
+    return 0;
+}
+
+async function printPageObjectListing(argv) {
+    const client = await SessionClient.connect(argv.session || null);
+    let result;
+    try {
+        result = await client.invoke(PAGE_OBJECT_MODULE, '', []);
+    }
+    finally {
+        client.disconnect();
+    }
+    if (result.error) {
+        printFailure(result.error);
+        return 1;
+    }
+    if (argv.json) {
+        console.log(JSON.stringify(result.retval, null, 2));
+        return 0;
+    }
+    const entries = result.retval || [];
+    if (!entries.length) {
+        console.log('The page object file is empty.');
+        return 0;
+    }
+    console.log('po - this project\'s page objects (oxygen.po.js)\n');
+    const width = Math.min(50, Math.max(...entries.map((entry) => entry.name.length)));
+    for (const entry of entries) {
+        const detail = entry.kind === 'function'
+            ? `takes ${entry.arity} argument${entry.arity === 1 ? '' : 's'}`
+            : entry.type;
+        console.log(`   ${entry.name.padEnd(width)}  ${detail}`);
+    }
+    console.log(`\n${entries.length} entries. Call one with: oxygen po <name> [ARGS]...`);
+    console.log('Pass project values as arguments with po:, secret: or env: - for example');
+    console.log('   oxygen po Login po:GeneralCust.custNo1 po:GeneralCust.email1 secret:GeneralCust.pwd1');
     return 0;
 }

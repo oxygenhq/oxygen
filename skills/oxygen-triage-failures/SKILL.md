@@ -112,6 +112,23 @@ Two more fields appear when they apply, and both exist to save you a run:
   It names the closest real commands and the module to list. Trust it over
   your memory of the API.
 
+### Seeing every failure in one run
+
+By default a case stops at its first failed command, so a script broken in
+several places costs one browser run per break. When an application change has
+plainly broken more than one thing, run it once with:
+
+```bash
+oxygen cases/login.js --rf=agent --continueOnError=true --timeout=5
+```
+
+Every failed step is then reported, each with its own screenshot and page
+snapshot, and `cases[].failedSteps` counts them. Two cautions: later failures
+may be consequences of an earlier one, so read them in order; and every broken
+locator waits the full element timeout, which is why `--timeout` belongs in
+the same command — at the 60s default a handful of stale locators turns into a
+run measured in minutes.
+
 ## Reading the run output
 
 Work from the step results, not just the final error:

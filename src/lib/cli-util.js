@@ -258,6 +258,13 @@ export function getCommandLineOptions(argv) {
     if (typeof argv.baseline !== 'undefined') {
         opts.baseline = argv.baseline === 'true' || argv.baseline === true;
     }
+    if (typeof argv.continueOnError !== 'undefined') {
+        opts.continueOnError = argv.continueOnError === 'true' || argv.continueOnError === true;
+    }
+    const timeoutSeconds = parseFloat(argv.timeout);
+    if (!isNaN(timeoutSeconds) && timeoutSeconds > 0) {
+        opts.timeout = timeoutSeconds * 1000;
+    }
     // switch: --rf flag
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
         const reportFormats = argv.rf.split(',');
