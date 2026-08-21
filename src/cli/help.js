@@ -29,6 +29,13 @@ Interactive session:
                                oxygen web click "id=x".
                                Modules: ${getModuleNames().join(', ')}
 
+  oxygen web snapshot          List every actionable element on the page with its role,
+                               name, a ref to act on now, and a durable locator to put
+                               in a test. Narrow a large page with
+                               json:{"viewportOnly":true} or json:{"maxElements":500}.
+                               Refs are valid until the next snapshot and must never be
+                               written into a test file.
+
 Project:
   oxygen init [DIR]            Scaffold a new Oxygen project.
   oxygen help                  Display this information.

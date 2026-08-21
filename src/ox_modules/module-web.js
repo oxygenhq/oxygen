@@ -66,7 +66,7 @@ const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
 const DEFAULT_BROWSER_NAME = 'chrome';
 const DEFAULT_MOBILE_BROWSER = 'default';
-const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert', 'dispose'];
+const NO_SCREENSHOT_COMMANDS = ['init', 'assertAlert', 'dispose', 'snapshot'];
 const NO_SNAPSHOT_COMMANDS = [
     'init',
     'assertAlert',
@@ -93,6 +93,7 @@ const NO_SNAPSHOT_COMMANDS = [
     'newWindow',
     'setAutoWaitForAngular',
     'setTimeout',
+    'snapshot',
     'takeScreenshot',
     'waitForAngular',
     'waitForWindow'
@@ -206,6 +207,7 @@ export default class WebModule extends WebDriverModule {
         this.harFiles = {};                           // transaction->har file path dictionary
         this.lastNavigationStartTime = null;
         this.helpers = {};
+        this._snapshotRefs = {};
         this._loadHelperFunctions();
         // support backward compatibility (some module commands might refer to this.OxError and this.errHelper)
         this.OxError = OxError;

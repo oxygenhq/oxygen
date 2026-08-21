@@ -69,6 +69,7 @@ export * from './scrollToElement';
 export * from './select';
 export * from './selectFrame';
 export * from './selectWindow';
+export * from './snapshot';
 export * from './sendKeys';
 export * from './setAutoWaitForAngular';
 export * from './setTimeout';

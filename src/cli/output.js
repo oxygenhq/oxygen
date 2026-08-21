@@ -41,7 +41,52 @@ export function printValue(value) {
         console.log(String(value));
         return;
     }
+    if (isSnapshot(value)) {
+        printSnapshot(value);
+        return;
+    }
     console.log(JSON.stringify(value, null, 2));
+}
+
+function isSnapshot(value) {
+    return Array.isArray(value.elements) && typeof value.url === 'string';
+}
+
+/*
+ * A snapshot printed as raw JSON is unreadable at a prompt and wasteful to an agent
+ * reading a terminal. One aligned line per element keeps both the role and the two
+ * locators - the ref to act on now, the durable one to put in a test - scannable.
+ */
+function printSnapshot(snapshot) {
+    console.log(`${snapshot.title || '(untitled)'}  ${snapshot.url}`);
+    if (snapshot.elements.length === 0) {
+        console.log('  (no interactive elements found)');
+        return;
+    }
+    const width = (pick) => Math.max(...snapshot.elements.map((e) => (pick(e) || '').length));
+    const roleWidth = Math.min(width((e) => e.role), 12);
+    const nameWidth = Math.min(width((e) => e.name), 40);
+    const refWidth = width((e) => e.ref);
+
+    for (const element of snapshot.elements) {
+        const name = element.name ? `"${element.name}"` : '';
+        const state = element.state ? ' ' + JSON.stringify(element.state) : '';
+        const value = element.value ? ` = ${JSON.stringify(element.value)}` : '';
+        console.log(
+            '  ' + String(element.role).padEnd(roleWidth) +
+            '  ' + name.padEnd(nameWidth + 2) +
+            '  ' + String(element.ref).padEnd(refWidth) +
+            '  ' + (element.locator || '-') +
+            value + state
+        );
+    }
+    if (snapshot.truncated) {
+        const hidden = snapshot.total - snapshot.elements.length;
+        console.log(
+            `\n  ${snapshot.elements.length} of ${snapshot.total} elements shown, ${hidden} hidden.` +
+            ' Narrow with json:{"viewportOnly":true} or raise json:{"maxElements":500}.'
+        );
+    }
 }
 
 /*

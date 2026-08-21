@@ -363,6 +363,22 @@ module.exports = {
             throw new OxError(errHelper.errorCode.SCRIPT_ERROR, 'Invalid argument - locator not specified');
         else if (typeof locator === 'object')
             return locator;
+        else if (locator.indexOf('ref=') === 0) {
+            // A ref addresses an element in the page as the last snapshot saw it. It is a
+            // handle for interactive use only and is deliberately not resolvable without a
+            // snapshot, so a ref that leaks into a saved test fails loudly rather than
+            // matching some unrelated element.
+            const ref = locator.substr('ref='.length);
+            const resolved = this._snapshotRefs && this._snapshotRefs[ref];
+            if (!resolved) {
+                throw new OxError(
+                    errHelper.errorCode.ELEMENT_NOT_FOUND,
+                    `Unknown element reference: "${locator}". References come from web.snapshot() and are ` +
+                    'replaced by the next snapshot. Take a new snapshot, or use a durable locator.'
+                );
+            }
+            return resolved;
+        }
         else if (locator.indexOf('/') === 0)
             return locator;                                 // leave xpath locator as is
         else if (locator.indexOf('id=') === 0) {
