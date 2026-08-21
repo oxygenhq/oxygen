@@ -20,7 +20,7 @@ const key = crypto.scryptSync(password, 'GfG', 24);
 const iv = Buffer.alloc(16, 0);
 const algorithm = 'aes-192-cbc';
 const download = require('download');
-const got = require('got');
+import got from 'got';
 
 import OxygenError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';

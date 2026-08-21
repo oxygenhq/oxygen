@@ -1,7 +1,7 @@
 const { execSync, spawn } = require('child_process');
 const fs = require('fs');
 const path = require('path');
-const got = require('got');
+import got from 'got';
 const extractZip = require('extract-zip');
 const os = require('os');
 

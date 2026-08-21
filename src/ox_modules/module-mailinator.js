@@ -17,7 +17,7 @@ var errHelper = require('../errors/helper');
 import libUtils from '../lib/util';
 
 module.exports = function() {
-    var got = require('got');
+    var got = require('got').default;
 
     const apiBase = 'https://api.mailinator.com/api';
 
