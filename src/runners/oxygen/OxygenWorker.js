@@ -251,6 +251,92 @@ export default class OxygenWorker extends EventEmitter {
         return new Promise((resolve) => (commandResolve = resolve));
     }
 
+    /*
+     * Invoke a single module command against the live session and return its result.
+     *
+     * This is the entry point used by the interactive session host (the `oxygen web click ...`
+     * CLI verbs and the MCP tools). It deliberately mirrors what a test script does when it
+     * calls `web.click(...)`: the command goes through Oxygen Core's regular command wrapper,
+     * so parameter substitution, step-result generation, screenshots and events all behave
+     * exactly as they do inside a normal run.
+     *
+     * Unlike run(), it does not throw on command failure - the failure is returned as part of
+     * the result so an interactive caller can decide what to do next.
+     */
+    async invokeCommand({ module: moduleName, command, args = [] }) {
+        if (!this._oxygen) {
+            throw new Error('Oxygen is not initialized');
+        }
+        const mod = this._oxygen.modules[moduleName];
+        if (!mod) {
+            const available = Object.keys(this._oxygen.modules).sort().join(', ');
+            throw new Error(`Unknown module: "${moduleName}". Available modules: ${available}`);
+        }
+        if (typeof mod[command] !== 'function') {
+            throw new Error(`Unknown command: "${moduleName}.${command}"`);
+        }
+
+        // steps produced by this command are whatever Oxygen Core appends from here on
+        const stepsBefore = this._oxygen.resultStore.steps.length;
+
+        let retval = undefined;
+        let error = null;
+        try {
+            retval = await mod[command].apply(mod, args);
+        }
+        catch (e) {
+            if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
+                // not a failure - `assert.pass()` signals success by throwing
+            }
+            else {
+                error = errorHelper.getFailureFromError(e);
+                if (error) {
+                    error.location = userLocation(error.location);
+                    error.stacktrace = userStacktrace(error.stacktrace);
+                }
+            }
+        }
+
+        // Oxygen Core pushes the step result before the command returns, so no wait is needed here.
+        const steps = this._oxygen.resultStore.steps
+            .slice(stepsBefore)
+            .map((step) => summarizeStep(step));
+
+        return { retval: serializableRetval(retval), error, steps };
+    }
+
+    /*
+     * Report which modules are loaded and which of them currently hold a live session.
+     */
+    async getSessionState() {
+        if (!this._oxygen) {
+            throw new Error('Oxygen is not initialized');
+        }
+        const modules = {};
+        for (const name of Object.keys(this._oxygen.modules)) {
+            const mod = this._oxygen.modules[name];
+            let initialized = false;
+            try {
+                initialized = !!(mod.getDriver && mod.getDriver());
+            }
+            catch (e) {
+                initialized = false;
+            }
+            modules[name] = { initialized };
+        }
+        return { modules, stepCount: this._oxygen.resultStore.steps.length };
+    }
+
+    /*
+     * Full step log for the session, used to emit a test script from an interactive walkthrough.
+     */
+    async getStepLog() {
+        if (!this._oxygen) {
+            throw new Error('Oxygen is not initialized');
+        }
+        return this._oxygen.resultStore.steps.map((step) => summarizeStep(step));
+    }
+
     _handleBeforeCommand(e) {
         if (!e) {
             return;
@@ -276,5 +362,80 @@ export default class OxygenWorker extends EventEmitter {
         } else {
             this._logger[e.level](e.message, e.src);
         }
+    }
+}
+
+/*
+ * Reduce a StepResult to something worth sending over IPC to an interactive client.
+ * Screenshots and page snapshots are deliberately dropped - they are large enough to
+ * dominate the payload, and an interactive caller asks for them explicitly instead.
+ */
+function summarizeStep(step) {
+    if (!step) {
+        return step;
+    }
+    const failure = step.failure ? {
+        ...step.failure,
+        location: userLocation(step.failure.location),
+        stacktrace: userStacktrace(step.failure.stacktrace),
+    } : null;
+    return {
+        name: step.name,
+        status: step.status,
+        duration: step.duration,
+        transaction: step.transaction,
+        location: userLocation(step.location),
+        failure,
+        hasScreenshot: !!step.screenshot,
+    };
+}
+
+// Oxygen records the call site of every command. During a normal run that is a line in
+// the user's test script, which is exactly what a reader wants. A command invoked
+// interactively has no script behind it, so the recorded location points into Oxygen's
+// own source - reporting that would send a reader chasing framework internals.
+//
+// __dirname is build/runners/oxygen, so three levels up reaches the package root. It has
+// to be the package root rather than build/, because source-map-support rewrites these
+// paths back to src/ and an anchor inside build/ would never match them.
+const OXYGEN_ROOT = path.normalize(path.join(__dirname, '..', '..', '..')) + path.sep;
+function userLocation(location) {
+    if (!location || typeof location !== 'string') {
+        return null;
+    }
+    return path.normalize(location).startsWith(OXYGEN_ROOT) ? null : location;
+}
+
+// Every frame of an interactive failure's stack trace is inside Oxygen, so the whole
+// trace is noise. Keep only frames that belong to the caller's own code, if any.
+function userStacktrace(stacktrace) {
+    if (!Array.isArray(stacktrace)) {
+        return undefined;
+    }
+    const frames = stacktrace.filter((frame) => userLocation(frame));
+    return frames.length ? frames : undefined;
+}
+
+/*
+ * Command return values cross a process boundary as JSON. WebdriverIO Element objects
+ * (returned by findElement and friends) carry a live driver reference and cannot be
+ * serialized, so they are reduced to an identifying description instead.
+ */
+function serializableRetval(retval) {
+    if (retval === undefined || retval === null) {
+        return retval;
+    }
+    if (typeof retval === 'object' && (retval.elementId || retval.ELEMENT)) {
+        return { element: retval.elementId || retval.ELEMENT, selector: retval.selector };
+    }
+    if (Array.isArray(retval)) {
+        return retval.map((item) => serializableRetval(item));
+    }
+    try {
+        JSON.stringify(retval);
+        return retval;
+    }
+    catch (e) {
+        return String(retval);
     }
 }
