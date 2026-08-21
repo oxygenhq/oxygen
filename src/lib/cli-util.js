@@ -136,6 +136,27 @@ export function getEnvironments(target) {
     return {};
 }
 
+/*
+ * Nearest oxygen.conf.js (or .json) at or above `startDir`, or undefined if there is none
+ * all the way to the filesystem root.
+ */
+export function findConfigFileUpwards(startDir) {
+    let dir = path.resolve(startDir);
+    for (;;) {
+        for (const extension of ['.js', '.json']) {
+            const candidate = path.join(dir, OXYGEN_CONFIG_FILE_NAME + extension);
+            if (fs.existsSync(candidate)) {
+                return candidate;
+            }
+        }
+        const parent = path.dirname(dir);
+        if (parent === dir) {
+            return undefined;
+        }
+        dir = parent;
+    }
+}
+
 export function getConfigurations(target, argv) {
     // process command line arguments
     let targetCwd = null;
@@ -226,9 +247,17 @@ export function getCommandLineOptions(argv) {
         debugPort: argv.dbgport || null,
         wsPort: argv.wsport || null,
         delay: argv.d || argv.delay || null,
-        autoStartWebDriver: argv.autowd && argv.autowd === 'true' || false,
-        baseline: argv.baseline && argv.baseline === 'true' || false,
     };
+    // These two are only meaningful when the user actually passed the flag. Defaulting
+    // them to `false` here would put a real value into cmdOpts, and since command line
+    // options are merged last, that silently overrode whatever oxygen.conf.js declared -
+    // making `autoStartWebDriver: true` in a project config impossible to honour.
+    if (typeof argv.autowd !== 'undefined') {
+        opts.autoStartWebDriver = argv.autowd === 'true' || argv.autowd === true;
+    }
+    if (typeof argv.baseline !== 'undefined') {
+        opts.baseline = argv.baseline === 'true' || argv.baseline === true;
+    }
     // switch: --rf flag
     if (argv.rf && typeof argv.rf === 'string' && argv.rf.length > 0) {
         const reportFormats = argv.rf.split(',');
@@ -295,6 +324,9 @@ export function processTargetPath(targetPath, userCwd) {
     const stats = fs.lstatSync(targetPath);
     const isDirector = stats.isDirectory();
     let configFilePath;
+    // true when the config was found above the directory the search started in - the one
+    // case worth telling the user about, since it silently widens the project scope
+    let configFromAncestor = false;
     if (isDirector) {
         // if "target" provided by the user is a directory,
         // then unless "cwd" is provided explicitly by the user
@@ -314,14 +346,17 @@ export function processTargetPath(targetPath, userCwd) {
         cwd = targetPath = path.dirname(targetPath);
     }
     else {
-        cwd = userCwd || path.dirname(targetPath);
-        configFilePath = path.join(cwd, OXYGEN_CONFIG_FILE_NAME + '.js');
-        if (!fs.existsSync(configFilePath)) {
-            configFilePath = path.join(cwd, OXYGEN_CONFIG_FILE_NAME + '.json');
-            if (!fs.existsSync(configFilePath)) {
-                configFilePath = undefined;
-            }
-        }
+        // A test file usually sits in a sub folder of the project (cases/login.js), while
+        // oxygen.conf.js sits at the root. Looking only beside the file meant such a run
+        // silently got no project configuration at all - no capabilities, no page
+        // objects, no environments - and failed later in a way that pointed nowhere near
+        // the real cause. Search upwards so the file picks up the project it belongs to.
+        const startDir = userCwd || path.dirname(targetPath);
+        configFilePath = findConfigFileUpwards(startDir);
+        // the directory holding the config is the project root, and every relative path in
+        // it - page objects, suites, report output - resolves against that root
+        cwd = userCwd || (configFilePath ? path.dirname(configFilePath) : startDir);
+        configFromAncestor = !!configFilePath && path.resolve(path.dirname(configFilePath)) !== path.resolve(startDir);
     }
     if (!targetPath) {
         return null;
@@ -330,6 +365,7 @@ export function processTargetPath(targetPath, userCwd) {
         // path to the config or .js file
         path: targetPath,
         configPath: configFilePath,
+        configFromAncestor,
         // working directory
         cwd: cwd || path.dirname(targetPath),
         // name of the target file without extension
