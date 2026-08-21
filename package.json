@@ -116,7 +116,8 @@
   "scripts": {
     "build": "npm run clean && npm run compile",
     "clean": "rimraf ./build",
-    "compile": "babel src/ -d build/ --config-file ./.babelrc --copy-files",
+    "compile": "babel src/ -d build/ --config-file ./.babelrc --copy-files && npm run catalog",
+    "catalog": "node tools/catalog.js",
     "test:lint": "eslint src test",
     "test:unit": "jest",
     "prepublishOnly": "npm run build && node tools/dos2unix src/lib/cli.js",

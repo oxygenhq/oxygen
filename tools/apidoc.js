@@ -1,6 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var doctrine = require('doctrine');
+var jsdoc = require('./lib/jsdoc');
 var TurndownService = require('turndown');
 var { gfm } = require('turndown-plugin-gfm');
 var modPath = path.resolve(__dirname, '../src/ox_modules');
@@ -133,7 +134,8 @@ function load(file, loadDescription) {
     try {
         var data = fs.readFileSync(file, 'utf8');
 
-        var regex = /(\/\*\*([^*]|[\r\n]|(\*+([^*/]|[\r\n])))*\*+\/)/g;
+        // shared with tools/catalog.js so both generators agree on what a comment block is
+        var regex = new RegExp(jsdoc.COMMENT_REGEX);
 
         var commentRaw;
         var comments = [];
