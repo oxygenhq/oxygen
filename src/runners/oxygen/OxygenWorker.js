@@ -333,11 +333,18 @@ export default class OxygenWorker extends EventEmitter {
     }
 
     _repository() {
-        const repository = this._oxygen && this._oxygen.repository;
-        if (!repository) {
-            throw new Error(this._poLoadError
-                ? `The page object file failed to load: ${this._poLoadError}`
-                : 'This project has no page object file (oxygen.po.js), so there is nothing for "po:" to read.');
+        if (this._poLoadError) {
+            throw new Error(`The page object file failed to load: ${this._poLoadError}`);
+        }
+        // Oxygen Core starts with an empty repository rather than none, so an absent page
+        // object file is indistinguishable from an empty one by looking at the repository
+        // alone - ask the options, which is what decided whether there was a file at all.
+        const repository = (this._oxygen && this._oxygen.repository) || {};
+        if (!this._opts || !this._opts.po) {
+            throw new Error(
+                'This project has no page object file, so there is nothing for "po" to read. ' +
+                'Oxygen looks for oxygen.po.js next to the project config; --po=FILE names a different one.'
+            );
         }
         return repository;
     }
