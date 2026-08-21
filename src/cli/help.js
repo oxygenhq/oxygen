@@ -21,6 +21,10 @@ Interactive session:
   oxygen session start [URL]   Start a browser session and print its id.
   oxygen session list          List live sessions. The newest is the default target.
   oxygen session steps         Show every command executed in the session.
+  oxygen session save FILE     Write the session's commands out as an Oxygen test.
+                               Refs become durable locators, exploration-only commands
+                               are dropped, and failed commands are skipped unless
+                               --includeFailed is passed.
   oxygen session close [ID]    Close a session (--all closes every one).
 
   oxygen <module> <command> [ARGS]...

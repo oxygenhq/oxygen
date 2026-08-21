@@ -85,6 +85,10 @@ export default class SessionClient {
         return await this._request({ type: 'steps' });
     }
 
+    async journal() {
+        return await this._request({ type: 'journal' });
+    }
+
     async close() {
         return await this._request({ type: 'close' });
     }

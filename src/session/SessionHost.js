@@ -38,6 +38,15 @@ export default class SessionHost {
         this._idleTimeout = options.idleTimeout || DEFAULT_IDLE_TIMEOUT;
         this._idleTimer = null;
         this._closing = false;
+        // Every command sent to this session, in order. Step results describe what
+        // happened for a human, but their `name` is a display string - reconstructing a
+        // call from "web.type(\"ref=e1\",\"tester\")" means parsing formatted output. The
+        // journal records the invocation itself, which is what generating a script needs.
+        this._journal = [];
+        // ref -> durable locator, accumulated from every snapshot taken in this session.
+        // Refs are never reused, so one map stays correct for the whole session and a
+        // saved script can resolve a ref back to a locator worth committing.
+        this._refLocators = {};
     }
 
     async start() {
@@ -113,14 +122,18 @@ export default class SessionHost {
                 case 'ping':
                     return { result: { id: this._id, pid: process.pid } };
 
-                case 'invoke':
-                    return {
-                        result: await this._worker.invoke('invokeCommand', {
-                            module: request.module,
-                            command: request.command,
-                            args: request.args || [],
-                        })
-                    };
+                case 'invoke': {
+                    const result = await this._worker.invoke('invokeCommand', {
+                        module: request.module,
+                        command: request.command,
+                        args: request.args || [],
+                    });
+                    this._record(request, result);
+                    return { result };
+                }
+
+                case 'journal':
+                    return { result: { entries: this._journal, refLocators: this._refLocators } };
 
                 case 'state':
                     return { result: await this._worker.invoke('getSessionState') };
@@ -139,6 +152,27 @@ export default class SessionHost {
         }
         catch (e) {
             return { error: { message: e.message, stack: e.stack } };
+        }
+    }
+
+    _record(request, result) {
+        this._journal.push({
+            module: request.module,
+            command: request.command,
+            args: request.args || [],
+            status: result && result.error ? 'failed' : 'passed',
+            at: Date.now(),
+        });
+        // harvest the ref -> locator mapping a snapshot just produced
+        const snapshot = result && result.retval;
+        if (request.command === 'snapshot' && snapshot && Array.isArray(snapshot.elements)) {
+            for (const element of snapshot.elements) {
+                this._refLocators[element.ref] = {
+                    locator: element.locator || null,
+                    role: element.role,
+                    name: element.name,
+                };
+            }
         }
     }
 

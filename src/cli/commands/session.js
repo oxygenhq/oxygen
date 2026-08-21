@@ -19,6 +19,7 @@ import * as cliutil from '../../lib/cli-util';
 import * as registry from '../../session/registry';
 import SessionClient from '../../session/SessionClient';
 import { printSteps } from '../output';
+import { generateScript } from '../codegen';
 
 // short enough to type, long enough not to collide across concurrent sessions
 const SESSION_ID_LENGTH = 8;
@@ -36,9 +37,10 @@ export default async function session(argv) {
         case 'list':    return await list(argv);
         case 'close':   return await close(argv);
         case 'steps':   return await steps(argv);
+        case 'save':    return await save(argv);
         case undefined: return await list(argv);
         default:
-            throw new Error(`Unknown session command: "${sub}". Expected: start, list, steps, close.`);
+            throw new Error(`Unknown session command: "${sub}". Expected: start, list, steps, save, close.`);
     }
 }
 
@@ -191,6 +193,54 @@ async function steps(argv) {
         client.disconnect();
     }
     return 0;
+}
+
+async function save(argv) {
+    const file = argv._[2];
+    if (!file) {
+        throw new Error('Missing output file. Usage: oxygen session save <file>');
+    }
+    const target = path.resolve(argv.cwd || process.cwd(), file);
+    if (fs.existsSync(target) && !argv.force) {
+        throw new Error(`Refusing to overwrite ${target}. Pass --force to replace it.`);
+    }
+
+    const client = await SessionClient.connect(argv.session || null);
+    let journal;
+    try {
+        journal = await client.journal();
+    }
+    finally {
+        client.disconnect();
+    }
+
+    const result = generateScript(journal, {
+        includeFailed: !!argv.includeFailed,
+        name: client.record.id,
+    });
+
+    if (result.meaningful === 0) {
+        throw new Error(
+            'Nothing to save - this session has only opened a browser.\n' +
+            'Walk through the scenario first, for example:\n' +
+            '  oxygen web open "https://example.com"\n' +
+            '  oxygen web snapshot\n' +
+            '  oxygen web click "ref=e1"'
+        );
+    }
+
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, result.code);
+
+    console.log(`Wrote ${result.emitted} step(s) to ${target}`);
+    if (result.skippedFailed) {
+        console.log(`Skipped ${result.skippedFailed} failed command(s). Pass --includeFailed to keep them.`);
+    }
+    for (const warning of result.warnings) {
+        console.log(`  needs attention: ${warning}`);
+    }
+    console.log(`\nReview it, then run: oxygen ${file}`);
+    return result.warnings.length ? 2 : 0;
 }
 
 async function invokeOrThrow(client, moduleName, command, args) {
