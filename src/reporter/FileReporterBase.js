@@ -23,7 +23,12 @@ export default class FileReporterBase extends ReporterBase {
     constructor(options) {
         super(options);
     }
-    createFolderStructureAndFilePath(fileExtension) {
+    /*
+     * `fileName` lets a reporter claim a name of its own. Two reporters that both write
+     * .json would otherwise resolve to the same report.json and the second would silently
+     * overwrite the first.
+     */
+    createFolderStructureAndFilePath(fileExtension, fileName = REPORT_FILE_NAME) {
         if (!fileExtension || typeof fileExtension !== 'string' || fileExtension.length == 0) {
             throw new Error('"fileExtension" argument must be specified');
         }
@@ -59,7 +64,7 @@ export default class FileReporterBase extends ReporterBase {
             resultFolderPath = path.join(resultsBaseFolder, subFolderName);
             this.createFolderIfNotExists(resultFolderPath);
         }
-        return path.join(resultFolderPath, `${REPORT_FILE_NAME}${fileExtension}`);
+        return path.join(resultFolderPath, `${fileName}${fileExtension}`);
 
     }
     createFolderIfNotExists(folderPath) {

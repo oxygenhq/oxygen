@@ -82,6 +82,25 @@ These are almost never fixed by editing the test.
 | `UNEXPECTED_ALERT_OPEN` | A native dialog blocked the command. Handle it with `web.alertAccept()` / `web.alertDismiss()` at the point it appears. |
 | `FRAME_NOT_FOUND` | `selectFrame` could not find the frame; check for nested frames and whether it loaded. |
 
+## Getting the run output in a usable shape
+
+Run with `--rf=agent` and read `agent-report.json` from the output directory.
+The HTML report is built for a person to browse; this one is built to be read
+by whatever is fixing the test:
+
+```bash
+oxygen cases/login.js --rf=agent --ro=./reports
+```
+
+A passing run is a few hundred bytes. A failing one gives, per failure: the
+error `type` and `message`, the failing `step`, the `location` as a
+project-relative `file:line:column`, the `precedingSteps` that led up to it,
+and `screenshot` / `snapshot` filenames sitting next to the report — the
+snapshot being the actual page HTML at the moment of failure.
+
+A failure with no `step` means the script threw before reaching a command;
+`location` still points at the line.
+
 ## Reading the run output
 
 Work from the step results, not just the final error:

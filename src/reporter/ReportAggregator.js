@@ -23,6 +23,7 @@ import HtmlReporter from '../ox_reporters/reporter-html';
 import ExcelReporter from '../ox_reporters/reporter-excel';
 import PdfReporter from '../ox_reporters/reporter-pdf';
 import XmlReporter from '../ox_reporters/reporter-xml';
+import AgentReporter from '../ox_reporters/reporter-agent';
 import errorHelper from '../errors/helper';
 import Status from '../model/status';
 
@@ -33,6 +34,7 @@ const Reporters = {
     excel: ExcelReporter,
     pdf: PdfReporter,
     xml: XmlReporter,
+    agent: AgentReporter,
 };
 
 const DEFAULT_TEST_NAME = 'Oxygen Test';

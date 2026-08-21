@@ -58,7 +58,13 @@ Prefix an argument with "json:" to force it to be read as a JSON literal.
 
 General options:
   -d, --delay=SECONDS        Delay between each command in seconds.
-      --rf={html|pdf|xml|excel|junit|json}  Reports file format. Default is html.
+      --rf={html|pdf|xml|excel|junit|json|agent}
+                             Reports file format. Default is html. Several may be
+                             given, comma separated.
+                             "agent" writes agent-report.json: the verdict and, for
+                             each failure, the error, the script line, the steps
+                             leading up to it, and the page snapshot copied in
+                             alongside. A passing run is a few hundred bytes.
       --ro=PATH              Output path for report file. If specified, the report
                              will overwrite any previous reports.
   -i, --iter=COUNT           Number of times to run the test. Default is 1.
