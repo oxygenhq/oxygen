@@ -200,6 +200,34 @@ const SANITIZE_HTML_OPTS = {
     allowedStyles: undefined
 };
 
+/*
+ * The window size a headless run asked for, or null when the run is not headless.
+ *
+ * Both browsers state it the same way - among the command line arguments - so the
+ * capabilities are the only place that has to be consulted.
+ */
+function headlessWindowSize(caps) {
+    const args = [
+        ...(((caps || {})['goog:chromeOptions'] || {}).args || []),
+        ...(((caps || {})['moz:firefoxOptions'] || {}).args || []),
+    ].map(String);
+    const isHeadless = args.some((arg) => arg === '-headless' || arg.startsWith('--headless'));
+    if (!isHeadless) {
+        return null;
+    }
+    const chromeSize = args.map((arg) => /^--window-size=(\d+),(\d+)$/.exec(arg)).find(Boolean);
+    if (chromeSize) {
+        return { width: parseInt(chromeSize[1], 10), height: parseInt(chromeSize[2], 10) };
+    }
+    const width = args.map((arg) => /^--width=(\d+)$/.exec(arg)).find(Boolean);
+    const height = args.map((arg) => /^--height=(\d+)$/.exec(arg)).find(Boolean);
+    if (width && height) {
+        return { width: parseInt(width[1], 10), height: parseInt(height[1], 10) };
+    }
+    // headless but no size given - anything is better than the 800x600 default
+    return { width: 1920, height: 1080 };
+}
+
 export default class WebModule extends WebDriverModule {
     constructor(options, context, rs, logger, modules, services) {
         super(options, context, rs, logger, modules, services);
@@ -427,8 +455,21 @@ export default class WebModule extends WebDriverModule {
                 // do not maximize window if the test is executed against external cloud provider infrastructure
                 // as most of cloud providers do not support this functionality
             } else {
-                // maximize browser window
-                await this.driver.maximizeWindow();
+                // A headless browser has no screen to maximize to, so maximizeWindow()
+                // resizes it to the small default instead - and a narrow viewport makes a
+                // responsive application render its mobile layout, where the elements a
+                // test looks for have different classes or are hidden behind an overflow
+                // menu. That reads as a broken test rather than a window that is too
+                // small, so when the capabilities ask for headless, honour the size they
+                // asked for instead of maximizing.
+                const headlessSize = headlessWindowSize(this.caps);
+                if (headlessSize) {
+                    await this.driver.setWindowSize(headlessSize.width, headlessSize.height);
+                }
+                else {
+                    // maximize browser window
+                    await this.driver.maximizeWindow();
+                }
                 // set initial Timeout
                 await this.driver.setTimeout({
                     'implicit': this.waitForTimeout,

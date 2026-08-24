@@ -45,6 +45,15 @@ export default async function run(argv) {
     const config = cliutil.getConfigurations(targetFile, argv);
     const options = await cliutil.generateTestOptions(config, argv);
 
+    // capabilities may be a single object or one per parallel worker - every one of them
+    // has to be told, or --headless would apply to some browsers of a run and not others
+    if (Array.isArray(options.capabilities)) {
+        options.capabilities = options.capabilities.map((caps) => cliutil.applyHeadless(caps, argv));
+    }
+    else {
+        options.capabilities = cliutil.applyHeadless(options.capabilities || {}, argv);
+    }
+
     return await prepareAndStartTheTest(options);
 }
 

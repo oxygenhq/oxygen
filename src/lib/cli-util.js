@@ -234,6 +234,41 @@ export function getConfigurations(target, argv) {
     return { ...DEFAULT_OPTS, ...projConfigOpts, ...cmdOpts, name: name };
 }
 
+/*
+ * Add the browser flags that keep a run off the screen.
+ *
+ * A visible browser steals keyboard focus every time it opens, which makes the machine
+ * unusable while a suite or an agent loop is running - and an agent driving a session has
+ * no reason to want a window at all. Applied to the capabilities rather than the options
+ * so it survives whatever the project config already declares: an existing args array is
+ * extended, never replaced.
+ *
+ * Headless Chrome defaults to a small window, and a narrow viewport changes which elements
+ * a responsive application renders - so a size is set alongside, or tests would pass
+ * headed and fail headless for reasons that have nothing to do with the test.
+ */
+export function applyHeadless(caps = {}, argv = {}) {
+    if (argv.headless === undefined || argv.headless === 'false' || argv.headless === false) {
+        return caps;
+    }
+    const browserName = (caps.browserName || 'chrome').toLowerCase();
+    const result = { ...caps };
+    if (browserName === 'firefox') {
+        const existing = result['moz:firefoxOptions'] || {};
+        result['moz:firefoxOptions'] = {
+            ...existing,
+            args: [...(existing.args || []), '-headless', '--width=1920', '--height=1080'],
+        };
+        return result;
+    }
+    const existing = result['goog:chromeOptions'] || {};
+    result['goog:chromeOptions'] = {
+        ...existing,
+        args: [...(existing.args || []), '--headless=new', '--window-size=1920,1080'],
+    };
+    return result;
+}
+
 export function getCommandLineOptions(argv) {
     const opts = {
         // switch: --name 

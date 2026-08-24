@@ -126,6 +126,10 @@ Web test options:
   -b, --browser={chrome|ie|safari|firefox}  Browser name. Default is chrome.
   -s, --server=SERVER_URL    Selenium hub URL. Default is http://localhost:4444/wd/hub.
       --reopen={true|false}  Reopen browser on each iteration. Default is false.
+      --headless             Run the browser with no window. A visible browser takes
+                             keyboard focus every time it opens, which makes the machine
+                             unusable while a suite or an agent loop runs. Works for
+                             "oxygen session start" too.
       --autowd={true|false}  Start a matching browser driver automatically instead of
                              connecting to a Selenium hub. Overrides autoStartWebDriver
                              in oxygen.conf.js; projects written before that option

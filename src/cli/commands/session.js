@@ -291,5 +291,5 @@ function buildCapabilities(argv, options) {
     if (browserName) {
         caps.browserName = browserName;
     }
-    return caps;
+    return cliutil.applyHeadless(caps, argv);
 }
