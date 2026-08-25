@@ -1,0 +1,10 @@
+{
+  "name": "oxygen",
+  "version": "2.0.0-beta.1",
+  "description": "Write, run and repair Oxygen automated tests. Adds /oxygen: commands for authoring a test from a manual case, driving a browser session by hand, triaging a failed run, and scaffolding a project - plus the skills that teach an agent Oxygen's project layout, locator strategy and error codes.",
+  "author": {
+    "name": "CloudBeat Limited",
+    "url": "https://oxygenhq.org"
+  },
+  "keywords": ["testing", "automation", "selenium", "webdriver", "e2e", "oxygen"]
+}

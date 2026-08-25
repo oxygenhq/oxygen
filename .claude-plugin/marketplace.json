@@ -1,0 +1,17 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "oxygen",
+  "description": "Oxygen - open source test automation for web and mobile, with the tooling an agent needs to drive it.",
+  "owner": {
+    "name": "CloudBeat Limited",
+    "url": "https://github.com/oxygenhq/oxygen"
+  },
+  "plugins": [
+    {
+      "name": "oxygen",
+      "description": "Author, run and repair Oxygen tests from Claude Code.",
+      "source": "./",
+      "category": "testing"
+    }
+  ]
+}

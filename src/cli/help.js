@@ -62,6 +62,10 @@ Project:
                                available in every project). The skills document this
                                CLI's own flags, so install them from the version of
                                Oxygen you are running. "oxygen skills list" shows them.
+                               For a whole team, install the plugin instead - it adds
+                               the same skills plus /oxygen: commands:
+                                 /plugin marketplace add oxygenhq/oxygen
+                                 /plugin install oxygen
   oxygen help                  Display this information.
 
 Arguments are typed from each command's documented signature, so numbers, booleans and
