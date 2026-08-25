@@ -71,15 +71,22 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
         const searchStr = text.replace(/\s/g, '');
 
         let pdfParser = new PDFParser();
+        // These two handlers run asynchronously, off the promise's call stack. Throwing
+        // from them does not reject the promise - it surfaces as an unhandled exception
+        // that kills the Oxygen worker, and a dead worker leaves the run hanging rather
+        // than failing. A zero-byte PDF (Chrome creates the file before it has finished
+        // writing it) reached here as "stream must have data" and took the whole run
+        // down. Reject instead, so the caller sees an ordinary failed assertion.
         pdfParser.on('pdfParser_dataError', function(err) {
             let errorMessage = err.parserError ? err.parserError : 'Error parsing the PDF.';
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage);
+            reject(new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage));
         });
 
         pdfParser.on('pdfParser_dataReady', function (pdfData) {
             var totalPages = pdfData.Pages.length;
             if (pageNum && totalPages < pageNum - 1) {
-                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
+                reject(new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`));
+                return;
             }
 
             // locate on a specific page
@@ -124,15 +131,22 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false) {
         const searchStr = text.replace(/\s/g, '');
 
         let pdfParser = new PDFParser();
+        // These two handlers run asynchronously, off the promise's call stack. Throwing
+        // from them does not reject the promise - it surfaces as an unhandled exception
+        // that kills the Oxygen worker, and a dead worker leaves the run hanging rather
+        // than failing. A zero-byte PDF (Chrome creates the file before it has finished
+        // writing it) reached here as "stream must have data" and took the whole run
+        // down. Reject instead, so the caller sees an ordinary failed assertion.
         pdfParser.on('pdfParser_dataError', function(err) {
             let errorMessage = err.parserError ? err.parserError : 'Error parsing the PDF.';
-            throw new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage);
+            reject(new OxError(errHelper.errorCode.ASSERT_ERROR, errorMessage));
         });
 
         pdfParser.on('pdfParser_dataReady', function (pdfData) {
             let totalPages = pdfData.Pages.length;
             if (pageNum && totalPages < pageNum - 1) {
-                throw new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`);
+                reject(new OxError(errHelper.errorCode.SCRIPT_ERROR, `Invalid argument - 'pageNum' is ${pageNum}, but PDF contains only ${totalPages} pages`));
+                return;
             }
 
             // count on a specific page
