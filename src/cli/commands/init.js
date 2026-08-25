@@ -9,7 +9,7 @@
 
 /*
  * `oxygen init` - scaffold a project using the layout documented in the
- * oxygen-project-setup skill, so a generated project and a hand-written one agree.
+ * oxygen-setup skill, so a generated project and a hand-written one agree.
  */
 
 import fs from 'fs';
@@ -57,7 +57,7 @@ const FILES = {
 
     'oxygen.po.js': `/*
  * Page object repository. Everything exported here is reachable in tests as \`po\`.
- * Keep locators here and behaviour in lib/ - see the oxygen-writing-tests skill.
+ * Keep locators here and behaviour in lib/ - see the oxygen-write skill.
  */
 module.exports = {
     example: require('./po/examplePage'),

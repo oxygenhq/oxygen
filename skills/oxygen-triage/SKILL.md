@@ -1,5 +1,5 @@
 ---
-name: oxygen-triage-failures
+name: oxygen-triage
 description: Diagnose and fix a failing Oxygen test from its error code, message and step results — mapping Oxygen error types to likely causes and the correct repair. Use when an Oxygen run fails, when reading an Oxygen report or step result, or when deciding whether a failure is a test defect or a real application bug.
 user-invocable: true
 ---
@@ -60,7 +60,7 @@ are the available prefixes.
 | Code | Likely cause and fix |
 |---|---|
 | `MODULE_NOT_INITIALIZED_ERROR` | `Missing web.init()` — a command ran before its module was initialized. Add `web.init()`. If it is already there, the real cause is usually a command in a constructor/getter or an un-awaited callback running out of order. |
-| `SCRIPT_ERROR` | A JavaScript error in the test. Check `location` for the line. A `Promise`-shaped value here almost always means a command inside a constructor, getter, setter, or `forEach` callback — see the `oxygen-writing-tests` skill, section 1. |
+| `SCRIPT_ERROR` | A JavaScript error in the test. Check `location` for the line. A `Promise`-shaped value here almost always means a command inside a constructor, getter, setter, or `forEach` callback — see the `oxygen-write` skill, section 1. |
 | `BROWSER_JS_EXECUTE_ERROR` | The function passed to `web.execute()` threw in the browser. Remember it runs in page scope — no `web`, no `po`, no Node globals. |
 | `PARAMETERS_ERROR` | Parameters file missing, unreadable, or an unsupported extension. Supported: `.csv`, `.txt`, `.xlsx`, `.xls`, `.json`, `.js`. Also raised when the table is empty. |
 | `CRYPTO_ERROR` | `utils.decrypt` on a value that was not produced by `utils.encrypt`, or encrypted with a different key. |

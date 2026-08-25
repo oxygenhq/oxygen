@@ -1,5 +1,5 @@
 ---
-name: oxygen-project-setup
+name: oxygen-setup
 description: Create or restructure an Oxygen test automation project — directory layout, oxygen.conf.js, environments, suites, page-object and data file organization. Use when starting a new Oxygen project, adding environments or suites to an existing one, or when asked where a test, page object, or data file should live.
 user-invocable: true
 ---
@@ -54,7 +54,7 @@ prefer `.js`.
 
 **`oxygen.po.js`** — the page object repository. Whatever it exports becomes the
 global `po` object. Override the filename with `--po=FILE` if needed. This is the
-entire mechanism; see the `oxygen-writing-tests` skill for how to structure what
+entire mechanism; see the `oxygen-write` skill for how to structure what
 it exports.
 
 **`oxygen.env.js`** — environments, as a map of environment name to values:
@@ -161,7 +161,7 @@ locator used exactly once in exactly one test, where naming it adds nothing.
 | Secrets | `utils.encrypt` — never plaintext in any file |
 
 Never put credentials in `oxygen.env.js`, a suite file, or a data file in
-plaintext. See the `oxygen-writing-tests` skill for the encryption pattern.
+plaintext. See the `oxygen-write` skill for the encryption pattern.
 
 **A reusable helper that is not page-specific** — a plain module under `lib/`
 required normally. Only write a custom Oxygen module under `modules/` when you

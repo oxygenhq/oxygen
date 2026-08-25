@@ -4,7 +4,7 @@ description: "Create a new Oxygen project, or add the agent skills to an existin
 
 # Set up an Oxygen project
 
-Load the `oxygen-project-setup` skill for the layout and its reasoning.
+Load the `oxygen-setup` skill for the layout and its reasoning.
 
 ## A new project
 

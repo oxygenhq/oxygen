@@ -1,5 +1,5 @@
 ---
-name: oxygen-writing-tests
+name: oxygen-write
 description: Write or modify Oxygen test scripts — the async transformer rules, locator strategy, page objects, transactions, assert vs verify, waits, parameters and encrypted credentials. Use whenever authoring, editing, or reviewing a .js test file or page object in an Oxygen project.
 user-invocable: true
 ---
@@ -347,7 +347,7 @@ web.verifyText(po.dashboard.welcome, 'glob:Welcome*');
 ```
 
 No wrapper function, no exports, no describe/it — the file body **is** the test.
-Suites group files; see the `oxygen-project-setup` skill.
+Suites group files; see the `oxygen-setup` skill.
 
 ## Before finishing
 

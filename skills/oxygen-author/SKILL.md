@@ -1,14 +1,14 @@
 ---
-name: oxygen-test-author
+name: oxygen-author
 description: Turn a written manual test case into a working, verified Oxygen automated test — exploring the application, emitting the script, running it, and repairing failures until it passes. Use when given a manual test case, acceptance criteria, or a described scenario to automate.
 user-invocable: true
 ---
 
 # Authoring an Oxygen test from a manual test case
 
-This skill orchestrates the other three. Load `oxygen-writing-tests` before
-emitting any code, `oxygen-project-setup` when the project layout is unclear,
-and `oxygen-triage-failures` on every failed run.
+This skill orchestrates the other three. Load `oxygen-write` before
+emitting any code, `oxygen-setup` when the project layout is unclear,
+and `oxygen-triage` on every failed run.
 
 > **Status.** The interactive session in step 2 is available:
 > `oxygen session start`, `oxygen web snapshot`, and `oxygen web <command>`.
@@ -110,7 +110,7 @@ for it; presenting it as a working test is not.
 
 ## 3. Emit the script
 
-Follow `oxygen-writing-tests` exactly. Specifically:
+Follow `oxygen-write` exactly. Specifically:
 
 - One transaction per manual step, named with the manual step's wording.
 - Locators go into `po/<page>.js` and are referenced as `po.page.element` —
@@ -123,7 +123,7 @@ Follow `oxygen-writing-tests` exactly. Specifically:
 - No hand-written `async`/`await`; no commands in constructors, getters, or
   callbacks.
 
-Place the file per `oxygen-project-setup`: `cases/<feature>.js`, added to the
+Place the file per `oxygen-setup`: `cases/<feature>.js`, added to the
 relevant `suites/*.json`.
 
 ## 4. Run it clean
@@ -140,7 +140,7 @@ results directly rather than parsing an HTML report.
 
 ## 5. Repair
 
-Apply `oxygen-triage-failures`. In short: classify the failure as test defect or
+Apply `oxygen-triage`. In short: classify the failure as test defect or
 application bug; never modify the test to accommodate a real bug; inspect actual
 page state before replacing a locator; change one thing at a time; re-run the
 single test.

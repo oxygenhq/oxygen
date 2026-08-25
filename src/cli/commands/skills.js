@@ -26,6 +26,12 @@ import os from 'os';
 const USER_SKILLS_DIR = path.join(os.homedir(), '.claude', 'skills');
 const PROJECT_SKILLS_DIR = path.join('.claude', 'skills');
 
+// Records which skills this command placed, so a later install can remove the ones a
+// new version no longer ships. Without it a rename leaves both names installed and the
+// stale copy keeps describing flags that have moved on - the exact drift installing
+// from the package was meant to prevent.
+const MANIFEST = '.oxygen-installed.json';
+
 export default async function skills(argv) {
     const sub = argv._[1];
     if (!sub || sub === 'help') {
@@ -67,7 +73,12 @@ export default async function skills(argv) {
         ? USER_SKILLS_DIR
         : path.resolve(argv.cwd || process.cwd(), PROJECT_SKILLS_DIR);
 
-    const clashes = available.filter((name) => fs.existsSync(path.join(target, name)));
+    // a skill we installed before is ours to replace; only something we did not put
+    // there should stop an upgrade and ask for --force
+    const ours = previouslyInstalled(target);
+    const clashes = available.filter(
+        (name) => fs.existsSync(path.join(target, name)) && !ours.includes(name)
+    );
     if (clashes.length && !argv.force) {
         console.error(`These skills are already installed in ${target}:`);
         for (const name of clashes) {
@@ -78,15 +89,31 @@ export default async function skills(argv) {
     }
 
     fs.mkdirSync(target, { recursive: true });
+    // only ever prune what a previous run of this command put here, never a skill the
+    // user wrote that happens to share our naming
+    const stale = previouslyInstalled(target).filter((name) => !available.includes(name));
+    for (const name of stale) {
+        fs.rmSync(path.join(target, name), { recursive: true, force: true });
+    }
     for (const name of available) {
         const to = path.join(target, name);
         fs.rmSync(to, { recursive: true, force: true });
         fs.cpSync(path.join(source, name), to, { recursive: true });
     }
+    fs.writeFileSync(
+        path.join(target, MANIFEST),
+        JSON.stringify({ version: packageVersion(), skills: available }, null, 2) + '\n'
+    );
 
     console.log(`Installed ${available.length} skills into ${target}`);
     for (const name of available) {
         console.log(`  ${name}`);
+    }
+    if (stale.length) {
+        console.log(`\nRemoved ${stale.length} skill(s) this version no longer ships:`);
+        for (const name of stale) {
+            console.log(`  ${name}`);
+        }
     }
     console.log(
         argv.user
@@ -108,6 +135,26 @@ export function bundledSkillsDir() {
         path.resolve(__dirname, '..', '..', '..', 'skills'),
     ];
     return candidates.find((dir) => fs.existsSync(dir)) || null;
+}
+
+function previouslyInstalled(target) {
+    try {
+        const parsed = JSON.parse(fs.readFileSync(path.join(target, MANIFEST), 'utf8'));
+        return Array.isArray(parsed.skills) ? parsed.skills : [];
+    }
+    catch (e) {
+        // no manifest, or an unreadable one: treat everything present as not ours
+        return [];
+    }
+}
+
+function packageVersion() {
+    try {
+        return require('../../../package.json').version;
+    }
+    catch (e) {
+        return null;
+    }
 }
 
 function listSkills(dir) {

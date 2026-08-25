@@ -4,7 +4,7 @@ description: "Diagnose a failed Oxygen run and decide test defect or application
 
 # Triage a failed Oxygen run
 
-Load the `oxygen-triage-failures` skill and follow it.
+Load the `oxygen-triage` skill and follow it.
 
 If a report already exists, read it. Otherwise re-run the failing target with
 output shaped for this:

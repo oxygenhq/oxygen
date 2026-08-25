@@ -4,8 +4,8 @@ description: "Turn a manual test case into a working, verified Oxygen test"
 
 # Author an Oxygen test from a manual test case
 
-Load the `oxygen-test-author` skill and follow it. It orchestrates the other
-Oxygen skills; read `oxygen-writing-tests` before writing any script.
+Load the `oxygen-author` skill and follow it. It orchestrates the other
+Oxygen skills; read `oxygen-write` before writing any script.
 
 The user's manual test case, acceptance criteria or described scenario is in
 `$ARGUMENTS` — if that is empty, ask which case to automate before starting.
@@ -29,7 +29,7 @@ The user's manual test case, acceptance criteria or described scenario is in
    until the next snapshot and must never reach a test file.
 
 3. **Emit the script**, either with `oxygen session save cases/<name>.js` or by
-   hand following `oxygen-writing-tests`. Locators belong in `oxygen.po.js`.
+   hand following `oxygen-write`. Locators belong in `oxygen.po.js`.
 
 4. **Run it from a clean browser** — not from the exploration session:
 
