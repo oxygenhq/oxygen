@@ -1,6 +1,7 @@
 ---
 name: oxygen-triage-failures
 description: Diagnose and fix a failing Oxygen test from its error code, message and step results — mapping Oxygen error types to likely causes and the correct repair. Use when an Oxygen run fails, when reading an Oxygen report or step result, or when deciding whether a failure is a test defect or a real application bug.
+user-invocable: true
 ---
 
 # Triaging Oxygen failures

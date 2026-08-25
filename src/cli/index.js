@@ -58,6 +58,10 @@ export async function main(rawArgs) {
         const { default: init } = await import('./commands/init');
         return await init(argv);
     }
+    if (verb === 'skills') {
+        const { default: skills } = await import('./commands/skills');
+        return await skills(argv);
+    }
     if (verb === 'mcp') {
         console.error('The MCP server is not implemented yet.');
         return 1;

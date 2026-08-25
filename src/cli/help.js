@@ -57,6 +57,11 @@ Interactive session:
 
 Project:
   oxygen init [DIR]            Scaffold a new Oxygen project.
+  oxygen skills install        Install the bundled agent skills into .claude/skills so
+                               Claude Code can load them (--user for ~/.claude/skills,
+                               available in every project). The skills document this
+                               CLI's own flags, so install them from the version of
+                               Oxygen you are running. "oxygen skills list" shows them.
   oxygen help                  Display this information.
 
 Arguments are typed from each command's documented signature, so numbers, booleans and

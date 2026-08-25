@@ -13,7 +13,7 @@ import path from 'path';
 const MODULE_NAME_MATCH_REGEX = /^module-(.+?)\.js$/;
 
 // verbs that are not module names
-export const TOP_LEVEL_VERBS = ['session', 'init', 'mcp', 'help'];
+export const TOP_LEVEL_VERBS = ['session', 'init', 'skills', 'mcp', 'help'];
 
 /*
  * Module names are read from the ox_modules directory rather than by importing it -

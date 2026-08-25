@@ -69,6 +69,56 @@ module.exports = {
 };
 `,
 
+    // Skills carry what is true of every Oxygen project; this carries what is true of
+    // this one - which environment to run, which account, what the suite covers. Claude
+    // Code reads it automatically, so it is the cheapest place to put facts an agent
+    // would otherwise have to guess at or rediscover on every run.
+    'CLAUDE.md': `# {{name}}
+
+Oxygen test suite. Commands run from this directory.
+
+## Running
+
+\`\`\`bash
+oxygen .                          # the whole suite
+oxygen cases/example.js           # one case
+oxygen . --env=dev --headless     # a named environment, no browser window
+oxygen . --rf=agent --ro=./reports
+\`\`\`
+
+Add \`--rf=agent\` when the output is going to be read by an agent: it writes
+\`agent-report.json\` with the failing step, its script line, the steps leading up to
+it, and the page snapshot - a few hundred bytes for a passing run.
+
+Use \`--headless\` for anything unattended; a visible browser steals keyboard focus
+every time it opens.
+
+## Environments
+
+Defined in \`oxygen.env.js\`. Name the one to use with \`--env=NAME\`; without it the
+\`default\` block is used. Record here which environment is safe to run against and
+which account the suite expects, so nobody has to guess.
+
+## Walking through the application by hand
+
+\`\`\`bash
+oxygen session start --env=dev --headless
+oxygen web snapshot               # every actionable element, with durable locators
+oxygen po                         # this project's page objects
+oxygen session save cases/new.js  # write the walkthrough out as a test
+oxygen session close --all
+\`\`\`
+
+Pass project values rather than literals - \`po:Customer.number\`, \`env:url\`, and
+\`secret:Customer.password\` for anything encrypted, which keeps the plaintext inside
+the session and out of the shell.
+
+## Conventions
+
+Locators belong in \`oxygen.po.js\`, not inline in a case. Prefer an id or a test
+attribute over a positional path: this application's markup changes, and a path like
+\`//div[3]/div/span[2]\` breaks on any layout edit.
+`,
     'cases/example.js': `web.transaction('1. Open the application');
 web.init();
 web.open('\${baseUrl}');

@@ -1,6 +1,7 @@
 ---
 name: oxygen-test-author
 description: Turn a written manual test case into a working, verified Oxygen automated test — exploring the application, emitting the script, running it, and repairing failures until it passes. Use when given a manual test case, acceptance criteria, or a described scenario to automate.
+user-invocable: true
 ---
 
 # Authoring an Oxygen test from a manual test case
