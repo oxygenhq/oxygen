@@ -1,5 +1,6 @@
 export * from './alertAccept';
 export * from './alertDismiss';
+export * from './alertSetText';
 export * from './assertAlert';
 export * from './assertExist';
 export * from './assertSelectedLabel';
