@@ -290,6 +290,11 @@ export function getCommandLineOptions(argv) {
     if (typeof argv.autowd !== 'undefined') {
         opts.autoStartWebDriver = argv.autowd === 'true' || argv.autowd === true;
     }
+    // Where auto-started browser drivers are downloaded and cached. Only meaningful when
+    // passed - leaving it undefined lets oxygen.conf.js and OXYGEN_CACHE_DIR through.
+    if (argv.wdcache) {
+        opts.wdCacheDir = argv.wdcache;
+    }
     if (typeof argv.baseline !== 'undefined') {
         opts.baseline = argv.baseline === 'true' || argv.baseline === true;
     }

@@ -148,6 +148,10 @@ Web test options:
                              connecting to a Selenium hub. Overrides autoStartWebDriver
                              in oxygen.conf.js; projects written before that option
                              existed need this flag to run without a hub.
+      --wdcache=<path>       Directory to download and cache auto-started browser
+                             drivers in. Defaults to a per-user cache directory; set
+                             this when the user profile is not writable. Can also be
+                             given as the OXYGEN_CACHE_DIR environment variable.
 
 Mobile test options:
     -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723.`);

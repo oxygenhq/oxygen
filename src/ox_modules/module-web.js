@@ -302,7 +302,7 @@ export default class WebModule extends WebDriverModule {
         }
         // check if we should indetify and auto-start a relevant webdriver
         else if (this.options.autoStartWebDriver) {
-            const { remoteUrl, proc } = await autoStartWebDriver(this.caps);
+            const { remoteUrl, proc } = await autoStartWebDriver(this.caps, this.options);
             seleniumUrl = remoteUrl;
             this.wdProc = proc;
         }

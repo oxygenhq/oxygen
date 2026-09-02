@@ -5,8 +5,15 @@ import got from 'got';
 const extractZip = require('extract-zip');
 const os = require('os');
 
-function getOxygenCacheDir() {
+function getOxygenCacheDir(cacheDir) {
     const name = 'oxygen-nodejs';
+    // An explicitly configured location always wins. Every default below lives under the
+    // user profile, and enterprise Windows policies routinely make that non-writable -
+    // those setups need somewhere else to put the driver entirely.
+    const configured = cacheDir || process.env.OXYGEN_CACHE_DIR;
+    if (configured) {
+        return configured;
+    }
     if (process.platform === 'win32') {
         const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), 'AppData', 'Local');
         return path.join(localAppData, name, 'Cache');
@@ -17,17 +24,27 @@ function getOxygenCacheDir() {
     return path.join(process.env.XDG_CACHE_HOME || path.join(os.homedir(), '.cache'), name);
 }
 
-const driversDir = path.join(getOxygenCacheDir(), 'drivers');
-const chromeDriverPath = path.join(driversDir, getChromeDriverName());
-if (!fs.existsSync(driversDir)) {
-    fs.mkdirSync(driversDir, { recursive: true });
+function getDriversDir(cacheDir) {
+    const driversDir = path.join(getOxygenCacheDir(cacheDir), 'drivers');
+    // Created on demand rather than at import time. This used to run as a side effect of
+    // importing the module, so on a profile without write permission it threw EPERM
+    // before anything could report which directory was at fault - and before --autowd
+    // was even consulted, so it fired for runs that needed no driver at all.
+    if (!fs.existsSync(driversDir)) {
+        fs.mkdirSync(driversDir, { recursive: true });
+    }
+    return driversDir;
 }
 
 export class ChromeWebDriverManager {
+    constructor(options = {}) {
+        this.driversDir = getDriversDir(options.wdCacheDir);
+        this.chromeDriverPath = path.join(this.driversDir, getChromeDriverName());
+    }
     async start() {
-        await ensureCompatibleChromeDriver();
+        await ensureCompatibleChromeDriver(this.driversDir, this.chromeDriverPath);
         const port = getRandomPort();
-        this.proc = await startChromeDriver(port, false);
+        this.proc = await startChromeDriver(this.chromeDriverPath, port, false);
         const remoteUrl = `http://localhost:${port}`;
         return { remoteUrl, proc: this.proc };
     }
@@ -65,7 +82,7 @@ function getChromeVersion() {
     }
 }
 
-function getCurrentChromeDriverVersion() {
+function getCurrentChromeDriverVersion(chromeDriverPath) {
     try {
         if (!fs.existsSync(chromeDriverPath)) {
             return null;
@@ -161,7 +178,7 @@ function lastSegmentWithoutZip(urlStr) {
     return last.endsWith('.zip') ? last.slice(0, -4) : last;
 }
 
-async function downloadChromeDriver(chromeVersion) {
+async function downloadChromeDriver(chromeVersion, driversDir, chromeDriverPath) {
     // Get compatible ChromeDriver version
     const { version, url } = await getCompatibleChromeDriverUrl(chromeVersion);
     console.log('Downloading ChromeDriver...');
@@ -204,7 +221,7 @@ async function downloadChromeDriver(chromeVersion) {
     }
 }
 
-async function ensureCompatibleChromeDriver() {
+async function ensureCompatibleChromeDriver(driversDir, chromeDriverPath) {
     console.log('Checking Chrome and ChromeDriver compatibility...');
 
     // Get Chrome version
@@ -212,13 +229,13 @@ async function ensureCompatibleChromeDriver() {
     console.log(`Chrome version: ${chromeVersion}`);
 
     // Get current ChromeDriver version
-    const currentDriverVersion = getCurrentChromeDriverVersion();
+    const currentDriverVersion = getCurrentChromeDriverVersion(chromeDriverPath);
     console.log(`Current ChromeDriver version: ${currentDriverVersion || 'Not installed'}`);
 
     // Check if update is needed
     if (!currentDriverVersion || !areVersionsCompatible(chromeVersion, currentDriverVersion)) {
         console.log('ChromeDriver update required');
-        await downloadChromeDriver(chromeVersion);
+        await downloadChromeDriver(chromeVersion, driversDir, chromeDriverPath);
     } else {
         console.log('ChromeDriver is compatible with current Chrome version');
     }
@@ -232,7 +249,7 @@ function areVersionsCompatible(chromeVersion, driverVersion) {
     return chromeMajor === driverMajor;
 }
 
-async function startChromeDriver(port, debug = false) {
+async function startChromeDriver(chromeDriverPath, port, debug = false) {
     return new Promise((resolve, reject) => {
         console.log(`🔧 Starting ChromeDriver on port ${port}...`);
 
