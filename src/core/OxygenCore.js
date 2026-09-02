@@ -676,7 +676,20 @@ export default class Oxygen extends OxygenEvents {
             this.emitAfterCommand(cmdName, moduleName, cmdFn, cmdArgs, this.ctx, cmdLocation, endTime, stepResult);
         }
 
-        if (error && error.isFatal) {
+        // `continueOnError` is a STEP-level control: when set, a fatal command error is
+        // recorded on the step and execution carries on with the rest of the case. It is what
+        // lets a single run report every broken step instead of only the first one, which the
+        // agent reporter (--rf=agent) depends on to make one run's worth of repairs.
+        //
+        // Do not confuse it with the suite-level `stopSuiteOnCaseFailure` handled in
+        // runners/oxygen/index.js, which decides whether the SUITE keeps running its remaining
+        // CASES. They operate at different levels and neither substitutes for the other.
+        //
+        // Upstream ce73a67 deleted this guard while adding stopSuiteOnCaseFailure. Merging that
+        // commit must keep this condition: dropping it removes step-level continue-on-error
+        // entirely, and because nothing then reads this.opts.continueOnError the --continueOnError
+        // flag keeps parsing and silently does nothing. See docs/rebase-hazard-continueonerror.md.
+        if (error && error.isFatal && !this.opts.continueOnError) {
             if (!error.location && cmdLocation) {
                 error.location = cmdLocation;
             }

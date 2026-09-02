@@ -293,8 +293,13 @@ export function getCommandLineOptions(argv) {
     if (typeof argv.baseline !== 'undefined') {
         opts.baseline = argv.baseline === 'true' || argv.baseline === true;
     }
+    // step-level: keep running the case after a failed command
     if (typeof argv.continueOnError !== 'undefined') {
         opts.continueOnError = argv.continueOnError === 'true' || argv.continueOnError === true;
+    }
+    // suite-level: stop running further cases once one has failed
+    if (typeof argv.stopSuiteOnCaseFailure !== 'undefined') {
+        opts.stopSuiteOnCaseFailure = argv.stopSuiteOnCaseFailure === 'true' || argv.stopSuiteOnCaseFailure === true;
     }
     const timeoutSeconds = parseFloat(argv.timeout);
     if (!isNaN(timeoutSeconds) && timeoutSeconds > 0) {

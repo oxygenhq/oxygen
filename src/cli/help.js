@@ -116,6 +116,11 @@ General options:
                              order. Default is false. Pair it with --timeout: every
                              broken locator waits the full element timeout, so the
                              60s default makes such a run very slow.
+      --stopSuiteOnCaseFailure={true|false}
+                             Stop the suite once a case fails, instead of running
+                             the remaining cases. Suite-level, and independent of
+                             --continueOnError above, which governs steps within a
+                             single case. Default is false.
       --timeout=SECONDS      How long commands wait for elements. Default is 60.
   -h, --help                 Display this information and exit.
   -v, --version              Display version information and exit.

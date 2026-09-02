@@ -438,8 +438,9 @@ export default class OxygenRunner extends EventEmitter {
             suiteResult.status = Status.PASSED;
             await this._worker_callBeforeSuiteHook(suite);
             await this._reporter.onSuiteStart(this._id, suiteResult.id, suiteResult);
-            // stopSuiteOnCaseFailure: false by default — suite keeps running its remaining cases
-            // after one fails, same as the long-standing behavior.
+            // stopSuiteOnCaseFailure is a SUITE-level control and defaults to false, so the suite
+            // keeps running its remaining cases after one fails - the long-standing behaviour.
+            // It is independent of the step-level `continueOnError` in core/OxygenCore.js.
             caseLoop:
             for (let caze of suite.cases) {
                 // ignore cases with missing mandatory 'path' property 
