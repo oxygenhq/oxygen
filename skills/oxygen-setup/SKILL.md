@@ -2,6 +2,7 @@
 name: oxygen-setup
 description: Create or restructure an Oxygen test automation project — directory layout, oxygen.conf.js, environments, suites, page-object and data file organization. Use when starting a new Oxygen project, adding environments or suites to an existing one, or when asked where a test, page object, or data file should live.
 user-invocable: true
+applyTo: "**/oxygen.conf.js,**/oxygen.env.js,**/oxygen.po.js"
 ---
 
 # Oxygen project setup

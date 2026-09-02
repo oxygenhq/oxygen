@@ -57,11 +57,16 @@ Interactive session:
 
 Project:
   oxygen init [DIR]            Scaffold a new Oxygen project.
-  oxygen skills install        Install the bundled agent skills into .claude/skills so
-                               Claude Code can load them (--user for ~/.claude/skills,
-                               available in every project). The skills document this
-                               CLI's own flags, so install them from the version of
-                               Oxygen you are running. "oxygen skills list" shows them.
+  oxygen skills install        Install the bundled agent guidance into this project, in
+                               each assistant's own format: .claude/skills and
+                               .claude/commands for Claude Code, .github/instructions and
+                               .github/prompts for Copilot, and AGENTS.md for anything
+                               else. Narrow it with --agent=claude|copilot|agents, or
+                               --user for ~/.claude. Existing AGENTS.md and
+                               copilot-instructions.md files are appended to, never
+                               replaced. The guidance documents this CLI's own flags, so
+                               install it from the version of Oxygen you are running and
+                               reinstall after upgrading. "oxygen skills list" shows it.
                                For a whole team, install the plugin instead - it adds
                                the same skills plus /oxygen: commands:
                                  /plugin marketplace add oxygenhq/oxygen
