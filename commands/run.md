@@ -23,6 +23,10 @@ oxygen <target> --env=dev --headless --rf=agent --ro=./reports
   `default` block is used, which is rarely the one you meant.
 - **`--autowd=true`** starts a matching browser driver instead of expecting a
   Selenium hub. A project whose config predates `autoStartWebDriver` needs it.
+  The driver is cached under the user profile, so on a locked-down machine this
+  fails with `EPERM`/`EACCES` naming that path, before any browser starts. That
+  is a permission problem, not a driver one: add
+  **`--wdcache=<writable path>`** rather than giving up on `--autowd`.
 - **`--suites=NAME`** narrows a large project to one suite.
 
 ## When a script is broken in several places

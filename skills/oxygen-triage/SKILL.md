@@ -75,13 +75,59 @@ These are almost never fixed by editing the test.
 | Code | Meaning |
 |---|---|
 | `SELENIUM_UNREACHABLE_ERROR` / `SELENIUM_CONNECTION_ERROR` | No grid at `seleniumUrl`. Start one, or set `autoStartWebDriver: true` (Chrome only). |
-| `CHROMEDRIVER_ERROR` | chromedriver failed to start, usually a browser/driver version mismatch. |
+| `CHROMEDRIVER_ERROR` | chromedriver failed to start, usually a browser/driver version mismatch. If the message is a permission error naming a cache path, see *The driver cache cannot be written* below — that is not a version problem. |
 | `WEBDRIVER_ERROR` | Generic driver-level failure; read the original message. |
 | `INVALID_CAPABILITIES` / `BROWSER_CONFIGURATION_ERROR` | Bad `capabilities` in the config — commonly a missing or misspelled `browserName`. |
 | `URL_OPEN_ERROR` | The page could not be reached. Check the environment's `baseUrl` and whether the application is running. |
 | `APPIUM_*` / `DEVICE_NOT_FOUND` | Mobile session problems — Appium server, device availability, app path. |
 | `UNEXPECTED_ALERT_OPEN` | A native dialog blocked the command. Handle it with `web.alertAccept()` / `web.alertDismiss()` at the point it appears. |
 | `FRAME_NOT_FOUND` | `selectFrame` could not find the frame; check for nested frames and whether it loaded. |
+
+### The driver cache cannot be written
+
+`autoStartWebDriver` (`--autowd=true`) downloads chromedriver into a per-user
+cache directory before starting it:
+
+| Platform | Default location |
+|---|---|
+| Windows | `%LOCALAPPDATA%\oxygen-nodejs\Cache\drivers` |
+| macOS | `~/Library/Caches/oxygen-nodejs/drivers` |
+| Linux | `$XDG_CACHE_HOME/oxygen-nodejs/drivers`, else `~/.cache/oxygen-nodejs/drivers` |
+
+An `EPERM` or `EACCES` naming one of those paths is a **permission problem, not
+a driver problem**. The usual cause is enterprise policy forbidding writes under
+the user profile on Windows. It fails before any browser starts, so the test
+itself is irrelevant: do not edit the script, do not retry, and do not treat it
+as the version mismatch `CHROMEDRIVER_ERROR` normally means.
+
+Point the cache at a directory the account can write to:
+
+```bash
+oxygen ./test.js --autowd=true --wdcache=D:\shared\oxygen-cache
+OXYGEN_CACHE_DIR=/writable/path oxygen ./test.js --autowd=true
+```
+
+Or for the whole project, in `oxygen.conf.js`:
+
+```js
+module.exports = {
+    autoStartWebDriver: true,
+    wdCacheDir: 'D:\\shared\\oxygen-cache',
+};
+```
+
+Precedence, highest first: `--wdcache`, then `wdCacheDir` in `oxygen.conf.js`,
+then `OXYGEN_CACHE_DIR`, then the per-platform default.
+
+In the VS Code extension the same setting is `oxygen.webDriverPath`; it is
+validated before the run and passed down as `OXYGEN_CACHE_DIR`, so a project
+`wdCacheDir` would still take precedence over it.
+
+Choose somewhere writable and durable — a second drive, a team share
+(`\\server\share\oxygen` works), or a folder inside the project. Confirm by
+writing a file there before rerunning: on Windows a directory can look writable
+and still refuse the write, because ACLs are not reflected in ordinary
+permission checks.
 
 ## Getting the run output in a usable shape
 

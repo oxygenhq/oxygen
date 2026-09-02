@@ -137,7 +137,11 @@ Two settings worth setting deliberately:
   startup time and avoids loading modules with heavy native dependencies.
 - **`autoStartWebDriver`** — Oxygen downloads and starts chromedriver itself.
   This works for **Chrome only**; other browsers still need a Selenium grid at
-  `seleniumUrl`.
+  `seleniumUrl`. The driver is cached under the user profile
+  (`%LOCALAPPDATA%\oxygen-nodejs\Cache` on Windows, `~/Library/Caches` on macOS,
+  `$XDG_CACHE_HOME` on Linux). Where that is not writable — locked-down
+  enterprise Windows, usually — add **`wdCacheDir`** pointing somewhere that is,
+  or pass `--wdcache`. See `oxygen-triage` for the failure signature.
 
 Available hooks: `beforeTest`, `beforeSuite`, `beforeCase`, `afterCase`,
 `afterSuite`, `afterTest`, plus command-level hooks. Hooks are plain synchronous
