@@ -12,6 +12,41 @@ framework; everything else is convention. This skill separates the two, so you
 never present a convention as a requirement — or break a real requirement
 thinking it was a preference.
 
+## Making the `oxygen` command available
+
+**Check this before running anything.** Many Oxygen projects have no `package.json`
+and no `node_modules` - the CLI was installed globally once, years ago, on the
+machine that runs them. On any other machine `oxygen` is simply not there, and the
+failure is `command not found`, which says nothing about Oxygen.
+
+Resolve the runner first, in this order, and use whichever answers:
+
+```bash
+npx oxygen --version                  # local dependency
+./node_modules/.bin/oxygen --version  # same, without npx
+oxygen --version                      # global install
+```
+
+If none of them answer, install it locally:
+
+```bash
+npm i --save-dev oxygen-cli
+```
+
+**Do not run a bare `npm i` first.** With no `package.json` it fails outright with
+`ENOENT` - there is no manifest to install from. `npm i --save-dev oxygen-cli`
+is the command that works from nothing: npm creates `package.json`,
+`package-lock.json` and `node_modules` in one step. Say that you added them; they
+are new files in someone's repository.
+
+Prefer the local install even where a global `oxygen` already works. It pins the
+version the tests were written against, and **the VS Code extension only looks for
+a local one** - it resolves `node_modules/oxygen-cli/build/lib/cli.js` inside the
+workspace and reports the CLI as missing when it is only installed globally.
+
+Oxygen 2.x needs **Node 22.12 or newer**; several of its dependencies are ES
+modules and will not load on an older one.
+
 ## Canonical layout
 
 ```

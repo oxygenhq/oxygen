@@ -74,6 +74,7 @@ These are almost never fixed by editing the test.
 
 | Code | Meaning |
 |---|---|
+| `oxygen: command not found` | Not an Oxygen error at all - the CLI is not on PATH. Resolve it with `npx oxygen --version` before concluding anything; see `oxygen-setup`. Do not run a bare `npm i` to fix it, which fails when the project has no `package.json`. |
 | `SELENIUM_UNREACHABLE_ERROR` / `SELENIUM_CONNECTION_ERROR` | No grid at `seleniumUrl`. Start one, or set `autoStartWebDriver: true` (Chrome only). |
 | `CHROMEDRIVER_ERROR` | chromedriver failed to start, usually a browser/driver version mismatch. If the message is a permission error naming a cache path, see *The driver cache cannot be written* below — that is not a version problem. |
 | `WEBDRIVER_ERROR` | Generic driver-level failure; read the original message. |

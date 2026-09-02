@@ -11,6 +11,15 @@ description: "Run an Oxygen test, suite or project with the right flags"
 oxygen <target> --env=dev --headless --rf=agent --ro=./reports
 ```
 
+## First, make sure there is an `oxygen` to run
+
+Do not assume the command exists - plenty of Oxygen projects have no `package.json`
+at all, and a global install is per-machine. Try `npx oxygen --version`, then
+`./node_modules/.bin/oxygen --version`, then `oxygen --version`, and use whichever
+answers. If none do, `npm i --save-dev oxygen-cli` installs it and creates
+`package.json` in the same step. A bare `npm i` is not the fix and fails outright
+when there is no manifest.
+
 ## The flags that matter, and why
 
 - **`--headless`** for anything unattended. A visible browser takes keyboard
