@@ -59,6 +59,21 @@ async function click(locator, timeout) {
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
+    // webdriverio v7's plain (no-options) el.click() went through the native WebDriver "Element
+    // Click" endpoint, which scrolls the element into view as part of the driver's own spec-
+    // mandated execution - guaranteed, every time. webdriverio v8 rewrote el.click() to always go
+    // through the W3C Actions API (pointer move+down+up) instead, whose own built-in scroll is
+    // less reliable (see their click.js: "sometimes browser.action().move() flaky and isn't able
+    // to scroll pointer to into view") - and it only falls back to an explicit scrollIntoView()
+    // when the action throws, not when it silently lands in the wrong place. Scroll explicitly
+    // ourselves so this doesn't depend on that. Errors are swallowed - if the element genuinely
+    // can't be scrolled to, the click attempt below will surface a clear, real error instead.
+    try {
+        await el.scrollIntoView({ block: 'center', inline: 'center' });
+    } catch (e) {
+        // ignored - let the click attempt below report the real problem, if any
+    }
+
     try {
         var clickable = await el.isClickable();
     } catch (e) {
