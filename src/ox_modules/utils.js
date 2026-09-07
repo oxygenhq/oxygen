@@ -45,6 +45,46 @@ const isElementNotFound = (el) => {
     return result;
 };
 
+// webdriverio's isDisplayed()/waitForDisplayed() computes visibility by executing a Selenium
+// "atom" JS script against the element inside the page (via driver.execute()). Note: the
+// "native" WebDriver protocol command (isElementDisplayed, GET .../element/:id/displayed) is NOT
+// a JS-execution-free alternative - chromedriver implements it the exact same way internally
+// (translates it to its own script execution via CDP Runtime.evaluate), so switching to it would
+// not have actually avoided this failure mode. Verified this before relying on it, since it looked
+// promising but wasn't.
+//
+// Either way, that execute() can transiently fail - most commonly when the element goes stale
+// mid-poll (e.g. a React/MUI re-render swaps it for a fresh DOM node at the same locator) - and
+// webdriverio's waitUntil() re-throws that as an opaque "Error executing JavaScript" instead of
+// continuing to poll, ending the whole wait immediately instead of giving it a chance to recover.
+//
+// Poll ourselves so a single transient failure doesn't kill the wait: treat it the same as "not
+// displayed yet", and re-fetch the element via fetchElement so a stale reference doesn't just keep
+// failing for the rest of the timeout. Throws with the same "still not displayed" wording
+// getElement()/getChildElement() already check for, so their existing ELEMENT_NOT_VISIBLE mapping
+// keeps working unchanged.
+const waitForDisplayedResilient = async (el, locator, fetchElement, waitTimeout, pollInterval = 500) => {
+    const startTime = Date.now();
+    for (;;) {
+        try {
+            if (await el.isDisplayed()) {
+                return el;
+            }
+        } catch (e) {
+            try {
+                el = await fetchElement();
+            } catch (fetchErr) {
+                // keep the previous (possibly stale) handle - the next isDisplayed() attempt
+                // will just fail the same way and we'll retry the fetch again next iteration
+            }
+        }
+        if (Date.now() - startTime >= waitTimeout) {
+            throw new Error(`element ("${locator}") still not displayed after ${waitTimeout}ms`);
+        }
+        await new Promise(resolve => setTimeout(resolve, pollInterval));
+    }
+};
+
 module.exports = {
     matchPattern: function(val, pattern) {
         if (!val && !pattern) {
@@ -78,7 +118,8 @@ module.exports = {
         }
 
         var el;
-        if (locator && locator.constructor && locator.constructor.name === 'Element') {
+        var isPreResolvedElement = locator && locator.constructor && locator.constructor.name === 'Element';
+        if (isPreResolvedElement) {
             el = locator;
         } else {
             locator = this.helpers.getWdioLocator(locator);
@@ -97,8 +138,11 @@ module.exports = {
         }
 
         if (waitForVisible) {
+            const waitTimeout = timeout ? timeout : this.waitForTimeout;
+            // a pre-resolved Element input has no locator to re-fetch by - just keep reusing it
+            const fetchElement = isPreResolvedElement ? (async () => el) : (async () => await this.driver.$(locator));
             try {
-                await el.waitForDisplayed({ timeout:timeout ? timeout : this.waitForTimeout});
+                el = await waitForDisplayedResilient(el, locator, fetchElement, waitTimeout);
             } catch (e) {
                 if (timeout) {
                     await module.exports.restoreTimeoutImplicit.call(this);
@@ -168,8 +212,9 @@ module.exports = {
         }
 
         if (waitForVisible) {
+            const waitTimeout = timeout ? timeout : this.waitForTimeout;
             try {
-                await el.waitForDisplayed({ timeout: timeout ? timeout : this.waitForTimeout});
+                el = await waitForDisplayedResilient(el, locator, async () => await parentElement.$(locator), waitTimeout);
             } catch (e) {
                 if (timeout) {
                     await module.exports.restoreTimeoutImplicit.call(this);
