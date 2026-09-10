@@ -449,6 +449,17 @@ var self = module.exports = {
         return new Promise((resolve) => setTimeout(resolve, timeout));
     },
 
+    // replaces the 'when' package's defer() - only its {promise, resolve, reject} deferred
+    // shape is used anywhere in this codebase, which a native Promise constructor gives for free
+    defer: function() {
+        let resolve, reject;
+        const promise = new Promise((res, rej) => {
+            resolve = res;
+            reject = rej;
+        });
+        return { promise, resolve, reject };
+    },
+
     downloadVideo: async function(fileName, videoUrl, options) {
         const localVideoFilePath = self.getAttachmentPath(fileName, options);
         let error;

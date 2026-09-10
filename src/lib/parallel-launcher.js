@@ -10,8 +10,27 @@
 import * as Runners from '../runners';
 import parallelLimit from 'async/parallelLimit';
 const Duration = require('duration');
-const hash = require('object-hash');
-const { randomUUID } = require('crypto');
+const { randomUUID, createHash } = require('crypto');
+
+// stringifies with object keys sorted (recursively), so the same logical object always
+// produces the same string regardless of key insertion order - e.g. testCaps assembled via
+// different spreads/merges. Plain JSON.stringify doesn't guarantee that.
+function stableStringify(value) {
+    if (Array.isArray(value)) {
+        return '[' + value.map(stableStringify).join(',') + ']';
+    }
+    if (value && typeof value === 'object') {
+        const keys = Object.keys(value).sort();
+        return '{' + keys.map(key => JSON.stringify(key) + ':' + stableStringify(value[key])).join(',') + '}';
+    }
+    return JSON.stringify(value);
+}
+
+// this is a grouping key for parallel worker results, not a security hash - just needs to be
+// deterministic for the same logical caps object, not cryptographically strong
+function hash(value) {
+    return createHash('md5').update(stableStringify(value)).digest('hex');
+}
 
 export default class ParallelLauncher {
     constructor(config, reporter) {

@@ -1,6 +1,5 @@
 import { fork, execSync, exec } from 'child_process';
 import { EventEmitter } from 'events';
-import { defer } from 'when';
 
 // setup logger
 import logger from '../lib/logger';
@@ -254,7 +253,7 @@ export default class WorkerProcess extends EventEmitter {
                 callId: callId,
                 args: args
             });
-            this._calls[callId] = defer();
+            this._calls[callId] = oxutil.defer();
             return this._calls[callId].promise;
         }
     }
@@ -267,7 +266,7 @@ export default class WorkerProcess extends EventEmitter {
             callId: callId,
             args: hookArgs
         });
-        this._calls[callId] = defer();
+        this._calls[callId] = oxutil.defer();
         return this._calls[callId].promise;
     }
 
@@ -370,7 +369,7 @@ export default class WorkerProcess extends EventEmitter {
 
     async _initializeDebugger() {
         this._debugger = new Debugger(this._pid);
-        let whenDebuggerReady = defer();
+        let whenDebuggerReady = oxutil.defer();
         const _this = this;
         // handle debugger events
         this._debugger.on('ready', function(err) {

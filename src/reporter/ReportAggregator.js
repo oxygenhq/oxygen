@@ -14,7 +14,6 @@ import { EventEmitter } from 'events';
 import path from 'path';
 import TestResult from '../model/test-result';
 import oxutil from '../lib/util';
-import { defer } from 'when';
 
 // import all built-in reporters
 import JsonReporter from '../ox_reporters/reporter-json';
@@ -172,7 +171,7 @@ export default class ReportAggregator extends EventEmitter {
         testResult.options = opts;
         this.results.push(testResult);
         // create a new promise for later to be resolved on runner:end event
-        this.runnerEndPromises[rid] = defer();
+        this.runnerEndPromises[rid] = oxutil.defer();
         console.log(`Test ${rid} has started...`);
         const eventArgs = {
             rid,

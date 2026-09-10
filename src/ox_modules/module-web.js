@@ -44,7 +44,6 @@
 import { harFromMessages } from 'chrome-har';
 import URL from 'url';
 import WebDriverModule from '../core/WebDriverModule';
-import { defer } from 'when';
 import modUtils from './utils';
 import errHelper from '../errors/helper';
 import OxError from '../errors/OxygenError';
@@ -493,7 +492,7 @@ export default class WebModule extends WebDriverModule {
     async dispose(status) {
         this.transactions = {};
         this.harFiles = {};
-        this._whenWebModuleDispose = defer();
+        this._whenWebModuleDispose = oxutil.defer();
 
         if (!status) {
             status = 'passed';

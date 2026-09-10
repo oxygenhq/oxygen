@@ -17,7 +17,6 @@ const { randomUUID } = require('crypto');
 
 import { EventEmitter } from 'events';
 import _  from 'lodash';
-import { defer } from 'when';
 import path from 'path';
 
 import TestSuiteResult from '../../model/suite-result';
@@ -134,7 +133,7 @@ export default class OxygenRunner extends EventEmitter {
         this._currentSuiteResultId = undefined;
         this._currentStepResultId = undefined;
         // promises
-        this._whenDisposed = defer();
+        this._whenDisposed = oxutil.defer();
     }
     /*********************************
      * Public methods
@@ -882,7 +881,7 @@ export default class OxygenRunner extends EventEmitter {
         this._isDisposing = false;
         this._isInitializing = false;
         this._testKilled = false;
-        this._whenDisposed = defer();
+        this._whenDisposed = oxutil.defer();
     }
 
     _processTestResults({ resultStore, moduleCaps, context = {}, error = null }) {
