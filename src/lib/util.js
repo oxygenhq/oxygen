@@ -15,6 +15,7 @@ const fs = require('fs');
 const moment = require('moment');
 const crypto = require('crypto');
 const util = require('util');
+const Module = require('module');
 const password = require('../../package.json').encryptionKey;
 const key = crypto.scryptSync(password, 'GfG', 24);
 const iv = Buffer.alloc(16, 0);
@@ -333,26 +334,27 @@ var self = module.exports = {
             global._lastTransactionName = null;
         }
 
-        try {
-            if (global.chaiAndMockeryLoaded) {
-                // ignore
-            } else {
-                const chai = require('chai');
-                const mockery = require('mockery');
-                mockery.enable({
-                    useCleanCache: true,
-                    warnOnReplace: false,
-                    warnOnUnregistered: false
-                });
-                mockery.registerMock('chai', chai);
-                global.chaiAndMockeryLoaded = true;
+        // Let require('chai') inside a user hook resolve, since chai lives in oxygen-cli's own
+        // node_modules, not the test project's. Scoped to just this call so it can't affect
+        // unrelated require()s elsewhere in the process.
+        const chai = require('chai');
+        const originalRequire = Module.prototype.require;
+        Module.prototype.require = function(id) {
+            if (id === 'chai') {
+                return chai;
             }
+            return originalRequire.apply(this, arguments);
+        };
 
+        try {
             await hooks[method].apply(undefined, args);
         }
         catch (e) {
             console.error(`Hook "${method}" has thrown an error: ${e.toString()}`);
             throw e;
+        }
+        finally {
+            Module.prototype.require = originalRequire;
         }
     },
 
