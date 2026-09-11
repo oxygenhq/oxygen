@@ -14,7 +14,57 @@
 import path from 'path';
 import fs from 'fs';
 import FileReporterBase from '../reporter/FileReporterBase';
-var EasyXml = require('easyxml');
+import XMLBuilder from 'fast-xml-builder';
+
+const ROOT_ARRAY_NAME = 'test-results';
+
+// Only needs to handle the plural field names that actually occur in oxygen's own result
+// model (test-result.js, suite-result.js, case-result.js, step-result.js): suites, cases,
+// steps, logs, attachments, capabilities - all regular "add an s" (or "y -> ies") plurals.
+// Not a general English inflector.
+function singularize(word) {
+    if (/ies$/i.test(word)) {
+        return word.slice(0, -3) + 'y';
+    }
+    if (/s$/i.test(word)) {
+        return word.slice(0, -1);
+    }
+    return word;
+}
+
+// Reshapes a result object into the nested-object/array form fast-xml-builder expects -
+// every array value gets wrapped in a container element named after its (plural) key,
+// holding repeated children named after its singular - e.g. suites: [...] becomes
+// <suites><suite>...</suite></suites> - dates are written as ISO strings, and null/undefined
+// values are dropped rather than rendered as empty tags.
+function toXmlJs(value) {
+    if (value === null || value === undefined) {
+        return undefined;
+    }
+    if (value instanceof Date) {
+        return value.toISOString();
+    }
+    if (Array.isArray(value)) {
+        return value.map(toXmlJs).filter((item) => item !== undefined);
+    }
+    if (typeof value === 'object') {
+        const out = {};
+        for (const key of Object.keys(value)) {
+            const child = value[key];
+            if (child === null || child === undefined) {
+                continue;
+            }
+            if (Array.isArray(child)) {
+                out[key] = { [singularize(key)]: toXmlJs(child) };
+            }
+            else {
+                out[key] = toXmlJs(child);
+            }
+        }
+        return out;
+    }
+    return value;
+}
 
 export default class XmlReporter extends FileReporterBase {
     constructor(options) {
@@ -24,16 +74,6 @@ export default class XmlReporter extends FileReporterBase {
     generate(results) {
         var resultFilePath = this.createFolderStructureAndFilePath('.xml');
         var resultFolderPath = path.dirname(resultFilePath);
-
-        var serializer = new EasyXml({
-            singularize: true,
-            rootElement: 'test-results',
-            rootArray: 'test-results',
-            dateFormat: 'ISO',
-            manifest: true,
-            unwrapArrays: false,
-            filterNulls: true
-        });
 
         this.replaceScreenshotsWithFiles(results, resultFolderPath);
         const forXmlRender = [];
@@ -85,7 +125,10 @@ export default class XmlReporter extends FileReporterBase {
         }
 
         // serialize test results to XML and save to file
-        var xml = serializer.render(forXmlRender);
+        const itemName = singularize(ROOT_ARRAY_NAME);
+        const jsForXml = { [ROOT_ARRAY_NAME]: { [itemName]: toXmlJs(forXmlRender) } };
+        const builder = new XMLBuilder({ format: true, indentBy: '  ', suppressEmptyNode: true });
+        var xml = "<?xml version='1.0' encoding='utf-8'?>\n" + builder.build(jsForXml);
         fs.writeFileSync(resultFilePath, xml);
 
         return resultFilePath;

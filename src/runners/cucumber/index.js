@@ -11,7 +11,6 @@
  */
 
 import * as glob from 'glob';
-import isGlob from 'is-glob';
 import path from 'path';
 import { EventEmitter } from 'events';
 import oxutil from '../../lib/util';
@@ -104,8 +103,12 @@ export default class CucumberRunner extends EventEmitter {
         }
         return specs.reduce((files, specFile) => {
             const absolutePath = oxutil.resolvePath(specFile, this.cwd);
-            if (isGlob(absolutePath)) {
-                return files.concat(glob.sync(absolutePath));
+            // glob (unlike is-glob) only recognizes magic characters in forward-slash
+            // paths - on Windows, a backslash before a wildcard is treated as an escape,
+            // so both the magic check and the match itself need the pattern normalized.
+            const globPattern = absolutePath.replace(/\\/g, '/');
+            if (glob.hasMagic(globPattern, { magicalBraces: true })) {
+                return files.concat(glob.sync(globPattern));
             } else {
                 return files.concat([absolutePath]);
             }

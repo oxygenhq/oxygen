@@ -13,7 +13,6 @@
 var td = require('testdouble');
 
 import * as Cucumber from 'cucumber';
-import isGlob from 'is-glob';
 import * as glob from 'glob';
 import { EventEmitter } from 'events';
 import CucumberEventListener from './CucumberEventListener';
@@ -209,8 +208,12 @@ export default class CucumberWorker {
     requiredFiles () {
         return this.cucumberOpts.require.reduce((files, requiredFile) => {
             const absolutePath = oxutil.resolvePath(requiredFile, this.cwd);
-            if (isGlob(absolutePath)) {
-                return files.concat(glob.sync(absolutePath));
+            // glob (unlike is-glob) only recognizes magic characters in forward-slash
+            // paths - on Windows, a backslash before a wildcard is treated as an escape,
+            // so both the magic check and the match itself need the pattern normalized.
+            const globPattern = absolutePath.replace(/\\/g, '/');
+            if (glob.hasMagic(globPattern, { magicalBraces: true })) {
+                return files.concat(glob.sync(globPattern));
             } else {
                 return files.concat([absolutePath]);
             }
@@ -218,8 +221,7 @@ export default class CucumberWorker {
     }
 
     loadRequireFiles () {
-        // we use testdouble (mockery conflicts with esm here) to allow people to import 'our'
-        // cucumber even though their spec files are in their folders
+        // we use testdouble to allow people to import 'our' cucumber even though their spec files are in their folders
         // because of that we don't have to attach anything to the global object, and the current cucumber spec files
         // should just work with no changes with this framework
         td.replace('cucumber', Cucumber);
@@ -237,8 +239,10 @@ export default class CucumberWorker {
         }
         return specs.reduce((files, specFile) => {
             const absolutePath = oxutil.resolvePath(specFile, this.cwd);
-            if (isGlob(absolutePath)) {
-                return files.concat(glob.sync(absolutePath));
+            // see requiredFiles() above for why the pattern is normalized to forward slashes
+            const globPattern = absolutePath.replace(/\\/g, '/');
+            if (glob.hasMagic(globPattern, { magicalBraces: true })) {
+                return files.concat(glob.sync(globPattern));
             }
             else {
                 return files.concat(absolutePath);
