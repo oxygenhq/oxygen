@@ -26,6 +26,42 @@ function isBrowserExecuteCallback(path) {
     return propertyName === 'execute';
 }
 
+// Array.prototype methods that invoke their callback synchronously and use its return value
+// synchronously: a boolean for filter/some/every/find*, a comparison number for sort, an
+// accumulator for reduce*, a mapped value for map/flatMap. None of them await, collect, or
+// otherwise wait on a Promise their callback might return - so marking such a callback async
+// doesn't make it awaited, it just changes what these methods receive. filter/some/every/find*
+// get a Promise object instead of the real boolean, which is always truthy, so filter keeps
+// everything and find/some/every effectively always match. map/flatMap build an array of
+// unresolved Promises instead of the mapped values - and since nothing here (there's no
+// Promise.all inserted) ever resolves those elements, a later .sort() on that array hands its
+// comparator two Promise objects with none of the properties the real values would have had.
+// That's exactly the failure mode this was added for: a .map(...).sort(...) chain whose
+// comparator read .mtime off what turned out to be a Promise, not the file's stat.
+// Unlike .execute() (see isBrowserExecuteCallback above), nothing here serializes the callback
+// for a different runtime - it always runs in this same Node process - so there's no reason to
+// leave it async: these methods can't wait for async work inside their callback regardless.
+const SYNC_ARRAY_CALLBACK_METHODS = new Set([
+    'map', 'filter', 'sort', 'forEach', 'reduce', 'reduceRight',
+    'some', 'every', 'find', 'findIndex', 'findLast', 'findLastIndex', 'flatMap'
+]);
+
+function isSyncArrayCallback(path) {
+    const parent = path.parent;
+    if (!parent || parent.type !== 'CallExpression') {
+        return false;
+    }
+    if (!parent.arguments.includes(path.node)) {
+        return false;
+    }
+    const callee = parent.callee;
+    if (!callee || callee.type !== 'MemberExpression') {
+        return false;
+    }
+    const propertyName = callee.property && (callee.property.name || callee.property.value);
+    return SYNC_ARRAY_CALLBACK_METHODS.has(propertyName);
+}
+
 // object/class methods with these `kind`s can never be declared `async`
 // (constructors can't be async; getters/setters must return a value/accept a
 // setter argument synchronously per the language spec) — marking one async,
@@ -38,15 +74,15 @@ function createAsyncTransformPlugin() {
     return ({ types: t }) => ({
         visitor: {
             FunctionDeclaration(path) {
-                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
+                if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             FunctionExpression(path) {
-                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
+                if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             ArrowFunctionExpression(path) {
-                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
+                if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             // ES2015 method-shorthand syntax (`{ foo() {...} }` in an object
@@ -60,7 +96,7 @@ function createAsyncTransformPlugin() {
             // "await is only valid in async functions" at runtime.
             ObjectMethod(path) {
                 if (isNonAsyncableMethod(path.node)) return;
-                if (isBrowserExecuteCallback(path)) { path.skip(); return; }
+                if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
             ClassMethod(path) {
