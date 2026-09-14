@@ -21,7 +21,7 @@
 export async function getValue(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = await this.helpers.getElement(locator, true, timeout);
+    var el = await this.helpers.getElement(locator, false, timeout);
     let val;
 
     try {
