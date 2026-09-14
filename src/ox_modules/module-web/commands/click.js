@@ -77,31 +77,7 @@ async function click(locator, timeout) {
     try {
         var clickable = await el.isClickable();
     } catch (e) {
-        let documentMode;
-        if (
-            this.driver &&
-            this.driver.capabilities &&
-            this.driver.capabilities.browserName === 'internet explorer'
-        ) {
-            console.log('Falling back to IE workaround');
-            try {
-                documentMode = await this.driver.execute(function() {
-                    // eslint-disable-next-line no-undef
-                    return window.document.documentMode;
-                });
-            } catch (e) {
-                // ignore
-            }
-
-            if (
-                documentMode &&
-                [5, 6, 7, 8, 9, 10].includes(parseInt(documentMode))
-            ) {
-                clickable = true;
-            } else {
-                throw e;
-            }
-        }
+        console.log('Failed to execute isClickable', e);
     }
 
     if (clickable) {
@@ -118,7 +94,7 @@ async function click(locator, timeout) {
         }
     } else {
         // if element is not clickable, try clicking it using JS injection
-        console.log('Element not clickable. Invoking clikcJS');
+        console.log('Element not clickable. Invoking clickJS');
         await this.clickJS(el);
     }
 
