@@ -74,13 +74,17 @@ async function click(locator, timeout) {
         // ignored - let the click attempt below report the real problem, if any
     }
 
+    var clickable;
     try {
-        var clickable = await el.isClickable();
+        clickable = await el.isClickable();
     } catch (e) {
         console.log('Failed to execute isClickable', e);
     }
 
-    if (clickable) {
+    if (clickable === false) {
+        console.log('Element not clickable. Invoking clickJS');
+        await this.clickJS(el);
+    } else {
         try {
             await el.click();
         } catch (e) {
@@ -92,10 +96,6 @@ async function click(locator, timeout) {
                 throw e;
             }
         }
-    } else {
-        // if element is not clickable, try clicking it using JS injection
-        console.log('Element not clickable. Invoking clickJS');
-        await this.clickJS(el);
     }
 
     await this.checkWaitForAngular();
