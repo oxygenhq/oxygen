@@ -517,8 +517,13 @@ export default class ReportAggregator extends EventEmitter {
     }
 
     validateResult(results) {
-        const uniqueSuitesIterationIds = [];
+        // Iteration numbers only need to be unique among the suites of a single test run
+        // (e.g. a data-driven suite iterating multiple times). Separate results - such as
+        // an automatic rerun-on-failure, which starts a brand new run with its own rid -
+        // legitimately restart their own suite iteration numbering at 1, so the check must
+        // not span across them.
         results.map((result) => {
+            const uniqueSuitesIterationIds = [];
             result.suites.map((suite) => {
                 if (uniqueSuitesIterationIds.includes(suite.iterationNum)) {
                     console.warn('suite.iterationNum', suite.iterationNum, ' not unique');

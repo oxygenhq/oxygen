@@ -269,14 +269,45 @@ async function startChromeDriver(chromeDriverPath, port, debug = false) {
             stdio: debug ? 'inherit' : 'pipe'
         });
 
+        // With stdio 'pipe' the process's own explanation for a crash (missing shared
+        // library, port already bound by something else, etc.) goes nowhere unless we
+        // read it - capture it so a crash is actually diagnosable instead of showing up
+        // as a bare exit code.
+        let output = '';
+        if (!debug) {
+            proc.stdout?.on('data', (data) => { output += data.toString(); });
+            proc.stderr?.on('data', (data) => { output += data.toString(); });
+        }
+
+        // Both the 'exit' handler and the readiness poll below can independently decide
+        // the outcome; settle only once so an exit after a resolved/rejected promise
+        // (or vice versa) can't call resolve/reject twice.
+        let settled = false;
+
         // Handle process events
         proc.on('error', (error) => {
+            if (settled) {
+                return;
+            }
+            settled = true;
             reject(new Error(`Failed to start ChromeDriver: ${error.message}`));
         });
 
         proc.on('exit', (code, signal) => {
             if (code !== null && code !== 0) {
                 console.log(`ChromeDriver exited with code ${code}`);
+                if (output.trim()) {
+                    console.log(`ChromeDriver output:\n${output.trim()}`);
+                }
+                // Fail fast instead of waiting out the full readiness-poll timeout for a
+                // process that has already died.
+                if (!settled) {
+                    settled = true;
+                    reject(new Error(
+                        `ChromeDriver exited with code ${code} before it became ready.` +
+                        (output.trim() ? ` Output: ${output.trim()}` : '')
+                    ));
+                }
             }
             if (signal) {
                 console.log(`ChromeDriver killed with signal ${signal}`);
@@ -286,10 +317,20 @@ async function startChromeDriver(chromeDriverPath, port, debug = false) {
         // Wait for ChromeDriver to be ready
         waitForChromeDriverReady(port)
             .then(() => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
                 console.log(`✅ ChromeDriver started successfully on port ${port}`);
                 resolve(proc);
             })
-            .catch(reject);
+            .catch((error) => {
+                if (settled) {
+                    return;
+                }
+                settled = true;
+                reject(error);
+            });
     });
 }
 
