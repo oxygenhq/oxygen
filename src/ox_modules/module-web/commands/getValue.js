@@ -21,7 +21,15 @@
 export async function getValue(locator, timeout) {
     this.helpers.assertArgumentTimeout(timeout, 'timeout');
 
-    var el = await this.helpers.getElement(locator, false, timeout);
+    var el;
+
+    if (this.driver && this.driver.capabilities && this.driver.capabilities.browserName === 'internet explorer') {
+        // IE fails when trying to check visibility for element... so we don't perform visibility check on IE
+        el = await this.helpers.getElement(locator, false, timeout);
+    } else {
+        el = await this.helpers.getElement(locator, true, timeout);
+    }
+
     let val;
 
     try {
