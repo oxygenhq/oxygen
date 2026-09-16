@@ -30,9 +30,7 @@
 export async function selectWindow(windowLocator, timeout) {
     this.helpers.assertArgument(windowLocator, 'windowLocator');
     var currentHandle;
-    var currentHandleTitle;
-    var currentHandleUrl;
-    var swithToCurrentHandleErrorMsg = 'Unable to switch to previous selected window';
+    var swithToCurrentHandleErrorMsg = 'Unable to switch to previously selected window';
 
     // getWindowHandle() could possibly fail if there is no active window,
     // so we select the last opened one in such case
@@ -42,11 +40,6 @@ export async function selectWindow(windowLocator, timeout) {
         var wnds = await this.driver.getWindowHandles();
         await this.driver.switchToWindow(wnds[wnds.length - 1]);
         currentHandle = await this.driver.getWindowHandle();
-    }
-
-    if (currentHandle) {
-        currentHandleTitle = await this.driver.getTitle();
-        currentHandleUrl = await this.driver.getUrl();
     }
 
     var windowHandles;
@@ -68,18 +61,13 @@ export async function selectWindow(windowLocator, timeout) {
                     return currentHandle;
                 }
             }
-            this.pause(1000);
+            await this.pause(1000);
         }
 
         try {
             // if window not found - switch to original one and throw
             await this.driver.switchToWindow(currentHandle);
         } catch (err) { // in case window was closed
-
-            if (currentHandleTitle) {
-                swithToCurrentHandleErrorMsg += `: ${currentHandleTitle}`;
-            }
-
             throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
         }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
@@ -101,16 +89,13 @@ export async function selectWindow(windowLocator, timeout) {
                     return currentHandle;
                 }
             }
-            this.pause(1000);
+            await this.pause(1000);
         }
 
         try {
             // if window not found - switch to original one and throw
             await this.driver.switchToWindow(currentHandle);
         } catch (err) {
-            if (currentHandleUrl) {
-                swithToCurrentHandleErrorMsg += `: ${currentHandleUrl}`;
-            }
             throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, swithToCurrentHandleErrorMsg);
         }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);

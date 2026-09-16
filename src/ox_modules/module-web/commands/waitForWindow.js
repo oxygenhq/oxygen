@@ -60,7 +60,7 @@ export async function waitForWindow(windowLocator, timeout) {
                     return;
                 }
             }
-            this.pause(1000);
+            await this.pause(1000);
         }
         throw new this.OxError(this.errHelper.errorCode.WINDOW_NOT_FOUND, `Unable to find window: ${windowLocator}`);
     } else if (windowLocator.indexOf('url=') === 0) {
