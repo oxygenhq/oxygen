@@ -1,4 +1,5 @@
 const babel = require('@babel/core');
+const modulesCommonjsPlugin = require('@babel/plugin-transform-modules-commonjs');
 const fs = require('fs');
 const Module = require('module');
 
@@ -164,12 +165,33 @@ function transform(code, filename, wrapInIIFE = true) {
     try {
         const result = babel.transformSync(code, {
             filename,
-            sourceType: 'script',
+            // 'unambiguous' lets Babel parse either plain CommonJS scripts (require()/
+            // module.exports, the common case) or ES module syntax (import/export) in the
+            // same file, detected from whichever the file actually uses - 'script' rejected
+            // import/export outright ("'import' and 'export' may appear only with
+            // sourceType: 'module'"), which broke any test or page-object file written with
+            // ES module syntax instead of require()/module.exports.
+            sourceType: 'unambiguous',
             parserOpts: {
                 // top-level return is valid in CommonJS module context and inside our async IIFE wrapper
                 allowReturnOutsideFunction: true,
             },
-            plugins: [[createAsyncTransformPlugin(), { wrapInIIFE }]],
+            plugins: [
+                // mod._compile() below always runs the *output* as CommonJS - it has no
+                // knowledge of ES modules at all - so import/export need to actually be
+                // converted to require()/exports.x, not just parsed. Without this, a file
+                // using import/export would parse fine now but throw "Cannot use import
+                // statement outside a module" the moment Node tried to run the transformed
+                // output.
+                // Passed as the already-require()'d module, not the plugin's name string -
+                // Babel resolves name strings by searching the filesystem starting from the
+                // *calling test project's* cwd (since that's process.cwd() when this runs),
+                // not from oxygen-cli's own install location, so it can't find its own
+                // dependency there even though it's genuinely installed. Passing the resolved
+                // module directly sidesteps that resolution entirely.
+                modulesCommonjsPlugin,
+                [createAsyncTransformPlugin(), { wrapInIIFE }]
+            ],
             sourceMaps: 'inline',
             retainLines: true,
             configFile: false,
@@ -234,8 +256,12 @@ function _hookHandler(mod, filename) {
         // exact `module.exports =` form previously missed the per-property style,
         // causing the whole file to be wrapped in an async IIFE whose Promise
         // return value overwrote every property assigned inside it, so requiring
-        // the file back gave an object full of `undefined`s.
-        const hasModuleExports = /\bmodule\.exports\b|\bexports\s*\.\s*\w+\s*=/.test(code);
+        // the file back gave an object full of `undefined`s. Also matches ES `export`
+        // syntax (`export class Foo`, `export default`, `export const x = ...`, `export
+        // { x }`) for the same reason - a support file written with ES exports gets
+        // converted to exports.x assignments by the commonjs-modules plugin, and those
+        // need the same protection from being wrapped and overwritten.
+        const hasModuleExports = /\bmodule\.exports\b|\bexports\s*\.\s*\w+\s*=|^\s*export\b/m.test(code);
         const transformed = transform(code, filename, !hasModuleExports);
         mod._compile(transformed, filename);
     } else {
