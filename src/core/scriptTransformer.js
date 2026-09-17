@@ -63,6 +63,28 @@ function isSyncArrayCallback(path) {
     return SYNC_ARRAY_CALLBACK_METHODS.has(propertyName);
 }
 
+// Global module namespaces exposed to user scripts. Every command on one of these is
+// async - either a built-in Oxygen command, or a page-object/support function, which
+// this same transform also unconditionally marks async (see the FunctionDeclaration/
+// FunctionExpression/ArrowFunctionExpression/ObjectMethod visitors below) - so a call to
+// any of these can never safely be left un-awaited. 'po' covers the page-object namespace
+// itself (e.g. po.encryption.getEncryptedValue(...)), not just its own commands.
+const OXYGEN_NAMESPACES = new Set([
+    'web', 'mob', 'win', 'log', 'assert', 'utils', 'db', 'http', 'email', 'eyes',
+    'pdf', 'proxy', 'soap', 'serial', 'shell', 'mailinator', 'mongo', 'twilio', 'date', 'po'
+]);
+
+// true if `node` is a call whose callee is rooted at one of the namespaces above -
+// web.click(...), log.info(...), po.encryption.getEncryptedValue(...), etc. - regardless
+// of how many .property hops separate the root identifier from the call itself.
+function isOxygenNamespaceCall(node) {
+    let callee = node.callee;
+    while (callee && callee.type === 'MemberExpression') {
+        callee = callee.object;
+    }
+    return !!callee && callee.type === 'Identifier' && OXYGEN_NAMESPACES.has(callee.name);
+}
+
 // object/class methods with these `kind`s can never be declared `async`
 // (constructors can't be async; getters/setters must return a value/accept a
 // setter argument synchronously per the language spec) — marking one async,
@@ -123,6 +145,24 @@ function createAsyncTransformPlugin() {
                 // awaiting calls inside them is safe.
                 const functionParent = path.getFunctionParent();
                 if (!state.opts.wrapInIIFE && !functionParent) {
+                    // This call can never be awaited here regardless (see the comment above),
+                    // so leaving it alone is correct for ordinary synchronous top-level code
+                    // (require(), constant/class/function declarations, plain helper calls).
+                    // But a call into an Oxygen namespace is always async - a built-in command,
+                    // or a page-object/support function this same transform also marks async -
+                    // so silently leaving it un-awaited doesn't just skip a convenience, it
+                    // quietly hands back a Promise (or a Promise argument) where the caller
+                    // expects a resolved value. That previously surfaced as confusing, unrelated
+                    // downstream failures (e.g. a Promise passed into utils.decrypt() throwing
+                    // "not a valid cipher" three steps later) instead of pointing at the real
+                    // cause. Fail loudly, right here, instead.
+                    if (isOxygenNamespaceCall(path.node)) {
+                        throw path.buildCodeFrameError(
+                            'This command can\'t be used here - only inside a function. Move it into a ' +
+                            'function (e.g. module.exports.myFunction = () => { ... }), then call that ' +
+                            'function from your test.'
+                        );
+                    }
                     return;
                 }
                 // constructors/getters/setters can never be async — a call inside
