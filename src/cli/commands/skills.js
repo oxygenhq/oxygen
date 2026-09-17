@@ -436,12 +436,14 @@ function renderKiroSteering(doc) {
 }
 
 /*
- * The commands are written for Claude Code: its argument placeholder, and its plugin
- * namespace when they point at each other. Kiro substitutes neither, and every
- * /oxygen:<name> target is installed there as /oxygen-<name>.
+ * The commands are written for Claude Code: its argument placeholder, its plugin namespace
+ * when they point at each other, and its project notes file. Kiro substitutes neither of
+ * the first two, installs every /oxygen:<name> target as /oxygen-<name>, and keeps project
+ * notes in the steering file this install creates.
  */
 function forKiro(body) {
     return body
+        .replace(/\bCLAUDE\.md\b/g, `.kiro/steering/${KIRO_PROJECT_STEERING}`)
         .replace(/(^|[.!?]\s+)`?\$ARGUMENTS`?/gm, '$1The user\'s message')
         .replace(/`?\$ARGUMENTS`?/g, 'the user\'s message')
         .replace(/\/oxygen:([\w-]+)/g, '/oxygen-$1');
