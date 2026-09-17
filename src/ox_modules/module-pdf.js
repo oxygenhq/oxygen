@@ -117,7 +117,22 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
 function processText(rows, texts) {
     for (var t in texts) {
         var item = texts[t];
-        var text = decodeURIComponent(item.R[0].T);
+        var text;
+        try {
+            // pdf2json URI-encodes each text run's raw content (item.R[0].T) - decoding it
+            // is the documented way to get the actual Unicode text back. That throws
+            // "URI malformed" for a text run whose encoding pdf2json produced incorrectly
+            // (seen in practice with Hebrew/RTL content and non-standard PDF font
+            // encodings) - and since this runs inside the pdfParser_dataReady handler (see
+            // the comment on that handler above), an uncaught throw here kills the whole
+            // Oxygen worker over a single bad text run, not just this one pdf.count()/
+            // pdf.locate() call. Fall back to the raw, still-encoded text instead - it
+            // won't match a search string, but it keeps this row's other text runs (and
+            // every other row) intact rather than taking the whole read down.
+            text = decodeURIComponent(item.R[0].T);
+        } catch (e) {
+            text = item.R[0].T;
+        }
         // accumulate text items into rows object, per line
         (rows[item.y] = rows[item.y] || []).push(text);
     }
