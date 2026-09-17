@@ -25,6 +25,10 @@
  *   Copilot       .github/instructions/*.instructions.md   skills that declare `applyTo`
  *                 .github/prompts/*.prompt.md              the rest, plus commands
  *                 .github/copilot-instructions.md          always read; a short pointer
+ *   Kiro          .kiro/skills/<name>/SKILL.md        name and description only
+ *                 .kiro/steering/oxygen-*.md          commands, as manual steering
+ *                 .kiro/steering/oxygen-project.md    created once for the project's own facts
+ *                 AGENTS.md                           always read by Kiro
  *   Any assistant AGENTS.md                                the cross-tool convention
  *
  * A skill declaring `applyTo` in its frontmatter is guidance that belongs to particular
@@ -44,8 +48,12 @@ const USER_CLAUDE_DIR = path.join(os.homedir(), '.claude');
 const PROJECT_CLAUDE_DIR = '.claude';
 const GITHUB_DIR = '.github';
 const AGENTS_FILE = 'AGENTS.md';
+const KIRO_DIR = '.kiro';
 
-const KNOWN_AGENTS = ['claude', 'copilot', 'agents'];
+// Kiro's own steering for a project, as opposed to the generated files beside it.
+const KIRO_PROJECT_STEERING = 'oxygen-project.md';
+
+const KNOWN_AGENTS = ['claude', 'copilot', 'kiro', 'agents'];
 
 // Records which files this command placed, so a later install can remove the ones a
 // new version no longer ships. Without it a rename leaves both names installed and the
@@ -101,6 +109,22 @@ export default async function skills(argv) {
     }
 
     const projectDir = path.resolve(argv.cwd || process.cwd());
+    // Every target is checked before any is written, so a clash in one cannot leave the
+    // others half installed.
+    if (!argv.force) {
+        const skillDirs = {
+            claude: path.join(argv.user ? USER_CLAUDE_DIR : path.join(projectDir, PROJECT_CLAUDE_DIR), 'skills'),
+            kiro: path.join(projectDir, KIRO_DIR, 'skills'),
+        };
+        for (const agent of agents.filter((agent) => skillDirs[agent])) {
+            const error = clashError(skillDirs[agent], available);
+            if (error) {
+                console.error(error);
+                return 1;
+            }
+        }
+    }
+
     const commandsSource = bundledCommandsDir();
     const written = [];
     const removed = [];
@@ -112,6 +136,9 @@ export default async function skills(argv) {
         }
         else if (agent === 'copilot') {
             result = installForCopilot({ source, available, commandsSource, projectDir });
+        }
+        else if (agent === 'kiro') {
+            result = installForKiro({ source, available, commandsSource, projectDir, argv });
         }
         else {
             result = installAgentsFile({ source, available, projectDir });
@@ -125,7 +152,8 @@ export default async function skills(argv) {
     }
 
     console.log(`Installed Oxygen agent guidance for: ${agents.join(', ')}\n`);
-    for (const file of written) {
+    // Kiro and the agents target both write AGENTS.md.
+    for (const file of new Set(written)) {
         console.log(`  ${path.relative(projectDir, file) || file}`);
     }
     if (removed.length) {
@@ -145,34 +173,11 @@ export default async function skills(argv) {
  */
 function installForClaude({ source, available, commandsSource, projectDir, argv }) {
     const root = argv.user ? USER_CLAUDE_DIR : path.join(projectDir, PROJECT_CLAUDE_DIR);
-    const skillsDir = path.join(root, 'skills');
-
-    const ours = previouslyInstalled(skillsDir);
-    const clashes = available.filter(
-        (name) => fs.existsSync(path.join(skillsDir, name)) && !ours.includes(name)
-    );
-    if (clashes.length && !argv.force) {
-        return {
-            error: `These skills are already installed in ${skillsDir}:\n` +
-                clashes.map((name) => `  ${name}`).join('\n') +
-                '\n\nPass --force to replace them with this version.',
-        };
+    const result = syncSkillDirs({ skillsDir: path.join(root, 'skills'), source, available, force: argv.force });
+    if (result.error) {
+        return result;
     }
-
-    fs.mkdirSync(skillsDir, { recursive: true });
-    const removed = [];
-    for (const name of ours.filter((name) => !available.includes(name))) {
-        fs.rmSync(path.join(skillsDir, name), { recursive: true, force: true });
-        removed.push(path.join(skillsDir, name));
-    }
-    const written = [];
-    for (const name of available) {
-        const to = path.join(skillsDir, name);
-        fs.rmSync(to, { recursive: true, force: true });
-        fs.cpSync(path.join(source, name), to, { recursive: true });
-        written.push(to);
-    }
-    writeManifest(skillsDir, { skills: available });
+    const { written, removed } = result;
 
     // Commands are Claude Code slash commands. Namespaced, because /run and /triage are
     // names a project may well want for itself.
@@ -235,6 +240,60 @@ function installForCopilot({ source, available, commandsSource, projectDir }) {
     if (upsertBlock(pointer, renderCopilotPointer(instructions, prompts))) {
         written.push(pointer);
     }
+    return { written, removed };
+}
+
+/*
+ * Kiro reads the Agent Skills format, so the skills keep their shape; only the frontmatter
+ * is cut down to the fields that format defines. It activates a skill by matching its
+ * description, and also offers each one as /<name>.
+ *
+ * Commands have no Kiro equivalent. The nearest is a steering file with manual inclusion,
+ * which is invoked the same way. As for Copilot, a command that only loads a skill is
+ * skipped - the skill is already a slash command of the same name.
+ *
+ * Kiro always reads AGENTS.md, so the always-on text goes there rather than into a steering
+ * file that would repeat it. The project steering file is for facts no generated file can
+ * know, so it is created once and never written again.
+ */
+function installForKiro({ source, available, commandsSource, projectDir, argv }) {
+    const kiroDir = path.join(projectDir, KIRO_DIR);
+    const skills = syncSkillDirs({
+        skillsDir: path.join(kiroDir, 'skills'),
+        source,
+        available,
+        force: argv.force,
+        transform: (doc) => renderKiroSkill(doc),
+    });
+    if (skills.error) {
+        return skills;
+    }
+    const written = [...skills.written];
+    const removed = [...skills.removed];
+
+    const steeringDir = path.join(kiroDir, 'steering');
+    const steering = [];
+    if (commandsSource) {
+        for (const name of listCommands(commandsSource)) {
+            if (available.includes(`oxygen-${name}`)) {
+                continue;
+            }
+            const doc = readDoc(path.join(commandsSource, `${name}.md`));
+            steering.push({ name: `oxygen-${name}.md`, content: renderKiroSteering(doc) });
+        }
+    }
+    const result = syncGeneratedFiles(steeringDir, steering);
+    written.push(...result.written);
+    removed.push(...result.removed);
+
+    const projectSteering = path.join(steeringDir, KIRO_PROJECT_STEERING);
+    if (!fs.existsSync(projectSteering)) {
+        fs.mkdirSync(steeringDir, { recursive: true });
+        fs.writeFileSync(projectSteering, renderKiroProjectSteering(path.basename(projectDir)));
+        written.push(projectSteering);
+    }
+
+    written.push(...installAgentsFile({ source, available, projectDir }).written);
     return { written, removed };
 }
 
@@ -352,12 +411,129 @@ function renderAgentsBlock(summaries) {
     return lines.join('\n');
 }
 
+function renderKiroSkill(doc) {
+    const description = (doc.frontmatter.description || '').replace(/^["']|["']$/g, '');
+    return [
+        '---',
+        `name: ${doc.frontmatter.name || doc.name}`,
+        `description: ${JSON.stringify(description)}`,
+        '---',
+        generatedNote(doc.name),
+        '',
+        forKiro(doc.body),
+    ].join('\n');
+}
+
+function renderKiroSteering(doc) {
+    return [
+        '---',
+        'inclusion: manual',
+        '---',
+        generatedNote(doc.name),
+        '',
+        forKiro(doc.body),
+    ].join('\n');
+}
+
+/*
+ * The commands are written for Claude Code: its argument placeholder, and its plugin
+ * namespace when they point at each other. Kiro substitutes neither, and every
+ * /oxygen:<name> target is installed there as /oxygen-<name>.
+ */
+function forKiro(body) {
+    return body
+        .replace(/(^|[.!?]\s+)`?\$ARGUMENTS`?/gm, '$1The user\'s message')
+        .replace(/`?\$ARGUMENTS`?/g, 'the user\'s message')
+        .replace(/\/oxygen:([\w-]+)/g, '/oxygen-$1');
+}
+
+function renderKiroProjectSteering(name) {
+    return `---
+inclusion: always
+---
+# ${name}
+
+Oxygen test suite. The general Oxygen guidance is installed by "oxygen skills install";
+this file is for what is true of this project only. It is yours - reinstalling never
+changes it. Fill in the placeholders and commit it.
+
+## Running
+
+\`\`\`bash
+npx oxygen . --env=<ENV> --headless --rf=agent --ro=./reports
+\`\`\`
+
+## Environments
+
+Defined in \`oxygen.env.js\` and selected with \`--env=NAME\`.
+
+- Safe to run against: <ENV>
+- Never run against: <ENV>
+
+## Test data
+
+- Account the suite expects: <account, and where its secret comes from>
+
+#[[file:oxygen.conf.js]]
+`;
+}
+
 function generatedNote(name) {
     return `<!-- Generated by "oxygen skills install" from ${name} (oxygen-cli ${packageVersion() || 'unknown'}). ` +
         'Edit the skill and reinstall; changes here are overwritten. -->';
 }
 
 /* ---------- file helpers ---------- */
+
+/*
+ * Copies each skill directory into `skillsDir`, removing only skills a previous run placed
+ * there, and refusing to replace one the user installed unless forced. `transform`, when
+ * given, rewrites the copied SKILL.md from its parsed form.
+ */
+function syncSkillDirs({ skillsDir, source, available, force, transform }) {
+    const ours = previouslyInstalled(skillsDir);
+    const error = !force && clashError(skillsDir, available);
+    if (error) {
+        return { error };
+    }
+
+    fs.mkdirSync(skillsDir, { recursive: true });
+    const removed = [];
+    for (const name of ours.filter((name) => !available.includes(name))) {
+        fs.rmSync(path.join(skillsDir, name), { recursive: true, force: true });
+        removed.push(path.join(skillsDir, name));
+    }
+    const written = [];
+    for (const name of available) {
+        const to = path.join(skillsDir, name);
+        fs.rmSync(to, { recursive: true, force: true });
+        fs.cpSync(path.join(source, name), to, { recursive: true });
+        if (transform) {
+            const skillFile = path.join(to, 'SKILL.md');
+            fs.writeFileSync(skillFile, `${transform(readDoc(skillFile))}\n`);
+        }
+        written.push(to);
+    }
+    writeManifest(skillsDir, { skills: available });
+    return { written, removed };
+}
+
+/*
+ * Skills of ours that are already in `skillsDir` without a previous run having put them
+ * there - the user's own, or a hand copy - described as an error, or null if none.
+ */
+function clashError(skillsDir, available) {
+    const ours = previouslyInstalled(skillsDir);
+    const clashes = available.filter(
+        (name) => fs.existsSync(path.join(skillsDir, name)) && !ours.includes(name)
+    );
+    if (!clashes.length) {
+        return null;
+    }
+    return `These skills are already installed in ${skillsDir}:\n` +
+        clashes.map((name) => `  ${name}`).join('\n') +
+        '\n\nPass --force to replace them with this version.';
+}
 
 /*
  * Writes `files` into `dir` and removes only what a previous run of this command left
@@ -569,6 +745,12 @@ function printNextSteps(agents, argv) {
             '  as /<name> in chat. VS Code needs "chat.promptFiles" enabled to see prompt files.'
         );
     }
+    if (agents.includes('kiro')) {
+        console.log(
+            'Kiro: skills activate when a request matches them, or as /<name> in chat; type / to\n' +
+            `  see them. Fill in .kiro/steering/${KIRO_PROJECT_STEERING} - it is read on every request.`
+        );
+    }
     if (!argv.user) {
         console.log('\nCommit these files so anyone who clones the project gets them too.');
     }
@@ -579,7 +761,7 @@ function printUsage() {
 
   install        Install the bundled agent guidance into this project, in each
                  assistant's own format.
-                 --agent=<list>  claude, copilot, agents (AGENTS.md), or all.
+                 --agent=<list>  claude, copilot, kiro, agents (AGENTS.md), or all.
                                  Defaults to all.
                  --user          install the Claude Code skills into ~/.claude
                                  instead, for every project on this machine

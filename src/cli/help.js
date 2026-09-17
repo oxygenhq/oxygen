@@ -60,8 +60,9 @@ Project:
   oxygen skills install        Install the bundled agent guidance into this project, in
                                each assistant's own format: .claude/skills and
                                .claude/commands for Claude Code, .github/instructions and
-                               .github/prompts for Copilot, and AGENTS.md for anything
-                               else. Narrow it with --agent=claude|copilot|agents, or
+                               .github/prompts for Copilot, .kiro/skills and
+                               .kiro/steering for Kiro, and AGENTS.md for anything
+                               else. Narrow it with --agent=claude|copilot|kiro|agents, or
                                --user for ~/.claude. Existing AGENTS.md and
                                copilot-instructions.md files are appended to, never
                                replaced. The guidance documents this CLI's own flags, so
