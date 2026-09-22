@@ -10,23 +10,27 @@ Load the `oxygen-setup` skill for the layout and its reasoning.
 
 ```bash
 oxygen init <dir>
-oxygen skills install        # .claude/skills - commit it, so a clone gets them
+oxygen skills install        # commit what it writes, so a clone gets it too
 ```
 
-`init` writes `oxygen.conf.js`, `oxygen.env.js`, `oxygen.po.js`, an example case
-and suite, and a `CLAUDE.md` describing how to run this project. Fill in the
-`CLAUDE.md` environment and account notes — that is the context no skill can
-carry, and without it every agent rediscovers it.
+`init` writes `oxygen.conf.js`, `oxygen.env.js`, `oxygen.po.js`, and an example
+case and suite.
 
 ## An existing project
 
 ```bash
-oxygen skills install        # or --user for every project on this machine
+oxygen skills install        # or --agent=NAME for one assistant only
 ```
 
 Install from the version of Oxygen you are running: the skills document this
 CLI's own flags, so a set copied once goes stale and an agent will confidently
 use a flag that no longer exists.
+
+## The project notes file
+
+Record in `CLAUDE.md` which environment is safe to run against and which account
+the suite expects, creating the file if the project has none. That is the
+context no skill can carry, and without it every agent rediscovers it.
 
 ## Layout that matters
 
