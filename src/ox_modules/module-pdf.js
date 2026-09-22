@@ -110,7 +110,10 @@ function assertion(pdfFilePath, text, pageNum = 0, reverse = false) {
 
             resolve(false);
         });
-        pdfParser.loadPDF(pdfFilePath, 0);
+
+        pdfParser.loadPDF(pdfFilePath, 0).catch(function(err) {
+            reject(new OxError(errHelper.errorCode.ASSERT_ERROR, 'Failed to load PDF file: ' + pdfFilePath + ' - ' + err));
+        });
     });
 }
 
