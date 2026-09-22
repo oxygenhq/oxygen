@@ -93,6 +93,72 @@ function isNonAsyncableMethod(node) {
     return !!node && (node.kind === 'constructor' || node.kind === 'get' || node.kind === 'set');
 }
 
+// true if `node` is a direct call to the real, un-renamed `require(...)` —
+// not `require.resolve(...)` (callee is a MemberExpression, not an Identifier)
+// and not an already-rewritten call (see OXYGEN_REQUIRE_HELPER_NAME below).
+function isRequireCall(node) {
+    return !!node.callee && node.callee.type === 'Identifier' && node.callee.name === 'require' &&
+        node.arguments.length >= 1;
+}
+
+const OXYGEN_REQUIRE_HELPER_NAME = '__oxygenRequire';
+
+// Builds the runtime helper this plugin rewrites require() calls to go through
+// (see the CallExpression visitor). It does the real, synchronous require(id)
+// exactly as before, then — only if the result carries a `__ready` promise (see
+// the Program.enter wrapping below) — returns that promise instead, resolving to
+// the module once it's actually finished its top-level work. Ordinary requires
+// (npm packages, plain data/page-object files with no top-level Oxygen calls)
+// have no `__ready`, so this is a transparent passthrough for them.
+function buildOxygenRequireHelperDecl(t) {
+    const idParam = t.identifier('id');
+    const mVar = t.identifier('m');
+    const mDecl = t.variableDeclaration('var', [
+        t.variableDeclarator(mVar, t.callExpression(t.identifier('require'), [idParam]))
+    ]);
+    const readyMember = t.memberExpression(mVar, t.identifier('__ready'));
+    const thenMember = t.memberExpression(readyMember, t.identifier('then'));
+    const condition = t.logicalExpression('&&',
+        t.logicalExpression('&&',
+            mVar,
+            t.binaryExpression('===', t.unaryExpression('typeof', mVar), t.stringLiteral('object'))
+        ),
+        t.logicalExpression('&&',
+            readyMember,
+            t.binaryExpression('===', t.unaryExpression('typeof', thenMember), t.stringLiteral('function'))
+        )
+    );
+    const thenCallback = t.functionExpression(null, [], t.blockStatement([t.returnStatement(mVar)]));
+    const ifStmt = t.ifStatement(
+        condition,
+        t.blockStatement([t.returnStatement(t.callExpression(thenMember, [thenCallback]))])
+    );
+    return t.functionDeclaration(
+        t.identifier(OXYGEN_REQUIRE_HELPER_NAME),
+        [idParam],
+        t.blockStatement([mDecl, ifStmt, t.returnStatement(mVar)])
+    );
+}
+
+// true if `node` (a top-level statement of a Program) contains an Oxygen-namespace
+// call directly at that top level — i.e. not nested inside any function, where it
+// would already be safely awaited on its own.
+function programHasTopLevelOxygenCall(programPath) {
+    let found = false;
+    programPath.traverse({
+        Function(fnPath) {
+            fnPath.skip();
+        },
+        CallExpression(callPath) {
+            if (isOxygenNamespaceCall(callPath.node)) {
+                found = true;
+                callPath.stop();
+            }
+        }
+    });
+    return found;
+}
+
 function createAsyncTransformPlugin() {
     return ({ types: t }) => ({
         visitor: {
@@ -136,39 +202,42 @@ function createAsyncTransformPlugin() {
                 if (path.parentPath.isNewExpression()) return;
                 // files that keep their own module.exports (page objects / support
                 // files, wrapInIIFE === false) never get their top level wrapped in
-                // an async IIFE (see Program.exit below) — awaiting a call sitting
-                // directly at that top level (e.g. a top-level `require(...)`) would
-                // introduce genuine top-level await, turning the compiled file into
-                // an ES module and breaking any later synchronous require() of it
-                // (ERR_REQUIRE_ASYNC_MODULE). Calls inside nested functions are
-                // unaffected — those functions are themselves made async below, so
-                // awaiting calls inside them is safe.
+                // an async IIFE, UNLESS their top level contains an Oxygen call (see
+                // Program.enter below, which wraps exactly that case into
+                // `module.exports.__ready = (async () => {...})()`) — awaiting a call
+                // sitting directly at an otherwise-unwrapped top level would introduce
+                // genuine top-level await, turning the compiled file into an ES module
+                // and breaking any later synchronous require() of it
+                // (ERR_REQUIRE_ASYNC_MODULE). Calls inside nested functions, or inside
+                // a Program.enter-wrapped top level, are unaffected — both have a real
+                // function parent to await inside.
                 const functionParent = path.getFunctionParent();
-                if (!state.opts.wrapInIIFE && !functionParent) {
-                    // This call can never be awaited here regardless (see the comment above),
-                    // so leaving it alone is correct for ordinary synchronous top-level code
-                    // (require(), constant/class/function declarations, plain helper calls).
-                    // But a call into an Oxygen namespace is always async - a built-in command,
-                    // or a page-object/support function this same transform also marks async -
-                    // so silently leaving it un-awaited doesn't just skip a convenience, it
-                    // quietly hands back a Promise (or a Promise argument) where the caller
-                    // expects a resolved value. That previously surfaced as confusing, unrelated
-                    // downstream failures (e.g. a Promise passed into utils.decrypt() throwing
-                    // "not a valid cipher" three steps later) instead of pointing at the real
-                    // cause. Fail loudly, right here, instead.
-                    if (isOxygenNamespaceCall(path.node)) {
+                const nonAsyncable = !!functionParent && isNonAsyncableMethod(functionParent.node);
+                const willBeAwaited = (state.opts.wrapInIIFE || !!functionParent) && !nonAsyncable;
+                // require() itself is never async - but the module it returns may carry
+                // a `__ready` promise (see Program.enter) that isn't actually settled
+                // yet. Route through a helper that awaits `__ready` when present, but
+                // only where the result of doing so will actually be awaited below -
+                // otherwise (a require() that stays un-awaited, same as before) the
+                // helper could hand back a raw, unresolved Promise in place of the
+                // module object it used to return synchronously, which is worse than
+                // today's behavior, not better.
+                if (willBeAwaited && isRequireCall(path.node)) {
+                    path.node.callee = t.identifier(OXYGEN_REQUIRE_HELPER_NAME);
+                    state.needsOxygenRequireHelper = true;
+                }
+                if (!willBeAwaited) {
+                    if (!state.opts.wrapInIIFE && !functionParent && isOxygenNamespaceCall(path.node)) {
+                        // Defensive fallback: Program.enter (below) wraps any file whose
+                        // top level contains an Oxygen call, which should make this
+                        // unreachable in practice - but fail loudly rather than silently
+                        // hand back an unresolved Promise if some case slips through.
                         throw path.buildCodeFrameError(
                             'This command can\'t be used here - only inside a function. Move it into a ' +
                             'function (e.g. module.exports.myFunction = () => { ... }), then call that ' +
                             'function from your test.'
                         );
                     }
-                    return;
-                }
-                // constructors/getters/setters can never be async — a call inside
-                // one must stay un-awaited, since there's nowhere for the `await`
-                // to legally live (see isNonAsyncableMethod above)
-                if (functionParent && isNonAsyncableMethod(functionParent.node)) {
                     return;
                 }
                 const awaitExpr = t.awaitExpression(t.cloneNode(path.node));
@@ -181,7 +250,43 @@ function createAsyncTransformPlugin() {
                 path.replaceWith(awaitExpr);
             },
             Program: {
+                enter(path, state) {
+                    // wrapInIIFE files (test entry scripts) get their whole top level
+                    // wrapped unconditionally in Program.exit below - nothing to do here.
+                    if (state.opts.wrapInIIFE) return;
+                    // A support/page-object file (wrapInIIFE === false) normally keeps its
+                    // top level exactly as written, running synchronously the instant
+                    // require() loads it - that's what lets require() stay synchronous.
+                    // But if that top level itself calls into an Oxygen namespace, the
+                    // call can never safely be left un-awaited (see the CallExpression
+                    // visitor above), so instead wrap the whole top level in an async
+                    // IIFE and hand callers a promise to wait on: any require()'d module
+                    // exposing `module.exports.__ready` isn't fully populated until that
+                    // promise resolves. This must run before the CallExpression visitor
+                    // reaches these calls (hence Program.enter, not exit) so that, by the
+                    // time it does, they already have a real function parent to await
+                    // inside - this new arrow function.
+                    if (!programHasTopLevelOxygenCall(path)) return;
+                    const body = [...path.node.body];
+                    const asyncIIFE = t.callExpression(
+                        t.arrowFunctionExpression([], t.blockStatement(body), true),
+                        []
+                    );
+                    const readyStmt = t.expressionStatement(
+                        t.assignmentExpression('=',
+                            t.memberExpression(
+                                t.memberExpression(t.identifier('module'), t.identifier('exports')),
+                                t.identifier('__ready')
+                            ),
+                            asyncIIFE
+                        )
+                    );
+                    path.node.body = [readyStmt];
+                },
                 exit(path, state) {
+                    if (state.needsOxygenRequireHelper) {
+                        path.node.body.unshift(buildOxygenRequireHelperDecl(t));
+                    }
                     if (!state.opts.wrapInIIFE) return;
                     const body = [...path.node.body];
                     const asyncIIFE = t.callExpression(
