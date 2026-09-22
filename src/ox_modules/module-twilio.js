@@ -93,8 +93,11 @@ module.exports = function() {
 
         if (removeOnRead) {
             await (() => {
+                // .remove() rejecting (message already gone, permission error, ...) with
+                // no .catch() here is an unhandled rejection that never reaches this
+                // Promise - the await above hangs forever instead of failing the command.
                 return new Promise((resolve, reject) => {
-                    _client.messages(msg.sid).remove().then(() => { resolve(); });
+                    _client.messages(msg.sid).remove().then(() => { resolve(); }).catch((err) => { reject(err); });
                 });
             })();
         }
@@ -157,9 +160,14 @@ module.exports = function() {
 
         if (removeOnRead) {
             await (() => {
+                // see the identical comment in getLastSms above - .remove() rejecting
+                // with no .catch() here would hang this await forever instead of
+                // failing the command.
                 return new Promise((resolve, reject) => {
                     _client.messages(msg.sid).remove().then(() => {
                         resolve();
+                    }).catch((err) => {
+                        reject(err);
                     });
                 });
             })();

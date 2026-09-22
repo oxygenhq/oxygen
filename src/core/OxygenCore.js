@@ -31,6 +31,19 @@ Object.defineProperty(global, '__stack', {
 });
 
 const DEFAULT_TIMEOUT = 30000;
+// Backstop for a command whose Promise can never settle - e.g. a bug in a command
+// or a third-party library it calls that lets an error escape to a completely
+// different channel (a global unhandledRejection/uncaughtException, or an
+// EventEmitter 'error' with no listener) instead of rejecting the Promise this
+// command actually returned. Without this, such a bug hangs the whole run forever
+// - the awaited command in the user's script just never gets a result, even though
+// the worker process itself keeps running and even reports the underlying error
+// elsewhere (see worker.js's own unhandledRejection/uncaughtException handlers).
+// This is deliberately far above any legitimate command duration (the element-wait
+// timeout defaults to 60s; even a slow remote grid session start rarely takes
+// minutes) so it only ever fires for a command that's genuinely stuck, not a slow
+// but working one.
+const DEFAULT_COMMAND_HANG_TIMEOUT = 5 * 60 * 1000;
 const DEFAULT_OPTS = {
     backtrace: false, // <boolean> show full backtrace for errors
     compiler: [], // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
@@ -560,6 +573,26 @@ export default class Oxygen extends OxygenEvents {
         return wrapper;
     }
 
+    // Races a command's own Promise against a generous timeout, so a command whose
+    // Promise can never settle (see DEFAULT_COMMAND_HANG_TIMEOUT above) fails
+    // cleanly instead of hanging the run forever. Promises can't be cancelled -
+    // the original, truly-stuck operation keeps running in the background - but
+    // this at least lets the command wrapper (and everything downstream: the
+    // step result, the test case, the worker) move on and report a real failure.
+    _withHangTimeout(promise, moduleName, cmdName) {
+        const timeoutMs = (this.opts && this.opts.commandHangTimeout) || DEFAULT_COMMAND_HANG_TIMEOUT;
+        let timer;
+        const timeoutPromise = new Promise((resolve, reject) => {
+            timer = setTimeout(() => {
+                reject(new OxError(
+                    errorHelper.errorCode.TIMEOUT,
+                    `${moduleName}.${cmdName}() did not complete within ${Math.round(timeoutMs / 1000)}s and was treated as failed instead of hanging indefinitely.`
+                ));
+            }, timeoutMs);
+        });
+        return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+    }
+
     // Serializes every command execution on this Oxygen instance, even when a
     // caller doesn't await a previous command's result — most notably, hooks
     // defined in oxygen.conf.js (beforeTest, beforeCase, etc.) are plain
@@ -641,7 +674,11 @@ export default class Oxygen extends OxygenEvents {
                 await this._callServicesOnModuleWillDispose(module);
             }
 
-            retval = await Promise.resolve(module[cmdName].apply(module, decryptedArgs));
+            retval = await this._withHangTimeout(
+                Promise.resolve(module[cmdName].apply(module, decryptedArgs)),
+                moduleName,
+                cmdName
+            );
 
             if (cmdName === 'init') {
                 await this._callServicesOnModuleInitialized(module);

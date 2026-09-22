@@ -77,6 +77,15 @@ module.exports = function() {
 
                 var parser = serialPort.pipe(new ReadlineParser());
                 stringBuffer = new CircularStringBuffer(bufferSize);
+                // parser is a separate stream from serialPort (piped from it) and can
+                // emit its own 'error' independently - with no listener for it, Node's
+                // default behavior is to throw, crashing the whole Oxygen worker over
+                // a parsing hiccup on the input stream, well after open() has already
+                // resolved. Log and keep going instead - this listener isn't gating any
+                // pending command, so there's no result to reject.
+                parser.on('error', (err) => {
+                    console.error('Serial data parser error: ' + err.message);
+                });
                 parser.on('data', (data) => {
                     stringBuffer.push(data.toString());
                 });

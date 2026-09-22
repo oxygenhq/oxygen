@@ -567,6 +567,15 @@ export default class HttpModule extends OxygenModule {
                 decomp.write(result.body);
                 await (() => {
                     return new Promise((resolve, reject) => {
+                        // Without an 'error' listener, a stream whose data isn't valid
+                        // raw-deflate (e.g. a mislabeled content-encoding) emits 'error'
+                        // with no handler - Node's default behavior for that is to throw,
+                        // which happens off this function's call stack and never reaches
+                        // this Promise, leaving the awaited call hanging forever instead
+                        // of failing the request cleanly.
+                        decomp.on('error', (err) => {
+                            reject(err);
+                        });
                         decomp.on('data', (data) => {
                             result.body = data.toString();
                             if (result.headers[CONTENT_TYPE_HEADER] && result.headers[CONTENT_TYPE_HEADER].includes('application/json')) {

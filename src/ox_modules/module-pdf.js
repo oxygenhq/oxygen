@@ -187,7 +187,12 @@ function count(pdfFilePath, text, pageNum = 0, reverse = false) {
 
             resolve(totalCount);
         });
-        pdfParser.loadPDF(pdfFilePath, 0);
+        // see the identical comment in assertion() above - loadPDF()'s own returned
+        // Promise rejects on a load failure without ever emitting
+        // 'pdfParser_dataError', so it must be caught here too.
+        pdfParser.loadPDF(pdfFilePath, 0).catch(function(err) {
+            reject(new OxError(errHelper.errorCode.ASSERT_ERROR, 'Failed to load PDF file: ' + pdfFilePath + ' - ' + err));
+        });
     });
 }
 
