@@ -159,10 +159,26 @@ function programHasTopLevelOxygenCall(programPath) {
     return found;
 }
 
+// Helper functions @babel/plugin-transform-modules-commonjs injects at the top level of a
+// file that uses `import x from` / `import * as x from` (e.g. `function _interopRequireDefault(e)
+// { return e && e.__esModule ? e : { default: e }; }`). They are plain synchronous utilities
+// called as `_x = _interopRequireDefault(require(...))` - marking one async turns the imported
+// module into a Promise, so `x.default` is undefined and every use of it fails with
+// "Cannot read properties of undefined". They aren't user code, so leave them (and their
+// bodies) untouched.
+const BABEL_MODULE_HELPERS = new Set([
+    '_interopRequireDefault', '_interopRequireWildcard', '_getRequireWildcardCache'
+]);
+
+function isBabelModuleHelper(path) {
+    return !!path.node.id && BABEL_MODULE_HELPERS.has(path.node.id.name) && path.parentPath.isProgram();
+}
+
 function createAsyncTransformPlugin() {
     return ({ types: t }) => ({
         visitor: {
             FunctionDeclaration(path) {
+                if (isBabelModuleHelper(path)) { path.skip(); return; }
                 if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
                 if (!path.node.async) path.node.async = true;
             },
