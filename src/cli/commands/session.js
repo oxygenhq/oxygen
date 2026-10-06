@@ -20,6 +20,7 @@ import * as registry from '../../session/registry';
 import SessionClient from '../../session/SessionClient';
 import { printSteps } from '../output';
 import { generateScript } from '../codegen';
+import { describeEntry } from '../../session/recorder';
 
 // short enough to type, long enough not to collide across concurrent sessions
 const SESSION_ID_LENGTH = 8;
@@ -38,9 +39,10 @@ export default async function session(argv) {
         case 'close':   return await close(argv);
         case 'steps':   return await steps(argv);
         case 'save':    return await save(argv);
+        case 'record':  return await record(argv);
         case undefined: return await list(argv);
         default:
-            throw new Error(`Unknown session command: "${sub}". Expected: start, list, steps, save, close.`);
+            throw new Error(`Unknown session command: "${sub}". Expected: start, list, steps, record, save, close.`);
     }
 }
 
@@ -191,6 +193,50 @@ async function steps(argv) {
     }
     finally {
         client.disconnect();
+    }
+    return 0;
+}
+
+/*
+ * `oxygen session record start|status|stop` - capture what the user does by hand in the
+ * session's browser. Recorded actions join the same journal CLI commands go into, so
+ * `oxygen session save` writes them out like any other step.
+ */
+async function record(argv) {
+    const action = argv._[2] || 'status';
+    if (!['start', 'status', 'stop'].includes(action)) {
+        throw new Error(`Unknown record command: "${action}". Expected: start, status, stop.`);
+    }
+    const client = await SessionClient.connect(argv.session || null);
+    let status;
+    try {
+        status = await client.recording(action);
+    }
+    finally {
+        client.disconnect();
+    }
+
+    if (action === 'start') {
+        console.log(`Recording session ${client.record.id}. Act in the browser window; everything you click,`);
+        console.log('type or select is captured. Check progress with "oxygen session record status",');
+        console.log('finish with "oxygen session record stop", then "oxygen session save <file>".');
+        return 0;
+    }
+
+    const entries = status.entries || [];
+    if (action === 'status' && !status.recording) {
+        console.log('Not recording. Start with "oxygen session record start".');
+        return 0;
+    }
+    console.log(`${action === 'stop' ? 'Stopped recording' : 'Recording'} - ${entries.length} action(s) captured${status.url ? ` · now at ${status.url}` : ''}`);
+    for (const entry of entries) {
+        console.log(`  ${describeEntry(entry)}`);
+    }
+    if (status.error) {
+        console.log(`Last poll failed: ${status.error}`);
+    }
+    if (action === 'stop' && entries.length) {
+        console.log('\nWrite them out with: oxygen session save <file>');
     }
     return 0;
 }

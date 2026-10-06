@@ -62,6 +62,12 @@ export function generateScript(journal, options = {}) {
         for (const warning of rendered.comments) {
             lines.push(`// ${warning}`);
         }
+        // set on actions recorded from the user's own clicks and typing that will not
+        // replay as written - a placeholder password, an XPath with nothing stable in it
+        for (const todo of entry.todo || []) {
+            lines.push(`// TODO: ${todo}`);
+            warnings.push(`${entry.module}.${entry.command}: ${todo}`);
+        }
 
         const call = `${entry.module}.${entry.command}(${rendered.args.join(', ')});`;
         lines.push(INSPECTION_COMMANDS.includes(entry.command) ? `// ${call}  // inspected while exploring` : call);

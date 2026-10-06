@@ -22,10 +22,22 @@ import { EOL } from 'os';
 import WorkerProcess from '../runners/WorkerProcess';
 import { encode, createDecoder } from './protocol';
 import { getSocketPath, saveRecord, removeRecord } from './registry';
+import { toJournalEntries } from './recorder';
 
 // a session with no traffic for this long is assumed abandoned and shuts itself down,
 // so a forgotten walkthrough does not leave a browser running indefinitely
 const DEFAULT_IDLE_TIMEOUT = 30 * 60 * 1000;
+
+// How often the recorder drains the page. Each poll also re-installs the listeners after
+// a navigation, so this bounds how long a freshly loaded page goes unrecorded.
+const RECORDER_POLL_INTERVAL = 700;
+// A new page with no recorded action this recently before it was not reached by clicking
+// or submitting - the user typed an address or used a bookmark - so it becomes web.open().
+const NAVIGATION_CAUSE_WINDOW = 5000;
+// Slack around a CLI command when deciding whether a recorded action was caused by it.
+// The page and this process share a clock, but events can land just after the command
+// returns (a change event fired by a later blur, a navigation completing).
+const COMMAND_ECHO_WINDOW = 300;
 
 export default class SessionHost {
     constructor(sessionId, options = {}, caps = {}) {
@@ -47,6 +59,8 @@ export default class SessionHost {
         // Refs are never reused, so one map stays correct for the whole session and a
         // saved script can resolve a ref back to a locator worth committing.
         this._refLocators = {};
+        // `oxygen session record` state; null while not recording
+        this._recording = null;
     }
 
     async start() {
@@ -123,14 +137,19 @@ export default class SessionHost {
                     return { result: { id: this._id, pid: process.pid } };
 
                 case 'invoke': {
+                    const commandSpan = this._beginCommand();
                     const result = await this._worker.invoke('invokeCommand', {
                         module: request.module,
                         command: request.command,
                         args: request.args || [],
                     });
+                    this._endCommand(commandSpan);
                     this._record(request, result);
                     return { result };
                 }
+
+                case 'record':
+                    return { result: await this._handleRecord(request.action) };
 
                 case 'journal':
                     return { result: { entries: this._journal, refLocators: this._refLocators } };
@@ -176,6 +195,162 @@ export default class SessionHost {
         }
     }
 
+    async _handleRecord(action) {
+        switch (action) {
+            case 'start':
+                return await this._startRecording();
+            case 'stop':
+                return await this._stopRecording();
+            case 'status':
+                return this._recordingStatus();
+            default:
+                throw new Error(`Unknown record action: "${action}". Expected: start, status, stop.`);
+        }
+    }
+
+    async _startRecording() {
+        if (this._recording) {
+            return this._recordingStatus();
+        }
+        if (this._isHeadless()) {
+            throw new Error(
+                'This session was started with --headless, so nobody can act in its browser. ' +
+                'Close it and run "oxygen session start" without --headless to record.'
+            );
+        }
+        this._recording = {
+            startIndex: this._journal.length, lastActionAt: 0, lastUrl: null,
+            timer: null, polling: false, error: null,
+            // [start, end] of CLI commands run while recording; end is null while running
+            commands: [],
+        };
+        // the first tick installs the listeners and reports where the user is starting from
+        const first = await this._worker.invoke('recorderTick', {});
+        this._recording.lastUrl = first.url;
+        // A recording that does not begin with web.open() cannot be replayed from a fresh
+        // browser. When the session was started without a URL nothing has opened one yet.
+        const opened = this._journal.some((e) => e.command === 'open' && e.status === 'passed');
+        if (!opened && /^https?:/.test(first.url)) {
+            this._journal.push({ module: 'web', command: 'open', args: [first.url], status: 'passed', at: Date.now(), source: 'user' });
+        }
+        this._appendRecorded(first.events);
+        this._recording.timer = setInterval(() => this._pollRecorder(), RECORDER_POLL_INTERVAL);
+        return this._recordingStatus();
+    }
+
+    async _pollRecorder() {
+        const rec = this._recording;
+        if (!rec || rec.polling) {
+            return;
+        }
+        rec.polling = true;
+        try {
+            const tick = await this._worker.invoke('recorderTick', {});
+            // installed=true means a new document: the user navigated somewhere
+            if (tick.installed && tick.url !== rec.lastUrl && Date.now() - rec.lastActionAt > NAVIGATION_CAUSE_WINDOW
+                && /^https?:/.test(tick.url)) {
+                this._journal.push({ module: 'web', command: 'open', args: [tick.url], status: 'passed', at: Date.now(), source: 'user' });
+            }
+            rec.lastUrl = tick.url;
+            this._appendRecorded(tick.events);
+            rec.error = null;
+        }
+        catch (e) {
+            // A page mid-navigation or a native dialog makes a single poll fail; the next
+            // one recovers. Keep the reason so `record status` can show a persistent one.
+            rec.error = e.message;
+        }
+        finally {
+            rec.polling = false;
+        }
+    }
+
+    _beginCommand() {
+        if (!this._recording) {
+            return null;
+        }
+        const span = { start: Date.now(), end: null };
+        this._recording.commands.push(span);
+        return span;
+    }
+
+    _endCommand(span) {
+        if (!span || !this._recording) {
+            return;
+        }
+        span.end = Date.now();
+        // a navigation the command caused must not be mistaken for the user typing a URL
+        this._recording.lastActionAt = span.end;
+        // windows older than any action still waiting in the page buffer are no use
+        const horizon = Date.now() - 60000;
+        this._recording.commands = this._recording.commands.filter((w) => w.end === null || w.end > horizon);
+    }
+
+    // The listener cannot tell a person's click from one WebDriver performed for a CLI
+    // command, and the command is already in the journal - recording it too would put
+    // every step in the saved script twice.
+    _causedByCommand(action) {
+        const at = action.at || 0;
+        return this._recording.commands.some((w) =>
+            at >= w.start - COMMAND_ECHO_WINDOW && (w.end === null || at <= w.end + COMMAND_ECHO_WINDOW));
+    }
+
+    _appendRecorded(actions) {
+        actions = (actions || []).filter((a) => !this._causedByCommand(a));
+        if (!actions.length) {
+            return;
+        }
+        for (const entry of toJournalEntries(actions)) {
+            this._journal.push(entry);
+        }
+        this._recording.lastActionAt = Date.now();
+        // a person working in the browser is activity, even with the terminal silent
+        this._touch();
+    }
+
+    async _stopRecording() {
+        const rec = this._recording;
+        if (!rec) {
+            throw new Error('Not recording. Start with "oxygen session record start".');
+        }
+        clearInterval(rec.timer);
+        // wait out a poll in flight, then take whatever was captured since
+        while (rec.polling) {
+            await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        try {
+            const last = await this._worker.invoke('recorderTick', { stop: true });
+            this._appendRecorded(last.events);
+        }
+        catch (e) {
+            // the browser may have been closed by the user; what was recorded still stands
+        }
+        const status = this._recordingStatus();
+        this._recording = null;
+        status.recording = false;
+        return status;
+    }
+
+    _recordingStatus() {
+        const rec = this._recording;
+        if (!rec) {
+            return { recording: false, entries: [] };
+        }
+        return {
+            recording: true,
+            entries: this._journal.slice(rec.startIndex).filter((e) => e.source === 'user'),
+            url: rec.lastUrl,
+            error: rec.error,
+        };
+    }
+
+    _isHeadless() {
+        const caps = this._caps || {};
+        const chromeArgs = (caps['goog:chromeOptions'] && caps['goog:chromeOptions'].args) || [];
+        const firefoxArgs = (caps['moz:firefoxOptions'] && caps['moz:firefoxOptions'].args) || [];
+        return chromeArgs.concat(firefoxArgs).some((a) => /^-{1,2}headless/.test(a));
+    }
+
     _touch() {
         this._idleTimer && clearTimeout(this._idleTimer);
         this._idleTimer = setTimeout(() => {
@@ -191,6 +366,7 @@ export default class SessionHost {
         }
         this._closing = true;
         this._idleTimer && clearTimeout(this._idleTimer);
+        this._recording && clearInterval(this._recording.timer);
         for (const socket of this._clients) {
             try { socket.end(); } catch (e) { /* already gone */ }
         }

@@ -22,6 +22,11 @@ Interactive session:
   oxygen session start [URL]   Start a browser session and print its id.
   oxygen session list          List live sessions. The newest is the default target.
   oxygen session steps         Show every command executed in the session.
+  oxygen session record start  Record what the user does by hand in the session's
+                               (visible) browser: clicks, typing, selections, Enter.
+  oxygen session record status List the actions recorded so far.
+  oxygen session record stop   Stop recording. "session save" writes recorded actions
+                               out together with the commands sent from the CLI.
   oxygen session save FILE     Write the session's commands out as an Oxygen test.
                                Refs become durable locators, exploration-only commands
                                are dropped, and failed commands are skipped unless

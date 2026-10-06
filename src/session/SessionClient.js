@@ -85,6 +85,10 @@ export default class SessionClient {
         return await this._request({ type: 'steps' });
     }
 
+    async recording(action) {
+        return await this._request({ type: 'record', action });
+    }
+
     async journal() {
         return await this._request({ type: 'journal' });
     }

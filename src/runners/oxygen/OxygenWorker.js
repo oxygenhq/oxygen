@@ -19,6 +19,7 @@ const scriptTransformer = require('../../core/scriptTransformer');
 const Oxygen = require('../../core/OxygenCore').default;
 const oxutil = require('../../lib/util');
 const errorHelper = require('../../errors/helper');
+const { recorderTick } = require('../../session/recorder');
 
 // mockup globbal.browser object for internal WDIO functions to work properly
 global.browser = {};
@@ -479,6 +480,25 @@ export default class OxygenWorker extends EventEmitter {
             .map((step) => summarizeStep(step));
 
         return { retval: serializableRetval(retval), error, steps };
+    }
+
+    /*
+     * One poll of the in-page recorder used by `oxygen session record`.
+     *
+     * Runs on the driver directly rather than through invokeCommand(): the host calls this
+     * every fraction of a second, and routing it through Oxygen Core's command wrapper would
+     * bury the walkthrough's real steps under hundreds of web.execute() results.
+     */
+    async recorderTick(options = {}) {
+        if (!this._oxygen) {
+            throw new Error('Oxygen is not initialized');
+        }
+        const web = this._oxygen.modules.web;
+        const driver = web && web.getDriver && web.getDriver();
+        if (!driver) {
+            throw new Error('The browser is not open - nothing to record.');
+        }
+        return await driver.execute(recorderTick, options);
     }
 
     /*
