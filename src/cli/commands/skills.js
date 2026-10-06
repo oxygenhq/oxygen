@@ -372,7 +372,15 @@ function renderCopilotPointer(instructions, prompts) {
         '',
         'If a run using `--autowd` fails with `EPERM` or `EACCES` naming a driver cache path,',
         'that is a permission problem, not a test or driver problem: pass',
-        '`--wdcache=<writable path>` rather than editing the test or dropping `--autowd`.'
+        '`--wdcache=<writable path>` rather than editing the test or dropping `--autowd`.',
+        '',
+        'Closed networks: before the first `--autowd` run, use `webDriverPath` from',
+        '`oxygen.conf.js` (or `OXYGEN_CHROMEDRIVER_PATH`) if set. Otherwise check that',
+        '`googlechromelabs.github.io` is reachable. If it is not, or a run fails with',
+        '`Failed to get compatible ChromeDriver version`, ask the user where the offline',
+        'chromedriver (binary or folder) is - never guess - store it as `webDriverPath`',
+        'in `oxygen.conf.js`, and run with `--autowd=true --wdpath=<that path>`.',
+        'The oxygen-triage guidance has the full procedure.'
     );
     return lines.join('\n');
 }
@@ -396,6 +404,13 @@ function renderAgentsBlock(summaries) {
         '',
         'If `--autowd` fails with `EPERM`/`EACCES` naming a driver cache path, that is a',
         'permission problem - pass `--wdcache=<writable path>`, do not edit the test.',
+        '',
+        'Closed networks: before the first `--autowd` run, use `webDriverPath` from',
+        '`oxygen.conf.js` (or `OXYGEN_CHROMEDRIVER_PATH`) if set. Otherwise check that',
+        '`googlechromelabs.github.io` is reachable. If it is not, or a run fails with',
+        '`Failed to get compatible ChromeDriver version`, ask the user where the offline',
+        'chromedriver (binary or folder) is - never guess - store it as `webDriverPath`',
+        'in `oxygen.conf.js`, and run with `--autowd=true --wdpath=<that path>`.',
         '',
         'Task guidance shipped with this version of oxygen-cli:',
         '',

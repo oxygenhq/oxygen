@@ -158,6 +158,11 @@ Web test options:
                              drivers in. Defaults to a per-user cache directory; set
                              this when the user profile is not writable. Can also be
                              given as the OXYGEN_CACHE_DIR environment variable.
+      --wdpath=<path>        Preinstalled ChromeDriver to use with --autowd instead of
+                             downloading one: the binary itself, or a folder holding
+                             one or more (the one matching Chrome is picked). Needed
+                             on machines without internet access. Can also be set as
+                             webDriverPath in oxygen.conf.js or OXYGEN_CHROMEDRIVER_PATH.
 
 Mobile test options:
     -s, --server=SERVER_URL  Appium server URL. Default is http://localhost:4723.`);

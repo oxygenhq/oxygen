@@ -295,6 +295,11 @@ export function getCommandLineOptions(argv) {
     if (argv.wdcache) {
         opts.wdCacheDir = argv.wdcache;
     }
+    // A preinstalled browser driver to use instead of downloading one - needed on
+    // machines that cannot reach the driver download servers.
+    if (argv.wdpath) {
+        opts.webDriverPath = argv.wdpath;
+    }
     if (typeof argv.baseline !== 'undefined') {
         opts.baseline = argv.baseline === 'true' || argv.baseline === true;
     }

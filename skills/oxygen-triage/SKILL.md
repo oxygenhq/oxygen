@@ -130,6 +130,81 @@ writing a file there before rerunning: on Windows a directory can look writable
 and still refuse the write, because ACLs are not reflected in ordinary
 permission checks.
 
+### No access to the ChromeDriver download site (closed network)
+
+Unless a matching chromedriver is already cached, `--autowd=true` looks it up at
+`googlechromelabs.github.io` and downloads it. On a closed network that request
+fails before any browser starts, with something like:
+
+```
+Failed to get compatible ChromeDriver version: Socket closed before the TLS connection was established
+Failed to get compatible ChromeDriver version: getaddrinfo ENOTFOUND googlechromelabs.github.io
+No ChromeDriver 153.x is available locally and it could not be downloaded
+```
+
+Also `ETIMEDOUT`, `ECONNRESET`, `ECONNREFUSED` or `EAI_AGAIN` in the same
+message. None of these is a test problem: do not edit the script, do not retry,
+do not drop `--autowd` in favour of a Selenium hub nobody set up.
+
+**Before the first `--autowd` run in a session, follow these steps in order:**
+
+1. **Look for a stored driver location.** Check for `webDriverPath` in
+   `oxygen.conf.js`, then the `OXYGEN_CHROMEDRIVER_PATH` environment variable.
+   If either is set, use it (step 5) and skip the rest. Never ask again for
+   something already stored.
+2. **Check whether the download site is reachable.** Node is always there,
+   and its `fetch` connects the same way Oxygen does:
+
+   ```bash
+   node -e "fetch('https://googlechromelabs.github.io/chrome-for-testing/last-known-good-versions.json',{signal:AbortSignal.timeout(10000)}).then(r=>console.log('online',r.status),e=>{console.log('offline:',e.cause?.code||e.name);process.exit(1)})"
+   ```
+
+   `online 200` means downloads will work: run normally and stop here. Any
+   `offline:` result, or a run that already failed with one of the messages
+   above, means the environment is closed.
+3. **Ask the user where the offline ChromeDriver is.** It can be the binary
+   itself or a folder holding one or more drivers. Do not guess and do not
+   search their disks or network shares: the person who set up the machine
+   knows where IT put it. Tell them the installed Chrome version (from the
+   failed run's `Chrome version:` line), because the driver's major version
+   has to match it.
+4. **Check what they gave you, then store it.** Make sure the path exists. For a
+   binary, run `<path> --version` and compare its major version with
+   Chrome's. For a folder, Oxygen picks the matching driver itself and says
+   which drivers it found if none match. Then store the location as
+   `webDriverPath` in `oxygen.conf.js` so later runs and later sessions pick
+   it up:
+
+   ```js
+   module.exports = {
+       autoStartWebDriver: true,
+       webDriverPath: 'D:\\tools\\chromedrivers',
+   };
+   ```
+
+   `oxygen.conf.js` is usually committed. If the path only applies to this
+   machine and the user does not want it in the repository, have them set
+   `OXYGEN_CHROMEDRIVER_PATH` instead.
+5. **Run with the location passed explicitly**, so it applies even when the
+   target is outside the project that holds the config:
+
+   ```bash
+   oxygen ./test.js --autowd=true --wdpath=D:\tools\chromedrivers --headless
+   oxygen session start --autowd=true --wdpath=D:\tools\chromedrivers
+   ```
+
+Precedence, highest first: `--wdpath`, then `webDriverPath` in
+`oxygen.conf.js`, then `OXYGEN_CHROMEDRIVER_PATH`. With any of them set, Oxygen
+never contacts the download site and never touches the driver cache.
+
+Do not confuse it with `--wdcache`. That option moves the folder Oxygen
+downloads into. It still downloads whenever Chrome's major version changes,
+so on a closed network it only postpones the failure.
+
+If a stored driver later fails because its version no longer matches Chrome,
+Chrome has updated. Ask the user for the new driver (or the folder it was
+added to) and update the stored value. Do not fall back to downloading.
+
 ## Getting the run output in a usable shape
 
 Run with `--rf=agent` and read `agent-report.json` from the output directory.

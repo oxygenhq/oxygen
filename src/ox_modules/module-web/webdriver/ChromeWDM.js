@@ -4,6 +4,7 @@ const path = require('path');
 import got from 'got';
 const extractZip = require('extract-zip');
 const os = require('os');
+const { pipeline } = require('stream/promises');
 
 function getOxygenCacheDir(cacheDir) {
     const name = 'oxygen-nodejs';
@@ -38,11 +39,23 @@ function getDriversDir(cacheDir) {
 
 export class ChromeWebDriverManager {
     constructor(options = {}) {
-        this.driversDir = getDriversDir(options.wdCacheDir);
-        this.chromeDriverPath = path.join(this.driversDir, getChromeDriverName());
+        this.wdCacheDir = options.wdCacheDir;
+        // A driver the user installed themselves - a binary, or a folder holding one or
+        // more. Closed networks cannot reach the Chrome for Testing endpoints at all, so
+        // this is how --autowd works there. Precedence: --wdpath, then webDriverPath in
+        // oxygen.conf.js (both arrive as options), then OXYGEN_CHROMEDRIVER_PATH.
+        this.userDriverPath = options.webDriverPath || process.env.OXYGEN_CHROMEDRIVER_PATH || null;
     }
     async start() {
-        await ensureCompatibleChromeDriver(this.driversDir, this.chromeDriverPath);
+        if (this.userDriverPath) {
+            // Resolved before the cache directory is touched: an offline machine is often
+            // also a locked-down one, and creating a cache it will never use could fail.
+            this.chromeDriverPath = resolveUserDriver(this.userDriverPath);
+        } else {
+            const driversDir = getDriversDir(this.wdCacheDir);
+            const cachedPath = path.join(driversDir, getChromeDriverName());
+            this.chromeDriverPath = await ensureCompatibleChromeDriver(driversDir, cachedPath);
+        }
         const port = getRandomPort();
         this.proc = await startChromeDriver(this.chromeDriverPath, port, false);
         const remoteUrl = `http://localhost:${port}`;
@@ -51,6 +64,60 @@ export class ChromeWebDriverManager {
     stop() {
 
     }
+}
+
+function resolveUserDriver(userPath) {
+    const source = '(given by --wdpath, webDriverPath or OXYGEN_CHROMEDRIVER_PATH)';
+    if (!fs.existsSync(userPath)) {
+        throw new Error(`ChromeDriver not found at '${userPath}' ${source}`);
+    }
+    if (!fs.statSync(userPath).isDirectory()) {
+        // An explicit binary is used as-is: the user chose it, and refusing it over a
+        // version mismatch would leave them with no way forward offline.
+        console.log(`Using ChromeDriver: ${userPath}`);
+        return userPath;
+    }
+
+    // A folder may hold several drivers (one per Chrome version the team supports), so
+    // pick the one matching the installed Chrome rather than whichever comes first.
+    const candidates = findDriversInFolder(userPath);
+    if (candidates.length === 0) {
+        throw new Error(`No ${getChromeDriverName()} found in '${userPath}' or its subfolders ${source}`);
+    }
+    const chromeVersion = getChromeVersion();
+    const found = candidates.map(p => ({ path: p, version: getCurrentChromeDriverVersion(p) }));
+    const match = found.find(d => d.version && areVersionsCompatible(chromeVersion, d.version));
+    if (!match) {
+        const list = found.map(d => `${d.path} (${d.version || 'version unknown'})`).join(', ');
+        throw new Error(
+            `None of the ChromeDrivers in '${userPath}' match Chrome ${chromeVersion}. ` +
+            `Found: ${list}. Add a ChromeDriver ${chromeVersion.split('.')[0]}.x to that folder.`
+        );
+    }
+    console.log(`Using ChromeDriver ${match.version}: ${match.path}`);
+    return match.path;
+}
+
+function findDriversInFolder(dir, depth = 2) {
+    // Shallow on purpose: covers the folder itself, the cache layout (drivers/) and the
+    // layout of an extracted download or per-version folders (chromedriver-win64/,
+    // 153/chromedriver-win64/), without crawling a whole share.
+    const results = [];
+    let entries;
+    try {
+        entries = fs.readdirSync(dir, { withFileTypes: true });
+    } catch (e) {
+        return results;
+    }
+    for (const entry of entries) {
+        const full = path.join(dir, entry.name);
+        if (entry.isFile() && entry.name === getChromeDriverName()) {
+            results.push(full);
+        } else if (entry.isDirectory() && depth > 0) {
+            results.push(...findDriversInFolder(full, depth - 1));
+        }
+    }
+    return results;
 }
 
 function getChromeVersion() {
@@ -186,12 +253,9 @@ async function downloadChromeDriver(chromeVersion, driversDir, chromeDriverPath)
     try {
         // Download ChromeDriver
         const zipPath = path.join(driversDir, 'chromedriver.zip');
-        const writer = fs.createWriteStream(zipPath);
-        got.stream(url).pipe(writer);
-        await new Promise((resolve, reject) => {
-            writer.on('finish', resolve);
-            writer.on('error', reject);
-        });
+        // pipeline() propagates errors from the download side too - with a bare pipe()
+        // a dropped connection left this waiting forever for a 'finish' that never came.
+        await pipeline(got.stream(url), fs.createWriteStream(zipPath));
 
         // Extract ChromeDriver
         await extractZip(zipPath, { dir: driversDir });
@@ -232,13 +296,47 @@ async function ensureCompatibleChromeDriver(driversDir, chromeDriverPath) {
     const currentDriverVersion = getCurrentChromeDriverVersion(chromeDriverPath);
     console.log(`Current ChromeDriver version: ${currentDriverVersion || 'Not installed'}`);
 
-    // Check if update is needed
-    if (!currentDriverVersion || !areVersionsCompatible(chromeVersion, currentDriverVersion)) {
-        console.log('ChromeDriver update required');
-        await downloadChromeDriver(chromeVersion, driversDir, chromeDriverPath);
-    } else {
+    if (currentDriverVersion && areVersionsCompatible(chromeVersion, currentDriverVersion)) {
         console.log('ChromeDriver is compatible with current Chrome version');
+        return chromeDriverPath;
     }
+
+    // A matching chromedriver already on PATH needs no download, which is what lets a
+    // machine without internet access work once IT has installed the driver.
+    const pathDriver = findCompatibleDriverOnPath(chromeVersion);
+    if (pathDriver) {
+        console.log(`Using ChromeDriver from PATH: ${pathDriver}`);
+        return pathDriver;
+    }
+
+    console.log('ChromeDriver update required');
+    try {
+        await downloadChromeDriver(chromeVersion, driversDir, chromeDriverPath);
+    } catch (e) {
+        const major = chromeVersion.split('.')[0];
+        throw new Error(
+            `${e.message}\n` +
+            `No ChromeDriver ${major}.x is available locally and it could not be downloaded ` +
+            '(the machine may have no internet access). Install a ChromeDriver matching ' +
+            `Chrome ${chromeVersion}, then pass --wdpath=<chromedriver or folder of drivers>, ` +
+            'set webDriverPath in oxygen.conf.js or OXYGEN_CHROMEDRIVER_PATH, put it on PATH, or copy it to ' +
+            `'${chromeDriverPath}'.`
+        );
+    }
+    return chromeDriverPath;
+}
+
+function findCompatibleDriverOnPath(chromeVersion) {
+    const name = getChromeDriverName();
+    const dirs = (process.env.PATH || '').split(path.delimiter).filter(Boolean);
+    for (const dir of dirs) {
+        const candidate = path.join(dir, name);
+        const version = getCurrentChromeDriverVersion(candidate);
+        if (version && areVersionsCompatible(chromeVersion, version)) {
+            return candidate;
+        }
+    }
+    return null;
 }
 
 function areVersionsCompatible(chromeVersion, driverVersion) {

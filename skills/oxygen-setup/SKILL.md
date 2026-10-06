@@ -178,6 +178,9 @@ Two settings worth setting deliberately:
   `$XDG_CACHE_HOME` on Linux). Where that is not writable — locked-down
   enterprise Windows, usually — add **`wdCacheDir`** pointing somewhere that is,
   or pass `--wdcache`. See `oxygen-triage` for the failure signature.
+  On a machine with no internet access, add **`webDriverPath`** instead: a
+  preinstalled chromedriver, or a folder of them. Oxygen then never downloads.
+  Ask the user where it is rather than guessing.
 
 Available hooks: `beforeTest`, `beforeSuite`, `beforeCase`, `afterCase`,
 `afterSuite`, `afterTest`, plus command-level hooks. Hooks are plain synchronous

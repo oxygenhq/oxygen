@@ -36,6 +36,12 @@ when there is no manifest.
   fails with `EPERM`/`EACCES` naming that path, before any browser starts. That
   is a permission problem, not a driver one: add
   **`--wdcache=<writable path>`** rather than giving up on `--autowd`.
+  On a closed network the driver cannot be downloaded at all (`Failed to get
+  compatible ChromeDriver version`, `ENOTFOUND`, `Socket closed before the TLS
+  connection was established`). Use a stored `webDriverPath` from
+  `oxygen.conf.js`. If none is stored, ask the user where the offline
+  chromedriver is, store it there, and pass **`--wdpath=<driver or folder>`**.
+  `oxygen-triage` has the full procedure.
 - **`--suites=NAME`** narrows a large project to one suite.
 
 ## When a script is broken in several places
