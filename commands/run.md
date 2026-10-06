@@ -24,6 +24,9 @@ when there is no manifest.
 
 - **`--headless`** for anything unattended. A visible browser takes keyboard
   focus every time it opens, which makes the machine unusable during a run.
+  **Leave it off** when the user asks for interactive mode, wants to watch
+  the run, or needs to act in the browser (login, MFA, CAPTCHA). What they
+  ask for overrides the examples here.
 - **`--rf=agent`** whenever the output will be read rather than watched. It
   writes `agent-report.json`: the verdict, and for each failure the error, the
   script line, the steps leading up to it and the page snapshot alongside. A

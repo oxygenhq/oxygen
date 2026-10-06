@@ -16,10 +16,13 @@ The user's manual test case, acceptance criteria or described scenario is in
    the steps by hand:
 
    ```bash
-   oxygen session start --env=dev --headless
+   oxygen session start --env=dev --headless   # drop --headless if the user wants to watch
    oxygen web snapshot                 # roles, names, refs, durable locators
    oxygen po                           # what this project already provides
    ```
+
+   If the user asked for interactive mode, or to see the browser, start the
+   session **without** `--headless`. See `/oxygen:session`.
 
    Reuse the project's page objects rather than retyping them. Pass project
    values as `po:Path`, `env:name`, and `secret:Path` for anything encrypted —

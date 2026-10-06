@@ -43,7 +43,7 @@ suggested durable locator per element. Record what actually works — including
 waits that turn out to be necessary.
 
 ```bash
-oxygen session start https://www.example.com/login
+oxygen session start https://www.example.com/login   # add --headless only if nobody watches
 oxygen web snapshot
 #   textbox  "Username"  ref=e1  id=user-name
 #   textbox  "Password"  ref=e2  id=password
@@ -57,6 +57,16 @@ oxygen web snapshot          # confirm where the click landed
 oxygen session steps         # everything executed, in order
 oxygen session close
 ```
+
+**Headless or visible is the user's choice.** `--headless` is only the default
+when nobody is watching. Leave it off and open a visible browser when the user
+asks for interactive mode, wants to see or watch the browser, asks for a demo
+or walkthrough, or needs to act in the browser themselves (log in, enter an
+MFA code, solve a CAPTCHA, look at a page). What the user asks for overrides
+every `--headless` example in this guidance. A running session cannot switch
+modes: if the user wants to see a session that was started headless, run
+`oxygen session close` and start it again without `--headless`. If you cannot
+tell whether they want to watch, ask.
 
 Act through `ref`, but record the `locator` column — that is what goes in the
 test. On a large page, `oxygen web snapshot '{"viewportOnly":true}'` cuts it

@@ -193,6 +193,9 @@ do not drop `--autowd` in favour of a Selenium hub nobody set up.
    oxygen session start --autowd=true --wdpath=D:\tools\chromedrivers
    ```
 
+   The session above has no `--headless` on purpose. Add it only when nobody
+   needs to see the browser. Interactive mode means a visible browser.
+
 Precedence, highest first: `--wdpath`, then `webDriverPath` in
 `oxygen.conf.js`, then `OXYGEN_CHROMEDRIVER_PATH`. With any of them set, Oxygen
 never contacts the download site and never touches the driver cache.
