@@ -144,13 +144,18 @@ export default class UtilsModule extends OxygenModule {
      * @function writeCsv
      * @param {String} filePath - Absolute path to file
      * @param {Array} data - CSV data in format [{column_name_1: 'foo', column_name_2: 'bar'}]
-     * @param {Object=} options - [Options](https://github.com/anton-bot/objects-to-csv#async-todiskfilename-options)
+     * @param {Object=} options - [Options](https://github.com/anton-bot/objects-to-csv#async-todiskfilename-options).
+     *  Also accepts `escapeFormulas` (boolean, default false): when true, text values starting with =, +, - or @ get a
+     *  leading apostrophe so spreadsheet apps don't treat them as formulas. Off by default so values such as
+     *  phone numbers ("+972...") are written exactly as given.
      */
     async writeCsv(filePath, data, options = {}) {
         try {
             const ObjectsToCsv = require('objects-to-csv');
-            const csv = new ObjectsToCsv(data);
-            await csv.toDisk(filePath, { allColumns: true, ...options });
+            // objects-to-csv 3.x escapes such values by default; keep the previous output unless asked
+            const { escapeFormulas = false, ...diskOptions } = options;
+            const csv = new ObjectsToCsv(data, { escapeFormulas });
+            await csv.toDisk(filePath, { allColumns: true, ...diskOptions });
         } catch (e) {
             throw new OxError(errorHelper.errorCode.CSV_ERROR, e.message);
         }
