@@ -149,6 +149,12 @@ function programHasTopLevelOxygenCall(programPath) {
         Function(fnPath) {
             fnPath.skip();
         },
+        // class property initializers / static blocks run when a class is instantiated or
+        // defined, not when the file loads - handled (and rejected) by the CallExpression
+        // visitor, never something the file's top level can be wrapped to await.
+        'ClassProperty|ClassPrivateProperty|StaticBlock'(initPath) {
+            initPath.skip();
+        },
         CallExpression(callPath) {
             if (isOxygenNamespaceCall(callPath.node)) {
                 found = true;
@@ -172,6 +178,17 @@ const BABEL_MODULE_HELPERS = new Set([
 
 function isBabelModuleHelper(path) {
     return !!path.node.id && BABEL_MODULE_HELPERS.has(path.node.id.name) && path.parentPath.isProgram();
+}
+
+// path.buildCodeFrameError() gives a readable message but no `.loc`, so Oxygen's error
+// reporting (OxygenError.generateLocation) can't tell where in the user's file it happened and
+// falls back to the first stack frame - which is this transformer, not the user's code.
+function buildUserCodeError(path, message) {
+    const err = path.buildCodeFrameError(message);
+    if (path.node.loc && path.node.loc.start) {
+        err.loc = path.node.loc.start;
+    }
+    return err;
 }
 
 function createAsyncTransformPlugin() {
@@ -216,6 +233,23 @@ function createAsyncTransformPlugin() {
                 if (path.parentPath.isAwaitExpression()) return;
                 // don't await constructor arguments
                 if (path.parentPath.isNewExpression()) return;
+                // A class property initializer (`_otpInput = web.findElements(...)`) or static
+                // block is not an async context: `await` there is a syntax error that makes the
+                // whole file fail to compile, and leaving the call un-awaited would silently
+                // store a Promise in place of the value. An Oxygen command is always async, so
+                // reject it with a pointer to the line. A function in between (an arrow-function
+                // property, a method) is a normal async context and is handled below.
+                const enclosing = path.findParent(p =>
+                    p.isFunction() || p.isClassProperty() || p.isClassPrivateProperty() || p.isStaticBlock());
+                if (enclosing && !enclosing.isFunction()) {
+                    if (isOxygenNamespaceCall(path.node)) {
+                        throw buildUserCodeError(path,
+                            'This command can\'t be used in a class property - only inside a method. ' +
+                            'Move it into a method and call that method where you need the value.'
+                        );
+                    }
+                    return;
+                }
                 // files that keep their own module.exports (page objects / support
                 // files, wrapInIIFE === false) never get their top level wrapped in
                 // an async IIFE, UNLESS their top level contains an Oxygen call (see
@@ -229,7 +263,7 @@ function createAsyncTransformPlugin() {
                 // function parent to await inside.
                 const functionParent = path.getFunctionParent();
                 const nonAsyncable = !!functionParent && isNonAsyncableMethod(functionParent.node);
-                const willBeAwaited = (state.opts.wrapInIIFE || !!functionParent) && !nonAsyncable;
+                const willBeAwaited = (state.opts.wrapInIIFE || state.wrapTopLevelInReady || !!functionParent) && !nonAsyncable;
                 // require() itself is never async - but the module it returns may carry
                 // a `__ready` promise (see Program.enter) that isn't actually settled
                 // yet. Route through a helper that awaits `__ready` when present, but
@@ -248,7 +282,7 @@ function createAsyncTransformPlugin() {
                         // top level contains an Oxygen call, which should make this
                         // unreachable in practice - but fail loudly rather than silently
                         // hand back an unresolved Promise if some case slips through.
-                        throw path.buildCodeFrameError(
+                        throw buildUserCodeError(path,
                             'This command can\'t be used here - only inside a function. Move it into a ' +
                             'function (e.g. module.exports.myFunction = () => { ... }), then call that ' +
                             'function from your test.'
@@ -278,32 +312,57 @@ function createAsyncTransformPlugin() {
                     // visitor above), so instead wrap the whole top level in an async
                     // IIFE and hand callers a promise to wait on: any require()'d module
                     // exposing `module.exports.__ready` isn't fully populated until that
-                    // promise resolves. This must run before the CallExpression visitor
-                    // reaches these calls (hence Program.enter, not exit) so that, by the
-                    // time it does, they already have a real function parent to await
-                    // inside - this new arrow function.
-                    if (!programHasTopLevelOxygenCall(path)) return;
-                    const body = [...path.node.body];
-                    const asyncIIFE = t.callExpression(
-                        t.arrowFunctionExpression([], t.blockStatement(body), true),
-                        []
-                    );
-                    const readyStmt = t.expressionStatement(
-                        t.assignmentExpression('=',
-                            t.memberExpression(
-                                t.memberExpression(t.identifier('module'), t.identifier('exports')),
-                                t.identifier('__ready')
-                            ),
-                            asyncIIFE
-                        )
-                    );
-                    path.node.body = [readyStmt];
+                    // promise resolves. Only decided here (so the CallExpression visitor
+                    // knows these calls will end up inside an async function and can be
+                    // awaited); the wrapping itself happens in Program.exit, after the
+                    // commonjs plugin has converted any import/export statements - wrapping
+                    // here would bury them inside the function, where they are invalid.
+                    state.wrapTopLevelInReady = programHasTopLevelOxygenCall(path);
                 },
                 exit(path, state) {
+                    // `import x from './y'` becomes a plain top-level require() only here, when
+                    // the commonjs plugin runs its own Program.exit - after the CallExpression
+                    // visitor has already finished, so it never saw these. When this file's top
+                    // level is about to be wrapped in an async function, route them through the
+                    // same __ready-aware helper as hand-written require() calls.
+                    if (state.opts.wrapInIIFE || state.wrapTopLevelInReady) {
+                        path.traverse({
+                            Function(fnPath) {
+                                fnPath.skip();
+                            },
+                            CallExpression(callPath) {
+                                if (callPath.parentPath.isAwaitExpression() || !isRequireCall(callPath.node)) {
+                                    return;
+                                }
+                                callPath.node.callee = t.identifier(OXYGEN_REQUIRE_HELPER_NAME);
+                                state.needsOxygenRequireHelper = true;
+                                callPath.replaceWith(t.awaitExpression(callPath.node));
+                                callPath.skip();
+                            }
+                        });
+                    }
                     if (state.needsOxygenRequireHelper) {
                         path.node.body.unshift(buildOxygenRequireHelperDecl(t));
                     }
-                    if (!state.opts.wrapInIIFE) return;
+                    if (!state.opts.wrapInIIFE) {
+                        if (state.wrapTopLevelInReady) {
+                            const readyBody = [...path.node.body];
+                            const readyIIFE = t.callExpression(
+                                t.arrowFunctionExpression([], t.blockStatement(readyBody), true),
+                                []
+                            );
+                            path.node.body = [t.expressionStatement(
+                                t.assignmentExpression('=',
+                                    t.memberExpression(
+                                        t.memberExpression(t.identifier('module'), t.identifier('exports')),
+                                        t.identifier('__ready')
+                                    ),
+                                    readyIIFE
+                                )
+                            )];
+                        }
+                        return;
+                    }
                     const body = [...path.node.body];
                     const asyncIIFE = t.callExpression(
                         t.arrowFunctionExpression([], t.blockStatement(body), true),
