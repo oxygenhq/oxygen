@@ -230,6 +230,7 @@ module.exports = function() {
 
             // Message object
             const message = {
+                from: _smtpConfig.username,
                 to: to,
                 // Subject of the message
                 subject: subject || '',
@@ -239,7 +240,10 @@ module.exports = function() {
                 html: html,
             };
 
-            await transporter.sendMail(message);
+            const info = await transporter.sendMail(message);
+            if (info && info.rejected && info.rejected.length > 0) {
+                throw new Error('Recipient(s) rejected by SMTP server: ' + info.rejected.join(', ') + ' (' + info.response + ')');
+            }
         }
         catch (e) {
             err = e;
