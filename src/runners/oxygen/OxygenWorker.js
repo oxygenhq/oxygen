@@ -84,24 +84,15 @@ export default class OxygenWorker extends EventEmitter {
         try {
             this._oxygen && this._oxygen.onBeforeCase && await this._oxygen.onBeforeCase(context);
 
-            // invalidate require cache for all user scripts so each iteration loads fresh copies
-            const originalRequire = Module.prototype.require;
-            Module.prototype.require = function() {
-                const script = arguments['0'];
-                // invalidate cache only when loading user-level scripts (relative paths)
-                if (script && script.startsWith('.')) {
-                    for (const key in require.cache) {
-                        if (key.startsWith && key.startsWith(cwd)) {
-                            try {
-                                delete require.cache[key];
-                            } catch (exi) {
-                                // ignored
-                            }
-                        }
-                    }
+            // invalidate require cache for all user scripts so each iteration loads fresh copies.
+            // Done once per run: invalidating on every relative require() made modules shared by
+            // several files load - and get transformed - again for each file requiring them, and
+            // gave those files separate instances of the same module.
+            for (const key of Object.keys(require.cache)) {
+                if (key.startsWith(cwd)) {
+                    delete require.cache[key];
                 }
-                return originalRequire.apply(this, arguments);
-            };
+            }
 
             // install require hook so sub-scripts required from within the test are also transformed
             scriptTransformer.installRequireHook(cwd);
@@ -136,7 +127,6 @@ export default class OxygenWorker extends EventEmitter {
                 }
             } finally {
                 scriptTransformer.uninstallRequireHook();
-                Module.prototype.require = originalRequire;
             }
         } catch (e) {
             if (e && e.type && e.type === errorHelper.errorCode.ASSERT_PASSED) {
