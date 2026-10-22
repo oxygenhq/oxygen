@@ -180,6 +180,78 @@ function isBabelModuleHelper(path) {
     return !!path.node.id && BABEL_MODULE_HELPERS.has(path.node.id.name) && path.parentPath.isProgram();
 }
 
+// true if the subtree at `path` contains a call outside any nested function.
+function containsCall(path) {
+    let found = false;
+    path.traverse({
+        Function(fnPath) {
+            fnPath.skip();
+        },
+        CallExpression(callPath) {
+            found = true;
+            callPath.stop();
+        }
+    });
+    return found || path.isCallExpression();
+}
+
+// Every call in a function is awaited, but `await` is a syntax error inside a parameter list
+// ("Illegal await-expression in formal parameters of async function"), so a default value such
+// as `function (d = date.fromNow('days', 0, 'DD.MM.yyyy')) {...}` made the whole file fail to
+// compile. Move such defaults into the body, where they are evaluated the same way
+// (`if (d === undefined) d = <default>`) and can be awaited. Once one parameter is moved, every
+// later default is moved too, so a default that refers to an earlier parameter still sees its value.
+function hoistParameterDefaults(path, t) {
+    const node = path.node;
+    const params = path.get('params');
+    let hoisting = false;
+    const prologue = [];
+    params.forEach((paramPath, i) => {
+        const param = paramPath.node;
+        const isDefault = t.isAssignmentPattern(param);
+        if (!hoisting) {
+            if (!containsCall(paramPath)) {
+                return;
+            }
+            hoisting = true;
+        }
+        else if (!isDefault) {
+            return;
+        }
+        if (t.isRestElement(param) || !(isDefault || t.isObjectPattern(param) || t.isArrayPattern(param))) {
+            throw buildUserCodeError(paramPath,
+                'This command can\'t be used in a function\'s parameter list. ' +
+                'Move it into the function body.');
+        }
+        const target = isDefault ? param.left : param;
+        const value = isDefault ? param.right : null;
+        let name = target;
+        if (!t.isIdentifier(target)) {
+            name = path.scope.generateUidIdentifier('param');
+            prologue.push(t.variableDeclaration('var', [t.variableDeclarator(target, t.cloneNode(name))]));
+        }
+        node.params[i] = t.cloneNode(name);
+        if (isDefault) {
+            // inserted before the destructuring declaration (if any), so it sees the defaulted value
+            const check = t.ifStatement(
+                t.binaryExpression('===', t.cloneNode(name), t.unaryExpression('void', t.numericLiteral(0))),
+                t.expressionStatement(t.assignmentExpression('=', t.cloneNode(name), value))
+            );
+            prologue.splice(t.isIdentifier(target) ? prologue.length : prologue.length - 1, 0, check);
+        }
+    });
+    if (!prologue.length) {
+        return;
+    }
+    if (t.isBlockStatement(node.body)) {
+        node.body.body.unshift(...prologue);
+    }
+    else {
+        node.body = t.blockStatement([...prologue, t.returnStatement(node.body)]);
+        node.expression = false;
+    }
+}
+
 // path.buildCodeFrameError() gives a readable message but no `.loc`, so Oxygen's error
 // reporting (OxygenError.generateLocation) can't tell where in the user's file it happened and
 // falls back to the first stack frame - which is this transformer, not the user's code.
@@ -197,14 +269,17 @@ function createAsyncTransformPlugin() {
             FunctionDeclaration(path) {
                 if (isBabelModuleHelper(path)) { path.skip(); return; }
                 if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
+                hoistParameterDefaults(path, t);
                 if (!path.node.async) path.node.async = true;
             },
             FunctionExpression(path) {
                 if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
+                hoistParameterDefaults(path, t);
                 if (!path.node.async) path.node.async = true;
             },
             ArrowFunctionExpression(path) {
                 if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
+                hoistParameterDefaults(path, t);
                 if (!path.node.async) path.node.async = true;
             },
             // ES2015 method-shorthand syntax (`{ foo() {...} }` in an object
@@ -219,14 +294,17 @@ function createAsyncTransformPlugin() {
             ObjectMethod(path) {
                 if (isNonAsyncableMethod(path.node)) return;
                 if (isBrowserExecuteCallback(path) || isSyncArrayCallback(path)) { path.skip(); return; }
+                hoistParameterDefaults(path, t);
                 if (!path.node.async) path.node.async = true;
             },
             ClassMethod(path) {
                 if (isNonAsyncableMethod(path.node)) return;
+                hoistParameterDefaults(path, t);
                 if (!path.node.async) path.node.async = true;
             },
             ClassPrivateMethod(path) {
                 if (isNonAsyncableMethod(path.node)) return;
+                hoistParameterDefaults(path, t);
                 if (!path.node.async) path.node.async = true;
             },
             CallExpression(path, state) {
