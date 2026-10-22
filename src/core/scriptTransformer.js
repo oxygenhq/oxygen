@@ -1,5 +1,6 @@
 const babel = require('@babel/core');
 const modulesCommonjsPlugin = require('@babel/plugin-transform-modules-commonjs');
+const crypto = require('crypto');
 const fs = require('fs');
 const Module = require('module');
 
@@ -459,7 +460,24 @@ function createAsyncTransformPlugin() {
     });
 }
 
+// Transformed output per file, reused while the file content is unchanged. User files are
+// re-required on every iteration (so each one gets fresh module instances); without this,
+// every iteration re-ran Babel over the whole project.
+const _transformCache = new Map();
+
 function transform(code, filename, wrapInIIFE = true) {
+    const cacheKey = `${filename}\0${wrapInIIFE}`;
+    const hash = crypto.createHash('sha1').update(code).digest('hex');
+    const cached = _transformCache.get(cacheKey);
+    if (cached && cached.hash === hash) {
+        return cached.code;
+    }
+    const transformed = _transform(code, filename, wrapInIIFE);
+    _transformCache.set(cacheKey, { hash, code: transformed });
+    return transformed;
+}
+
+function _transform(code, filename, wrapInIIFE) {
     try {
         const result = babel.transformSync(code, {
             filename,
