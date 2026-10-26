@@ -26,6 +26,9 @@ import got from 'got';
 import OxygenError from '../errors/OxygenError';
 import errorHelper from '../errors/helper';
 
+// Hooks running right now, and the require() they wrapped - see executeTestHook
+const hookRequire = { running: 0, original: null };
+
 function DecryptResult(result) {
     const decryptResult = result;
 
@@ -335,16 +338,22 @@ var self = module.exports = {
         }
 
         // Let require('chai') inside a user hook resolve, since chai lives in oxygen-cli's own
-        // node_modules, not the test project's. Scoped to just this call so it can't affect
+        // node_modules, not the test project's. Only while hooks are running, so it can't affect
         // unrelated require()s elsewhere in the process.
-        const chai = require('chai');
-        const originalRequire = Module.prototype.require;
-        Module.prototype.require = function(id) {
-            if (id === 'chai') {
-                return chai;
-            }
-            return originalRequire.apply(this, arguments);
-        };
+        // Hooks can run concurrently - beforeCommand/afterCommand calls arrive over IPC without
+        // waiting for each other - so the first running hook installs the wrapper and the last
+        // one removes it. Wrapping and restoring per call leaked a wrapper layer whenever two
+        // calls finished out of order, until require() overflowed the stack.
+        if (hookRequire.running++ === 0) {
+            const chai = require('chai');
+            const originalRequire = hookRequire.original = Module.prototype.require;
+            Module.prototype.require = function(id) {
+                if (id === 'chai') {
+                    return chai;
+                }
+                return originalRequire.apply(this, arguments);
+            };
+        }
 
         try {
             await hooks[method].apply(undefined, args);
@@ -354,7 +363,10 @@ var self = module.exports = {
             throw e;
         }
         finally {
-            Module.prototype.require = originalRequire;
+            if (--hookRequire.running === 0) {
+                Module.prototype.require = hookRequire.original;
+                hookRequire.original = null;
+            }
         }
     },
 
