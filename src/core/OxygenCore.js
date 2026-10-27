@@ -231,7 +231,7 @@ export default class Oxygen extends OxygenEvents {
         this.resultStore.steps = [];
         this.resultStore.logs = [];
         this.resultStore.attachments = [];
-        this.har = null;
+        this.resultStore.har = null;
     }
 
     async onBeforeCase(context) {
