@@ -21,7 +21,8 @@ module.exports = function () {
         status: null,
         steps: [],    // array of step-result.js
         logs: [],
-        har: null,
+        har: null,          // transaction name -> HAR file path
+        harStats: null,     // transaction name -> network summary (lib/har-stats)
         failure: null,
         context: null,
         testAttributes: {},

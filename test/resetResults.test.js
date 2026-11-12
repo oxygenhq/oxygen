@@ -9,11 +9,13 @@ test('resetResults() clears the previous case HAR files', () => {
     const oxygen = new Oxygen();
     // what the web module hands over at the end of a case that used the browser
     oxygen.resultStore.har = { 'Open page': '/tmp/.cb-attachments/har-1.json' };
+    oxygen.resultStore.harStats = { 'Open page': { requests: 12 } };
 
     oxygen.resetResults();
 
     // a following case that never opens the browser must not report those files again
     assert.strictEqual(oxygen.resultStore.har, null);
+    assert.strictEqual(oxygen.resultStore.harStats, null);
     assert.deepStrictEqual(oxygen.resultStore.steps, []);
     assert.deepStrictEqual(oxygen.resultStore.logs, []);
     assert.deepStrictEqual(oxygen.resultStore.attachments, []);

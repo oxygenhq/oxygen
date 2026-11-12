@@ -60,6 +60,7 @@ import { autoStartWebDriver } from '../ox_modules/module-web/webdriver/auto-star
 import sanitizeHtml from 'sanitize-html';
 import fs from 'fs';
 import oxutil from '../lib/util';
+import { getHarStats } from '../lib/har-stats';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -232,6 +233,7 @@ export default class WebModule extends WebDriverModule {
         super(options, context, rs, logger, modules, services);
         this.transactions = {};                      // transaction->har dictionary
         this.harFiles = {};                           // transaction->har file path dictionary
+        this.harStats = {};                           // transaction->network summary, see lib/har-stats
         this.lastNavigationStartTime = null;
         this.helpers = {};
         this._snapshotRefs = {};
@@ -492,6 +494,7 @@ export default class WebModule extends WebDriverModule {
     async dispose(status) {
         this.transactions = {};
         this.harFiles = {};
+        this.harStats = {};
         this._whenWebModuleDispose = oxutil.defer();
 
         if (!status) {
@@ -663,6 +666,7 @@ export default class WebModule extends WebDriverModule {
         }
 
         this.rs.har = this.harFiles;
+        this.rs.harStats = this.harStats;
         const hasFailed = error !== undefined && error !== null;
         this._addSelenoidVideoAsTestAttachment(hasFailed);
     }
@@ -873,8 +877,7 @@ export default class WebModule extends WebDriverModule {
                     events.push(msgObj.message);
                 }
 
-                const har = harFromMessages(events);
-                return JSON.stringify(har);
+                return harFromMessages(events);
             } else {
                 return null;
             }
@@ -884,29 +887,30 @@ export default class WebModule extends WebDriverModule {
         }
     }
 
-    // a HAR capture (full network log + response bodies) can be substantial, and with HAR
-    // recording enabled it's captured on every transaction — holding all of them in memory
-    // for the whole case (previously via this.rs.har = this.transactions, a name->HAR-object
-    // dictionary that only grew) is the same avoidable memory sink screenshots were.
+    // A HAR capture (full network log) can be large, and with HAR recording enabled one is captured
+    // for every transaction, so each one goes straight to a file in the attachments folder and only
+    // the path is kept, in this.harFiles (transaction name -> file path). The result builder
+    // (e.g. cb-oxygen-runner-wrapper) sends each file as a Har attachment of its transaction.
     //
-    // Unlike screenshots, HAR can't just be uploaded as a generic file-reference attachment:
-    // the server (CloudBeat.TestResults.Processor's HarFileService) needs the actual raw HAR
-    // JSON content in caseResult.har[transactionName] so it can parse it and compute per-step
-    // network timing stats (DNS/connect/SSL/etc, see step.PageDns and friends) before writing
-    // its own HarFilename and re-saving the file under its own storage scheme — a plain file
-    // path isn't enough for that. So we still write straight to disk here (avoiding holding it
-    // in memory for the rest of the case), but only track the file path in this.harFiles;
-    // whoever builds the final case result payload (e.g. cb-oxygen-runner-wrapper) is
-    // responsible for reading each file back into caseResult.har at the very end, right before
-    // sending — one HAR at a time, not all of them held in memory for the whole run.
-    async _saveHarToFile(transactionName, harJson) {
-        if (!harJson) {
+    // A short network summary of the transaction (request counts, errors, timings) is kept in
+    // this.harStats the same way, so the result can carry it without the HAR content.
+    async _saveHarToFile(transactionName, har) {
+        if (!har) {
             return null;
+        }
+        try {
+            const stats = getHarStats(har);
+            if (stats) {
+                this.harStats[transactionName] = stats;
+            }
+        }
+        catch (e) {
+            this.logger.error('Cannot calculate HAR stats.', e);
         }
         const fileName = `har-${oxutil.generateUniqueId()}.json`;
         const filePath = oxutil.getAttachmentPath(fileName, this.options);
         try {
-            fs.writeFileSync(filePath, harJson);
+            fs.writeFileSync(filePath, JSON.stringify(har));
         }
         catch (e) {
             this.logger.error('Cannot save HAR file.', e);

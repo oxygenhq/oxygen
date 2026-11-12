@@ -78,6 +78,7 @@ const DEFAULT_RESULT_STORE = {
     logs: [],
     attachments: [],
     har: null,
+    harStats: null,
     attributes: {}
 };
 
@@ -232,6 +233,7 @@ export default class Oxygen extends OxygenEvents {
         this.resultStore.logs = [];
         this.resultStore.attachments = [];
         this.resultStore.har = null;
+        this.resultStore.harStats = null;
     }
 
     async onBeforeCase(context) {

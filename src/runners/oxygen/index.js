@@ -586,6 +586,7 @@ export default class OxygenRunner extends EventEmitter {
             caseResult.steps = resultStore && resultStore.steps ? resultStore.steps : [];
             caseResult.logs = resultStore && resultStore.logs ? resultStore.logs : [];
             caseResult.har = resultStore && resultStore.har ? resultStore.har : null;
+            caseResult.harStats = resultStore && resultStore.harStats ? resultStore.harStats : null;
             caseResult.testAttributes = resultStore && resultStore.attributes ? resultStore.attributes : null;
             caseResult.attachments = resultStore && resultStore.attachments ? resultStore.attachments : null;
 
