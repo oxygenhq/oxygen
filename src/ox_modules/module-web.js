@@ -61,6 +61,7 @@ import sanitizeHtml from 'sanitize-html';
 import fs from 'fs';
 import oxutil from '../lib/util';
 import { getHarStats } from '../lib/har-stats';
+import { withTimeout } from '../lib/with-timeout';
 
 const MODULE_NAME = 'web';
 const DEFAULT_SELENIUM_URL = 'http://localhost:4444/wd/hub';
@@ -100,6 +101,8 @@ const NO_SNAPSHOT_COMMANDS = [
 ];
 const ACTION_COMMANDS = ['open', 'click'];
 const DEFAULT_WAIT_TIMEOUT = 60 * 1000;            // default 60s wait timeout
+// limit for the HAR and browser log fetches Oxygen makes on its own (they normally take a few seconds)
+const LOG_FETCH_TIMEOUT = 60 * 1000;
 
 const SANITIZE_HTML_OPTS = {
     allowedTags: [
@@ -442,7 +445,7 @@ export default class WebModule extends WebDriverModule {
         if (this.options.collectBrowserLogs && this.caps.browserName === 'chrome') {
             try {
                 // simply call this to clear the previous logs and start the test with the clean logs
-                await this.getBrowserLogs();
+                await withTimeout(this.getBrowserLogs(), LOG_FETCH_TIMEOUT, 'Fetching browser logs');
             } catch (e) {
                 this.logger.error('Cannot retrieve browser logs.', e);
             }
@@ -645,7 +648,7 @@ export default class WebModule extends WebDriverModule {
         // collect browser logs for this session
         if (this.options.collectBrowserLogs === true && this.caps.browserName === 'chrome') {
             try {
-                const logs = await this.getBrowserLogs();
+                const logs = await withTimeout(this.getBrowserLogs(), LOG_FETCH_TIMEOUT, 'Fetching browser logs');
                 if (logs && Array.isArray(logs)) {
                     for (var log of logs) {
                         this.rs.logs.push(this._adjustBrowserLog(log));
@@ -860,31 +863,38 @@ export default class WebModule extends WebDriverModule {
 
     async _getHAR() {
         try {
-            const types = await this.driver.getLogTypes();
-
-            if (types.includes('performance')) {
-                const logs = await this.driver.getLogs('performance');
-
-                // in one instance, logs was not iterable for some reason - hence the following check:
-                if (!logs || typeof logs[Symbol.iterator] !== 'function') {
-                    this.logger.error('getHAR: logs not iterable: ' + JSON.stringify(logs));
-                    return null;
-                }
-
-                const events = [];
-                for (let log of logs) {
-                    const msgObj = JSON.parse(log.message);   // returned as string
-                    events.push(msgObj.message);
-                }
-
-                return harFromMessages(events);
-            } else {
+            const logs = await withTimeout(this._getPerformanceLogs(), LOG_FETCH_TIMEOUT, 'Fetching the HAR');
+            if (logs === null) {
                 return null;
             }
+
+            // in one instance, logs was not iterable for some reason - hence the following check:
+            if (typeof logs[Symbol.iterator] !== 'function') {
+                this.logger.error('getHAR: logs not iterable: ' + JSON.stringify(logs));
+                return null;
+            }
+
+            const events = [];
+            for (let log of logs) {
+                const msgObj = JSON.parse(log.message);   // returned as string
+                events.push(msgObj.message);
+            }
+
+            return harFromMessages(events);
         } catch (e) {
             this.logger.error('Unable to fetch HAR: ' + e.toString());
             return null;
         }
+    }
+
+    // Chrome's performance log (the network events a HAR is built from), or null when the
+    // browser does not provide one
+    async _getPerformanceLogs() {
+        const types = await this.driver.getLogTypes();
+        if (!types.includes('performance')) {
+            return null;
+        }
+        return await this.driver.getLogs('performance');
     }
 
     // A HAR capture (full network log) can be large, and with HAR recording enabled one is captured
