@@ -1,6 +1,38 @@
 // https://github.com/ragrag/merge-base64
 
-import { Jimp, JimpMime } from 'jimp';
+// JPEG quality (0..1) of the merged image
+const JPEG_QUALITY = 0.9;
+// the biggest width/height a canvas can have
+const MAX_CANVAS_SIZE = 32767;
+
+let canvasModule;
+let canvasLoadError;
+
+// canvas is a native module, so it is loaded only when needed and a failure to load it must not break the test run
+function getCanvas() {
+    if (!canvasModule && !canvasLoadError) {
+        try {
+            canvasModule = require('canvas');
+        } catch (e) {
+            canvasLoadError = e;
+        }
+    }
+    return canvasModule;
+}
+
+// Jimp-style 0xRRGGBBAA number to a CSS color
+function toCssColor(color) {
+    const r = (color >>> 24) & 255;
+    const g = (color >>> 16) & 255;
+    const b = (color >>> 8) & 255;
+    const a = (color & 255) / 255;
+    return `rgba(${r}, ${g}, ${b}, ${a})`;
+}
+
+// used when images cannot be merged (e.g. canvas is not available): returns the last image, which is the screenshot of the last window
+function lastImage(images) {
+    return `data:image/jpeg;base64,${images[images.length - 1]}`;
+}
 
 function alignImage(total, size, align) {
     if (align === 'center') {
@@ -63,9 +95,16 @@ module.exports = function mergeImages(
         throw new Error('At least `images` must contain more than one image');
     }
 
+    const canvasLib = getCanvas();
+    if (!canvasLib) {
+        console.warn('Cannot merge screenshots, canvas is not available:', canvasLoadError && canvasLoadError.message);
+        return Promise.resolve(lastImage(images));
+    }
+    const { createCanvas, loadImage } = canvasLib;
+
     const processImg = async img => {
-        const imgBuffer = await new Buffer.from(img, 'base64');
-        return Jimp.read(imgBuffer).then(imgObj => ({ img: imgObj }));
+        const image = await loadImage(Buffer.from(img, 'base64'));
+        return { img: { image, bitmap: { width: image.width, height: image.height } } };
     };
 
     return Promise.all(images.map(processImg)).then(imgs => {
@@ -145,11 +184,17 @@ module.exports = function mergeImages(
           )
         );
 
-        const baseImage = new Jimp({
-            width: totalWidth + marginRightLeft,
-            height: totalHeight + marginTopBottom,
-            color,
-        });
+        const canvasWidth = totalWidth + marginRightLeft;
+        const canvasHeight = totalHeight + marginTopBottom;
+        if (canvasWidth > MAX_CANVAS_SIZE || canvasHeight > MAX_CANVAS_SIZE) {
+            console.warn(`Cannot merge screenshots, the result (${canvasWidth}x${canvasHeight}) is too big`);
+            return lastImage(images);
+        }
+
+        const baseImage = createCanvas(canvasWidth, canvasHeight);
+        const ctx = baseImage.getContext('2d');
+        ctx.fillStyle = toCssColor(color);
+        ctx.fillRect(0, 0, canvasWidth, canvasHeight);
 
     // Fallback for `Array#entries()`
         const imgDataEntries = imgData.map((data, index) => [index, data]);
@@ -165,10 +210,9 @@ module.exports = function mergeImages(
             alignImage(totalHeight, height, align) + offsetY
         ];
 
-            baseImage.composite(img, px + left, py + top);
+            ctx.drawImage(img.image, px + left, py + top);
         }
 
-        return baseImage.getBase64(JimpMime.jpeg);
-    // return baseImage;
+        return baseImage.toDataURL('image/jpeg', JPEG_QUALITY);
     });
 };
