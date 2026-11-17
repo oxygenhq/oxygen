@@ -1,5 +1,59 @@
 # CHANGELOG
 
+## v2.1.0 (2026-11-17)
+
+#### :boom: Breaking Change
+* Remove the `proxy` module together with the bundled mitmproxy binaries. To collect network traffic of browser tests use the `web.network` commands.
+
+#### :nail_care: Polish
+* Stitch screenshots of multiple windows with `canvas` instead of `jimp`.
+
+#### :house: Internal
+* Remove unused `install` and `jimp` dependencies, and the `@oxygenhq/mitmproxy-node` dependency.
+
+## v2.0.1 (2026-11-15)
+
+#### :beetle: Bug Fix
+* Fix a hung HAR or browser log fetch blocking the test.
+
+## v2.0.0 (2026-11-13)
+
+#### :boom: Breaking Change
+* Node.js 22.12 or newer is required.
+* Major engine rewrite which adds support for newer Node.js versions and for WebdriverIO 8 and Appium 2+.
+
+#### :tada: New Feature
+* Add interactive sessions and the `oxygen session` commands, including `oxygen session save` to turn a walkthrough into a test.
+* Add `web.snapshot()` and ref locators.
+* Add `--rf=agent` reporter, shaped for AI agent repair loops, and a machine-readable command catalogue.
+* Add agent skills for authoring Oxygen projects and tests, and ship Oxygen as a Claude Code plugin. Agent guidance is also installed for Copilot, Kiro and `AGENTS.md`.
+* Add `--headless` switch.
+* Add `web.alertSetText`.
+* Add `--no-deprecation` flag.
+* Let the browser driver cache location be configured, and let `--autowd` use a preinstalled ChromeDriver on closed networks.
+* Save screenshots and snapshots as attachments.
+* Keep a network summary of each transaction's HAR.
+* Implement `http.assertResponseTime`.
+
+#### :beetle: Bug Fix
+* Fix `require()` wrapper leak when test hooks run concurrently, and fix hooks.
+* Fix loading of files located outside of the project directory, and project config resolution for tests in sub folders.
+* Fix failure location, error details, stack traces and missing awaits.
+* Automatically scroll an element into view before clicking it, and do the visibility checks on non-IE browsers.
+* Fix number of issues in `utils.xmlToJson`.
+* Fix `pdf` module crashes and parsing, and stop it from killing the worker on an unreadable file.
+* Fetch all emails instead of only the unseen ones, and always set `servername` for TLS connections in the `email` module.
+* Do not suppress ChromeDriver errors, and clear the previous case's HAR files between cases.
+* Clear the BrowserStack URL from the previous iteration, and set the reason for BrowserStack tests with a warning status.
+
+#### :nail_care: Polish
+* Limit the length of strings in `log` commands.
+* Say plainly when a project has no page object file.
+* Better error handling in various modules.
+
+#### :house: Internal
+* Update and cleanup dependencies.
+
 ## v1.44.1 (2026-03-26)
 
 #### :beetle: Bug Fix
