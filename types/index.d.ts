@@ -10,7 +10,6 @@
 /// <reference path="./module-log.d.ts" />
 /// <reference path="./module-utils.d.ts" />
 /// <reference path="./module-shell.d.ts" />
-/// <reference path="./module-proxy.d.ts" />
 /// <reference path="./module-eyes.d.ts" />
 /// <reference path="./module-pdf.d.ts" />
 export {};
@@ -40,10 +39,6 @@ declare global {
      * Provides methods for working with operating system shell.
      */
     var shell: Oxygen.ModuleShell;
-    /**
-     * Provides methods for intercepting network traffic via mitmproxy.
-     */
-    var proxy: Oxygen.ModuleProxy;
     /**
      * Provides methods to use Applitools Eyes visual testing solution.
      */

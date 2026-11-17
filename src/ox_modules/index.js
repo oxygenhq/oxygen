@@ -14,6 +14,5 @@ export {default as soap} from './module-soap';
 export {default as twilio} from './module-twilio';
 export {default as web} from './module-web';
 export {default as win} from './module-win';
-export {default as proxy} from './module-proxy';
 export {default as utils} from './module-utils';
 export {default as mongo} from './module-mongo';

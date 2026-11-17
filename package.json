@@ -54,7 +54,6 @@
     "@babel/core": "7.29.7",
     "@babel/plugin-transform-modules-commonjs": "7.29.7",
     "@lambdatest/node-rest-client": "2.0.2",
-    "@oxygenhq/mitmproxy-node": "1.0.1",
     "@reportportal/client-javascript": "5.6.0",
     "@wdio/cli": "8.46.0",
     "@wdio/devtools-service": "8.46.0",

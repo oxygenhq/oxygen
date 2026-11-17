@@ -72,7 +72,7 @@ function isSyncArrayCallback(path) {
 // itself (e.g. po.encryption.getEncryptedValue(...)), not just its own commands.
 const OXYGEN_NAMESPACES = new Set([
     'web', 'mob', 'win', 'log', 'assert', 'utils', 'db', 'http', 'email', 'eyes',
-    'pdf', 'proxy', 'soap', 'serial', 'shell', 'mailinator', 'mongo', 'twilio', 'date', 'po'
+    'pdf', 'soap', 'serial', 'shell', 'mailinator', 'mongo', 'twilio', 'date', 'po'
 ]);
 
 // true if `node` is a call whose callee is rooted at one of the namespaces above -

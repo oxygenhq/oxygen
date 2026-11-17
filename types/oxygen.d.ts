@@ -5,7 +5,6 @@
 /// <reference path="./module-log.d.ts" />
 /// <reference path="./module-utils.d.ts" />
 /// <reference path="./module-shell.d.ts" />
-/// <reference path="./module-proxy.d.ts" />
 /// <reference path="./module-eyes.d.ts" />
 /// <reference path="./module-pdf.d.ts" />
 
@@ -17,7 +16,6 @@ declare namespace Oxygen {
         | ModuleLog 
         | ModuleUtils 
         | ModuleShell
-        | ModuleProxy
         | ModuleApplitools
         | ModulePdf;
 
