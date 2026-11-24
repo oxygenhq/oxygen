@@ -85,10 +85,17 @@ export default class HttpModule extends OxygenModule {
     }
 
     /**
-     * @summary Sets user defined HTTP options (such as proxy, decompress and etc.)
+     * @summary Sets user defined HTTP options (such as timeout, decompress, TLS settings and etc.)
      * @function setOptions
-     * @param {Object} opts - HTTP request options object, see [Request Options](https://github.com/sindresorhus/got/blob/main/documentation/2-options.md). 
-     * In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
+     * @param {Object} opts - HTTP options object. The requests are made with [got](https://github.com/sindresorhus/got) v14, see its [Options](https://github.com/sindresorhus/got/blob/v14.6.6/documentation/2-options.md).
+     * Options of the legacy "request" library (such as `strictSSL`, `rejectUnauthorized`, `proxy`, `gzip`, `json`) are not supported and cause an "Unexpected option" error.
+     * Notable differences: TLS settings go inside the `https` object (e.g. `https: { rejectUnauthorized: false }`), `timeout` can be a number (milliseconds, applied to the whole request)
+     * or an object (e.g. `{ request: 30000 }`). In addition to the options listed in the linked document, 'deflateRaw' option can be used when server returns Deflate-compressed stream without headers.
+     * @example <caption>[javascript] Usage example</caption>
+     * http.setOptions({
+     *   timeout: 30000,
+     *   https: { rejectUnauthorized: false }   // don't verify the server's TLS certificate
+     * });
      */
     setOptions(opts) {
         this._userHttpOptions = { ...opts };
