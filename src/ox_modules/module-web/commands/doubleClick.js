@@ -22,44 +22,39 @@ export async function doubleClick(locator, timeout) {
 
     var el = await this.helpers.getElement(locator, false, timeout);
 
-    try {
-        var clickable = await el.isClickable();
-    } catch (e) {
-        let documentMode;
-        if (
-            this.driver &&
-            this.driver.capabilities &&
-            this.driver.capabilities.browserName === 'internet explorer'
-        ) {
-            try {
-                documentMode = await this.driver.execute(function() {
-                    // eslint-disable-next-line no-undef
-                    return window.document.documentMode;
-                });
-            } catch (e) {
-                // ignore
-            }
-
-            if (
-                documentMode &&
-                [5, 6, 7, 8, 9, 10].includes(parseInt(documentMode))
-            ) {
-                clickable = true;
-            } else {
-                throw e;
-            }
-        }
-    }
-    if (clickable) {
-        await el.doubleClick();
-    } else {
-        // if element is not clickable, try clicking it using JS injection
+    // dispatches a dblclick event directly on the element
+    const doubleClickJS = async () => {
         /*global document*/
         await this.driver.execute(function (domEl) {
             var clckEv = document.createEvent('MouseEvent');
             clckEv.initEvent('dblclick', true, true);
             domEl.dispatchEvent(clckEv);
         }, el);
+    };
+
+    const isIE = !!(this.driver && this.driver.capabilities && this.driver.capabilities.browserName === 'internet explorer');
+    if (isIE) {
+        // IE's WebDriver can't run the script behind isClickable() ("Error executing JavaScript"), so double click
+        // the element and fall back to JS injection if that doesn't work
+        try {
+            await el.doubleClick();
+        } catch (e) {
+            console.log('el.doubleClick failed in IE: ' + (e && e.message ? e.message : e) + ' Falling back to JS injection');
+            await doubleClickJS();
+        }
+    } else {
+        var clickable;
+        try {
+            clickable = await el.isClickable();
+        } catch (e) {
+            // a failed check is not an error, the element is handled as not clickable
+        }
+        if (clickable) {
+            await el.doubleClick();
+        } else {
+            // if element is not clickable, try clicking it using JS injection
+            await doubleClickJS();
+        }
     }
     await this.checkWaitForAngular();
 }
