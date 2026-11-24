@@ -230,6 +230,7 @@ module.exports = function() {
 
             // Message object
             const message = {
+                from: _smtpConfig.username,
                 to: to,
                 // Subject of the message
                 subject: subject || '',
