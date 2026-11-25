@@ -1,5 +1,17 @@
 # CHANGELOG
 
+## v2.1.1 (2026-11-25)
+
+#### :beetle: Bug Fix
+* Fix `web.doubleClick` failing with "Error executing JavaScript" on Internet Explorer.
+* Fix the "From" field not being set in `email.send`.
+
+#### :memo: Documentation
+* Update the `http.setOptions` documentation: options are those of `got` v14, so options of the legacy `request` library, such as `strictSSL`, are not supported.
+
+#### :house: Internal
+* Update dependencies.
+
 ## v2.1.0 (2026-11-17)
 
 #### :boom: Breaking Change
