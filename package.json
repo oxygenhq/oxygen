@@ -39,15 +39,18 @@
   "devDependencies": {
     "@babel/cli": "7.29.7",
     "@babel/preset-env": "7.29.7",
+    "@eslint/js": "10.0.1",
     "babel-plugin-source-map-support": "2.2.0",
     "cross-env": "10.1.0",
     "doctrine": "3.0.0",
-    "eslint": "8.57.1",
+    "eslint": "10.15.0",
+    "globals": "17.14.0",
     "husky": "7.0.4",
+    "rimraf": "6.1.4",
     "tsc": "2.0.4",
-    "typescript": "5.9.3",
     "turndown": "7.2.5",
-    "turndown-plugin-gfm": "1.0.2"
+    "turndown-plugin-gfm": "1.0.2",
+    "typescript": "5.9.3"
   },
   "dependencies": {
     "@applitools/eyes-webdriverio": "5.63.1",
