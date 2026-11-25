@@ -16,11 +16,11 @@ const moment = require('moment');
 const crypto = require('crypto');
 const util = require('util');
 const Module = require('module');
+const { pipeline } = require('stream/promises');
 const password = require('../../package.json').encryptionKey;
 const key = crypto.scryptSync(password, 'GfG', 24);
 const iv = Buffer.alloc(16, 0);
 const algorithm = 'aes-192-cbc';
-const download = require('download');
 import got from 'got';
 
 import OxygenError from '../errors/OxygenError';
@@ -480,7 +480,8 @@ var self = module.exports = {
         for (let i=0; i<DOWNLOAD_RETRIES; i++) {
             error = undefined;
             try {
-                fs.writeFileSync(localVideoFilePath, await download(videoUrl));
+                // stream to the file - videos can be large, so do not hold them in memory
+                await pipeline(got.stream(videoUrl), fs.createWriteStream(localVideoFilePath));
                 break;
             }
             catch (e) {
@@ -499,6 +500,8 @@ var self = module.exports = {
             }
         }
         else {
+            // don't leave a partially downloaded file behind
+            fs.rmSync(localVideoFilePath, { force: true });
             console.warn('Unable to download and save video attachment: ', error.message);
         }
     },
