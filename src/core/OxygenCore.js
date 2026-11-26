@@ -39,11 +39,12 @@ const DEFAULT_TIMEOUT = 30000;
 // - the awaited command in the user's script just never gets a result, even though
 // the worker process itself keeps running and even reports the underlying error
 // elsewhere (see worker.js's own unhandledRejection/uncaughtException handlers).
-// This is deliberately far above any legitimate command duration (the element-wait
-// timeout defaults to 60s; even a slow remote grid session start rarely takes
-// minutes) so it only ever fires for a command that's genuinely stuck, not a slow
-// but working one.
-const DEFAULT_COMMAND_HANG_TIMEOUT = 5 * 60 * 1000;
+// This is deliberately far above any legitimate command duration so it only ever
+// fires for a command that's genuinely stuck, not a slow but working one. Commands
+// can legitimately take many minutes: long pauses and waits requested by the test
+// script, or starting a session - e.g. on BrowserStack, where it may be queued
+// (up to 2 attempts of 10 minutes each, see connectionRetryTimeout in module-mob).
+const DEFAULT_COMMAND_HANG_TIMEOUT = 60 * 60 * 1000;
 const DEFAULT_OPTS = {
     backtrace: false, // <boolean> show full backtrace for errors
     compiler: [], // <string[]> ("extension:module") require files with the given EXTENSION after requiring MODULE (repeatable)
